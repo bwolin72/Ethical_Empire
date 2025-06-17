@@ -1,0 +1,243 @@
+/* === Catering Page Scoped Styling === */
+.catering-page-container {
+  font-family: 'Segoe UI', sans-serif;
+  background: #fff;
+  color: #1e1e1e;
+  overflow-x: hidden;
+}
+
+/* === Hero Banner === */
+.hero-banner {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1e3a8a;
+  overflow: hidden;
+}
+
+.hero-banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-banner-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(24, 23, 23, 0.5);
+  z-index: 1;
+}
+
+.hero-title {
+  position: absolute;
+  z-index: 2;
+  color: #fcd34d;
+  font-size: 2.5rem;
+  text-align: center;
+  font-weight: 800;
+}
+
+/* === CTA Section === */
+.cta-section {
+  text-align: center;
+  margin: 2rem auto;
+}
+
+.cta-button {
+  background-color: #581c1c;
+  color: #fff;
+  padding: 0.8rem 2rem;
+  border-radius: 9999px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #451010;
+}
+
+/* === Section General Styling === */
+.section {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: #1e3a8a;
+  text-align: center;
+}
+
+/* === Card Grid === */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #eee;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  text-align: center;
+}
+
+.card-content {
+  font-weight: 600;
+  color: #333;
+}
+
+/* === Creative Section === */
+.creative-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.creative-media {
+  flex: 1 1 45%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.creative-text {
+  flex: 1 1 45%;
+  color: #1e1e1e;
+}
+
+.creative-text h3 {
+  font-size: 1.5rem;
+  color: #581c1c;
+  margin-bottom: 1rem;
+}
+
+.creative-text p {
+  line-height: 1.6;
+}
+
+/* === Dietary Section === */
+.dietary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.dietary-card {
+  background-color: #f3f4f6;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-weight: 500;
+  color: #333;
+  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+/* === Testimonials === */
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.testimonial-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.testimonial-text {
+  font-style: italic;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.testimonial-user {
+  font-weight: bold;
+  color: #1e3a8a;
+  text-align: right;
+}
+
+/* === WhatsApp Button === */
+.whatsapp-button {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background-color: #25D366;
+  color: white;
+  padding: 0.8rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  transition: transform 0.3s;
+}
+
+.whatsapp-button:hover {
+  transform: scale(1.1);
+}
+
+/* === Responsive Enhancements === */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .creative-layout {
+    flex-direction: column;
+  }
+
+  .cta-button {
+    width: 80%;
+  }
+
+  .section h2 {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .cta-button {
+    font-size: 0.95rem;
+    padding: 0.6rem 1.5rem;
+  }
+
+  .dietary-card {
+    font-size: 0.85rem;
+  }
+}

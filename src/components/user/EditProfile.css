@@ -1,0 +1,98 @@
+/* EditProfile.css */
+
+/* Root Color Palette */
+:root {
+  --burgundy: #800020;         /* Deep Burgundy */
+  --navy-blue: #001F54;        /* Royal Navy Blue */
+  --muted-gold: #C9B037;       /* Muted Gold / Warm Sand */
+  --forest-green: #2F4F4F;     /* Forest Green */
+  --charcoal: #2E2E2E;         /* Graphite Gray */
+  --light-bg: #f5f5f5;         /* Light background */
+  --white: #ffffff;
+}
+
+/* Base Styling */
+.edit-profile {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  background: var(--light-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Header */
+.edit-profile h2 {
+  color: var(--burgundy);
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+/* Inputs */
+.edit-profile input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--charcoal);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--white);
+  color: var(--navy-blue);
+  transition: border-color 0.3s;
+}
+
+.edit-profile input:focus {
+  outline: none;
+  border-color: var(--muted-gold);
+  box-shadow: 0 0 4px var(--muted-gold);
+}
+
+/* Save Button */
+.edit-profile button {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: var(--navy-blue);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.edit-profile button:hover {
+  background: var(--burgundy);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .edit-profile {
+    padding: 1.5rem;
+  }
+
+  .edit-profile h2 {
+    font-size: 1.6rem;
+  }
+
+  .edit-profile button {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-profile {
+    padding: 1rem;
+  }
+
+  .edit-profile input {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .edit-profile button {
+    padding: 0.7rem;
+  }
+}

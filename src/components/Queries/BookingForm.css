@@ -1,0 +1,222 @@
+/* === Booking Form Container === */
+.booking-form-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* === Light/Dark Mode === */
+.booking-form-container.light {
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+.booking-form-container.dark {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+/* === Header Section === */
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-logo {
+  width: 60px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.form-header h2 {
+  font-size: 1.8rem;
+  color: #581c1c;
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+/* === Form Grid === */
+.form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.form-group {
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+}
+
+.full-width {
+  flex: 1 1 100%;
+}
+
+/* === Labels and Inputs === */
+label {
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: inherit;
+}
+
+input,
+textarea,
+.date-picker {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background-color: #fff;
+  color: #111;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+textarea:focus,
+.date-picker:focus {
+  border-color: #1e3a8a;
+  outline: none;
+}
+
+.dark input,
+.dark textarea,
+.dark .date-picker {
+  background-color: #374151;
+  color: #f3f4f6;
+  border: 1px solid #4b5563;
+}
+
+/* === Calendar Input === */
+.calendar-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.calendar-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.date-picker {
+  width: 100%;
+  padding-left: 2.5rem;
+}
+
+/* === Dropdown for Services === */
+.dropdown-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dropdown-icon {
+  margin-left: 0.5rem;
+  color: #1e3a8a;
+}
+
+.service-dropdown {
+  margin-top: 0.5rem;
+  border: 1px solid #d1d5db;
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  background-color: #f3f4f6;
+}
+
+.dark .service-dropdown {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.service-option {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: inherit;
+}
+
+.service-option input {
+  margin-right: 0.5rem;
+}
+
+/* === Submit Button === */
+.submit-btn {
+  background-color: #581c1c;
+  color: white;
+  font-weight: 600;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.submit-btn:hover {
+  background-color: #401010;
+}
+
+/* === Messages === */
+.success-msg {
+  color: #15803d;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+.error-msg {
+  color: #dc2626;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+  .form-group {
+    flex: 1 1 100%;
+  }
+
+  .form-logo {
+    width: 50px;
+  }
+
+  .form-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-form-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .form-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  input,
+  textarea,
+  .date-picker {
+    font-size: 0.95rem;
+  }
+}

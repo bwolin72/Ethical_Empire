@@ -1,0 +1,59 @@
+.reviews-panel {
+  padding: 2rem;
+  background: #f8f8f8;
+}
+
+.review-card {
+  background: white;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.review-message {
+  font-style: italic;
+  color: #333;
+}
+
+.review-author {
+  margin-top: 0.5rem;
+  font-weight: bold;
+  color: #6e1414;
+}
+
+.review-reply {
+  margin-top: 0.5rem;
+  background-color: #e6f7e6;
+  padding: 0.5rem;
+  border-left: 3px solid #4caf50;
+  font-size: 0.95rem;
+}
+
+textarea {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.review-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.review-actions button {
+  background-color: #1a1a2e;
+  color: white;
+  padding: 0.4rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.review-actions button:hover {
+  background-color: #6e1414;
+}

@@ -1,0 +1,173 @@
+/* === AdminPanel.css Scoped for AdminPanel === */
+
+/* Reset and Base */
+.admin-wrapper,
+.admin-wrapper body,
+.admin-wrapper html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f5f2ed;
+  box-sizing: border-box;
+}
+
+/* Wrapper */
+.admin-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header */
+.admin-wrapper .admin-header {
+  background-color: transparent;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.admin-wrapper .admin-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #1f3a93;
+  font-weight: 600;
+}
+
+.admin-wrapper .admin-address {
+  font-size: 0.95rem;
+  color: #444;
+  max-width: 350px;
+  line-height: 1.5;
+  text-align: right;
+}
+
+/* Main Layout */
+.admin-wrapper .admin-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.admin-wrapper .admin-sidebar {
+  width: 240px;
+  background-color: #14213d;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-wrapper .admin-sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-wrapper .admin-sidebar li {
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  border-bottom: 1px solid #1f3a93;
+  transition: background-color 0.3s ease;
+}
+
+.admin-wrapper .admin-sidebar li:hover {
+  background-color: #8b0000;
+}
+
+.admin-wrapper .admin-sidebar li.active {
+  background-color: #ffffff;
+  color: #1f3a93;
+  font-weight: 600;
+}
+
+/* Content */
+.admin-wrapper .admin-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  background-color: #ffffff;
+  color: #333;
+}
+
+/* Medium screens */
+@media (max-width: 1024px) {
+  .admin-wrapper .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: medium;
+  }
+
+  .admin-wrapper .admin-address {
+    text-align: left;
+    max-width: 100%;
+  }
+}
+
+/* Tablet screens */
+@media (max-width: 768px) {
+  .admin-wrapper .admin-main {
+    flex-direction: column;
+  }
+
+  .admin-wrapper .admin-sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0;
+  }
+
+  .admin-wrapper .admin-sidebar ul {
+    display: flex;
+    width: 100%;
+  }
+
+  .admin-wrapper .admin-sidebar li {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    border-bottom: none;
+    padding: 1rem;
+  }
+
+  .admin-wrapper .admin-sidebar li.active {
+    background-color: #ffffff;
+    color: #1f3a93;
+    font-weight: bold;
+    border-bottom: 4px solid #1f3a93;
+  }
+
+  .admin-wrapper .admin-content {
+    padding: 1rem;
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 480px) {
+  .admin-wrapper .admin-header {
+    padding: 1rem;
+  }
+
+  .admin-wrapper .admin-header h1 {
+    font-size: 1.3rem;
+  }
+
+  .admin-wrapper .admin-address {
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  .admin-wrapper .admin-sidebar li {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-wrapper .admin-content {
+    padding: 0.8rem;
+  }
+}

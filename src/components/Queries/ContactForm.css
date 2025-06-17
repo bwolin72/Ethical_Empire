@@ -1,0 +1,305 @@
+/* === ContactForm.css (Scoped Only to .contact-page) === */
+
+/* Root Container */
+.contact-page {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fefefe;
+  color: #1a1a1a;
+  padding: 2rem 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode */
+.contact-page.dark-mode {
+  background-color: #0f0f0f;
+  color: #f5f5f5;
+}
+
+/* Header */
+.contact-page .form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.contact-page .form-header h2 {
+  font-size: 1.8rem;
+  margin: 0.5rem 0;
+  color: #7b002c;
+}
+
+.contact-page .logo {
+  width: 90px;
+  height: auto;
+}
+
+.contact-page .theme-toggle {
+  background-color: #7b002c;
+  color: #fff;
+  padding: 0.4rem 1rem;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.contact-page .theme-toggle:hover {
+  background-color: #5b001f;
+}
+
+/* Grid Layout */
+.contact-page .contact-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+}
+
+/* Form Section */
+.contact-page .contact-form-section {
+  flex: 1 1 400px;
+  max-width: 600px;
+}
+
+.contact-page form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.contact-page .form-group {
+  position: relative;
+}
+
+.contact-page .form-group input,
+.contact-page .form-group select,
+.contact-page .form-group textarea {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  outline: none;
+}
+
+.contact-page .form-group input:focus,
+.contact-page .form-group select:focus,
+.contact-page .form-group textarea:focus {
+  border-color: #7b002c;
+}
+
+.contact-page .form-group label {
+  position: absolute;
+  top: 0.8rem;
+  left: 0.9rem;
+  background-color: inherit;
+  padding: 0 0.3rem;
+  color: #888;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.contact-page .form-group input:focus + label,
+.contact-page .form-group input:not(:placeholder-shown) + label,
+.contact-page .form-group select:focus + label,
+.contact-page .form-group select:valid + label,
+.contact-page .form-group textarea:focus + label,
+.contact-page .form-group textarea:not(:placeholder-shown) + label {
+  top: -0.6rem;
+  left: 0.7rem;
+  font-size: 0.75rem;
+  color: #7b002c;
+  background-color: #fff;
+}
+
+.contact-page.dark-mode .form-group label {
+  background-color: #0f0f0f;
+}
+
+/* Full width field */
+.contact-page .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Submit Button */
+.contact-page .submit-btn {
+  background-color: #7b002c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.9rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contact-page .submit-btn:hover {
+  background-color: #5c001f;
+}
+
+/* Toast / Message */
+.contact-page .toast-notification {
+  margin-top: 1rem;
+  background-color: #e5ffe5;
+  color: #1b5e20;
+  padding: 0.8rem;
+  border: 1px solid #8bc34a;
+  border-radius: 5px;
+}
+
+/* Company Details */
+.contact-page .company-details-section {
+  flex: 1 1 300px;
+  max-width: 500px;
+}
+
+.contact-page .info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.contact-page .info-block {
+  flex: 1 1 240px;
+  background-color: rgba(123, 0, 44, 0.05);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.contact-page .info-block h3 {
+  margin-bottom: 0.5rem;
+  color: #7b002c;
+}
+
+.contact-page .info-block p {
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+}
+
+/* Contact Buttons */
+.contact-page .contact-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.contact-page .contact-buttons a {
+  flex: 1;
+  text-align: center;
+  padding: 0.7rem;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+}
+
+.contact-page .whatsapp {
+  background-color: #25d366;
+}
+
+.contact-page .phone {
+  background-color: #007bff;
+}
+
+/* Social Links */
+.contact-page .social-media-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.contact-page .social-media-links a {
+  flex: 1 1 48%;
+  background-color: #222;
+  color: #fff;
+  text-align: center;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.contact-page .social-media-links a:hover {
+  background-color: #7b002c;
+}
+
+/* Map Section */
+.contact-page .map-section {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.contact-page .map-section h4 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #7b002c;
+}
+
+.contact-page .map-section iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+  border-radius: 8px;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .contact-page .contact-grid {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .contact-page .form-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .contact-page .form-group label {
+    font-size: 1rem;
+  }
+
+  .contact-page .form-group input,
+  .contact-page .form-group select,
+  .contact-page .form-group textarea {
+    font-size: 1rem;
+  }
+
+  .contact-page .submit-btn {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-page {
+    padding: 1.2rem 0.6rem;
+  }
+
+  .contact-page .logo {
+    width: 70px;
+  }
+
+  .contact-page .form-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .contact-page .theme-toggle {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+  }
+
+  .contact-page .submit-btn {
+    padding: 0.7rem;
+  }
+
+  .contact-page .social-media-links a {
+    font-size: 0.8rem;
+  }
+
+  .contact-page .map-section iframe {
+    height: 250px;
+  }
+}

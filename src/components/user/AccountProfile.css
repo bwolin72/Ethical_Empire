@@ -1,0 +1,221 @@
+:root {
+  --burgundy: #800020;
+  --navy: #001F54;
+  --muted-gold: #C9B037;
+  --forest-green: #228B22;
+  --charcoal: #2E2E2E;
+  --white: #ffffff;
+  --cream: #f9f6f2;
+}
+
+.account-profile {
+  background-color: var(--cream);
+  padding: 2rem;
+  max-width: 650px;
+  margin: 2rem auto;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+  position: relative;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--charcoal);
+}
+
+.account-profile .close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  color: var(--burgundy);
+  font-size: 1.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.account-profile .loading-text {
+  text-align: center;
+  font-size: 1.1rem;
+  color: var(--charcoal);
+}
+
+.account-profile .profile-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.account-profile .profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.account-profile .profile-pic,
+.account-profile .profile-initials {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  background-color: var(--charcoal);
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.account-profile .upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 2rem;
+}
+
+.account-profile .upload-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--navy);
+}
+
+.account-profile input[type="file"] {
+  font-size: 0.9rem;
+  cursor: pointer;
+  background-color: var(--white);
+}
+
+.account-profile .user-info {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.account-profile .user-info h3 {
+  color: var(--burgundy);
+  font-size: 1.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.account-profile .user-info p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+  color: var(--charcoal);
+}
+
+.account-profile .button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.account-profile .button-group button {
+  background-color: var(--navy);
+  color: var(--white);
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.3s;
+}
+
+.account-profile .button-group button:hover {
+  background-color: var(--muted-gold);
+  color: var(--charcoal);
+}
+
+.account-profile .review-section {
+  width: 100%;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.account-profile .review-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
+.account-profile .review-section textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  resize: vertical;
+  font-size: 0.95rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+}
+
+.account-profile .btn {
+  background-color: var(--forest-green);
+  color: var(--white);
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.account-profile .btn:hover {
+  background-color: var(--muted-gold);
+  color: var(--charcoal);
+}
+
+.account-profile .btn.danger {
+  background-color: var(--burgundy);
+  margin-top: 1rem;
+}
+
+.account-profile .btn.danger:hover {
+  background-color: #a61c30;
+}
+
+/* === Responsive === */
+@media screen and (max-width: 768px) {
+  .account-profile {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .account-profile .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .account-profile .button-group button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .account-profile .profile-pic,
+  .account-profile .profile-initials {
+    width: 90px;
+    height: 90px;
+    font-size: 1.7rem;
+  }
+
+  .account-profile .user-info h3 {
+    font-size: 1.2rem;
+  }
+
+  .account-profile .btn,
+  .account-profile .button-group button {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .account-profile .review-section textarea {
+    font-size: 0.9rem;
+  }
+}

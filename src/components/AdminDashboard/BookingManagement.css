@@ -1,0 +1,201 @@
+:root {
+  --deep-burgundy: #6e1414;
+  --royal-navy: #1a2a6c;
+  --muted-gold: #d4af37;
+  --forest-green: #228B22;
+  --charcoal-gray: #2e2e2e;
+  --light-gray: #f8f8f8;
+  --white: #ffffff;
+}
+
+/* Page Container */
+.booking-management {
+  padding: 2rem;
+  background-color: var(--light-gray);
+  min-height: 100vh;
+  box-sizing: border-box;
+  animation: fadeIn 0.5s ease;
+}
+
+/* Header */
+.booking-management h2 {
+  color: var(--deep-burgundy);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  justify-content: space-between;
+}
+
+.controls input,
+.controls select {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Table Styling */
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.booking-table thead {
+  background-color: var(--royal-navy);
+  color: var(--white);
+}
+
+.booking-table th,
+.booking-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+}
+
+.booking-table tr:hover {
+  background-color: #fafafa;
+}
+
+.completed-row {
+  background-color: #e6f9e6;
+  font-style: italic;
+}
+
+/* Button Styling */
+.mark-complete-btn,
+.delete-btn {
+  padding: 0.4rem 0.75rem;
+  margin: 0.2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mark-complete-btn {
+  background-color: var(--forest-green);
+  color: var(--white);
+}
+
+.mark-complete-btn:hover {
+  background-color: #1a6a1a;
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background-color: var(--deep-burgundy);
+  color: var(--white);
+}
+
+.delete-btn:hover {
+  background-color: #4c0f0f;
+  transform: scale(1.05);
+}
+
+/* Pagination */
+.pagination {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.pagination button {
+  margin: 0 0.25rem;
+  padding: 0.5rem 0.9rem;
+  font-size: 1rem;
+  background-color: var(--royal-navy);
+  color: var(--white);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.pagination button.active,
+.pagination button:hover {
+  background-color: var(--muted-gold);
+  color: var(--charcoal-gray);
+  font-weight: bold;
+  transform: scale(1.05);
+}
+
+/* Responsive Table */
+@media (max-width: 1024px) {
+  .booking-table th,
+  .booking-table td {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .booking-table thead {
+    display: none;
+  }
+
+  .booking-table,
+  .booking-table tbody,
+  .booking-table tr,
+  .booking-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .booking-table tr {
+    margin-bottom: 1.5rem;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+  }
+
+  .booking-table td {
+    padding: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+  }
+
+  .booking-table td:last-child {
+    border-bottom: none;
+  }
+
+  .booking-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: var(--charcoal-gray);
+    flex-basis: 40%;
+  }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

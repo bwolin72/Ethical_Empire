@@ -1,0 +1,224 @@
+/* MediaHostingServicePage.css */
+
+.media-hosting-container {
+  --burgundy: #800020;
+  --royal-blue: #0b1f45;
+  --muted-gold: #c2a773;
+  --forest-green: #2d4d2f;
+  --charcoal: #2e2e2e;
+  --cream: #fdf5e6;
+  --silver: #c0c0c0;
+  --white: #ffffff;
+
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--charcoal);
+  color: var(--white);
+  padding: 1rem;
+}
+
+/* Hero */
+.media-hosting-container .hero-banner {
+  background: linear-gradient(to bottom, var(--royal-blue), var(--burgundy));
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: var(--white);
+  text-align: center;
+  overflow: hidden;
+}
+
+.media-hosting-container .hero-banner img.hero-banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.media-hosting-container .hero-banner-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--silver);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--charcoal);
+}
+
+.media-hosting-container .overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.media-hosting-container .hero-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+/* CTA */
+.media-hosting-container .cta-section {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.media-hosting-container .cta-button {
+  background-color: var(--muted-gold);
+  color: var(--charcoal);
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.media-hosting-container .cta-button:hover {
+  background-color: var(--burgundy);
+  color: var(--white);
+}
+
+/* Sections */
+.media-hosting-container .services-section,
+.media-hosting-container .testimonials-section,
+.media-hosting-container .event-hosting-section {
+  margin-top: 3rem;
+}
+
+.media-hosting-container .section-title,
+.media-hosting-container .sub-title {
+  color: var(--muted-gold);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.media-hosting-container .services-grid,
+.media-hosting-container .testimonials-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.media-hosting-container .service-card,
+.media-hosting-container .testimonial-card {
+  background-color: var(--royal-blue);
+  padding: 1rem;
+  border-radius: 8px;
+  color: var(--white);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Media */
+.media-hosting-container .media-section {
+  margin-top: 3rem;
+  background-color: var(--forest-green);
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+.media-hosting-container .media-grid {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2rem;
+}
+
+.media-hosting-container .media-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.media-hosting-container .media-card {
+  background-color: var(--white);
+  border-radius: 5px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.media-hosting-container .media-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.media-hosting-container .media-title {
+  padding: 0.5rem;
+  font-weight: bold;
+  color: var(--charcoal);
+}
+
+.media-hosting-container .media-description p,
+.media-hosting-container .event-hosting-section p {
+  color: var(--cream);
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+/* Banner Cards */
+.media-hosting-container .banner-section {
+  margin: 3rem 0;
+}
+
+/* Skeleton Loaders */
+.media-hosting-container .skeleton {
+  background-color: var(--silver);
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+}
+
+.media-hosting-container .skeleton-card {
+  height: 200px;
+}
+
+.media-hosting-container .shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(to right, transparent 0%, #ffffff40 50%, transparent 100%);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Media Queries */
+@media screen and (min-width: 768px) {
+  .media-hosting-container .media-grid {
+    flex-direction: row;
+  }
+
+  .media-hosting-container .media-description {
+    flex: 1;
+  }
+
+  .media-hosting-container .media-gallery {
+    flex: 1;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .media-hosting-container .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .media-hosting-container .cta-button {
+    width: 90%;
+  }
+}

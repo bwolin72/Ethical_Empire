@@ -1,0 +1,65 @@
+:root {
+  --burgundy: #6e1414;
+  --navy: #1a2a4f;
+  --gold: #c9a356;
+  --forest: #2f4f4f;
+  --charcoal: #333333;
+  --light-bg: #f9f9f9;
+  --light-text: #ffffff;
+}
+
+/* Media Card Container */
+.media-card {
+  background-color: var(--light-bg);
+  border: 2px solid var(--charcoal);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.media-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Full Width Option */
+.media-card.full-width {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Media Element (Image or Video) */
+.media-element {
+  width: 100%;
+  height: auto;
+  max-height: 600px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  border: 3px solid var(--gold);
+  background-color: var(--charcoal);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .media-element {
+    max-height: 400px;
+  }
+
+  .media-card {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .media-element {
+    max-height: 300px;
+  }
+
+  .media-card {
+    padding: 0.5rem;
+    border-radius: 1rem;
+  }
+}

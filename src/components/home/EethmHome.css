@@ -1,0 +1,195 @@
+:root {
+  --burgundy: #800020;
+  --navy-blue: #243c5a;
+  --muted-gold: #d4af37;
+  --forest-green: #228b22;
+  --charcoal: #333333;
+  --cream: #f5f5f5;
+  --white: #ffffff;
+}
+
+.eethm-home-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--white);
+}
+
+/* Video Hero Section */
+.video-hero-section {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.overlay-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: var(--white);
+  padding: 20px;
+}
+
+.overlay-content h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--muted-gold);
+}
+
+.overlay-content p {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--cream);
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-buttons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Book Now */
+.hero-buttons button:first-child {
+  background-color: var(--navy-blue);
+  color: var(--white);
+}
+
+.hero-buttons button:first-child:hover {
+  background-color: #1a2f47;
+}
+
+/* Newsletter */
+.newsletter-btn {
+  background-color: var(--burgundy);
+  color: var(--white);
+}
+
+.newsletter-btn:hover {
+  background-color: #660019;
+}
+
+/* Mute button */
+.mute-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 3;
+  font-size: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--white);
+  cursor: pointer;
+}
+
+.video-fallback {
+  color: var(--white);
+  font-size: 1.5rem;
+  text-align: center;
+  padding: 50px;
+}
+
+/* Services Section */
+.services-page {
+  padding: 60px 30px;
+  background: var(--cream);
+  color: var(--charcoal);
+}
+
+.services-page h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: var(--navy-blue);
+}
+
+.service-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.service-item {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 300px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  border-left: 6px solid var(--forest-green);
+  transition: transform 0.3s ease;
+}
+
+.service-item:hover {
+  transform: translateY(-5px);
+}
+
+.service-item h3 {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+  color: var(--burgundy);
+}
+
+.service-item p {
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.service-item ul {
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+.service-item a {
+  color: var(--navy-blue);
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .overlay-content h1 {
+    font-size: 2rem;
+  }
+
+  .overlay-content p {
+    font-size: 1rem;
+  }
+
+  .hero-buttons button {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+  }
+
+  .services-page {
+    padding: 40px 15px;
+  }
+}
