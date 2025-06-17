@@ -7,7 +7,7 @@ import './newsletter.css';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const SITE_KEY = '6LdWLGErAAAAALS5TEv3qlD1nX_JEND3B1JwzmbI'; // Replace with actual site key if needed
+const SITE_KEY = process.env.REACT_APP_GOOGLE_CLIENT_ID; // Replace with actual site key if needed
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('');

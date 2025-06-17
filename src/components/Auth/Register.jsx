@@ -1,10 +1,14 @@
+// src/components/Auth/Register.jsx
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import axiosInstance from '../../api/axiosInstance';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import './Register.css';
+
+const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -71,7 +75,7 @@ const Register = () => {
         username: decoded.email.split('@')[0],
       };
 
-      const res = await axiosInstance.post('/api/auth/google-signup/', payload);
+      await axiosInstance.post('/api/auth/google-signup/', payload);
 
       setSuccess('Google registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
@@ -82,52 +86,54 @@ const Register = () => {
   };
 
   return (
-    <div className={`register-container ${darkMode ? 'dark' : ''}`}>
-      <div className="register-box">
-        <div className="brand-header">
-          <img src={require('../../assets/logo.png')} alt="Logo" />
-          <span>Ethical Multimedia GH</span>
-        </div>
+    <GoogleOAuthProvider clientId={clientId}>
+      <div className={`register-container ${darkMode ? 'dark' : ''}`}>
+        <div className="register-box">
+          <div className="brand-header">
+            <img src={require('../../assets/logo.png')} alt="Logo" />
+            <span>Ethical Multimedia GH</span>
+          </div>
 
-        <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
-          {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
-        </button>
-
-        <h2>Register</h2>
-        {error && <p className="error-message">{error}</p>}
-        {success && <p className="success-message">{success}</p>}
-
-        <form onSubmit={handleSubmit} className="register-form" noValidate>
-          <input name="username" placeholder="Username" value={form.username} onChange={handleChange} required />
-          <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-          <input name="phone_number" placeholder="Phone Number" value={form.phone_number} onChange={handleChange} required />
-          <input name="first_name" placeholder="First Name" value={form.first_name} onChange={handleChange} required />
-          <input name="last_name" placeholder="Last Name" value={form.last_name} onChange={handleChange} required />
-          <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
-          <input name="password2" type="password" placeholder="Confirm Password" value={form.password2} onChange={handleChange} required />
-
-          <button type="submit" className="register-button" disabled={loading}>
-            {loading ? 'Registering...' : 'Register'}
+          <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
+            {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
           </button>
-        </form>
 
-        <div className="google-signup">
-          <p>Or register with Google:</p>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google sign-up failed')}
-            useOneTap
-          />
-        </div>
+          <h2>Register</h2>
+          {error && <p className="error-message">{error}</p>}
+          {success && <p className="success-message">{success}</p>}
 
-        <div className="login-prompt">
-          Already have an account?{' '}
-          <span onClick={() => navigate('/login')}>
-            Login
-          </span>
+          <form onSubmit={handleSubmit} className="register-form" noValidate>
+            <input name="username" placeholder="Username" value={form.username} onChange={handleChange} required />
+            <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
+            <input name="phone_number" placeholder="Phone Number" value={form.phone_number} onChange={handleChange} required />
+            <input name="first_name" placeholder="First Name" value={form.first_name} onChange={handleChange} required />
+            <input name="last_name" placeholder="Last Name" value={form.last_name} onChange={handleChange} required />
+            <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
+            <input name="password2" type="password" placeholder="Confirm Password" value={form.password2} onChange={handleChange} required />
+
+            <button type="submit" className="register-button" disabled={loading}>
+              {loading ? 'Registering...' : 'Register'}
+            </button>
+          </form>
+
+          <div className="google-signup">
+            <p>Or register with Google:</p>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError('Google sign-up failed')}
+              useOneTap
+            />
+          </div>
+
+          <div className="login-prompt">
+            Already have an account?{' '}
+            <span onClick={() => navigate('/login')}>
+              Login
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </GoogleOAuthProvider>
   );
 };
 
