@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import publicAxios from '../../api/publicAxios'; // ✅ Correct import path
 import { useNavigate } from 'react-router-dom';
 import './EethmHome.css';
 
@@ -39,7 +39,7 @@ const EethmHome = () => {
   useEffect(() => {
     const fetchVideo = async () => {
       try {
-        const response = await axios.get('/api/videos/');
+        const response = await publicAxios.get('/api/videos/');
         const activeVideo = response.data.find(v => v.is_active);
         if (activeVideo) {
           setVideo(activeVideo);
@@ -47,17 +47,19 @@ const EethmHome = () => {
           setError('No active video found.');
         }
       } catch (err) {
+        console.error('Video fetch error:', err);
         setError('Failed to load video.');
       } finally {
         setLoading(false);
       }
     };
+
     fetchVideo();
   }, []);
 
   return (
     <div className="eethm-home-page">
-      {/* Video Hero Section */}
+      {/* === Video Hero Section === */}
       <section className="video-hero-section">
         {loading ? (
           <p className="video-fallback">Loading video...</p>
@@ -93,7 +95,7 @@ const EethmHome = () => {
         )}
       </section>
 
-      {/* Services Section */}
+      {/* === Services Section === */}
       <section className="services-page">
         <h2>Our Services</h2>
         <div className="service-list">
