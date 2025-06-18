@@ -39,7 +39,7 @@ const EethmHome = () => {
   useEffect(() => {
     const fetchVideo = async () => {
       try {
-        const response = await publicAxios.get('/api/videos/');
+        const response = await publicAxios.get('/videos/');
         const activeVideo = response.data.find(v => v.is_active);
         if (activeVideo) {
           setVideo(activeVideo);
