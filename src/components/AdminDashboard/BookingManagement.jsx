@@ -20,7 +20,7 @@ const BookingManagement = () => {
         ? { Authorization: `Bearer ${token}` }
         : {};
 
-      const res = await axios.get('http://localhost:8000/api/bookings/', {
+      const res = await axios.get('https://ethical-backend.onrender.com/bookings/', {
         headers,
       });
 
@@ -59,7 +59,7 @@ const BookingManagement = () => {
     try {
       const token = localStorage.getItem('access');
       await axios.patch(
-        `http://localhost:8000/api/bookings/${id}/`,
+        `https://ethical-backend.onrender.com/bookings/${id}/`,
         { status: 'Completed' },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -74,7 +74,7 @@ const BookingManagement = () => {
   const deleteBooking = async (id) => {
     try {
       const token = localStorage.getItem('access');
-      await axios.delete(`http://localhost:8000/api/bookings/${id}/`, {
+      await axios.delete(`https://ethical-backend.onrender.com/bookings/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchBookings();

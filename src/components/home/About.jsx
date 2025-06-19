@@ -7,7 +7,7 @@ import {
   FaUsers,
   FaStar,
 } from 'react-icons/fa';
-import axiosInstance from '../../api/publicAxios';
+import axiosInstance from '../../api/axiosInstance'; // Auth-aware and env-based
 import MediaCard from '../context/MediaCard';
 import './About.css';
 
@@ -40,28 +40,27 @@ const services = [
 ];
 
 function About() {
-  const [featuredMedia, setFeaturedMedia] = useState(null);
   const [banners, setBanners] = useState([]);
   const [mediaList, setMediaList] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
 
   useEffect(() => {
-    const fetchMediaContent = async () => {
+    const fetchContent = async () => {
       try {
         const [bannersRes, mediaRes, testimonialsRes] = await Promise.all([
-          axiosInstance.get('/api/media/?type=banner&endpoint=About'),
-          axiosInstance.get('/api/media/?type=media&endpoint=About'),
-          axiosInstance.get('/api/reviews/'),
+          axiosInstance.get('media/?type=banner&endpoint=About'),
+          axiosInstance.get('media/?type=media&endpoint=About'),
+          axiosInstance.get('reviews/'),
         ]);
         setBanners(bannersRes.data);
         setMediaList(mediaRes.data);
         setTestimonials(testimonialsRes.data);
       } catch (error) {
-        console.error('Error fetching About page content:', error);
+        console.error('Error loading About page data:', error);
       }
     };
 
-    fetchMediaContent();
+    fetchContent();
   }, []);
 
   return (
@@ -73,7 +72,7 @@ function About() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Introduction */}
       <div className="text-center mb-12">
         <h1 className="section-heading">Ethical Multimedia GH</h1>
         <p className="subtext">
@@ -90,7 +89,7 @@ function About() {
         </div>
       )}
 
-      {/* Services */}
+      {/* Services Section */}
       <div className="service-grid">
         {services.map(({ icon, title, desc }, index) => (
           <div key={index} className="service-card">
@@ -101,7 +100,7 @@ function About() {
         ))}
       </div>
 
-      {/* About Section */}
+      {/* Who We Are */}
       <div className="about-text">
         <h2 className="section-heading">Who We Are</h2>
         <p>

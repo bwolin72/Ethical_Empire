@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../api/publicAxios';
+import publixios from '../../api/publicAxios';
 import './decor.css';
 import MediaCard from '../../components/context/MediaCard';
 
@@ -20,11 +20,11 @@ const DecorPage = () => {
   ];
 
   useEffect(() => {
-    axiosInstance.get('/api/media/?endpoint=DecorPage')
+    publixios.get('/media/?endpoint=DecorPage')
       .then(res => setMediaCards(res.data))
       .catch(() => setMediaCards([]));
 
-    axiosInstance.get('/api/reviews/')
+    publixios.get('/reviews/')
       .then(res => setTestimonials(res.data))
       .catch(() => setTestimonials([]));
   }, []);
@@ -102,7 +102,7 @@ const DecorPage = () => {
 
       {/* WhatsApp Button */}
       <a
-        href="https://wa.me/233000000000"
+        href="https://wa.me/233552988735"
         className="whatsapp-float"
         target="_blank"
         rel="noopener noreferrer"

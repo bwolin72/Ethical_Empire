@@ -48,7 +48,7 @@ const Register = () => {
     setSuccess('');
 
     try {
-      await axiosInstance.post('/api/accounts/register/', form);
+      await axiosInstance.post('/accounts/register/', form);
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -75,7 +75,7 @@ const Register = () => {
         username: decoded.email.split('@')[0],
       };
 
-      await axiosInstance.post('/api/auth/google-signup/', payload);
+      await axiosInstance.post('/auth/google-signup/', payload);
 
       setSuccess('Google registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);

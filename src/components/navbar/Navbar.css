@@ -1,14 +1,15 @@
-/* Navbar Base */
+/* === Navbar Base === */
 .navbar {
-  background-color: #2E2E2E; /* Charcoal */
+  background-color: #2E2E2E; /* Charcoal Gray */
   height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
   position: sticky;
   top: 0;
   z-index: 999;
+  font-size: 1rem;
+  width: 100%;
 }
 
 .navbar-container {
@@ -18,40 +19,46 @@
   height: 80px;
   width: 100%;
   max-width: 1300px;
-  padding: 0 50px;
+  padding: 0 40px;
   position: relative;
 }
 
-/* Logo with optional image + text */
+/* === Logo === */
 .navbar-logo {
   display: flex;
   align-items: center;
-  color: #FDFCFB; /* Light Cream */
-  font-size: 2rem;
   text-decoration: none;
+  color: #FDFCFB; /* Light Cream */
+  font-size: 1.8rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.navbar-logo img {
+.logo-img {
   height: 40px;
   margin-right: 10px;
   object-fit: contain;
 }
 
-/* Menu Icon (Hamburger) */
+.logo-text {
+  font-family: 'Segoe UI', sans-serif;
+  letter-spacing: 1px;
+}
+
+/* === Menu Icon (Mobile) === */
 .menu-icon {
   display: none;
   font-size: 1.8rem;
   color: #FDFCFB;
   cursor: pointer;
   position: absolute;
-  top: 25px;
   right: 20px;
+  top: 22px;
+  z-index: 1001;
   user-select: none;
-  z-index: 1000;
 }
 
-/* Main Navigation Menu */
+/* === Navigation Menu === */
 .nav-menu {
   display: flex;
   align-items: center;
@@ -59,9 +66,14 @@
   margin: 0;
 }
 
+.nav-menu.active {
+  left: 0;
+  opacity: 1;
+}
+
 .nav-item {
-  height: 80px;
   position: relative;
+  height: 80px;
 }
 
 .nav-links {
@@ -72,30 +84,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .nav-links:hover {
-  color: #CBA135; /* Gold */
+  color: #CBA135; /* Muted Gold */
 }
 
 .caret {
+  font-size: 0.7rem;
   margin-left: 6px;
-  font-size: 0.8rem;
 }
 
-/* Dropdown Menu */
+/* === Dropdown === */
 .dropdown-menu {
   position: absolute;
   top: 80px;
   left: 0;
-  background-color: #3A3A3A; /* Darker Charcoal */
-  width: 200px;
-  list-style: none;
+  background-color: #3A3A3A;
+  width: 220px;
   padding: 0;
+  list-style: none;
   margin: 0;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   z-index: 99;
 }
 
@@ -105,20 +117,20 @@
 
 .dropdown-link {
   display: block;
+  width: 100%;
   padding: 12px 16px;
-  color: #FDFCFB;
   text-decoration: none;
+  color: #FDFCFB;
   background-color: #3A3A3A;
-  text-align: left;
   transition: background 0.3s ease;
 }
 
 .dropdown-link:hover {
-  background-color: #800020; /* Burgundy */
+  background-color: #800020; /* Deep Burgundy */
   color: #fff;
 }
 
-/* Mobile Styles */
+/* === Mobile Responsive === */
 @media screen and (max-width: 960px) {
   .navbar-container {
     padding: 0 20px;
@@ -130,16 +142,17 @@
 
   .nav-menu {
     flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
-    width: 100%;
-    height: 100vh;
     position: absolute;
     top: 80px;
     left: -100%;
-    background-color: #2E2E2E; /* Charcoal */
-    opacity: 0;
-    transition: all 0.5s ease;
+    width: 100%;
+    height: calc(100vh - 80px);
+    background-color: #2E2E2E;
+    transition: left 0.4s ease, opacity 0.3s ease;
     z-index: 998;
+    opacity: 0;
     overflow-y: auto;
   }
 
@@ -153,29 +166,48 @@
   }
 
   .nav-links {
+    padding: 1.2rem 0;
     width: 100%;
     text-align: center;
-    padding: 1.2rem 0;
-    display: block;
   }
 
   .dropdown-menu {
     position: relative;
+    top: 0;
+    left: 0;
     width: 100%;
     background-color: #3A3A3A;
     box-shadow: none;
   }
 
   .dropdown-link {
-    width: 100%;
-    text-align: center;
     padding: 1rem 0;
+    text-align: center;
+    width: 100%;
+    display: block;
     background-color: #3A3A3A;
-    color: #FDFCFB;
   }
 
   .dropdown-link:hover {
     background-color: #800020;
-    color: #fff;
+  }
+}
+
+/* === Extra Small Screens (optional for below 480px) === */
+@media screen and (max-width: 480px) {
+  .navbar-logo {
+    font-size: 1.4rem;
+  }
+
+  .logo-img {
+    height: 32px;
+  }
+
+  .nav-links {
+    font-size: 1rem;
+  }
+
+  .dropdown-link {
+    font-size: 0.95rem;
   }
 }

@@ -13,7 +13,7 @@ const BannerManagement = () => {
 
   const fetchBanners = async () => {
     try {
-      const res = await axiosInstance.get('/api/banners/');
+      const res = await axiosInstance.get('/banners/');
       setBanners(res.data);
     } catch (error) {
       console.error('Failed to fetch banners:', error);
@@ -32,7 +32,7 @@ const BannerManagement = () => {
     formData.append('type', 'banner');
 
     try {
-      await axiosInstance.post('/api/banners/', formData);
+      await axiosInstance.post('/banners/', formData);
       fetchBanners();
     } catch (err) {
       console.error('Banner upload failed:', err);
@@ -41,7 +41,7 @@ const BannerManagement = () => {
 
   const toggleActive = async (id) => {
     try {
-      await axiosInstance.patch(`/api/banners/${id}/toggle/`);
+      await axiosInstance.patch(`/banners/${id}/toggle/`);
       fetchBanners();
     } catch (err) {
       console.error('Toggle active failed:', err);
@@ -50,7 +50,7 @@ const BannerManagement = () => {
 
   const deleteBanner = async (id) => {
     try {
-      await axiosInstance.delete(`/api/banners/${id}/`);
+      await axiosInstance.delete(`/banners/${id}/`);
       fetchBanners();
     } catch (err) {
       console.error('Delete banner failed:', err);

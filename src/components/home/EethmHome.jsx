@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import publicAxios from '../../api/publicAxios'; // ✅ Correct import path
+import axiosInstance from '../../api/axiosInstance'; // ✅ Uses env-based backend URL
 import { useNavigate } from 'react-router-dom';
 import './EethmHome.css';
 
@@ -7,18 +7,18 @@ const serviceDetails = {
   'live-band': {
     title: 'Live Band Performance',
     description: 'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
-    details: ['Customizable song lists', 'Professional sound equipment', 'Multiple band size options']
+    details: ['Customizable song lists', 'Professional sound equipment', 'Multiple band size options'],
   },
-  'catering': {
+  catering: {
     title: 'Catering Services',
     description: 'Gourmet catering for all event types with customizable menus.',
-    details: ['Local and international cuisine', 'Dietary restriction accommodations', 'Full-service staff available']
+    details: ['Local and international cuisine', 'Dietary restriction accommodations', 'Full-service staff available'],
   },
-  'decor': {
+  decor: {
     title: 'Event Decor',
     description: 'Transform any venue into a magical space with our decor services.',
-    details: ['Theme development', 'Custom installations', 'Full setup and teardown']
-  }
+    details: ['Theme development', 'Custom installations', 'Full setup and teardown'],
+  },
 };
 
 const EethmHome = () => {
@@ -30,7 +30,7 @@ const EethmHome = () => {
   const navigate = useNavigate();
 
   const toggleMute = () => {
-    setIsMuted(prev => !prev);
+    setIsMuted((prev) => !prev);
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
     }
@@ -39,8 +39,8 @@ const EethmHome = () => {
   useEffect(() => {
     const fetchVideo = async () => {
       try {
-        const response = await publicAxios.get('/videos/');
-        const activeVideo = response.data.find(v => v.is_active);
+        const response = await axiosInstance.get('videos/');
+        const activeVideo = response.data.find((v) => v.is_active);
         if (activeVideo) {
           setVideo(activeVideo);
         } else {

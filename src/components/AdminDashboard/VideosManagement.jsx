@@ -16,7 +16,7 @@ const VideosManagement = () => {
   const fetchVideos = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/videos/');
+      const res = await axios.get('/videos/');
       setVideos(res.data);
     } catch (error) {
       console.error('Error fetching videos:', error);
@@ -35,7 +35,7 @@ const VideosManagement = () => {
 
     try {
       setUploading(true);
-      await axios.post('/api/videos/', formData, {
+      await axios.post('/videos/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setTitle('');
@@ -51,7 +51,7 @@ const VideosManagement = () => {
 
   const handleActivate = async (id) => {
     try {
-      await axios.post(`/api/videos/${id}/activate/`);
+      await axios.post(`/videos/${id}/activate/`);
       fetchVideos();
     } catch (error) {
       console.error('Activate error:', error);
@@ -60,7 +60,7 @@ const VideosManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/videos/${id}/`);
+      await axios.delete(`/videos/${id}/`);
       fetchVideos();
     } catch (error) {
       console.error('Delete error:', error);

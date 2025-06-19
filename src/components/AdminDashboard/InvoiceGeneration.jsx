@@ -14,14 +14,14 @@ const InvoiceGeneration = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const bookingsRes = await axiosInstance.get('/api/bookings/');
+        const bookingsRes = await axiosInstance.get('/bookings/');
         setBookings(bookingsRes.data);
       } catch (err) {
         console.error('Error fetching bookings:', err);
       }
 
       try {
-        const servicesRes = await axiosInstance.get('/api/service-prices/');
+        const servicesRes = await axiosInstance.get('/service-prices/');
         setServices(servicesRes.data);
       } catch (err) {
         console.error('Error fetching services:', err);

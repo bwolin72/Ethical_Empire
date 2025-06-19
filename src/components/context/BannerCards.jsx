@@ -9,7 +9,7 @@ const BannerCards = ({ endpoint, title }) => {
     if (!endpoint) return;
 
     axiosInstance
-      .get(`/api/media/all/media?endpoint=${endpoint}`)
+      .get(`/media/all/media?endpoint=${endpoint}`)
       .then((res) => setBanners(res.data))
       .catch(console.error);
   }, [endpoint]);

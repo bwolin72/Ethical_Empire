@@ -14,7 +14,7 @@ const ReviewsManagement = () => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axiosInstance.get('/api/reviews/');
+      const res = await axiosInstance.get('/reviews/');
       setReviews(res.data);
     } catch (err) {
       toast.error('Failed to load reviews.');
@@ -23,7 +23,7 @@ const ReviewsManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axiosInstance.delete(`/api/reviews/${id}/delete/`);
+      await axiosInstance.delete(`/reviews/${id}/delete/`);
       toast.success('Review deleted.');
       fetchReviews();
     } catch (err) {
@@ -38,7 +38,7 @@ const ReviewsManagement = () => {
       return;
     }
     try {
-      await axiosInstance.patch(`/api/reviews/${id}/reply/`, { reply });
+      await axiosInstance.patch(`/reviews/${id}/reply/`, { reply });
       toast.success('Reply sent.');
       fetchReviews();
     } catch (err) {

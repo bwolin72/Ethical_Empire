@@ -53,7 +53,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await axiosInstance.post('/api/auth/jwt/create/', {
+      const { data } = await axiosInstance.post('/auth/jwt/create/', {
         username: form.username,
         password: form.password,
       });
@@ -64,7 +64,7 @@ export default function Login() {
       localStorage.setItem('access', access);
       localStorage.setItem('refresh', refresh);
 
-      const userRes = await axiosInstance.get('/api/accounts/user-role/');
+      const userRes = await axiosInstance.get('/accounts/user-role/');
       const { username, is_admin } = userRes.data;
       const isAdmin = Boolean(is_admin);
 
@@ -91,7 +91,7 @@ export default function Login() {
       const decoded = jwtDecode(credential);
       console.log('Google JWT payload:', decoded);
 
-      const { data } = await axiosInstance.post('/api/auth/google-login/', {
+      const { data } = await axiosInstance.post('/auth/google-login/', {
         token: credential,
       });
 

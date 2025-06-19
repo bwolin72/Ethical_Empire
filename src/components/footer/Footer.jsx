@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import publixios from '../../api/publicAxios'; // Public axios instance
 import ReCAPTCHA from 'react-google-recaptcha';
+import axiosInstance from '../../api/axiosInstance'; // Auth-aware API instance
 import './Footer.css';
 
-const SITE_KEY = '6LdWLGErAAAAALS5TEv3qlD1nX_JEND3B1JwzmbI'; // Your reCAPTCHA v2 site key
+const SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
 
 function Footer() {
   const [email, setEmail] = useState('');
@@ -22,18 +22,17 @@ function Footer() {
     if (!captchaToken) return toast.error('Please complete the reCAPTCHA.');
 
     setLoading(true);
-
     try {
-      await publixios.post('/api/newsletter/', {
+      await axiosInstance.post('/newsletter/', {
         email,
         token: captchaToken,
       });
-      toast.success('✅ Please check your email to confirm.');
+      toast.success('✅ Please check your email to confirm your subscription.');
       setEmail('');
       setCaptchaToken('');
     } catch (error) {
       toast.error(
-        error.response?.data?.error || '❌ Subscription failed. Try again later.'
+        error.response?.data?.error || '❌ Subscription failed. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -102,10 +101,9 @@ function Footer() {
             Want out? <Link to="/unsubscribe">Unsubscribe</Link>.
           </p>
         </div>
-
       </div>
 
-      {/* Bottom Copyright */}
+      {/* Bottom Line */}
       <div className="footer-bottom">
         <p>&copy; {new Date().getFullYear()} Ethical Empire. All rights reserved.</p>
       </div>

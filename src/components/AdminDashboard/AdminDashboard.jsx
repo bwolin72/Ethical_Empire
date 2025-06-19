@@ -18,7 +18,7 @@ const AdminDashboard = () => {
 
   const fetchMediaStats = async () => {
     try {
-      const res = await axiosInstance.get('/api/media/stats/');
+      const res = await axiosInstance.get('/media/stats/');
       setMediaStats(res.data); // Format: { EethmHome: { media: 3, banner: 1 }, UserPage: {...}, ... }
     } catch {
       setMediaStats({});
@@ -27,7 +27,7 @@ const AdminDashboard = () => {
 
   const fetchReviewCount = async () => {
     try {
-      const res = await axiosInstance.get('/api/reviews/');
+      const res = await axiosInstance.get('/reviews/');
       setReviewCount(res.data.length);
     } catch {
       setReviewCount(0);
@@ -36,8 +36,8 @@ const AdminDashboard = () => {
 
   const fetchNewsletterStats = async () => {
     try {
-      const logs = await axiosInstance.get('/api/newsletter/logs/');
-      const subs = await axiosInstance.get('/api/newsletter/subscribers/');
+      const logs = await axiosInstance.get('/newsletter/logs/');
+      const subs = await axiosInstance.get('/newsletter/subscribers/');
       setNewsletterStats({ posts: logs.data.length, subscribers: subs.data.length });
     } catch {
       setNewsletterStats({ posts: 0, subscribers: 0 });

@@ -15,10 +15,10 @@ const BookingForm = () => {
     name: '',
     email: '',
     phone: '',
-    event_date: null,     // Renamed
+    event_date: null,
     address: '',
     message: '',
-    service_type: [],     // Renamed
+    service_type: [],
   });
 
   const [message, setMessage] = useState('');
@@ -89,7 +89,7 @@ const BookingForm = () => {
         service_type: formData.service_type,
       };
 
-      await axiosInstance.post('/api/bookings/', payload, {
+      await axiosInstance.post('/bookings/', payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -191,7 +191,6 @@ const BookingForm = () => {
           />
         </div>
 
-        {/* Dropdown Service Selector */}
         <div className="form-group full-width">
           <label htmlFor="service_type" className="dropdown-label" onClick={() => setShowServices(!showServices)}>
             Select Services{' '}

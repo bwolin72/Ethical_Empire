@@ -28,7 +28,7 @@ const MediaManagement = () => {
 
   const fetchMedia = async () => {
     try {
-      let url = `/api/media/?type=${mediaType}&endpoint=${selectedEndpoint}`;
+      let url = `/media/?type=${mediaType}&endpoint=${selectedEndpoint}`;
       if (statusFilter !== 'all') {
         url += `&is_active=${statusFilter === 'active'}`;
       }
@@ -54,7 +54,7 @@ const MediaManagement = () => {
     formData.append('endpoint', selectedEndpoint);
 
     try {
-      await axiosInstance.post(`/api/media/upload/`, formData, {
+      await axiosInstance.post(`/media/upload/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       fetchMedia();
@@ -70,7 +70,7 @@ const MediaManagement = () => {
 
   const toggleActive = async (id) => {
     try {
-      const res = await axiosInstance.patch(`/api/media/toggle/${id}/`);
+      const res = await axiosInstance.patch(`/media/toggle/${id}/`);
       fetchMedia();
       toast.info(`Media is now ${res.data.active ? 'active' : 'inactive'}.`);
     } catch (err) {

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './catering.custom.css';
 import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
-import axiosInstance from '../../api/publicAxios';
+import publixios from '../../api/publicAxios';
 import MediaCard from '../../components/context/MediaCard';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,20 +28,20 @@ const CateringPage = () => {
   ];
 
   useEffect(() => {
-    axiosInstance
-      .get('/api/media/?type=media&endpoint=CateringPage')
+    publixios
+      .get('/media/?type=media&endpoint=CateringPage')
       .then(res => setMediaCards(res.data))
       .catch(() => setMediaCards([]));
 
-    axiosInstance
-      .get('/api/media/?type=banner&endpoint=CateringPage')
+    publixios
+      .get('/media/?type=banner&endpoint=CateringPage')
       .then(res => {
         if (res.data.length > 0) setBannerUrl(res.data[0].url);
       })
       .catch(() => setBannerUrl(null));
 
-    axiosInstance
-      .get('/api/reviews/')
+    publixios
+      .get('/reviews/')
       .then(res => setTestimonials(res.data))
       .catch(() => setTestimonials([]));
   }, []);
@@ -130,7 +130,7 @@ const CateringPage = () => {
 
       {/* WhatsApp Contact */}
       <a
-        href="https://wa.me/233000000000"
+        href="https://wa.me/233552988735"
         className="whatsapp-button"
         target="_blank"
         rel="noopener noreferrer"

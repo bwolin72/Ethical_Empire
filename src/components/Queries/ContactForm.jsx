@@ -1,3 +1,4 @@
+// ContactForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import './ContactForm.css';
@@ -24,8 +25,8 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:8000/api/contacts/', {
+      const token = localStorage.getItem('access');
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}contacts/`, {
         ...formData,
         service_type: formData.service_type || null,
         eventDate: formData.eventDate || null,
@@ -50,7 +51,6 @@ const ContactForm = () => {
 
   return (
     <div className={`contact-page ${darkMode ? 'dark-mode' : ''}`}>
-      {/* Header */}
       <div className="form-header centered-header">
         <img src={logo} alt="Ethical Multimedia GH Logo" className="logo" />
         <h2>Ethical Multimedia GH</h2>
@@ -59,9 +59,7 @@ const ContactForm = () => {
         </button>
       </div>
 
-      {/* Main Grid */}
       <div className="contact-grid">
-        {/* Contact Form */}
         <section className="contact-form-section">
           <form onSubmit={handleSubmit} noValidate>
             {['name', 'email', 'phone', 'country', 'region'].map((field) => (
@@ -141,7 +139,6 @@ const ContactForm = () => {
           {statusMessage && <div className="toast-notification">{statusMessage}</div>}
         </section>
 
-        {/* Contact Details */}
         <section className="company-details-section">
           <div className="info-row">
             <div className="info-block">
@@ -174,7 +171,6 @@ const ContactForm = () => {
         </section>
       </div>
 
-      {/* Google Map */}
       <section className="map-section">
         <h4>Our Location</h4>
         <iframe

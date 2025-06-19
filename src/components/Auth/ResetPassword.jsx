@@ -12,7 +12,7 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/auth/users/reset_password_confirm/', {
+      await axios.post('/auth/users/reset_password_confirm/', {
         uid,
         token,
         new_password: newPassword,
