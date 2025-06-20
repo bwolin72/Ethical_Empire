@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axiosInstance from '../../api/axiosInstance'; // ✅ Uses env-based backend URL
+import publicAxios from '../../api/publicAxios'; // ✅ Uses env-based backend URL
 import { useNavigate } from 'react-router-dom';
 import './EethmHome.css';
 
@@ -39,7 +39,7 @@ const EethmHome = () => {
   useEffect(() => {
     const fetchVideo = async () => {
       try {
-        const response = await axiosInstance.get('videos/');
+        const response = await publicAxios.get('videos/');
         const activeVideo = response.data.find((v) => v.is_active);
         if (activeVideo) {
           setVideo(activeVideo);
