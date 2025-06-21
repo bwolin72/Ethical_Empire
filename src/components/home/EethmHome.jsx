@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import publicAxios from '../../api/publicAxios'; // ✅ Uses env-based backend URL
+import publicAxios from '../../api/publicAxios';
 import { useNavigate } from 'react-router-dom';
 import './EethmHome.css';
 
@@ -22,7 +22,8 @@ const serviceDetails = {
 };
 
 const EethmHome = () => {
-  const [video, setVideo] = useState(null);
+  const [heroMedia, setHeroMedia] = useState(null);
+  const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
@@ -37,47 +38,53 @@ const EethmHome = () => {
   };
 
   useEffect(() => {
-    const fetchVideo = async () => {
+    const fetchMedia = async () => {
       try {
-        const response = await publicAxios.get('videos/');
-        const activeVideo = response.data.find((v) => v.is_active);
-        if (activeVideo) {
-          setVideo(activeVideo);
-        } else {
-          setError('No active video found.');
-        }
+        const response = await publicAxios.get('/media/');
+        const mediaList = response.data;
+
+        // Assume hero is active, type = 'video' or 'image'
+        const hero = mediaList.find((m) => m.is_hero);
+        const bannerList = mediaList.filter((m) => m.is_banner);
+
+        setHeroMedia(hero);
+        setBanners(bannerList);
       } catch (err) {
-        console.error('Video fetch error:', err);
-        setError('Failed to load video.');
+        console.error('Media fetch error:', err);
+        setError('Failed to load homepage media.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVideo();
+    fetchMedia();
   }, []);
 
   return (
     <div className="eethm-home-page">
-      {/* === Video Hero Section === */}
+      {/* === Hero Media Section === */}
       <section className="video-hero-section">
         {loading ? (
-          <p className="video-fallback">Loading video...</p>
+          <p className="video-fallback">Loading hero...</p>
         ) : error ? (
           <p className="video-fallback" style={{ color: 'red' }}>{error}</p>
-        ) : (
+        ) : heroMedia ? (
           <>
-            <video
-              ref={videoRef}
-              className="background-video"
-              autoPlay
-              loop
-              muted={isMuted}
-              playsInline
-            >
-              <source src={video.video_file} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
+            {heroMedia.media_type === 'video' ? (
+              <video
+                ref={videoRef}
+                className="background-video"
+                autoPlay
+                loop
+                muted={isMuted}
+                playsInline
+              >
+                <source src={heroMedia.file_url} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <img src={heroMedia.file_url} alt="Hero" className="background-video" />
+            )}
             <div className="overlay-content">
               <h1>Ethical Multimedia GH Services</h1>
               <p>Live Band • Catering • Multimedia • Decor Services</p>
@@ -88,10 +95,14 @@ const EethmHome = () => {
                 </button>
               </div>
             </div>
-            <button className="mute-button" onClick={toggleMute}>
-              {isMuted ? '🔇' : '🔊'}
-            </button>
+            {heroMedia.media_type === 'video' && (
+              <button className="mute-button" onClick={toggleMute}>
+                {isMuted ? '🔇' : '🔊'}
+              </button>
+            )}
           </>
+        ) : (
+          <p className="video-fallback">No hero media found.</p>
         )}
       </section>
 
@@ -113,6 +124,25 @@ const EethmHome = () => {
           ))}
         </div>
       </section>
+
+      {/* === Banners Section === */}
+      {banners.length > 0 && (
+        <section className="banners-section">
+          <h2>Highlights</h2>
+          <div className="banners-container">
+            {banners.map((banner) => (
+              <div key={banner.id} className="banner-item">
+                {banner.media_type === 'image' ? (
+                  <img src={banner.file_url} alt={banner.title || 'Banner'} />
+                ) : (
+                  <video controls src={banner.file_url} />
+                )}
+                {banner.title && <h4>{banner.title}</h4>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

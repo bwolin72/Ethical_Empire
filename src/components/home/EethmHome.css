@@ -8,6 +8,7 @@
   --white: #ffffff;
 }
 
+/* === Base === */
 .eethm-home-page {
   width: 100%;
   margin: 0;
@@ -16,7 +17,7 @@
   background-color: var(--white);
 }
 
-/* Video Hero Section */
+/* === Hero Section === */
 .video-hero-section {
   position: relative;
   height: 100vh;
@@ -36,6 +37,13 @@
   min-height: 100%;
   object-fit: cover;
   z-index: 1;
+}
+
+/* In case it's an image hero */
+.background-video[type="image"] {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
 .overlay-content {
@@ -108,6 +116,7 @@
   cursor: pointer;
 }
 
+/* Fallback Text */
 .video-fallback {
   color: var(--white);
   font-size: 1.5rem;
@@ -115,7 +124,7 @@
   padding: 50px;
 }
 
-/* Services Section */
+/* === Services Section === */
 .services-page {
   padding: 60px 30px;
   background: var(--cream);
@@ -174,7 +183,56 @@
   font-weight: bold;
 }
 
-/* Responsive Design */
+/* === Banners Section === */
+.banners-section {
+  padding: 40px 20px;
+  background-color: var(--white);
+  color: var(--charcoal);
+  text-align: center;
+}
+
+.banners-section h2 {
+  font-size: 2.2rem;
+  color: var(--navy-blue);
+  margin-bottom: 30px;
+}
+
+.banners-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+}
+
+.banner-item {
+  background-color: var(--cream);
+  border-radius: 8px;
+  padding: 10px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.banner-item:hover {
+  transform: scale(1.02);
+}
+
+.banner-item img,
+.banner-item video {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.banner-item h4 {
+  font-size: 1.1rem;
+  color: var(--forest-green);
+  margin-top: 5px;
+}
+
+/* === Responsive Design === */
 @media (max-width: 768px) {
   .overlay-content h1 {
     font-size: 2rem;
@@ -191,5 +249,10 @@
 
   .services-page {
     padding: 40px 15px;
+  }
+
+  .banners-container {
+    flex-direction: column;
+    align-items: center;
   }
 }
