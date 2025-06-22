@@ -33,21 +33,35 @@ const EethmHome = () => {
 
   const toggleMute = () => {
     setIsMuted(prev => !prev);
-    if (videoRef.current) videoRef.current.muted = !videoRef.current.muted;
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+    }
   };
 
   useEffect(() => {
     const fetchMedia = async () => {
       try {
-        const { data } = await publicAxios.get('/services/media/');
+        const { data } = await publicAxios.get('/service-app/media/');
         const hero = data.find(m => m.is_hero);
         const bannerList = data.filter(m => m.is_banner);
 
-        setHeroMedia(hero);
-        setBanners(bannerList);
+        setHeroMedia(hero || null);
+        setBanners(bannerList || []);
       } catch (err) {
         console.error('Media fetch error:', err);
-        setError('Failed to load homepage media.');
+        if (process.env.NODE_ENV === 'development') {
+          try {
+            // fallback mock for dev
+            const mockRes = await fetch('/mock/media.json');
+            const mockData = await mockRes.json();
+            setHeroMedia(mockData.find(m => m.is_hero));
+            setBanners(mockData.filter(m => m.is_banner));
+          } catch (mockErr) {
+            setError('Failed to load media content.');
+          }
+        } else {
+          setError('Failed to load homepage media.');
+        }
       } finally {
         setLoading(false);
       }
@@ -122,9 +136,9 @@ const EethmHome = () => {
       </section>
 
       {/* === Banner Highlights Section === */}
-      {banners.length > 0 && (
-        <section className="banners-section">
-          <h2>Highlights</h2>
+      <section className="banners-section">
+        <h2>Highlights</h2>
+        {banners.length > 0 ? (
           <div className="banners-container">
             {banners.map((media) => (
               <div key={media.id} className="banner-item">
@@ -132,8 +146,10 @@ const EethmHome = () => {
               </div>
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <p>No highlights available at this time.</p>
+        )}
+      </section>
     </div>
   );
 };
