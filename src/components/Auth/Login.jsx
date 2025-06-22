@@ -12,61 +12,47 @@ const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
 
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // ===== Validation =====
   const validateForm = () => {
-    const errs = {};
-    if (!form.username.trim()) errs.username = 'Username is required';
-    if (!form.password.trim()) errs.password = 'Password is required';
-    setFormErrors(errs);
-    return Object.keys(errs).length === 0;
+    const errors = {};
+    if (!form.username.trim()) errors.username = 'Username is required';
+    if (!form.password.trim()) errors.password = 'Password is required';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError('');
-    setFormErrors({ ...formErrors, [e.target.name]: '' });
-  };
-
-  const toggleDarkMode = () => {
-    const next = !darkMode;
-    setDarkMode(next);
-    document.body.classList.toggle('dark-mode', next);
-  };
-
+  // ===== Redirect by Role =====
   const redirectByRole = (role) => {
-    switch (role) {
-      case 'ADMIN':
-        navigate('/admin', { replace: true });
-        break;
-      case 'WORKER':
-        navigate('/worker', { replace: true });
-        break;
-      default:
-        navigate('/user', { replace: true });
-    }
+    if (role === 'ADMIN') return navigate('/admin', { replace: true });
+    if (role === 'WORKER') return navigate('/worker', { replace: true });
+    navigate('/user', { replace: true });
   };
 
+  // ===== Handle Successful Login =====
   const handleLoginSuccess = (access, refresh, username, role) => {
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
-
-    login({
-      access,
-      refresh,
-      username,
-      isAdmin: role === 'ADMIN',
-    });
-
+    login({ access, refresh, username, isAdmin: role === 'ADMIN' });
     redirectByRole(role);
   };
 
+  // ===== Handle Input Change =====
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    setError('');
+    setFormErrors({ ...formErrors, [name]: '' });
+  };
+
+  // ===== Submit Login Form =====
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -74,31 +60,30 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await axiosInstance.post('/user-account/auth/jwt/create/', {
-        username: form.username,
-        password: form.password,
-      });
-
+      const { data } = await axiosInstance.post('user-account/auth/jwt/create/', form);
       const { access, refresh } = data;
-      if (!access || !refresh) throw new Error('No tokens returned.');
 
-      const userRes = await axiosInstance.get('/user-account/user-role/');
+      if (!access || !refresh) throw new Error('Tokens not received.');
+
+      const userRes = await axiosInstance.get('user-account/user-role/');
       const { username, role } = userRes.data;
 
       handleLoginSuccess(access, refresh, username, role);
     } catch (err) {
       console.error('Login error:', err);
-      setError(
+      const msg =
         err.response?.data?.detail ||
         err.response?.data?.error ||
+        err.response?.data?.message ||
         err.message ||
-        'Login failed.'
-      );
+        'Login failed.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
+  // ===== Google Login =====
   const handleGoogleSuccess = async (credResp) => {
     setError('');
     setLoading(true);
@@ -107,7 +92,7 @@ export default function Login() {
       const decoded = jwtDecode(credential);
       console.log('Google JWT payload:', decoded);
 
-      const { data } = await axiosInstance.post('/user-account/auth/google-login/', {
+      const { data } = await axiosInstance.post('user-account/auth/google-login/', {
         token: credential,
       });
 
@@ -119,6 +104,13 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // ===== Toggle Dark Mode =====
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    document.body.classList.toggle('dark-mode', newMode);
   };
 
   return (

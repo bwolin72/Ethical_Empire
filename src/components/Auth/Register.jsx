@@ -1,11 +1,9 @@
-// src/components/Auth/Register.jsx
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import axiosInstance from '../../api/axiosInstance';
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import axiosInstance from '../../api/axiosInstance';
 import logo from '../../assets/logo.png';
 import './Register.css';
 
@@ -30,8 +28,8 @@ const Register = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const safeValue = DOMPurify.sanitize(e.target.value);
-    setForm((prev) => ({ ...prev, [e.target.name]: safeValue }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: DOMPurify.sanitize(value) }));
     setError('');
     setSuccess('');
   };
@@ -48,15 +46,15 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await axiosInstance.post('/user-account/register/', form);
-      setSuccess('Registration successful! Redirecting...');
+      await axiosInstance.post('user-account/register/', form);
+      setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       console.error('Register error:', err);
       setError(
-        err.response?.data?.error ||
         err.response?.data?.detail ||
-        'Registration failed.'
+        err.response?.data?.error ||
+        'Registration failed. Please check your input and try again.'
       );
     } finally {
       setLoading(false);
@@ -80,8 +78,8 @@ const Register = () => {
         username: decoded.email.split('@')[0],
       };
 
-      await axiosInstance.post('/user-account/auth/google-signup/', payload);
-      setSuccess('Google registration successful! Redirecting...');
+      await axiosInstance.post('user-account/auth/google-signup/', payload);
+      setSuccess('Google registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       console.error('Google sign-up error:', err);
@@ -100,14 +98,12 @@ const Register = () => {
             <span>Ethical Multimedia GH</span>
           </div>
 
-          <button
-            className="dark-toggle"
-            onClick={() => setDarkMode(!darkMode)}
-          >
+          <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
             {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
           </button>
 
-          <h2>Register</h2>
+          <h2>Create an Account</h2>
+
           {error && <p className="error-message">{error}</p>}
           {success && <p className="success-message">{success}</p>}
 

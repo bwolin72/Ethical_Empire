@@ -1,56 +1,70 @@
 // src/api/axiosInstance.js
 import axios from 'axios';
 
+let baseURL = process.env.REACT_APP_API_BASE_URL;
+
+if (process.env.NODE_ENV === 'development' && !baseURL) {
+  baseURL = 'http://localhost:8000/api/';
+} else if (!baseURL) {
+  baseURL = 'https://ethical-backend.onrender.com/api/';
+}
+
+// Ensure trailing slash
+if (!baseURL.endsWith('/')) baseURL += '/';
+
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || '/', // Fallback for local dev
+  baseURL,
 });
 
-// Request interceptor
+// === Request Interceptor ===
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access');
 
-    // ✅ Attach Authorization header if valid token
     if (token && token !== 'undefined' && token !== 'null' && token.length > 10) {
       config.headers['Authorization'] = `Bearer ${token}`;
     } else {
-      delete config.headers['Authorization']; // Prevent bad header
+      delete config.headers['Authorization']; // Clean up bad tokens
     }
 
-    // ✅ Apply Content-Type for non-FormData requests
-    if (config.data && !(config.data instanceof FormData)) {
+    const isFormData = config.data instanceof FormData;
+
+    if (config.method?.toUpperCase() !== 'GET' && !isFormData) {
       config.headers['Content-Type'] = 'application/json';
+    } else if (config.method?.toUpperCase() === 'GET') {
+      delete config.headers['Content-Type']; // GET should not send Content-Type
     }
 
-    // ✅ Optional: log in dev
     if (process.env.NODE_ENV === 'development') {
-      console.log('[Axios Request]', config.method?.toUpperCase(), config.url, config);
+      console.log('[AxiosInstance Request]', config.method?.toUpperCase(), config.url, config);
     }
 
     return config;
   },
   (error) => {
-    console.error('[Axios Request Error]', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[AxiosInstance Request Error]', error);
+    }
     return Promise.reject(error);
   }
 );
 
-// Optional: Response Interceptor for logging or retry
+// === Response Interceptor ===
 axiosInstance.interceptors.response.use(
   (response) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('[Axios Response]', response.config.url, response.status, response.data);
+      console.log('[AxiosInstance Response]', response.status, response.config.url, response.data);
     }
     return response;
   },
   (error) => {
     if (process.env.NODE_ENV === 'development') {
-      console.error('[Axios Response Error]', error?.response?.config?.url, error);
+      console.error('[AxiosInstance Response Error]', error?.response?.status, error?.response?.config?.url, error);
     }
 
-    // Example: handle 401 globally
+    // Optional: Global auth expiration handling
     // if (error.response?.status === 401) {
-    //   // Redirect to login or logout user
+    //   // logout(), redirect to /login, etc.
     // }
 
     return Promise.reject(error);
