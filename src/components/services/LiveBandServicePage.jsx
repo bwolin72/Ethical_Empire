@@ -3,7 +3,7 @@ import './liveband.css';
 import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
 import publixios from '../../api/publicAxios';
-import MediaCard from '../../components/context/MediaCard';
+import MediaCard from '../context/MediaCard';
 import { useNavigate } from 'react-router-dom';
 
 const LiveBandServicePage = () => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import './BookingManagement.css';
 
 const BookingManagement = () => {
@@ -20,7 +20,7 @@ const BookingManagement = () => {
         ? { Authorization: `Bearer ${token}` }
         : {};
 
-      const res = await axios.get('https://ethical-backend.onrender.com/bookings/', {
+      const res = await axiosInstance.get('/bookings/', {
         headers,
       });
 
@@ -58,8 +58,7 @@ const BookingManagement = () => {
   const markComplete = async (id) => {
     try {
       const token = localStorage.getItem('access');
-      await axios.patch(
-        `https://ethical-backend.onrender.com/bookings/${id}/`,
+      await axiosInstance.patch(`/bookings/${id}/`,
         { status: 'Completed' },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -74,7 +73,7 @@ const BookingManagement = () => {
   const deleteBooking = async (id) => {
     try {
       const token = localStorage.getItem('access');
-      await axios.delete(`https://ethical-backend.onrender.com/bookings/${id}/`, {
+      await axiosInstance.delete(`/bookings/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchBookings();

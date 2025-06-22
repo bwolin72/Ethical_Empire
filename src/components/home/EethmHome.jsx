@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import publicAxios from '../../api/publicAxios';
 import { useNavigate } from 'react-router-dom';
-import MediaCard from '../../components/MediaCard'; // adjust path if needed
+import MediaCard from '../context/MediaCard'; 
 import './EethmHome.css';
 
 const serviceDetails = {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import publixios from '../../api/publicAxios';
-import BannerCards from '../../components/context/BannerCards';
+import BannerCards from '../context/BannerCards';
 import './MediaHostingServicePage.css';
 
 const SkeletonCard = () => <div className="skeleton-card shimmer" />;

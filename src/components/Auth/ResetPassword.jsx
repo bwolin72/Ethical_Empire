@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ForgotResetPassword.css';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { useParams } from 'react-router-dom';
 
 const ResetPassword = () => {
@@ -21,7 +21,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axios.post('/user-account/auth/reset-password-confirm/', {
+      await axiosInstance.post('/user-account/auth/reset-password-confirm/', {
         uid,
         token,
         new_password: newPassword,

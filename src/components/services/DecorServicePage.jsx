@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import publixios from '../../api/publicAxios';
 import './decor.css';
-import MediaCard from '../../components/context/MediaCard';
+import MediaCard from '../context/MediaCard';
 
 const DecorPage = () => {
   const navigate = useNavigate();

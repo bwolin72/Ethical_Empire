@@ -4,7 +4,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   return (
     <div className="sidebar">
       <h2>Menu</h2>
-      {['Booking Management', 'Videos', 'Invoice Generation'].map(tab => (
+      {['Booking Management', 'Invoice Generation'].map(tab => (
         <button
           key={tab}
           className={activeTab === tab ? 'active' : ''}
