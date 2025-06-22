@@ -55,12 +55,12 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await axiosInstance.post('/api/user-account/login/', form);
+      const { data } = await axiosInstance.post('user-account/login/', form);
       const { access, refresh } = data;
 
       if (!access || !refresh) throw new Error('Tokens not received.');
 
-      const userRes = await axiosInstance.get('/api/user-account/user-role/');
+      const userRes = await axiosInstance.get('user-account/user-role/');
       const { username, role } = userRes.data;
 
       handleLoginSuccess(access, refresh, username, role);
@@ -86,7 +86,7 @@ export default function Login() {
       const decoded = jwtDecode(credential);
       console.log('Google JWT payload:', decoded);
 
-      const { data } = await axiosInstance.post('/api/user-account/auth/google-login/', {
+      const { data } = await axiosInstance.post('user-account/auth/google-login/', {
         token: credential,
       });
 
