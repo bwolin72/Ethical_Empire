@@ -20,7 +20,6 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // ===== Validation =====
   const validateForm = () => {
     const errors = {};
     if (!form.username.trim()) errors.username = 'Username is required';
@@ -29,14 +28,12 @@ export default function Login() {
     return Object.keys(errors).length === 0;
   };
 
-  // ===== Redirect by Role =====
   const redirectByRole = (role) => {
     if (role === 'ADMIN') return navigate('/admin', { replace: true });
     if (role === 'WORKER') return navigate('/worker', { replace: true });
     navigate('/user', { replace: true });
   };
 
-  // ===== Handle Successful Login =====
   const handleLoginSuccess = (access, refresh, username, role) => {
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
@@ -44,7 +41,6 @@ export default function Login() {
     redirectByRole(role);
   };
 
-  // ===== Handle Input Change =====
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
@@ -52,7 +48,6 @@ export default function Login() {
     setFormErrors({ ...formErrors, [name]: '' });
   };
 
-  // ===== Submit Login Form =====
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -60,12 +55,12 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await axiosInstance.post('user-account/auth/jwt/create/', form);
+      const { data } = await axiosInstance.post('/api/user-account/login/', form);
       const { access, refresh } = data;
 
       if (!access || !refresh) throw new Error('Tokens not received.');
 
-      const userRes = await axiosInstance.get('user-account/user-role/');
+      const userRes = await axiosInstance.get('/api/user-account/user-role/');
       const { username, role } = userRes.data;
 
       handleLoginSuccess(access, refresh, username, role);
@@ -83,7 +78,6 @@ export default function Login() {
     }
   };
 
-  // ===== Google Login =====
   const handleGoogleSuccess = async (credResp) => {
     setError('');
     setLoading(true);
@@ -92,7 +86,7 @@ export default function Login() {
       const decoded = jwtDecode(credential);
       console.log('Google JWT payload:', decoded);
 
-      const { data } = await axiosInstance.post('user-account/auth/google-login/', {
+      const { data } = await axiosInstance.post('/api/user-account/auth/google-login/', {
         token: credential,
       });
 
@@ -106,7 +100,6 @@ export default function Login() {
     }
   };
 
-  // ===== Toggle Dark Mode =====
   const toggleDarkMode = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
