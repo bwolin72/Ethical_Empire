@@ -39,7 +39,7 @@ const EethmHome = () => {
   useEffect(() => {
     const fetchMedia = async () => {
       try {
-        const { data } = await publicAxios.get('/service_app/media/');
+        const { data } = await publicAxios.get('/services/media/');
         const hero = data.find(m => m.is_hero);
         const bannerList = data.filter(m => m.is_banner);
 

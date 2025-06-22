@@ -57,7 +57,7 @@ const MediaManagement = () => {
     formData.append('endpoint', selectedEndpoint);
 
     try {
-      await axiosInstance.post('/media/upload/', formData, {
+      await axiosInstance.post('/services/media/upload/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       fetchMedia();
@@ -73,7 +73,7 @@ const MediaManagement = () => {
 
   const toggleActive = async (id) => {
     try {
-      const res = await axiosInstance.patch(`/media/toggle/${id}/`);
+      const res = await axiosInstance.patch(`/services/media/toggle/${id}/`);
       fetchMedia();
       toast.info(`Media is now ${res.data.is_active ? 'active' : 'inactive'}.`);
     } catch (err) {
@@ -86,7 +86,7 @@ const MediaManagement = () => {
     if (!window.confirm('Delete this media?')) return;
 
     try {
-      await axiosInstance.delete(`/media/delete/${id}/`);
+      await axiosInstance.delete(`/services/media/delete/${id}/`);
       fetchMedia();
       toast.success('Media deleted.');
     } catch (err) {
