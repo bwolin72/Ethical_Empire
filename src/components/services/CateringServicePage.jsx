@@ -28,18 +28,21 @@ const CateringPage = () => {
   ];
 
   useEffect(() => {
+    // Fetch media content from service_app
     publixios
-      .get('/media/?type=media&endpoint=CateringPage')
+      .get('/service-app/media/?type=media&endpoint=CateringPage')
       .then(res => setMediaCards(res.data))
       .catch(() => setMediaCards([]));
 
+    // Fetch banner image from service_app
     publixios
-      .get('/media/?type=banner&endpoint=CateringPage')
+      .get('/service-app/media/?type=banner&endpoint=CateringPage')
       .then(res => {
         if (res.data.length > 0) setBannerUrl(res.data[0].url);
       })
       .catch(() => setBannerUrl(null));
 
+    // Fetch reviews
     publixios
       .get('/reviews/')
       .then(res => setTestimonials(res.data))
@@ -59,7 +62,7 @@ const CateringPage = () => {
         <h1 className="hero-title">Ethical Kitchen</h1>
       </div>
 
-      {/* CTA */}
+      {/* CTA Section */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -70,7 +73,7 @@ const CateringPage = () => {
         </motion.button>
       </section>
 
-      {/* Services */}
+      {/* Catering Services */}
       <section className="section services-section">
         <h2>Our Catering Services</h2>
         <div className="card-grid">
@@ -82,7 +85,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Creative Section */}
+      {/* Creative Ideas */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
@@ -128,7 +131,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* WhatsApp Contact */}
+      {/* WhatsApp Floating Button */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

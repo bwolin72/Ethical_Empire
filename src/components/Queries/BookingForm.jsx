@@ -1,4 +1,4 @@
-// BookingForm.jsx
+// src/components/forms/BookingForm.jsx
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
@@ -21,8 +21,8 @@ const BookingForm = () => {
     service_type: [],
   });
 
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [showServices, setShowServices] = useState(false);
 
   const serviceOptions = [
@@ -35,8 +35,9 @@ const BookingForm = () => {
   ];
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
       setFormData((prev) => ({
         ...prev,
         name: user.username || '',
@@ -47,6 +48,7 @@ const BookingForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     if (type === 'checkbox') {
       setFormData((prev) => ({
         ...prev,
@@ -55,45 +57,51 @@ const BookingForm = () => {
           : prev.service_type.filter((s) => s !== value),
       }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
   const handleDateChange = (date) => {
-    setFormData((prev) => ({ ...prev, event_date: date }));
+    setFormData((prev) => ({
+      ...prev,
+      event_date: date,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
+    setSuccessMessage('');
+    setErrorMessage('');
+
+    const token = localStorage.getItem('access');
+    if (!token) {
+      setErrorMessage('You must be logged in to submit a booking.');
+      return;
+    }
 
     try {
-      const token = localStorage.getItem('access');
-      if (!token) {
-        setError('You must be logged in to submit a booking.');
-        return;
-      }
-
-      const formattedDate = formData.event_date
-        ? formData.event_date.toISOString().split('T')[0]
-        : '';
-
       const payload = {
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
         message: formData.message.trim(),
-        event_date: formattedDate,
-        service_type: formData.service_type,
+        event_date: formData.event_date
+          ? formData.event_date.toISOString().split('T')[0]
+          : null,
+        service_type: formData.service_type.length > 0 ? formData.service_type : [],
       };
 
       await axiosInstance.post('/bookings/', payload, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      setMessage('🎉 Booking request submitted successfully!');
+      setSuccessMessage('🎉 Booking request submitted successfully!');
       setFormData({
         name: '',
         email: '',
@@ -106,14 +114,15 @@ const BookingForm = () => {
       setShowServices(false);
     } catch (err) {
       const response = err.response?.data;
-      const firstError =
+      const extractedError =
         typeof response === 'object' && response !== null
           ? Object.values(response)[0]
           : response?.detail;
-      setError(
-        Array.isArray(firstError)
-          ? firstError[0]
-          : firstError || 'An error occurred while submitting the form.'
+
+      setErrorMessage(
+        Array.isArray(extractedError)
+          ? extractedError[0]
+          : extractedError || 'An error occurred while submitting the form.'
       );
     }
   };
@@ -127,41 +136,27 @@ const BookingForm = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="form-grid" noValidate>
-        <div className="form-group">
-          <label htmlFor="name">Full Name</label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="email">Email Address</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="phone">Phone Number</label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {['name', 'email', 'phone', 'address'].map((field) => (
+          <div className="form-group" key={field}>
+            <label htmlFor={field}>
+              {field === 'email'
+                ? 'Email Address'
+                : field === 'phone'
+                ? 'Phone Number'
+                : field === 'address'
+                ? 'Event Venue'
+                : 'Full Name'}
+            </label>
+            <input
+              id={field}
+              name={field}
+              type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+              value={formData[field]}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        ))}
 
         <div className="form-group">
           <label htmlFor="event_date">Event Date</label>
@@ -179,20 +174,12 @@ const BookingForm = () => {
           </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="address">Event Venue</label>
-          <input
-            id="address"
-            name="address"
-            type="text"
-            value={formData.address}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
         <div className="form-group full-width">
-          <label htmlFor="service_type" className="dropdown-label" onClick={() => setShowServices(!showServices)}>
+          <label
+            htmlFor="service_type"
+            className="dropdown-label"
+            onClick={() => setShowServices((prev) => !prev)}
+          >
             Select Services{' '}
             {showServices ? (
               <FaChevronUp className="dropdown-icon" />
@@ -234,8 +221,8 @@ const BookingForm = () => {
           Submit Booking
         </button>
 
-        {message && <p className="success-msg">{message}</p>}
-        {error && <p className="error-msg">{error}</p>}
+        {successMessage && <p className="success-msg">{successMessage}</p>}
+        {errorMessage && <p className="error-msg">{errorMessage}</p>}
       </form>
     </div>
   );

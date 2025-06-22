@@ -1,5 +1,3 @@
-// src/components/Auth/Login.jsx
-
 import React, { useState } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
@@ -39,11 +37,34 @@ export default function Login() {
   const toggleDarkMode = () => {
     const next = !darkMode;
     setDarkMode(next);
-    if (next) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
+    document.body.classList.toggle('dark-mode', next);
+  };
+
+  const redirectByRole = (role) => {
+    switch (role) {
+      case 'ADMIN':
+        navigate('/admin', { replace: true });
+        break;
+      case 'WORKER':
+        navigate('/worker', { replace: true });
+        break;
+      default:
+        navigate('/user', { replace: true });
     }
+  };
+
+  const handleLoginSuccess = (access, refresh, username, role) => {
+    localStorage.setItem('access', access);
+    localStorage.setItem('refresh', refresh);
+
+    login({
+      access,
+      refresh,
+      username,
+      isAdmin: role === 'ADMIN',
+    });
+
+    redirectByRole(role);
   };
 
   const handleSubmit = async (e) => {
@@ -53,7 +74,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await axiosInstance.post('/auth/jwt/create/', {
+      const { data } = await axiosInstance.post('/user-account/auth/jwt/create/', {
         username: form.username,
         password: form.password,
       });
@@ -61,22 +82,17 @@ export default function Login() {
       const { access, refresh } = data;
       if (!access || !refresh) throw new Error('No tokens returned.');
 
-      localStorage.setItem('access', access);
-      localStorage.setItem('refresh', refresh);
+      const userRes = await axiosInstance.get('/user-account/user-role/');
+      const { username, role } = userRes.data;
 
-      const userRes = await axiosInstance.get('/accounts/user-role/');
-      const { username, is_admin } = userRes.data;
-      const isAdmin = Boolean(is_admin);
-
-      login({ access, refresh, username, isAdmin });
-      navigate(isAdmin ? '/admin' : '/user', { replace: true });
+      handleLoginSuccess(access, refresh, username, role);
     } catch (err) {
       console.error('Login error:', err);
       setError(
         err.response?.data?.detail ||
-          err.response?.data?.error ||
-          err.message ||
-          'Login failed.'
+        err.response?.data?.error ||
+        err.message ||
+        'Login failed.'
       );
     } finally {
       setLoading(false);
@@ -91,18 +107,12 @@ export default function Login() {
       const decoded = jwtDecode(credential);
       console.log('Google JWT payload:', decoded);
 
-      const { data } = await axiosInstance.post('/auth/google-login/', {
+      const { data } = await axiosInstance.post('/user-account/auth/google-login/', {
         token: credential,
       });
 
-      const { access, refresh, username, is_admin } = data;
-      if (!access || !refresh) throw new Error('No tokens returned.');
-
-      localStorage.setItem('access', access);
-      localStorage.setItem('refresh', refresh);
-
-      login({ access, refresh, username, isAdmin: Boolean(is_admin) });
-      navigate(is_admin ? '/admin' : '/user', { replace: true });
+      const { access, refresh, username, role } = data;
+      handleLoginSuccess(access, refresh, username, role);
     } catch (err) {
       console.error('Google login error:', err);
       setError('Google login failed. Please try again.');
@@ -119,11 +129,7 @@ export default function Login() {
           <h2>Login</h2>
 
           <label className="dark-toggle">
-            <input
-              type="checkbox"
-              onChange={toggleDarkMode}
-              checked={darkMode}
-            />
+            <input type="checkbox" onChange={toggleDarkMode} checked={darkMode} />
             Dark Mode
           </label>
 

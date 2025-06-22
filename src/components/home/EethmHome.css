@@ -9,12 +9,12 @@
 }
 
 /* === Base === */
-.eethm-home-page {
-  width: 100%;
+body, .eethm-home-page {
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--white);
+  color: var(--charcoal);
 }
 
 /* === Hero Section === */
@@ -39,7 +39,6 @@
   z-index: 1;
 }
 
-/* In case it's an image hero */
 .background-video[type="image"] {
   object-fit: cover;
   width: 100%;
@@ -83,7 +82,6 @@
   transition: background-color 0.3s ease;
 }
 
-/* Book Now */
 .hero-buttons button:first-child {
   background-color: var(--navy-blue);
   color: var(--white);
@@ -93,7 +91,6 @@
   background-color: #1a2f47;
 }
 
-/* Newsletter */
 .newsletter-btn {
   background-color: var(--burgundy);
   color: var(--white);
@@ -103,7 +100,6 @@
   background-color: #660019;
 }
 
-/* Mute button */
 .mute-button {
   position: absolute;
   top: 20px;
@@ -116,7 +112,6 @@
   cursor: pointer;
 }
 
-/* Fallback Text */
 .video-fallback {
   color: var(--white);
   font-size: 1.5rem;
@@ -128,7 +123,6 @@
 .services-page {
   padding: 60px 30px;
   background: var(--cream);
-  color: var(--charcoal);
 }
 
 .services-page h2 {
@@ -167,9 +161,10 @@
   color: var(--burgundy);
 }
 
-.service-item p {
+.service-item p,
+.service-item li {
   font-size: 1rem;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .service-item ul {
@@ -183,20 +178,21 @@
   font-weight: bold;
 }
 
-/* === Banners Section === */
+/* === BannerCards and MediaCards Shared === */
+.banner-cards-container,
 .banners-section {
   padding: 40px 20px;
-  background-color: var(--white);
-  color: var(--charcoal);
   text-align: center;
 }
 
+.banner-cards-title,
 .banners-section h2 {
   font-size: 2.2rem;
   color: var(--navy-blue);
   margin-bottom: 30px;
 }
 
+.banner-cards-grid,
 .banners-container {
   display: flex;
   flex-wrap: wrap;
@@ -204,7 +200,9 @@
   gap: 25px;
 }
 
-.banner-item {
+.banner-card,
+.banner-item,
+.media-card-wrapper {
   background-color: var(--cream);
   border-radius: 8px;
   padding: 10px;
@@ -214,25 +212,44 @@
   transition: transform 0.3s ease;
 }
 
-.banner-item:hover {
+.banner-card:hover,
+.banner-item:hover,
+.media-card-wrapper:hover {
   transform: scale(1.02);
 }
 
+.banner-card img,
 .banner-item img,
-.banner-item video {
+.banner-item video,
+.media-preview {
   width: 100%;
   height: auto;
   border-radius: 4px;
   margin-bottom: 10px;
 }
 
+.banner-card-caption,
 .banner-item h4 {
   font-size: 1.1rem;
   color: var(--forest-green);
   margin-top: 5px;
 }
 
-/* === Responsive Design === */
+/* === Media Preview Fallback === */
+.media-preview.fallback {
+  background-color: var(--charcoal);
+  color: var(--white);
+  padding: 20px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.media-preview.fallback a {
+  color: var(--muted-gold);
+  text-decoration: underline;
+}
+
+/* === Responsive === */
 @media (max-width: 768px) {
   .overlay-content h1 {
     font-size: 2rem;
@@ -251,8 +268,14 @@
     padding: 40px 15px;
   }
 
-  .banners-container {
+  .banners-container,
+  .banner-cards-grid {
     flex-direction: column;
     align-items: center;
+  }
+
+  .banner-cards-title,
+  .banners-section h2 {
+    font-size: 1.8rem;
   }
 }

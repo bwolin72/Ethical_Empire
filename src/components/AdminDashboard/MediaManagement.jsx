@@ -28,15 +28,18 @@ const MediaManagement = () => {
 
   const fetchMedia = async () => {
     try {
-      let url = `/media/?type=${mediaType}&endpoint=${selectedEndpoint}`;
+      const params = {
+        type: mediaType,
+        endpoint: selectedEndpoint,
+      };
       if (statusFilter !== 'all') {
-        url += `&is_active=${statusFilter === 'active'}`;
+        params.is_active = statusFilter === 'active';
       }
-      const res = await axiosInstance.get(url);
+      const res = await axiosInstance.get('/media/list/', { params });
       setUploadedItems(res.data);
     } catch (error) {
       console.error('Failed to fetch media:', error);
-      toast.error('Failed to load media. Please check your network or filters.');
+      toast.error('Failed to load media.');
     }
   };
 
@@ -45,7 +48,7 @@ const MediaManagement = () => {
   };
 
   const handleUpload = async () => {
-    if (!files.length) return toast.warn('Please select at least one file.');
+    if (!files.length) return toast.warn('Select at least one file.');
 
     setUploading(true);
     const formData = new FormData();
@@ -54,7 +57,7 @@ const MediaManagement = () => {
     formData.append('endpoint', selectedEndpoint);
 
     try {
-      await axiosInstance.post(`/media/upload/`, formData, {
+      await axiosInstance.post('/media/upload/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       fetchMedia();
@@ -62,7 +65,7 @@ const MediaManagement = () => {
       toast.success('Upload successful!');
     } catch (err) {
       console.error('Upload failed:', err);
-      toast.error('Upload failed. Please try again.');
+      toast.error('Upload failed. Try again.');
     } finally {
       setUploading(false);
     }
@@ -72,36 +75,39 @@ const MediaManagement = () => {
     try {
       const res = await axiosInstance.patch(`/media/toggle/${id}/`);
       fetchMedia();
-      toast.info(`Media is now ${res.data.active ? 'active' : 'inactive'}.`);
+      toast.info(`Media is now ${res.data.is_active ? 'active' : 'inactive'}.`);
     } catch (err) {
       console.error('Toggle failed:', err);
-      toast.error('Failed to toggle media status.');
+      toast.error('Toggle failed.');
     }
   };
 
   const deleteMedia = async (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this media?');
-    if (!confirmDelete) return;
+    if (!window.confirm('Delete this media?')) return;
 
     try {
-      await axiosInstance.delete(`/api/media/delete/${id}/`);
+      await axiosInstance.delete(`/media/delete/${id}/`);
       fetchMedia();
       toast.success('Media deleted.');
     } catch (err) {
       console.error('Delete failed:', err);
-      toast.error('Failed to delete media.');
+      toast.error('Deletion failed.');
     }
   };
 
   const renderPreview = (url) => {
     const ext = url.split('.').pop().toLowerCase();
-    if (['mp4', 'webm'].includes(ext)) return <video src={url} controls className="media-preview" />;
-    if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) return <img src={url} alt="preview" className="media-preview" />;
+    if (['mp4', 'webm'].includes(ext)) {
+      return <video src={url} controls className="media-preview" />;
+    }
+    if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
+      return <img src={url} alt="preview" className="media-preview" />;
+    }
     return <a href={url} target="_blank" rel="noreferrer">Open File</a>;
   };
 
   return (
-    <div className="media-panel">
+    <div className="admin-dashboard-preview">
       <ToastContainer position="top-right" autoClose={3000} />
       <h2>{mediaType === 'media' ? 'Media Uploads' : 'Banner Uploads'}</h2>
 
@@ -115,9 +121,9 @@ const MediaManagement = () => {
         </select>
 
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="all">Show All</option>
-          <option value="active">Active Only</option>
-          <option value="inactive">Inactive Only</option>
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
         </select>
 
         <button onClick={handleUpload} disabled={uploading}>

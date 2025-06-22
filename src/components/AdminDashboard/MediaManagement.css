@@ -1,196 +1,229 @@
 :root {
-  --deep-burgundy: #6e1414;
-  --royal-navy: #1a2a6c;
-  --muted-gold: #d4af37;
-  --forest-green: #228B22;
-  --charcoal-gray: #2e2e2e;
-  --light-gray: #f7f7f7;
+  --deep-burgundy: #5a1a01;
+  --royal-navy: #001f3f;
+  --muted-gold: #c1a264;
+  --forest-green: #2d572c;
+  --charcoal-gray: #333333;
+  --light-bg: #f9f9f9;
   --white: #ffffff;
+  --box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-/* Panel container */
-.media-panel {
-  padding: 2rem;
-  background-color: var(--light-gray);
+/* === Dashboard Layout === */
+.admin-dashboard-preview {
+  padding: 2rem 1rem;
+  background-color: var(--light-bg);
   min-height: 100vh;
-  box-sizing: border-box;
-  animation: fadeIn 0.5s ease;
 }
 
-.media-panel h2 {
-  color: var(--deep-burgundy);
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
-}
-
-/* Controls */
-.media-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.media-controls input[type="file"],
-.media-controls select,
-.media-controls button {
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  transition: all 0.3s ease-in-out;
-}
-
-.media-controls input[type="file"] {
-  border: none;
-  background-color: transparent;
-}
-
-.media-controls select {
-  background-color: var(--white);
-  color: var(--charcoal-gray);
-}
-
-.media-controls button {
-  background-color: var(--royal-navy);
-  color: var(--white);
-  cursor: pointer;
-  font-weight: 500;
-  border: none;
-}
-
-.media-controls button:hover {
-  background-color: var(--muted-gold);
-  color: var(--charcoal-gray);
-  transform: scale(1.05);
-}
-
-/* Media List */
-.media-list {
+.overview-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-/* Media Card */
+/* === Card Styling === */
+.overview-card {
+  background-color: var(--white);
+  border-left: 5px solid var(--deep-burgundy);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--box-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.overview-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.overview-card h2 {
+  color: var(--deep-burgundy);
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.overview-card p {
+  color: var(--charcoal-gray);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* === Buttons === */
+.overview-card button,
+.video-nav button,
+.media-controls button,
+.media-actions button {
+  background-color: var(--forest-green);
+  color: var(--white);
+  border: none;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-start;
+}
+
+.overview-card button:hover,
+.video-nav button:hover,
+.media-controls button:hover,
+.media-actions button:hover {
+  background-color: var(--deep-burgundy);
+}
+
+/* === Video Nav Buttons === */
+.video-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.video-nav button {
+  background-color: var(--royal-navy);
+  color: var(--white);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: none;
+}
+
+.video-nav button:hover {
+  background-color: var(--muted-gold);
+  color: var(--charcoal-gray);
+}
+
+/* === Media Table === */
+.media-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.media-table th,
+.media-table td {
+  padding: 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.media-table th {
+  background-color: var(--muted-gold);
+  color: var(--charcoal-gray);
+  font-weight: 600;
+}
+
+.media-table td {
+  color: var(--charcoal-gray);
+}
+
+/* === Media Controls & Cards === */
+.media-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.media-controls input[type="file"],
+.media-controls select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.media-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.2rem;
+}
+
 .media-card {
   background-color: var(--white);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
+  box-shadow: var(--box-shadow);
   padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: 0.3s;
+  transition: transform 0.2s ease;
 }
 
 .media-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .media-preview {
-  width: 100%;
+  max-width: 100%;
   max-height: 200px;
-  object-fit: cover;
   border-radius: 8px;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
 }
 
-.media-preview[controls] {
-  height: 200px;
-}
-
-/* Action Buttons */
 .media-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
 }
 
-.media-actions button {
-  padding: 0.4rem 0.9rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  background-color: var(--forest-green);
-  color: var(--white);
-  transition: all 0.3s ease;
-}
-
-.media-actions button:hover {
-  background-color: #1a6a1a;
-  transform: scale(1.05);
-}
-
-.media-actions button:last-child {
-  background-color: var(--deep-burgundy);
-}
-
-.media-actions button:last-child:hover {
-  background-color: #4c0f0f;
-}
-
-/* Status Label (Optional) */
-.status {
-  margin-top: 5px;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.status.active {
-  color: var(--forest-green);
-}
-
-.status.inactive {
-  color: var(--charcoal-gray);
-}
-
-/* Responsive tweaks */
 @media (max-width: 768px) {
+  .overview-card h2 {
+    font-size: 1.15rem;
+  }
+
+  .overview-card p,
+  .overview-card button {
+    font-size: 0.95rem;
+  }
+
+  .video-nav button,
+  .media-controls button,
+  .media-actions button {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .media-table th,
+  .media-table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-card {
+    padding: 1.2rem;
+  }
+
+  .overview-card h2 {
+    font-size: 1.1rem;
+  }
+
+  .overview-card button,
+  .media-controls button,
+  .media-actions button {
+    width: 100%;
+    text-align: center;
+  }
+
   .media-controls {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .media-controls input,
-  .media-controls select,
-  .media-controls button {
-    width: 100%;
-  }
-
-  .media-panel h2 {
-    font-size: 1.5rem;
-  }
-
-  .media-card {
-    padding: 0.8rem;
-  }
-
-  .media-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .media-actions button {
-    width: 100%;
-  }
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .media-list {
+    grid-template-columns: 1fr;
   }
 }

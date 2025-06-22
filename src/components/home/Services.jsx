@@ -1,40 +1,47 @@
-// src/components/Services.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import axiosInstance from '../api/axiosInstance';
 import './Services.css';
 
-const serviceDetails = {
-  'live-band': {
-    title: 'Live Band Performance',
-    description:
-      'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
-    details: [
-      'Customizable song lists',
-      'Professional sound equipment',
-      'Multiple band size options',
-    ],
-  },
-  catering: {
-    title: 'Catering Services',
-    description:
-      'Gourmet catering for all event types with customizable menus.',
-    details: [
-      'Local and international cuisine',
-      'Dietary restriction accommodations',
-      'Full-service staff available',
-    ],
-  },
-  decor: {
-    title: 'Event Decor',
-    description:
-      'Transform any venue into a magical space with our decor services.',
-    details: ['Theme development', 'Custom installations', 'Full setup and teardown'],
-  },
-};
-
-function Services() {
+const Services = () => {
   const { service } = useParams();
-  const selectedService = service ? serviceDetails[service] : null;
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (service) {
+      fetchServiceDetail(service);
+    } else {
+      fetchAllServices();
+    }
+  }, [service]);
+
+  const fetchAllServices = async () => {
+    try {
+      const res = await axiosInstance.get('/services/');
+      setServices(res.data);
+    } catch (error) {
+      console.error('Failed to load services:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchServiceDetail = async (slug) => {
+    try {
+      const res = await axiosInstance.get(`/services/${slug}/`);
+      setSelectedService(res.data);
+    } catch (error) {
+      console.error('Failed to load service detail:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="services-page"><p>Loading services...</p></div>;
+  }
 
   return (
     <div className="services-page">
@@ -42,22 +49,24 @@ function Services() {
         <div className="service-detail">
           <h2>{selectedService.title}</h2>
           <p>{selectedService.description}</p>
-          <ul>
-            {selectedService.details.map((detail, index) => (
-              <li key={index}>{detail}</li>
-            ))}
-          </ul>
+          {selectedService.details && selectedService.details.length > 0 && (
+            <ul>
+              {selectedService.details.map((detail, index) => (
+                <li key={index}>{detail}</li>
+              ))}
+            </ul>
+          )}
           <Link to="/services" className="back-link">← Back to All Services</Link>
         </div>
       ) : (
         <>
-          <h2 className="services-heading">Our Services</h2>
+          <h2>Our Services</h2>
           <div className="service-list">
-            {Object.entries(serviceDetails).map(([key, service]) => (
-              <div key={key} className="service-item">
-                <h3>{service.title}</h3>
-                <p>{service.description}</p>
-                <Link to={`/services/${key}`} className="learn-more">
+            {services.map((srv) => (
+              <div key={srv.slug} className="service-item">
+                <h3>{srv.title}</h3>
+                <p>{srv.description}</p>
+                <Link to={`/services/${srv.slug}`} className="learn-more">
                   Learn more →
                 </Link>
               </div>
@@ -67,6 +76,6 @@ function Services() {
       )}
     </div>
   );
-}
+};
 
 export default Services;

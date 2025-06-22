@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import publicAxios from '../../api/publicAxios';
 import { useNavigate } from 'react-router-dom';
+import MediaCard from '../../components/MediaCard'; // adjust path if needed
 import './EethmHome.css';
 
 const serviceDetails = {
@@ -31,21 +32,16 @@ const EethmHome = () => {
   const navigate = useNavigate();
 
   const toggleMute = () => {
-    setIsMuted((prev) => !prev);
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-    }
+    setIsMuted(prev => !prev);
+    if (videoRef.current) videoRef.current.muted = !videoRef.current.muted;
   };
 
   useEffect(() => {
     const fetchMedia = async () => {
       try {
-        const response = await publicAxios.get('/media/');
-        const mediaList = response.data;
-
-        // Assume hero is active, type = 'video' or 'image'
-        const hero = mediaList.find((m) => m.is_hero);
-        const bannerList = mediaList.filter((m) => m.is_banner);
+        const { data } = await publicAxios.get('/media/');
+        const hero = data.find(m => m.is_hero);
+        const bannerList = data.filter(m => m.is_banner);
 
         setHeroMedia(hero);
         setBanners(bannerList);
@@ -62,7 +58,7 @@ const EethmHome = () => {
 
   return (
     <div className="eethm-home-page">
-      {/* === Hero Media Section === */}
+      {/* === Hero Section === */}
       <section className="video-hero-section">
         {loading ? (
           <p className="video-fallback">Loading hero...</p>
@@ -125,19 +121,14 @@ const EethmHome = () => {
         </div>
       </section>
 
-      {/* === Banners Section === */}
+      {/* === Banner Highlights Section === */}
       {banners.length > 0 && (
         <section className="banners-section">
           <h2>Highlights</h2>
           <div className="banners-container">
-            {banners.map((banner) => (
-              <div key={banner.id} className="banner-item">
-                {banner.media_type === 'image' ? (
-                  <img src={banner.file_url} alt={banner.title || 'Banner'} />
-                ) : (
-                  <video controls src={banner.file_url} />
-                )}
-                {banner.title && <h4>{banner.title}</h4>}
+            {banners.map((media) => (
+              <div key={media.id} className="banner-item">
+                <MediaCard media={{ url: media.file_url, title: media.title }} />
               </div>
             ))}
           </div>

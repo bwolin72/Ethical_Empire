@@ -29,10 +29,10 @@ const UserPage = () => {
     setLoading(true);
 
     Promise.allSettled([
-      axiosInstance.get("/api/profiles/profile/"),
-      axiosInstance.get("/api/media/"),
-      axiosInstance.get("/api/media/featured/"),
-      axiosInstance.get("/api/reviews/")
+      axiosInstance.get("/user-account/profiles/profile/"),
+      axiosInstance.get("/service-app/media/"),
+      axiosInstance.get("/service-app/media/featured/"),
+      axiosInstance.get("/service-app/reviews/")
     ])
       .then(([profileRes, mediaRes, featuredRes, reviewsRes]) => {
         if (profileRes.status === "fulfilled") {
@@ -49,7 +49,7 @@ const UserPage = () => {
 
         if (featuredRes.status === "fulfilled") {
           setFeaturedVideo(featuredRes.value.data);
-        } // No error toast for optional featured video
+        }
 
         if (reviewsRes.status === "fulfilled") {
           setReviews(reviewsRes.value.data);

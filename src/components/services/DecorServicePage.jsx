@@ -20,11 +20,13 @@ const DecorPage = () => {
   ];
 
   useEffect(() => {
-    publixios.get('/media/?endpoint=DecorPage')
+    publixios
+      .get('/service-app/media/?endpoint=DecorPage')
       .then(res => setMediaCards(res.data))
       .catch(() => setMediaCards([]));
 
-    publixios.get('/reviews/')
+    publixios
+      .get('/reviews/')
       .then(res => setTestimonials(res.data))
       .catch(() => setTestimonials([]));
   }, []);

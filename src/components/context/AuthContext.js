@@ -2,49 +2,54 @@ import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
+const AUTH_KEYS = {
+  ACCESS: 'access',
+  REFRESH: 'refresh',
+  ROLE: 'role',
+  USERNAME: 'username',
+};
+
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({
-    access: localStorage.getItem('access') || null,
-    refresh: localStorage.getItem('refresh') || null,
-    isAdmin: localStorage.getItem('isAdmin') === 'true',
-    username: localStorage.getItem('username') || null,
+    access: localStorage.getItem(AUTH_KEYS.ACCESS) || null,
+    refresh: localStorage.getItem(AUTH_KEYS.REFRESH) || null,
+    role: localStorage.getItem(AUTH_KEYS.ROLE) || null, // 'admin', 'user', 'worker'
+    username: localStorage.getItem(AUTH_KEYS.USERNAME) || null,
   });
 
-  const login = ({ access, refresh, isAdmin, username }) => {
+  const login = ({ access, refresh, role, username }) => {
     if (!access || !refresh) {
-      throw new Error('Login failed: Access and refresh tokens are required.');
+      throw new Error('Login failed: Missing access or refresh token.');
     }
-    console.log('AuthContext login called with:', { access, refresh, isAdmin, username });
-    localStorage.setItem('access', access);
-    localStorage.setItem('refresh', refresh);
-    localStorage.setItem('isAdmin', isAdmin.toString());  // Convert boolean to string
-    localStorage.setItem('username', username);
-    setAuth({ access, refresh, isAdmin, username });
+
+    localStorage.setItem(AUTH_KEYS.ACCESS, access);
+    localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+    localStorage.setItem(AUTH_KEYS.ROLE, role);
+    localStorage.setItem(AUTH_KEYS.USERNAME, username);
+
+    setAuth({ access, refresh, role, username });
   };
 
   const logout = () => {
-    localStorage.removeItem('access');
-    localStorage.removeItem('refresh');
-    localStorage.removeItem('isAdmin');
-    localStorage.removeItem('username');
-    setAuth({ access: null, refresh: null, isAdmin: false, username: null });
+    Object.values(AUTH_KEYS).forEach(key => localStorage.removeItem(key));
+    setAuth({ access: null, refresh: null, role: null, username: null });
   };
 
-  const update = ({ access, refresh, isAdmin, username }) => {
+  const update = ({ access, refresh, role, username }) => {
     if (access !== undefined) {
-      localStorage.setItem('access', access);
+      localStorage.setItem(AUTH_KEYS.ACCESS, access);
       setAuth(prev => ({ ...prev, access }));
     }
     if (refresh !== undefined) {
-      localStorage.setItem('refresh', refresh);
+      localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
       setAuth(prev => ({ ...prev, refresh }));
     }
-    if (isAdmin !== undefined) {
-      localStorage.setItem('isAdmin', isAdmin.toString());  // Convert boolean to string
-      setAuth(prev => ({ ...prev, isAdmin }));
+    if (role !== undefined) {
+      localStorage.setItem(AUTH_KEYS.ROLE, role);
+      setAuth(prev => ({ ...prev, role }));
     }
     if (username !== undefined) {
-      localStorage.setItem('username', username);
+      localStorage.setItem(AUTH_KEYS.USERNAME, username);
       setAuth(prev => ({ ...prev, username }));
     }
   };

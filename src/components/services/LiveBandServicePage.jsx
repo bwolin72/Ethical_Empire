@@ -22,18 +22,21 @@ const LiveBandServicePage = () => {
   ];
 
   useEffect(() => {
+    // Fetch media from integrated service_app
     publixios
-      .get('/media/?type=media&endpoint=LiveBandServicePage')
+      .get('/service_app/media/?category=LiveBandServicePage')
       .then(res => setMediaCards(res.data))
       .catch(() => setMediaCards([]));
 
+    // Fetch banner from integrated service_app
     publixios
-      .get('/media/?type=banner&endpoint=LiveBandServicePage')
+      .get('/service_app/banners/?page=LiveBandServicePage')
       .then(res => {
         if (res.data.length > 0) setBannerUrl(res.data[0].url);
       })
       .catch(() => setBannerUrl(null));
 
+    // Fetch testimonials
     publixios
       .get('/reviews/')
       .then(res => setTestimonials(res.data))

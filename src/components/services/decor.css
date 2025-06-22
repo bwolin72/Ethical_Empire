@@ -1,208 +1,228 @@
-/* === Base Colors === */
-:root {
-  --burgundy: #770734;
-  --navy-blue: #002147;
-  --muted-gold: #D4AF37;
-  --forest-green: #228B22;
-  --charcoal: #333333;
-  --white: #ffffff;
-  --light-gray: #f7f7f7;
-  --dark-gray: #222;
-}
-
-/* === Decor Page Wrapper === */
+/* === Base Styling === */
 .decor-page {
   font-family: 'Segoe UI', sans-serif;
-  background-color: var(--white);
-  color: var(--charcoal);
+  background-color: #ffffff;
+  color: #1e1e1e;
+  overflow-x: hidden;
+  padding-bottom: 3rem;
 }
 
-/* === Section Padding === */
-.decor-page section {
-  padding: 60px 20px;
-}
-
-/* === Banner Section === */
-.decor-page .decor-banner {
-  background: linear-gradient(rgba(119, 7, 52, 0.7), rgba(119, 7, 52, 0.7)),
-              url('../../assets/images/decor-wallpaper.png') center/cover no-repeat;
-  height: 60vh;
+/* === Banner === */
+.banner.decor-banner {
+  background-color: #800020;
+  color: #fff;
+  height: 55vh;
   display: flex;
-  justify-content: center;
   align-items: center;
-  color: var(--white);
+  justify-content: center;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.decor-page .decor-banner h1 {
-  font-size: 3rem;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 1rem 2rem;
-  border-radius: 20px;
+.banner-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  padding: 0 1rem;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .banner-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-title {
+    font-size: 1.6rem;
+  }
 }
 
 /* === CTA Button === */
-.decor-page .cta-button {
-  background-color: var(--burgundy);
-  color: var(--white);
-  padding: 14px 30px;
-  font-size: 1.1rem;
+.cta-button {
+  background-color: #800020;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  font-weight: bold;
   border: none;
-  border-radius: 30px;
   cursor: pointer;
-  margin-top: 20px;
   transition: background-color 0.3s ease;
 }
 
-.decor-page .cta-button:hover {
-  background-color: #550428;
+.cta-button:hover {
+  background-color: #5c0015;
 }
 
-/* === Services Grid === */
-.decor-page .service-grid {
+/* === Section Styling === */
+.section {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  color: #800020;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1.6rem;
+  }
+}
+
+/* === Decor Services Grid === */
+.service-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  margin-top: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
 }
 
-.decor-page .service-card {
-  background-color: var(--muted-gold);
-  color: var(--charcoal);
-  border-radius: 15px;
-  padding: 25px;
+.service-card {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
   text-align: center;
   font-weight: 600;
-  transition: transform 0.3s ease;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  color: #333;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
 }
 
-.decor-page .service-card:hover {
-  transform: translateY(-5px);
+.service-card:hover {
+  transform: scale(1.03);
 }
 
-/* === Transform Your Venue Section === */
-.decor-page .transform-section {
-  background-color: var(--light-gray);
+/* === Transform Section === */
+.transform-section {
+  background-color: #fff7ec;
+  padding: 2rem 1rem;
   text-align: center;
 }
 
-.decor-page .transform-section p {
-  max-width: 800px;
-  margin: 0 auto;
-  line-height: 1.8;
+.transform-section h3 {
+  color: #800020;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.transform-section p {
   font-size: 1.1rem;
-  color: var(--charcoal);
+  line-height: 1.6;
+  color: #333;
+  max-width: 768px;
+  margin: 0 auto;
 }
 
 /* === Media Section === */
-.decor-page .media-section {
+.media-section {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.media-section h3 {
+  font-size: 1.5rem;
+  color: #800020;
+  margin-bottom: 0.5rem;
   text-align: center;
-  background-color: var(--white);
 }
 
-.decor-page .media-section p {
-  max-width: 800px;
-  margin: 0 auto 40px;
-  color: var(--dark-gray);
+.media-section p {
+  font-size: 1rem;
+  color: #444;
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
-.decor-page .media-grid {
+.media-grid {
   display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  padding-top: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
 }
 
-.decor-page .media-grid .media-card {
-  background-color: var(--charcoal);
-  color: var(--white);
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  transition: transform 0.3s ease;
+/* === Testimonials Section === */
+.testimonials {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.decor-page .media-grid .media-card:hover {
-  transform: scale(1.02);
-}
-
-/* === Testimonials === */
-.decor-page .testimonials {
-  background-color: var(--light-gray);
-  text-align: center;
-}
-
-.decor-page .testimonial-grid {
+.testimonial-grid {
   display: grid;
-  gap: 20px;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  margin-top: 30px;
+  gap: 1rem;
 }
 
-.decor-page .testimonial-card {
-  background-color: var(--white);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.testimonial-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.testimonial-text {
   font-style: italic;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #333;
 }
 
-.decor-page .testimonial-card .author {
-  margin-top: 10px;
+.author {
   font-weight: bold;
-  color: var(--navy-blue);
-}
-
-/* === Section Titles === */
-.decor-page .section-title {
-  text-align: center;
-  color: var(--navy-blue);
-  font-size: 2.2rem;
-  margin-bottom: 40px;
-  font-weight: bold;
+  text-align: right;
+  color: #800020;
 }
 
 /* === WhatsApp Floating Button === */
-.decor-page .whatsapp-float {
+.whatsapp-float {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: var(--forest-green);
-  color: var(--white);
-  padding: 15px;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background-color: #25d366;
+  color: white;
+  padding: 0.8rem;
   border-radius: 50%;
-  font-size: 1.2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 1000;
-  text-decoration: none;
+  transition: transform 0.3s ease;
 }
 
-.decor-page .whatsapp-float:hover {
-  background-color: #1b6e1b;
+.whatsapp-float:hover {
+  transform: scale(1.1);
 }
 
-/* === Responsive Adjustments === */
-@media (max-width: 768px) {
-  .decor-page .decor-banner h1 {
-    font-size: 2rem;
-    padding: 0.75rem 1.5rem;
+.whatsapp-float svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* === Mobile Adjustments === */
+@media (max-width: 640px) {
+  .transform-section p,
+  .media-section p {
+    font-size: 0.95rem;
+    padding: 0 1rem;
   }
 
-  .decor-page .cta-button {
-    width: 100%;
+  .cta-button {
+    width: 90%;
+    max-width: 300px;
     font-size: 1rem;
-    padding: 12px;
   }
 
-  .decor-page .section-title {
-    font-size: 1.8rem;
-  }
-
-  .decor-page .transform-section p,
-  .decor-page .media-section p {
-    font-size: 1rem;
-    padding: 0 10px;
+  .media-grid,
+  .testimonial-grid,
+  .service-grid {
+    grid-template-columns: 1fr;
   }
 }

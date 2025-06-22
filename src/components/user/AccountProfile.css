@@ -11,13 +11,14 @@
 .account-profile {
   background-color: var(--cream);
   padding: 2rem;
-  max-width: 650px;
+  max-width: 700px;
   margin: 2rem auto;
   border-radius: 12px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
   position: relative;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--charcoal);
+  transition: all 0.3s ease-in-out;
 }
 
 .account-profile .close-btn {
@@ -67,19 +68,13 @@
   margin-bottom: 1rem;
 }
 
-.account-profile .upload-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 2rem;
-}
-
 .account-profile .upload-label {
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   color: var(--navy);
+  margin-top: -0.5rem;
+  text-decoration: underline;
 }
 
 .account-profile input[type="file"] {
@@ -108,8 +103,8 @@
 .account-profile .button-group {
   display: flex;
   justify-content: center;
-  gap: 1rem;
   flex-wrap: wrap;
+  gap: 1rem;
   margin-top: 1rem;
 }
 
@@ -121,7 +116,7 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
 }
 
 .account-profile .button-group button:hover {
@@ -152,6 +147,7 @@
   font-size: 0.95rem;
   font-family: inherit;
   margin-bottom: 1rem;
+  box-sizing: border-box;
 }
 
 .account-profile .btn {
@@ -162,7 +158,7 @@
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.3s ease;
 }
 
 .account-profile .btn:hover {
@@ -179,11 +175,11 @@
   background-color: #a61c30;
 }
 
-/* === Responsive === */
+/* === Responsive Design === */
 @media screen and (max-width: 768px) {
   .account-profile {
     padding: 1.5rem;
-    margin: 1rem;
+    margin: 1.2rem;
   }
 
   .account-profile .button-group {
@@ -198,24 +194,38 @@
 }
 
 @media screen and (max-width: 480px) {
+  .account-profile {
+    padding: 1rem;
+  }
+
   .account-profile .profile-pic,
   .account-profile .profile-initials {
-    width: 90px;
-    height: 90px;
-    font-size: 1.7rem;
+    width: 85px;
+    height: 85px;
+    font-size: 1.6rem;
   }
 
   .account-profile .user-info h3 {
     font-size: 1.2rem;
   }
 
+  .account-profile .user-info p {
+    font-size: 0.95rem;
+  }
+
   .account-profile .btn,
   .account-profile .button-group button {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     padding: 0.5rem 1rem;
   }
 
   .account-profile .review-section textarea {
     font-size: 0.9rem;
+  }
+
+  .account-profile .close-btn {
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.2rem;
   }
 }

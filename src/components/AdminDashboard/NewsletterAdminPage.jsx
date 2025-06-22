@@ -27,7 +27,7 @@ const NewsletterManagement = () => {
 
   const fetchLogs = async () => {
     try {
-      const { data } = await axiosInstance.get('/newsletter/logs/');
+      const { data } = await axiosInstance.get('/user-account/newsletter/logs/');
       setNewsletterLog(data);
     } catch (error) {
       toast.error('❌ Failed to fetch newsletter logs');
@@ -36,7 +36,7 @@ const NewsletterManagement = () => {
 
   const fetchRecipientCount = async () => {
     try {
-      const { data } = await axiosInstance.get('/newsletter/recipients/count/');
+      const { data } = await axiosInstance.get('/user-account/newsletter/recipients/count/');
       setRecipientsCount(data.count);
     } catch (error) {
       toast.error('❌ Failed to fetch subscriber count');
@@ -45,7 +45,7 @@ const NewsletterManagement = () => {
 
   const fetchSubscribers = async () => {
     try {
-      const { data } = await axiosInstance.get('/newsletter/subscribers/');
+      const { data } = await axiosInstance.get('/user-account/newsletter/subscribers/');
       setSubscribers(data);
     } catch (error) {
       toast.error('❌ Failed to fetch subscribers');
@@ -60,7 +60,7 @@ const NewsletterManagement = () => {
 
     setSending(true);
     try {
-      const { data } = await axiosInstance.post('/newsletter/send/', {
+      const { data } = await axiosInstance.post('/user-account/newsletter/send/', {
         subject,
         html: content,
         test,
@@ -76,7 +76,7 @@ const NewsletterManagement = () => {
 
   const handleResendConfirmation = async (email) => {
     try {
-      await axiosInstance.post('/newsletter/resend-confirmation/', { email });
+      await axiosInstance.post('/user-account/newsletter/resend-confirmation/', { email });
       toast.success(`✅ Confirmation email resent to ${email}`);
     } catch (error) {
       toast.error(`❌ Failed to resend confirmation to ${email}`);
@@ -88,7 +88,7 @@ const NewsletterManagement = () => {
     if (!confirmDelete) return;
 
     try {
-      await axiosInstance.delete(`/newsletter/subscribers/${id}/`);
+      await axiosInstance.delete(`/user-account/newsletter/subscribers/${id}/`);
       toast.success('✅ Subscriber deleted');
       await Promise.all([fetchSubscribers(), fetchRecipientCount()]);
     } catch (error) {
@@ -186,10 +186,7 @@ const NewsletterManagement = () => {
                   <td>{new Date(sub.subscribed_at).toLocaleString()}</td>
                   <td>
                     {!sub.confirmed && (
-                      <button
-                        type="button"
-                        onClick={() => handleResendConfirmation(sub.email)}
-                      >
+                      <button type="button" onClick={() => handleResendConfirmation(sub.email)}>
                         Resend Confirmation
                       </button>
                     )}

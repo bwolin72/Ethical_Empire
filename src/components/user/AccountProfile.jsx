@@ -19,7 +19,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
   useEffect(() => {
     if (!externalProfile) {
-      axiosInstance.get("/api/profiles/profile/")
+      axiosInstance.get("/user-account/profiles/profile/")
         .then(res => {
           setProfile(res.data);
           setProfileImage(res.data.profile_picture || "");
@@ -51,16 +51,13 @@ const AccountProfile = ({ profile: externalProfile }) => {
     try {
       const uploadRes = await fetch(
         `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
+        { method: "POST", body: formData }
       );
       const data = await uploadRes.json();
 
       if (!data.secure_url) throw new Error("Upload failed");
 
-      await axiosInstance.put("/api/profiles/profile/", { profile_picture: data.secure_url });
+      await axiosInstance.put("/user-account/profiles/profile/", { profile_picture: data.secure_url });
       setProfileImage(data.secure_url);
       toast.success("Profile picture updated.");
     } catch (err) {
@@ -73,7 +70,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!review.trim()) return toast.warn("Review cannot be empty.");
 
     try {
-      await axiosInstance.post("/api/reviews/", { message: review });
+      await axiosInstance.post("/service-app/reviews/", { message: review });
       toast.success("Review submitted!");
       setReview("");
       window.location.reload();
@@ -84,7 +81,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/api/profiles/logout/");
+      await axiosInstance.post("/user-account/profiles/logout/");
       localStorage.clear();
       window.location.reload();
     } catch {

@@ -9,17 +9,19 @@ const AdminDashboard = () => {
   const [mediaStats, setMediaStats] = useState({});
   const [reviewCount, setReviewCount] = useState(0);
   const [newsletterStats, setNewsletterStats] = useState({ posts: 0, subscribers: 0 });
+  const [analytics, setAnalytics] = useState({ visits: 0, users: 0 });
 
   useEffect(() => {
     fetchMediaStats();
     fetchReviewCount();
     fetchNewsletterStats();
+    fetchAnalytics();
   }, []);
 
   const fetchMediaStats = async () => {
     try {
       const res = await axiosInstance.get('/media/stats/');
-      setMediaStats(res.data); // Format: { EethmHome: { media: 3, banner: 1 }, UserPage: {...}, ... }
+      setMediaStats(res.data);
     } catch {
       setMediaStats({});
     }
@@ -36,25 +38,32 @@ const AdminDashboard = () => {
 
   const fetchNewsletterStats = async () => {
     try {
-      const logs = await axiosInstance.get('/newsletter/logs/');
-      const subs = await axiosInstance.get('/newsletter/subscribers/');
+      const logs = await axiosInstance.get('/user-account/newsletter/logs/');
+      const subs = await axiosInstance.get('/user-account/newsletter/subscribers/');
       setNewsletterStats({ posts: logs.data.length, subscribers: subs.data.length });
     } catch {
       setNewsletterStats({ posts: 0, subscribers: 0 });
     }
   };
 
+  const fetchAnalytics = async () => {
+    try {
+      const res = await axiosInstance.get('/analytics/');
+      setAnalytics(res.data);
+    } catch {
+      setAnalytics({ visits: 0, users: 0 });
+    }
+  };
+
   return (
     <div className="admin-dashboard-preview">
       <div className="overview-grid">
-        {/* Booking Overview */}
         <div className="overview-card">
           <h2>Bookings</h2>
           <p>23 active bookings</p>
           <button onClick={() => navigate('/admin?tab=booking')}>Learn More</button>
         </div>
 
-        {/* Videos Overview */}
         <div className="overview-card">
           <h2>Videos</h2>
           <p>Currently showing: Promo Video 1</p>
@@ -65,14 +74,12 @@ const AdminDashboard = () => {
           <button onClick={() => navigate('/admin?tab=video')}>Learn More</button>
         </div>
 
-        {/* Invoices Overview */}
         <div className="overview-card">
           <h2>Invoices</h2>
           <p>5 invoices pending</p>
           <button onClick={() => navigate('/admin?tab=invoice')}>Learn More</button>
         </div>
 
-        {/* Media Management Overview */}
         <div className="overview-card">
           <h2>Media Management</h2>
           {Object.keys(mediaStats).length > 0 ? (
@@ -100,18 +107,22 @@ const AdminDashboard = () => {
           <button onClick={() => navigate('/admin/media-management')}>Learn More</button>
         </div>
 
-        {/* Reviews Overview */}
         <div className="overview-card">
           <h2>Reviews</h2>
           <p>{reviewCount} reviews submitted</p>
           <button onClick={() => navigate('/admin/reviews')}>Learn More</button>
         </div>
 
-        {/* Newsletter Overview */}
         <div className="overview-card">
           <h2>Newsletter</h2>
           <p>{newsletterStats.posts} posts • {newsletterStats.subscribers} subscribers</p>
           <button onClick={() => navigate('/admin/newsletter')}>Learn More</button>
+        </div>
+
+        <div className="overview-card">
+          <h2>Analytics</h2>
+          <p>{analytics.visits} visits • {analytics.users} users</p>
+          <button onClick={() => navigate('/admin/analytics')}>View Analytics</button>
         </div>
       </div>
     </div>

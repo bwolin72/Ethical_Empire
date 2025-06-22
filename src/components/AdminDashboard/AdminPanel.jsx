@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import './AdminPanel.css';
 import AdminDashboard from './AdminDashboard';
 import BookingManagement from './BookingManagement';
-import VideosManagement from './VideosManagement';
 import InvoiceGeneration from './InvoiceGeneration';
 import MediaManagement from './MediaManagement';
 import ReviewsManagement from './ReviewsManagement';
@@ -47,12 +46,6 @@ const AdminPanel = () => {
               Booking Management
             </li>
             <li
-              className={activeTab === 'video' ? 'active' : ''}
-              onClick={() => setActiveTab('video')}
-            >
-              Video Management
-            </li>
-            <li
               className={activeTab === 'invoice' ? 'active' : ''}
               onClick={() => setActiveTab('invoice')}
             >
@@ -85,7 +78,6 @@ const AdminPanel = () => {
         <section className="admin-content">
           {activeTab === 'dashboard' && <AdminDashboard />}
           {activeTab === 'booking' && <BookingManagement />}
-          {activeTab === 'video' && <VideosManagement />}
           {activeTab === 'invoice' && <InvoiceGeneration />}
           {activeTab === 'media' && <MediaManagement />}
           {activeTab === 'reviews' && <ReviewsManagement />}

@@ -33,8 +33,8 @@ const MediaHostingServicePage = () => {
     const fetchData = async () => {
       try {
         const [mediaRes, bannerRes, testimonialsRes] = await Promise.all([
-          publixios.get('/media/?type=media&endpoint=MediaHostingServicePage'),
-          publixios.get('/media/?type=banner&endpoint=MediaHostingServicePage'),
+          publixios.get('/service_app/media/?type=media&endpoint=MediaHostingServicePage'),
+          publixios.get('/service_app/media/?type=banner&endpoint=MediaHostingServicePage'),
           publixios.get('/reviews/'),
         ]);
 
@@ -54,7 +54,7 @@ const MediaHostingServicePage = () => {
   }, []);
 
   return (
-    <div className="mediahosting-page-container">
+    <div className="liveband-page">
       {/* Banner Section */}
       <div className="hero-banner">
         {bannerUrl ? (
@@ -66,14 +66,14 @@ const MediaHostingServicePage = () => {
         <h1 className="hero-title">Capture & Host with Ethical Precision</h1>
       </div>
 
-      {/* CTA */}
+      {/* CTA Button */}
       <section className="cta-section">
         <button className="cta-button" onClick={() => navigate('/bookings')}>
           Request Hosting Services
         </button>
       </section>
 
-      {/* Services */}
+      {/* Hosting Services */}
       <section className="section services-section">
         <h2>Our Multimedia & Hosting Services</h2>
         <div className="card-grid">
@@ -85,15 +85,21 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* Media Section */}
+      {/* Media Showcase */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
             {loading
-              ? Array(3).fill(0).map((_, i) => <SkeletonCard key={i} />)
+              ? Array(3)
+                  .fill(0)
+                  .map((_, i) => <SkeletonCard key={i} />)
               : mediaCards.slice(0, 3).map((media, index) => (
                   <div key={index} className="media-card">
-                    <img src={media.url} alt={media.title || 'Media'} className="media-image" />
+                    <img
+                      src={media.url}
+                      alt={media.title || 'Media'}
+                      className="media-image"
+                    />
                     <p className="media-title">{media.title}</p>
                   </div>
                 ))}
@@ -110,7 +116,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* Hosting Event Place */}
+      {/* Event Hosting Info */}
       <section className="section event-hosting-section">
         <h3>Hosting Event Place</h3>
         <p>
@@ -120,7 +126,7 @@ const MediaHostingServicePage = () => {
         </p>
       </section>
 
-      {/* Banner Cards Section */}
+      {/* Dynamic Banner Cards */}
       <section className="banner-cards-wrapper">
         <BannerCards endpoint="MediaHostingServicePage" />
       </section>
@@ -130,7 +136,9 @@ const MediaHostingServicePage = () => {
         <h2>Client Reviews</h2>
         <div className="testimonial-grid">
           {loading
-            ? Array(3).fill(0).map((_, i) => <SkeletonTestimonial key={i} />)
+            ? Array(3)
+                .fill(0)
+                .map((_, i) => <SkeletonTestimonial key={i} />)
             : testimonials.slice(0, 6).map((review, index) => (
                 <div key={index} className="testimonial-card">
                   <p className="testimonial-text">"{review.message}"</p>
@@ -140,7 +148,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* WhatsApp Contact */}
+      {/* WhatsApp Button */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

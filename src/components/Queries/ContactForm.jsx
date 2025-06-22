@@ -1,6 +1,5 @@
-// ContactForm.jsx
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import './ContactForm.css';
 import logo from '../../assets/logo.png';
 
@@ -14,37 +13,31 @@ const ContactForm = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', country: '', region: '',
-    enquiry_type: '', service_type: '', eventDate: '', description: ''
+    enquiry_type: '', service_type: '', event_date: '', description: ''
   });
   const [statusMessage, setStatusMessage] = useState('');
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('access');
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}contacts/`, {
+      const response = await axiosInstance.post('/contact/', {
         ...formData,
         service_type: formData.service_type || null,
-        eventDate: formData.eventDate || null,
+        event_date: formData.event_date || null,
         description: formData.description || null,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        }
       });
 
-      setStatusMessage('Message sent successfully!');
+      setStatusMessage('✅ Message sent successfully!');
       setFormData({
         name: '', email: '', phone: '', country: '', region: '',
-        enquiry_type: '', service_type: '', eventDate: '', description: ''
+        enquiry_type: '', service_type: '', event_date: '', description: ''
       });
     } catch (error) {
-      const errMsg = error.response?.data || 'Network error. Try again.';
+      const errMsg = error.response?.data || '❌ Network error. Try again.';
       setStatusMessage(typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg));
     }
   };
@@ -85,7 +78,7 @@ const ContactForm = () => {
                 onChange={handleChange}
                 required
               >
-                {enquiryOptions.map((option) => (
+                {enquiryOptions.map(option => (
                   <option key={option} value={option}>
                     {option || 'Select enquiry type'}
                   </option>
@@ -101,7 +94,7 @@ const ContactForm = () => {
                 value={formData.service_type}
                 onChange={handleChange}
               >
-                {serviceOptions.map((option) => (
+                {serviceOptions.map(option => (
                   <option key={option} value={option}>
                     {option || 'Select service type'}
                   </option>
@@ -113,12 +106,12 @@ const ContactForm = () => {
             <div className="form-group">
               <input
                 type="date"
-                id="eventDate"
-                name="eventDate"
-                value={formData.eventDate}
+                id="event_date"
+                name="event_date"
+                value={formData.event_date}
                 onChange={handleChange}
               />
-              <label htmlFor="eventDate">Event Date (optional)</label>
+              <label htmlFor="event_date">Event Date (optional)</label>
             </div>
 
             <div className="form-group full-width">
