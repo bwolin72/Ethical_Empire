@@ -1,20 +1,54 @@
-import React, { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import axiosInstance from '../../api/axiosInstance';
+import React, { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import axiosInstance from "../../api/axiosInstance";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./ConfirmPasswordChange.css"; // Make sure this path is correct
 
 const ConfirmPasswordChange = () => {
   const [params] = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("loading"); // loading, success, error
+  const [message, setMessage] = useState("Processing password change...");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const email = params.get("email");
     const token = params.get("token");
 
-    axiosInstance.post("/profiles/password-update/confirm/", { email, token })
-      .then(() => alert("Password updated. Please login again."))
-      .catch(() => alert("Invalid or expired link."));
-  }, [params]);
+    if (!email || !token) {
+      toast.error("Missing email or token.");
+      setStatus("error");
+      setMessage("Missing email or token in the URL.");
+      setLoading(false);
+      return;
+    }
 
-  return <p>Processing password change...</p>;
+    axiosInstance
+      .post("/user-account/profiles/password-update/confirm/", { email, token })
+      .then(() => {
+        toast.success("✅ Password updated. Please login.");
+        setStatus("success");
+        setMessage("✅ Password updated successfully. Redirecting to login...");
+        setTimeout(() => navigate("/login"), 2500);
+      })
+      .catch(() => {
+        toast.error("❌ Invalid or expired link.");
+        setStatus("error");
+        setMessage("❌ Invalid or expired link. Redirecting to retry...");
+        setTimeout(() => navigate("/update-password"), 3000);
+      })
+      .finally(() => setLoading(false));
+  }, [params, navigate]);
+
+  return (
+    <div className="confirm-container">
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+      <div className={`confirm-message ${status}`}>
+        {message}
+      </div>
+    </div>
+  );
 };
 
 export default ConfirmPasswordChange;

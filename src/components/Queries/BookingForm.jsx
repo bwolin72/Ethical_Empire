@@ -1,4 +1,3 @@
-// src/components/forms/BookingForm.jsx
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
@@ -26,12 +25,15 @@ const BookingForm = () => {
   const [showServices, setShowServices] = useState(false);
 
   const serviceOptions = [
+    'Live Band',
+    'DJ',
     'Photography',
     'Videography',
-    'Decor',
-    'Live Band',
     'Catering',
-    'Hosting Event',
+    'Event Planning',
+    'Lighting',
+    'MC/Host',
+    'Sound Setup',
   ];
 
   useEffect(() => {
@@ -40,7 +42,7 @@ const BookingForm = () => {
       const user = JSON.parse(storedUser);
       setFormData((prev) => ({
         ...prev,
-        name: user.username || '',
+        name: user.full_name || '',
         email: user.email || '',
       }));
     }
@@ -48,7 +50,6 @@ const BookingForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (type === 'checkbox') {
       setFormData((prev) => ({
         ...prev,
@@ -92,13 +93,11 @@ const BookingForm = () => {
         event_date: formData.event_date
           ? formData.event_date.toISOString().split('T')[0]
           : null,
-        service_type: formData.service_type.length > 0 ? formData.service_type : [],
+        service_type: formData.service_type,
       };
 
       await axiosInstance.post('/bookings/', payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setSuccessMessage('🎉 Booking request submitted successfully!');

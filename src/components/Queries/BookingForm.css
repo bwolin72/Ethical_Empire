@@ -104,6 +104,7 @@ textarea:focus,
   left: 0.75rem;
   color: #6b7280;
   pointer-events: none;
+  z-index: 1;
 }
 
 .date-picker {

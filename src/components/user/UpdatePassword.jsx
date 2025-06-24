@@ -40,6 +40,7 @@ const UpdatePassword = () => {
         value={currentPassword}
         onChange={(e) => setCurrentPassword(e.target.value)}
         required
+        aria-label="Current Password"
       />
       <input
         type="password"
@@ -47,8 +48,9 @@ const UpdatePassword = () => {
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
         required
+        aria-label="New Password"
       />
-      <button onClick={handleRequest} disabled={loading}>
+      <button className="btn" onClick={handleRequest} disabled={loading}>
         {loading ? "Submitting..." : "Submit Request"}
       </button>
     </div>

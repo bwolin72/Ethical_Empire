@@ -19,6 +19,7 @@ const services = [
 const UserPage = () => {
   const [profile, setProfile] = useState(null);
   const [media, setMedia] = useState([]);
+  const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [featuredVideo, setFeaturedVideo] = useState(null);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
@@ -32,9 +33,10 @@ const UserPage = () => {
       axiosInstance.get("/user-account/profiles/profile/"),
       axiosInstance.get("/service-app/media/"),
       axiosInstance.get("/service-app/media/featured/"),
-      axiosInstance.get("/service-app/reviews/")
+      axiosInstance.get("/service-app/reviews/"),
+      axiosInstance.get("/service-app/promotions/")
     ])
-      .then(([profileRes, mediaRes, featuredRes, reviewsRes]) => {
+      .then(([profileRes, mediaRes, featuredRes, reviewsRes, promoRes]) => {
         if (profileRes.status === "fulfilled") {
           setProfile(profileRes.value.data);
         } else {
@@ -55,6 +57,10 @@ const UserPage = () => {
           setReviews(reviewsRes.value.data);
         } else {
           toast.error("Failed to load reviews.");
+        }
+
+        if (promoRes.status === "fulfilled") {
+          setPromotions(promoRes.value.data);
         }
       })
       .catch(() => toast.error("Something went wrong loading the user page."))
@@ -102,6 +108,34 @@ const UserPage = () => {
             </div>
           ) : (
             <p className="empty-text">No featured video available.</p>
+          )}
+
+          {promotions.length > 0 && (
+            <section>
+              <h3>Special Offers</h3>
+              <div className="promotions-grid">
+                {promotions.map((promo) => (
+                  <div key={promo.id} className="promo-card fade-in">
+                    {promo.image_url && (
+                      <img
+                        src={promo.image_url}
+                        alt={promo.title}
+                        loading="lazy"
+                        onError={(e) => (e.target.src = "/fallback.jpg")}
+                      />
+                    )}
+                    <h4>{promo.title}</h4>
+                    <p>{promo.description}</p>
+                    {promo.discount_percentage && (
+                      <p className="promo-discount">Discount: {promo.discount_percentage}%</p>
+                    )}
+                    <p className="promo-valid">
+                      Valid: {promo.valid_from} to {promo.valid_to}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
 
           <section>

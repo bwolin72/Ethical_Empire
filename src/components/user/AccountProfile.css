@@ -6,6 +6,10 @@
   --charcoal: #2E2E2E;
   --white: #ffffff;
   --cream: #f9f6f2;
+
+  --status-pending: #facc15;
+  --status-approved: #22c55e;
+  --status-rejected: #ef4444;
 }
 
 .account-profile {
@@ -124,6 +128,55 @@
   color: var(--charcoal);
 }
 
+/* === Booking Section === */
+.account-profile .booking-section {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.account-profile .booking-section h4 {
+  color: var(--navy);
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--navy);
+  padding-bottom: 0.4rem;
+}
+
+.account-profile .booking-card {
+  background-color: var(--white);
+  border-left: 4px solid var(--navy);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.account-profile .booking-card p {
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+}
+
+.account-profile .booking-card span {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  color: var(--white);
+}
+
+.account-profile .booking-card .status-pending {
+  background-color: var(--status-pending);
+}
+
+.account-profile .booking-card .status-approved {
+  background-color: var(--status-approved);
+}
+
+.account-profile .booking-card .status-rejected {
+  background-color: var(--status-rejected);
+}
+
+/* === Review Section === */
 .account-profile .review-section {
   width: 100%;
   margin-bottom: 2rem;
@@ -150,6 +203,7 @@
   box-sizing: border-box;
 }
 
+/* === Buttons === */
 .account-profile .btn {
   background-color: var(--forest-green);
   color: var(--white);

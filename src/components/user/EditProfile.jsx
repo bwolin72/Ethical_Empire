@@ -1,23 +1,32 @@
-// === src/components/user/EditProfile.jsx (Updated) ===
+// src/components/user/EditProfile.jsx
+
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
-import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./EditProfile.css";
 
 const EditProfile = () => {
-  const [form, setForm] = useState({ username: "", email: "", phone_number: "" });
+  const [form, setForm] = useState({ username: "", phone_number: "" });
+  const [email, setEmail] = useState(""); // read-only
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axiosInstance.get("/user-account/profiles/profile/")
       .then(res => {
         const { username, email, phone_number } = res.data;
-        setForm({ username, email: email || "", phone_number: phone_number || "" });
+        setForm({ username, phone_number: phone_number || "" });
+        setEmail(email || "");
       })
       .catch(() => toast.error("Failed to load profile."))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async () => {
     try {
@@ -32,26 +41,37 @@ const EditProfile = () => {
 
   return (
     <div className="edit-profile">
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
       <h2>Edit Your Profile</h2>
+
       <input
         type="text"
+        name="username"
         value={form.username}
-        onChange={e => setForm({ ...form, username: e.target.value })}
+        onChange={handleChange}
         placeholder="Username"
       />
+
       <input
         type="email"
-        value={form.email}
-        onChange={e => setForm({ ...form, email: e.target.value })}
-        placeholder="Email"
+        value={email}
+        readOnly
+        placeholder="Email (read-only)"
+        style={{ backgroundColor: "#f3f3f3", cursor: "not-allowed" }}
       />
+
       <input
         type="tel"
+        name="phone_number"
         value={form.phone_number}
-        onChange={e => setForm({ ...form, phone_number: e.target.value })}
+        onChange={handleChange}
         placeholder="Phone Number"
       />
-      <button className="btn" onClick={handleSubmit}>Save Changes</button>
+
+      <div className="button-group">
+        <button className="btn" onClick={handleSubmit}>Save Changes</button>
+        <button className="btn danger" onClick={() => navigate(-1)}>Cancel</button>
+      </div>
     </div>
   );
 };

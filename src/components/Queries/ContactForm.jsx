@@ -23,8 +23,9 @@ const ContactForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatusMessage('');
     try {
-      const response = await axiosInstance.post('/contact/', {
+      await axiosInstance.post('/contact/send/', {
         ...formData,
         service_type: formData.service_type || null,
         event_date: formData.event_date || null,

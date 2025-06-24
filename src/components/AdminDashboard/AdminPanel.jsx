@@ -6,6 +6,7 @@ import InvoiceGeneration from './InvoiceGeneration';
 import MediaManagement from './MediaManagement';
 import ReviewsManagement from './ReviewsManagement';
 import NewsletterAdminPage from './NewsletterAdminPage';
+import UserRoleManager from './UserRoleManager'; // <-- Import the new page
 import { useNavigate } from 'react-router-dom';
 
 const AdminPanel = () => {
@@ -69,6 +70,12 @@ const AdminPanel = () => {
             >
               Newsletter Manager
             </li>
+            <li
+              className={activeTab === 'roles' ? 'active' : ''}
+              onClick={() => setActiveTab('roles')}
+            >
+              User Role Manager
+            </li>
             <li className="logout-tab" onClick={handleLogout}>
               Logout
             </li>
@@ -82,6 +89,7 @@ const AdminPanel = () => {
           {activeTab === 'media' && <MediaManagement />}
           {activeTab === 'reviews' && <ReviewsManagement />}
           {activeTab === 'newsletter' && <NewsletterAdminPage />}
+          {activeTab === 'roles' && <UserRoleManager />} {/* Render new page */}
         </section>
       </div>
     </div>

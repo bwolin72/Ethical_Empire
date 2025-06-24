@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
@@ -10,6 +10,9 @@ import './Register.css';
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const Register = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [form, setForm] = useState({
     username: '',
     email: '',
@@ -18,6 +21,8 @@ const Register = () => {
     last_name: '',
     password: '',
     password2: '',
+    role: 'USER',
+    access_code: '',
   });
 
   const [error, setError] = useState('');
@@ -25,7 +30,20 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
-  const navigate = useNavigate();
+  // Autofill access_code and role from query params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get('access_code');
+    const role = params.get('role');
+
+    if (code && role) {
+      setForm(prev => ({
+        ...prev,
+        role: role.toUpperCase(),
+        access_code: code
+      }));
+    }
+  }, [location.search]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,14 +57,26 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    if (form.password !== form.password2) {
+    const { password, password2, role, access_code } = form;
+
+    if (password !== password2) {
       setError('Passwords do not match.');
+      return;
+    }
+
+    if (['ADMIN', 'WORKER'].includes(role) && !access_code) {
+      setError('Access code is required for ADMIN or WORKER registration.');
       return;
     }
 
     setLoading(true);
     try {
-      await axiosInstance.post('user-account/register/', form);
+      const payload = { ...form };
+      delete payload.password2;
+
+      if (role === 'USER') delete payload.access_code;
+
+      await axiosInstance.post('user-account/register/', payload);
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -68,17 +98,10 @@ const Register = () => {
 
     try {
       const { credential } = response;
-      const decoded = jwtDecode(credential);
-
-      const payload = {
+      await axiosInstance.post('user-account/auth/google-register/', {
         token: credential,
-        email: decoded.email,
-        first_name: decoded.given_name || '',
-        last_name: decoded.family_name || '',
-        username: decoded.email.split('@')[0],
-      };
+      });
 
-      await axiosInstance.post('user-account/auth/google-signup/', payload);
       setSuccess('Google registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -113,6 +136,23 @@ const Register = () => {
             <input name="phone_number" placeholder="Phone Number" value={form.phone_number} onChange={handleChange} required />
             <input name="first_name" placeholder="First Name" value={form.first_name} onChange={handleChange} required />
             <input name="last_name" placeholder="Last Name" value={form.last_name} onChange={handleChange} required />
+            
+            <select name="role" value={form.role} onChange={handleChange} required>
+              <option value="USER">Client</option>
+              <option value="WORKER">Internal (Worker)</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+
+            {['WORKER', 'ADMIN'].includes(form.role) && (
+              <input
+                name="access_code"
+                placeholder="Access Code"
+                value={form.access_code}
+                onChange={handleChange}
+                required
+              />
+            )}
+
             <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
             <input name="password2" type="password" placeholder="Confirm Password" value={form.password2} onChange={handleChange} required />
 

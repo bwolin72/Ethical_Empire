@@ -25,6 +25,7 @@ const serviceDetails = {
 const EethmHome = () => {
   const [heroMedia, setHeroMedia] = useState(null);
   const [banners, setBanners] = useState([]);
+  const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
@@ -39,35 +40,29 @@ const EethmHome = () => {
   };
 
   useEffect(() => {
-    const fetchMedia = async () => {
+    const fetchContent = async () => {
       try {
-        const { data } = await publicAxios.get('/service-app/media/');
-        const hero = data.find(m => m.is_hero);
-        const bannerList = data.filter(m => m.is_banner);
+        const [mediaRes, promoRes] = await Promise.all([
+          publicAxios.get('/service-app/media/'),
+          publicAxios.get('/service-app/promotions/')
+        ]);
+
+        const hero = mediaRes.data.find(m => m.endpoint === 'EethmHome' && m.is_featured);
+        const bannerList = mediaRes.data.filter(m => m.type === 'banner' && m.endpoint === 'EethmHome');
 
         setHeroMedia(hero || null);
         setBanners(bannerList || []);
+        setPromotions(promoRes.data || []);
+
       } catch (err) {
-        console.error('Media fetch error:', err);
-        if (process.env.NODE_ENV === 'development') {
-          try {
-            // fallback mock for dev
-            const mockRes = await fetch('/mock/media.json');
-            const mockData = await mockRes.json();
-            setHeroMedia(mockData.find(m => m.is_hero));
-            setBanners(mockData.filter(m => m.is_banner));
-          } catch (mockErr) {
-            setError('Failed to load media content.');
-          }
-        } else {
-          setError('Failed to load homepage media.');
-        }
+        console.error('Homepage fetch error:', err);
+        setError('Failed to load homepage content.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMedia();
+    fetchContent();
   }, []);
 
   return (
@@ -80,7 +75,7 @@ const EethmHome = () => {
           <p className="video-fallback" style={{ color: 'red' }}>{error}</p>
         ) : heroMedia ? (
           <>
-            {heroMedia.media_type === 'video' ? (
+            {heroMedia.url?.endsWith('.mp4') ? (
               <video
                 ref={videoRef}
                 className="background-video"
@@ -89,11 +84,11 @@ const EethmHome = () => {
                 muted={isMuted}
                 playsInline
               >
-                <source src={heroMedia.file_url} type="video/mp4" />
+                <source src={heroMedia.url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             ) : (
-              <img src={heroMedia.file_url} alt="Hero" className="background-video" />
+              <img src={heroMedia.url} alt="Hero" className="background-video" />
             )}
             <div className="overlay-content">
               <h1>Ethical Multimedia GH Services</h1>
@@ -105,7 +100,7 @@ const EethmHome = () => {
                 </button>
               </div>
             </div>
-            {heroMedia.media_type === 'video' && (
+            {heroMedia.url?.endsWith('.mp4') && (
               <button className="mute-button" onClick={toggleMute}>
                 {isMuted ? '🔇' : '🔊'}
               </button>
@@ -135,6 +130,32 @@ const EethmHome = () => {
         </div>
       </section>
 
+      {/* === Promotions Section === */}
+      <section className="promotions-section">
+        <h2>Current Offers</h2>
+        {promotions.length > 0 ? (
+          <div className="promos-container">
+            {promotions.map(promo => (
+              <div key={promo.id} className="promo-card">
+                {promo.image_url && <img src={promo.image_url} alt={promo.title} />}
+                <div className="promo-content">
+                  <h3>{promo.title}</h3>
+                  <p>{promo.description}</p>
+                  {promo.discount_percentage && (
+                    <p className="discount">Save {promo.discount_percentage}%</p>
+                  )}
+                  <p className="validity">
+                    Valid: {promo.valid_from} - {promo.valid_to}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No current promotions.</p>
+        )}
+      </section>
+
       {/* === Banner Highlights Section === */}
       <section className="banners-section">
         <h2>Highlights</h2>
@@ -142,7 +163,7 @@ const EethmHome = () => {
           <div className="banners-container">
             {banners.map((media) => (
               <div key={media.id} className="banner-item">
-                <MediaCard media={{ url: media.file_url, title: media.title }} />
+                <MediaCard media={{ url: media.url, title: media.title }} />
               </div>
             ))}
           </div>

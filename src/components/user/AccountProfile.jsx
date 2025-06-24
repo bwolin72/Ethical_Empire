@@ -12,6 +12,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [loading, setLoading] = useState(!externalProfile);
   const [review, setReview] = useState("");
   const [profileImage, setProfileImage] = useState(externalProfile?.profile_picture || "");
+  const [bookings, setBookings] = useState([]);
   const navigate = useNavigate();
 
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
@@ -27,6 +28,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
         .catch(() => toast.error("Failed to fetch profile."))
         .finally(() => setLoading(false));
     }
+
+    axiosInstance.get("/booking-app/user-bookings/")
+      .then(res => setBookings(res.data))
+      .catch(() => toast.warn("Could not fetch bookings."));
   }, [externalProfile]);
 
   const getInitials = (name) => {
@@ -89,6 +94,27 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
   };
 
+  const renderBookingStatus = (status) => {
+    const statusMap = {
+      pending: "#facc15",
+      approved: "#22c55e",
+      rejected: "#ef4444",
+    };
+    return (
+      <span
+        style={{
+          backgroundColor: statusMap[status] || "#ccc",
+          color: "#fff",
+          padding: "0.3rem 0.6rem",
+          borderRadius: "4px",
+          fontSize: "0.8rem",
+        }}
+      >
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+
   if (loading) return <p className="loading-text">Loading profile...</p>;
 
   return (
@@ -120,6 +146,21 @@ const AccountProfile = ({ profile: externalProfile }) => {
             <button onClick={() => navigate("/edit-profile")}>Edit Profile</button>
             <button onClick={() => navigate("/update-password")}>Change Password</button>
           </div>
+        </div>
+
+        <div className="booking-section">
+          <h4>My Bookings ({bookings.length})</h4>
+          {bookings.length ? (
+            bookings.map((bk) => (
+              <div key={bk.id} className="booking-card">
+                <p><strong>Service:</strong> {bk.service_type?.join(", ")}</p>
+                <p><strong>Date:</strong> {bk.event_date}</p>
+                <p><strong>Status:</strong> {renderBookingStatus(bk.status)}</p>
+              </div>
+            ))
+          ) : (
+            <p>No bookings yet.</p>
+          )}
         </div>
 
         <div className="review-section">
