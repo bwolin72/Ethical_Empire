@@ -7,7 +7,8 @@ import {
   FaUsers,
   FaStar,
 } from 'react-icons/fa';
-import axiosInstance from '../../api/axiosInstance'; // Auth-aware and env-based
+import { Link } from 'react-router-dom';
+import publicAxios from '../../api/publicAxios'; // Switched to public instance
 import MediaCard from '../context/MediaCard';
 import './About.css';
 
@@ -43,20 +44,22 @@ function About() {
   const [banners, setBanners] = useState([]);
   const [mediaList, setMediaList] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
+  // const [error, setError] = useState(null); // Optional: show user-facing error
 
   useEffect(() => {
     const fetchContent = async () => {
       try {
         const [bannersRes, mediaRes, testimonialsRes] = await Promise.all([
-          axiosInstance.get('media/?type=banner&endpoint=About'),
-          axiosInstance.get('media/?type=media&endpoint=About'),
-          axiosInstance.get('reviews/'),
+          publicAxios.get('media/?type=banner&endpoint=About'),
+          publicAxios.get('media/?type=media&endpoint=About'),
+          publicAxios.get('reviews/'),
         ]);
         setBanners(bannersRes.data);
         setMediaList(mediaRes.data);
         setTestimonials(testimonialsRes.data);
       } catch (error) {
         console.error('Error loading About page data:', error);
+        // setError("Failed to load content. Please try again later.");
       }
     };
 
@@ -136,11 +139,15 @@ function About() {
         <div>
           <h3 className="text-xl font-bold text-[#c9a356] mb-4">Why Choose Us?</h3>
           <ul>
-            <li>Over a decade of experience in multimedia and live events.</li>
-            <li>Dedicated team of skilled creatives and coordinators.</li>
-            <li>State-of-the-art equipment and production standards.</li>
-            <li>Client-first approach with flexible packages and honest pricing.</li>
-            <li>Proven record of delivering flawless events across Ghana and beyond.</li>
+            {[
+              'Over a decade of experience in multimedia and live events.',
+              'Dedicated team of skilled creatives and coordinators.',
+              'State-of-the-art equipment and production standards.',
+              'Client-first approach with flexible packages and honest pricing.',
+              'Proven record of delivering flawless events across Ghana and beyond.',
+            ].map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
           </ul>
         </div>
         <div className="flex items-center justify-center">
@@ -166,9 +173,9 @@ function About() {
       {/* Call to Action */}
       <div className="cta-section">
         <h3 className="text-xl font-semibold mb-3">Ready to plan something unforgettable?</h3>
-        <a href="/bookings" className="cta-button">
+        <Link to="/bookings" className="cta-button">
           Book Now
-        </a>
+        </Link>
       </div>
     </div>
   );

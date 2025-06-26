@@ -42,18 +42,16 @@ const EethmHome = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const [mediaRes, promoRes] = await Promise.all([
-          publicAxios.get('/service-app/media/'),
+        const [featuredRes, bannerRes, promoRes] = await Promise.all([
+          publicAxios.get('/service-app/media/featured/'),
+          publicAxios.get('/service-app/media/banners/?endpoint=EethmHome'),
           publicAxios.get('/service-app/promotions/')
         ]);
 
-        const hero = mediaRes.data.find(m => m.endpoint === 'EethmHome' && m.is_featured);
-        const bannerList = mediaRes.data.filter(m => m.type === 'banner' && m.endpoint === 'EethmHome');
-
-        setHeroMedia(hero || null);
-        setBanners(bannerList || []);
+        const featured = featuredRes.data.find(m => m.endpoint === 'EethmHome');
+        setHeroMedia(featured || null);
+        setBanners(bannerRes.data || []);
         setPromotions(promoRes.data || []);
-
       } catch (err) {
         console.error('Homepage fetch error:', err);
         setError('Failed to load homepage content.');

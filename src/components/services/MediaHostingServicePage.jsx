@@ -4,6 +4,7 @@ import publixios from '../../api/publicAxios';
 import BannerCards from '../context/BannerCards';
 import './MediaHostingServicePage.css';
 
+// Skeleton loading components
 const SkeletonCard = () => <div className="skeleton-card shimmer" />;
 const SkeletonTestimonial = () => (
   <div className="testimonial-card skeleton shimmer">
@@ -38,13 +39,15 @@ const MediaHostingServicePage = () => {
           publixios.get('/reviews/'),
         ]);
 
-        setMediaCards(mediaRes.data);
+        setMediaCards(mediaRes.data || []);
         if (bannerRes.data.length > 0) {
           setBannerUrl(bannerRes.data[0].url);
         }
-        setTestimonials(testimonialsRes.data);
+        setTestimonials(testimonialsRes.data || []);
       } catch (error) {
         console.error('Fetching failed:', error);
+        setMediaCards([]);
+        setTestimonials([]);
       } finally {
         setLoading(false);
       }
@@ -55,7 +58,7 @@ const MediaHostingServicePage = () => {
 
   return (
     <div className="liveband-page">
-      {/* Banner Section */}
+      {/* Hero Banner */}
       <div className="hero-banner">
         {bannerUrl ? (
           <img src={bannerUrl} alt="Banner" className="hero-banner-image" />
@@ -66,7 +69,7 @@ const MediaHostingServicePage = () => {
         <h1 className="hero-title">Capture & Host with Ethical Precision</h1>
       </div>
 
-      {/* CTA Button */}
+      {/* CTA */}
       <section className="cta-section">
         <button className="cta-button" onClick={() => navigate('/bookings')}>
           Request Hosting Services
@@ -116,7 +119,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* Event Hosting Info */}
+      {/* Hosting Venue Info */}
       <section className="section event-hosting-section">
         <h3>Hosting Event Place</h3>
         <p>
@@ -148,7 +151,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* WhatsApp Button */}
+      {/* WhatsApp Contact Button */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

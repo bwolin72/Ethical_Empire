@@ -22,21 +22,18 @@ const LiveBandServicePage = () => {
   ];
 
   useEffect(() => {
-    // Fetch media from integrated service_app
     publixios
-      .get('/service_app/media/?category=LiveBandServicePage')
+      .get('/service-app/media/?endpoint=LiveBandServicePage')
       .then(res => setMediaCards(res.data))
       .catch(() => setMediaCards([]));
 
-    // Fetch banner from integrated service_app
     publixios
-      .get('/service_app/banners/?page=LiveBandServicePage')
+      .get('/service-app/banners/?page=LiveBandServicePage')
       .then(res => {
         if (res.data.length > 0) setBannerUrl(res.data[0].url);
       })
       .catch(() => setBannerUrl(null));
 
-    // Fetch testimonials
     publixios
       .get('/reviews/')
       .then(res => setTestimonials(res.data))
@@ -45,7 +42,7 @@ const LiveBandServicePage = () => {
 
   return (
     <div className="liveband-page-container">
-      {/* Banner Section */}
+      {/* Hero Banner */}
       <div className="hero-banner">
         {bannerUrl ? (
           <img src={bannerUrl} alt="Live Band Banner" className="hero-banner-image" />
@@ -56,7 +53,7 @@ const LiveBandServicePage = () => {
         <h1 className="hero-title">Ethical Sounds</h1>
       </div>
 
-      {/* CTA */}
+      {/* CTA Button */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -67,9 +64,9 @@ const LiveBandServicePage = () => {
         </motion.button>
       </section>
 
-      {/* Services */}
+      {/* Service Offerings */}
       <section className="section services-section">
-        <h2>Live Band Services</h2>
+        <h2 className="section-title">Live Band Services</h2>
         <div className="card-grid">
           {liveBandServices.map((service, index) => (
             <Card key={index} className="card">
@@ -79,20 +76,24 @@ const LiveBandServicePage = () => {
         </div>
       </section>
 
-      {/* Creative Section */}
+      {/* Creative Media + Description Section */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
-            {mediaCards.slice(0, 3).map((media, index) => (
-              <MediaCard key={index} media={media} />
-            ))}
+            {mediaCards.length > 0 ? (
+              mediaCards.slice(0, 3).map((media, index) => (
+                <MediaCard key={index} media={media} />
+              ))
+            ) : (
+              <p className="text-center text-gray-500">No live band media available at the moment.</p>
+            )}
           </div>
           <div className="creative-text">
-            <h3>Immersive Musical Moments</h3>
+            <h3 className="text-xl font-semibold mb-3">Immersive Musical Moments</h3>
             <p>
-              Whether you're planning a wedding, corporate gala, or a private soirée,
-              our bands deliver a customized soundtrack. Soulful ballads, high-energy hits,
-              and traditional rhythms—we turn your event into a masterpiece.
+              Whether you're planning a wedding, corporate gala, or private soirée,
+              our live bands craft unforgettable experiences. From soulful ballads
+              to upbeat rhythms, we deliver music that elevates every moment.
             </p>
           </div>
         </div>
@@ -100,20 +101,24 @@ const LiveBandServicePage = () => {
 
       {/* Testimonials */}
       <section className="section testimonial-section">
-        <h2>Client Reviews</h2>
+        <h2 className="section-title">Client Reviews</h2>
         <div className="testimonial-grid">
-          {testimonials.slice(0, 6).map((review, index) => (
-            <Card key={index} className="testimonial-card">
-              <CardContent>
-                <p className="testimonial-text">"{review.message}"</p>
-                <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-              </CardContent>
-            </Card>
-          ))}
+          {testimonials.length > 0 ? (
+            testimonials.slice(0, 6).map((review, index) => (
+              <Card key={index} className="testimonial-card">
+                <CardContent>
+                  <p className="testimonial-text">"{review.message}"</p>
+                  <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No client reviews available yet.</p>
+          )}
         </div>
       </section>
 
-      {/* WhatsApp Contact */}
+      {/* WhatsApp Floating Button */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"
