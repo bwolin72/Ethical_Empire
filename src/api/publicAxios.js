@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'development' && !baseURL) {
   // Fallback to local mock server in dev mode
   baseURL = 'http://localhost:8000/api/';
 } else if (!baseURL) {
-  baseURL = 'https://ethical-backend.onrender.com/api/';
+  baseURL = 'https://ethical-backend-production.up.railway.app/api/';
 }
 
 // Ensure trailing slash
