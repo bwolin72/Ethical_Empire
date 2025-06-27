@@ -23,7 +23,7 @@ function Footer() {
 
     setLoading(true);
     try {
-      await axiosInstance.post('/subscribe/', {
+      await axiosInstance.post('user-accounts/subscribe/', {
         email,
         token: captchaToken,
       });

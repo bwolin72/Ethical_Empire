@@ -50,9 +50,9 @@ function About() {
     const fetchContent = async () => {
       try {
         const [bannersRes, mediaRes, testimonialsRes] = await Promise.all([
-          publicAxios.get('media/?type=banner&endpoint=About'),
-          publicAxios.get('media/?type=media&endpoint=About'),
-          publicAxios.get('reviews/'),
+          publicAxios.get('/service-app/media/?type=banner&endpoint=About'),
+          publicAxios.get('/service-app/media/?type=media&endpoint=About'),
+          publicAxios.get('/service-app/reviews/'),
         ]);
         setBanners(bannersRes.data);
         setMediaList(mediaRes.data);
