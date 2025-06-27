@@ -48,7 +48,7 @@ const EethmHome = () => {
           publicAxios.get('/promotions/')
         ]);
 
-        const featured = featuredRes.data.find(m => m.endpoint === 'EethmHome');
+        const featured = featuredRes.data?.data;
         setHeroMedia(featured || null);
         setBanners(bannerRes.data || []);
         setPromotions(promoRes.data || []);
@@ -73,7 +73,7 @@ const EethmHome = () => {
           <p className="video-fallback" style={{ color: 'red' }}>{error}</p>
         ) : heroMedia ? (
           <>
-            {heroMedia.url?.endsWith('.mp4') ? (
+            {(heroMedia.url || heroMedia.file_url)?.endsWith('.mp4') ? (
               <video
                 ref={videoRef}
                 className="background-video"
@@ -82,11 +82,15 @@ const EethmHome = () => {
                 muted={isMuted}
                 playsInline
               >
-                <source src={heroMedia.url} type="video/mp4" />
+                <source src={heroMedia.url || heroMedia.file_url} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             ) : (
-              <img src={heroMedia.url} alt="Hero" className="background-video" />
+              <img
+                src={heroMedia.url || heroMedia.file_url}
+                alt="Hero"
+                className="background-video"
+              />
             )}
             <div className="overlay-content">
               <h1>Ethical Multimedia GH Services</h1>
@@ -98,7 +102,7 @@ const EethmHome = () => {
                 </button>
               </div>
             </div>
-            {heroMedia.url?.endsWith('.mp4') && (
+            {(heroMedia.url || heroMedia.file_url)?.endsWith('.mp4') && (
               <button className="mute-button" onClick={toggleMute}>
                 {isMuted ? '🔇' : '🔊'}
               </button>
@@ -161,7 +165,7 @@ const EethmHome = () => {
           <div className="banners-container">
             {banners.map((media) => (
               <div key={media.id} className="banner-item">
-                <MediaCard media={{ url: media.url, title: media.title }} />
+                <MediaCard media={{ url: media.url || media.file_url, title: media.title }} />
               </div>
             ))}
           </div>
