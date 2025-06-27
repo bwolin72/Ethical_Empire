@@ -1,49 +1,59 @@
 // src/api/axiosInstance.js
 import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
+import baseURL from './baseURL';
 
-let baseURL = process.env.REACT_APP_API_BASE_URL;
+const axiosInstance = axios.create({ baseURL });
 
-if (process.env.NODE_ENV === 'development' && !baseURL) {
-  baseURL = 'http://localhost:8000/api/';
-} else if (!baseURL) {
-  baseURL = 'https://ethical-backend-production.up.railway.app/api/';
-}
+let isRefreshing = false;
+let refreshSubscribers = [];
 
-// Ensure trailing slash
-if (!baseURL.endsWith('/')) baseURL += '/';
+const subscribeTokenRefresh = (callback) => {
+  refreshSubscribers.push(callback);
+};
 
-const axiosInstance = axios.create({
-  baseURL,
-});
+const onRefreshed = (token) => {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+};
+
+const isTokenValid = (token) => {
+  try {
+    const { exp } = jwtDecode(token);
+    return exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+};
 
 // === Request Interceptor ===
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access');
-
-    if (token && token !== 'undefined' && token !== 'null' && token.length > 10) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    } else {
-      delete config.headers['Authorization']; // Clean up bad tokens
-    }
-
+    const method = config.method?.toUpperCase();
     const isFormData = config.data instanceof FormData;
 
-    if (config.method?.toUpperCase() !== 'GET' && !isFormData) {
+    if (token && isTokenValid(token)) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete config.headers['Authorization'];
+    }
+
+    if (method === 'GET') {
+      delete config.headers['Content-Type'];
+    } else if (!isFormData) {
       config.headers['Content-Type'] = 'application/json';
-    } else if (config.method?.toUpperCase() === 'GET') {
-      delete config.headers['Content-Type']; // GET should not send Content-Type
     }
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('[AxiosInstance Request]', config.method?.toUpperCase(), config.url, config);
+      console.log('[Request]', method, config.url, config);
     }
 
     return config;
   },
   (error) => {
     if (process.env.NODE_ENV === 'development') {
-      console.error('[AxiosInstance Request Error]', error);
+      console.error('[Request Error]', error);
     }
     return Promise.reject(error);
   }
@@ -53,19 +63,55 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('[AxiosInstance Response]', response.status, response.config.url, response.data);
+      console.log('[Response]', response.status, response.config.url, response.data);
     }
     return response;
   },
-  (error) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[AxiosInstance Response Error]', error?.response?.status, error?.response?.config?.url, error);
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refresh = localStorage.getItem('refresh');
+
+      if (!refresh || !isTokenValid(refresh)) {
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((token) => {
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            resolve(axiosInstance(originalRequest));
+          });
+        });
+      }
+
+      isRefreshing = true;
+
+      try {
+        const { data } = await axios.post(`${baseURL}user-account/refresh/`, { refresh });
+        const { access } = data;
+
+        localStorage.setItem('access', access);
+        axiosInstance.defaults.headers['Authorization'] = `Bearer ${access}`;
+        onRefreshed(access);
+
+        return axiosInstance(originalRequest);
+      } catch (err) {
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
     }
 
-    // Optional: Global auth expiration handling
-    // if (error.response?.status === 401) {
-    //   // logout(), redirect to /login, etc.
-    // }
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Response Error]', error?.response?.status, error?.response?.config?.url, error);
+    }
 
     return Promise.reject(error);
   }

@@ -35,7 +35,7 @@ const MediaManagement = () => {
       if (statusFilter !== 'all') {
         params.is_active = statusFilter === 'active';
       }
-      const res = await axiosInstance.get('/media/list/', { params });
+      const res = await axiosInstance.get('/media/', { params });
       setUploadedItems(res.data);
     } catch (error) {
       console.error('Failed to fetch media:', error);
@@ -57,7 +57,7 @@ const MediaManagement = () => {
     formData.append('endpoint', selectedEndpoint);
 
     try {
-      await axiosInstance.post('/services/media/upload/', formData, {
+      await axiosInstance.post('/media/upload/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       fetchMedia();
@@ -73,7 +73,7 @@ const MediaManagement = () => {
 
   const toggleActive = async (id) => {
     try {
-      const res = await axiosInstance.patch(`/services/media/toggle/${id}/`);
+      const res = await axiosInstance.patch(`/media/${id}/toggle/`);
       fetchMedia();
       toast.info(`Media is now ${res.data.is_active ? 'active' : 'inactive'}.`);
     } catch (err) {
@@ -86,7 +86,7 @@ const MediaManagement = () => {
     if (!window.confirm('Delete this media?')) return;
 
     try {
-      await axiosInstance.delete(`/services/media/delete/${id}/`);
+      await axiosInstance.delete(`/media/${id}/delete/`);
       fetchMedia();
       toast.success('Media deleted.');
     } catch (err) {

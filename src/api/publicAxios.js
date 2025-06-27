@@ -1,64 +1,44 @@
 // src/api/publicAxios.js
 import axios from 'axios';
+import baseURL from './baseURL';
 
-// Determine API base URL
-let baseURL = process.env.REACT_APP_API_BASE_URL;
+const publicAxios = axios.create({ baseURL });
 
-if (process.env.NODE_ENV === 'development' && !baseURL) {
-  // Fallback to local mock server in dev mode
-  baseURL = 'http://localhost:8000/api/';
-} else if (!baseURL) {
-  baseURL = 'https://ethical-backend-production.up.railway.app/api/';
-}
-
-// Ensure trailing slash
-if (!baseURL.endsWith('/')) baseURL += '/';
-
-const publicAxios = axios.create({
-  baseURL,
-});
-
-// Request interceptor for GET vs POST headers
 publicAxios.interceptors.request.use(
   (config) => {
+    const method = config.method?.toUpperCase();
     const isFormData = config.data instanceof FormData;
 
-    if (config.method?.toUpperCase() === 'GET') {
-      // Clear any accidental content headers on GET
+    if (method === 'GET') {
       delete config.headers['Content-Type'];
-    } else {
-      // Set content type for JSON or preserve FormData
-      if (!isFormData) {
-        config.headers['Content-Type'] = 'application/json';
-      }
+    } else if (!isFormData) {
+      config.headers['Content-Type'] = 'application/json';
     }
 
-    // Logging (development only)
     if (process.env.NODE_ENV === 'development') {
-      console.log('[PublicAxios Request]', config.method?.toUpperCase(), config.url, config);
+      console.log('[Public Request]', method, config.url, config);
     }
 
     return config;
   },
   (error) => {
     if (process.env.NODE_ENV === 'development') {
-      console.error('[PublicAxios Request Error]', error);
+      console.error('[Public Request Error]', error);
     }
     return Promise.reject(error);
   }
 );
 
-// Response interceptor
 publicAxios.interceptors.response.use(
   (response) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('[PublicAxios Response]', response.status, response.config.url, response.data);
+      console.log('[Public Response]', response.status, response.config.url, response.data);
     }
     return response;
   },
   (error) => {
     if (process.env.NODE_ENV === 'development') {
-      console.error('[PublicAxios Response Error]', error?.response?.status, error?.response?.config?.url, error);
+      console.error('[Public Response Error]', error?.response?.status, error?.response?.config?.url, error);
     }
     return Promise.reject(error);
   }

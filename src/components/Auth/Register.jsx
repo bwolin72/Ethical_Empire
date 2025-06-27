@@ -76,7 +76,7 @@ const Register = () => {
 
       if (role === 'USER') delete payload.access_code;
 
-      await axiosInstance.post('user-account/register/', payload);
+      await axiosInstance.post('register/', payload);  // Updated URL
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -98,9 +98,9 @@ const Register = () => {
 
     try {
       const { credential } = response;
-      await axiosInstance.post('user-account/auth/google-register/', {
+      await axiosInstance.post('auth/google-register/', {
         token: credential,
-      });
+      }); // Updated URL
 
       setSuccess('Google registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
@@ -136,7 +136,7 @@ const Register = () => {
             <input name="phone_number" placeholder="Phone Number" value={form.phone_number} onChange={handleChange} required />
             <input name="first_name" placeholder="First Name" value={form.first_name} onChange={handleChange} required />
             <input name="last_name" placeholder="Last Name" value={form.last_name} onChange={handleChange} required />
-            
+
             <select name="role" value={form.role} onChange={handleChange} required>
               <option value="USER">Client</option>
               <option value="WORKER">Internal (Worker)</option>

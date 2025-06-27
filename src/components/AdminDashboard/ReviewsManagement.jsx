@@ -14,7 +14,7 @@ const ReviewsManagement = () => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axiosInstance.get('/user-account/reviews/');
+      const res = await axiosInstance.get('/reviews/');
       setReviews(res.data);
     } catch (err) {
       toast.error('Failed to load reviews.');
@@ -23,7 +23,7 @@ const ReviewsManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axiosInstance.delete(`/user-account/reviews/${id}/delete/`);
+      await axiosInstance.delete(`/reviews/${id}/delete/`);
       toast.success('Review deleted.');
       fetchReviews();
     } catch (err) {
@@ -33,13 +33,14 @@ const ReviewsManagement = () => {
 
   const handleReply = async (id) => {
     const reply = replyMap[id];
-    if (!reply) {
+    if (!reply?.trim()) {
       toast.warning('Reply cannot be empty.');
       return;
     }
     try {
-      await axiosInstance.patch(`/user-account/reviews/${id}/reply/`, { reply });
+      await axiosInstance.patch(`/reviews/${id}/reply/`, { reply });
       toast.success('Reply sent.');
+      setReplyMap((prev) => ({ ...prev, [id]: '' }));
       fetchReviews();
     } catch (err) {
       toast.error('Failed to send reply.');

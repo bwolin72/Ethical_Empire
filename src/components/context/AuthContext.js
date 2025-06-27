@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
@@ -9,12 +9,16 @@ const AUTH_KEYS = {
   USERNAME: 'username',
 };
 
+// Optional: Export logout globally so axiosInstance can call it
+let globalLogout = () => {};
+export const getGlobalLogout = () => globalLogout;
+
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({
-    access: localStorage.getItem(AUTH_KEYS.ACCESS) || null,
-    refresh: localStorage.getItem(AUTH_KEYS.REFRESH) || null,
-    role: localStorage.getItem(AUTH_KEYS.ROLE) || null, // 'admin', 'user', 'worker'
-    username: localStorage.getItem(AUTH_KEYS.USERNAME) || null,
+    access: localStorage.getItem(AUTH_KEYS.ACCESS),
+    refresh: localStorage.getItem(AUTH_KEYS.REFRESH),
+    role: localStorage.getItem(AUTH_KEYS.ROLE),
+    username: localStorage.getItem(AUTH_KEYS.USERNAME),
   });
 
   const login = ({ access, refresh, role, username }) => {
@@ -31,31 +35,44 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    Object.values(AUTH_KEYS).forEach(key => localStorage.removeItem(key));
+    Object.values(AUTH_KEYS).forEach((key) => localStorage.removeItem(key));
     setAuth({ access: null, refresh: null, role: null, username: null });
   };
 
+  // Make logout available globally
+  useEffect(() => {
+    globalLogout = logout;
+  }, []);
+
   const update = ({ access, refresh, role, username }) => {
-    if (access !== undefined) {
-      localStorage.setItem(AUTH_KEYS.ACCESS, access);
-      setAuth(prev => ({ ...prev, access }));
-    }
-    if (refresh !== undefined) {
-      localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-      setAuth(prev => ({ ...prev, refresh }));
-    }
-    if (role !== undefined) {
-      localStorage.setItem(AUTH_KEYS.ROLE, role);
-      setAuth(prev => ({ ...prev, role }));
-    }
-    if (username !== undefined) {
-      localStorage.setItem(AUTH_KEYS.USERNAME, username);
-      setAuth(prev => ({ ...prev, username }));
-    }
+    setAuth((prev) => {
+      const updated = { ...prev };
+
+      if (access !== undefined) {
+        localStorage.setItem(AUTH_KEYS.ACCESS, access);
+        updated.access = access;
+      }
+      if (refresh !== undefined) {
+        localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+        updated.refresh = refresh;
+      }
+      if (role !== undefined) {
+        localStorage.setItem(AUTH_KEYS.ROLE, role);
+        updated.role = role;
+      }
+      if (username !== undefined) {
+        localStorage.setItem(AUTH_KEYS.USERNAME, username);
+        updated.username = username;
+      }
+
+      return updated;
+    });
   };
 
+  const isAuthenticated = !!auth.access;
+
   return (
-    <AuthContext.Provider value={{ auth, login, logout, update }}>
+    <AuthContext.Provider value={{ auth, login, logout, update, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

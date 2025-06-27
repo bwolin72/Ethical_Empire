@@ -85,6 +85,19 @@
   margin-bottom: 10px;
 }
 
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: #800020;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  color: #CBA135;
+  text-decoration: underline;
+}
+
 /* Responsive Tweaks */
 @media (max-width: 768px) {
   .services-page {
@@ -97,5 +110,18 @@
 
   .service-detail {
     padding: 20px;
+  }
+}
+@media (max-width: 480px) {
+  .services-page h2 {
+    font-size: 1.5rem;
+  }
+
+  .service-item h3 {
+    font-size: 1.2rem;
+  }
+
+  .service-detail h2 {
+    font-size: 1.5rem;
   }
 }

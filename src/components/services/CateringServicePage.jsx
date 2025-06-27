@@ -52,7 +52,11 @@ const CateringPage = () => {
       {/* Banner Section */}
       <div className="hero-banner">
         {bannerUrl ? (
-          <img src={bannerUrl} alt="Catering Banner" className="hero-banner-image" />
+          <img
+            src={bannerUrl}
+            alt="Catering banner featuring Ghanaian and fusion cuisine"
+            className="hero-banner-image"
+          />
         ) : (
           <div className="hero-banner-placeholder">No Banner Uploaded</div>
         )}
@@ -83,7 +87,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Creative Ideas */}
+      {/* Creative Ideas Section */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
@@ -118,14 +122,18 @@ const CateringPage = () => {
       <section className="section testimonial-section">
         <h2>What Clients Say</h2>
         <div className="testimonial-grid">
-          {testimonials.slice(0, 6).map((review) => (
-            <Card key={review.id} className="testimonial-card">
-              <CardContent>
-                <p className="testimonial-text">"{review?.message}"</p>
-                <p className="testimonial-user">— {review?.user?.username || 'Anonymous'}</p>
-              </CardContent>
-            </Card>
-          ))}
+          {testimonials.length > 0 ? (
+            testimonials.slice(0, 6).map((review) => (
+              <Card key={review.id} className="testimonial-card">
+                <CardContent>
+                  <p className="testimonial-text">"{review?.message || 'No message provided.'}"</p>
+                  <p className="testimonial-user">— {review?.user?.username || 'Anonymous'}</p>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <p>No testimonials available yet.</p>
+          )}
         </div>
       </section>
 

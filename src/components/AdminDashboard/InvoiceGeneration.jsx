@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import axiosInstance from '../../api/axiosInstance';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable'; // ✅ FIXED: Correct import
+import autoTable from 'jspdf-autotable';
 import './InvoiceGeneration.css';
 import logo from '../../assets/logo.png';
 
@@ -14,17 +15,14 @@ const InvoiceGeneration = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const bookingsRes = await axiosInstance.get('/bookings/');
+        const [bookingsRes, servicesRes] = await Promise.all([
+          axiosInstance.get('/bookings/'),
+          axiosInstance.get('/service-prices/')
+        ]);
         setBookings(bookingsRes.data);
-      } catch (err) {
-        console.error('Error fetching bookings:', err);
-      }
-
-      try {
-        const servicesRes = await axiosInstance.get('/service-prices/');
         setServices(servicesRes.data);
       } catch (err) {
-        console.error('Error fetching services:', err);
+        console.error('Error fetching data:', err);
       }
     };
 
@@ -64,11 +62,9 @@ const InvoiceGeneration = () => {
     doc.setFontSize(60);
     doc.text('EeTH_GH', pageWidth / 2, pageHeight / 2, { align: 'center', angle: 45 });
 
-    // Logo
+    // Header
     doc.setTextColor(0, 0, 0);
     doc.addImage(logo, 'PNG', 14, 10, 40, 40);
-
-    // Company Info
     doc.setFontSize(18);
     doc.text('Ethical Multimedia GH', 60, 18);
     doc.setFontSize(11);
@@ -76,8 +72,6 @@ const InvoiceGeneration = () => {
     doc.text('asaasebandeethm@gmail.com', 60, 30);
     doc.text('www.ethicalempire.com', 60, 35);
     doc.text('Akotsi - Breku, Kasoa, Ghana', 60, 40);
-
-    // Invoice Title
     doc.setFontSize(16);
     doc.text('INVOICE', pageWidth - 50, 20);
     doc.setFontSize(11);
@@ -107,7 +101,12 @@ const InvoiceGeneration = () => {
 
   return (
     <div className="invoice-container">
-      <main className="invoice-main">
+      <motion.main
+        className="invoice-main"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         {booking ? (
           <>
             <h3>{booking.name}</h3>
@@ -115,7 +114,7 @@ const InvoiceGeneration = () => {
             <p><strong>Event Date:</strong> {formatDate(booking.event_date)}</p>
             <p><strong>Phone:</strong> {booking.phone}</p>
             <p><strong>Venue:</strong> {booking.address || 'N/A'}</p>
-            <p><strong>Service Type:</strong> {serviceList.length ? serviceList.join(', ') : 'N/A'}</p>
+            <p><strong>Service Type:</strong> {serviceList.join(', ') || 'N/A'}</p>
             <p><strong>Total:</strong> GHS {total.toFixed(2)}</p>
 
             <div className="payment-options">
@@ -124,6 +123,7 @@ const InvoiceGeneration = () => {
                   <input
                     type="radio"
                     name="payment"
+                    value={option}
                     checked={paymentStatus === option}
                     onChange={() => setPaymentStatus(option)}
                   />
@@ -133,14 +133,19 @@ const InvoiceGeneration = () => {
             </div>
 
             <p><strong>Paid:</strong> GHS {paid.toFixed(2)}</p>
-            <button onClick={generatePDF}>Download Invoice</button>
+            <button className="download-btn" onClick={generatePDF}>Download Invoice</button>
           </>
         ) : (
-          <h2>Select a booking from the right panel →</h2>
+          <h2 className="empty-state">Select a booking from the right panel →</h2>
         )}
-      </main>
+      </motion.main>
 
-      <aside className="invoice-sidebar">
+      <motion.aside
+        className="invoice-sidebar"
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h2>Bookings</h2>
         {bookings.map(b => (
           <div
@@ -151,7 +156,7 @@ const InvoiceGeneration = () => {
             {b.name} - {formatDate(b.event_date)}
           </div>
         ))}
-      </aside>
+      </motion.aside>
     </div>
   );
 };

@@ -29,9 +29,12 @@ export default function Login() {
   };
 
   const redirectByRole = (role) => {
-    if (role === 'ADMIN') return navigate('/admin', { replace: true });
-    if (role === 'WORKER') return navigate('/worker', { replace: true });
-    navigate('/user', { replace: true });
+    const routes = {
+      ADMIN: '/admin',
+      WORKER: '/worker',
+      USER: '/user',
+    };
+    navigate(routes[role] || routes.USER, { replace: true });
   };
 
   const handleLoginSuccess = (access, refresh, username, role) => {
@@ -41,11 +44,10 @@ export default function Login() {
     redirectByRole(role);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+  const handleChange = ({ target: { name, value } }) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
     setError('');
-    setFormErrors({ ...formErrors, [name]: '' });
+    setFormErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = async (e) => {
@@ -58,14 +60,11 @@ export default function Login() {
       const { data } = await axiosInstance.post('user-account/login/', form);
       const { access, refresh } = data;
 
-      if (!access || !refresh) throw new Error('Tokens not received.');
-
       const userRes = await axiosInstance.get('user-account/user-role/');
       const { username, role } = userRes.data;
 
       handleLoginSuccess(access, refresh, username, role);
     } catch (err) {
-      console.error('Login error:', err);
       const msg =
         err.response?.data?.detail ||
         err.response?.data?.error ||
@@ -78,14 +77,11 @@ export default function Login() {
     }
   };
 
-  const handleGoogleSuccess = async (credResp) => {
+  const handleGoogleSuccess = async ({ credential }) => {
     setError('');
     setLoading(true);
     try {
-      const { credential } = credResp;
       const decoded = jwtDecode(credential);
-      console.log('Google JWT payload:', decoded);
-
       const { data } = await axiosInstance.post('user-account/auth/google-login/', {
         token: credential,
       });
@@ -93,7 +89,6 @@ export default function Login() {
       const { access, refresh, username, role } = data;
       handleLoginSuccess(access, refresh, username, role);
     } catch (err) {
-      console.error('Google login error:', err);
       setError('Google login failed. Please try again.');
     } finally {
       setLoading(false);
@@ -128,9 +123,7 @@ export default function Login() {
               onChange={handleChange}
               className={formErrors.username ? 'input-error' : ''}
             />
-            {formErrors.username && (
-              <small className="input-feedback">{formErrors.username}</small>
-            )}
+            {formErrors.username && <small className="input-feedback">{formErrors.username}</small>}
 
             <div className="password-input">
               <input
@@ -149,9 +142,7 @@ export default function Login() {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            {formErrors.password && (
-              <small className="input-feedback">{formErrors.password}</small>
-            )}
+            {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
 
             <Link to="/forgot-password" className="forgot-link">
               Forgot Password?

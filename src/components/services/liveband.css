@@ -8,7 +8,7 @@
   --text-dark: #111111;
 }
 
-/* === Scope Reset to .liveband-page === */
+/* === Reset & Container === */
 .liveband-page * {
   margin: 0;
   padding: 0;
@@ -19,15 +19,16 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-dark);
   background-color: #fff;
+  animation: fadeInPage 0.8s ease-in-out;
 }
 
-.liveband-page.dark {
-  background-color: #111;
-  color: var(--text-light);
+@keyframes fadeInPage {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* === Banner === */
-.liveband-page .hero-banner {
+/* === Hero Banner === */
+.hero-banner {
   position: relative;
   width: 100%;
   height: 60vh;
@@ -35,27 +36,33 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  animation: zoomFade 1.5s ease-in-out;
 }
 
-.liveband-page .hero-banner-image {
+@keyframes zoomFade {
+  from { transform: scale(1.05); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.hero-banner-image,
+.hero-banner-placeholder {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.liveband-page .hero-banner-placeholder {
-  width: 100%;
-  height: 100%;
-  background-color: #ccc;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   font-size: 1.5rem;
+  color: var(--text-light);
+}
+
+.hero-banner-placeholder {
+  background-color: #ccc;
+  font-weight: bold;
   color: #333;
 }
 
-.liveband-page .hero-overlay {
+.hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -65,20 +72,26 @@
   z-index: 1;
 }
 
-.liveband-page .hero-title {
+.hero-title {
   position: absolute;
   z-index: 2;
   color: var(--text-light);
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  text-align: center;
   padding: 1rem 2rem;
+  text-align: center;
   background: rgba(0, 0, 0, 0.4);
   border-radius: 1rem;
+  animation: fadeInSlide 1s ease-in-out;
+}
+
+@keyframes fadeInSlide {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* === CTA Button === */
-.liveband-page .cta-button {
+.cta-button {
   margin: 2rem auto;
   display: block;
   background-color: var(--deep-burgundy);
@@ -88,127 +101,132 @@
   border: none;
   border-radius: 1rem;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-.liveband-page .cta-button:hover {
+.cta-button:hover {
   background-color: #3c001a;
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 /* === Section Titles === */
-.liveband-page .section-title,
-.liveband-page .section h2 {
+.section-title {
   text-align: center;
   font-size: 2rem;
   margin: 2.5rem 0 1.5rem;
   color: var(--deep-burgundy);
+  animation: fadeInPage 1s ease-in-out;
 }
 
-/* === Services Grid === */
-.liveband-page .card-grid {
+/* === Services Section === */
+.card-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding: 0 1rem 3rem;
 }
 
-.liveband-page .card {
+.card {
   background-color: rgba(74, 0, 31, 0.6);
   color: var(--text-light);
   padding: 1.25rem;
   border-radius: 1rem;
   font-weight: 500;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(0.95);
+  transition: all 0.4s ease;
 }
 
-@media (min-width: 768px) {
-  .liveband-page .card-grid {
+.card:hover {
+  transform: scale(1.02);
+}
+
+@media (min-width: 600px) {
+  .card-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 0 3rem 3rem;
+    padding: 0 2rem 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* === Creative Section === */
-.liveband-page .creative-layout {
+.creative-layout {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 2rem;
-  align-items: center;
-  justify-content: space-between;
   padding: 2rem 1rem;
+  align-items: center;
 }
 
-.liveband-page .creative-media {
-  flex: 1 1 45%;
+.creative-media {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
 }
 
-.liveband-page .creative-text {
-  flex: 1 1 45%;
+.creative-text {
+  max-width: 600px;
   color: var(--text-dark);
+  text-align: center;
 }
 
-.liveband-page .creative-text h3 {
+.creative-text h3 {
   font-size: 1.5rem;
   color: var(--deep-burgundy);
   margin-bottom: 1rem;
 }
 
-.liveband-page .creative-text p {
+.creative-text p {
   line-height: 1.6;
 }
 
 /* === Testimonials === */
-.liveband-page .testimonial-section {
+.testimonial-section {
   background-color: #fff;
   padding: 3rem 1rem;
-  text-align: center;
 }
 
-.liveband-page .testimonial-section h2 {
-  font-size: 2rem;
-  color: var(--royal-navy-blue);
-  margin-bottom: 2rem;
-}
-
-.liveband-page .testimonial-grid {
+.testimonial-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
-.liveband-page .testimonial-card {
+.testimonial-card {
   background-color: #f8f8f8;
   padding: 1.5rem;
   border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-style: italic;
-  transition: background-color 0.3s ease;
+  animation: fadeInPage 0.6s ease-in;
+  transition: transform 0.3s ease;
 }
 
-.liveband-page .testimonial-text {
-  margin-top: 1rem;
+.testimonial-card:hover {
+  transform: translateY(-5px);
 }
 
-.liveband-page .testimonial-user {
+.testimonial-user {
   font-weight: bold;
   text-align: right;
   margin-top: 0.75rem;
   color: var(--deep-burgundy);
 }
 
-@media (min-width: 768px) {
-  .liveband-page .testimonial-grid {
+@media (min-width: 600px) {
+  .testimonial-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .liveband-page .testimonial-grid {
+  .testimonial-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -222,16 +240,48 @@
   color: #fff;
   padding: 1rem;
   border-radius: 50%;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   z-index: 999;
-  transition: background-color 0.3s ease;
+  animation: bounceIn 1s ease;
 }
 
-.liveband-page .whatsapp-button:hover {
+.whatsapp-button:hover {
   background-color: #2e4837;
+  transform: scale(1.1);
 }
 
-.liveband-page .whatsapp-button svg {
+.whatsapp-button svg {
   width: 1.5rem;
   height: 1.5rem;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* === Mobile Tweaks === */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .cta-button {
+    font-size: 1rem;
+    padding: 0.5rem 1.25rem;
+  }
+
+  .card {
+    font-size: 0.95rem;
+  }
+
+  .creative-text h3 {
+    font-size: 1.2rem;
+  }
+
+  .testimonial-card {
+    padding: 1rem;
+  }
 }

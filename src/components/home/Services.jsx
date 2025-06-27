@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axiosInstance from '../../api/axiosInstance';
+import publicAxios from '../../api/publicAxios'; // ✅ updated import
 import './Services.css';
 
 const Services = () => {
@@ -19,7 +19,7 @@ const Services = () => {
 
   const fetchAllServices = async () => {
     try {
-      const res = await axiosInstance.get('/services/');
+      const res = await publicAxios.get('/services/'); // ✅ updated
       setServices(res.data);
     } catch (error) {
       console.error('Failed to load services:', error);
@@ -30,7 +30,7 @@ const Services = () => {
 
   const fetchServiceDetail = async (slug) => {
     try {
-      const res = await axiosInstance.get(`/services/${slug}/`);
+      const res = await publicAxios.get(`/services/${slug}/`); // ✅ updated
       setSelectedService(res.data);
     } catch (error) {
       console.error('Failed to load service detail:', error);

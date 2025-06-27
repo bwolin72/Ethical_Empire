@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import publixios from '../../api/publicAxios';
 import BannerCards from '../context/BannerCards';
 import './MediaHostingServicePage.css';
 
-// Skeleton loading components
+// Skeleton Loaders
 const SkeletonCard = () => <div className="skeleton-card shimmer" />;
 const SkeletonTestimonial = () => (
   <div className="testimonial-card skeleton shimmer">
@@ -13,61 +13,59 @@ const SkeletonTestimonial = () => (
   </div>
 );
 
+const hostingServices = [
+  'Videography Coverage',
+  'Photography Sessions',
+  'Drone Footage & Aerial Views',
+  'Live Streaming & Event Recording',
+  'Portrait & Studio Shoots',
+  'On-site Event Hosting',
+];
+
 const MediaHostingServicePage = () => {
-  const [mediaCards, setMediaCards] = useState([]);
+  const [mediaItems, setMediaItems] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [bannerUrl, setBannerUrl] = useState(null);
+  const [bannerImage, setBannerImage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
-  const hostingServices = [
-    'Videography Coverage',
-    'Photography Sessions',
-    'Drone Footage & Aerial Views',
-    'Live Streaming & Event Recording',
-    'Portrait & Studio Shoots',
-    'On-site Event Hosting',
-  ];
+  const fetchData = useCallback(async () => {
+    try {
+      const [mediaRes, bannerRes, testimonialsRes] = await Promise.all([
+        publixios.get('/service_app/media/?type=media&endpoint=MediaHostingServicePage'),
+        publixios.get('/service_app/media/?type=banner&endpoint=MediaHostingServicePage'),
+        publixios.get('/reviews/'),
+      ]);
+
+      setMediaItems(mediaRes.data || []);
+      if (bannerRes.data?.length > 0) setBannerImage(bannerRes.data[0].url);
+      setTestimonials(testimonialsRes.data || []);
+    } catch (err) {
+      console.error('Error fetching media page data:', err);
+      setMediaItems([]);
+      setTestimonials([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [mediaRes, bannerRes, testimonialsRes] = await Promise.all([
-          publixios.get('/service_app/media/?type=media&endpoint=MediaHostingServicePage'),
-          publixios.get('/service_app/media/?type=banner&endpoint=MediaHostingServicePage'),
-          publixios.get('/reviews/'),
-        ]);
-
-        setMediaCards(mediaRes.data || []);
-        if (bannerRes.data.length > 0) {
-          setBannerUrl(bannerRes.data[0].url);
-        }
-        setTestimonials(testimonialsRes.data || []);
-      } catch (error) {
-        console.error('Fetching failed:', error);
-        setMediaCards([]);
-        setTestimonials([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <div className="liveband-page">
       {/* Hero Banner */}
-      <div className="hero-banner">
-        {bannerUrl ? (
-          <img src={bannerUrl} alt="Banner" className="hero-banner-image" />
+      <header className="hero-banner">
+        {bannerImage ? (
+          <img src={bannerImage} alt="Media Hosting Banner" className="hero-banner-image" />
         ) : (
           <div className="hero-banner-placeholder shimmer">Loading Banner...</div>
         )}
         <div className="hero-overlay" />
         <h1 className="hero-title">Capture & Host with Ethical Precision</h1>
-      </div>
+      </header>
 
       {/* CTA */}
       <section className="cta-section">
@@ -76,12 +74,12 @@ const MediaHostingServicePage = () => {
         </button>
       </section>
 
-      {/* Hosting Services */}
+      {/* Services */}
       <section className="section services-section">
         <h2>Our Multimedia & Hosting Services</h2>
         <div className="card-grid">
-          {hostingServices.map((service, index) => (
-            <div key={index} className="card">
+          {hostingServices.map((service, idx) => (
+            <div key={idx} className="card">
               <div className="card-content">{service}</div>
             </div>
           ))}
@@ -93,14 +91,12 @@ const MediaHostingServicePage = () => {
         <div className="creative-layout">
           <div className="creative-media">
             {loading
-              ? Array(3)
-                  .fill(0)
-                  .map((_, i) => <SkeletonCard key={i} />)
-              : mediaCards.slice(0, 3).map((media, index) => (
-                  <div key={index} className="media-card">
+              ? Array.from({ length: 3 }).map((_, idx) => <SkeletonCard key={idx} />)
+              : mediaItems.slice(0, 3).map((media, idx) => (
+                  <div key={idx} className="media-card">
                     <img
                       src={media.url}
-                      alt={media.title || 'Media'}
+                      alt={media.title || 'Media Item'}
                       className="media-image"
                     />
                     <p className="media-title">{media.title}</p>
@@ -119,7 +115,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* Hosting Venue Info */}
+      {/* Venue Info */}
       <section className="section event-hosting-section">
         <h3>Hosting Event Place</h3>
         <p>
@@ -129,7 +125,7 @@ const MediaHostingServicePage = () => {
         </p>
       </section>
 
-      {/* Dynamic Banner Cards */}
+      {/* Banner Cards */}
       <section className="banner-cards-wrapper">
         <BannerCards endpoint="MediaHostingServicePage" />
       </section>
@@ -139,11 +135,9 @@ const MediaHostingServicePage = () => {
         <h2>Client Reviews</h2>
         <div className="testimonial-grid">
           {loading
-            ? Array(3)
-                .fill(0)
-                .map((_, i) => <SkeletonTestimonial key={i} />)
-            : testimonials.slice(0, 6).map((review, index) => (
-                <div key={index} className="testimonial-card">
+            ? Array.from({ length: 3 }).map((_, idx) => <SkeletonTestimonial key={idx} />)
+            : testimonials.slice(0, 6).map((review, idx) => (
+                <div key={idx} className="testimonial-card">
                   <p className="testimonial-text">"{review.message}"</p>
                   <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
                 </div>
@@ -151,7 +145,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* WhatsApp Contact Button */}
+      {/* WhatsApp Button */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

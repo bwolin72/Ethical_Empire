@@ -67,7 +67,7 @@
 .newsletter form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .newsletter-input {
@@ -88,6 +88,7 @@
 .recaptcha-wrapper {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 5px;
 }
 
@@ -112,6 +113,7 @@
   font-size: 0.8rem;
   margin-top: 5px;
   color: var(--light-gray);
+  text-align: left;
 }
 
 /* === Footer Bottom === */
@@ -145,5 +147,10 @@
 
   .recaptcha-wrapper {
     justify-content: flex-start;
+    margin-top: 0;
+  }
+
+  .newsletter-button {
+    width: fit-content;
   }
 }

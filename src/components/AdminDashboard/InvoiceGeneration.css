@@ -1,99 +1,129 @@
+/* Base Layout */
 .invoice-container {
   display: flex;
   flex-wrap: wrap;
   min-height: 100vh;
-  background-color: #f9fafb;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fafb;
   color: #1f2937;
 }
 
+/* Main Panel */
 .invoice-main {
   flex: 1;
   min-width: 300px;
   padding: 2rem;
   background-color: #ffffff;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
   overflow-y: auto;
+  transition: background-color 0.3s ease;
 }
 
 .invoice-main h3 {
-  margin-bottom: 0.5rem;
   font-size: 1.5rem;
+  font-weight: 600;
   color: #4f46e5;
+  margin-bottom: 0.75rem;
 }
 
 .invoice-main p {
-  margin: 0.25rem 0;
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
 }
 
+/* Sidebar */
 .invoice-sidebar {
   width: 300px;
   min-width: 250px;
   background-color: #eef2ff;
-  padding: 1rem;
+  padding: 1.5rem;
   border-left: 2px solid #c7d2fe;
   overflow-y: auto;
 }
 
 .invoice-sidebar h2 {
   font-size: 1.25rem;
+  font-weight: 600;
   color: #3730a3;
   margin-bottom: 1rem;
 }
 
+/* Booking Items */
 .invoice-item {
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
   background-color: #e0e7ff;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .invoice-item:hover {
   background-color: #c7d2fe;
+  transform: translateX(2px);
 }
 
 .invoice-item.active {
   background-color: #a5b4fc;
-  font-weight: bold;
+  font-weight: 600;
 }
 
+/* Payment Radio Options */
 .payment-options {
-  margin: 1rem 0;
+  margin: 1.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .payment-options label {
-  display: inline-block;
-  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
 }
 
+.payment-options input[type='radio'] {
+  accent-color: #4f46e5;
+}
+
+/* Button */
 button {
   background-color: #4f46e5;
-  color: #fff;
-  padding: 0.6rem 1.2rem;
+  color: #ffffff;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   margin-top: 1rem;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.25s ease, transform 0.15s ease;
 }
 
 button:hover {
   background-color: #4338ca;
+  transform: scale(1.02);
 }
 
-/* RESPONSIVE STYLES */
+button:focus {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 2px;
+}
+
+/* Responsive Design */
 @media (max-width: 1024px) {
+  .invoice-container {
+    flex-direction: column-reverse;
+  }
+
   .invoice-sidebar {
     width: 100%;
     border-left: none;
     border-top: 2px solid #c7d2fe;
-  }
-
-  .invoice-container {
-    flex-direction: column-reverse;
   }
 
   .invoice-main {
@@ -111,8 +141,12 @@ button:hover {
   }
 
   .invoice-item {
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     font-size: 0.9rem;
+  }
+
+  .payment-options {
+    flex-direction: column;
   }
 
   button {
