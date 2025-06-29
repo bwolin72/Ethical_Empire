@@ -34,6 +34,27 @@ body.dark {
   backdrop-filter: blur(6px);
 }
 
+/* Add to Register.css */
+
+.password-strength {
+  font-size: 0.85rem;
+  margin-top: 4px;
+  margin-bottom: 10px;
+}
+
+.password-strength.weak {
+  color: red;
+}
+
+.password-strength.medium {
+  color: orange;
+}
+
+.password-strength.strong {
+  color: green;
+}
+
+
 .register-box {
   background: var(--cream);
   border-radius: 12px;

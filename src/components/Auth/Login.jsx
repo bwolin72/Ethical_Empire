@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate, Link } from 'react-router-dom';
@@ -19,6 +19,12 @@ export default function Login() {
 
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(saved);
+    document.body.classList.toggle('dark-mode', saved);
+  }, []);
 
   const validateForm = () => {
     const errors = {};
@@ -57,15 +63,16 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await axiosInstance.post('/api/user-account/login/', form);
+      const { data } = await axiosInstance.post('/accounts/login/', form);
       const { access, refresh } = data;
 
-      const userRes = await axiosInstance.get('/api/user-account/me/', {
+      const userRes = await axiosInstance.get('/accounts/profile/', {
         headers: { Authorization: `Bearer ${access}` },
       });
 
       handleLoginSuccess(access, refresh, userRes.data);
     } catch (err) {
+      console.error('Login error:', err);
       const msg =
         err.response?.data?.detail ||
         err.response?.data?.error ||
@@ -85,13 +92,16 @@ export default function Login() {
     setLoading(true);
     try {
       const decoded = jwtDecode(credential);
-      const { data } = await axiosInstance.post('/api/user-account/auth/google-login/', {
-        token: credential,
+
+      const { data } = await axiosInstance.post('/accounts/google-register/', {
+        email: decoded.email,
+        name: decoded.name,
       });
 
       const { access, refresh, user } = data;
       handleLoginSuccess(access, refresh, user);
     } catch (err) {
+      console.error('Google login error:', err);
       const msg =
         err.response?.data?.detail ||
         err.response?.data?.message ||
@@ -106,6 +116,7 @@ export default function Login() {
     const newMode = !darkMode;
     setDarkMode(newMode);
     document.body.classList.toggle('dark-mode', newMode);
+    localStorage.setItem('darkMode', newMode);
   };
 
   return (

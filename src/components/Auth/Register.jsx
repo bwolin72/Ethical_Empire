@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../../api/axiosInstance';
 import logo from '../../assets/logo.png';
 import './Register.css';
@@ -29,10 +30,11 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [accessLocked, setAccessLocked] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState('');
 
-  const isStaffRole = ['ADMIN', 'WORKER'].includes(form.role);
+  const isStaff = ['WORKER', 'ADMIN'].includes(form.role);
+  const isAdmin = form.role === 'ADMIN';
 
-  // Autofill access_code from URL if present
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const role = params.get('role');
@@ -46,11 +48,34 @@ const Register = () => {
       }));
       if (code) setAccessLocked(true);
     }
+
+    const saved = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(saved);
+    document.body.classList.toggle('dark-mode', saved);
   }, [location.search]);
+
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validatePhone = (phone) =>
+    /^0\d{9}$/.test(phone);
+
+  const getPasswordStrength = (password) => {
+    if (password.length < 6) return 'Weak';
+    if (password.match(/[A-Z]/) && password.match(/[0-9]/) && password.length >= 8)
+      return 'Strong';
+    return 'Medium';
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: DOMPurify.sanitize(value) }));
+    const sanitizedValue = DOMPurify.sanitize(value);
+
+    if (name === 'password') {
+      setPasswordStrength(getPasswordStrength(sanitizedValue));
+    }
+
+    setForm((prev) => ({ ...prev, [name]: sanitizedValue }));
     setError('');
     setSuccess('');
   };
@@ -60,15 +85,25 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    const { password, password2, role, access_code } = form;
+    const { email, phone_number, password, password2, role, access_code } = form;
+
+    if (!validateEmail(email)) {
+      setError('Invalid email format.');
+      return;
+    }
+
+    if (!validatePhone(phone_number)) {
+      setError('Phone number must be 10 digits and start with 0.');
+      return;
+    }
 
     if (password !== password2) {
       setError('Passwords do not match.');
       return;
     }
 
-    if (isStaffRole && !access_code) {
-      setError('Access code is required for staff registration.');
+    if (isStaff && !access_code) {
+      setError('Access code is required for staff/admin registration.');
       return;
     }
 
@@ -76,9 +111,9 @@ const Register = () => {
     try {
       const payload = { ...form };
       delete payload.password2;
-      if (!isStaffRole) delete payload.access_code;
+      if (!isStaff) delete payload.access_code;
 
-      await axiosInstance.post('user-account/register/', payload);
+      await axiosInstance.post('/accounts/register/', payload);
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
@@ -94,31 +129,44 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSuccess = async (response) => {
+  const handleGoogleSuccess = async ({ credential }) => {
     setError('');
     setSuccess('');
     setLoading(true);
 
     try {
-      const { credential } = response;
-      await axiosInstance.post('user-account/auth/google-register/', {
-        token: credential,
+      const decoded = jwtDecode(credential);
+      const { email, name } = decoded;
+
+      await axiosInstance.post('/accounts/google-register/', {
+        email,
+        name,
       });
 
       setSuccess('Google registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      console.error('Google sign-up error:', err);
-      setError('Google sign-up failed. Please try again.');
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        'Google sign-up failed.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
   };
 
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    document.body.classList.toggle('dark-mode', newMode);
+    localStorage.setItem('darkMode', newMode);
+  };
+
   const toggleRole = () => {
     const newRole = form.role === 'USER' ? 'WORKER' : 'USER';
     setForm((prev) => ({ ...prev, role: newRole, access_code: '' }));
-    setAccessLocked(false); // allow manual entry if toggled
+    setAccessLocked(false);
   };
 
   return (
@@ -130,15 +178,17 @@ const Register = () => {
             <span>Ethical Multimedia GH</span>
           </div>
 
-          <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
+          <button className="dark-toggle" onClick={toggleDarkMode}>
             {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
           </button>
 
-          <div className="role-toggle">
-            <button onClick={toggleRole} className="toggle-button">
-              {form.role === 'USER' ? 'Register as Staff' : 'Register as Client'}
-            </button>
-          </div>
+          {!isAdmin && (
+            <div className="role-toggle">
+              <button onClick={toggleRole} className="toggle-button">
+                {form.role === 'USER' ? 'Register as Staff' : 'Register as Client'}
+              </button>
+            </div>
+          )}
 
           <h2>Create an Account</h2>
 
@@ -146,31 +196,46 @@ const Register = () => {
           {success && <p className="success-message">{success}</p>}
 
           <form onSubmit={handleSubmit} className="register-form" noValidate>
-            <input name="username" placeholder="Username" value={form.username} onChange={handleChange} required />
-            <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-            <input name="phone_number" placeholder="Phone Number" value={form.phone_number} onChange={handleChange} required />
-            <input name="first_name" placeholder="First Name" value={form.first_name} onChange={handleChange} required />
-            <input name="last_name" placeholder="Last Name" value={form.last_name} onChange={handleChange} required />
+            <input name="username" placeholder="Username" value={form.username} onChange={handleChange} />
+            <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
+            <input name="phone_number" placeholder="Phone Number" value={form.phone_number} onChange={handleChange} />
+            <input name="first_name" placeholder="First Name" value={form.first_name} onChange={handleChange} />
+            <input name="last_name" placeholder="Last Name" value={form.last_name} onChange={handleChange} />
 
-            <select name="role" value={form.role} onChange={handleChange} required>
+            <select name="role" value={form.role} onChange={handleChange} disabled={accessLocked || isAdmin}>
               <option value="USER">Client</option>
               <option value="WORKER">Internal (Worker)</option>
               <option value="ADMIN">Admin</option>
             </select>
 
-            {isStaffRole && (
+            {isStaff && (
               <input
                 name="access_code"
                 placeholder="Access Code"
                 value={form.access_code}
                 onChange={handleChange}
-                required
                 readOnly={accessLocked}
               />
             )}
 
-            <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} required />
-            <input name="password2" type="password" placeholder="Confirm Password" value={form.password2} onChange={handleChange} required />
+            <input
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+            />
+            <div className={`password-strength ${passwordStrength.toLowerCase()}`}>
+              Password Strength: {passwordStrength}
+            </div>
+
+            <input
+              name="password2"
+              type="password"
+              placeholder="Confirm Password"
+              value={form.password2}
+              onChange={handleChange}
+            />
 
             <button type="submit" className="register-button" disabled={loading}>
               {loading ? 'Registering…' : 'Register'}
@@ -189,7 +254,8 @@ const Register = () => {
           )}
 
           <div className="login-prompt">
-            Already have an account? <span onClick={() => navigate('/login')}>Login</span>
+            Already have an account?{' '}
+            <span onClick={() => navigate('/login')}>Login</span>
           </div>
         </div>
       </div>
