@@ -10,7 +10,7 @@ const PromotionPopup = () => {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const response = await publicAxios.get('/api/promotions/active/');
+        const response = await publicAxios.get('/promotions/active/');
         if (response.data.length > 0) {
           setPromotion(response.data[0]); // show the first active promotion
         }

@@ -52,9 +52,9 @@ const EethmHome = () => {
     const fetchContent = async () => {
       try {
         const [featuredRes, bannerRes, promoRes] = await Promise.all([
-          publicAxios.get('/api/media/featured/'),
-          publicAxios.get('/api/media/banners/?endpoint=EethmHome'),
-          publicAxios.get('/api/promotions/'),
+          publicAxios.get('/media/featured/'),
+          publicAxios.get('/media/banners/?endpoint=EethmHome'),
+          publicAxios.get('/promotions/'),
         ]);
 
         const featured = featuredRes.data?.data;
