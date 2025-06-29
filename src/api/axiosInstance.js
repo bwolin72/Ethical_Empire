@@ -1,40 +1,17 @@
-// src/api/axiosInstance.js
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode';
 import baseURL from './baseURL';
+import { getGlobalLogout } from '../components/context/AuthContext';
 
 const axiosInstance = axios.create({ baseURL });
 
-let isRefreshing = false;
-let refreshSubscribers = [];
-
-const subscribeTokenRefresh = (callback) => {
-  refreshSubscribers.push(callback);
-};
-
-const onRefreshed = (token) => {
-  refreshSubscribers.forEach((cb) => cb(token));
-  refreshSubscribers = [];
-};
-
-const isTokenValid = (token) => {
-  try {
-    const { exp } = jwtDecode(token);
-    return exp * 1000 > Date.now();
-  } catch {
-    return false;
-  }
-};
-
-// === Request Interceptor ===
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access');
+    const token = localStorage.getItem('token');
     const method = config.method?.toUpperCase();
     const isFormData = config.data instanceof FormData;
 
-    if (token && isTokenValid(token)) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+    if (token) {
+      config.headers['Authorization'] = `Token ${token}`; // DRF default
     } else {
       delete config.headers['Authorization'];
     }
@@ -59,7 +36,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// === Response Interceptor ===
 axiosInstance.interceptors.response.use(
   (response) => {
     if (process.env.NODE_ENV === 'development') {
@@ -67,46 +43,10 @@ axiosInstance.interceptors.response.use(
     }
     return response;
   },
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      const refresh = localStorage.getItem('refresh');
-
-      if (!refresh || !isTokenValid(refresh)) {
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        return Promise.reject(error);
-      }
-
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((token) => {
-            originalRequest.headers['Authorization'] = `Bearer ${token}`;
-            resolve(axiosInstance(originalRequest));
-          });
-        });
-      }
-
-      isRefreshing = true;
-
-      try {
-        const { data } = await axios.post(`${baseURL}user-account/refresh/`, { refresh });
-        const { access } = data;
-
-        localStorage.setItem('access', access);
-        axiosInstance.defaults.headers['Authorization'] = `Bearer ${access}`;
-        onRefreshed(access);
-
-        return axiosInstance(originalRequest);
-      } catch (err) {
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        return Promise.reject(err);
-      } finally {
-        isRefreshing = false;
-      }
+  (error) => {
+    if (error.response?.status === 401) {
+      const logout = getGlobalLogout();
+      logout(); // Clear token from storage + auth state
     }
 
     if (process.env.NODE_ENV === 'development') {

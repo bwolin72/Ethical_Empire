@@ -17,25 +17,15 @@ const BookingForm = () => {
     event_date: null,
     address: '',
     message: '',
-    service_type: [],
+    services: [], // Now storing service IDs
   });
 
+  const [availableServices, setAvailableServices] = useState([]);
+  const [showServices, setShowServices] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [showServices, setShowServices] = useState(false);
 
-  const serviceOptions = [
-    'Live Band',
-    'DJ',
-    'Photography',
-    'Videography',
-    'Catering',
-    'Event Planning',
-    'Lighting',
-    'MC/Host',
-    'Sound Setup',
-  ];
-
+  // Prefill user info from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -48,14 +38,25 @@ const BookingForm = () => {
     }
   }, []);
 
+  // Fetch services from backend
+  useEffect(() => {
+    axiosInstance
+      .get('/services/')
+      .then((res) => setAvailableServices(res.data))
+      .catch((err) => console.error('Failed to fetch services:', err));
+  }, []);
+
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     if (type === 'checkbox') {
+      const id = parseInt(value);
       setFormData((prev) => ({
         ...prev,
-        service_type: checked
-          ? [...prev.service_type, value]
-          : prev.service_type.filter((s) => s !== value),
+        services: checked
+          ? [...prev.services, id]
+          : prev.services.filter((s) => s !== id),
       }));
     } else {
       setFormData((prev) => ({
@@ -83,19 +84,14 @@ const BookingForm = () => {
       return;
     }
 
-    try {
-      const payload = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        address: formData.address.trim(),
-        message: formData.message.trim(),
-        event_date: formData.event_date
-          ? formData.event_date.toISOString().split('T')[0]
-          : null,
-        service_type: formData.service_type,
-      };
+    const payload = {
+      ...formData,
+      event_date: formData.event_date
+        ? formData.event_date.toISOString().split('T')[0]
+        : null,
+    };
 
+    try {
       await axiosInstance.post('/bookings/', payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -108,7 +104,7 @@ const BookingForm = () => {
         event_date: null,
         address: '',
         message: '',
-        service_type: [],
+        services: [],
       });
       setShowServices(false);
     } catch (err) {
@@ -175,7 +171,7 @@ const BookingForm = () => {
 
         <div className="form-group full-width">
           <label
-            htmlFor="service_type"
+            htmlFor="services"
             className="dropdown-label"
             onClick={() => setShowServices((prev) => !prev)}
           >
@@ -189,16 +185,16 @@ const BookingForm = () => {
 
           {showServices && (
             <fieldset className="service-dropdown">
-              {serviceOptions.map((service) => (
-                <label key={service} className="service-option">
+              {availableServices.map((service) => (
+                <label key={service.id} className="service-option">
                   <input
                     type="checkbox"
-                    name="service_type"
-                    value={service}
-                    checked={formData.service_type.includes(service)}
+                    name="services"
+                    value={service.id}
+                    checked={formData.services.includes(service.id)}
                     onChange={handleChange}
                   />
-                  {service}
+                  {service.name} — ${service.price}
                 </label>
               ))}
             </fieldset>

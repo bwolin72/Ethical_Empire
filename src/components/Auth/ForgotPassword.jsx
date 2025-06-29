@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './ForgotResetPassword.css';
 import axiosInstance from '../../api/axiosInstance';
+
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -12,7 +13,7 @@ const ForgotPassword = () => {
     setError('');
 
     try {
-      await axiosInstance.post('/user-account/auth/reset-password/', { email });
+      await axiosInstance.post('/api/user-account/auth/reset-password/', { email });
       setMessage('Password reset email sent. Please check your inbox.');
     } catch (err) {
       console.error('Password reset error:', err);

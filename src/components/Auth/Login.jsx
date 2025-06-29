@@ -10,7 +10,7 @@ import './Login.css';
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 export default function Login() {
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +22,7 @@ export default function Login() {
 
   const validateForm = () => {
     const errors = {};
-    if (!form.username.trim()) errors.username = 'Username is required';
+    if (!form.email.trim()) errors.email = 'Email is required';
     if (!form.password.trim()) errors.password = 'Password is required';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -30,18 +30,18 @@ export default function Login() {
 
   const redirectByRole = (role) => {
     const routes = {
-      ADMIN: '/admin',
-      WORKER: '/worker',
-      USER: '/user',
+      admin: '/admin',
+      worker: '/worker',
+      user: '/user',
     };
-    navigate(routes[role] || routes.USER, { replace: true });
+    navigate(routes[role] || '/user', { replace: true });
   };
 
-  const handleLoginSuccess = (access, refresh, username, role) => {
+  const handleLoginSuccess = (access, refresh, user) => {
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
-    login({ access, refresh, username, isAdmin: role === 'ADMIN' });
-    redirectByRole(role);
+    login({ access, refresh, username: user.name, isAdmin: user.role === 'admin' });
+    redirectByRole(user.role);
   };
 
   const handleChange = ({ target: { name, value } }) => {
@@ -57,13 +57,14 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data } = await axiosInstance.post('user-account/login/', form);
+      const { data } = await axiosInstance.post('/api/user-account/login/', form);
       const { access, refresh } = data;
 
-      const userRes = await axiosInstance.get('user-account/user-role/');
-      const { username, role } = userRes.data;
+      const userRes = await axiosInstance.get('/api/user-account/me/', {
+        headers: { Authorization: `Bearer ${access}` },
+      });
 
-      handleLoginSuccess(access, refresh, username, role);
+      handleLoginSuccess(access, refresh, userRes.data);
     } catch (err) {
       const msg =
         err.response?.data?.detail ||
@@ -72,6 +73,8 @@ export default function Login() {
         err.message ||
         'Login failed.';
       setError(msg);
+      localStorage.removeItem('access');
+      localStorage.removeItem('refresh');
     } finally {
       setLoading(false);
     }
@@ -82,14 +85,18 @@ export default function Login() {
     setLoading(true);
     try {
       const decoded = jwtDecode(credential);
-      const { data } = await axiosInstance.post('user-account/auth/google-login/', {
+      const { data } = await axiosInstance.post('/api/user-account/auth/google-login/', {
         token: credential,
       });
 
-      const { access, refresh, username, role } = data;
-      handleLoginSuccess(access, refresh, username, role);
+      const { access, refresh, user } = data;
+      handleLoginSuccess(access, refresh, user);
     } catch (err) {
-      setError('Google login failed. Please try again.');
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        'Google login failed. Please try again.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -117,13 +124,13 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="login-form">
             <input
-              name="username"
-              placeholder="Username"
-              value={form.username}
+              name="email"
+              placeholder="Email"
+              value={form.email}
               onChange={handleChange}
-              className={formErrors.username ? 'input-error' : ''}
+              className={formErrors.email ? 'input-error' : ''}
             />
-            {formErrors.username && <small className="input-feedback">{formErrors.username}</small>}
+            {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
 
             <div className="password-input">
               <input

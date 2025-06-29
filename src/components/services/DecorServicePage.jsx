@@ -40,13 +40,13 @@ const DecorPage = () => {
   }, []);
 
   return (
-    <div className="decor-page">
-      {/* Banner Section */}
+    <div className="catering-page-container">
+      {/* Hero Banner */}
       <header className="hero-banner">
         {bannerUrl ? (
           <img
             src={bannerUrl}
-            alt="Decor banner showcasing elegant event setups"
+            alt="Elegant decor setup"
             className="hero-banner-image"
           />
         ) : (
@@ -67,36 +67,42 @@ const DecorPage = () => {
         </motion.button>
       </section>
 
-      {/* Services List */}
-      <section className="section decor-services-section" aria-labelledby="services-title">
-        <h2 id="services-title" className="section-title">Our Decor Services</h2>
+      {/* Decor Services */}
+      <section className="section">
+        <h2 className="section-title">Our Decor Services</h2>
         <div className="card-grid">
           {decorServices.map((service, index) => (
-            <div key={index} className="service-card">
-              {service}
+            <div key={index} className="card">
+              <div className="card-content">{service}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Transform Message */}
-      <section className="transform-section" aria-labelledby="transform-title">
-        <h3 id="transform-title" className="section-subtitle">Transform Your Venue</h3>
-        <p className="section-description">
-          Ethical Multimedia creates immersive, elegant decor tailored to your theme.
-          From romantic weddings to vibrant cultural events, we handle every detail—so your space becomes unforgettable.
-        </p>
+      {/* Transform Your Venue Section */}
+      <section className="section creative-layout">
+        <div className="creative-text">
+          <h3>Transform Your Venue</h3>
+          <p>
+            Ethical Multimedia creates immersive, elegant decor tailored to your theme.
+            From romantic weddings to vibrant cultural events, we handle every detail—so your space becomes unforgettable.
+          </p>
+        </div>
+        <div className="creative-media">
+          {mediaCards.slice(0, 2).map((media) => (
+            <MediaCard key={media.id || media.url} media={media} />
+          ))}
+        </div>
       </section>
 
-      {/* Media Showcase */}
-      <section className="media-section" aria-labelledby="media-title">
-        <h3 id="media-title" className="section-subtitle">Decor Highlights</h3>
+      {/* Media Gallery */}
+      <section className="section">
+        <h2 className="section-title">Decor Highlights</h2>
         <p className="section-description">
           Every event is a canvas—we decorate with purpose, elegance, and emotion.
           Discover the beauty of our decor setups in the gallery below.
         </p>
-
-        <div className="media-grid">
+        <div className="card-grid">
           {mediaCards.length > 0 ? (
             mediaCards.slice(0, 6).map((media) => (
               <MediaCard key={media.id || media.url} media={media} />
@@ -108,8 +114,8 @@ const DecorPage = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="testimonials" aria-labelledby="testimonials-title">
-        <h2 id="testimonials-title" className="section-title">Client Impressions</h2>
+      <section className="section">
+        <h2 className="section-title">Client Impressions</h2>
         <div className="testimonial-grid">
           {testimonials.slice(0, 6).map((review) => (
             <div key={review.id || review.message} className="testimonial-card">

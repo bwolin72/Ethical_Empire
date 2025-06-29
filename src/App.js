@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
@@ -50,6 +49,9 @@ import axiosInstance from './api/axiosInstance';
 
 // Google OAuth Provider
 import { GoogleOAuthProvider } from '@react-oauth/google';
+
+// Promotion Popup
+import PromotionPopup from './components/home/PromotionPopup'; // ✅ NEW
 
 const HomePage = () => {
   const { auth } = useAuth();
@@ -159,6 +161,7 @@ function App() {
                 <AppRoutes />
               </main>
               <Footer />
+              <PromotionPopup /> {/* ✅ NEW: Promotion popup shown globally */}
             </div>
           )}
         </Router>

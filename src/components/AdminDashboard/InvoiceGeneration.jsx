@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import axiosInstance from '../../api/axiosInstance';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import './InvoiceGeneration.css';
-import logo from '../../assets/logo.png';
 
 const InvoiceGeneration = () => {
   const [bookings, setBookings] = useState([]);
   const [services, setServices] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState('none');
+  const [creating, setCreating] = useState(false);
+  const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,53 +50,49 @@ const InvoiceGeneration = () => {
     return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
   };
 
-  const generatePDF = () => {
-    if (!booking) return;
+  const createInvoice = async () => {
+    if (!booking || !paymentStatus) return;
+    setCreating(true);
+    try {
+      const res = await axiosInstance.post('/invoices/', {
+        booking_id: booking.id,
+        payment_status: paymentStatus
+      });
+      setCreatedInvoiceId(res.data.id);
+      setMessage('Invoice created successfully.');
+    } catch (error) {
+      console.error(error);
+      setMessage('Error creating invoice.');
+    } finally {
+      setCreating(false);
+    }
+  };
 
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+  const downloadInvoice = async () => {
+    if (!createdInvoiceId) return;
+    try {
+      const res = await axiosInstance.get(`/invoices/${createdInvoiceId}/download_pdf/`, {
+        responseType: 'blob'
+      });
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `invoice_${booking.name}_${createdInvoiceId}.pdf`;
+      link.click();
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+    }
+  };
 
-    // Watermark
-    doc.setTextColor(240, 240, 240);
-    doc.setFontSize(60);
-    doc.text('EeTH_GH', pageWidth / 2, pageHeight / 2, { align: 'center', angle: 45 });
-
-    // Header
-    doc.setTextColor(0, 0, 0);
-    doc.addImage(logo, 'PNG', 14, 10, 40, 40);
-    doc.setFontSize(18);
-    doc.text('Ethical Multimedia GH', 60, 18);
-    doc.setFontSize(11);
-    doc.text(': +233 55 342 4865', 60, 25);
-    doc.text('asaasebandeethm@gmail.com', 60, 30);
-    doc.text('www.ethicalempire.com', 60, 35);
-    doc.text('Akotsi - Breku, Kasoa, Ghana', 60, 40);
-    doc.setFontSize(16);
-    doc.text('INVOICE', pageWidth - 50, 20);
-    doc.setFontSize(11);
-    doc.text(`Invoice #: INV-${booking.id}`, pageWidth - 50, 26);
-
-    const rows = serviceList.map((service, idx) => {
-      const unit = services.find(s => s.name === service)?.price || '';
-      return [idx + 1, service, unit, 1, unit];
-    });
-
-    autoTable(doc, {
-      startY: 50,
-      head: [['#', 'Service Type', 'Unit Price (GHS)', 'Qty', 'Amount (GHS)']],
-      body: rows,
-    });
-
-    const summaryStart = doc.lastAutoTable.finalY + 10;
-    doc.text(`Total: GHS ${total.toFixed(2)}`, 14, summaryStart);
-    doc.text(`Paid: GHS ${paid.toFixed(2)}`, 14, summaryStart + 6);
-
-    const signatureY = summaryStart + 20;
-    doc.text('Authorized Signature:', 14, signatureY);
-    doc.line(60, signatureY, 140, signatureY);
-
-    doc.save(`invoice_${booking.name}_${booking.id}.pdf`);
+  const sendInvoiceEmail = async () => {
+    if (!createdInvoiceId) return;
+    try {
+      await axiosInstance.post(`/invoices/${createdInvoiceId}/send_email/`);
+      setMessage('Invoice sent via email.');
+    } catch (error) {
+      console.error('Error sending invoice email:', error);
+      setMessage('Failed to send email.');
+    }
   };
 
   return (
@@ -133,7 +129,22 @@ const InvoiceGeneration = () => {
             </div>
 
             <p><strong>Paid:</strong> GHS {paid.toFixed(2)}</p>
-            <button className="download-btn" onClick={generatePDF}>Download Invoice</button>
+
+            <div className="invoice-actions">
+              <button onClick={createInvoice} disabled={creating}>
+                {creating ? 'Creating...' : 'Create Invoice'}
+              </button>
+
+              <button onClick={downloadInvoice} disabled={!createdInvoiceId}>
+                Download PDF
+              </button>
+
+              <button onClick={sendInvoiceEmail} disabled={!createdInvoiceId}>
+                Send Invoice Email
+              </button>
+            </div>
+
+            {message && <p className="message">{message}</p>}
           </>
         ) : (
           <h2 className="empty-state">Select a booking from the right panel →</h2>
@@ -150,7 +161,11 @@ const InvoiceGeneration = () => {
         {bookings.map(b => (
           <div
             key={b.id}
-            onClick={() => setSelectedId(b.id)}
+            onClick={() => {
+              setSelectedId(b.id);
+              setCreatedInvoiceId(null);
+              setMessage('');
+            }}
             className={`invoice-item ${b.id === selectedId ? 'active' : ''}`}
           >
             {b.name} - {formatDate(b.event_date)}

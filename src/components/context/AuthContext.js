@@ -1,75 +1,65 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const AuthContext = createContext();
 
 const AUTH_KEYS = {
-  ACCESS: 'access',
-  REFRESH: 'refresh',
-  ROLE: 'role',
-  USERNAME: 'username',
+  TOKEN: 'token',
+  USER: 'user', // Can store JSON stringified object
 };
 
-// Optional: Export logout globally so axiosInstance can call it
+// Optional: export logout globally
 let globalLogout = () => {};
 export const getGlobalLogout = () => globalLogout;
 
 export const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState({
-    access: localStorage.getItem(AUTH_KEYS.ACCESS),
-    refresh: localStorage.getItem(AUTH_KEYS.REFRESH),
-    role: localStorage.getItem(AUTH_KEYS.ROLE),
-    username: localStorage.getItem(AUTH_KEYS.USERNAME),
+  const [auth, setAuth] = useState(() => {
+    const token = localStorage.getItem(AUTH_KEYS.TOKEN);
+    const user = localStorage.getItem(AUTH_KEYS.USER);
+    return token && user
+      ? { token, user: JSON.parse(user) }
+      : { token: null, user: null };
   });
 
-  const login = ({ access, refresh, role, username }) => {
-    if (!access || !refresh) {
-      throw new Error('Login failed: Missing access or refresh token.');
+  const login = ({ token, user }) => {
+    if (!token || !user) {
+      throw new Error('Login failed: Missing token or user.');
     }
 
-    localStorage.setItem(AUTH_KEYS.ACCESS, access);
-    localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-    localStorage.setItem(AUTH_KEYS.ROLE, role);
-    localStorage.setItem(AUTH_KEYS.USERNAME, username);
+    localStorage.setItem(AUTH_KEYS.TOKEN, token);
+    localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
 
-    setAuth({ access, refresh, role, username });
+    setAuth({ token, user });
   };
 
   const logout = () => {
-    Object.values(AUTH_KEYS).forEach((key) => localStorage.removeItem(key));
-    setAuth({ access: null, refresh: null, role: null, username: null });
+    localStorage.removeItem(AUTH_KEYS.TOKEN);
+    localStorage.removeItem(AUTH_KEYS.USER);
+    setAuth({ token: null, user: null });
   };
 
-  // Make logout available globally
   useEffect(() => {
     globalLogout = logout;
   }, []);
 
-  const update = ({ access, refresh, role, username }) => {
+  const update = ({ token, user }) => {
     setAuth((prev) => {
       const updated = { ...prev };
 
-      if (access !== undefined) {
-        localStorage.setItem(AUTH_KEYS.ACCESS, access);
-        updated.access = access;
+      if (token !== undefined) {
+        localStorage.setItem(AUTH_KEYS.TOKEN, token);
+        updated.token = token;
       }
-      if (refresh !== undefined) {
-        localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-        updated.refresh = refresh;
-      }
-      if (role !== undefined) {
-        localStorage.setItem(AUTH_KEYS.ROLE, role);
-        updated.role = role;
-      }
-      if (username !== undefined) {
-        localStorage.setItem(AUTH_KEYS.USERNAME, username);
-        updated.username = username;
+
+      if (user !== undefined) {
+        localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
+        updated.user = user;
       }
 
       return updated;
     });
   };
 
-  const isAuthenticated = !!auth.access;
+  const isAuthenticated = !!auth.token;
 
   return (
     <AuthContext.Provider value={{ auth, login, logout, update, isAuthenticated }}>

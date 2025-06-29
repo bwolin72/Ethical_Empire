@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../../api/axiosInstance';
 import logo from '../../assets/logo.png';
 import './Register.css';
@@ -29,19 +28,23 @@ const Register = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [accessLocked, setAccessLocked] = useState(false);
 
-  // Autofill access_code and role from query params
+  const isStaffRole = ['ADMIN', 'WORKER'].includes(form.role);
+
+  // Autofill access_code from URL if present
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const code = params.get('access_code');
     const role = params.get('role');
+    const code = params.get('access_code');
 
-    if (code && role) {
-      setForm(prev => ({
+    if (role) {
+      setForm((prev) => ({
         ...prev,
         role: role.toUpperCase(),
-        access_code: code
+        access_code: code || '',
       }));
+      if (code) setAccessLocked(true);
     }
   }, [location.search]);
 
@@ -64,8 +67,8 @@ const Register = () => {
       return;
     }
 
-    if (['ADMIN', 'WORKER'].includes(role) && !access_code) {
-      setError('Access code is required for ADMIN or WORKER registration.');
+    if (isStaffRole && !access_code) {
+      setError('Access code is required for staff registration.');
       return;
     }
 
@@ -73,18 +76,18 @@ const Register = () => {
     try {
       const payload = { ...form };
       delete payload.password2;
+      if (!isStaffRole) delete payload.access_code;
 
-      if (role === 'USER') delete payload.access_code;
-
-      await axiosInstance.post('register/', payload);  // Updated URL
+      await axiosInstance.post('user-account/register/', payload);
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      console.error('Register error:', err);
+      const data = err.response?.data;
       setError(
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        'Registration failed. Please check your input and try again.'
+        data?.detail ||
+        data?.error ||
+        Object.values(data || {}).flat().join(' ') ||
+        'Registration failed. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -98,9 +101,9 @@ const Register = () => {
 
     try {
       const { credential } = response;
-      await axiosInstance.post('auth/google-register/', {
+      await axiosInstance.post('user-account/auth/google-register/', {
         token: credential,
-      }); // Updated URL
+      });
 
       setSuccess('Google registration successful! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
@@ -110,6 +113,12 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleRole = () => {
+    const newRole = form.role === 'USER' ? 'WORKER' : 'USER';
+    setForm((prev) => ({ ...prev, role: newRole, access_code: '' }));
+    setAccessLocked(false); // allow manual entry if toggled
   };
 
   return (
@@ -124,6 +133,12 @@ const Register = () => {
           <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
             {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
           </button>
+
+          <div className="role-toggle">
+            <button onClick={toggleRole} className="toggle-button">
+              {form.role === 'USER' ? 'Register as Staff' : 'Register as Client'}
+            </button>
+          </div>
 
           <h2>Create an Account</h2>
 
@@ -143,13 +158,14 @@ const Register = () => {
               <option value="ADMIN">Admin</option>
             </select>
 
-            {['WORKER', 'ADMIN'].includes(form.role) && (
+            {isStaffRole && (
               <input
                 name="access_code"
                 placeholder="Access Code"
                 value={form.access_code}
                 onChange={handleChange}
                 required
+                readOnly={accessLocked}
               />
             )}
 
@@ -161,18 +177,19 @@ const Register = () => {
             </button>
           </form>
 
-          <div className="google-signup">
-            <p>Or register with Google:</p>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google sign-up failed.')}
-              useOneTap
-            />
-          </div>
+          {form.role === 'USER' && (
+            <div className="google-signup">
+              <p>Or register with Google:</p>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google sign-up failed.')}
+                useOneTap
+              />
+            </div>
+          )}
 
           <div className="login-prompt">
-            Already have an account?{' '}
-            <span onClick={() => navigate('/login')}>Login</span>
+            Already have an account? <span onClick={() => navigate('/login')}>Login</span>
           </div>
         </div>
       </div>

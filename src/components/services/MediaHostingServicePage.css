@@ -1,20 +1,24 @@
-/* === Base & Variables === */
+/* === Root Variables === */
 :root {
-  --deep-burgundy: #4A001F;
-  --forest-green: #3E5F4B;
-  --text-light: #fff;
-  --text-dark: #111;
+  --color-primary: #4A001F;
+  --color-secondary: #3E5F4B;
+  --color-light: #fff;
+  --color-dark: #111;
+  --color-muted: #f8f8f8;
 }
-.liveband-page {
+
+/* === Base Styling === */
+body, .liveband-page {
   font-family: 'Segoe UI', sans-serif;
-  color: var(--text-dark);
-  background: #fff;
+  background: var(--color-light);
+  color: var(--color-dark);
   overflow-x: hidden;
   padding-bottom: 4rem;
 }
+
 .liveband-page.dark {
-  background: #111;
-  color: var(--text-light);
+  background: var(--color-dark);
+  color: var(--color-light);
 }
 
 /* === Hero Banner === */
@@ -28,59 +32,66 @@
   justify-content: center;
   overflow: hidden;
 }
+
 .hero-banner-image,
 .hero-banner-placeholder {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(74,0,31,0.5);
+  background: rgba(74, 0, 31, 0.5);
   z-index: 1;
 }
+
 .hero-title {
   position: absolute;
   z-index: 2;
-  color: var(--text-light);
-  background: rgba(0,0,0,0.5);
+  color: var(--color-light);
+  background: rgba(0, 0, 0, 0.5);
   padding: 1rem 2rem;
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: bold;
   text-align: center;
   border-radius: 1rem;
   animation: fadeInDown 1s ease;
 }
 
-/* == CTA Button == */
-.cta-section { text-align: center; margin: 2rem auto; }
+/* === CTA Button === */
+.cta-section {
+  text-align: center;
+  margin: 2rem auto;
+}
+
 .cta-button {
-  background: var(--deep-burgundy);
-  color: var(--text-light);
+  background: var(--color-primary);
+  color: var(--color-light);
   padding: 0.75rem 1.75rem;
   font-size: 1.1rem;
   border: none;
   border-radius: 1rem;
   cursor: pointer;
-  transform-origin: center;
   animation: popIn 0.8s ease;
 }
+
 .cta-button:hover {
   transform: scale(1.05);
   background: #3c001a;
 }
 
-/* == Section Titles == */
-.section h2 {
+/* === Section Titles === */
+.section h2, .section h3 {
   text-align: center;
+  color: var(--color-primary);
   font-size: 2rem;
-  color: var(--deep-burgundy);
   margin: 2rem 0;
   animation: fadeInUp 0.8s ease;
 }
 
-/* == Card Grid == */
+/* === Services Section === */
 .card-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -88,15 +99,17 @@
   padding: 0 1rem;
   margin-bottom: 2rem;
 }
+
 .card {
-  background: rgba(74,0,31,0.7);
-  color: var(--text-light);
+  background: rgba(74, 0, 31, 0.7);
+  color: var(--color-light);
   padding: 1rem;
   border-radius: 1rem;
   text-align: center;
   font-weight: 500;
   animation: fadeIn 1s ease;
 }
+
 @media (min-width: 768px) {
   .card-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -104,149 +117,202 @@
   }
 }
 
-/* == Media Showcase == */
+/* === Media Showcase === */
 .creative-section {
   padding: 2rem 1rem;
 }
+
 .creative-layout {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
+
 .creative-media {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
 }
+
 .media-card {
-  position: relative;
-  overflow: hidden;
   border-radius: 1rem;
+  overflow: hidden;
   cursor: pointer;
   animation: zoomIn 0.8s ease;
 }
+
 .media-card img {
   width: 100%;
   border-radius: 1rem;
   transition: transform 0.5s ease;
 }
+
 .media-card:hover img {
   transform: scale(1.05);
 }
+
 .media-title {
   margin-top: 0.5rem;
   font-weight: 600;
 }
+
 .creative-text {
   animation: fadeInUp 1s ease;
 }
+
 @media (min-width: 768px) {
   .creative-layout {
     flex-direction: row;
   }
+
   .creative-media {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* == Venue Info == */
+/* === Venue Section === */
 .event-hosting-section {
   padding: 2rem 1rem;
   animation: fadeIn 1s ease;
 }
 
-/* == Banner Cards Wrapper == */
+/* === Banner Cards === */
 .banner-cards-wrapper {
   margin: 2rem 0;
   padding: 0 1rem;
 }
 
-/* == Testimonials == */
-.testimonial-section h2 { animation: fadeInUp 0.8s ease; }
+/* === Testimonials === */
+.testimonial-section h2 {
+  animation: fadeInUp 0.8s ease;
+}
+
 .testimonial-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
   padding: 0 1rem;
 }
+
 .testimonial-card {
-  background: #f8f8f8;
+  background: var(--color-muted);
   padding: 1rem;
   border-radius: 1rem;
   animation: fadeInUp 1s ease;
 }
+
 .testimonial-text {
   font-style: italic;
 }
+
 .testimonial-user {
   text-align: right;
   font-weight: 600;
   margin-top: 0.5rem;
-  color: var(--deep-burgundy);
+  color: var(--color-primary);
 }
+
 @media (min-width: 768px) {
   .testimonial-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
 @media (min-width: 1024px) {
   .testimonial-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* == WhatsApp Button == */
-.event-hosting-section .whatsapp-button {
+/* === WhatsApp Floating Button === */
+.whatsapp-button {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  background: var(--forest-green);
-  color: var(--text-light);
+  background: var(--color-secondary);
+  color: var(--color-light);
   padding: 0.8rem;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   animation: bounce 2s infinite;
+  z-index: 999;
 }
+
 .whatsapp-button:hover {
   background: #2e4837;
 }
+
 .whatsapp-button svg {
   width: 1.5rem;
   height: 1.5rem;
 }
 
-/* == Skeleton Shimmer == */
+/* === Skeleton Shimmer === */
 .shimmer {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
-.skeleton-card, .testimonial-card.skeleton {
+
+.skeleton-card,
+.testimonial-card.skeleton {
   border-radius: 1rem;
   height: 150px;
   margin-bottom: 1rem;
 }
 
-/* == Keyframes == */
+/* === Animations === */
 @keyframes shimmer {
-  100% { background-position: -200% 0; }
+  100% {
+    background-position: -200% 0;
+  }
 }
-@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-@keyframes fadeInUp { from { opacity:0; transform: translateY(30px);} to {opacity:1; transform: translateY(0);} }
-@keyframes fadeInDown { from { opacity:0; transform: translateY(-30px);} to {opacity:1; transform: translateY(0);} }
-@keyframes popIn { from { opacity:0; transform: scale(0.7);} to {opacity:1; transform: scale(1);} }
-@keyframes zoomIn { from { opacity:0; transform: scale(0.8);} to {opacity:1; transform: scale(1);} }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 @keyframes bounce {
-  0%,100% { transform: translateY(0); }
+  0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
 }
 
-/* == Mobile tweaks == */
+/* === Mobile Tweaks === */
 @media (max-width: 480px) {
-  .hero-title { font-size: 1.8rem; }
-  .cta-button { width: 90%; font-size: 1rem; }
-  .card-grid, .testimonial-grid, .creative-media {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .cta-button {
+    width: 90%;
+    font-size: 1rem;
+  }
+
+  .card-grid,
+  .testimonial-grid,
+  .creative-media {
     grid-template-columns: 1fr;
     padding: 0 0.5rem;
   }

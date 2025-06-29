@@ -4,26 +4,32 @@
   max-width: 1200px;
   margin: 40px auto;
   padding: 0 20px;
-  background-color: #F5EBDD; /* Soft Sand Background */
+  background-color: #f5ebdd; /* Soft Sand Background */
+  font-family: 'Segoe UI', sans-serif;
 }
 
-.services-page h2 {
+/* Section Heading */
+.services-page h2,
+.service-detail h2 {
   text-align: center;
   margin-bottom: 30px;
   color: #800020; /* Burgundy */
   font-size: 2rem;
+  font-weight: 700;
 }
 
+/* Services List */
 .service-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  gap: 24px;
 }
 
+/* Service Card */
 .service-item {
   background-color: #ffffff;
   padding: 25px;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 4px 8px rgba(46, 46, 46, 0.15); /* Charcoal shadow */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -34,67 +40,70 @@
 }
 
 .service-item h3 {
-  color: #CBA135; /* Gold */
-  margin-bottom: 15px;
+  color: #cba135; /* Gold */
+  font-size: 1.4rem;
+  margin-bottom: 12px;
 }
 
 .service-item p {
-  color: #2E2E2E; /* Charcoal */
-  margin-bottom: 15px;
-  line-height: 1.5;
+  color: #2e2e2e; /* Charcoal */
+  line-height: 1.6;
+  font-size: 1rem;
+  margin-bottom: 16px;
 }
 
 .service-item a {
   color: #800020; /* Burgundy */
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .service-item a:hover {
-  color: #CBA135; /* Gold hover */
+  color: #cba135; /* Gold hover */
   text-decoration: underline;
 }
 
+/* Service Detail View */
 .service-detail {
   background-color: #ffffff;
-  padding: 30px;
-  border-radius: 8px;
+  padding: 40px;
+  border-radius: 12px;
   box-shadow: 0 4px 8px rgba(46, 46, 46, 0.15);
   max-width: 800px;
   margin: 0 auto;
 }
 
-.service-detail h2 {
-  color: #800020; /* Burgundy */
-  margin-bottom: 20px;
-}
-
 .service-detail p {
-  color: #2E2E2E; /* Charcoal */
-  margin-bottom: 20px;
+  color: #2e2e2e;
   font-size: 1.1rem;
-  line-height: 1.6;
+  line-height: 1.7;
+  margin-bottom: 24px;
 }
 
 .service-detail ul {
-  margin-left: 20px;
-  color: #2E2E2E;
+  padding-left: 1.5rem;
+  margin-bottom: 24px;
 }
 
 .service-detail li {
   margin-bottom: 10px;
+  font-size: 1rem;
+  color: #2e2e2e;
 }
 
+/* Back Link */
 .back-link {
   display: inline-block;
   margin-top: 20px;
   color: #800020;
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .back-link:hover {
-  color: #CBA135;
+  color: #cba135;
   text-decoration: underline;
 }
 
@@ -102,6 +111,7 @@
 @media (max-width: 768px) {
   .services-page {
     margin: 20px auto;
+    padding: 0 16px;
   }
 
   .service-item {
@@ -109,11 +119,13 @@
   }
 
   .service-detail {
-    padding: 20px;
+    padding: 24px;
   }
 }
+
 @media (max-width: 480px) {
-  .services-page h2 {
+  .services-page h2,
+  .service-detail h2 {
     font-size: 1.5rem;
   }
 
@@ -121,7 +133,9 @@
     font-size: 1.2rem;
   }
 
-  .service-detail h2 {
-    font-size: 1.5rem;
+  .service-item p,
+  .service-detail p,
+  .service-detail li {
+    font-size: 0.95rem;
   }
 }

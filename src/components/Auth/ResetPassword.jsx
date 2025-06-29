@@ -21,7 +21,7 @@ const ResetPassword = () => {
     }
 
     try {
-      await axiosInstance.post('/user-account/auth/reset-password-confirm/', {
+      await axiosInstance.post('/api/user-account/auth/reset-password-confirm/', {
         uid,
         token,
         new_password: newPassword,

@@ -10,7 +10,7 @@
 /* === Hero Banner === */
 .hero-banner {
   position: relative;
-  height: 55vh;
+  height: 60vh;
   background-color: #800020;
   display: flex;
   align-items: center;
@@ -27,7 +27,7 @@
   top: 0;
   left: 0;
   z-index: 0;
-  animation: fadeIn 2s ease-in-out;
+  filter: brightness(0.6);
 }
 
 .hero-banner-placeholder {
@@ -48,30 +48,18 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.8));
   z-index: 2;
-  animation: fadeIn 1.5s ease-in;
 }
 
 .hero-title {
   color: #fff;
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: 800;
   z-index: 3;
   padding: 0 1rem;
   animation: slideInDown 1s ease forwards;
-}
-
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 1.6rem;
-  }
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 /* === CTA Section === */
@@ -83,13 +71,14 @@
 .cta-button {
   background-color: #800020;
   color: #fff;
-  padding: 0.75rem 2rem;
+  padding: 0.8rem 2.2rem;
   border-radius: 9999px;
   font-weight: bold;
   border: none;
+  font-size: 1.1rem;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
-  animation: fadeInUp 1s ease forwards;
 }
 
 .cta-button:hover {
@@ -97,9 +86,9 @@
   transform: scale(1.05);
 }
 
-/* === Section Styles === */
+/* === Sections === */
 .section {
-  padding: 2.5rem 1rem;
+  padding: 3rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -110,15 +99,15 @@
   text-align: center;
   color: #800020;
   margin-bottom: 1rem;
-  animation: fadeInUp 1s ease forwards;
 }
 
 .section-title {
-  font-size: 2rem;
+  font-size: 2.2rem;
 }
 
 .section-subtitle {
   font-size: 1.5rem;
+  margin-top: 1rem;
 }
 
 .section-description {
@@ -128,51 +117,54 @@
   max-width: 768px;
   margin: 0 auto 2rem;
   text-align: center;
-  animation: fadeInUp 1.2s ease forwards;
 }
 
-/* === Card Grids === */
+/* === Cards & Grids === */
 .card-grid,
 .media-grid,
 .service-grid,
 .testimonial-grid {
   display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
 .service-card,
 .testimonial-card {
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 1.2rem;
   text-align: center;
   font-weight: 600;
-  color: #333;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-  animation: fadeInZoom 0.8s ease forwards;
+  color: #1e1e1e;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .service-card:hover,
 .testimonial-card:hover {
-  transform: scale(1.03);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 /* === Transform Section === */
 .transform-section {
   background-color: #fff7ec;
-  padding: 2rem 1rem;
+  padding: 2.5rem 1rem;
   text-align: center;
-  animation: fadeInUp 1s ease forwards;
+}
+
+.transform-section .section-description {
+  font-size: 1.1rem;
+  color: #333;
 }
 
 /* === Testimonials === */
 .testimonial-text {
   font-style: italic;
-  font-size: 0.95rem;
-  color: #333;
+  font-size: 1rem;
+  color: #444;
   margin-bottom: 0.5rem;
 }
 
@@ -182,21 +174,20 @@
   color: #800020;
 }
 
-/* === WhatsApp Button === */
+/* === WhatsApp Floating Button === */
 .decor-page .whatsapp-button {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
   background-color: #25d366;
   color: white;
-  padding: 0.8rem;
+  padding: 0.85rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   transition: transform 0.3s ease;
-  animation: popIn 1s ease;
 }
 
 .whatsapp-button:hover {
@@ -206,6 +197,7 @@
 .whatsapp-button svg {
   width: 24px;
   height: 24px;
+  color: #fff;
 }
 
 /* === Animations === */
@@ -234,8 +226,32 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* === Responsive (Small Screens) === */
-@media (max-width: 640px) {
+/* === Responsive === */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .section-title {
+    font-size: 1.7rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.3rem;
+  }
+
+  .section-description {
+    font-size: 1rem;
+  }
+
+  .cta-button {
+    font-size: 1rem;
+    width: 90%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
   .hero-title {
     font-size: 1.8rem;
   }
@@ -245,18 +261,12 @@
   }
 
   .section-subtitle {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
 
   .section-description {
     font-size: 0.95rem;
     padding: 0 1rem;
-  }
-
-  .cta-button {
-    width: 90%;
-    max-width: 300px;
-    font-size: 1rem;
   }
 
   .media-grid,

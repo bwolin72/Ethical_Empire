@@ -22,20 +22,17 @@ const LiveBandServicePage = () => {
   ];
 
   useEffect(() => {
-    publixios
-      .get('/service-app/media/?endpoint=LiveBandServicePage')
+    publixios.get('/service-app/media/?endpoint=LiveBandServicePage')
       .then(res => setMediaCards(res.data))
       .catch(() => setMediaCards([]));
 
-    publixios
-      .get('/service-app/banners/?page=LiveBandServicePage')
+    publixios.get('/service-app/banners/?page=LiveBandServicePage')
       .then(res => {
         if (res.data.length > 0) setBannerUrl(res.data[0].url);
       })
       .catch(() => setBannerUrl(null));
 
-    publixios
-      .get('/reviews/')
+    publixios.get('/reviews/')
       .then(res => setTestimonials(res.data))
       .catch(() => setTestimonials([]));
   }, []);
@@ -43,7 +40,7 @@ const LiveBandServicePage = () => {
   return (
     <div className="liveband-page-container">
       {/* Hero Banner */}
-      <div className="hero-banner">
+      <header className="hero-banner">
         {bannerUrl ? (
           <img src={bannerUrl} alt="Live Band Banner" className="hero-banner-image" />
         ) : (
@@ -51,7 +48,7 @@ const LiveBandServicePage = () => {
         )}
         <div className="hero-overlay" />
         <h1 className="hero-title">Ethical Sounds</h1>
-      </div>
+      </header>
 
       {/* CTA Button */}
       <section className="cta-section">
@@ -64,37 +61,42 @@ const LiveBandServicePage = () => {
         </motion.button>
       </section>
 
-      {/* Service Offerings */}
+      {/* Services Offered */}
       <section className="section services-section">
         <h2 className="section-title">Live Band Services</h2>
+        <p className="section-description">
+          Explore our wide range of live band offerings tailored to elevate your special event.
+        </p>
         <div className="card-grid">
           {liveBandServices.map((service, index) => (
-            <Card key={index} className="card">
+            <Card key={index} className="service-card">
               <CardContent className="card-content">{service}</CardContent>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* Creative Media + Description Section */}
+      {/* Creative Media + Description */}
       <section className="section creative-section">
         <div className="creative-layout">
+          <div className="creative-text">
+            <h3 className="section-subtitle">Immersive Musical Moments</h3>
+            <p className="section-description">
+              Whether you're planning a wedding, corporate gala, or private soirée,
+              our live bands craft unforgettable experiences. From soulful ballads
+              to upbeat rhythms, we deliver music that elevates every moment.
+            </p>
+          </div>
           <div className="creative-media">
             {mediaCards.length > 0 ? (
               mediaCards.slice(0, 3).map((media, index) => (
                 <MediaCard key={index} media={media} />
               ))
             ) : (
-              <p className="text-center text-gray-500">No live band media available at the moment.</p>
+              <p className="section-description text-gray-500 text-center">
+                No live band media available at the moment.
+              </p>
             )}
-          </div>
-          <div className="creative-text">
-            <h3 className="text-xl font-semibold mb-3">Immersive Musical Moments</h3>
-            <p>
-              Whether you're planning a wedding, corporate gala, or private soirée,
-              our live bands craft unforgettable experiences. From soulful ballads
-              to upbeat rhythms, we deliver music that elevates every moment.
-            </p>
           </div>
         </div>
       </section>
@@ -102,6 +104,9 @@ const LiveBandServicePage = () => {
       {/* Testimonials */}
       <section className="section testimonial-section">
         <h2 className="section-title">Client Reviews</h2>
+        <p className="section-description">
+          Hear what our clients have to say about their unforgettable experiences.
+        </p>
         <div className="testimonial-grid">
           {testimonials.length > 0 ? (
             testimonials.slice(0, 6).map((review, index) => (
@@ -113,12 +118,14 @@ const LiveBandServicePage = () => {
               </Card>
             ))
           ) : (
-            <p className="text-center text-gray-500">No client reviews available yet.</p>
+            <p className="section-description text-center text-gray-500">
+              No client reviews available yet.
+            </p>
           )}
         </div>
       </section>
 
-      {/* WhatsApp Floating Button */}
+      {/* WhatsApp Button */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

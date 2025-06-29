@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import publicAxios from '../../api/publicAxios'; // ✅ updated import
+import publicAxios from '../../api/publicAxios';
 import './Services.css';
 
 const Services = () => {
@@ -19,7 +19,7 @@ const Services = () => {
 
   const fetchAllServices = async () => {
     try {
-      const res = await publicAxios.get('/services/'); // ✅ updated
+      const res = await publicAxios.get('/services/');
       setServices(res.data);
     } catch (error) {
       console.error('Failed to load services:', error);
@@ -30,7 +30,7 @@ const Services = () => {
 
   const fetchServiceDetail = async (slug) => {
     try {
-      const res = await publicAxios.get(`/services/${slug}/`); // ✅ updated
+      const res = await publicAxios.get(`/services/${slug}/`);
       setSelectedService(res.data);
     } catch (error) {
       console.error('Failed to load service detail:', error);
@@ -40,28 +40,34 @@ const Services = () => {
   };
 
   if (loading) {
-    return <div className="services-page"><p>Loading services...</p></div>;
+    return (
+      <div className="services-page">
+        <p>Loading services...</p>
+      </div>
+    );
   }
 
   return (
     <div className="services-page">
       {selectedService ? (
-        <div className="service-detail">
-          <h2>{selectedService.title}</h2>
-          <p>{selectedService.description}</p>
+        <section className="service-detail">
+          <h2 className="section-heading">{selectedService.title}</h2>
+          <p className="service-description">{selectedService.description}</p>
           {selectedService.details && selectedService.details.length > 0 && (
-            <ul>
+            <ul className="service-details-list">
               {selectedService.details.map((detail, index) => (
                 <li key={index}>{detail}</li>
               ))}
             </ul>
           )}
-          <Link to="/services" className="back-link">← Back to All Services</Link>
-        </div>
+          <Link to="/services" className="back-link">
+            ← Back to All Services
+          </Link>
+        </section>
       ) : (
         <>
-          <h2>Our Services</h2>
-          <div className="service-list">
+          <h2 className="section-heading">Our Services</h2>
+          <section className="service-list">
             {services.map((srv) => (
               <div key={srv.slug} className="service-item">
                 <h3>{srv.title}</h3>
@@ -71,7 +77,7 @@ const Services = () => {
                 </Link>
               </div>
             ))}
-          </div>
+          </section>
         </>
       )}
     </div>

@@ -1,19 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import publicAxios from '../../api/publicAxios';
 import { useNavigate } from 'react-router-dom';
-import MediaCard from '../context/MediaCard'; 
+import MediaCard from '../context/MediaCard';
 import './EethmHome.css';
 
 const serviceDetails = {
   'live-band': {
     title: 'Live Band Performance',
-    description: 'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
-    details: ['Customizable song lists', 'Professional sound equipment', 'Multiple band size options'],
+    description:
+      'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
+    details: [
+      'Customizable song lists',
+      'Professional sound equipment',
+      'Multiple band size options',
+    ],
   },
   catering: {
     title: 'Catering Services',
     description: 'Gourmet catering for all event types with customizable menus.',
-    details: ['Local and international cuisine', 'Dietary restriction accommodations', 'Full-service staff available'],
+    details: [
+      'Local and international cuisine',
+      'Dietary restriction accommodations',
+      'Full-service staff available',
+    ],
   },
   decor: {
     title: 'Event Decor',
@@ -33,7 +42,7 @@ const EethmHome = () => {
   const navigate = useNavigate();
 
   const toggleMute = () => {
-    setIsMuted(prev => !prev);
+    setIsMuted((prev) => !prev);
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
     }
@@ -43,9 +52,9 @@ const EethmHome = () => {
     const fetchContent = async () => {
       try {
         const [featuredRes, bannerRes, promoRes] = await Promise.all([
-          publicAxios.get('/service-app/media/featured/'),
-          publicAxios.get('/service-app/media/banners/?endpoint=EethmHome'),
-          publicAxios.get('/service-app/media/promotions/')
+          publicAxios.get('/api/media/featured/'),
+          publicAxios.get('/api/media/banners/?endpoint=EethmHome'),
+          publicAxios.get('/api/promotions/'),
         ]);
 
         const featured = featuredRes.data?.data;
@@ -137,7 +146,7 @@ const EethmHome = () => {
         <h2>Current Offers</h2>
         {promotions.length > 0 ? (
           <div className="promos-container">
-            {promotions.map(promo => (
+            {promotions.map((promo) => (
               <div key={promo.id} className="promo-card">
                 {promo.image_url && <img src={promo.image_url} alt={promo.title} />}
                 <div className="promo-content">

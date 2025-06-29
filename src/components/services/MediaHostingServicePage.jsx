@@ -39,12 +39,12 @@ const MediaHostingServicePage = () => {
       ]);
 
       setMediaItems(mediaRes.data || []);
-      if (bannerRes.data?.length > 0) setBannerImage(bannerRes.data[0].url);
       setTestimonials(testimonialsRes.data || []);
-    } catch (err) {
-      console.error('Error fetching media page data:', err);
-      setMediaItems([]);
-      setTestimonials([]);
+      if (bannerRes.data?.length > 0) {
+        setBannerImage(bannerRes.data[0].url);
+      }
+    } catch (error) {
+      console.error('Error fetching media hosting page data:', error);
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ const MediaHostingServicePage = () => {
         <h1 className="hero-title">Capture & Host with Ethical Precision</h1>
       </header>
 
-      {/* CTA */}
+      {/* Call To Action */}
       <section className="cta-section">
         <button className="cta-button" onClick={() => navigate('/bookings')}>
           Request Hosting Services
@@ -76,10 +76,10 @@ const MediaHostingServicePage = () => {
 
       {/* Services */}
       <section className="section services-section">
-        <h2>Our Multimedia & Hosting Services</h2>
+        <h2 className="section-title">Our Multimedia & Hosting Services</h2>
         <div className="card-grid">
-          {hostingServices.map((service, idx) => (
-            <div key={idx} className="card">
+          {hostingServices.map((service, index) => (
+            <div key={index} className="card">
               <div className="card-content">{service}</div>
             </div>
           ))}
@@ -91,15 +91,15 @@ const MediaHostingServicePage = () => {
         <div className="creative-layout">
           <div className="creative-media">
             {loading
-              ? Array.from({ length: 3 }).map((_, idx) => <SkeletonCard key={idx} />)
-              : mediaItems.slice(0, 3).map((media, idx) => (
-                  <div key={idx} className="media-card">
+              ? Array.from({ length: 3 }).map((_, index) => <SkeletonCard key={index} />)
+              : mediaItems.slice(0, 3).map((item, index) => (
+                  <div key={index} className="media-card">
                     <img
-                      src={media.url}
-                      alt={media.title || 'Media Item'}
+                      src={item.url}
+                      alt={item.title || 'Media Item'}
                       className="media-image"
                     />
-                    <p className="media-title">{media.title}</p>
+                    <p className="media-title">{item.title}</p>
                   </div>
                 ))}
           </div>
@@ -115,9 +115,9 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* Venue Info */}
+      {/* Venue Section */}
       <section className="section event-hosting-section">
-        <h3>Hosting Event Place</h3>
+        <h3 className="section-title">Hosting Event Place</h3>
         <p>
           Need a location for your next shoot, seminar, or celebration? We offer fully equipped
           event spaces with lighting, seating, sound, and ambiance—ready for recording,
@@ -125,19 +125,19 @@ const MediaHostingServicePage = () => {
         </p>
       </section>
 
-      {/* Banner Cards */}
+      {/* Additional Media Banners */}
       <section className="banner-cards-wrapper">
         <BannerCards endpoint="MediaHostingServicePage" />
       </section>
 
       {/* Testimonials */}
       <section className="section testimonial-section">
-        <h2>Client Reviews</h2>
+        <h2 className="section-title">Client Reviews</h2>
         <div className="testimonial-grid">
           {loading
-            ? Array.from({ length: 3 }).map((_, idx) => <SkeletonTestimonial key={idx} />)
-            : testimonials.slice(0, 6).map((review, idx) => (
-                <div key={idx} className="testimonial-card">
+            ? Array.from({ length: 3 }).map((_, index) => <SkeletonTestimonial key={index} />)
+            : testimonials.slice(0, 6).map((review, index) => (
+                <div key={index} className="testimonial-card">
                   <p className="testimonial-text">"{review.message}"</p>
                   <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
                 </div>
@@ -145,7 +145,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* WhatsApp Button */}
+      {/* WhatsApp Floating Button */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

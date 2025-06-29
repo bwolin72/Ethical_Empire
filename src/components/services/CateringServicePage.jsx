@@ -49,7 +49,7 @@ const CateringPage = () => {
 
   return (
     <div className="catering-page-container">
-      {/* Banner Section */}
+      {/* Hero Banner */}
       <div className="hero-banner">
         {bannerUrl ? (
           <img
@@ -64,7 +64,7 @@ const CateringPage = () => {
         <h1 className="hero-title">Ethical Kitchen</h1>
       </div>
 
-      {/* CTA Section */}
+      {/* CTA */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -75,7 +75,7 @@ const CateringPage = () => {
         </motion.button>
       </section>
 
-      {/* Catering Services */}
+      {/* Services */}
       <section className="section services-section">
         <h2>Our Catering Services</h2>
         <div className="card-grid">
@@ -87,7 +87,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Creative Ideas Section */}
+      {/* Creative Catering Ideas */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
@@ -132,12 +132,11 @@ const CateringPage = () => {
               </Card>
             ))
           ) : (
-            <p>No testimonials available yet.</p>
+            <p className="testimonial-placeholder">No testimonials available yet.</p>
           )}
         </div>
       </section>
 
-      {/* WhatsApp Button */}
       <WhatsAppButton />
     </div>
   );

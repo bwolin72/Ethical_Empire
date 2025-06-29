@@ -205,6 +205,23 @@ body.dark .dark-toggle {
   margin-bottom: 0.5rem;
 }
 
+.role-toggle button {
+  padding: 0.6rem 1rem;
+  background-color: var(--muted-gold);
+  color: var(--charcoal);
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.role-toggle button:hover {
+  background-color: var(--forest-green);
+  color: var(--white);
+}
+
+
 @media (max-width: 480px) {
   .register-box {
     padding: 1.5rem 1rem;

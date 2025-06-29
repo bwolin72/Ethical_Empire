@@ -1,4 +1,3 @@
-// src/api/publicAxios.js
 import axios from 'axios';
 import baseURL from './baseURL';
 
