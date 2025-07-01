@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import publicAxios from '../../api/publicAxios';
+import axiosInstance from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import MediaCard from '../context/MediaCard';
 import './EethmHome.css';
@@ -52,9 +52,9 @@ const EethmHome = () => {
     const fetchContent = async () => {
       try {
         const [featuredRes, bannerRes, promoRes] = await Promise.all([
-          publicAxios.get('/media/featured/'),
-          publicAxios.get('/media/banners/?endpoint=EethmHome'),
-          publicAxios.get('/promotions/'),
+          axiosInstance.get('/media/featured/'),
+          axiosInstance.get('/media/banners/?endpoint=EethmHome'),
+          axiosInstance.get('/promotions/'),
         ]);
 
         const featured = featuredRes.data?.data;
