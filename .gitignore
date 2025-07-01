@@ -2,73 +2,87 @@
 *.log
 *.pyc
 __pycache__/
-.env
-.env.*
-*.sqlite3
 *.bak
 *.swp
 .DS_Store
-.vscode/
-.idea/
-*.sublime-project
-*.sublime-workspace
+Thumbs.db
+ehthumbs.db
+desktop.ini
 
-# === Django ===
-/db.sqlite3
-/media/
-staticfiles/
-local_settings.py
-
-# Ignore migrations (optional, if regenerating)
-**/migrations/*.py
-**/migrations/*.pyc
-!**/migrations/__init__.py
-
-# === Python Virtual Env ===
+# === Virtual Environments ===
 venv/
 env/
 ENV/
 .venv/
 
-# === Coverage ===
+# === Python ===
+*.pyo
+*.pyd
+.Python
+
+# === Django ===
+db.sqlite3
+/media/
+staticfiles/
+local_settings.py
+*.pid
+
+# === Migrations (but keep __init__.py) ===
+**/migrations/*.py
+**/migrations/*.pyc
+!**/migrations/__init__.py
+
+# === PostgreSQL Dumps ===
+*.sql
+*.dump
+
+# === Environment Files ===
+.env
+.env.*
+.env.docker
+
+# === Docker ===
+Dockerfile*
+*.tar
+*.gz
+*.tmp
+*.old
+
+# === Logs ===
+*.log
+logs/
+
+# === IDEs & Editors ===
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# === Testing & Coverage ===
 htmlcov/
 .coverage
 .coverage.*
+.cache/
+.tox/
+.pytest_cache/
+coverage.xml
+*.cover
+pip-wheel-metadata/
+__pypackages__/
 
-# === React Frontend ===
+# === React Frontend (if present) ===
 frontend/node_modules/
 frontend/build/
 frontend/dist/
 frontend/.env
 frontend/.DS_Store
 
-# === Netlify Deploy Folder (if generated locally) ===
+# === Netlify ===
 netlify/
 .netlify/
 *.zip
 
-# === JetBrains / VSCode ===
+# === Misc ===
 *.iml
 *.ipr
 *.iws
-*.idea/
-.vscode/
-
-# === Testing & CI ===
-coverage.xml
-*.cover
-.tox/
-.pytest_cache/
-.cache/
-pip-wheel-metadata/
-__pypackages__/
-
-# === Logs ===
-*.log
-logs/
-*.pid
-
-# === System Files ===
-Thumbs.db
-ehthumbs.db
-desktop.ini
