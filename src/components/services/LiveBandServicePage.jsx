@@ -22,19 +22,23 @@ const LiveBandServicePage = () => {
   ];
 
   useEffect(() => {
-    publixios.get('/service-app/media/?endpoint=LiveBandServicePage')
-      .then(res => setMediaCards(res.data))
-      .catch(() => setMediaCards([]));
+    const fetchContent = async () => {
+      try {
+        const [mediaRes, bannerRes, reviewsRes] = await Promise.all([
+          publixios.get('/media/featured/?endpoint=LiveBandServicePage'),
+          publixios.get('/media/banners/?endpoint=LiveBandServicePage'),
+          publixios.get('/reviews/'),
+        ]);
 
-    publixios.get('/service-app/banners/?page=LiveBandServicePage')
-      .then(res => {
-        if (res.data.length > 0) setBannerUrl(res.data[0].url);
-      })
-      .catch(() => setBannerUrl(null));
+        setMediaCards(mediaRes.data || []);
+        setBannerUrl(bannerRes.data?.[0]?.url || null);
+        setTestimonials(reviewsRes.data || []);
+      } catch (error) {
+        console.error('Failed to load content:', error);
+      }
+    };
 
-    publixios.get('/reviews/')
-      .then(res => setTestimonials(res.data))
-      .catch(() => setTestimonials([]));
+    fetchContent();
   }, []);
 
   return (
@@ -76,7 +80,7 @@ const LiveBandServicePage = () => {
         </div>
       </section>
 
-      {/* Creative Media + Description */}
+      {/* Media Showcase */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-text">

@@ -1,45 +1,87 @@
-/* === Register.css === */
-
-:root {
-  --burgundy: #800020;
-  --navy: #001F54;
-  --muted-gold: #C9B037;
-  --forest-green: #228B22;
-  --charcoal: #2E2E2E;
-  --white: #ffffff;
-  --cream: #f9f6f2;
-}
-
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: url('../../assets/register-bg.jpg') no-repeat center center fixed;
-  background-size: cover;
-  color: var(--charcoal);
-  transition: background-color 0.3s, color 0.3s;
-}
-
-body.dark {
-  background-color: #121212;
-  color: var(--cream);
-}
-
+/* Base styles */
 .register-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
+  padding: 2rem;
+  background-color: #f9f9f9;
 }
 
-/* Add to Register.css */
+body.dark {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.register-box {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
+}
+
+body.dark .register-box {
+  background: #1e1e1e;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.brand-header img {
+  width: 70px;
+}
+
+.brand-header span {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.register-form input,
+.register-form select {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.register-form input:focus,
+.register-form select:focus {
+  border-color: #0077ff;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #0077ff;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
 
 .password-strength {
   font-size: 0.85rem;
-  margin-top: 4px;
-  margin-bottom: 10px;
 }
 
 .password-strength.weak {
@@ -54,207 +96,111 @@ body.dark {
   color: green;
 }
 
-
-.register-box {
-  background: var(--cream);
-  border-radius: 12px;
-  padding: 2rem;
-  max-width: 450px;
-  width: 100%;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-  animation: slideIn 0.6s ease;
-  position: relative;
-}
-
-body.dark .register-box {
-  background: #1f1f1f;
-  color: var(--cream);
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.brand-header {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.brand-header img {
-  width: 100px;
-}
-
-.brand-header span {
-  display: block;
-  margin-top: 0.5rem;
-  font-weight: bold;
-  font-size: 1.2rem;
-  color: var(--navy);
-}
-
-body.dark .brand-header span {
-  color: var(--muted-gold);
-}
-
-h2 {
-  text-align: center;
-  color: var(--navy);
-  margin-bottom: 1rem;
-}
-
-body.dark h2 {
-  color: var(--muted-gold);
-}
-
-.register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-.register-form input,
-.register-form select {
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  background: var(--white);
-  color: var(--charcoal);
-}
-
-.register-form select {
-  appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, var(--charcoal) 50%),
-                    linear-gradient(135deg, var(--charcoal) 50%, transparent 50%);
-  background-position: calc(100% - 20px) center, calc(100% - 15px) center;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
-}
-
-body.dark .register-form input,
-body.dark .register-form select {
-  background: #2a2a2a;
-  color: var(--cream);
-  border-color: #555;
-}
-
-.register-form input:focus,
-.register-form select:focus {
-  outline: none;
-  border-color: var(--navy);
-}
-
 .register-button {
   padding: 0.75rem;
-  background-color: var(--navy);
-  color: var(--white);
+  background-color: #0077ff;
+  color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.register-button:hover:not(:disabled) {
-  background-color: var(--forest-green);
 }
 
 .register-button:disabled {
-  background-color: #555;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.dark-toggle {
-  background: none;
-  border: none;
-  color: var(--navy);
-  cursor: pointer;
+.error-message {
+  color: red;
   font-size: 0.9rem;
-  display: block;
-  margin-left: auto;
-  margin-bottom: 0.5rem;
+  margin: 0.5rem 0;
 }
 
-body.dark .dark-toggle {
-  color: var(--muted-gold);
+.success-message {
+  color: green;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
 }
 
 .google-signup {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   text-align: center;
 }
 
 .google-signup p {
-  margin-bottom: 0.5rem;
   font-size: 0.9rem;
+  margin-bottom: 0.5rem;
 }
 
 .login-prompt {
   text-align: center;
+  margin-top: 1.5rem;
   font-size: 0.9rem;
-  margin-top: 1rem;
 }
 
 .login-prompt span {
-  color: var(--burgundy);
-  font-weight: bold;
+  color: #0077ff;
   cursor: pointer;
+  font-weight: 500;
 }
 
-.login-prompt span:hover {
-  text-decoration: underline;
-}
-
-.error-message {
-  color: var(--burgundy);
-  font-size: 0.95rem;
-  text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-.success-message {
-  color: var(--forest-green);
-  font-size: 0.95rem;
-  text-align: center;
-  margin-bottom: 0.5rem;
-}
-
-.role-toggle button {
-  padding: 0.6rem 1rem;
-  background-color: var(--muted-gold);
-  color: var(--charcoal);
+.dark-toggle {
+  margin: 1rem 0;
+  background: none;
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  color: #0077ff;
 }
 
-.role-toggle button:hover {
-  background-color: var(--forest-green);
-  color: var(--white);
-}
+/* Mobile optimization for very small screens */
+@media (max-width: 380px) {
+  .register-container {
+    padding: 1rem;
+  }
 
-
-@media (max-width: 480px) {
   .register-box {
-    padding: 1.5rem 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  .brand-header img {
+    width: 50px;
+  }
+
+  .brand-header span {
+    font-size: 1rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
   }
 
   .register-form input,
   .register-form select,
   .register-button {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    padding: 0.6rem;
   }
 
-  .brand-header img {
-    width: 80px;
+  .password-strength {
+    font-size: 0.75rem;
+  }
+
+  .toggle-password {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .dark-toggle {
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .google-signup p,
+  .login-prompt {
+    font-size: 0.8rem;
   }
 }

@@ -56,6 +56,16 @@ export default function Login() {
     setFormErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
+  const extractErrorMessage = (err) => {
+    const data = err.response?.data;
+    if (typeof data === 'string') return data;
+    if (typeof data?.detail === 'string') return data.detail;
+    if (typeof data?.error === 'string') return data.error;
+    if (Array.isArray(data?.detail)) return data.detail[0];
+    if (data?.message) return data.message;
+    return 'Login failed. Please try again.';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -73,15 +83,10 @@ export default function Login() {
       handleLoginSuccess(access, refresh, userRes.data);
     } catch (err) {
       console.error('Login error:', err);
-      const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        err.message ||
-        'Login failed.';
-      setError(msg);
+      setError(extractErrorMessage(err));
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
+      setForm((prev) => ({ ...prev, password: '' }));
     } finally {
       setLoading(false);
     }
@@ -92,7 +97,6 @@ export default function Login() {
     setLoading(true);
     try {
       const decoded = jwtDecode(credential);
-
       const { data } = await axiosInstance.post('/accounts/google-register/', {
         email: decoded.email,
         name: decoded.name,
@@ -102,11 +106,7 @@ export default function Login() {
       handleLoginSuccess(access, refresh, user);
     } catch (err) {
       console.error('Google login error:', err);
-      const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.message ||
-        'Google login failed. Please try again.';
-      setError(msg);
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -131,15 +131,18 @@ export default function Login() {
             Dark Mode
           </label>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message" role="alert">{error}</div>}
 
-          <form onSubmit={handleSubmit} className="login-form">
+          <form onSubmit={handleSubmit} className="login-form" noValidate>
             <input
+              type="email"
               name="email"
               placeholder="Email"
               value={form.email}
               onChange={handleChange}
               className={formErrors.email ? 'input-error' : ''}
+              aria-invalid={!!formErrors.email}
+              disabled={loading}
             />
             {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
 
@@ -151,11 +154,14 @@ export default function Login() {
                 value={form.password}
                 onChange={handleChange}
                 className={formErrors.password ? 'input-error' : ''}
+                aria-invalid={!!formErrors.password}
+                disabled={loading}
               />
               <button
                 type="button"
                 className="show-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label="Toggle password visibility"
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
@@ -176,6 +182,8 @@ export default function Login() {
               onSuccess={handleGoogleSuccess}
               onError={() => setError('Google login was unsuccessful')}
               useOneTap
+              theme="outline"
+              size="large"
             />
           </div>
 

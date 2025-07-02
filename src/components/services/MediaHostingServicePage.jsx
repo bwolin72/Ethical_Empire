@@ -32,17 +32,20 @@ const MediaHostingServicePage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const [mediaRes, bannerRes, testimonialsRes] = await Promise.all([
-        publixios.get('/service_app/media/?type=media&endpoint=MediaHostingServicePage'),
-        publixios.get('/service_app/media/?type=banner&endpoint=MediaHostingServicePage'),
+      const [mediaRes, testimonialsRes] = await Promise.all([
+        publixios.get('/media/?endpoint=MediaHostingServicePage'),
         publixios.get('/reviews/'),
       ]);
 
-      setMediaItems(mediaRes.data || []);
+      const allMedia = mediaRes.data || [];
+
+      const activeMedia = allMedia.filter(item => item.is_active);
+      const banner = activeMedia.find(item => item.type === 'banner');
+      const media = activeMedia.filter(item => item.type === 'media');
+
+      setBannerImage(banner?.file || null);
+      setMediaItems(media);
       setTestimonials(testimonialsRes.data || []);
-      if (bannerRes.data?.length > 0) {
-        setBannerImage(bannerRes.data[0].url);
-      }
     } catch (error) {
       console.error('Error fetching media hosting page data:', error);
     } finally {
@@ -95,11 +98,11 @@ const MediaHostingServicePage = () => {
               : mediaItems.slice(0, 3).map((item, index) => (
                   <div key={index} className="media-card">
                     <img
-                      src={item.url}
-                      alt={item.title || 'Media Item'}
+                      src={item.file}
+                      alt={item.label || 'Media Item'}
                       className="media-image"
                     />
-                    <p className="media-title">{item.title}</p>
+                    <p className="media-title">{item.label || 'Untitled'}</p>
                   </div>
                 ))}
           </div>

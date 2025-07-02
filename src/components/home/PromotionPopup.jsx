@@ -5,14 +5,13 @@ import './PromotionPopup.css'; // Styling file
 const PromotionPopup = () => {
   const [promotion, setPromotion] = useState(null);
   const [visible, setVisible] = useState(false);
-  const [hasShown, setHasShown] = useState(false);
 
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
         const response = await publicAxios.get('/promotions/active/');
         if (response.data.length > 0) {
-          setPromotion(response.data[0]); // show the first active promotion
+          setPromotion(response.data[0]); // Show the first active promotion
         }
       } catch (err) {
         console.error('Failed to load promotion', err);
@@ -21,11 +20,10 @@ const PromotionPopup = () => {
 
     fetchPromotions();
 
-    // Show after delay
+    // Show after a 5-second delay
     const timer = setTimeout(() => {
       setVisible(true);
-      setHasShown(true);
-    }, 5000); // show after 5 seconds
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);

@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./ConfirmPasswordChange.css"; // Make sure this path is correct
+import "./ConfirmPasswordChange.css"; // Ensure CSS path is correct
 
 const ConfirmPasswordChange = () => {
   const [params] = useSearchParams();
@@ -44,8 +44,16 @@ const ConfirmPasswordChange = () => {
   return (
     <div className="confirm-container">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+
       <div className={`confirm-message ${status}`}>
-        {message}
+        {loading ? (
+          <div className="loader">
+            <span className="spinner" /> {/* Optionally use an animated spinner */}
+            <p>{message}</p>
+          </div>
+        ) : (
+          <p>{message}</p>
+        )}
       </div>
     </div>
   );

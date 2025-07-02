@@ -21,22 +21,23 @@ const DecorPage = () => {
   ];
 
   useEffect(() => {
-    publixios
-      .get('/service-app/media/?type=media&endpoint=DecorPage')
-      .then(res => setMediaCards(res.data))
-      .catch(() => setMediaCards([]));
+    const fetchMedia = async () => {
+      try {
+        const [mediaRes, bannerRes, reviewsRes] = await Promise.all([
+          publixios.get('/media/featured/?endpoint=DecorPage'),
+          publixios.get('/media/banners/?endpoint=DecorPage'),
+          publixios.get('/reviews/'),
+        ]);
 
-    publixios
-      .get('/service-app/media/?type=banner&endpoint=DecorPage')
-      .then(res => {
-        if (res.data.length > 0) setBannerUrl(res.data[0].url);
-      })
-      .catch(() => setBannerUrl(null));
+        setMediaCards(mediaRes.data || []);
+        setBannerUrl(bannerRes.data?.[0]?.url || null);
+        setTestimonials(reviewsRes.data || []);
+      } catch (error) {
+        console.error('Error fetching decor page content:', error);
+      }
+    };
 
-    publixios
-      .get('/reviews/')
-      .then(res => setTestimonials(res.data))
-      .catch(() => setTestimonials([]));
+    fetchMedia();
   }, []);
 
   return (
@@ -79,7 +80,7 @@ const DecorPage = () => {
         </div>
       </section>
 
-      {/* Transform Your Venue Section */}
+      {/* Transform Your Venue */}
       <section className="section creative-layout">
         <div className="creative-text">
           <h3>Transform Your Venue</h3>
@@ -95,7 +96,7 @@ const DecorPage = () => {
         </div>
       </section>
 
-      {/* Media Gallery */}
+      {/* Decor Gallery */}
       <section className="section">
         <h2 className="section-title">Decor Highlights</h2>
         <p className="section-description">

@@ -66,7 +66,7 @@ body.dark-mode .login-box {
 }
 
 /* Logo */
-.login-box img {
+.login-logo {
   width: 120px;
   display: block;
   margin: 0 auto 1.5rem;
@@ -141,19 +141,25 @@ body.dark-mode .login-form input {
   font-weight: bold;
 }
 
-/* Forgot Password */
-.form-footer {
-  text-align: right;
-  margin-top: -0.5rem;
-  font-size: 0.9rem;
+body.dark-mode .show-password {
+  color: var(--muted-gold);
 }
 
-.form-footer a {
+/* Forgot Password */
+.forgot-link {
+  text-align: right;
+  display: block;
+  font-size: 0.9rem;
   color: var(--navy);
+  margin-top: -0.25rem;
   text-decoration: none;
 }
 
-.form-footer a:hover {
+body.dark-mode .forgot-link {
+  color: var(--muted-gold);
+}
+
+.forgot-link:hover {
   text-decoration: underline;
 }
 
@@ -223,6 +229,13 @@ body.dark-mode .login-form input {
   text-decoration: underline;
 }
 
+/* Google Login (override default iframes/buttons if needed) */
+.google-login-button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 /* === Responsive Tweaks === */
 @media (max-width: 768px) {
   .login-box {
@@ -242,7 +255,7 @@ body.dark-mode .login-form input {
     font-size: 0.9rem;
   }
 
-  .login-box img {
+  .login-logo {
     width: 100px;
   }
 }
@@ -267,7 +280,7 @@ body.dark-mode .login-form input {
   }
 
   .dark-toggle,
-  .form-footer,
+  .forgot-link,
   .register-prompt {
     font-size: 0.85rem;
   }

@@ -25,6 +25,7 @@ import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ResetPassword from './components/Auth/ResetPassword';
+import VerifyOTP from './components/Auth/VerifyOTP'; // ✅ NEW
 import EditProfile from './components/user/EditProfile';
 import UpdatePassword from './components/user/UpdatePassword';
 import ConfirmPasswordChange from './components/user/ConfirmPasswordChange';
@@ -114,8 +115,11 @@ const AppRoutes = () => (
     <Route path="/" element={<HomePage />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
+    <Route path="/verify-otp" element={<VerifyOTP />} /> {/* ✅ OTP Route */}
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
+
+    {/* Protected Routes */}
     <Route path="/user" element={<ProtectedRoute><UserPage /></ProtectedRoute>} />
     <Route path="/account" element={<ProtectedRoute><AccountProfile /></ProtectedRoute>} />
     <Route path="/bookings" element={<ProtectedRoute><BookingForm /></ProtectedRoute>} />
@@ -123,6 +127,8 @@ const AppRoutes = () => (
     <Route path="/update-password" element={<ProtectedRoute><UpdatePassword /></ProtectedRoute>} />
     <Route path="/confirm-password-change" element={<ProtectedRoute><ConfirmPasswordChange /></ProtectedRoute>} />
     <Route path="/admin" element={<ProtectedRoute adminOnly={true}><AdminPanel /></ProtectedRoute>} />
+
+    {/* Static Pages */}
     <Route path="/about" element={<About />} />
     <Route path="/services" element={<Services />} />
     <Route path="/contact" element={<ContactForm />} />
@@ -161,7 +167,7 @@ function App() {
                 <AppRoutes />
               </main>
               <Footer />
-              <PromotionPopup /> {/* ✅ NEW: Promotion popup shown globally */}
+              <PromotionPopup /> {/* ✅ Global popup */}
             </div>
           )}
         </Router>

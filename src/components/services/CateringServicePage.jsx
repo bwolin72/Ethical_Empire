@@ -31,9 +31,13 @@ const CateringPage = () => {
     const fetchData = async () => {
       try {
         const [mediaRes, bannerRes, reviewsRes] = await Promise.all([
-          publicAxios.get('/service-app/media/?type=media&endpoint=CateringPage'),
-          publicAxios.get('/service-app/media/?type=banner&endpoint=CateringPage'),
-          publicAxios.get('/reviews/'),
+          publicAxios.get('/api/media/', {
+            params: { type: 'media', endpoint: 'CateringPage' }
+          }),
+          publicAxios.get('/api/media/', {
+            params: { type: 'banner', endpoint: 'CateringPage' }
+          }),
+          publicAxios.get('/api/reviews/')
         ]);
 
         setMediaCards(mediaRes.data || []);

@@ -58,13 +58,27 @@ const EethmHome = () => {
 
     const fetchContent = async () => {
       try {
-        const [featuredRes, bannerRes, promoRes] = await Promise.all([
-          axiosCommon.get('/media/featured/', { signal }),
-          axiosCommon.get('/media/banners/?endpoint=EethmHome', { signal }),
+        const [heroRes, bannerRes, promoRes] = await Promise.all([
+          axiosCommon.get('/media/', {
+            params: {
+              type: 'media',
+              endpoint: 'EethmHome',
+              is_active: true,
+            },
+            signal,
+          }),
+          axiosCommon.get('/media/', {
+            params: {
+              type: 'banner',
+              endpoint: 'EethmHome',
+              is_active: true,
+            },
+            signal,
+          }),
           axiosCommon.get('/promotions/', { signal }),
         ]);
 
-        setHeroMedia(featuredRes.data?.data || null);
+        setHeroMedia(heroRes.data.length ? heroRes.data[0] : null);
         setBanners(bannerRes.data || []);
         setPromotions(promoRes.data || []);
       } catch (err) {
