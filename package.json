@@ -2,8 +2,16 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "./",
+  "homepage": "https://eethmgh.netlify.app",
   "proxy": "http://localhost:8000",
+  "scripts": {
+    "start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
+    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "echo 'Deployment handled by Netlify'"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -32,13 +40,12 @@
     "web-vitals": "^2.1.4",
     "webpack-dev-server": "^5.2.1"
   },
-  "scripts": {
-    "start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
-    "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build && rmdir /s /q ..\\backend\\frontend 2>nul && move build ..\\backend\\frontend",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "echo 'Deployment configured for Django backend'"
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.2.0"
   },
   "eslintConfig": {
     "extends": [
@@ -57,12 +64,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.28.0",
-    "cross-env": "^7.0.3",
-    "eslint": "^8.57.1",
-    "eslint-plugin-react": "^7.37.5",
-    "globals": "^16.2.0"
   }
 }
