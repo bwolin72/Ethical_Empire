@@ -31,6 +31,8 @@ const serviceDetails = {
   },
 };
 
+const getMediaUrl = (media) => media?.url || media?.file_url || '';
+
 const EethmHome = () => {
   const [heroMedia, setHeroMedia] = useState(null);
   const [banners, setBanners] = useState([]);
@@ -38,6 +40,7 @@ const EethmHome = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
+
   const videoRef = useRef(null);
   const navigate = useNavigate();
 
@@ -49,27 +52,32 @@ const EethmHome = () => {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const fetchContent = async () => {
       try {
         const [featuredRes, bannerRes, promoRes] = await Promise.all([
-          axiosInstance.get('/media/featured/'),
-          axiosInstance.get('/media/banners/?endpoint=EethmHome'),
-          axiosInstance.get('/promotions/'),
+          axiosInstance.get('/media/featured/', { signal }),
+          axiosInstance.get('/media/banners/?endpoint=EethmHome', { signal }),
+          axiosInstance.get('/promotions/', { signal }),
         ]);
 
-        const featured = featuredRes.data?.data;
-        setHeroMedia(featured || null);
+        setHeroMedia(featuredRes.data?.data || null);
         setBanners(bannerRes.data || []);
         setPromotions(promoRes.data || []);
       } catch (err) {
-        console.error('Homepage fetch error:', err);
-        setError('Failed to load homepage content.');
+        if (err.name !== 'CanceledError') {
+          console.error('Homepage fetch error:', err);
+          setError(err?.response?.data?.detail || 'Failed to load homepage content.');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchContent();
+    return () => controller.abort();
   }, []);
 
   return (
@@ -82,7 +90,7 @@ const EethmHome = () => {
           <p className="video-fallback" style={{ color: 'red' }}>{error}</p>
         ) : heroMedia ? (
           <>
-            {(heroMedia.url || heroMedia.file_url)?.endsWith('.mp4') ? (
+            {getMediaUrl(heroMedia).endsWith('.mp4') ? (
               <video
                 ref={videoRef}
                 className="background-video"
@@ -91,12 +99,12 @@ const EethmHome = () => {
                 muted={isMuted}
                 playsInline
               >
-                <source src={heroMedia.url || heroMedia.file_url} type="video/mp4" />
+                <source src={getMediaUrl(heroMedia)} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             ) : (
               <img
-                src={heroMedia.url || heroMedia.file_url}
+                src={getMediaUrl(heroMedia)}
                 alt="Hero"
                 className="background-video"
               />
@@ -111,14 +119,14 @@ const EethmHome = () => {
                 </button>
               </div>
             </div>
-            {(heroMedia.url || heroMedia.file_url)?.endsWith('.mp4') && (
+            {getMediaUrl(heroMedia).endsWith('.mp4') && (
               <button className="mute-button" onClick={toggleMute}>
                 {isMuted ? '🔇' : '🔊'}
               </button>
             )}
           </>
         ) : (
-          <p className="video-fallback">No hero media found.</p>
+          <p className="video-fallback">No hero media available.</p>
         )}
       </section>
 
@@ -174,7 +182,7 @@ const EethmHome = () => {
           <div className="banners-container">
             {banners.map((media) => (
               <div key={media.id} className="banner-item">
-                <MediaCard media={{ url: media.url || media.file_url, title: media.title }} />
+                <MediaCard media={{ url: getMediaUrl(media), title: media.title }} />
               </div>
             ))}
           </div>

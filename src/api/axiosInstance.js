@@ -1,58 +1,83 @@
 import axios from 'axios';
 import baseURL from './baseURL';
 import { getGlobalLogout } from '../components/context/AuthContext';
+import { applyCommonRequestHeaders, devLog } from './axiosCommon';
 
-const axiosInstance = axios.create({ baseURL });
+// Retry options
+const MAX_RETRIES = 2;
 
+const axiosInstance = axios.create({
+  baseURL,
+  timeout: 10000, // 10 seconds
+});
+
+// Request Interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    const method = config.method?.toUpperCase();
-    const isFormData = config.data instanceof FormData;
-
-    if (token) {
-      config.headers['Authorization'] = `Token ${token}`; // DRF default
-    } else {
-      delete config.headers['Authorization'];
-    }
-
-    if (method === 'GET') {
-      delete config.headers['Content-Type'];
-    } else if (!isFormData) {
-      config.headers['Content-Type'] = 'application/json';
-    }
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Request]', method, config.url, config);
-    }
-
+    config = applyCommonRequestHeaders(config, true);
+    devLog('[Private Request]', config.method?.toUpperCase(), config.url, config);
+    config.metadata = { retryCount: 0 }; // for retry logic
     return config;
   },
   (error) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[Request Error]', error);
-    }
+    devLog('[Private Request Error]', error);
     return Promise.reject(error);
   }
 );
 
+// Response Interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Response]', response.status, response.config.url, response.data);
-    }
+    devLog('[Private Response]', response.status, response.config.url, response.data);
     return response;
   },
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    const originalRequest = error.config;
+    const status = error.response?.status;
+
+    // Auto-refresh if token expired (401) and not already retried
+    if (status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) throw new Error('No refresh token');
+
+        const response = await axios.post(
+          process.env.REACT_APP_API_REFRESH_URL || `${baseURL}auth/token/refresh/`,
+          { refresh: refreshToken }
+        );
+
+        const newToken = response.data.access || response.data.token;
+        localStorage.setItem('token', newToken);
+
+        originalRequest.headers['Authorization'] = `Token ${newToken}`;
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        const logout = getGlobalLogout();
+        if (logout) logout();
+        return Promise.reject(refreshError);
+      }
+    }
+
+    // Retry on network or 5xx errors
+    const shouldRetry = !originalRequest._retrying && (
+      !error.response || (status >= 500 && status < 600)
+    );
+
+    if (shouldRetry && originalRequest.metadata.retryCount < MAX_RETRIES) {
+      originalRequest.metadata.retryCount += 1;
+      originalRequest._retrying = true;
+      devLog(`[Retrying ${originalRequest.metadata.retryCount}/${MAX_RETRIES}]`, originalRequest.url);
+      return axiosInstance(originalRequest);
+    }
+
+    // Final fallback
+    if (status === 401) {
       const logout = getGlobalLogout();
-      logout(); // Clear token from storage + auth state
+      if (logout) logout();
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.error('[Response Error]', error?.response?.status, error?.response?.config?.url, error);
-    }
-
+    devLog('[Private Response Error]', status, originalRequest?.url, error);
     return Promise.reject(error);
   }
 );
