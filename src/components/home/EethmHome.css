@@ -15,6 +15,7 @@ body, .eethm-home-page {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--white);
   color: var(--charcoal);
+  scroll-behavior: smooth;
 }
 
 /* === Hero Section === */
@@ -119,6 +120,18 @@ body, .eethm-home-page {
   padding: 50px;
 }
 
+/* === Fade-in Reveal Animation === */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease-out;
+}
+
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
 /* === Services Section === */
 .services-page {
   padding: 60px 30px;
@@ -178,7 +191,7 @@ body, .eethm-home-page {
   font-weight: bold;
 }
 
-/* === BannerCards and MediaCards Shared === */
+/* === Banners & Media Cards === */
 .banner-cards-container,
 .banners-section {
   padding: 40px 20px;
@@ -249,6 +262,71 @@ body, .eethm-home-page {
   text-decoration: underline;
 }
 
+/* === Promotions Section === */
+.promotions-section {
+  padding: 60px 30px;
+  background-color: var(--white);
+  text-align: center;
+}
+
+.promotions-section h2 {
+  font-size: 2.5rem;
+  color: var(--burgundy);
+  margin-bottom: 30px;
+}
+
+.promos-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.promo-card {
+  background-color: var(--cream);
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 300px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-left: 6px solid var(--muted-gold);
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+.promo-card:hover {
+  transform: translateY(-5px);
+}
+
+.promo-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.promo-content h3 {
+  font-size: 1.25rem;
+  color: var(--navy-blue);
+  margin-bottom: 10px;
+}
+
+.promo-content p {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.discount {
+  color: var(--forest-green);
+  font-weight: bold;
+}
+
+.validity {
+  font-size: 0.9rem;
+  color: var(--charcoal);
+  font-style: italic;
+}
+
 /* === Responsive === */
 @media (max-width: 768px) {
   .overlay-content h1 {
@@ -277,5 +355,13 @@ body, .eethm-home-page {
   .banner-cards-title,
   .banners-section h2 {
     font-size: 1.8rem;
+  }
+
+  .promotions-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .promo-card {
+    max-width: 90%;
   }
 }

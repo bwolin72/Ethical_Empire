@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axiosInstance from '../../api/axiosInstance';
+import axiosCommon from '../../api/axiosCommon';
 import { useNavigate } from 'react-router-dom';
 import MediaCard from '../context/MediaCard';
+import FadeInSection from '../FadeInSection';
 import './EethmHome.css';
 
 const serviceDetails = {
@@ -58,9 +59,9 @@ const EethmHome = () => {
     const fetchContent = async () => {
       try {
         const [featuredRes, bannerRes, promoRes] = await Promise.all([
-          axiosInstance.get('/media/featured/', { signal }),
-          axiosInstance.get('/media/banners/?endpoint=EethmHome', { signal }),
-          axiosInstance.get('/promotions/', { signal }),
+          axiosCommon.get('/media/featured/', { signal }),
+          axiosCommon.get('/media/banners/?endpoint=EethmHome', { signal }),
+          axiosCommon.get('/promotions/', { signal }),
         ]);
 
         setHeroMedia(featuredRes.data?.data || null);
@@ -107,6 +108,7 @@ const EethmHome = () => {
                 src={getMediaUrl(heroMedia)}
                 alt="Hero"
                 className="background-video"
+                loading="lazy"
               />
             )}
             <div className="overlay-content">
@@ -131,65 +133,73 @@ const EethmHome = () => {
       </section>
 
       {/* === Services Section === */}
-      <section className="services-page">
-        <h2>Our Services</h2>
-        <div className="service-list">
-          {Object.entries(serviceDetails).map(([key, service]) => (
-            <div key={key} className="service-item">
-              <h3>{service.title}</h3>
-              <p>{service.description}</p>
-              <ul>
-                {service.details.map((detail, idx) => (
-                  <li key={idx}>{detail}</li>
-                ))}
-              </ul>
-              <a href={`/services/${key}`}>Learn more</a>
-            </div>
-          ))}
-        </div>
-      </section>
+      <FadeInSection>
+        <section className="services-page">
+          <h2>Our Services</h2>
+          <div className="service-list">
+            {Object.entries(serviceDetails).map(([key, service]) => (
+              <div key={key} className="service-item">
+                <h3>{service.title}</h3>
+                <p>{service.description}</p>
+                <ul>
+                  {service.details.map((detail, idx) => (
+                    <li key={idx}>{detail}</li>
+                  ))}
+                </ul>
+                <a href={`/services/${key}`}>Learn more</a>
+              </div>
+            ))}
+          </div>
+        </section>
+      </FadeInSection>
 
       {/* === Promotions Section === */}
-      <section className="promotions-section">
-        <h2>Current Offers</h2>
-        {promotions.length > 0 ? (
-          <div className="promos-container">
-            {promotions.map((promo) => (
-              <div key={promo.id} className="promo-card">
-                {promo.image_url && <img src={promo.image_url} alt={promo.title} />}
-                <div className="promo-content">
-                  <h3>{promo.title}</h3>
-                  <p>{promo.description}</p>
-                  {promo.discount_percentage && (
-                    <p className="discount">Save {promo.discount_percentage}%</p>
+      <FadeInSection>
+        <section className="promotions-section">
+          <h2>Current Offers</h2>
+          {promotions.length > 0 ? (
+            <div className="promos-container">
+              {promotions.map((promo) => (
+                <div key={promo.id} className="promo-card">
+                  {promo.image_url && (
+                    <img src={promo.image_url} alt={promo.title} loading="lazy" />
                   )}
-                  <p className="validity">
-                    Valid: {promo.valid_from} - {promo.valid_to}
-                  </p>
+                  <div className="promo-content">
+                    <h3>{promo.title}</h3>
+                    <p>{promo.description}</p>
+                    {promo.discount_percentage && (
+                      <p className="discount">Save {promo.discount_percentage}%</p>
+                    )}
+                    <p className="validity">
+                      Valid: {promo.valid_from} - {promo.valid_to}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No current promotions.</p>
-        )}
-      </section>
+              ))}
+            </div>
+          ) : (
+            <p>No current promotions.</p>
+          )}
+        </section>
+      </FadeInSection>
 
       {/* === Banner Highlights Section === */}
-      <section className="banners-section">
-        <h2>Highlights</h2>
-        {banners.length > 0 ? (
-          <div className="banners-container">
-            {banners.map((media) => (
-              <div key={media.id} className="banner-item">
-                <MediaCard media={{ url: getMediaUrl(media), title: media.title }} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No highlights available at this time.</p>
-        )}
-      </section>
+      <FadeInSection>
+        <section className="banners-section">
+          <h2>Highlights</h2>
+          {banners.length > 0 ? (
+            <div className="banners-container">
+              {banners.map((media) => (
+                <div key={media.id} className="banner-item">
+                  <MediaCard media={{ url: getMediaUrl(media), title: media.title }} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>No highlights available at this time.</p>
+          )}
+        </section>
+      </FadeInSection>
     </div>
   );
 };
