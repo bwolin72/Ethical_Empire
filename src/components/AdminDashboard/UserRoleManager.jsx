@@ -40,7 +40,6 @@ const UserRoleManager = () => {
     setActiveTab(role);
     setSelected([]);
     setMessage('');
-    fetchUsers(role);
   };
 
   const toggleSelection = (id) => {
@@ -99,9 +98,10 @@ const UserRoleManager = () => {
     }
   };
 
+  // ✅ Added `activeTab` to the dependency array
   useEffect(() => {
     fetchUsers(activeTab);
-  }, []);
+  }, [activeTab]);
 
   return (
     <div style={{ backgroundColor: palette.cream }} className="p-4 md:p-8 min-h-screen">

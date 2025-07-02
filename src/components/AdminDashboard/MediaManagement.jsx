@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './MediaManagement.css';
 import { ToastContainer, toast } from 'react-toastify';
@@ -25,11 +25,7 @@ const MediaManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [previewItem, setPreviewItem] = useState(null);
 
-  useEffect(() => {
-    fetchMedia();
-  }, [mediaType, selectedEndpoint, statusFilter]);
-
-  const fetchMedia = async () => {
+  const fetchMedia = useCallback(async () => {
     try {
       const params = {
         type: mediaType,
@@ -45,7 +41,11 @@ const MediaManagement = () => {
       console.error('Failed to fetch media:', error);
       toast.error('Failed to load media.');
     }
-  };
+  }, [mediaType, selectedEndpoint, statusFilter]);
+
+  useEffect(() => {
+    fetchMedia();
+  }, [fetchMedia]);
 
   const handleFileChange = (e) => {
     setFiles(Array.from(e.target.files));
@@ -170,7 +170,11 @@ const MediaManagement = () => {
         </button>
 
         <button onClick={() => {
-          setMediaType((prev) => prev === 'media' ? 'banner' : prev === 'banner' ? 'featured' : 'media');
+          setMediaType((prev) =>
+            prev === 'media' ? 'banner' :
+            prev === 'banner' ? 'featured' :
+            'media'
+          );
         }}>
           Switch to {mediaType === 'media' ? 'Banner' : mediaType === 'banner' ? 'Featured' : 'Media'}
         </button>
@@ -203,13 +207,13 @@ const MediaManagement = () => {
               </div>
               <div className="media-actions">
                 <p>Status: {item.is_active ? '✅ Active' : '❌ Inactive'}</p>
-                {typeof item.is_featured === 'boolean' && (
+                {'is_featured' in item && (
                   <p>Featured: {item.is_featured ? '⭐ Yes' : '—'}</p>
                 )}
                 <button onClick={() => toggleActive(item.id)}>
                   {item.is_active ? 'Deactivate' : 'Activate'}
                 </button>
-                {typeof item.is_featured === 'boolean' && (
+                {'is_featured' in item && (
                   <button onClick={() => toggleFeatured(item.id)}>
                     {item.is_featured ? 'Unset Featured' : 'Set as Featured'}
                   </button>

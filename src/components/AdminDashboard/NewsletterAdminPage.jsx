@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import { toast } from 'react-toastify';
 import { FaTrash, FaEnvelope, FaCheck, FaEye, FaPaperPlane } from 'react-icons/fa';
@@ -14,44 +14,44 @@ const NewsletterManagement = () => {
   const [newsletterLog, setNewsletterLog] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
 
-  useEffect(() => {
-    fetchAllData();
+  const fetchLogs = useCallback(async () => {
+    try {
+      const { data } = await axiosInstance.get('/newsletter/logs/');
+      setNewsletterLog(data);
+    } catch (error) {
+      toast.error('❌ Failed to fetch newsletter logs');
+    }
   }, []);
 
-  const fetchAllData = async () => {
+  const fetchRecipientCount = useCallback(async () => {
+    try {
+      const { data } = await axiosInstance.get('/newsletter/recipients/count/');
+      setRecipientsCount(data.count);
+    } catch (error) {
+      toast.error('❌ Failed to fetch subscriber count');
+    }
+  }, []);
+
+  const fetchSubscribers = useCallback(async () => {
+    try {
+      const { data } = await axiosInstance.get('/newsletter/subscribers/');
+      setSubscribers(data);
+    } catch (error) {
+      toast.error('❌ Failed to fetch subscribers');
+    }
+  }, []);
+
+  const fetchAllData = useCallback(async () => {
     await Promise.all([
       fetchLogs(),
       fetchRecipientCount(),
       fetchSubscribers()
     ]);
-  };
+  }, [fetchLogs, fetchRecipientCount, fetchSubscribers]);
 
-  const fetchLogs = async () => {
-    try {
-      const { data } = await axiosInstance.get('/user-account/newsletter/logs/');
-      setNewsletterLog(data);
-    } catch (error) {
-      toast.error('❌ Failed to fetch newsletter logs');
-    }
-  };
-
-  const fetchRecipientCount = async () => {
-    try {
-      const { data } = await axiosInstance.get('/user-account/newsletter/recipients/count/');
-      setRecipientsCount(data.count);
-    } catch (error) {
-      toast.error('❌ Failed to fetch subscriber count');
-    }
-  };
-
-  const fetchSubscribers = async () => {
-    try {
-      const { data } = await axiosInstance.get('/user-account/newsletter/subscribers/');
-      setSubscribers(data);
-    } catch (error) {
-      toast.error('❌ Failed to fetch subscribers');
-    }
-  };
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
 
   const handleSend = async (test = false) => {
     if (!subject.trim() || !content.trim()) {
@@ -61,7 +61,7 @@ const NewsletterManagement = () => {
 
     setSending(true);
     try {
-      const { data } = await axiosInstance.post('/user-account/newsletter/send/', {
+      const { data } = await axiosInstance.post('/newsletter/send/', {
         subject,
         html: content,
         test,
@@ -77,7 +77,7 @@ const NewsletterManagement = () => {
 
   const handleResendConfirmation = async (email) => {
     try {
-      await axiosInstance.post('/user-account/newsletter/resend-confirmation/', { email });
+      await axiosInstance.post('/newsletter/resend-confirmation/', { email });
       toast.success(`✅ Confirmation email resent to ${email}`);
     } catch (error) {
       toast.error(`❌ Failed to resend confirmation to ${email}`);
@@ -89,7 +89,7 @@ const NewsletterManagement = () => {
     if (!confirmed) return;
 
     try {
-      await axiosInstance.delete(`/user-account/newsletter/subscribers/${id}/`);
+      await axiosInstance.delete(`/newsletter/subscribers/${id}/`);
       toast.success('✅ Subscriber deleted');
       await fetchSubscribers();
       await fetchRecipientCount();

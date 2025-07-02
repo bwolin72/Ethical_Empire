@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -17,15 +17,16 @@ const BookingForm = () => {
     event_date: null,
     address: '',
     message: '',
-    services: [], // Now storing service IDs
+    services: [],
   });
 
   const [availableServices, setAvailableServices] = useState([]);
   const [showServices, setShowServices] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Prefill user info from localStorage
+  // Prefill user info
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -38,24 +39,27 @@ const BookingForm = () => {
     }
   }, []);
 
-  // Fetch services from backend
-  useEffect(() => {
+  // Fetch services
+  const fetchServices = useCallback(() => {
     axiosInstance
       .get('/services/')
       .then((res) => setAvailableServices(res.data))
       .catch((err) => console.error('Failed to fetch services:', err));
   }, []);
 
-  // Handle input changes
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (type === 'checkbox') {
-      const id = parseInt(value);
+      const id = parseInt(value, 10);
       setFormData((prev) => ({
         ...prev,
         services: checked
-          ? [...prev.services, id]
+          ? [...new Set([...prev.services, id])]
           : prev.services.filter((s) => s !== id),
       }));
     } else {
@@ -73,14 +77,29 @@ const BookingForm = () => {
     }));
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      event_date: null,
+      address: '',
+      message: '',
+      services: [],
+    });
+    setShowServices(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMessage('');
+    setIsSubmitting(true);
 
     const token = localStorage.getItem('access');
     if (!token) {
       setErrorMessage('You must be logged in to submit a booking.');
+      setIsSubmitting(false);
       return;
     }
 
@@ -97,16 +116,7 @@ const BookingForm = () => {
       });
 
       setSuccessMessage('🎉 Booking request submitted successfully!');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        event_date: null,
-        address: '',
-        message: '',
-        services: [],
-      });
-      setShowServices(false);
+      resetForm();
     } catch (err) {
       const response = err.response?.data;
       const extractedError =
@@ -119,6 +129,8 @@ const BookingForm = () => {
           ? extractedError[0]
           : extractedError || 'An error occurred while submitting the form.'
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,6 +186,7 @@ const BookingForm = () => {
             htmlFor="services"
             className="dropdown-label"
             onClick={() => setShowServices((prev) => !prev)}
+            aria-expanded={showServices}
           >
             Select Services{' '}
             {showServices ? (
@@ -184,7 +197,7 @@ const BookingForm = () => {
           </label>
 
           {showServices && (
-            <fieldset className="service-dropdown">
+            <fieldset className="service-dropdown" id="services">
               {availableServices.map((service) => (
                 <label key={service.id} className="service-option">
                   <input
@@ -212,8 +225,12 @@ const BookingForm = () => {
           />
         </div>
 
-        <button type="submit" className="submit-btn full-width">
-          Submit Booking
+        <button
+          type="submit"
+          className="submit-btn full-width"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Booking'}
         </button>
 
         {successMessage && <p className="success-msg">{successMessage}</p>}
