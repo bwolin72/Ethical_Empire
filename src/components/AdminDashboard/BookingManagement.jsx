@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './BookingManagement.css';
 
@@ -15,7 +15,7 @@ const BookingManagement = () => {
   const token = localStorage.getItem('access');
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get('/bookings/', { headers });
@@ -40,21 +40,21 @@ const BookingManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [headers, search, sortBy]);
 
-  const fetchServices = async () => {
+  const fetchServices = useCallback(async () => {
     try {
       const res = await axiosInstance.get('/services/', { headers });
       setServices(res.data);
     } catch (err) {
       console.error('Error fetching services:', err);
     }
-  };
+  }, [headers]);
 
   useEffect(() => {
     fetchBookings();
     fetchServices();
-  }, [search, sortBy]);
+  }, [fetchBookings, fetchServices]);
 
   const handleEdit = (booking) => {
     setEditBooking({ ...booking, services: booking.service_details.map(s => s.id) });
