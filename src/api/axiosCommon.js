@@ -28,7 +28,6 @@ export const devLog = (...args) => {
   }
 };
 
-// Optional timeout helper
 export const createCancelToken = () => {
   const controller = new AbortController();
   return {
@@ -36,3 +35,6 @@ export const createCancelToken = () => {
     cancel: () => controller.abort(),
   };
 };
+
+// ✅ Add this default export
+export default axios;
