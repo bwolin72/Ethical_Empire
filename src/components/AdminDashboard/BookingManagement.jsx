@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './BookingManagement.css';
 
@@ -12,8 +12,10 @@ const BookingManagement = () => {
   const [editBooking, setEditBooking] = useState(null);
   const bookingsPerPage = 10;
 
-  const token = localStorage.getItem('access');
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const headers = useMemo(() => {
+    const token = localStorage.getItem('access');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, []);
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -191,7 +193,6 @@ const BookingManagement = () => {
         ))}
       </div>
 
-      {/* Edit Modal */}
       {editBooking && (
         <div className="modal">
           <div className="modal-content">
