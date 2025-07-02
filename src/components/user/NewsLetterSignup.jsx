@@ -2,9 +2,9 @@
 import { useState, useRef } from 'react';
 import publicAxios from '../../api/publicAxios';
 import ReCAPTCHA from 'react-google-recaptcha';
-import './newsletter.css';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './newsletter.css';
 
 const SITE_KEY = process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY;
 
@@ -16,6 +16,12 @@ export default function NewsletterSignup() {
   const [showSuccess, setShowSuccess] = useState(false);
   const recaptchaRef = useRef(null);
 
+  const resetForm = () => {
+    setEmail('');
+    setName('');
+    recaptchaRef.current?.reset();
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -25,24 +31,29 @@ export default function NewsletterSignup() {
       return;
     }
 
+    if (!email.trim()) {
+      toast.warn('⚠️ Email is required.');
+      setInputError(true);
+      setTimeout(() => setInputError(false), 3000);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      const response = await publicAxios.post('/user-account/newsletter/subscribe/', {
+      const { data } = await publicAxios.post('/user-account/newsletter/subscribe/', {
         email,
-        name,
+        name: name.trim(),
         token: captchaToken,
       });
 
-      toast.success('✅ Please check your email to confirm your subscription.');
-      setEmail('');
-      setName('');
+      toast.success(data?.message || '✅ Please check your email to confirm your subscription.');
+      resetForm();
       setShowSuccess(true);
-      recaptchaRef.current.reset();
-
       setTimeout(() => setShowSuccess(false), 5000);
     } catch (err) {
-      const errorMsg = err?.response?.data?.error || '❌ Subscription failed. Please try again.';
+      const errorMsg =
+        err?.response?.data?.error || '❌ Subscription failed. Please try again.';
       toast.error(errorMsg);
       setInputError(true);
       setTimeout(() => setInputError(false), 3000);
@@ -52,20 +63,28 @@ export default function NewsletterSignup() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="newsletter-form" aria-label="Newsletter Signup Form">
+    <form
+      onSubmit={handleSubmit}
+      className="newsletter-form"
+      aria-label="Newsletter Signup Form"
+      noValidate
+    >
       <h3 className="newsletter-title">Subscribe to Our Newsletter</h3>
 
       <input
         type="text"
-        placeholder="Your Name"
+        name="name"
+        placeholder="Your Name (optional)"
         value={name}
         onChange={(e) => setName(e.target.value)}
         className="newsletter-input"
         aria-label="Name"
+        autoComplete="name"
       />
 
       <input
         type="email"
+        name="email"
         placeholder="you@example.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -73,6 +92,7 @@ export default function NewsletterSignup() {
         className={`newsletter-input ${inputError ? 'error' : ''}`}
         aria-invalid={inputError}
         aria-label="Email address"
+        autoComplete="email"
       />
 
       <ReCAPTCHA
@@ -84,7 +104,7 @@ export default function NewsletterSignup() {
       <button
         type="submit"
         className="newsletter-button"
-        disabled={submitting || !email}
+        disabled={submitting || !email.trim()}
         aria-busy={submitting}
         aria-label="Submit newsletter subscription"
       >

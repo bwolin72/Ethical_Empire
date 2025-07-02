@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import { toast } from 'react-toastify';
-import { FaTrash, FaEnvelope, FaCheck, FaEye, FaPaperPlane } from 'react-icons/fa';
+import { FaTrash, FaEnvelope, FaEye, FaPaperPlane } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './NewsletterAdminPage.module.css';
 
@@ -13,45 +13,51 @@ const NewsletterManagement = () => {
   const [sending, setSending] = useState(false);
   const [newsletterLog, setNewsletterLog] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchLogs = useCallback(async () => {
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        const [logsRes, countRes, subsRes] = await Promise.all([
+          axiosInstance.get('/newsletter/logs/'),
+          axiosInstance.get('/newsletter/recipients/count/'),
+          axiosInstance.get('/newsletter/subscribers/'),
+        ]);
+
+        setNewsletterLog(logsRes.data);
+        setRecipientsCount(countRes.data.count);
+        setSubscribers(subsRes.data);
+      } catch (error) {
+        toast.error('❌ Failed to load newsletter data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
+
+  const refreshLogs = async () => {
     try {
       const { data } = await axiosInstance.get('/newsletter/logs/');
       setNewsletterLog(data);
-    } catch (error) {
-      toast.error('❌ Failed to fetch newsletter logs');
+    } catch {
+      toast.error('❌ Failed to refresh logs');
     }
-  }, []);
+  };
 
-  const fetchRecipientCount = useCallback(async () => {
+  const refreshSubscribers = async () => {
     try {
-      const { data } = await axiosInstance.get('/newsletter/recipients/count/');
-      setRecipientsCount(data.count);
-    } catch (error) {
-      toast.error('❌ Failed to fetch subscriber count');
+      const [subsRes, countRes] = await Promise.all([
+        axiosInstance.get('/newsletter/subscribers/'),
+        axiosInstance.get('/newsletter/recipients/count/'),
+      ]);
+      setSubscribers(subsRes.data);
+      setRecipientsCount(countRes.data.count);
+    } catch {
+      toast.error('❌ Failed to refresh subscribers');
     }
-  }, []);
-
-  const fetchSubscribers = useCallback(async () => {
-    try {
-      const { data } = await axiosInstance.get('/newsletter/subscribers/');
-      setSubscribers(data);
-    } catch (error) {
-      toast.error('❌ Failed to fetch subscribers');
-    }
-  }, []);
-
-  const fetchAllData = useCallback(async () => {
-    await Promise.all([
-      fetchLogs(),
-      fetchRecipientCount(),
-      fetchSubscribers()
-    ]);
-  }, [fetchLogs, fetchRecipientCount, fetchSubscribers]);
-
-  useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+  };
 
   const handleSend = async (test = false) => {
     if (!subject.trim() || !content.trim()) {
@@ -67,8 +73,8 @@ const NewsletterManagement = () => {
         test,
       });
       toast.success(data.message || '✅ Newsletter sent');
-      if (!test) fetchLogs();
-    } catch (error) {
+      if (!test) refreshLogs();
+    } catch {
       toast.error('❌ Failed to send newsletter');
     } finally {
       setSending(false);
@@ -79,24 +85,25 @@ const NewsletterManagement = () => {
     try {
       await axiosInstance.post('/newsletter/resend-confirmation/', { email });
       toast.success(`✅ Confirmation email resent to ${email}`);
-    } catch (error) {
+    } catch {
       toast.error(`❌ Failed to resend confirmation to ${email}`);
     }
   };
 
   const handleDeleteSubscriber = async (id) => {
-    const confirmed = window.confirm('Are you sure you want to delete this subscriber?');
-    if (!confirmed) return;
-
+    if (!window.confirm('Are you sure you want to delete this subscriber?')) return;
     try {
       await axiosInstance.delete(`/newsletter/subscribers/${id}/`);
       toast.success('✅ Subscriber deleted');
-      await fetchSubscribers();
-      await fetchRecipientCount();
-    } catch (error) {
+      await refreshSubscribers();
+    } catch {
       toast.error('❌ Failed to delete subscriber');
     }
   };
+
+  if (loading) {
+    return <div className={styles.loading}>Loading newsletter data...</div>;
+  }
 
   return (
     <div className={styles.newsletterContainer}>
@@ -206,7 +213,11 @@ const NewsletterManagement = () => {
                           <FaEnvelope />
                         </button>
                       )}
-                      <button onClick={() => handleDeleteSubscriber(sub.id)} title="Delete" style={{ marginLeft: '10px' }}>
+                      <button
+                        onClick={() => handleDeleteSubscriber(sub.id)}
+                        title="Delete"
+                        style={{ marginLeft: '10px' }}
+                      >
                         <FaTrash />
                       </button>
                     </td>
