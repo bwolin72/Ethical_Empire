@@ -11,16 +11,17 @@
   width: 90%;
   z-index: 1000;
   animation: fadeInUp 0.5s ease-in-out;
-  color: #f9f6f2; /* Light cream text */
+  color: #f9f6f2;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Inner content styling */
 .promotion-content {
   padding: 1.5rem;
-  background-color: #8b0000; /* Deep Burgundy */
+  background-color: #8b0000;
   border-radius: 10px;
   position: relative;
+  overflow: hidden;
 }
 
 /* Close button */
@@ -37,21 +38,61 @@
 }
 
 .close-button:hover {
-  color: #ffd700; /* Muted Gold */
+  color: #ffd700;
 }
 
 /* Title */
 .promotion-content h3 {
   margin-top: 0;
   font-size: 1.25rem;
-  color: #ffd700; /* Muted Gold */
+  color: #ffd700;
 }
 
-/* Message */
+/* Text message fallback (if used) */
 .promotion-content p {
   margin: 0.5rem 0 0;
   line-height: 1.5;
   color: #fff;
+}
+
+/* Image styling */
+.promo-image {
+  max-width: 100%;
+  margin-top: 0.75rem;
+  border-radius: 8px;
+}
+
+/* Video styling */
+.promo-video {
+  width: 100%;
+  height: auto;
+  margin-top: 0.75rem;
+  border-radius: 8px;
+  outline: none;
+}
+
+/* Rendered HTML block */
+.promo-html {
+  margin-top: 1rem;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.promo-html a {
+  color: #ffd700;
+  text-decoration: underline;
+}
+
+.promo-html ul,
+.promo-html ol {
+  margin-left: 1.25rem;
+}
+
+.promo-html img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 0.75rem;
+  border-radius: 6px;
 }
 
 /* Fade-in animation */

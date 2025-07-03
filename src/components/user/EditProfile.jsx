@@ -9,12 +9,12 @@ import "./EditProfile.css";
 
 const EditProfile = () => {
   const [form, setForm] = useState({ username: "", phone_number: "" });
-  const [email, setEmail] = useState(""); // read-only
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axiosInstance.get("/user-account/profiles/profile/")
+    axiosInstance.get("/api/accounts/profiles/profile/")
       .then(res => {
         const { username, email, phone_number } = res.data;
         setForm({ username, phone_number: phone_number || "" });
@@ -30,8 +30,9 @@ const EditProfile = () => {
 
   const handleSubmit = async () => {
     try {
-      await axiosInstance.put("/user-account/profiles/profile/", form);
+      await axiosInstance.put("/api/accounts/profiles/profile/", form);
       toast.success("✅ Profile updated successfully!");
+      setTimeout(() => navigate(-1), 1000); // redirect after toast
     } catch {
       toast.error("❌ Failed to update profile.");
     }

@@ -45,15 +45,16 @@ const ContactForm = () => {
 
   return (
     <div className={`contact-page ${darkMode ? 'dark-mode' : ''}`}>
-      <div className="form-header centered-header">
+      <header className="form-header centered-header">
         <img src={logo} alt="Ethical Multimedia GH Logo" className="logo" />
         <h2>Ethical Multimedia GH</h2>
+        <p className="slogan">Empowering Events – EETHM_GH</p>
         <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? 'Light Mode' : 'Dark Mode'}
         </button>
-      </div>
+      </header>
 
-      <div className="contact-grid">
+      <main className="contact-grid">
         <section className="contact-form-section">
           <form onSubmit={handleSubmit} noValidate>
             {['name', 'email', 'phone', 'country', 'region'].map((field) => (
@@ -133,13 +134,13 @@ const ContactForm = () => {
           {statusMessage && <div className="toast-notification">{statusMessage}</div>}
         </section>
 
-        <section className="company-details-section">
+        <aside className="company-details-section">
           <div className="info-row">
             <div className="info-block">
               <h3>Manager</h3>
-              <p><strong>Name:</strong> Mr. Nhyiraba Nanaba Joseph</p>
+              <p><strong>Name:</strong> Mr. Nhyiraba Nana Joseph</p>
               <p><strong>Email:</strong> asaasebandeethm@gmail.com</p>
-              <p><strong>Contact:</strong> +233 55 603 6565</p>
+              <p><strong>Phone:</strong> +233 55 603 6565</p>
               <p><strong>WhatsApp:</strong> +233 55 298 8735</p>
             </div>
             <div className="info-block">
@@ -157,13 +158,13 @@ const ContactForm = () => {
           </div>
 
           <div className="social-media-links">
-            <a href="https://www.instagram.com/example" target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href="https://www.linkedin.com/company/example" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href="https://twitter.com/example" target="_blank" rel="noopener noreferrer">Twitter</a>
-            <a href="https://www.facebook.com/example" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://www.instagram.com/ethicalmultimedia?igsh=NmVmdXV2dHhkdW4w" target="_blank" rel="noopener noreferrer">Instagram</a>
+            <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://x.com/EeTHm_Gh?t=DE32RjXhsgO6A_rgeGIFmA&s=09" target="_blank" rel="noopener noreferrer">Twitter</a>
+            <a href="https://www.facebook.com/share/16nQGbE7Zk/" target="_blank" rel="noopener noreferrer">Facebook</a>
           </div>
-        </section>
-      </div>
+        </aside>
+      </main>
 
       <section className="map-section">
         <h4>Our Location</h4>

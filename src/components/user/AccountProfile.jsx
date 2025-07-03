@@ -20,7 +20,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
   useEffect(() => {
     if (!externalProfile) {
-      axiosInstance.get("/user-account/profiles/profile/")
+      axiosInstance.get("/api/accounts/profiles/profile/")
         .then(res => {
           setProfile(res.data);
           setProfileImage(res.data.profile_picture || "");
@@ -29,7 +29,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
         .finally(() => setLoading(false));
     }
 
-    axiosInstance.get("/booking-app/user-bookings/")
+    axiosInstance.get("/api/bookings/")
       .then(res => setBookings(res.data))
       .catch(() => toast.warn("Could not fetch bookings."));
   }, [externalProfile]);
@@ -62,7 +62,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
       if (!data.secure_url) throw new Error("Upload failed");
 
-      await axiosInstance.put("/user-account/profiles/profile/", { profile_picture: data.secure_url });
+      await axiosInstance.put("/api/accounts/profiles/profile/", {
+        profile_picture: data.secure_url,
+      });
+
       setProfileImage(data.secure_url);
       toast.success("Profile picture updated.");
     } catch (err) {
@@ -73,12 +76,11 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
   const handleReviewSubmit = async () => {
     if (!review.trim()) return toast.warn("Review cannot be empty.");
-
     try {
-      await axiosInstance.post("/service-app/reviews/", { message: review });
+      await axiosInstance.post("/api/reviews/", { message: review });
       toast.success("Review submitted!");
       setReview("");
-      window.location.reload();
+      window.location.reload(); // Optional: trigger re-fetch
     } catch {
       toast.error("Failed to submit review.");
     }
@@ -86,7 +88,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/user-account/profiles/logout/");
+      await axiosInstance.post("/api/accounts/profiles/logout/");
       localStorage.clear();
       window.location.reload();
     } catch {

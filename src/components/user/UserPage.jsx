@@ -1,5 +1,3 @@
-// src/components/UserPage.jsx
-
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
@@ -30,11 +28,11 @@ const UserPage = () => {
     setLoading(true);
 
     Promise.allSettled([
-      axiosInstance.get("/user-account/profiles/profile/"),
-      axiosInstance.get("/service-app/media/"),
-      axiosInstance.get("/service-app/media/featured/"),
-      axiosInstance.get("/service-app/reviews/"),
-      axiosInstance.get("/service-app/promotions/")
+      axiosInstance.get("/accounts/profiles/profile/"),
+      axiosInstance.get("/media/"),
+      axiosInstance.get("/media/featured/"),
+      axiosInstance.get("/reviews/"),
+      axiosInstance.get("/promotions/")
     ])
       .then(([profileRes, mediaRes, featuredRes, reviewsRes, promoRes]) => {
         if (profileRes.status === "fulfilled") {
@@ -99,6 +97,7 @@ const UserPage = () => {
         <p className="loading-text">Loading...</p>
       ) : (
         <>
+          {/* Featured Video */}
           {featuredVideo?.url ? (
             <div className="asaase-card">
               <video controls width="100%" preload="metadata">
@@ -110,6 +109,7 @@ const UserPage = () => {
             <p className="empty-text">No featured video available.</p>
           )}
 
+          {/* Promotions */}
           {promotions.length > 0 && (
             <section>
               <h3>Special Offers</h3>
@@ -138,6 +138,7 @@ const UserPage = () => {
             </section>
           )}
 
+          {/* Services */}
           <section>
             <h3>Our Services</h3>
             <div className="services-grid">
@@ -151,6 +152,7 @@ const UserPage = () => {
             </div>
           </section>
 
+          {/* Media Gallery */}
           <section>
             <h3>Your Media Gallery</h3>
             <div className="gallery-grid">
@@ -180,14 +182,15 @@ const UserPage = () => {
             </div>
           </section>
 
+          {/* Reviews */}
           <section>
             <h3>Client Reviews</h3>
             <div className="reviews-list">
               {reviews.length > 0 ? (
                 reviews.map((r, i) => (
                   <div key={i} className="review-card fade-in">
-                    <p>"{r.message}"</p>
-                    <small>- {r.user?.username || "Anonymous"}</small>
+                    <p>"{r.comment}"</p>
+                    <small>- {r.user_email || "Anonymous"}</small>
                     {r.reply && (
                       <div className="review-reply">
                         <strong>Admin Reply:</strong> <p>{r.reply}</p>

@@ -25,7 +25,7 @@ import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ResetPassword from './components/Auth/ResetPassword';
-import VerifyOTP from './components/Auth/VerifyOTP'; // ✅ NEW
+import VerifyOTP from './components/Auth/VerifyOTP';
 import EditProfile from './components/user/EditProfile';
 import UpdatePassword from './components/user/UpdatePassword';
 import ConfirmPasswordChange from './components/user/ConfirmPasswordChange';
@@ -52,9 +52,9 @@ import axiosInstance from './api/axiosInstance';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Promotion Popup
-import PromotionPopup from './components/home/PromotionPopup'; // ✅ NEW
+import PromotionPopup from './components/home/PromotionPopup';
 
-const EethmHome = () => {
+const EethmHomePage = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
 
@@ -112,10 +112,10 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<EethmHome />} />
+    <Route path="/" element={<EethmHomePage />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
-    <Route path="/verify-otp" element={<VerifyOTP />} /> {/* ✅ OTP Route */}
+    <Route path="/verify-otp" element={<VerifyOTP />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
 
@@ -150,7 +150,6 @@ function App() {
     const splashTimer = setTimeout(() => {
       setSplashVisible(false);
     }, 5000);
-
     return () => clearTimeout(splashTimer);
   }, []);
 
@@ -167,7 +166,7 @@ function App() {
                 <AppRoutes />
               </main>
               <Footer />
-              <PromotionPopup /> {/* ✅ Global popup */}
+              <PromotionPopup />
             </div>
           )}
         </Router>

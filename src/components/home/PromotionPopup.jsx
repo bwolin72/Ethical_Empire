@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import publicAxios from '../../api/publicAxios';
-import './PromotionPopup.css'; // Styling file
+import './PromotionPopup.css';
 
 const PromotionPopup = () => {
   const [promotion, setPromotion] = useState(null);
@@ -11,7 +11,7 @@ const PromotionPopup = () => {
       try {
         const response = await publicAxios.get('/promotions/active/');
         if (response.data.length > 0) {
-          setPromotion(response.data[0]); // Show the first active promotion
+          setPromotion(response.data[0]);
         }
       } catch (err) {
         console.error('Failed to load promotion', err);
@@ -20,7 +20,6 @@ const PromotionPopup = () => {
 
     fetchPromotions();
 
-    // Show after a 5-second delay
     const timer = setTimeout(() => {
       setVisible(true);
     }, 5000);
@@ -39,7 +38,23 @@ const PromotionPopup = () => {
       <div className="promotion-content">
         <button className="close-button" onClick={handleClose}>×</button>
         <h3>{promotion.title}</h3>
-        <p>{promotion.message}</p>
+
+        {/* Render media if available */}
+        {promotion.image && (
+          <img src={promotion.image} alt={promotion.title} className="promo-image" />
+        )}
+        {promotion.video && (
+          <video controls className="promo-video">
+            <source src={promotion.video} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        )}
+
+        {/* Render HTML content */}
+        <div
+          className="promo-html"
+          dangerouslySetInnerHTML={{ __html: promotion.html_content }}
+        />
       </div>
     </div>
   );
