@@ -54,7 +54,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 // Promotion Popup
 import PromotionPopup from './components/home/PromotionPopup'; // ✅ NEW
 
-const HomePage = () => {
+const EethmHome = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
 
@@ -112,7 +112,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/" element={<HomePage />} />
+    <Route path="/" element={<EethmHome />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/verify-otp" element={<VerifyOTP />} /> {/* ✅ OTP Route */}
