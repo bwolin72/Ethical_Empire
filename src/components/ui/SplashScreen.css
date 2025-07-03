@@ -7,6 +7,7 @@
   --forest-green: #3A5A40;
 }
 
+/* Main container */
 .splash-screen {
   background-color: var(--deep-burgundy);
   color: var(--cream);
@@ -15,41 +16,52 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 1s ease-in;
-}
-
-.splash-content {
+  flex-direction: column;
   text-align: center;
-  animation: scaleIn 1s ease-in-out;
+  animation: fadeIn 1s ease-in forwards;
+  overflow: hidden;
 }
 
+/* Splash content */
+.splash-content {
+  animation: scaleIn 0.8s ease-in-out forwards;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+/* Logo animation */
 .splash-logo-img {
   width: 120px;
   height: auto;
-  margin-bottom: 20px;
-  animation: fadeInLogo 1.5s ease-out;
+  margin-bottom: 1.5rem;
+  animation: fadeInLogo 1.2s ease-out forwards;
 }
 
+/* Company name */
 .splash-company-name {
   font-size: 2rem;
-  font-weight: bold;
+  font-weight: 700;
   color: var(--muted-gold);
-  margin-bottom: 10px;
   letter-spacing: 1px;
-  animation: fadeInText 2s ease-out;
+  margin-bottom: 0.5rem;
+  animation: fadeInText 1.5s ease-out forwards;
+  opacity: 0;
 }
 
+/* Slogan */
 .splash-service {
   font-size: 1.2rem;
   color: var(--cream);
   font-style: italic;
-  animation: fadeInText 2.3s ease-out;
+  animation: fadeInText 1.8s ease-out forwards;
+  opacity: 0;
 }
 
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    background-color: black;
+    background-color: #000;
   }
   to {
     opacity: 1;
@@ -58,11 +70,7 @@
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  to {
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -80,16 +88,17 @@
 }
 
 @keyframes fadeInText {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
+/* Responsive */
 @media (max-width: 768px) {
   .splash-logo-img {
     width: 90px;
@@ -103,3 +112,16 @@
     font-size: 1rem;
   }
 }
+@media (max-width: 480px) {
+  .splash-logo-img {
+    width: 80px;
+  }
+
+  .splash-company-name {
+    font-size: 1.2rem;
+  }
+
+  .splash-service {
+    font-size: 0.9rem;
+  }
+} 

@@ -1,13 +1,10 @@
-// src/components/ui/SplashScreen.jsx
 import React, { useEffect } from "react";
-import "./SplashScreen.css";
-import logo from "../../assets/logo.png"; // <-- Corrected path
+import logo from "../../assets/logo.png"; // Ensure this file exists
+import "./SplashScreen.css"; // Optional, see below for fallback styles
 
 const SplashScreen = ({ onFinish }) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onFinish();
-    }, 3000);
+    const timer = setTimeout(onFinish, 3000);
     return () => clearTimeout(timer);
   }, [onFinish]);
 
