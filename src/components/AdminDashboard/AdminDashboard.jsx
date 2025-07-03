@@ -38,8 +38,8 @@ const AdminDashboard = () => {
 
   const fetchNewsletterStats = async () => {
     try {
-      const logs = await axiosInstance.get('/user-account/newsletter/logs/');
-      const subs = await axiosInstance.get('/user-account/newsletter/subscribers/');
+      const logs = await axiosInstance.get('/newsletter/logs/');
+      const subs = await axiosInstance.get('/newsletter/subscribers/');
       setNewsletterStats({ posts: logs.data.length, subscribers: subs.data.length });
     } catch {
       setNewsletterStats({ posts: 0, subscribers: 0 });

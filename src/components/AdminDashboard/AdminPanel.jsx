@@ -5,7 +5,7 @@ import InvoiceGeneration from './InvoiceGeneration';
 import MediaManagement from './MediaManagement';
 import ReviewsManagement from './ReviewsManagement';
 import NewsletterAdminPage from './NewsletterAdminPage';
-import PromotionsAdminPage from './PromotionsAdminPage'; // ✅ NEW
+import AdminPromotions from './AdminPromotions'; // ✅ NEW
 import UserRoleManager from './UserRoleManager';
 import useAuth from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -88,7 +88,7 @@ const AdminPanel = () => {
         {activeTab === 'media' && <MediaManagement />}
         {activeTab === 'reviews' && <ReviewsManagement />}
         {activeTab === 'newsletter' && <NewsletterAdminPage />}
-        {activeTab === 'promotions' && <PromotionsAdminPage />} {/* ✅ New Tab Render */}
+        {activeTab === 'promotions' && <AdminPromotions />} {/* ✅ New Tab Render */}
         {activeTab === 'roles' && <UserRoleManager />}
       </section>
     </div>
