@@ -10,7 +10,8 @@ import './EethmHome.css';
 const serviceDetails = {
   'live-band': {
     title: 'Live Band Performance',
-    description: 'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
+    description:
+      'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
     details: ['Customizable song lists', 'Professional sound equipment', 'Multiple band size options'],
   },
   catering: {
@@ -25,7 +26,6 @@ const serviceDetails = {
   },
 };
 
-// ✅ More defensive: check that media exists and has a valid URL
 const getMediaUrl = (media) => {
   if (!media) return '';
   return media.url || media.file_url || '';
@@ -57,27 +57,19 @@ const EethmHome = () => {
       try {
         const [heroRes, bannerRes, promoRes] = await Promise.all([
           axiosCommon.get('/media/', {
-            params: {
-              type: 'media',
-              endpoint: 'EethmHome',
-              is_active: true,
-            },
+            params: { type: 'media', endpoint: 'EethmHome', is_active: true },
             signal,
           }),
           axiosCommon.get('/media/', {
-            params: {
-              type: 'banner',
-              endpoint: 'EethmHome',
-              is_active: true,
-            },
+            params: { type: 'banner', endpoint: 'EethmHome', is_active: true },
             signal,
           }),
           axiosCommon.get('/promotions/', { signal }),
         ]);
 
         setHeroMedia(heroRes?.data?.[0] || null);
-        setBanners(bannerRes?.data || []);
-        setPromotions(promoRes?.data || []);
+        setBanners(Array.isArray(bannerRes?.data) ? bannerRes.data : []);
+        setPromotions(Array.isArray(promoRes?.data) ? promoRes.data : []);
       } catch (err) {
         if (err.name !== 'CanceledError') {
           console.error('Homepage fetch error:', err);
@@ -118,12 +110,7 @@ const EethmHome = () => {
                 Your browser does not support the video tag.
               </video>
             ) : (
-              <img
-                src={heroURL}
-                alt="Hero"
-                className="background-video"
-                loading="lazy"
-              />
+              <img src={heroURL} alt="Hero" className="background-video" loading="lazy" />
             )}
             <div className="overlay-content">
               <h1>Ethical Multimedia GH Services</h1>
