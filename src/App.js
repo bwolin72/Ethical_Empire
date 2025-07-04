@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
-  useNavigate,
+  useNavigate, // ✅ Added missing import
 } from 'react-router-dom';
 
 import './App.css';

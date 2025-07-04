@@ -1,3 +1,5 @@
+// EethmHome.jsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import axiosCommon from '../../api/axiosCommon';
 import { useNavigate } from 'react-router-dom';
@@ -8,22 +10,13 @@ import './EethmHome.css';
 const serviceDetails = {
   'live-band': {
     title: 'Live Band Performance',
-    description:
-      'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
-    details: [
-      'Customizable song lists',
-      'Professional sound equipment',
-      'Multiple band size options',
-    ],
+    description: 'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
+    details: ['Customizable song lists', 'Professional sound equipment', 'Multiple band size options'],
   },
   catering: {
     title: 'Catering Services',
     description: 'Gourmet catering for all event types with customizable menus.',
-    details: [
-      'Local and international cuisine',
-      'Dietary restriction accommodations',
-      'Full-service staff available',
-    ],
+    details: ['Local and international cuisine', 'Dietary restriction accommodations', 'Full-service staff available'],
   },
   decor: {
     title: 'Event Decor',
@@ -32,7 +25,11 @@ const serviceDetails = {
   },
 };
 
-const getMediaUrl = (media) => media?.url || media?.file_url || '';
+// ✅ More defensive: check that media exists and has a valid URL
+const getMediaUrl = (media) => {
+  if (!media) return '';
+  return media.url || media.file_url || '';
+};
 
 const EethmHome = () => {
   const [heroMedia, setHeroMedia] = useState(null);
@@ -78,13 +75,13 @@ const EethmHome = () => {
           axiosCommon.get('/promotions/', { signal }),
         ]);
 
-        setHeroMedia(heroRes.data.length ? heroRes.data[0] : null);
-        setBanners(bannerRes.data || []);
-        setPromotions(promoRes.data || []);
+        setHeroMedia(heroRes?.data?.[0] || null);
+        setBanners(bannerRes?.data || []);
+        setPromotions(promoRes?.data || []);
       } catch (err) {
         if (err.name !== 'CanceledError') {
           console.error('Homepage fetch error:', err);
-          setError(err?.response?.data?.detail || 'Failed to load homepage content.');
+          setError('Failed to load homepage content.');
         }
       } finally {
         setLoading(false);
@@ -95,6 +92,9 @@ const EethmHome = () => {
     return () => controller.abort();
   }, []);
 
+  const heroURL = getMediaUrl(heroMedia);
+  const isVideo = heroURL.endsWith('.mp4');
+
   return (
     <div className="eethm-home-page">
       {/* === Hero Section === */}
@@ -103,9 +103,9 @@ const EethmHome = () => {
           <p className="video-fallback">Loading hero...</p>
         ) : error ? (
           <p className="video-fallback" style={{ color: 'red' }}>{error}</p>
-        ) : heroMedia ? (
+        ) : heroURL ? (
           <>
-            {getMediaUrl(heroMedia).endsWith('.mp4') ? (
+            {isVideo ? (
               <video
                 ref={videoRef}
                 className="background-video"
@@ -114,12 +114,12 @@ const EethmHome = () => {
                 muted={isMuted}
                 playsInline
               >
-                <source src={getMediaUrl(heroMedia)} type="video/mp4" />
+                <source src={heroURL} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             ) : (
               <img
-                src={getMediaUrl(heroMedia)}
+                src={heroURL}
                 alt="Hero"
                 className="background-video"
                 loading="lazy"
@@ -135,7 +135,7 @@ const EethmHome = () => {
                 </button>
               </div>
             </div>
-            {getMediaUrl(heroMedia).endsWith('.mp4') && (
+            {isVideo && (
               <button className="mute-button" onClick={toggleMute}>
                 {isMuted ? '🔇' : '🔊'}
               </button>
@@ -176,7 +176,12 @@ const EethmHome = () => {
               {promotions.map((promo) => (
                 <div key={promo.id} className="promo-card">
                   {promo.image_url && (
-                    <img src={promo.image_url} alt={promo.title} loading="lazy" />
+                    <img
+                      src={promo.image_url}
+                      alt={promo.title}
+                      loading="lazy"
+                      onError={(e) => (e.target.style.display = 'none')}
+                    />
                   )}
                   <div className="promo-content">
                     <h3>{promo.title}</h3>

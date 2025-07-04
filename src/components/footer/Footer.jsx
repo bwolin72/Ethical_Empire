@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import ReCAPTCHA from 'react-google-recaptcha';
-import axiosInstance from '../../api/axiosInstance';
+import axiosCommon from '../../api/axiosCommon';
 import './Footer.css';
 
 const SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
@@ -23,7 +23,7 @@ function Footer() {
 
     setLoading(true);
     try {
-      await axiosInstance.post('newsletter/subscribe/', {
+      await axiosCommon.post('newsletter/subscribe/', {
         email,
         token: captchaToken,
       });

@@ -32,8 +32,9 @@ const MediaHostingServicePage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const [mediaRes, testimonialsRes] = await Promise.all([
-        publixios.get('/media/?endpoint=MediaHostingServicePage'),
+      const [mediaRes, bannerRes, testimonialsRes] = await Promise.all([
+          publixios.get('/media/featured/?endpoint=mediaHostingServicePage'),
+          publixios.get('/media/banners/?endpoint=mediaHostingServicePage'),
         publixios.get('/reviews/'),
       ]);
 
