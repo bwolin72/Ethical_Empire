@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import publicAxios from '../../api/publicAxios'; // make sure this has your backend base URL configured
+import axiosCommon from '../../api/axiosCommon'; // make sure this has your backend base URL configured
 import './PromotionPopup.css';
 
 const BACKEND_BASE_URL = 'https://ethical-backend-production.up.railway.app'; // your backend base URL
@@ -11,7 +11,7 @@ const PromotionPopup = () => {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const response = await publicAxios.get('/promotions/active/');
+        const response = await axiosCommon.get('/promotions/active/');
         if (response.data.length > 0) {
           const promo = response.data[0];
 
