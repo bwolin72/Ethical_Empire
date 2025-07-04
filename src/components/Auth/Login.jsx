@@ -10,10 +10,7 @@ import './Login.css';
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState({});
-  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
-  const [userId, setUserId] = useState(null);
-  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -81,39 +78,15 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post('/accounts/login/', form);
-      setUserId(data.user_id);
-      setOtpSent(true);
+      const { data } = await axiosInstance.post('/accounts/login/', form); // ✅ correct keys: email + password
+      const { tokens, user } = data;
+      handleLoginSuccess(tokens.access, tokens.refresh, user);
     } catch (err) {
       console.error(err);
       setError(extractErrorMessage(err));
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
       setForm((prev) => ({ ...prev, password: '' }));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOtpSubmit = async (e) => {
-    e.preventDefault();
-    if (!otp.trim()) {
-      setError('OTP is required');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data } = await axiosInstance.post('/accounts/verify-otp/user-id/', {
-        user_id: userId,
-        otp,
-      });
-
-      const { tokens, user } = data;
-      handleLoginSuccess(tokens.access, tokens.refresh, user);
-    } catch (err) {
-      console.error(err);
-      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -157,64 +130,49 @@ const Login = () => {
 
           {error && <div className="error-message" role="alert">{error}</div>}
 
-          {!otpSent ? (
-            <form onSubmit={handleSubmit} className="login-form" noValidate>
+          <form onSubmit={handleSubmit} className="login-form" noValidate>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+              className={formErrors.email ? 'input-error' : ''}
+              aria-invalid={!!formErrors.email}
+              disabled={loading}
+            />
+            {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
+
+            <div className="password-input">
               <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={form.email}
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                value={form.password}
                 onChange={handleChange}
-                className={formErrors.email ? 'input-error' : ''}
-                aria-invalid={!!formErrors.email}
+                className={formErrors.password ? 'input-error' : ''}
+                aria-invalid={!!formErrors.password}
                 disabled={loading}
               />
-              {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
-
-              <div className="password-input">
-                <input
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className={formErrors.password ? 'input-error' : ''}
-                  aria-invalid={!!formErrors.password}
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  className="show-password"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label="Toggle password visibility"
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
-              {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
-
-              <Link to="/forgot-password" className="forgot-link">
-                Forgot Password?
-              </Link>
-
-              <button type="submit" className="login-button" disabled={loading}>
-                {loading ? 'Sending OTP…' : 'Login'}
+              <button
+                type="button"
+                className="show-password"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? 'Hide' : 'Show'}
               </button>
-            </form>
-          ) : (
-            <form onSubmit={handleOtpSubmit} className="login-form">
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                disabled={loading}
-              />
-              <button type="submit" className="login-button" disabled={loading}>
-                {loading ? 'Verifying…' : 'Verify OTP'}
-              </button>
-            </form>
-          )}
+            </div>
+            {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
+
+            <Link to="/forgot-password" className="forgot-link">
+              Forgot Password?
+            </Link>
+
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? 'Logging in…' : 'Login'}
+            </button>
+          </form>
 
           <div className="social-buttons">
             <GoogleLogin
