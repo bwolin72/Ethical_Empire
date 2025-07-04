@@ -7,24 +7,40 @@ import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Login.css';
 
-const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-
-export default function Login() {
+const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
   const [formErrors, setFormErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [error, setError] = useState('');
+  const [userId, setUserId] = useState(null);
+  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useAuth();
+  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
   useEffect(() => {
-    const saved = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(saved);
-    document.body.classList.toggle('dark-mode', saved);
+    const savedDark = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDark);
+    document.body.classList.toggle('dark-mode', savedDark);
   }, []);
+
+  const toggleDarkMode = () => {
+    const updated = !darkMode;
+    setDarkMode(updated);
+    document.body.classList.toggle('dark-mode', updated);
+    localStorage.setItem('darkMode', updated);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setFormErrors((prev) => ({ ...prev, [name]: '' }));
+    setError('');
+  };
 
   const validateForm = () => {
     const errors = {};
@@ -34,13 +50,22 @@ export default function Login() {
     return Object.keys(errors).length === 0;
   };
 
+  const extractErrorMessage = (err) => {
+    const data = err.response?.data;
+    if (typeof data === 'string') return data;
+    if (data?.detail) return Array.isArray(data.detail) ? data.detail[0] : data.detail;
+    if (data?.error) return data.error;
+    if (data?.message) return data.message;
+    return 'Login failed. Please try again.';
+  };
+
   const redirectByRole = (role) => {
-    const routes = {
+    const paths = {
       admin: '/admin',
       worker: '/worker',
       user: '/user',
     };
-    navigate(routes[role] || '/user', { replace: true });
+    navigate(paths[role] || '/user', { replace: true });
   };
 
   const handleLoginSuccess = (access, refresh, user) => {
@@ -50,39 +75,17 @@ export default function Login() {
     redirectByRole(user.role);
   };
 
-  const handleChange = ({ target: { name, value } }) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setError('');
-    setFormErrors((prev) => ({ ...prev, [name]: '' }));
-  };
-
-  const extractErrorMessage = (err) => {
-    const data = err.response?.data;
-    if (typeof data === 'string') return data;
-    if (typeof data?.detail === 'string') return data.detail;
-    if (typeof data?.error === 'string') return data.error;
-    if (Array.isArray(data?.detail)) return data.detail[0];
-    if (data?.message) return data.message;
-    return 'Login failed. Please try again.';
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     if (!validateForm()) return;
-    setLoading(true);
 
+    setLoading(true);
     try {
       const { data } = await axiosInstance.post('/accounts/login/', form);
-      const { access, refresh } = data;
-
-      const userRes = await axiosInstance.get('/accounts/profile/', {
-        headers: { Authorization: `Bearer ${access}` },
-      });
-
-      handleLoginSuccess(access, refresh, userRes.data);
+      setUserId(data.user_id);
+      setOtpSent(true);
     } catch (err) {
-      console.error('Login error:', err);
+      console.error(err);
       setError(extractErrorMessage(err));
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
@@ -92,8 +95,31 @@ export default function Login() {
     }
   };
 
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    if (!otp.trim()) {
+      setError('OTP is required');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data } = await axiosInstance.post('/accounts/verify-otp/user-id/', {
+        user_id: userId,
+        otp,
+      });
+
+      const { tokens, user } = data;
+      handleLoginSuccess(tokens.access, tokens.refresh, user);
+    } catch (err) {
+      console.error(err);
+      setError(extractErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGoogleSuccess = async ({ credential }) => {
-    setError('');
     setLoading(true);
     try {
       const decoded = jwtDecode(credential);
@@ -112,75 +138,88 @@ export default function Login() {
     }
   };
 
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    document.body.classList.toggle('dark-mode', newMode);
-    localStorage.setItem('darkMode', newMode);
-  };
-
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className="login-container">
         <div className="login-box">
-          <img src={logo} alt="Logo" className="login-logo" />
+          <img src={logo} alt="App Logo" className="login-logo" />
           <h2>Login</h2>
 
           <label className="dark-toggle">
-            <input type="checkbox" onChange={toggleDarkMode} checked={darkMode} />
+            <input
+              type="checkbox"
+              checked={darkMode}
+              onChange={toggleDarkMode}
+              aria-label="Toggle dark mode"
+            />
             Dark Mode
           </label>
 
           {error && <div className="error-message" role="alert">{error}</div>}
 
-          <form onSubmit={handleSubmit} className="login-form" noValidate>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              className={formErrors.email ? 'input-error' : ''}
-              aria-invalid={!!formErrors.email}
-              disabled={loading}
-            />
-            {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
-
-            <div className="password-input">
+          {!otpSent ? (
+            <form onSubmit={handleSubmit} className="login-form" noValidate>
               <input
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
-                value={form.password}
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
                 onChange={handleChange}
-                className={formErrors.password ? 'input-error' : ''}
-                aria-invalid={!!formErrors.password}
+                className={formErrors.email ? 'input-error' : ''}
+                aria-invalid={!!formErrors.email}
                 disabled={loading}
               />
-              <button
-                type="button"
-                className="show-password"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label="Toggle password visibility"
-              >
-                {showPassword ? 'Hide' : 'Show'}
+              {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
+
+              <div className="password-input">
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className={formErrors.password ? 'input-error' : ''}
+                  aria-invalid={!!formErrors.password}
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  className="show-password"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
+
+              <Link to="/forgot-password" className="forgot-link">
+                Forgot Password?
+              </Link>
+
+              <button type="submit" className="login-button" disabled={loading}>
+                {loading ? 'Sending OTP…' : 'Login'}
               </button>
-            </div>
-            {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
-
-            <Link to="/forgot-password" className="forgot-link">
-              Forgot Password?
-            </Link>
-
-            <button type="submit" className="login-button" disabled={loading}>
-              {loading ? 'Logging in…' : 'Login'}
-            </button>
-          </form>
+            </form>
+          ) : (
+            <form onSubmit={handleOtpSubmit} className="login-form">
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                disabled={loading}
+              />
+              <button type="submit" className="login-button" disabled={loading}>
+                {loading ? 'Verifying…' : 'Verify OTP'}
+              </button>
+            </form>
+          )}
 
           <div className="social-buttons">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google login was unsuccessful')}
+              onError={() => setError('Google login failed.')}
               useOneTap
               theme="outline"
               size="large"
@@ -194,4 +233,6 @@ export default function Login() {
       </div>
     </GoogleOAuthProvider>
   );
-}
+};
+
+export default Login;

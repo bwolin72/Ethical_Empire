@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import publicAxios from '../../api/publicAxios';
+import publicAxios from '../../api/publicAxios'; // make sure this has your backend base URL configured
 import './PromotionPopup.css';
+
+const BACKEND_BASE_URL = 'https://ethical-backend-production.up.railway.app'; // your backend base URL
 
 const PromotionPopup = () => {
   const [promotion, setPromotion] = useState(null);
@@ -11,7 +13,17 @@ const PromotionPopup = () => {
       try {
         const response = await publicAxios.get('/promotions/active/');
         if (response.data.length > 0) {
-          setPromotion(response.data[0]);
+          const promo = response.data[0];
+
+          // Fix media URLs
+          if (promo.image && !promo.image.startsWith('http')) {
+            promo.image = `${BACKEND_BASE_URL}${promo.image.startsWith('/') ? '' : '/'}${promo.image}`;
+          }
+          if (promo.video && !promo.video.startsWith('http')) {
+            promo.video = `${BACKEND_BASE_URL}${promo.video.startsWith('/') ? '' : '/'}${promo.video}`;
+          }
+
+          setPromotion(promo);
         }
       } catch (err) {
         console.error('Failed to load promotion', err);

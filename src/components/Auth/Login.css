@@ -1,6 +1,6 @@
 /* === Login.css === */
 
-/* Color Palette */
+/* === Color Palette === */
 :root {
   --burgundy: #800020;
   --navy: #001F54;
@@ -11,7 +11,7 @@
   --cream: #f9f6f2;
 }
 
-/* Reset & Background */
+/* === Global Reset === */
 body {
   margin: 0;
   padding: 0;
@@ -19,7 +19,7 @@ body {
   background: url('../../assets/login-bg.jpg') no-repeat center center fixed;
   background-size: cover;
   color: var(--charcoal);
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body.dark-mode {
@@ -27,6 +27,7 @@ body.dark-mode {
   color: var(--cream);
 }
 
+/* === Container === */
 .login-container {
   display: flex;
   justify-content: center;
@@ -34,29 +35,29 @@ body.dark-mode {
   min-height: 100vh;
   padding: 1rem;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
 }
 
-/* Login Box */
+/* === Login Box === */
 .login-box {
   background: var(--cream);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 2rem;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.6s ease;
   transition: background-color 0.3s, color 0.3s;
 }
 
 body.dark-mode .login-box {
-  background: #1f1f1f;
+  background: #1e1e1e;
   color: var(--cream);
 }
 
 @keyframes slideIn {
   from {
-    transform: translateY(-20px);
+    transform: translateY(-24px);
     opacity: 0;
   }
   to {
@@ -65,26 +66,27 @@ body.dark-mode .login-box {
   }
 }
 
-/* Logo */
+/* === Logo === */
 .login-logo {
   width: 120px;
   display: block;
   margin: 0 auto 1.5rem;
 }
 
-/* Heading */
+/* === Heading === */
 .login-box h2 {
   text-align: center;
   color: var(--navy);
   margin-bottom: 1.5rem;
   font-size: 2rem;
+  font-weight: bold;
 }
 
 body.dark-mode .login-box h2 {
   color: var(--muted-gold);
 }
 
-/* Form */
+/* === Form === */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -98,11 +100,11 @@ body.dark-mode .login-box h2 {
   font-size: 1rem;
   background: var(--white);
   color: var(--charcoal);
-  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  transition: all 0.2s ease;
 }
 
 body.dark-mode .login-form input {
-  background: #2a2a2a;
+  background: #2b2b2b;
   color: var(--cream);
   border-color: #555;
 }
@@ -112,7 +114,7 @@ body.dark-mode .login-form input {
   border-color: var(--navy);
 }
 
-/* Input validation */
+/* === Input Validation === */
 .input-error {
   border-color: var(--burgundy) !important;
 }
@@ -124,7 +126,7 @@ body.dark-mode .login-form input {
   margin-bottom: 0.5rem;
 }
 
-/* Password toggle */
+/* === Password Field Toggle === */
 .password-input {
   position: relative;
 }
@@ -138,14 +140,15 @@ body.dark-mode .login-form input {
   border: none;
   color: var(--navy);
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 body.dark-mode .show-password {
   color: var(--muted-gold);
 }
 
-/* Forgot Password */
+/* === Forgot Password === */
 .forgot-link {
   text-align: right;
   display: block;
@@ -163,7 +166,7 @@ body.dark-mode .forgot-link {
   text-decoration: underline;
 }
 
-/* Submit button */
+/* === Submit Button === */
 .login-button {
   padding: 0.75rem;
   background-color: var(--navy);
@@ -171,8 +174,9 @@ body.dark-mode .forgot-link {
   border: none;
   border-radius: 8px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
 }
 
 .login-button:hover:not(:disabled) {
@@ -180,11 +184,11 @@ body.dark-mode .forgot-link {
 }
 
 .login-button:disabled {
-  background-color: #555;
+  background-color: #777;
   cursor: not-allowed;
 }
 
-/* Error message */
+/* === Error Message === */
 .error-message {
   color: var(--burgundy);
   font-size: 0.95rem;
@@ -192,16 +196,22 @@ body.dark-mode .forgot-link {
   text-align: center;
 }
 
-/* Social login */
+/* === Google Login Button === */
 .social-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
   align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
-/* Dark mode toggle */
+.google-login-button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* === Dark Mode Toggle === */
 .dark-toggle {
   text-align: right;
   margin-bottom: 1rem;
@@ -210,9 +220,10 @@ body.dark-mode .forgot-link {
 
 .dark-toggle input {
   margin-right: 0.5rem;
+  cursor: pointer;
 }
 
-/* Register prompt */
+/* === Register Prompt === */
 .register-prompt {
   text-align: center;
   font-size: 0.95rem;
@@ -227,13 +238,6 @@ body.dark-mode .forgot-link {
 
 .register-prompt a:hover {
   text-decoration: underline;
-}
-
-/* Google Login (override default iframes/buttons if needed) */
-.google-login-button {
-  width: 100%;
-  display: flex;
-  justify-content: center;
 }
 
 /* === Responsive Tweaks === */
@@ -258,6 +262,7 @@ body.dark-mode .forgot-link {
   .login-logo {
     width: 100px;
   }
+  
 }
 
 @media (max-width: 480px) {
@@ -283,5 +288,24 @@ body.dark-mode .forgot-link {
   .forgot-link,
   .register-prompt {
     font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-box {
+    padding: 1.25rem;
+  }
+
+  .login-box h2 {
+    font-size: 1.25rem;
+  }
+
+  .login-form input,
+  .login-button {
+    font-size: 0.85rem;
+  }
+
+  .show-password {
+    font-size: 0.8rem;
   }
 }
