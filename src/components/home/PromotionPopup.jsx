@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axiosCommon from '../../api/axiosCommon'; // make sure this has your backend base URL configured
+import axiosCommon from '../../api/axiosCommon'; // uses baseURL with /api/
 import './PromotionPopup.css';
 
-const BACKEND_BASE_URL = 'https://ethical-backend-production.up.railway.app'; // your backend base URL
+const BACKEND_BASE_URL = 'https://ethical-backend-production.up.railway.app';
 
 const PromotionPopup = () => {
   const [promotion, setPromotion] = useState(null);
@@ -12,8 +12,12 @@ const PromotionPopup = () => {
     const fetchPromotions = async () => {
       try {
         const response = await axiosCommon.get('/promotions/active/');
-        if (response.data.length > 0) {
-          const promo = response.data[0];
+
+        // Handle paginated response
+        const promotions = response.data.results || response.data;
+
+        if (Array.isArray(promotions) && promotions.length > 0) {
+          const promo = promotions[0];
 
           // Fix media URLs
           if (promo.image && !promo.image.startsWith('http')) {
