@@ -66,9 +66,20 @@ const Login = () => {
   };
 
   const handleLoginSuccess = (access, refresh, user) => {
+    if (!access || !refresh || !user) {
+      console.error('Login response missing access, refresh, or user');
+      setError('Login failed: Missing token or user.');
+      return;
+    }
+
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
-    login({ access, refresh, username: user.name, isAdmin: user.role === 'admin' });
+    login({
+      access,
+      refresh,
+      username: user.name,
+      isAdmin: user.role === 'admin',
+    });
     redirectByRole(user.role);
   };
 
@@ -78,9 +89,10 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post('/accounts/login/', form); // ✅ correct keys: email + password
-      const { tokens, user } = data;
-      handleLoginSuccess(tokens.access, tokens.refresh, user);
+      const { data } = await axiosInstance.post('/accounts/login/', form);
+      const { access, refresh, user } = data;
+
+      handleLoginSuccess(access, refresh, user);
     } catch (err) {
       console.error(err);
       setError(extractErrorMessage(err));
