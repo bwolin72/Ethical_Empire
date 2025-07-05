@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axiosInstance from '../../api/axiosInstance';
+import axiosCommon from '../../api/axiosCommon';
 import './ContactForm.css';
 import logo from '../../assets/logo.png';
 
@@ -25,7 +25,7 @@ const ContactForm = () => {
     e.preventDefault();
     setStatusMessage('');
     try {
-      await axiosInstance.post('/contact/send/', {
+      await axiosCommon.post('/contact/send/', {
         ...formData,
         service_type: formData.service_type || null,
         event_date: formData.event_date || null,

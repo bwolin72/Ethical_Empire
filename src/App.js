@@ -85,7 +85,7 @@ const ConnectRedirect = () => {
   useEffect(() => {
     const checkUserRole = async () => {
       try {
-        const res = await axiosInstance.get('/api/accounts/user-role/');
+        const res = await axiosCommon.get('/accounts/user-role/');
         const isAdmin = res.data.is_admin === true || res.data.is_admin === 'true';
         navigate(isAdmin ? '/admin' : '/user', { replace: true });
       } catch {
