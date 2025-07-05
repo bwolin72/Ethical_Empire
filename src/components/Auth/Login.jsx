@@ -74,13 +74,15 @@ const Login = () => {
 
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
+
     login({
       access,
       refresh,
-      username: user.name,
+      username: user.name || user.email || 'User',
       isAdmin: user.role === 'admin',
     });
-    redirectByRole(user.role);
+
+    redirectByRole(user.role || 'user');
   };
 
   const handleSubmit = async (e) => {
@@ -90,7 +92,16 @@ const Login = () => {
     setLoading(true);
     try {
       const { data } = await axiosInstance.post('/accounts/login/', form);
-      const { access, refresh, user } = data;
+      console.log('Login response:', data);
+
+      const access = data.access || data.token || '';
+      const refresh = data.refresh || '';
+      const user = data.user || {
+        name: data.name || '',
+        email: data.email || '',
+        role: data.role || 'user',
+      };
+
       handleLoginSuccess(access, refresh, user);
     } catch (err) {
       console.error(err);
@@ -108,27 +119,30 @@ const Login = () => {
     try {
       const decoded = jwtDecode(credential);
 
-      // Try login first if user already registered via Google
       try {
         const { data } = await axiosInstance.post('/accounts/login/', {
           email: decoded.email,
-          password: decoded.sub, // NOTE: backend must handle this logic if using Google `sub` as password
+          password: decoded.sub,
         });
 
-        const { access, refresh, user } = data;
+        const access = data.access || data.token || '';
+        const refresh = data.refresh || '';
+        const user = data.user || {
+          name: decoded.name || '',
+          email: decoded.email || '',
+          role: data.role || 'user',
+        };
+
         handleLoginSuccess(access, refresh, user);
       } catch (loginErr) {
-        // If login fails, attempt Google registration
         const regResponse = await axiosInstance.post('/accounts/google-register/', {
           email: decoded.email,
           name: decoded.name,
         });
 
-        // Assume registration returns tokens as well
         const { access, refresh, user } = regResponse.data;
         handleLoginSuccess(access, refresh, user);
       }
-
     } catch (err) {
       console.error('Google login error:', err);
       setError(extractErrorMessage(err));
