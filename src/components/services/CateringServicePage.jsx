@@ -30,7 +30,7 @@ const CateringPage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const [mediaRes, bannerRes, reviewsRes] = await Promise.all([
+      const [mediaRes, , reviewsRes] = await Promise.all([
         publicAxios.get('/media/featured/?endpoint=CateringPage'),
         publicAxios.get('/media/banners/?endpoint=CateringPage'),
         publicAxios.get('/reviews/')

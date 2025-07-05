@@ -12,7 +12,6 @@ const InvoiceGeneration = () => {
   const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,7 +24,7 @@ const InvoiceGeneration = () => {
         setServices(servicesRes.data);
       } catch (err) {
         console.error('Error fetching data:', err);
-        setError('Failed to load bookings or services.');
+        setMessage('❌ Failed to load bookings or services.');
       }
     };
     fetchData();

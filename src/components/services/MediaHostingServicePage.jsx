@@ -32,9 +32,8 @@ const MediaHostingServicePage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const [mediaRes, bannerRes, testimonialsRes] = await Promise.all([
+      const [mediaRes, reviewsRes] = await Promise.all([
         publicAxios.get('/media/featured/?endpoint=mediaHostingServicePage'),
-        publicAxios.get('/media/banners/?endpoint=mediaHostingServicePage'),
         publicAxios.get('/reviews/'),
       ]);
 
@@ -45,7 +44,7 @@ const MediaHostingServicePage = () => {
 
       setBannerImage(banner?.file || null);
       setMediaItems(media);
-      setTestimonials(testimonialsRes.data || []);
+      setTestimonials(reviewsRes.data || []);
     } catch (error) {
       console.error('Error fetching media hosting data:', error);
     } finally {
