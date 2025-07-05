@@ -3,51 +3,59 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 const AuthContext = createContext();
 
 const AUTH_KEYS = {
-  TOKEN: 'token',
-  USER: 'user', // Can store JSON stringified object
+  ACCESS: 'access',
+  REFRESH: 'refresh',
+  USER: 'user',
 };
 
-// Optional: export logout globally
 let globalLogout = () => {};
 export const getGlobalLogout = () => globalLogout;
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(() => {
-    const token = localStorage.getItem(AUTH_KEYS.TOKEN);
-    const user = localStorage.getItem(AUTH_KEYS.USER);
-    return token && user
-      ? { token, user: JSON.parse(user) }
-      : { token: null, user: null };
+    const access = localStorage.getItem(AUTH_KEYS.ACCESS);
+    const refresh = localStorage.getItem(AUTH_KEYS.REFRESH);
+    const userRaw = localStorage.getItem(AUTH_KEYS.USER);
+    const user = userRaw ? JSON.parse(userRaw) : null;
+
+    return access && refresh && user
+      ? { access, refresh, user }
+      : { access: null, refresh: null, user: null };
   });
 
-  const login = ({ token, user }) => {
-    if (!token || !user) {
-      throw new Error('Login failed: Missing token or user.');
+  const login = ({ access, refresh, username, isAdmin }) => {
+    if (!access || !refresh || !username) {
+      throw new Error('Login failed: Missing access, refresh token, or user.');
     }
 
-    localStorage.setItem(AUTH_KEYS.TOKEN, token);
+    const user = { name: username, isAdmin };
+
+    localStorage.setItem(AUTH_KEYS.ACCESS, access);
+    localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
     localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
 
-    setAuth({ token, user });
+    setAuth({ access, refresh, user });
   };
 
   const logout = () => {
-    localStorage.removeItem(AUTH_KEYS.TOKEN);
+    localStorage.removeItem(AUTH_KEYS.ACCESS);
+    localStorage.removeItem(AUTH_KEYS.REFRESH);
     localStorage.removeItem(AUTH_KEYS.USER);
-    setAuth({ token: null, user: null });
+    setAuth({ access: null, refresh: null, user: null });
   };
 
-  useEffect(() => {
-    globalLogout = logout;
-  }, []);
-
-  const update = ({ token, user }) => {
+  const update = ({ access, refresh, user }) => {
     setAuth((prev) => {
       const updated = { ...prev };
 
-      if (token !== undefined) {
-        localStorage.setItem(AUTH_KEYS.TOKEN, token);
-        updated.token = token;
+      if (access !== undefined) {
+        localStorage.setItem(AUTH_KEYS.ACCESS, access);
+        updated.access = access;
+      }
+
+      if (refresh !== undefined) {
+        localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+        updated.refresh = refresh;
       }
 
       if (user !== undefined) {
@@ -59,7 +67,11 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  const isAuthenticated = !!auth.token;
+  useEffect(() => {
+    globalLogout = logout;
+  }, []);
+
+  const isAuthenticated = !!auth.access;
 
   return (
     <AuthContext.Provider value={{ auth, login, logout, update, isAuthenticated }}>

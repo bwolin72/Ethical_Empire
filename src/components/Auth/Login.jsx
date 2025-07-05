@@ -91,7 +91,6 @@ const Login = () => {
     try {
       const { data } = await axiosInstance.post('/accounts/login/', form);
       const { access, refresh, user } = data;
-
       handleLoginSuccess(access, refresh, user);
     } catch (err) {
       console.error(err);
@@ -108,13 +107,28 @@ const Login = () => {
     setLoading(true);
     try {
       const decoded = jwtDecode(credential);
-      const { data } = await axiosInstance.post('/accounts/google-register/', {
-        email: decoded.email,
-        name: decoded.name,
-      });
 
-      const { access, refresh, user } = data;
-      handleLoginSuccess(access, refresh, user);
+      // Try login first if user already registered via Google
+      try {
+        const { data } = await axiosInstance.post('/accounts/login/', {
+          email: decoded.email,
+          password: decoded.sub, // NOTE: backend must handle this logic if using Google `sub` as password
+        });
+
+        const { access, refresh, user } = data;
+        handleLoginSuccess(access, refresh, user);
+      } catch (loginErr) {
+        // If login fails, attempt Google registration
+        const regResponse = await axiosInstance.post('/accounts/google-register/', {
+          email: decoded.email,
+          name: decoded.name,
+        });
+
+        // Assume registration returns tokens as well
+        const { access, refresh, user } = regResponse.data;
+        handleLoginSuccess(access, refresh, user);
+      }
+
     } catch (err) {
       console.error('Google login error:', err);
       setError(extractErrorMessage(err));

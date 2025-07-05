@@ -17,7 +17,7 @@ const ResetPassword = () => {
 
   const getPasswordStrength = (password) => {
     if (password.length < 6) return 'Weak';
-    if (password.match(/[A-Z]/) && password.match(/[0-9]/) && password.length >= 8) return 'Strong';
+    if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8) return 'Strong';
     return 'Medium';
   };
 
@@ -38,21 +38,18 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      await axiosInstance.post('/user-account/auth/reset-password-confirm/', {
-        uid,
-        token,
-        new_password: newPassword,
-        re_new_password: reNewPassword,
+      await axiosInstance.post(`/user-account/auth/reset-password-confirm/${uid}/${token}/`, {
+        password: newPassword,
       });
 
       setMessage('Password has been reset successfully. Redirecting to login...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
-        'An error occurred. Please try again.'
-      );
+      const res = err.response?.data;
+      const errorMsg = Array.isArray(res?.error)
+        ? res.error.join(', ')
+        : res?.error || res?.detail || 'An error occurred. Please try again.';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

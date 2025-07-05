@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
@@ -11,6 +11,7 @@ const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const Register = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({
     name: '',
@@ -20,6 +21,7 @@ const Register = () => {
     gender: '',
     password: '',
     password2: '',
+    accessCode: '',
   });
 
   const [error, setError] = useState('');
@@ -28,12 +30,19 @@ const Register = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState('');
+  const [isInternal, setIsInternal] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode') === 'true';
     setDarkMode(saved);
     document.body.classList.toggle('dark-mode', saved);
-  }, []);
+
+    const urlCode = searchParams.get('code');
+    if (urlCode) {
+      setIsInternal(true);
+      setForm((prev) => ({ ...prev, accessCode: urlCode }));
+    }
+  }, [searchParams]);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePhone = (phone) => /^0\d{9}$/.test(phone);
@@ -60,31 +69,42 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    const { name, email, phone, dob, gender, password, password2 } = form;
+    const { name, email, phone, dob, gender, password, password2, accessCode } = form;
 
     if (!name.trim()) return setError('Full name is required.');
     if (!dob) return setError('Date of birth is required.');
     if (!gender) return setError('Gender is required.');
     if (!validateEmail(email)) return setError('Invalid email format.');
-    if (!validatePhone(phone)) return setError('Phone number must be 10 digits and start with 0.');
+    if (!validatePhone(phone)) return setError('Phone must start with 0 and be 10 digits.');
     if (password !== password2) return setError('Passwords do not match.');
+
+    if (isInternal && !accessCode.trim()) return setError('Access code is required for internal registration.');
 
     setLoading(true);
     try {
-      const payload = { ...form };
-      delete payload.password2;
+      const payload = {
+        name,
+        email,
+        phone,
+        dob,
+        gender,
+        password,
+        ...(isInternal ? { access_code: accessCode } : {}),
+      };
 
-      await axiosInstance.post('/accounts/register/', payload);
+      const endpoint = isInternal ? '/accounts/internal-register/' : '/accounts/register/';
+      await axiosInstance.post(endpoint, payload);
+
       setSuccess('Account created! Check your email to verify.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
       const data = err.response?.data;
-      setError(
+      const msg =
         data?.detail ||
         data?.error ||
         Object.values(data || {}).flat().join(' ') ||
-        'Registration failed. Please try again.'
-      );
+        'Registration failed. Please try again.';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -130,15 +150,34 @@ const Register = () => {
             <span>Ethical Multimedia GH</span>
           </div>
 
-          <button className="dark-toggle" onClick={toggleDarkMode}>
-            {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
-          </button>
+          <div className="top-controls">
+            <button className="dark-toggle" onClick={toggleDarkMode}>
+              {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
+            </button>
+            <label className="internal-toggle">
+              <input
+                type="checkbox"
+                checked={isInternal}
+                onChange={(e) => setIsInternal(e.target.checked)}
+              />
+              Internal
+            </label>
+          </div>
 
-          <h2>Create an Account</h2>
+          <h2>{isInternal ? 'Internal Registration' : 'Create an Account'}</h2>
           {error && <p className="error-message">{error}</p>}
           {success && <p className="success-message">{success}</p>}
 
           <form onSubmit={handleSubmit} className="register-form" noValidate>
+            {isInternal && (
+              <input
+                name="accessCode"
+                placeholder="Access Code"
+                value={form.accessCode}
+                onChange={handleChange}
+              />
+            )}
+
             <input name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
             <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
             <input name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
