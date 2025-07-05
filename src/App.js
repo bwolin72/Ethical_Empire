@@ -46,7 +46,7 @@ import MediaHostingServicePage from './components/services/MediaHostingServicePa
 
 // Context & Axios
 import { AuthProvider, useAuth } from './components/context/AuthContext';
-import axiosInstance from './api/axiosInstance';
+import axiosCommon from './api/axiosCommon';
 
 // Google OAuth Provider
 import { GoogleOAuthProvider } from '@react-oauth/google';
