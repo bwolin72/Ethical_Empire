@@ -95,7 +95,11 @@ const Login = () => {
     setLoading(true);
     try {
       const { data } = await axiosInstance.post('/accounts/login/', form);
-      const { access, refresh, user } = data;
+
+      const access = data.access || data.tokens?.access;
+      const refresh = data.refresh || data.tokens?.refresh;
+      const user = data.user;
+
       handleLoginSuccess(access, refresh, user);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -113,19 +117,26 @@ const Login = () => {
       const decoded = jwtDecode(credential);
       const loginData = {
         email: decoded.email,
-        password: decoded.sub, // For Google, sub can be used as password if backend accepts it
+        password: decoded.sub,
       };
 
       try {
         const { data } = await axiosInstance.post('/accounts/login/', loginData);
-        const { access, refresh, user } = data;
+        const access = data.access || data.tokens?.access;
+        const refresh = data.refresh || data.tokens?.refresh;
+        const user = data.user;
+
         handleLoginSuccess(access, refresh, user);
       } catch {
         const { data } = await axiosInstance.post('/accounts/google-register/', {
           email: decoded.email,
           name: decoded.name,
         });
-        const { access, refresh, user } = data;
+
+        const access = data.access || data.tokens?.access;
+        const refresh = data.refresh || data.tokens?.refresh;
+        const user = data.user;
+
         handleLoginSuccess(access, refresh, user);
       }
     } catch (err) {
