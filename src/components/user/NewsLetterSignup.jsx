@@ -31,8 +31,8 @@ export default function NewsletterSignup() {
       return;
     }
 
-    if (!email.trim()) {
-      toast.warn('⚠️ Email is required.');
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.warn('⚠️ A valid email is required.');
       setInputError(true);
       setTimeout(() => setInputError(false), 3000);
       return;
@@ -41,8 +41,8 @@ export default function NewsletterSignup() {
     setSubmitting(true);
 
     try {
-      const { data } = await publicAxios.post('/user-account/newsletter/subscribe/', {
-        email,
+      const { data } = await publicAxios.post('/newsletter/subscribe/', {
+        email: email.trim(),
         name: name.trim(),
         token: captchaToken,
       });
@@ -50,10 +50,11 @@ export default function NewsletterSignup() {
       toast.success(data?.message || '✅ Please check your email to confirm your subscription.');
       resetForm();
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 5000);
+      setTimeout(() => setShowSuccess(false), 6000);
     } catch (err) {
       const errorMsg =
-        err?.response?.data?.error || '❌ Subscription failed. Please try again.';
+        err?.response?.data?.error ||
+        '❌ Subscription failed. Please try again later.';
       toast.error(errorMsg);
       setInputError(true);
       setTimeout(() => setInputError(false), 3000);
@@ -113,7 +114,7 @@ export default function NewsletterSignup() {
 
       {showSuccess && (
         <div className="newsletter-success" role="alert" aria-live="polite">
-          ✅ Subscription confirmed. Check your email!
+          ✅ Subscription request sent. Check your email to confirm.
         </div>
       )}
 

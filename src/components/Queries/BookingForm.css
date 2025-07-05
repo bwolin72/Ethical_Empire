@@ -41,6 +41,10 @@
   color: #6b7280;
 }
 
+.dark .subtitle {
+  color: #d1d5db;
+}
+
 /* === Form Grid === */
 .form-grid {
   display: flex;
@@ -74,7 +78,7 @@ textarea,
   font-size: 1rem;
   background-color: #fff;
   color: #111;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 input:focus,
@@ -90,6 +94,12 @@ textarea:focus,
   background-color: #374151;
   color: #f3f4f6;
   border: 1px solid #4b5563;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark .date-picker:focus {
+  border-color: #93c5fd;
 }
 
 /* === Calendar Input === */
@@ -112,7 +122,7 @@ textarea:focus,
   padding-left: 2.5rem;
 }
 
-/* === Dropdown for Services === */
+/* === Dropdown Services === */
 .dropdown-label {
   display: flex;
   justify-content: space-between;
@@ -162,8 +172,13 @@ textarea:focus,
   transition: background-color 0.2s ease-in-out;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   background-color: #401010;
+}
+
+.submit-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
 }
 
 /* === Messages === */
@@ -219,5 +234,23 @@ textarea:focus,
   textarea,
   .date-picker {
     font-size: 0.95rem;
+  }
+
+  .submit-btn {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .form-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .submit-btn {
+    font-size: 0.9rem;
+  }
+
+  .form-logo {
+    width: 40px;
   }
 }

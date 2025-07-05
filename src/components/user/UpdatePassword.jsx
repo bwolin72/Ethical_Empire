@@ -16,7 +16,7 @@ const UpdatePassword = () => {
 
     setLoading(true);
     try {
-      await axiosInstance.post("/user-account/profiles/password-update/request/", {
+      await axiosInstance.post("/accounts/profiles/password-update/request/", {
         current_password: currentPassword,
         new_password: newPassword,
       });

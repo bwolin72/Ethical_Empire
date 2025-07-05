@@ -14,7 +14,7 @@ const EditProfile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axiosInstance.get("/api/accounts/profiles/profile/")
+    axiosInstance.get("/accounts/profiles/profile/")
       .then(res => {
         const { username, email, phone_number } = res.data;
         setForm({ username, phone_number: phone_number || "" });
@@ -30,7 +30,7 @@ const EditProfile = () => {
 
   const handleSubmit = async () => {
     try {
-      await axiosInstance.put("/api/accounts/profiles/profile/", form);
+      await axiosInstance.put("/accounts/profiles/profile/", form);
       toast.success("✅ Profile updated successfully!");
       setTimeout(() => navigate(-1), 1000); // redirect after toast
     } catch {

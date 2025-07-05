@@ -10,7 +10,9 @@ const InvoiceGeneration = () => {
   const [paymentStatus, setPaymentStatus] = useState('none');
   const [creating, setCreating] = useState(false);
   const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,9 +25,9 @@ const InvoiceGeneration = () => {
         setServices(servicesRes.data);
       } catch (err) {
         console.error('Error fetching data:', err);
+        setError('Failed to load bookings or services.');
       }
     };
-
     fetchData();
   }, []);
 
@@ -43,6 +45,7 @@ const InvoiceGeneration = () => {
   }, 0);
 
   const paid = paymentStatus === 'full' ? total : paymentStatus === 'half' ? total / 2 : 0;
+  const remaining = total - paid;
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
@@ -53,18 +56,35 @@ const InvoiceGeneration = () => {
   const createInvoice = async () => {
     if (!booking || !paymentStatus) return;
     setCreating(true);
+    setMessage('');
+    setPdfPreviewUrl(null);
     try {
       const res = await axiosInstance.post('/invoices/', {
         booking_id: booking.id,
         payment_status: paymentStatus
       });
       setCreatedInvoiceId(res.data.id);
-      setMessage('Invoice created successfully.');
+      setMessage('✅ Invoice created successfully.');
+      fetchInvoicePDF(res.data.id);
     } catch (error) {
       console.error(error);
-      setMessage('Error creating invoice.');
+      setMessage('❌ Error creating invoice.');
     } finally {
       setCreating(false);
+    }
+  };
+
+  const fetchInvoicePDF = async (invoiceId) => {
+    try {
+      const res = await axiosInstance.get(`/invoices/${invoiceId}/download_pdf/`, {
+        responseType: 'blob'
+      });
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      setPdfPreviewUrl(url);
+    } catch (error) {
+      console.error('Failed to fetch PDF:', error);
+      setMessage('❌ Could not load PDF preview.');
     }
   };
 
@@ -81,6 +101,7 @@ const InvoiceGeneration = () => {
       link.click();
     } catch (error) {
       console.error('Error downloading invoice:', error);
+      setMessage('❌ Failed to download PDF.');
     }
   };
 
@@ -88,10 +109,10 @@ const InvoiceGeneration = () => {
     if (!createdInvoiceId) return;
     try {
       await axiosInstance.post(`/invoices/${createdInvoiceId}/send_email/`);
-      setMessage('Invoice sent via email.');
+      setMessage('📧 Invoice sent via email.');
     } catch (error) {
       console.error('Error sending invoice email:', error);
-      setMessage('Failed to send email.');
+      setMessage('❌ Failed to send invoice email.');
     }
   };
 
@@ -129,6 +150,7 @@ const InvoiceGeneration = () => {
             </div>
 
             <p><strong>Paid:</strong> GHS {paid.toFixed(2)}</p>
+            <p><strong>Remaining:</strong> GHS {remaining.toFixed(2)}</p>
 
             <div className="invoice-actions">
               <button onClick={createInvoice} disabled={creating}>
@@ -145,6 +167,19 @@ const InvoiceGeneration = () => {
             </div>
 
             {message && <p className="message">{message}</p>}
+
+            {pdfPreviewUrl && (
+              <div className="pdf-preview">
+                <h4>Invoice Preview:</h4>
+                <iframe
+                  src={pdfPreviewUrl}
+                  title="Invoice Preview"
+                  width="100%"
+                  height="500px"
+                  frameBorder="0"
+                />
+              </div>
+            )}
           </>
         ) : (
           <h2 className="empty-state">Select a booking from the right panel →</h2>
@@ -165,10 +200,12 @@ const InvoiceGeneration = () => {
               setSelectedId(b.id);
               setCreatedInvoiceId(null);
               setMessage('');
+              setPaymentStatus('none');
+              setPdfPreviewUrl(null);
             }}
             className={`invoice-item ${b.id === selectedId ? 'active' : ''}`}
           >
-            {b.name} - {formatDate(b.event_date)}
+            {b.name} – {formatDate(b.event_date)}
           </div>
         ))}
       </motion.aside>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import publixios from '../../api/publicAxios';
+import publicAxios from '../../api/publicAxios';
 import BannerCards from '../context/BannerCards';
 import './MediaHostingServicePage.css';
 
@@ -32,14 +32,14 @@ const MediaHostingServicePage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const [mediaRes, , testimonialsRes] = await Promise.all([
-        publixios.get('/media/featured/?endpoint=mediaHostingServicePage'),
-        publixios.get('/media/banners/?endpoint=mediaHostingServicePage'),
-        publixios.get('/reviews/'),
+      const [mediaRes, bannerRes, testimonialsRes] = await Promise.all([
+        publicAxios.get('/media/featured/?endpoint=mediaHostingServicePage'),
+        publicAxios.get('/media/banners/?endpoint=mediaHostingServicePage'),
+        publicAxios.get('/reviews/'),
       ]);
 
-      const allMedia = mediaRes.data || [];
-      const activeMedia = allMedia.filter(item => item.is_active);
+      const mediaItemsData = mediaRes.data || [];
+      const activeMedia = mediaItemsData.filter(item => item.is_active);
       const banner = activeMedia.find(item => item.type === 'banner');
       const media = activeMedia.filter(item => item.type === 'media');
 
@@ -47,7 +47,7 @@ const MediaHostingServicePage = () => {
       setMediaItems(media);
       setTestimonials(testimonialsRes.data || []);
     } catch (error) {
-      console.error('Error fetching media hosting page data:', error);
+      console.error('Error fetching media hosting data:', error);
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,7 @@ const MediaHostingServicePage = () => {
 
   return (
     <div className="liveband-page">
-      {/* Hero Banner */}
+      {/* Hero Section */}
       <header className="hero-banner">
         {bannerImage ? (
           <img src={bannerImage} alt="Media Hosting Banner" className="hero-banner-image" />
@@ -70,14 +70,14 @@ const MediaHostingServicePage = () => {
         <h1 className="hero-title">Capture & Host with Ethical Precision</h1>
       </header>
 
-      {/* Call To Action */}
+      {/* CTA Section */}
       <section className="cta-section">
         <button className="cta-button" onClick={() => navigate('/bookings')}>
           Request Hosting Services
         </button>
       </section>
 
-      {/* Services */}
+      {/* Services Section */}
       <section className="section services-section">
         <h2 className="section-title">Our Multimedia & Hosting Services</h2>
         <div className="card-grid">
@@ -128,12 +128,12 @@ const MediaHostingServicePage = () => {
         </p>
       </section>
 
-      {/* Additional Media Banners */}
+      {/* Banner Cards Section */}
       <section className="banner-cards-wrapper">
-        <BannerCards endpoint="MediaHostingServicePage" />
+        <BannerCards endpoint="mediaHostingServicePage" />
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials Section */}
       <section className="section testimonial-section">
         <h2 className="section-title">Client Reviews</h2>
         <div className="testimonial-grid">
@@ -148,7 +148,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* WhatsApp Floating Button */}
+      {/* WhatsApp Button */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

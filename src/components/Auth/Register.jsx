@@ -33,9 +33,9 @@ const Register = () => {
   const [isInternal, setIsInternal] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(saved);
-    document.body.classList.toggle('dark-mode', saved);
+    const savedDark = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(savedDark);
+    document.body.classList.toggle('dark-mode', savedDark);
 
     const urlCode = searchParams.get('code');
     if (urlCode) {
@@ -49,8 +49,20 @@ const Register = () => {
 
   const getPasswordStrength = (password) => {
     if (password.length < 6) return 'Weak';
-    if (password.match(/[A-Z]/) && password.match(/[0-9]/) && password.length >= 8) return 'Strong';
+    if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8) return 'Strong';
     return 'Medium';
+  };
+
+  const extractErrorMessage = (err) => {
+    const data = err.response?.data;
+    if (typeof data === 'string') return data;
+    return (
+      data?.message ||
+      data?.detail ||
+      data?.error ||
+      Object.values(data || {}).flat().join(' ') ||
+      'Something went wrong. Please try again.'
+    );
   };
 
   const handleChange = (e) => {
@@ -72,39 +84,33 @@ const Register = () => {
     const { name, email, phone, dob, gender, password, password2, accessCode } = form;
 
     if (!name.trim()) return setError('Full name is required.');
-    if (!dob) return setError('Date of birth is required.');
-    if (!gender) return setError('Gender is required.');
     if (!validateEmail(email)) return setError('Invalid email format.');
     if (!validatePhone(phone)) return setError('Phone must start with 0 and be 10 digits.');
+    if (!dob) return setError('Date of birth is required.');
+    if (!gender) return setError('Gender is required.');
+    if (!password) return setError('Password is required.');
     if (password !== password2) return setError('Passwords do not match.');
+    if (isInternal && !accessCode.trim()) return setError('Access code is required.');
 
-    if (isInternal && !accessCode.trim()) return setError('Access code is required for internal registration.');
+    const payload = {
+      name,
+      email,
+      phone,
+      dob,
+      gender,
+      password,
+      ...(isInternal ? { access_code: accessCode } : {}),
+    };
+
+    const endpoint = isInternal ? '/accounts/internal-register/' : '/accounts/register/';
 
     setLoading(true);
     try {
-      const payload = {
-        name,
-        email,
-        phone,
-        dob,
-        gender,
-        password,
-        ...(isInternal ? { access_code: accessCode } : {}),
-      };
-
-      const endpoint = isInternal ? '/accounts/internal-register/' : '/accounts/register/';
       await axiosInstance.post(endpoint, payload);
-
-      setSuccess('Account created! Check your email to verify.');
+      setSuccess('Registration successful! Please check your email to verify.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
-      const data = err.response?.data;
-      const msg =
-        data?.detail ||
-        data?.error ||
-        Object.values(data || {}).flat().join(' ') ||
-        'Registration failed. Please try again.';
-      setError(msg);
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -127,18 +133,17 @@ const Register = () => {
       setSuccess('Google registration successful! Redirecting...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
-      const msg = err.response?.data?.detail || err.response?.data?.message || 'Google sign-up failed.';
-      setError(msg);
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
   const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    document.body.classList.toggle('dark-mode', newMode);
-    localStorage.setItem('darkMode', newMode);
+    const updated = !darkMode;
+    setDarkMode(updated);
+    document.body.classList.toggle('dark-mode', updated);
+    localStorage.setItem('darkMode', updated);
   };
 
   return (
@@ -197,7 +202,11 @@ const Register = () => {
                 value={form.password}
                 onChange={handleChange}
               />
-              <button type="button" className="toggle-password" onClick={() => setPasswordVisible((v) => !v)}>
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setPasswordVisible((v) => !v)}
+              >
                 {passwordVisible ? 'Hide' : 'Show'}
               </button>
             </div>

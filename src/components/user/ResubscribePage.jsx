@@ -1,20 +1,28 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import publicAxios from "../../api/publicAxios";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ResubscribePage() {
   const { email } = useParams();
-  const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleResubscribe = async () => {
+    if (!email || !email.includes("@")) {
+      toast.warn("⚠️ Invalid email.");
+      return;
+    }
+
     setLoading(true);
-    setStatus("");
     try {
-      await publicAxios.get(`/user-account/newsletter/resubscribe/${email}/`);
-      setStatus("✅ You have successfully resubscribed.");
+      const { data } = await publicAxios.post(`/newsletter/resubscribe/`, {
+        email: decodeURIComponent(email),
+      });
+      toast.success(data?.message || "✅ You have successfully resubscribed.");
     } catch (err) {
-      setStatus("❌ Resubscription failed. Please try again later.");
+      const errorMsg = err?.response?.data?.error || "❌ Resubscription failed. Please try again.";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -35,12 +43,6 @@ export default function ResubscribePage() {
       >
         {loading ? 'Processing...' : 'Resubscribe Me'}
       </button>
-
-      {status && (
-        <p className="mt-6 text-sm text-gray-700 dark:text-gray-300" role="status">
-          {status}
-        </p>
-      )}
     </div>
   );
 }

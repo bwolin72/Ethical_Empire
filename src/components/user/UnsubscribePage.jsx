@@ -13,7 +13,7 @@ export default function UnsubscribePage() {
     setLoading(true);
     setStatus('');
     try {
-      await publicAxios.get(`/user-account/newsletter/unsubscribe/${email}/`);
+      await publicAxios.get(`/newsletter/unsubscribe/${email}/`);
       setStatus('✅ You have been unsubscribed.');
     } catch (err) {
       console.error('Unsubscribe error:', err);

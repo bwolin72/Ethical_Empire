@@ -39,7 +39,7 @@ const BookingForm = () => {
     }
   }, []);
 
-  // Fetch services
+  // Fetch available services
   const fetchServices = useCallback(() => {
     axiosInstance
       .get('/services/')
@@ -104,15 +104,22 @@ const BookingForm = () => {
     }
 
     const payload = {
-      ...formData,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      message: formData.message,
       event_date: formData.event_date
         ? formData.event_date.toISOString().split('T')[0]
         : null,
+      services: formData.services,
     };
 
     try {
       await axiosInstance.post('/bookings/', payload, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       setSuccessMessage('🎉 Booking request submitted successfully!');

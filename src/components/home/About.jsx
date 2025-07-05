@@ -50,7 +50,7 @@ function About() {
       try {
         const [bannerRes, mediaRes, reviewsRes] = await Promise.all([
           publicAxios.get('/media/banners/?endpoint=About'),
-          publicAxios.get('/media/?type=media&endpoint=About'),
+        publicAxios.get('/media/featured/?endpoint=About'),
           publicAxios.get('/reviews/'),
         ]);
 

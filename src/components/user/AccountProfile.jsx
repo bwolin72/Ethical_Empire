@@ -18,9 +18,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
+  // Fetch user profile and bookings
   useEffect(() => {
     if (!externalProfile) {
-      axiosInstance.get("/api/accounts/profiles/profile/")
+      axiosInstance.get("/accounts/profiles/profile/")
         .then(res => {
           setProfile(res.data);
           setProfileImage(res.data.profile_picture || "");
@@ -29,11 +30,12 @@ const AccountProfile = ({ profile: externalProfile }) => {
         .finally(() => setLoading(false));
     }
 
-    axiosInstance.get("/api/bookings/")
+    axiosInstance.get("/bookings/user/")
       .then(res => setBookings(res.data))
       .catch(() => toast.warn("Could not fetch bookings."));
   }, [externalProfile]);
 
+  // Extract user initials from name
   const getInitials = (name) => {
     if (!name) return "?";
     const parts = name.trim().split(" ");
@@ -42,6 +44,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       : parts[0][0].toUpperCase();
   };
 
+  // Handle image upload to Cloudinary
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !CLOUDINARY_UPLOAD_PRESET || !CLOUDINARY_CLOUD_NAME) {
@@ -62,7 +65,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
       if (!data.secure_url) throw new Error("Upload failed");
 
-      await axiosInstance.put("/api/accounts/profiles/profile/", {
+      await axiosInstance.put("/accounts/profiles/profile/", {
         profile_picture: data.secure_url,
       });
 
@@ -74,21 +77,22 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
   };
 
+  // Submit a review
   const handleReviewSubmit = async () => {
     if (!review.trim()) return toast.warn("Review cannot be empty.");
     try {
-      await axiosInstance.post("/api/reviews/", { message: review });
+      await axiosInstance.post("/reviews/", { message: review });
       toast.success("Review submitted!");
       setReview("");
-      window.location.reload(); // Optional: trigger re-fetch
     } catch {
       toast.error("Failed to submit review.");
     }
   };
 
+  // Logout user
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/api/accounts/profiles/logout/");
+      await axiosInstance.post("/accounts/profiles/logout/");
       localStorage.clear();
       window.location.reload();
     } catch {
@@ -96,6 +100,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
   };
 
+  // Display booking status with color badge
   const renderBookingStatus = (status) => {
     const statusMap = {
       pending: "#facc15",
@@ -125,6 +130,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       <button className="close-btn" onClick={() => window.location.reload()}>✖</button>
 
       <div className="profile-wrapper">
+        {/* Profile picture and uploader */}
         <div className="profile-header">
           {profileImage ? (
             <img src={profileImage} alt="Profile" className="profile-pic" />
@@ -139,6 +145,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           </label>
         </div>
 
+        {/* User Info */}
         <div className="user-info">
           <h3>@{profile?.username}</h3>
           <p><strong>Name:</strong> {profile?.first_name} {profile?.last_name}</p>
@@ -150,6 +157,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           </div>
         </div>
 
+        {/* Bookings List */}
         <div className="booking-section">
           <h4>My Bookings ({bookings.length})</h4>
           {bookings.length ? (
@@ -165,6 +173,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           )}
         </div>
 
+        {/* Review Form */}
         <div className="review-section">
           <label htmlFor="review">Write a Review</label>
           <textarea
@@ -176,6 +185,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           <button className="btn" onClick={handleReviewSubmit}>Submit Review</button>
         </div>
 
+        {/* Logout */}
         <button className="btn danger" onClick={handleLogout}>Logout</button>
       </div>
     </div>

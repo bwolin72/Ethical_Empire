@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './catering.custom.css';
 import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
@@ -11,6 +11,7 @@ const CateringPage = () => {
   const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [bannerUrl, setBannerUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const cateringServices = [
     'Traditional Ghanaian Buffet',
@@ -27,25 +28,32 @@ const CateringPage = () => {
     'Vegetarian Jollof', 'Paleo Plantain Mix', 'Organic Yam Chips', 'Diabetic-Friendly Tilapia',
   ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [mediaRes, bannerRes, reviewsRes] = await Promise.all([
-          publicAxios.get('/media/?type=media&endpoint=CateringPage'),
-          publicAxios.get('/media/?type=banner&endpoint=CateringPage'),
-          publicAxios.get('/reviews/')
-        ]);
+  const fetchData = useCallback(async () => {
+    try {
+      const [mediaRes, bannerRes, reviewsRes] = await Promise.all([
+        publicAxios.get('/media/featured/?endpoint=CateringPage'),
+        publicAxios.get('/media/banners/?endpoint=CateringPage'),
+        publicAxios.get('/reviews/')
+      ]);
 
-        setMediaCards(mediaRes.data || []);
-        setBannerUrl(bannerRes.data?.[0]?.url || null);
-        setTestimonials(reviewsRes.data || []);
-      } catch (error) {
-        console.error('Error loading catering content:', error);
-      }
-    };
+      const allMedia = mediaRes.data || [];
+      const activeMedia = allMedia.filter(item => item.is_active);
+      const media = activeMedia.filter(item => item.type === 'media');
+      const banner = activeMedia.find(item => item.type === 'banner');
 
-    fetchData();
+      setMediaCards(media);
+      setBannerUrl(banner?.file || null);
+      setTestimonials(reviewsRes.data || []);
+    } catch (error) {
+      console.error('Error loading catering content:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return (
     <div className="catering-page-container">
@@ -58,7 +66,7 @@ const CateringPage = () => {
             className="hero-banner-image"
           />
         ) : (
-          <div className="hero-banner-placeholder">No Banner Uploaded</div>
+          <div className="hero-banner-placeholder shimmer">Loading Banner...</div>
         )}
         <div className="hero-overlay" />
         <h1 className="hero-title">Ethical Kitchen</h1>
@@ -91,9 +99,13 @@ const CateringPage = () => {
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
-            {mediaCards.slice(0, 3).map((media) => (
-              <MediaCard key={media.id} media={media} />
-            ))}
+            {loading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="skeleton-card shimmer" />
+                ))
+              : mediaCards.slice(0, 3).map((media) => (
+                  <MediaCard key={media.id} media={media} />
+                ))}
           </div>
           <div className="creative-text">
             <h3>Creative Catering Ideas</h3>
@@ -122,18 +134,21 @@ const CateringPage = () => {
       <section className="section testimonial-section">
         <h2>What Clients Say</h2>
         <div className="testimonial-grid">
-          {testimonials.length > 0 ? (
-            testimonials.slice(0, 6).map((review) => (
-              <Card key={review.id} className="testimonial-card">
-                <CardContent>
-                  <p className="testimonial-text">"{review?.message || 'No message provided.'}"</p>
-                  <p className="testimonial-user">— {review?.user?.username || 'Anonymous'}</p>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p className="testimonial-placeholder">No testimonials available yet.</p>
-          )}
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="testimonial-card skeleton shimmer">
+                  <div className="testimonial-message">Loading review...</div>
+                  <div className="testimonial-user">Loading...</div>
+                </div>
+              ))
+            : testimonials.slice(0, 6).map((review) => (
+                <Card key={review.id} className="testimonial-card">
+                  <CardContent>
+                    <p className="testimonial-text">"{review?.message || 'No message provided.'}"</p>
+                    <p className="testimonial-user">— {review?.user?.username || 'Anonymous'}</p>
+                  </CardContent>
+                </Card>
+              ))}
         </div>
       </section>
 

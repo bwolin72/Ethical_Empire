@@ -17,6 +17,7 @@ const services = [
 const UserPage = () => {
   const [profile, setProfile] = useState(null);
   const [media, setMedia] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [featuredVideo, setFeaturedVideo] = useState(null);
@@ -25,16 +26,26 @@ const UserPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     setLoading(true);
 
     Promise.allSettled([
-      axiosInstance.get("/accounts/profiles/profile/"),
-      axiosInstance.get("/media/"),
-      axiosInstance.get("/media/featured/"),
-      axiosInstance.get("/reviews/"),
-      axiosInstance.get("/promotions/")
+      axiosInstance.get("/api/accounts/profile/", { signal }),
+      axiosInstance.get("/api/media/", {
+        params: { type: "media", endpoint: "UserPage", is_active: true },
+        signal,
+      }),
+      axiosInstance.get("/api/media/", {
+        params: { type: "banner", endpoint: "UserPage", is_active: true },
+        signal,
+      }),
+      axiosInstance.get("/api/media/featured/", { signal }),
+      axiosInstance.get("/reviews/", { signal }),
+      axiosInstance.get("/promotions/", { signal }),
     ])
-      .then(([profileRes, mediaRes, featuredRes, reviewsRes, promoRes]) => {
+      .then(([profileRes, mediaRes, bannerRes, featuredRes, reviewsRes, promoRes]) => {
         if (profileRes.status === "fulfilled") {
           setProfile(profileRes.value.data);
         } else {
@@ -45,6 +56,10 @@ const UserPage = () => {
           setMedia(mediaRes.value.data);
         } else {
           toast.error("Failed to load media.");
+        }
+
+        if (bannerRes.status === "fulfilled") {
+          setBanners(bannerRes.value.data);
         }
 
         if (featuredRes.status === "fulfilled") {
@@ -63,6 +78,8 @@ const UserPage = () => {
       })
       .catch(() => toast.error("Something went wrong loading the user page."))
       .finally(() => setLoading(false));
+
+    return () => controller.abort();
   }, []);
 
   const toggleDarkMode = () => {
@@ -107,6 +124,25 @@ const UserPage = () => {
             </div>
           ) : (
             <p className="empty-text">No featured video available.</p>
+          )}
+
+          {/* Banners */}
+          {banners.length > 0 && (
+            <section>
+              <h3>Featured Banners</h3>
+              <div className="banner-grid">
+                {banners.map((item, idx) => (
+                  <img
+                    key={idx}
+                    src={item.file}
+                    alt={item.label || "Banner"}
+                    className="banner-image fade-in"
+                    onError={(e) => (e.target.src = "/fallback.jpg")}
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            </section>
           )}
 
           {/* Promotions */}
@@ -156,26 +192,24 @@ const UserPage = () => {
           <section>
             <h3>Your Media Gallery</h3>
             <div className="gallery-grid">
-              {media.filter(item => item.type !== "banner").length > 0 ? (
-                media
-                  .filter(item => item.type !== "banner")
-                  .map((item, idx) => (
-                    <div key={idx} className="gallery-item fade-in">
-                      {item.type === "image" ? (
-                        <img
-                          src={item.url}
-                          alt="Gallery"
-                          loading="lazy"
-                          onError={(e) => (e.target.src = "/fallback.jpg")}
-                        />
-                      ) : (
-                        <video controls preload="metadata">
-                          <source src={item.url} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                      )}
-                    </div>
-                  ))
+              {media.length > 0 ? (
+                media.map((item, idx) => (
+                  <div key={idx} className="gallery-item fade-in">
+                    {item.file.endsWith(".mp4") ? (
+                      <video controls preload="metadata">
+                        <source src={item.file} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <img
+                        src={item.file}
+                        alt={item.label || "Media"}
+                        loading="lazy"
+                        onError={(e) => (e.target.src = "/fallback.jpg")}
+                      />
+                    )}
+                  </div>
+                ))
               ) : (
                 <p className="empty-text">No media to display.</p>
               )}

@@ -25,7 +25,7 @@ const ConfirmPasswordChange = () => {
     }
 
     axiosInstance
-      .post("/user-account/profiles/password-update/confirm/", { email, token })
+      .post("/accounts/profiles/password-update/confirm/", { email, token })
       .then(() => {
         toast.success("✅ Password updated. Please login.");
         setStatus("success");
