@@ -23,6 +23,7 @@ const UserPage = () => {
   const [featuredVideo, setFeaturedVideo] = useState(null);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
   const [loading, setLoading] = useState(true);
+  const [subscriberEmail, setSubscriberEmail] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,49 +33,32 @@ const UserPage = () => {
     setLoading(true);
 
     Promise.allSettled([
-      axiosInstance.get("/api/accounts/profile/", { signal }),
-      axiosInstance.get("/api/media/", {
+      axiosInstance.get("/accounts/profile/", { signal }),
+      axiosInstance.get("/media/", {
         params: { type: "media", endpoint: "UserPage", is_active: true },
         signal,
       }),
-      axiosInstance.get("/api/media/", {
+      axiosInstance.get("/media/", {
         params: { type: "banner", endpoint: "UserPage", is_active: true },
         signal,
       }),
-      axiosInstance.get("/api/media/featured/", { signal }),
+      axiosInstance.get("/media/featured/", { signal }),
       axiosInstance.get("/reviews/", { signal }),
       axiosInstance.get("/promotions/", { signal }),
     ])
       .then(([profileRes, mediaRes, bannerRes, featuredRes, reviewsRes, promoRes]) => {
-        if (profileRes.status === "fulfilled") {
-          setProfile(profileRes.value.data);
-        } else {
-          toast.error("Failed to load profile.");
-        }
+        if (profileRes.status === "fulfilled") setProfile(profileRes.value.data);
+        else toast.error("Failed to load profile.");
 
-        if (mediaRes.status === "fulfilled") {
-          setMedia(mediaRes.value.data);
-        } else {
-          toast.error("Failed to load media.");
-        }
+        if (mediaRes.status === "fulfilled") setMedia(mediaRes.value.data);
+        else toast.error("Failed to load media.");
 
-        if (bannerRes.status === "fulfilled") {
-          setBanners(bannerRes.value.data);
-        }
+        if (bannerRes.status === "fulfilled") setBanners(bannerRes.value.data);
+        if (featuredRes.status === "fulfilled") setFeaturedVideo(featuredRes.value.data);
+        if (reviewsRes.status === "fulfilled") setReviews(reviewsRes.value.data);
+        else toast.error("Failed to load reviews.");
 
-        if (featuredRes.status === "fulfilled") {
-          setFeaturedVideo(featuredRes.value.data);
-        }
-
-        if (reviewsRes.status === "fulfilled") {
-          setReviews(reviewsRes.value.data);
-        } else {
-          toast.error("Failed to load reviews.");
-        }
-
-        if (promoRes.status === "fulfilled") {
-          setPromotions(promoRes.value.data);
-        }
+        if (promoRes.status === "fulfilled") setPromotions(promoRes.value.data);
       })
       .catch(() => toast.error("Something went wrong loading the user page."))
       .finally(() => setLoading(false));
@@ -86,6 +70,19 @@ const UserPage = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
     localStorage.setItem("darkMode", newMode);
+  };
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!subscriberEmail) return toast.warn("Enter your email to subscribe.");
+
+    try {
+      await axiosInstance.post("/newsletter/subscribe/", { email: subscriberEmail });
+      toast.success("Subscribed! Please check your email to confirm.");
+      setSubscriberEmail("");
+    } catch (error) {
+      toast.error("Subscription failed. Try again.");
+    }
   };
 
   return (
@@ -239,6 +236,21 @@ const UserPage = () => {
                 Write a Review
               </button>
             </div>
+          </section>
+
+          {/* Newsletter Subscription */}
+          <section>
+            <h3>Subscribe to Our Newsletter</h3>
+            <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={subscriberEmail}
+                onChange={(e) => setSubscriberEmail(e.target.value)}
+                required
+              />
+              <button type="submit">Subscribe</button>
+            </form>
           </section>
         </>
       )}
