@@ -17,7 +17,7 @@ const Login = () => {
 
   const navigate = useNavigate();
   const { login } = useAuth();
-  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
+  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
@@ -50,39 +50,42 @@ const Login = () => {
   const extractErrorMessage = (err) => {
     const data = err.response?.data;
     if (typeof data === 'string') return data;
-    if (data?.detail) return Array.isArray(data.detail) ? data.detail[0] : data.detail;
-    if (data?.error) return data.error;
-    if (data?.message) return data.message;
-    return 'Login failed. Please try again.';
+    return (
+      data?.message ||
+      data?.detail ||
+      data?.error ||
+      'Something went wrong. Please try again.'
+    );
+  };
+
+  const storeTokens = (access, refresh) => {
+    localStorage.setItem('access', access);
+    localStorage.setItem('refresh', refresh);
   };
 
   const redirectByRole = (role) => {
-    const paths = {
+    const route = {
       admin: '/admin',
       worker: '/worker',
       user: '/user',
-    };
-    navigate(paths[role] || '/user', { replace: true });
+    }[role] || '/user';
+    navigate(route, { replace: true });
   };
 
   const handleLoginSuccess = (access, refresh, user) => {
     if (!access || !refresh || !user) {
-      console.error('Login response missing access, refresh, or user');
-      setError('Login failed: Missing token or user.');
+      console.error('Missing login data:', { access, refresh, user });
+      setError('Login failed. Invalid response from server.');
       return;
     }
-
-    localStorage.setItem('access', access);
-    localStorage.setItem('refresh', refresh);
-
+    storeTokens(access, refresh);
     login({
       access,
       refresh,
-      username: user.name || user.email || 'User',
+      username: user.name,
       isAdmin: user.role === 'admin',
     });
-
-    redirectByRole(user.role || 'user');
+    redirectByRole(user.role);
   };
 
   const handleSubmit = async (e) => {
@@ -92,19 +95,9 @@ const Login = () => {
     setLoading(true);
     try {
       const { data } = await axiosInstance.post('/accounts/login/', form);
-      console.log('Login response:', data);
-
-      const access = data.access || data.token || '';
-      const refresh = data.refresh || '';
-      const user = data.user || {
-        name: data.name || '',
-        email: data.email || '',
-        role: data.role || 'user',
-      };
-
+      const { access, refresh, user } = data;
       handleLoginSuccess(access, refresh, user);
     } catch (err) {
-      console.error(err);
       setError(extractErrorMessage(err));
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
@@ -118,33 +111,24 @@ const Login = () => {
     setLoading(true);
     try {
       const decoded = jwtDecode(credential);
+      const loginData = {
+        email: decoded.email,
+        password: decoded.sub, // For Google, sub can be used as password if backend accepts it
+      };
 
       try {
-        const { data } = await axiosInstance.post('/accounts/login/', {
-          email: decoded.email,
-          password: decoded.sub,
-        });
-
-        const access = data.access || data.token || '';
-        const refresh = data.refresh || '';
-        const user = data.user || {
-          name: decoded.name || '',
-          email: decoded.email || '',
-          role: data.role || 'user',
-        };
-
+        const { data } = await axiosInstance.post('/accounts/login/', loginData);
+        const { access, refresh, user } = data;
         handleLoginSuccess(access, refresh, user);
-      } catch (loginErr) {
-        const regResponse = await axiosInstance.post('/accounts/google-register/', {
+      } catch {
+        const { data } = await axiosInstance.post('/accounts/google-register/', {
           email: decoded.email,
           name: decoded.name,
         });
-
-        const { access, refresh, user } = regResponse.data;
+        const { access, refresh, user } = data;
         handleLoginSuccess(access, refresh, user);
       }
     } catch (err) {
-      console.error('Google login error:', err);
       setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
@@ -168,7 +152,7 @@ const Login = () => {
             Dark Mode
           </label>
 
-          {error && <div className="error-message" role="alert">{error}</div>}
+          {error && <div className="error-message">{error}</div>}
 
           <form onSubmit={handleSubmit} className="login-form" noValidate>
             <input
@@ -178,36 +162,33 @@ const Login = () => {
               value={form.email}
               onChange={handleChange}
               className={formErrors.email ? 'input-error' : ''}
-              aria-invalid={!!formErrors.email}
               disabled={loading}
+              aria-invalid={!!formErrors.email}
             />
             {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
 
             <div className="password-input">
               <input
-                name="password"
                 type={showPassword ? 'text' : 'password'}
+                name="password"
                 placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
                 className={formErrors.password ? 'input-error' : ''}
-                aria-invalid={!!formErrors.password}
                 disabled={loading}
+                aria-invalid={!!formErrors.password}
               />
               <button
                 type="button"
                 className="show-password"
                 onClick={() => setShowPassword((prev) => !prev)}
-                aria-label="Toggle password visibility"
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
             {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
 
-            <Link to="/forgot-password" className="forgot-link">
-              Forgot Password?
-            </Link>
+            <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
 
             <button type="submit" className="login-button" disabled={loading}>
               {loading ? 'Logging in…' : 'Login'}
@@ -217,7 +198,7 @@ const Login = () => {
           <div className="social-buttons">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google login failed.')}
+              onError={() => setError('Google login failed')}
               useOneTap
               theme="outline"
               size="large"
