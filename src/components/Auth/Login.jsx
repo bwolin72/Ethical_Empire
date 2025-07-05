@@ -58,11 +58,6 @@ const Login = () => {
     );
   };
 
-  const storeTokens = (access, refresh) => {
-    localStorage.setItem('access', access);
-    localStorage.setItem('refresh', refresh);
-  };
-
   const redirectByRole = (role) => {
     const route = {
       admin: '/admin',
@@ -78,13 +73,18 @@ const Login = () => {
       setError('Login failed. Invalid response from server.');
       return;
     }
-    storeTokens(access, refresh);
+
+    // Store tokens using consistent keys
+    localStorage.setItem('token', access);         // Used by axiosCommon.js
+    localStorage.setItem('refresh_token', refresh); // Used by axiosInstance.js
+
     login({
       access,
       refresh,
       username: user.name,
       isAdmin: user.role === 'admin',
     });
+
     redirectByRole(user.role);
   };
 
@@ -103,8 +103,8 @@ const Login = () => {
       handleLoginSuccess(access, refresh, user);
     } catch (err) {
       setError(extractErrorMessage(err));
-      localStorage.removeItem('access');
-      localStorage.removeItem('refresh');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
       setForm((prev) => ({ ...prev, password: '' }));
     } finally {
       setLoading(false);
