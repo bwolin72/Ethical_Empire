@@ -12,16 +12,27 @@ let globalLogout = () => {};
 export const getGlobalLogout = () => globalLogout;
 
 export const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState(() => {
+  const [auth, setAuth] = useState({
+    access: null,
+    refresh: null,
+    user: null,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // Load auth from localStorage on initial mount
+  useEffect(() => {
     const access = localStorage.getItem(AUTH_KEYS.ACCESS);
     const refresh = localStorage.getItem(AUTH_KEYS.REFRESH);
     const userRaw = localStorage.getItem(AUTH_KEYS.USER);
     const user = userRaw ? JSON.parse(userRaw) : null;
 
-    return access && refresh && user
-      ? { access, refresh, user }
-      : { access: null, refresh: null, user: null };
-  });
+    if (access && refresh && user) {
+      setAuth({ access, refresh, user });
+    }
+
+    setLoading(false);
+  }, []);
 
   const login = ({ access, refresh, user }) => {
     if (!access || !refresh || !user) {
@@ -79,6 +90,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         update,
         isAuthenticated,
+        loading, // ✅ Expose loading flag
       }}
     >
       {children}
