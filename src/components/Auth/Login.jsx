@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate, Link } from 'react-router-dom';
@@ -16,16 +16,27 @@ const Login = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const navigate = useNavigate();
-  const { login, user } = useAuth(); // from AuthContext
+  const { login, user } = useAuth(); // Auth context
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
-  // If already logged in, redirect based on role
+  // Role-based redirection helper
+  const redirectByRole = useCallback((role) => {
+    const routeMap = {
+      admin: '/admin',
+      worker: '/worker',
+      user: '/user',
+    };
+    navigate(routeMap[role] || '/user', { replace: true });
+  }, [navigate]);
+
+  // Redirect if already logged in
   useEffect(() => {
     if (user?.role) {
       redirectByRole(user.role);
     }
-  }, [user]);
+  }, [user, redirectByRole]);
 
+  // Load dark mode preference
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
@@ -60,15 +71,6 @@ const Login = () => {
     return data?.message || data?.detail || data?.error || 'Login failed. Please try again.';
   };
 
-  const redirectByRole = (role) => {
-    const routeMap = {
-      admin: '/admin',
-      worker: '/worker',
-      user: '/user',
-    };
-    navigate(routeMap[role] || '/user', { replace: true });
-  };
-
   const handleLoginSuccess = (data) => {
     const { tokens, user } = data;
     const access = tokens?.access;
@@ -91,7 +93,7 @@ const Login = () => {
     localStorage.setItem('refresh', refresh);
     localStorage.setItem('user', JSON.stringify(userPayload));
 
-    login({ access, refresh, user: userPayload }); // update context
+    login({ access, refresh, user: userPayload });
     redirectByRole(user.role);
   };
 
