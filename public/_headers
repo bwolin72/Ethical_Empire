@@ -3,7 +3,6 @@
   (login, register, user, admin, etc.)
 */
 
-# Don't cache login or other sensitive routes
 /login
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
@@ -29,11 +28,32 @@
   Pragma: no-cache
   Expires: 0
 
-# Optionally apply to reset password / edit profile
-/reset-password-confirm/*
+/account
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/bookings
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
 /edit-profile
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
 /update-password
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
 /confirm-password-change
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/reset-password-confirm/*
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
