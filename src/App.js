@@ -52,7 +52,9 @@ import axiosCommon from './api/axiosCommon';
 // Google OAuth
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+// ==============================
 // Route Guard
+// ==============================
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { auth, loading } = useAuth();
 
@@ -63,7 +65,9 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   return children;
 };
 
-// Homepage wrapper with booking logic
+// ==============================
+// Homepage with booking button
+// ==============================
 const EethmHomePage = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
@@ -88,7 +92,9 @@ const EethmHomePage = () => {
   );
 };
 
-// Redirect to user or admin dashboard
+// ==============================
+// Redirect Handler for /connect
+// ==============================
 const ConnectRedirect = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -112,97 +118,102 @@ const ConnectRedirect = () => {
   return null;
 };
 
-// Routes
-const AppRoutes = () => (
-  <Routes>
-    {/* Public */}
-    <Route path="/" element={<EethmHomePage />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/services" element={<Services />} />
-    <Route path="/contact" element={<ContactForm />} />
-    <Route path="/services/live-band" element={<LiveBandServicePage />} />
-    <Route path="/services/catering" element={<CateringServicePage />} />
-    <Route path="/services/decor" element={<DecorServicePage />} />
-    <Route path="/services/media-hosting" element={<MediaHostingServicePage />} />
-    <Route path="/newsletter" element={<NewsletterSignup />} />
-    <Route path="/unsubscribe" element={<Unsubscribe />} />
+// ==============================
+// App Routes
+// ==============================
+const AppRoutes = () => {
+  console.log('Rendering AppRoutes');
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/" element={<EethmHomePage />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/services" element={<Services />} />
+      <Route path="/contact" element={<ContactForm />} />
+      <Route path="/services/live-band" element={<LiveBandServicePage />} />
+      <Route path="/services/catering" element={<CateringServicePage />} />
+      <Route path="/services/decor" element={<DecorServicePage />} />
+      <Route path="/services/media-hosting" element={<MediaHostingServicePage />} />
+      <Route path="/newsletter" element={<NewsletterSignup />} />
+      <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-    {/* Auth */}
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/verify-otp" element={<VerifyOTP />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
+      {/* Auth Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/verify-otp" element={<VerifyOTP />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
 
-    {/* Auth Redirect */}
-    <Route path="/connect" element={<ConnectRedirect />} />
+      {/* Auth Redirect */}
+      <Route path="/connect" element={<ConnectRedirect />} />
 
-    {/* Protected: User */}
-    <Route
-      path="/user"
-      element={
-        <ProtectedRoute>
-          <UserPage />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/account"
-      element={
-        <ProtectedRoute>
-          <AccountProfile />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/bookings"
-      element={
-        <ProtectedRoute>
-          <BookingForm />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/edit-profile"
-      element={
-        <ProtectedRoute>
-          <EditProfile />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/update-password"
-      element={
-        <ProtectedRoute>
-          <UpdatePassword />
-        </ProtectedRoute>
-      }
-    />
-    <Route
-      path="/confirm-password-change"
-      element={
-        <ProtectedRoute>
-          <ConfirmPasswordChange />
-        </ProtectedRoute>
-      }
-    />
+      {/* Protected Routes */}
+      <Route
+        path="/user"
+        element={
+          <ProtectedRoute>
+            <UserPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute>
+            <AccountProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/bookings"
+        element={
+          <ProtectedRoute>
+            <BookingForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/edit-profile"
+        element={
+          <ProtectedRoute>
+            <EditProfile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/update-password"
+        element={
+          <ProtectedRoute>
+            <UpdatePassword />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/confirm-password-change"
+        element={
+          <ProtectedRoute>
+            <ConfirmPasswordChange />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute adminOnly>
+            <AdminPanel />
+          </ProtectedRoute>
+        }
+      />
 
-    {/* Protected: Admin */}
-    <Route
-      path="/admin"
-      element={
-        <ProtectedRoute adminOnly>
-          <AdminPanel />
-        </ProtectedRoute>
-      }
-    />
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
 
-    {/* Fallback */}
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
-);
-
-// Splash screen + router + layout
+// ==============================
+// App with Splash + Layout
+// ==============================
 const AppWithAuth = () => {
   const { loading } = useAuth();
   const [splashVisible, setSplashVisible] = useState(true);
@@ -211,10 +222,12 @@ const AppWithAuth = () => {
     const splashTimer = setTimeout(() => {
       setSplashVisible(false);
     }, 5000);
+
     return () => clearTimeout(splashTimer);
   }, []);
 
   if (loading || splashVisible) {
+    console.log('Splash or loading active');
     return <SplashScreen onFinish={() => setSplashVisible(false)} />;
   }
 
@@ -230,7 +243,9 @@ const AppWithAuth = () => {
   );
 };
 
-// ✅ FINAL APP WRAPPED PROPERLY
+// ==============================
+// Final App Component
+// ==============================
 function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>

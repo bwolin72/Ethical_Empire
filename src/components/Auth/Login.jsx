@@ -16,27 +16,24 @@ const Login = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const navigate = useNavigate();
-  const { login, user } = useAuth(); // Auth context
+  const { login, user } = useAuth();
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
-  // Role-based redirection helper
   const redirectByRole = useCallback((role) => {
-    const routeMap = {
+    const routes = {
       admin: '/admin',
       worker: '/worker',
       user: '/user',
     };
-    navigate(routeMap[role] || '/user', { replace: true });
+    navigate(routes[role] || '/user', { replace: true });
   }, [navigate]);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user?.role) {
       redirectByRole(user.role);
     }
   }, [user, redirectByRole]);
 
-  // Load dark mode preference
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
@@ -77,7 +74,6 @@ const Login = () => {
     const refresh = tokens?.refresh;
 
     if (!access || !refresh || !user) {
-      console.error('Missing login data:', { access, refresh, user });
       setError('Login failed. Invalid response from server.');
       return;
     }
@@ -136,7 +132,6 @@ const Login = () => {
         handleLoginSuccess(data);
       }
     } catch (err) {
-      console.error('Google login error:', err);
       setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
@@ -147,8 +142,11 @@ const Login = () => {
     <GoogleOAuthProvider clientId={clientId}>
       <div className="login-container">
         <div className="login-box">
-          <img src={logo} alt="App Logo" className="login-logo" />
-          <h2>Login</h2>
+          <img src={logo} alt="Logo" className="login-logo" />
+          <h2>MyCompany Portal</h2>
+          <p style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+            Secure login for employees and administrators.
+          </p>
 
           <label className="dark-toggle">
             <input
@@ -190,11 +188,14 @@ const Login = () => {
                 type="button"
                 className="show-password"
                 onClick={() => setShowPassword((prev) => !prev)}
+                tabIndex={-1}
               >
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
+            {formErrors.password && (
+              <small className="input-feedback">{formErrors.password}</small>
+            )}
 
             <Link to="/forgot-password" className="forgot-link">
               Forgot Password?
