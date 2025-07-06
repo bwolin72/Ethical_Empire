@@ -1,9 +1,8 @@
 import axios from 'axios';
 import baseURL from './baseURL';
-import { getGlobalLogout } from '../components/context/AuthContext';
 import { applyCommonRequestHeaders, devLog } from './axiosCommon';
+import { logoutHelper } from '../utils/authUtils'; // ✅ Replace useContext with this
 
-// Retry options
 const MAX_RETRIES = 2;
 
 const axiosInstance = axios.create({
@@ -53,8 +52,7 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Token ${newToken}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        const logout = getGlobalLogout();
-        if (logout) logout();
+        logoutHelper(); // 🔁 Use logoutHelper instead of React hook
         return Promise.reject(refreshError);
       }
     }
@@ -73,8 +71,7 @@ axiosInstance.interceptors.response.use(
 
     // Final fallback
     if (status === 401) {
-      const logout = getGlobalLogout();
-      if (logout) logout();
+      logoutHelper(); // 🔁 Consistent logout
     }
 
     devLog('[Private Response Error]', status, originalRequest?.url, error);
