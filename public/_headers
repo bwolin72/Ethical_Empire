@@ -1,7 +1,6 @@
-/* 
-  Prevent caching of critical auth-related pages 
-  (login, register, user, admin, etc.)
-*/
+#  Prevent caching of critical auth-related pages 
+#  (login, register, user, admin, etc.)
+
 
 /login
   Cache-Control: no-cache, no-store, must-revalidate
