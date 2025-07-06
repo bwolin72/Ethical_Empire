@@ -4,7 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
-  useNavigate, // ✅ Added missing import
+  useNavigate,
 } from 'react-router-dom';
 
 import './App.css';
@@ -105,7 +105,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { auth } = useAuth();
 
   if (!auth?.access) return <Navigate to="/login" replace />;
-  if (adminOnly && !auth?.isAdmin) return <Navigate to="/user" replace />;
+  if (adminOnly && !auth?.user?.isAdmin) return <Navigate to="/user" replace />;
 
   return children;
 };
