@@ -3,6 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+
 import axiosInstance from '../../api/axiosInstance';
 import logo from '../../assets/logo.png';
 import './Register.css';
@@ -45,7 +49,6 @@ const Register = () => {
   }, [searchParams]);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePhone = (phone) => /^0\d{9}$/.test(phone);
 
   const getPasswordStrength = (password) => {
     if (password.length < 6) return 'Weak';
@@ -70,10 +73,13 @@ const Register = () => {
     const clean = DOMPurify.sanitize(value);
 
     if (name === 'password') setPasswordStrength(getPasswordStrength(clean));
-
     setForm((prev) => ({ ...prev, [name]: clean }));
     setError('');
     setSuccess('');
+  };
+
+  const handlePhoneChange = (value) => {
+    setForm((prev) => ({ ...prev, phone: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -85,7 +91,7 @@ const Register = () => {
 
     if (!name.trim()) return setError('Full name is required.');
     if (!validateEmail(email)) return setError('Invalid email format.');
-    if (!validatePhone(phone)) return setError('Phone must start with 0 and be 10 digits.');
+    if (!phone || phone.length < 10) return setError('Enter a valid phone number.');
     if (!dob) return setError('Date of birth is required.');
     if (!gender) return setError('Gender is required.');
     if (!password) return setError('Password is required.');
@@ -185,7 +191,15 @@ const Register = () => {
 
             <input name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
             <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
-            <input name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
+
+            <PhoneInput
+              defaultCountry="GH"
+              value={form.phone}
+              onChange={handlePhoneChange}
+              placeholder="Phone number"
+              className="phone-input"
+            />
+
             <input name="dob" type="date" value={form.dob} onChange={handleChange} />
             <select name="gender" value={form.gender} onChange={handleChange}>
               <option value="">Select Gender</option>
@@ -202,13 +216,9 @@ const Register = () => {
                 value={form.password}
                 onChange={handleChange}
               />
-              <button
-                type="button"
-                className="toggle-password"
-                onClick={() => setPasswordVisible((v) => !v)}
-              >
-                {passwordVisible ? 'Hide' : 'Show'}
-              </button>
+              <span onClick={() => setPasswordVisible((v) => !v)} className="password-toggle">
+                {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </span>
             </div>
 
             <div className={`password-strength ${passwordStrength.toLowerCase()}`}>

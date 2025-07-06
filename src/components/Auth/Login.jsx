@@ -16,10 +16,16 @@ const Login = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth(); // from AuthContext
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
-  // Load dark mode preference
+  // If already logged in, redirect based on role
+  useEffect(() => {
+    if (user?.role) {
+      redirectByRole(user.role);
+    }
+  }, [user]);
+
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
@@ -51,12 +57,7 @@ const Login = () => {
   const extractErrorMessage = (err) => {
     const data = err.response?.data;
     if (typeof data === 'string') return data;
-    return (
-      data?.message ||
-      data?.detail ||
-      data?.error ||
-      'Something went wrong. Please try again.'
-    );
+    return data?.message || data?.detail || data?.error || 'Login failed. Please try again.';
   };
 
   const redirectByRole = (role) => {
@@ -65,8 +66,7 @@ const Login = () => {
       worker: '/worker',
       user: '/user',
     };
-    const route = routeMap[role] || '/user';
-    navigate(route, { replace: true });
+    navigate(routeMap[role] || '/user', { replace: true });
   };
 
   const handleLoginSuccess = (data) => {
@@ -87,12 +87,11 @@ const Login = () => {
       isAdmin: user.role === 'admin',
     };
 
-    console.log('Login Success:', userPayload);
-
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
+    localStorage.setItem('user', JSON.stringify(userPayload));
 
-    login({ access, refresh, user: userPayload });
+    login({ access, refresh, user: userPayload }); // update context
     redirectByRole(user.role);
   };
 
@@ -108,6 +107,7 @@ const Login = () => {
       setError(extractErrorMessage(err));
       localStorage.removeItem('access');
       localStorage.removeItem('refresh');
+      localStorage.removeItem('user');
       setForm((prev) => ({ ...prev, password: '' }));
     } finally {
       setLoading(false);
@@ -120,15 +120,13 @@ const Login = () => {
       const decoded = jwtDecode(credential);
       const loginData = {
         email: decoded.email,
-        password: decoded.sub, // fallback approach
+        password: decoded.sub,
       };
 
       try {
-        // Try logging in with Google credentials
         const { data } = await axiosInstance.post('/accounts/login/', loginData);
         handleLoginSuccess(data);
       } catch {
-        // If user doesn't exist, register
         const { data } = await axiosInstance.post('/accounts/google-register/', {
           email: decoded.email,
           name: decoded.name,
@@ -173,9 +171,7 @@ const Login = () => {
               disabled={loading}
               aria-invalid={!!formErrors.email}
             />
-            {formErrors.email && (
-              <small className="input-feedback">{formErrors.email}</small>
-            )}
+            {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
 
             <div className="password-input">
               <input
@@ -196,9 +192,7 @@ const Login = () => {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            {formErrors.password && (
-              <small className="input-feedback">{formErrors.password}</small>
-            )}
+            {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
 
             <Link to="/forgot-password" className="forgot-link">
               Forgot Password?
