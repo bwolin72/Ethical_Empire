@@ -1,3 +1,5 @@
+// src/components/context/AuthContext.js
+
 import React, {
   createContext,
   useContext,
@@ -24,18 +26,24 @@ export const AuthProvider = ({ children }) => {
     refresh: null,
     user: null,
   });
+
   const [loading, setLoading] = useState(true);
 
-  const logout = useCallback(() => {
+  const clearSession = () => {
     clearTimeout(refreshTimer);
     localStorage.removeItem(AUTH_KEYS.ACCESS);
     localStorage.removeItem(AUTH_KEYS.REFRESH);
     localStorage.removeItem(AUTH_KEYS.USER);
+  };
+
+  const logout = useCallback(() => {
+    clearSession();
     setAuth({ access: null, refresh: null, user: null });
+    window.location.href = '/login';
   }, []);
 
   const refreshAccessToken = useCallback(
-    async (refreshToken, scheduleFn) => {
+    async (refreshToken, reSchedule) => {
       if (!refreshToken) return logout();
 
       try {
@@ -44,6 +52,8 @@ export const AuthProvider = ({ children }) => {
         });
 
         const newAccess = data.access;
+        if (!newAccess) throw new Error('No access token returned');
+
         localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
 
         setAuth((prev) => ({
@@ -51,9 +61,9 @@ export const AuthProvider = ({ children }) => {
           access: newAccess,
         }));
 
-        scheduleFn(newAccess, refreshToken);
+        reSchedule(newAccess, refreshToken);
       } catch (err) {
-        console.error('Token refresh failed:', err);
+        console.error('Failed to refresh token:', err);
         logout();
       }
     },
@@ -64,44 +74,34 @@ export const AuthProvider = ({ children }) => {
     (accessToken, refreshToken) => {
       try {
         const decoded = jwtDecode(accessToken);
-        const expTime = decoded.exp * 1000;
+        const exp = decoded.exp * 1000;
         const now = Date.now();
-        const buffer = 60 * 1000; // refresh 1 minute before expiry
-        const timeout = expTime - now - buffer;
+        const buffer = 60 * 1000; // 1 minute early
+        const delay = exp - now - buffer;
 
-        if (timeout <= 0) {
-          console.warn('Token expired or expiring soon. Refreshing now...');
+        if (delay <= 0) {
           refreshAccessToken(refreshToken, scheduleTokenRefresh);
-          return;
+        } else {
+          clearTimeout(refreshTimer);
+          refreshTimer = setTimeout(() => {
+            refreshAccessToken(refreshToken, scheduleTokenRefresh);
+          }, delay);
         }
-
-        clearTimeout(refreshTimer);
-        refreshTimer = setTimeout(() => {
-          refreshAccessToken(refreshToken, scheduleTokenRefresh);
-        }, timeout);
       } catch (err) {
-        console.error('Error decoding token:', err);
+        console.error('Invalid access token:', err);
+        logout();
       }
     },
-    [refreshAccessToken]
+    [refreshAccessToken, logout]
   );
-
-  useEffect(() => {
-    const access = localStorage.getItem(AUTH_KEYS.ACCESS);
-    const refresh = localStorage.getItem(AUTH_KEYS.REFRESH);
-    const userRaw = localStorage.getItem(AUTH_KEYS.USER);
-    const user = userRaw ? JSON.parse(userRaw) : null;
-
-    if (access && refresh && user) {
-      setAuth({ access, refresh, user });
-      scheduleTokenRefresh(access, refresh);
-    }
-
-    setLoading(false);
-  }, [scheduleTokenRefresh]);
 
   const login = useCallback(
     ({ access, refresh, user }) => {
+      if (!access || !refresh || !user) {
+        console.error('Missing login data');
+        return logout();
+      }
+
       localStorage.setItem(AUTH_KEYS.ACCESS, access);
       localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
       localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
@@ -109,27 +109,50 @@ export const AuthProvider = ({ children }) => {
       setAuth({ access, refresh, user });
       scheduleTokenRefresh(access, refresh);
     },
-    [scheduleTokenRefresh]
+    [logout, scheduleTokenRefresh]
   );
 
   const update = useCallback(({ access, refresh, user }) => {
     setAuth((prev) => {
       const updated = { ...prev };
+
       if (access !== undefined) {
         localStorage.setItem(AUTH_KEYS.ACCESS, access);
         updated.access = access;
       }
+
       if (refresh !== undefined) {
         localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
         updated.refresh = refresh;
       }
+
       if (user !== undefined) {
         localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
         updated.user = user;
       }
+
       return updated;
     });
   }, []);
+
+  useEffect(() => {
+    const access = localStorage.getItem(AUTH_KEYS.ACCESS);
+    const refresh = localStorage.getItem(AUTH_KEYS.REFRESH);
+    const userRaw = localStorage.getItem(AUTH_KEYS.USER);
+
+    if (access && refresh && userRaw) {
+      try {
+        const user = JSON.parse(userRaw);
+        setAuth({ access, refresh, user });
+        scheduleTokenRefresh(access, refresh);
+      } catch (err) {
+        console.error('Invalid user data in storage');
+        logout();
+      }
+    }
+
+    setLoading(false);
+  }, [scheduleTokenRefresh, logout]);
 
   const isAuthenticated = !!auth.access;
 
