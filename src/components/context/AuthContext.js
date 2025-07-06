@@ -1,5 +1,4 @@
 // src/components/context/AuthContext.js
-
 import React, {
   createContext,
   useContext,
@@ -8,6 +7,7 @@ import React, {
   useCallback,
 } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 
 const AuthContext = createContext();
@@ -21,6 +21,8 @@ const AUTH_KEYS = {
 let refreshTimer = null;
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   const [auth, setAuth] = useState({
     access: null,
     refresh: null,
@@ -39,17 +41,18 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     clearSession();
     setAuth({ access: null, refresh: null, user: null });
-    window.location.href = '/login';
-  }, []);
+    navigate('/login', { replace: true });
+  }, [navigate]);
 
   const refreshAccessToken = useCallback(
     async (refreshToken, reSchedule) => {
       if (!refreshToken) return logout();
 
       try {
-        const { data } = await axiosInstance.post('/accounts/token/refresh/', {
-          refresh: refreshToken,
-        });
+        const { data } = await axiosInstance.post(
+          process.env.REACT_APP_API_REFRESH_URL,
+          { refresh: refreshToken }
+        );
 
         const newAccess = data.access;
         if (!newAccess) throw new Error('No access token returned');
@@ -76,7 +79,7 @@ export const AuthProvider = ({ children }) => {
         const decoded = jwtDecode(accessToken);
         const exp = decoded.exp * 1000;
         const now = Date.now();
-        const buffer = 60 * 1000; // 1 minute early
+        const buffer = 60 * 1000;
         const delay = exp - now - buffer;
 
         if (delay <= 0) {
@@ -140,19 +143,34 @@ export const AuthProvider = ({ children }) => {
     const refresh = localStorage.getItem(AUTH_KEYS.REFRESH);
     const userRaw = localStorage.getItem(AUTH_KEYS.USER);
 
-    if (access && refresh && userRaw) {
+    const tryInitializeSession = async () => {
+      if (!access || !refresh || !userRaw) {
+        setLoading(false);
+        return;
+      }
+
       try {
+        const decoded = jwtDecode(access);
+        const isExpired = decoded.exp * 1000 < Date.now();
+
         const user = JSON.parse(userRaw);
         setAuth({ access, refresh, user });
-        scheduleTokenRefresh(access, refresh);
-      } catch (err) {
-        console.error('Invalid user data in storage');
-        logout();
-      }
-    }
 
-    setLoading(false);
-  }, [scheduleTokenRefresh, logout]);
+        if (isExpired) {
+          await refreshAccessToken(refresh, scheduleTokenRefresh);
+        } else {
+          scheduleTokenRefresh(access, refresh);
+        }
+      } catch (err) {
+        console.error('Session load failed:', err);
+        logout();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    tryInitializeSession();
+  }, [refreshAccessToken, scheduleTokenRefresh, logout]);
 
   const isAuthenticated = !!auth.access;
 
