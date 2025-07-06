@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../../api/axiosInstance';
 
@@ -11,9 +17,6 @@ const AUTH_KEYS = {
 };
 
 let refreshTimer = null;
-let globalLogout = null; // Global logout reference
-
-export const getGlobalLogout = () => globalLogout;
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({
@@ -31,53 +34,57 @@ export const AuthProvider = ({ children }) => {
     setAuth({ access: null, refresh: null, user: null });
   }, []);
 
-  globalLogout = logout; // Allow external access to logout
+  const refreshAccessToken = useCallback(
+    async (refreshToken, scheduleFn) => {
+      if (!refreshToken) return logout();
 
-  const refreshAccessToken = useCallback(async (refreshToken) => {
-    if (!refreshToken) return logout();
+      try {
+        const { data } = await axiosInstance.post('/accounts/token/refresh/', {
+          refresh: refreshToken,
+        });
 
-    try {
-      const { data } = await axiosInstance.post('/accounts/token/refresh/', {
-        refresh: refreshToken,
-      });
+        const newAccess = data.access;
+        localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
 
-      const newAccess = data.access;
-      localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
+        setAuth((prev) => ({
+          ...prev,
+          access: newAccess,
+        }));
 
-      setAuth((prev) => ({
-        ...prev,
-        access: newAccess,
-      }));
-
-      scheduleTokenRefresh(newAccess, refreshToken);
-    } catch (err) {
-      console.error('Token refresh failed:', err);
-      logout();
-    }
-  }, [logout]);
-
-  const scheduleTokenRefresh = useCallback((accessToken, refreshToken) => {
-    try {
-      const decoded = jwtDecode(accessToken);
-      const expTime = decoded.exp * 1000;
-      const now = Date.now();
-      const buffer = 60 * 1000;
-      const timeout = expTime - now - buffer;
-
-      if (timeout <= 0) {
-        console.warn('Access token expired or expiring soon. Refreshing now...');
-        refreshAccessToken(refreshToken);
-        return;
+        scheduleFn(newAccess, refreshToken);
+      } catch (err) {
+        console.error('Token refresh failed:', err);
+        logout();
       }
+    },
+    [logout]
+  );
 
-      clearTimeout(refreshTimer);
-      refreshTimer = setTimeout(() => {
-        refreshAccessToken(refreshToken);
-      }, timeout);
-    } catch (err) {
-      console.error('Error decoding token:', err);
-    }
-  }, [refreshAccessToken]);
+  const scheduleTokenRefresh = useCallback(
+    (accessToken, refreshToken) => {
+      try {
+        const decoded = jwtDecode(accessToken);
+        const expTime = decoded.exp * 1000;
+        const now = Date.now();
+        const buffer = 60 * 1000; // refresh 1 minute before expiry
+        const timeout = expTime - now - buffer;
+
+        if (timeout <= 0) {
+          console.warn('Token expired or expiring soon. Refreshing now...');
+          refreshAccessToken(refreshToken, scheduleTokenRefresh);
+          return;
+        }
+
+        clearTimeout(refreshTimer);
+        refreshTimer = setTimeout(() => {
+          refreshAccessToken(refreshToken, scheduleTokenRefresh);
+        }, timeout);
+      } catch (err) {
+        console.error('Error decoding token:', err);
+      }
+    },
+    [refreshAccessToken]
+  );
 
   useEffect(() => {
     const access = localStorage.getItem(AUTH_KEYS.ACCESS);
@@ -93,14 +100,17 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [scheduleTokenRefresh]);
 
-  const login = useCallback(({ access, refresh, user }) => {
-    localStorage.setItem(AUTH_KEYS.ACCESS, access);
-    localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-    localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
+  const login = useCallback(
+    ({ access, refresh, user }) => {
+      localStorage.setItem(AUTH_KEYS.ACCESS, access);
+      localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+      localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
 
-    setAuth({ access, refresh, user });
-    scheduleTokenRefresh(access, refresh);
-  }, [scheduleTokenRefresh]);
+      setAuth({ access, refresh, user });
+      scheduleTokenRefresh(access, refresh);
+    },
+    [scheduleTokenRefresh]
+  );
 
   const update = useCallback(({ access, refresh, user }) => {
     setAuth((prev) => {
