@@ -186,7 +186,7 @@ const Register = () => {
             <input name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
             <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
             <input name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} />
-            <input name="dob" type="date" placeholder="Date of Birth" value={form.dob} onChange={handleChange} />
+            <input name="dob" type="date" value={form.dob} onChange={handleChange} />
             <select name="gender" value={form.gender} onChange={handleChange}>
               <option value="">Select Gender</option>
               <option value="male">Male</option>

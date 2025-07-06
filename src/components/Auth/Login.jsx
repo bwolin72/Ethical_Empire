@@ -67,14 +67,17 @@ const Login = () => {
     navigate(route, { replace: true });
   };
 
-  const handleLoginSuccess = (access, refresh, user) => {
+  const handleLoginSuccess = (data) => {
+    const access = data.tokens?.access;
+    const refresh = data.tokens?.refresh;
+    const user = data.user;
+
     if (!access || !refresh || !user) {
       console.error('Missing login data:', { access, refresh, user });
       setError('Login failed. Invalid response from server.');
       return;
     }
 
-    // Store tokens using consistent keys
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
 
@@ -99,12 +102,7 @@ const Login = () => {
     setLoading(true);
     try {
       const { data } = await axiosInstance.post('/accounts/login/', form);
-
-      const access = data.access || data.tokens?.access;
-      const refresh = data.refresh || data.tokens?.refresh;
-      const user = data.user;
-
-      handleLoginSuccess(access, refresh, user);
+      handleLoginSuccess(data);
     } catch (err) {
       setError(extractErrorMessage(err));
       localStorage.removeItem('access');
@@ -126,22 +124,13 @@ const Login = () => {
 
       try {
         const { data } = await axiosInstance.post('/accounts/login/', loginData);
-        const access = data.access || data.tokens?.access;
-        const refresh = data.refresh || data.tokens?.refresh;
-        const user = data.user;
-
-        handleLoginSuccess(access, refresh, user);
+        handleLoginSuccess(data);
       } catch {
         const { data } = await axiosInstance.post('/accounts/google-register/', {
           email: decoded.email,
           name: decoded.name,
         });
-
-        const access = data.access || data.tokens?.access;
-        const refresh = data.refresh || data.tokens?.refresh;
-        const user = data.user;
-
-        handleLoginSuccess(access, refresh, user);
+        handleLoginSuccess(data);
       }
     } catch (err) {
       setError(extractErrorMessage(err));
