@@ -1,0 +1,39 @@
+/* 
+  Prevent caching of critical auth-related pages 
+  (login, register, user, admin, etc.)
+*/
+
+# Don't cache login or other sensitive routes
+/login
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/register
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/user
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/admin
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/connect
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+# Optionally apply to reset password / edit profile
+/reset-password-confirm/*
+/edit-profile
+/update-password
+/confirm-password-change
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0

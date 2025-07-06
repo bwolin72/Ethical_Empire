@@ -57,7 +57,6 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { auth, loading } = useAuth();
 
   if (loading) return <div className="loading-screen">Loading...</div>;
-
   if (!auth?.access) return <Navigate to="/login" replace />;
   if (adminOnly && !auth?.user?.isAdmin) return <Navigate to="/user" replace />;
 
@@ -203,8 +202,9 @@ const AppRoutes = () => (
   </Routes>
 );
 
-// App Wrapper
-function App() {
+// Wrapper to delay Routes until auth is ready
+const AuthRouter = () => {
+  const { loading } = useAuth();
   const [splashVisible, setSplashVisible] = useState(true);
 
   useEffect(() => {
@@ -214,23 +214,29 @@ function App() {
     return () => clearTimeout(splashTimer);
   }, []);
 
+  if (loading || splashVisible) {
+    return <SplashScreen onFinish={() => setSplashVisible(false)} />;
+  }
+
+  return (
+    <Router>
+      <div className="App">
+        <Navbar />
+        <main>
+          <AppRoutes />
+        </main>
+        <Footer />
+        <PromotionPopup />
+      </div>
+    </Router>
+  );
+};
+
+function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <AuthProvider>
-        <Router>
-          {splashVisible ? (
-            <SplashScreen onFinish={() => setSplashVisible(false)} />
-          ) : (
-            <div className="App">
-              <Navbar />
-              <main>
-                <AppRoutes />
-              </main>
-              <Footer />
-              <PromotionPopup />
-            </div>
-          )}
-        </Router>
+        <AuthRouter />
       </AuthProvider>
     </GoogleOAuthProvider>
   );
