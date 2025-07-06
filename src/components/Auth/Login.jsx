@@ -19,6 +19,7 @@ const Login = () => {
   const { login } = useAuth();
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
+  // Load dark mode preference
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
@@ -59,18 +60,19 @@ const Login = () => {
   };
 
   const redirectByRole = (role) => {
-    const route = {
+    const routeMap = {
       admin: '/admin',
       worker: '/worker',
       user: '/user',
-    }[role] || '/user';
+    };
+    const route = routeMap[role] || '/user';
     navigate(route, { replace: true });
   };
 
   const handleLoginSuccess = (data) => {
-    const access = data.tokens?.access;
-    const refresh = data.tokens?.refresh;
-    const user = data.user;
+    const { tokens, user } = data;
+    const access = tokens?.access;
+    const refresh = tokens?.refresh;
 
     if (!access || !refresh || !user) {
       console.error('Missing login data:', { access, refresh, user });
@@ -78,20 +80,19 @@ const Login = () => {
       return;
     }
 
+    const userPayload = {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isAdmin: user.role === 'admin',
+    };
+
+    console.log('Login Success:', userPayload);
+
     localStorage.setItem('access', access);
     localStorage.setItem('refresh', refresh);
 
-    login({
-      access,
-      refresh,
-      user: {
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        isAdmin: user.role === 'admin',
-      },
-    });
-
+    login({ access, refresh, user: userPayload });
     redirectByRole(user.role);
   };
 
@@ -119,13 +120,15 @@ const Login = () => {
       const decoded = jwtDecode(credential);
       const loginData = {
         email: decoded.email,
-        password: decoded.sub,
+        password: decoded.sub, // fallback approach
       };
 
       try {
+        // Try logging in with Google credentials
         const { data } = await axiosInstance.post('/accounts/login/', loginData);
         handleLoginSuccess(data);
       } catch {
+        // If user doesn't exist, register
         const { data } = await axiosInstance.post('/accounts/google-register/', {
           email: decoded.email,
           name: decoded.name,
@@ -133,6 +136,7 @@ const Login = () => {
         handleLoginSuccess(data);
       }
     } catch (err) {
+      console.error('Google login error:', err);
       setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
@@ -169,7 +173,9 @@ const Login = () => {
               disabled={loading}
               aria-invalid={!!formErrors.email}
             />
-            {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
+            {formErrors.email && (
+              <small className="input-feedback">{formErrors.email}</small>
+            )}
 
             <div className="password-input">
               <input
@@ -190,9 +196,13 @@ const Login = () => {
                 {showPassword ? 'Hide' : 'Show'}
               </button>
             </div>
-            {formErrors.password && <small className="input-feedback">{formErrors.password}</small>}
+            {formErrors.password && (
+              <small className="input-feedback">{formErrors.password}</small>
+            )}
 
-            <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
+            <Link to="/forgot-password" className="forgot-link">
+              Forgot Password?
+            </Link>
 
             <button type="submit" className="login-button" disabled={loading}>
               {loading ? 'Logging in…' : 'Login'}

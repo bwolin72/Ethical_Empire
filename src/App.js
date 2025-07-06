@@ -9,18 +9,19 @@ import {
 
 import './App.css';
 
-// Core Layout Components
+// Layout & UI
 import Navbar from './components/navbar/Navbar';
 import Footer from './components/footer/Footer';
 import SplashScreen from './components/ui/SplashScreen';
+import PromotionPopup from './components/home/PromotionPopup';
 
-// Home & Static
+// Pages - Home & Static
 import EethmHome from './components/home/EethmHome';
 import About from './components/home/About';
 import Services from './components/home/Services';
 import ContactForm from './components/Queries/ContactForm';
 
-// Auth & Profile
+// Pages - Auth & Profile
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import ForgotPassword from './components/Auth/ForgotPassword';
@@ -31,29 +32,39 @@ import UpdatePassword from './components/user/UpdatePassword';
 import ConfirmPasswordChange from './components/user/ConfirmPasswordChange';
 import AccountProfile from './components/user/AccountProfile';
 
-// Dashboard & Forms
+// Pages - Dashboard & Forms
 import AdminPanel from './components/AdminDashboard/AdminPanel';
 import UserPage from './components/user/UserPage';
 import BookingForm from './components/Queries/BookingForm';
 import NewsletterSignup from './components/user/NewsLetterSignup';
 import Unsubscribe from './components/user/UnsubscribePage';
 
-// Service Pages
+// Pages - Services
 import LiveBandServicePage from './components/services/LiveBandServicePage';
 import CateringServicePage from './components/services/CateringServicePage';
 import DecorServicePage from './components/services/DecorServicePage';
 import MediaHostingServicePage from './components/services/MediaHostingServicePage';
 
-// Context & Axios
+// Context & Auth
 import { AuthProvider, useAuth } from './components/context/AuthContext';
 import axiosCommon from './api/axiosCommon';
 
-// Google OAuth Provider
+// Google OAuth
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
-// Promotion Popup
-import PromotionPopup from './components/home/PromotionPopup';
+// Route Guard
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { auth, loading } = useAuth();
 
+  if (loading) return <div className="loading-screen">Loading...</div>;
+
+  if (!auth?.access) return <Navigate to="/login" replace />;
+  if (adminOnly && !auth?.user?.isAdmin) return <Navigate to="/user" replace />;
+
+  return children;
+};
+
+// Homepage wrapper with booking logic
 const EethmHomePage = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
@@ -78,6 +89,7 @@ const EethmHomePage = () => {
   );
 };
 
+// Redirect to user or admin dashboard
 const ConnectRedirect = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -101,34 +113,11 @@ const ConnectRedirect = () => {
   return null;
 };
 
-const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const { auth } = useAuth();
-
-  if (!auth?.access) return <Navigate to="/login" replace />;
-  if (adminOnly && !auth?.user?.isAdmin) return <Navigate to="/user" replace />;
-
-  return children;
-};
-
+// Routes
 const AppRoutes = () => (
   <Routes>
+    {/* Public */}
     <Route path="/" element={<EethmHomePage />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/verify-otp" element={<VerifyOTP />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
-
-    {/* Protected Routes */}
-    <Route path="/user" element={<ProtectedRoute><UserPage /></ProtectedRoute>} />
-    <Route path="/account" element={<ProtectedRoute><AccountProfile /></ProtectedRoute>} />
-    <Route path="/bookings" element={<ProtectedRoute><BookingForm /></ProtectedRoute>} />
-    <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
-    <Route path="/update-password" element={<ProtectedRoute><UpdatePassword /></ProtectedRoute>} />
-    <Route path="/confirm-password-change" element={<ProtectedRoute><ConfirmPasswordChange /></ProtectedRoute>} />
-    <Route path="/admin" element={<ProtectedRoute adminOnly={true}><AdminPanel /></ProtectedRoute>} />
-
-    {/* Static Pages */}
     <Route path="/about" element={<About />} />
     <Route path="/services" element={<Services />} />
     <Route path="/contact" element={<ContactForm />} />
@@ -138,11 +127,83 @@ const AppRoutes = () => (
     <Route path="/services/media-hosting" element={<MediaHostingServicePage />} />
     <Route path="/newsletter" element={<NewsletterSignup />} />
     <Route path="/unsubscribe" element={<Unsubscribe />} />
+
+    {/* Auth */}
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+    <Route path="/verify-otp" element={<VerifyOTP />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
+
+    {/* Auth Redirect */}
     <Route path="/connect" element={<ConnectRedirect />} />
+
+    {/* Protected: User */}
+    <Route
+      path="/user"
+      element={
+        <ProtectedRoute>
+          <UserPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/account"
+      element={
+        <ProtectedRoute>
+          <AccountProfile />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/bookings"
+      element={
+        <ProtectedRoute>
+          <BookingForm />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/edit-profile"
+      element={
+        <ProtectedRoute>
+          <EditProfile />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/update-password"
+      element={
+        <ProtectedRoute>
+          <UpdatePassword />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/confirm-password-change"
+      element={
+        <ProtectedRoute>
+          <ConfirmPasswordChange />
+        </ProtectedRoute>
+      }
+    />
+
+    {/* Protected: Admin */}
+    <Route
+      path="/admin"
+      element={
+        <ProtectedRoute adminOnly>
+          <AdminPanel />
+        </ProtectedRoute>
+      }
+    />
+
+    {/* Fallback */}
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
 );
 
+// App Wrapper
 function App() {
   const [splashVisible, setSplashVisible] = useState(true);
 
