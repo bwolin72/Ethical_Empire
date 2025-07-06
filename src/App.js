@@ -202,8 +202,8 @@ const AppRoutes = () => (
   </Routes>
 );
 
-// Wrapper to delay Routes until auth is ready
-const AuthRouter = () => {
+// Splash screen + router + layout
+const AppWithAuth = () => {
   const { loading } = useAuth();
   const [splashVisible, setSplashVisible] = useState(true);
 
@@ -219,25 +219,26 @@ const AuthRouter = () => {
   }
 
   return (
-    <Router>
-      <div className="App">
-        <Navbar />
-        <main>
-          <AppRoutes />
-        </main>
-        <Footer />
-        <PromotionPopup />
-      </div>
-    </Router>
+    <div className="App">
+      <Navbar />
+      <main>
+        <AppRoutes />
+      </main>
+      <Footer />
+      <PromotionPopup />
+    </div>
   );
 };
 
+// ✅ FINAL APP WRAPPED PROPERLY
 function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-      <AuthProvider>
-        <AuthRouter />
-      </AuthProvider>
+      <Router>
+        <AuthProvider>
+          <AppWithAuth />
+        </AuthProvider>
+      </Router>
     </GoogleOAuthProvider>
   );
 }
