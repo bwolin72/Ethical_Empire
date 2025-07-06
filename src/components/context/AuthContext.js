@@ -23,12 +23,10 @@ export const AuthProvider = ({ children }) => {
       : { access: null, refresh: null, user: null };
   });
 
-  const login = ({ access, refresh, username, isAdmin }) => {
-    if (!access || !refresh || !username) {
+  const login = ({ access, refresh, user }) => {
+    if (!access || !refresh || !user) {
       throw new Error('Login failed: Missing access, refresh token, or user.');
     }
-
-    const user = { name: username, isAdmin };
 
     localStorage.setItem(AUTH_KEYS.ACCESS, access);
     localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
