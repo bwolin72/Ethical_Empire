@@ -75,14 +75,18 @@ const Login = () => {
     }
 
     // Store tokens using consistent keys
-    localStorage.setItem('token', access);         // Used by axiosCommon.js
-    localStorage.setItem('refresh_token', refresh); // Used by axiosInstance.js
+    localStorage.setItem('access', access);
+    localStorage.setItem('refresh', refresh);
 
     login({
       access,
       refresh,
-      username: user.name,
-      isAdmin: user.role === 'admin',
+      user: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isAdmin: user.role === 'admin',
+      },
     });
 
     redirectByRole(user.role);
@@ -103,8 +107,8 @@ const Login = () => {
       handleLoginSuccess(access, refresh, user);
     } catch (err) {
       setError(extractErrorMessage(err));
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('access');
+      localStorage.removeItem('refresh');
       setForm((prev) => ({ ...prev, password: '' }));
     } finally {
       setLoading(false);
