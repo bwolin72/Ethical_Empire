@@ -18,7 +18,7 @@ const Register = () => {
   const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({
-    name: '',
+    full_name: '',
     email: '',
     phone: '',
     dob: '',
@@ -87,9 +87,9 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    const { name, email, phone, dob, gender, password, password2, accessCode } = form;
+    const { full_name, email, phone, dob, gender, password, password2, accessCode } = form;
 
-    if (!name.trim()) return setError('Full name is required.');
+    if (!full_name.trim()) return setError('Full name is required.');
     if (!validateEmail(email)) return setError('Invalid email format.');
     if (!phone || phone.length < 10) return setError('Enter a valid phone number.');
     if (!dob) return setError('Date of birth is required.');
@@ -99,7 +99,7 @@ const Register = () => {
     if (isInternal && !accessCode.trim()) return setError('Access code is required.');
 
     const payload = {
-      name,
+      full_name,
       email,
       phone,
       dob,
@@ -133,7 +133,7 @@ const Register = () => {
 
       await axiosInstance.post('/accounts/google-register/', {
         email,
-        name,
+        full_name: name, // ✅ FIXED: Backend expects `full_name`
       });
 
       setSuccess('Google registration successful! Redirecting...');
@@ -191,10 +191,9 @@ const Register = () => {
                 onChange={handleChange}
               />
             )}
-            <input name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
+            <input name="full_name" placeholder="Full Name" value={form.full_name} onChange={handleChange} />
             <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
 
-            {/* Grouped Phone and DOB */}
             <div className="phone-dob-box" style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ flex: 1 }}>
                 <PhoneInput
@@ -223,7 +222,6 @@ const Register = () => {
               <option value="other">Other</option>
             </select>
 
-            {/* Password field with toggle */}
             <div className="password-field">
               <input
                 name="password"
@@ -241,7 +239,6 @@ const Register = () => {
               Password Strength: {passwordStrength}
             </div>
 
-            {/* Confirm password uses same visibility toggle */}
             <div className="password-field">
               <input
                 name="password2"

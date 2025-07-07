@@ -14,6 +14,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [hasRedirected, setHasRedirected] = useState(false); // 👈 New state
 
   const navigate = useNavigate();
   const { login, auth } = useAuth();
@@ -30,16 +31,17 @@ const Login = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (user?.role) {
-      redirectByRole(user.role);
-    }
-  }, [user, redirectByRole]);
-
-  useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
     document.body.classList.toggle('dark-mode', savedDark);
   }, []);
+
+  useEffect(() => {
+    if (user?.role && !hasRedirected) {
+      redirectByRole(user.role);
+      setHasRedirected(true); // ✅ Prevents re-triggering
+    }
+  }, [user, redirectByRole, hasRedirected]);
 
   const toggleDarkMode = () => {
     const updated = !darkMode;

@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -18,10 +19,9 @@ const AUTH_KEYS = {
   USER: 'user',
 };
 
-let refreshTimer = null;
-
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
+  const refreshTimer = useRef(null);
 
   const [auth, setAuth] = useState({
     access: null,
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const clearSession = () => {
-    clearTimeout(refreshTimer);
+    clearTimeout(refreshTimer.current);
     localStorage.removeItem(AUTH_KEYS.ACCESS);
     localStorage.removeItem(AUTH_KEYS.REFRESH);
     localStorage.removeItem(AUTH_KEYS.USER);
@@ -44,96 +44,76 @@ export const AuthProvider = ({ children }) => {
     navigate('/login', { replace: true });
   }, [navigate]);
 
-  const refreshAccessToken = useCallback(
-    async (refreshToken, reSchedule) => {
-      if (!refreshToken) return logout();
+  const scheduleTokenRefresh = useCallback((accessToken, refreshToken) => {
+    try {
+      const decoded = jwtDecode(accessToken);
+      const exp = decoded.exp * 1000;
+      const now = Date.now();
+      const buffer = 60 * 1000;
+      const delay = exp - now - buffer;
 
-      try {
-        const { data } = await axiosInstance.post(
-          process.env.REACT_APP_API_REFRESH_URL,
-          { refresh: refreshToken }
-        );
-
-        const newAccess = data.access;
-        if (!newAccess) throw new Error('No access token returned');
-
-        localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
-
-        setAuth((prev) => ({
-          ...prev,
-          access: newAccess,
-        }));
-
-        reSchedule(newAccess, refreshToken);
-      } catch (err) {
-        console.error('Failed to refresh token:', err);
-        logout();
+      if (delay <= 0) {
+        refreshAccessToken(refreshToken);
+      } else {
+        clearTimeout(refreshTimer.current);
+        refreshTimer.current = setTimeout(() => {
+          refreshAccessToken(refreshToken);
+        }, delay);
       }
-    },
-    [logout]
-  );
+    } catch (err) {
+      console.error('Token scheduling failed:', err);
+      logout();
+    }
+  }, [logout]);
 
-  const scheduleTokenRefresh = useCallback(
-    (accessToken, refreshToken) => {
-      try {
-        const decoded = jwtDecode(accessToken);
-        const exp = decoded.exp * 1000;
-        const now = Date.now();
-        const buffer = 60 * 1000;
-        const delay = exp - now - buffer;
+  const refreshAccessToken = useCallback(async (refreshToken) => {
+    if (!refreshToken) return logout();
 
-        if (delay <= 0) {
-          refreshAccessToken(refreshToken, scheduleTokenRefresh);
-        } else {
-          clearTimeout(refreshTimer);
-          refreshTimer = setTimeout(() => {
-            refreshAccessToken(refreshToken, scheduleTokenRefresh);
-          }, delay);
-        }
-      } catch (err) {
-        console.error('Invalid access token:', err);
-        logout();
-      }
-    },
-    [refreshAccessToken, logout]
-  );
+    try {
+      const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
+      const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
+      const newAccess = data.access;
 
-  const login = useCallback(
-    ({ access, refresh, user }) => {
-      if (!access || !refresh || !user) {
-        console.error('Missing login data');
-        return logout();
-      }
+      if (!newAccess) throw new Error('No access token returned');
 
-      localStorage.setItem(AUTH_KEYS.ACCESS, access);
-      localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-      localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
+      localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
+      setAuth(prev => ({ ...prev, access: newAccess }));
+      scheduleTokenRefresh(newAccess, refreshToken);
+    } catch (err) {
+      console.error('Failed to refresh token:', err);
+      logout();
+    }
+  }, [logout, scheduleTokenRefresh]);
 
-      setAuth({ access, refresh, user });
-      scheduleTokenRefresh(access, refresh);
-    },
-    [logout, scheduleTokenRefresh]
-  );
+  const login = useCallback(({ access, refresh, user }) => {
+    if (!access || !refresh || !user) {
+      console.error('Login data incomplete');
+      return logout();
+    }
+
+    localStorage.setItem(AUTH_KEYS.ACCESS, access);
+    localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+    localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
+
+    setAuth({ access, refresh, user });
+    scheduleTokenRefresh(access, refresh);
+  }, [logout, scheduleTokenRefresh]);
 
   const update = useCallback(({ access, refresh, user }) => {
-    setAuth((prev) => {
+    setAuth(prev => {
       const updated = { ...prev };
-
       if (access !== undefined) {
         localStorage.setItem(AUTH_KEYS.ACCESS, access);
         updated.access = access;
       }
-
       if (refresh !== undefined) {
         localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
         updated.refresh = refresh;
       }
-
       if (user !== undefined) {
         localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
         updated.user = user;
       }
-
       return updated;
     });
   }, []);
@@ -152,17 +132,17 @@ export const AuthProvider = ({ children }) => {
       try {
         const decoded = jwtDecode(access);
         const isExpired = decoded.exp * 1000 < Date.now();
-
         const user = JSON.parse(userRaw);
+
         setAuth({ access, refresh, user });
 
         if (isExpired) {
-          await refreshAccessToken(refresh, scheduleTokenRefresh);
+          await refreshAccessToken(refresh);
         } else {
           scheduleTokenRefresh(access, refresh);
         }
       } catch (err) {
-        console.error('Session load failed:', err);
+        console.error('Session initialization failed:', err);
         logout();
       } finally {
         setLoading(false);
@@ -172,19 +152,10 @@ export const AuthProvider = ({ children }) => {
     tryInitializeSession();
   }, [refreshAccessToken, scheduleTokenRefresh, logout]);
 
-  const isAuthenticated = !!auth.access;
+  const isAuthenticated = !!auth?.access && !!auth?.user;
 
   return (
-    <AuthContext.Provider
-      value={{
-        auth,
-        login,
-        logout,
-        update,
-        isAuthenticated,
-        loading,
-      }}
-    >
+    <AuthContext.Provider value={{ auth, login, logout, update, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   );
