@@ -1,4 +1,3 @@
-// src/components/context/AuthContext.js
 import React, {
   createContext,
   useContext,
@@ -44,6 +43,25 @@ export const AuthProvider = ({ children }) => {
     navigate('/login', { replace: true });
   }, [navigate]);
 
+  const refreshAccessToken = useCallback(async (refreshToken) => {
+    if (!refreshToken) return logout();
+
+    try {
+      const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
+      const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
+      const newAccess = data.access;
+
+      if (!newAccess) throw new Error('No access token returned');
+
+      localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
+      setAuth(prev => ({ ...prev, access: newAccess }));
+      scheduleTokenRefresh(newAccess, refreshToken);
+    } catch (err) {
+      console.error('Failed to refresh token:', err);
+      logout();
+    }
+  }, [logout]); // ✅ removed scheduleTokenRefresh from here to avoid circular dependency
+
   const scheduleTokenRefresh = useCallback((accessToken, refreshToken) => {
     try {
       const decoded = jwtDecode(accessToken);
@@ -64,26 +82,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Token scheduling failed:', err);
       logout();
     }
-  }, [logout]);
-
-  const refreshAccessToken = useCallback(async (refreshToken) => {
-    if (!refreshToken) return logout();
-
-    try {
-      const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
-      const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
-      const newAccess = data.access;
-
-      if (!newAccess) throw new Error('No access token returned');
-
-      localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
-      setAuth(prev => ({ ...prev, access: newAccess }));
-      scheduleTokenRefresh(newAccess, refreshToken);
-    } catch (err) {
-      console.error('Failed to refresh token:', err);
-      logout();
-    }
-  }, [logout, scheduleTokenRefresh]);
+  }, [logout, refreshAccessToken]); // ✅ added refreshAccessToken here
 
   const login = useCallback(({ access, refresh, user }) => {
     if (!access || !refresh || !user) {
