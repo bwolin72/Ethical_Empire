@@ -85,7 +85,7 @@ body.dark .phone-prefix {
   border-color: #555;
 }
 
-/* Password field with toggle */
+/* Password field with toggle (used for both password and confirm password) */
 .password-field {
   position: relative;
 }
@@ -103,8 +103,10 @@ body.dark .phone-prefix {
   background: none;
   border: none;
   color: #0077ff;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 /* Password strength indicator */
@@ -226,8 +228,7 @@ body.dark .phone-prefix {
   }
 
   .toggle-password {
-    font-size: 0.75rem;
-    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
   }
 
   .dark-toggle {

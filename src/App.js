@@ -49,21 +49,11 @@ import MediaHostingServicePage from './components/services/MediaHostingServicePa
 import { AuthProvider, useAuth } from './components/context/AuthContext';
 import axiosCommon from './api/axiosCommon';
 
+// Route Guard
+import ProtectedRoute from './components/routing/ProtectedRoute';
+
 // Google OAuth
 import { GoogleOAuthProvider } from '@react-oauth/google';
-
-// ==============================
-// Route Guard
-// ==============================
-const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const { auth, loading } = useAuth();
-
-  if (loading) return <div className="loading-screen">Loading...</div>;
-  if (!auth?.access) return <Navigate to="/login" replace />;
-  if (adminOnly && !auth?.user?.isAdmin) return <Navigate to="/user" replace />;
-
-  return children;
-};
 
 // ==============================
 // Homepage with booking button
@@ -122,7 +112,6 @@ const ConnectRedirect = () => {
 // App Routes
 // ==============================
 const AppRoutes = () => {
-  console.log('Rendering AppRoutes');
   return (
     <Routes>
       {/* Public Routes */}
@@ -143,67 +132,22 @@ const AppRoutes = () => {
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
-
-      {/* Auth Redirect */}
       <Route path="/connect" element={<ConnectRedirect />} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/user"
-        element={
-          <ProtectedRoute>
-            <UserPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/account"
-        element={
-          <ProtectedRoute>
-            <AccountProfile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/bookings"
-        element={
-          <ProtectedRoute>
-            <BookingForm />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/edit-profile"
-        element={
-          <ProtectedRoute>
-            <EditProfile />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/update-password"
-        element={
-          <ProtectedRoute>
-            <UpdatePassword />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/confirm-password-change"
-        element={
-          <ProtectedRoute>
-            <ConfirmPasswordChange />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute adminOnly>
-            <AdminPanel />
-          </ProtectedRoute>
-        }
-      />
+      {/* Protected User Routes */}
+      <Route element={<ProtectedRoute roles={['user', 'admin']} />}>
+        <Route path="/user" element={<UserPage />} />
+        <Route path="/account" element={<AccountProfile />} />
+        <Route path="/bookings" element={<BookingForm />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
+        <Route path="/update-password" element={<UpdatePassword />} />
+        <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
+      </Route>
+
+      {/* Protected Admin Route */}
+      <Route element={<ProtectedRoute roles={['admin']} />}>
+        <Route path="/admin" element={<AdminPanel />} />
+      </Route>
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
@@ -227,7 +171,6 @@ const AppWithAuth = () => {
   }, []);
 
   if (loading || splashVisible) {
-    console.log('Splash or loading active');
     return <SplashScreen onFinish={() => setSplashVisible(false)} />;
   }
 

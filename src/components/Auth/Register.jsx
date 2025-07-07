@@ -39,7 +39,7 @@ const Register = () => {
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
-    document.body.classList.toggle('dark-mode', savedDark);
+    document.body.classList.toggle('dark', savedDark);
 
     const urlCode = searchParams.get('code');
     if (urlCode) {
@@ -148,7 +148,7 @@ const Register = () => {
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
-    document.body.classList.toggle('dark-mode', updated);
+    document.body.classList.toggle('dark', updated);
     localStorage.setItem('darkMode', updated);
   };
 
@@ -160,8 +160,11 @@ const Register = () => {
             <img src={logo} alt="Logo" />
             <span>Ethical Multimedia GH</span>
           </div>
+          <p style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>
+            Join the Ethical Multimedia GH platform. Empower your creative journey with ethical tech.
+          </p>
 
-          <div className="top-controls">
+          <div className="top-controls" style={{ display: 'flex', justifyContent: 'space-between' }}>
             <button className="dark-toggle" onClick={toggleDarkMode}>
               {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
             </button>
@@ -188,19 +191,31 @@ const Register = () => {
                 onChange={handleChange}
               />
             )}
-
             <input name="name" placeholder="Full Name" value={form.name} onChange={handleChange} />
             <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
 
-            <PhoneInput
-              defaultCountry="GH"
-              value={form.phone}
-              onChange={handlePhoneChange}
-              placeholder="Phone number"
-              className="phone-input"
-            />
+            {/* Grouped Phone and DOB */}
+            <div className="phone-dob-box" style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ flex: 1 }}>
+                <PhoneInput
+                  defaultCountry="GH"
+                  value={form.phone}
+                  onChange={handlePhoneChange}
+                  placeholder="Phone number"
+                  className="phone-input"
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <input
+                  name="dob"
+                  type="date"
+                  value={form.dob}
+                  onChange={handleChange}
+                  placeholder="Date of Birth"
+                />
+              </div>
+            </div>
 
-            <input name="dob" type="date" value={form.dob} onChange={handleChange} />
             <select name="gender" value={form.gender} onChange={handleChange}>
               <option value="">Select Gender</option>
               <option value="male">Male</option>
@@ -208,6 +223,7 @@ const Register = () => {
               <option value="other">Other</option>
             </select>
 
+            {/* Password field with toggle */}
             <div className="password-field">
               <input
                 name="password"
@@ -216,7 +232,7 @@ const Register = () => {
                 value={form.password}
                 onChange={handleChange}
               />
-              <span onClick={() => setPasswordVisible((v) => !v)} className="password-toggle">
+              <span onClick={() => setPasswordVisible((v) => !v)} className="toggle-password">
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
               </span>
             </div>
@@ -225,13 +241,19 @@ const Register = () => {
               Password Strength: {passwordStrength}
             </div>
 
-            <input
-              name="password2"
-              type={passwordVisible ? 'text' : 'password'}
-              placeholder="Confirm Password"
-              value={form.password2}
-              onChange={handleChange}
-            />
+            {/* Confirm password uses same visibility toggle */}
+            <div className="password-field">
+              <input
+                name="password2"
+                type={passwordVisible ? 'text' : 'password'}
+                placeholder="Confirm Password"
+                value={form.password2}
+                onChange={handleChange}
+              />
+              <span onClick={() => setPasswordVisible((v) => !v)} className="toggle-password">
+                {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </span>
+            </div>
 
             <button type="submit" className="register-button" disabled={loading}>
               {loading ? 'Registering…' : 'Register'}

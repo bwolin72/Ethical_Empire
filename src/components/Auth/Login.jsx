@@ -16,7 +16,8 @@ const Login = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const navigate = useNavigate();
-  const { login, user } = useAuth();
+  const { login, auth } = useAuth();
+  const user = auth?.user;
   const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
   const redirectByRole = useCallback((role) => {
@@ -188,9 +189,9 @@ const Login = () => {
                 type="button"
                 className="show-password"
                 onClick={() => setShowPassword((prev) => !prev)}
-                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? 'Hide' : 'Show'}
+                {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
             {formErrors.password && (
