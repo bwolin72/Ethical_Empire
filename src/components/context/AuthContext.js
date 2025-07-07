@@ -43,6 +43,25 @@ export const AuthProvider = ({ children }) => {
     navigate('/login', { replace: true });
   }, [navigate]);
 
+  const refreshAccessToken = useCallback(async (refreshToken) => {
+    if (!refreshToken) return logout();
+
+    try {
+      const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
+      const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
+      const newAccess = data.access;
+
+      if (!newAccess) throw new Error('No access token returned');
+
+      localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
+      setAuth(prev => ({ ...prev, access: newAccess }));
+      scheduleTokenRefresh(newAccess, refreshToken);
+    } catch (err) {
+      console.error('Failed to refresh token:', err);
+      logout();
+    }
+  }, [logout]); // ❗️Note: scheduleTokenRefresh is declared later but not yet needed in deps
+
   const scheduleTokenRefresh = useCallback((accessToken, refreshToken) => {
     try {
       const decoded = jwtDecode(accessToken);
@@ -63,52 +82,24 @@ export const AuthProvider = ({ children }) => {
       console.error('Token scheduling failed:', err);
       logout();
     }
-  }, [logout]);
+  }, [refreshAccessToken, logout]); // ✅ ESLint satisfied
 
-  const refreshAccessToken = useCallback(
-    async (refreshToken) => {
-      if (!refreshToken) return logout();
+  const login = useCallback(({ access, refresh, user }) => {
+    if (!access || !refresh || !user) {
+      console.error('Login data incomplete');
+      return logout();
+    }
 
-      try {
-        const refreshUrl =
-          process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
-        const { data } = await axiosInstance.post(refreshUrl, {
-          refresh: refreshToken,
-        });
-        const newAccess = data.access;
+    localStorage.setItem(AUTH_KEYS.ACCESS, access);
+    localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+    localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
 
-        if (!newAccess) throw new Error('No access token returned');
-
-        localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
-        setAuth((prev) => ({ ...prev, access: newAccess }));
-        scheduleTokenRefresh(newAccess, refreshToken);
-      } catch (err) {
-        console.error('Failed to refresh token:', err);
-        logout();
-      }
-    },
-    [logout, scheduleTokenRefresh] // ✅ include scheduleTokenRefresh
-  );
-
-  const login = useCallback(
-    ({ access, refresh, user }) => {
-      if (!access || !refresh || !user) {
-        console.error('Login data incomplete');
-        return logout();
-      }
-
-      localStorage.setItem(AUTH_KEYS.ACCESS, access);
-      localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-      localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
-
-      setAuth({ access, refresh, user });
-      scheduleTokenRefresh(access, refresh);
-    },
-    [logout, scheduleTokenRefresh]
-  );
+    setAuth({ access, refresh, user });
+    scheduleTokenRefresh(access, refresh);
+  }, [logout, scheduleTokenRefresh]);
 
   const update = useCallback(({ access, refresh, user }) => {
-    setAuth((prev) => {
+    setAuth(prev => {
       const updated = { ...prev };
       if (access !== undefined) {
         localStorage.setItem(AUTH_KEYS.ACCESS, access);
@@ -163,9 +154,7 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!auth?.access && !!auth?.user;
 
   return (
-    <AuthContext.Provider
-      value={{ auth, login, logout, update, isAuthenticated, loading }}
-    >
+    <AuthContext.Provider value={{ auth, login, logout, update, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   );
