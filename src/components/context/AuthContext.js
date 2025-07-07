@@ -21,6 +21,7 @@ const AUTH_KEYS = {
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const refreshTimer = useRef(null);
+  const refreshAccessTokenRef = useRef(null); // <-- magic fix here
 
   const [auth, setAuth] = useState({
     access: null,
@@ -43,6 +44,28 @@ export const AuthProvider = ({ children }) => {
     navigate('/login', { replace: true });
   }, [navigate]);
 
+  const scheduleTokenRefresh = useCallback((accessToken, refreshToken) => {
+    try {
+      const decoded = jwtDecode(accessToken);
+      const exp = decoded.exp * 1000;
+      const now = Date.now();
+      const buffer = 60 * 1000;
+      const delay = exp - now - buffer;
+
+      if (delay <= 0) {
+        refreshAccessTokenRef.current?.(refreshToken);
+      } else {
+        clearTimeout(refreshTimer.current);
+        refreshTimer.current = setTimeout(() => {
+          refreshAccessTokenRef.current?.(refreshToken);
+        }, delay);
+      }
+    } catch (err) {
+      console.error('Token scheduling failed:', err);
+      logout();
+    }
+  }, [logout]);
+
   const refreshAccessToken = useCallback(async (refreshToken) => {
     if (!refreshToken) return logout();
 
@@ -60,29 +83,10 @@ export const AuthProvider = ({ children }) => {
       console.error('Failed to refresh token:', err);
       logout();
     }
-  }, [logout]); // ❗️Note: scheduleTokenRefresh is declared later but not yet needed in deps
+  }, [logout, scheduleTokenRefresh]);
 
-  const scheduleTokenRefresh = useCallback((accessToken, refreshToken) => {
-    try {
-      const decoded = jwtDecode(accessToken);
-      const exp = decoded.exp * 1000;
-      const now = Date.now();
-      const buffer = 60 * 1000;
-      const delay = exp - now - buffer;
-
-      if (delay <= 0) {
-        refreshAccessToken(refreshToken);
-      } else {
-        clearTimeout(refreshTimer.current);
-        refreshTimer.current = setTimeout(() => {
-          refreshAccessToken(refreshToken);
-        }, delay);
-      }
-    } catch (err) {
-      console.error('Token scheduling failed:', err);
-      logout();
-    }
-  }, [refreshAccessToken, logout]); // ✅ ESLint satisfied
+  // Assign the real function after it's defined
+  refreshAccessTokenRef.current = refreshAccessToken;
 
   const login = useCallback(({ access, refresh, user }) => {
     if (!access || !refresh || !user) {
