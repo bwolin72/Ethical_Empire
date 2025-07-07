@@ -43,6 +43,26 @@ export const AuthProvider = ({ children }) => {
     navigate('/login', { replace: true });
   }, [navigate]);
 
+  // 🔄 Define refreshAccessToken BEFORE scheduleTokenRefresh
+  const refreshAccessToken = useCallback(async (refreshToken) => {
+    if (!refreshToken) return logout();
+
+    try {
+      const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
+      const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
+      const newAccess = data.access;
+
+      if (!newAccess) throw new Error('No access token returned');
+
+      localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
+      setAuth(prev => ({ ...prev, access: newAccess }));
+      scheduleTokenRefresh(newAccess, refreshToken); // now safe
+    } catch (err) {
+      console.error('Failed to refresh token:', err);
+      logout();
+    }
+  }, [logout]);
+
   const scheduleTokenRefresh = useCallback((accessToken, refreshToken) => {
     try {
       const decoded = jwtDecode(accessToken);
@@ -63,26 +83,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Token scheduling failed:', err);
       logout();
     }
-  }, [logout, refreshAccessToken]); // ✅ Now refreshAccessToken is used here
-
-  const refreshAccessToken = useCallback(async (refreshToken) => {
-    if (!refreshToken) return logout();
-
-    try {
-      const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
-      const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
-      const newAccess = data.access;
-
-      if (!newAccess) throw new Error('No access token returned');
-
-      localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
-      setAuth(prev => ({ ...prev, access: newAccess }));
-      scheduleTokenRefresh(newAccess, refreshToken);
-    } catch (err) {
-      console.error('Failed to refresh token:', err);
-      logout();
-    }
-  }, [logout, scheduleTokenRefresh]); // ✅ Added scheduleTokenRefresh
+  }, [logout, refreshAccessToken]);
 
   const login = useCallback(({ access, refresh, user }) => {
     if (!access || !refresh || !user) {
@@ -96,7 +97,7 @@ export const AuthProvider = ({ children }) => {
 
     setAuth({ access, refresh, user });
     scheduleTokenRefresh(access, refresh);
-  }, [logout, scheduleTokenRefresh]); // ✅ Added scheduleTokenRefresh
+  }, [logout, scheduleTokenRefresh]);
 
   const update = useCallback(({ access, refresh, user }) => {
     setAuth(prev => {
