@@ -50,7 +50,7 @@ import { AuthProvider, useAuth } from './components/context/AuthContext';
 import axiosCommon from './api/axiosCommon';
 
 // Route Guard
-import ProtectedRoute from './components/routing/ProtectedRoute';
+import ProtectedRoute from './components/context/ProtectedRoute';
 
 // Google OAuth
 import { GoogleOAuthProvider } from '@react-oauth/google';
