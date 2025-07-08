@@ -1,5 +1,5 @@
 /* Base styles */
-.register-container {
+.login-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -8,12 +8,12 @@
   background-color: #f9f9f9;
 }
 
-body.dark {
+body.dark-mode {
   background-color: #121212;
   color: #e0e0e0;
 }
 
-.register-box {
+.login-box {
   background: #fff;
   padding: 2rem;
   border-radius: 12px;
@@ -22,34 +22,30 @@ body.dark {
   max-width: 420px;
 }
 
-body.dark .register-box {
+body.dark-mode .login-box {
   background: #1e1e1e;
 }
 
-.brand-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 1.5rem;
-}
-
-.brand-header img {
+.login-logo {
   width: 70px;
+  display: block;
+  margin: 0 auto 1rem;
 }
 
-.brand-header span {
-  font-size: 1.2rem;
-  font-weight: bold;
+h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.register-form {
+.login-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  margin-top: 1rem;
 }
 
-.register-form input,
-.register-form select {
+.login-form input {
   padding: 0.75rem;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -59,70 +55,58 @@ body.dark .register-box {
   box-sizing: border-box;
 }
 
-.register-form input:focus,
-.register-form select:focus {
+.login-form input:focus {
   border-color: #0077ff;
 }
 
-/* Phone and DOB wrapper */
-.phone-dob-box {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.phone-dob-box > div {
-  flex: 1 1 100%;
-}
-
-@media (min-width: 480px) {
-  .phone-dob-box > div {
-    flex: 1;
-  }
-}
-
-/* Password field with toggle */
-.password-field {
+.password-input {
   position: relative;
 }
 
-.password-field input {
-  width: 100%;
-  padding-right: 3rem;
+.password-input input {
+  padding-right: 3rem !important; /* Space for the icon */
 }
 
-.toggle-password {
+/* Show/hide password icon */
+.show-password {
   position: absolute;
   right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
+  background: transparent !important;
   border: none;
   color: #0077ff;
   font-size: 1.2rem;
   cursor: pointer;
+  width: 2rem;
+  height: 2rem;
   display: flex;
   align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
-/* Password strength indicator */
-.password-strength {
-  font-size: 0.85rem;
-}
-
-.password-strength.weak {
+/* Error message styles */
+.error-message {
   color: red;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
-.password-strength.medium {
-  color: orange;
+.input-error {
+  border-color: red;
 }
 
-.password-strength.strong {
-  color: green;
+.input-feedback {
+  font-size: 0.8rem;
+  color: red;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.register-button {
+/* Button */
+.login-button {
   padding: 0.75rem;
   background-color: #0077ff;
   color: white;
@@ -132,112 +116,96 @@ body.dark .register-box {
   cursor: pointer;
 }
 
-.register-button:disabled {
+.login-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.error-message {
-  color: red;
+/* Forgot password */
+.forgot-link {
+  text-align: right;
   font-size: 0.9rem;
-  margin: 0.5rem 0;
+  color: #0077ff;
+  text-decoration: none;
+  margin-top: -0.5rem;
 }
 
-.success-message {
-  color: green;
-  font-size: 0.9rem;
-  margin: 0.5rem 0;
-}
-
-.google-signup {
-  margin-top: 1rem;
+/* Google */
+.social-buttons {
+  margin-top: 1.5rem;
   text-align: center;
 }
 
-.google-signup p {
+/* Toggle */
+.dark-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
   font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+  color: #0077ff;
 }
 
-.login-prompt {
+/* Register prompt */
+.register-prompt {
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.9rem;
 }
 
-.login-prompt span {
+.register-prompt a {
   color: #0077ff;
-  cursor: pointer;
   font-weight: 500;
+  text-decoration: none;
 }
 
-.dark-toggle {
-  margin: 1rem 0;
-  background: none;
-  border: none;
-  font-size: 0.9rem;
-  cursor: pointer;
-  color: #0077ff;
-}
-
-.internal-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  margin-left: auto;
-}
-
-/* Responsive styles for small screens (380px and below) */
+/* Responsive styles for small screens */
 @media (max-width: 380px) {
-  .register-container {
+  .login-container {
     padding: 1rem;
   }
 
-  .register-box {
+  .login-box {
     padding: 1rem;
     border-radius: 8px;
     max-width: 100%;
   }
 
-  .brand-header img {
+  .login-logo {
     width: 50px;
-  }
-
-  .brand-header span {
-    font-size: 1rem;
   }
 
   h2 {
     font-size: 1.2rem;
   }
 
-  .register-form input,
-  .register-form select,
-  .register-button {
+  .login-form input,
+  .login-button {
     font-size: 0.85rem;
     padding: 0.6rem;
   }
 
-  .password-strength {
+  .input-feedback {
     font-size: 0.75rem;
   }
 
-  .toggle-password {
+  .show-password {
     font-size: 1rem;
+    right: 0.5rem;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 
-  .dark-toggle {
-    font-size: 0.75rem;
-    margin-bottom: 1rem;
+  .password-input input {
+    padding-right: 2.5rem !important;
   }
 
-  .google-signup p,
-  .login-prompt {
+  .forgot-link,
+  .register-prompt {
     font-size: 0.8rem;
   }
 
-  .internal-toggle {
+  .dark-toggle {
     font-size: 0.8rem;
   }
 }

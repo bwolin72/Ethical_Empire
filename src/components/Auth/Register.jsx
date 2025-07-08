@@ -25,7 +25,8 @@ const Register = () => {
     gender: '',
     password: '',
     password2: '',
-    accessCode: '',
+    access_code: '',
+    worker_category_id: '',
   });
 
   const [error, setError] = useState('');
@@ -44,7 +45,7 @@ const Register = () => {
     const urlCode = searchParams.get('code');
     if (urlCode) {
       setIsInternal(true);
-      setForm((prev) => ({ ...prev, accessCode: urlCode }));
+      setForm((prev) => ({ ...prev, access_code: urlCode }));
     }
   }, [searchParams]);
 
@@ -89,7 +90,7 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    const { full_name, email, phone, dob, gender, password, password2, accessCode } = form;
+    const { full_name, email, phone, dob, gender, password, password2, access_code, worker_category_id } = form;
 
     if (!full_name.trim()) return setError('Full name is required.');
     if (!validateEmail(email)) return setError('Invalid email format.');
@@ -98,7 +99,10 @@ const Register = () => {
     if (!gender) return setError('Gender is required.');
     if (!password) return setError('Password is required.');
     if (password !== password2) return setError('Passwords do not match.');
-    if (isInternal && !accessCode.trim()) return setError('Access code is required.');
+    if (isInternal) {
+      if (!access_code.trim()) return setError('Access code is required.');
+      if (!worker_category_id) return setError('Worker category ID is required.');
+    }
 
     const payload = {
       full_name,
@@ -107,12 +111,10 @@ const Register = () => {
       dob,
       gender,
       password,
-      ...(isInternal ? { access_code: accessCode } : {}),
+      ...(isInternal ? { access_code, worker_category_id, role: 'WORKER' } : {}),
     };
 
-    const endpoint = isInternal
-      ? '/accounts/internal-register/'
-      : '/accounts/register/';
+    const endpoint = isInternal ? '/accounts/internal-register/' : '/accounts/register/';
 
     setLoading(true);
     try {
@@ -132,14 +134,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const decoded = jwtDecode(credential);
-      const { email, name } = decoded;
-
-      await axiosInstance.post('/accounts/google-register/', {
-        email,
-        full_name: name,
-      });
-
+      await axiosInstance.post('/accounts/google-register/', { credential });
       setSuccess('Google registration successful! Redirecting...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
@@ -189,20 +184,28 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="register-form" noValidate>
             {isInternal && (
-              <input
-                name="accessCode"
-                placeholder="Access Code"
-                value={form.accessCode}
-                onChange={handleChange}
-                aria-label="Access Code"
-              />
+              <>
+                <input
+                  name="access_code"
+                  placeholder="Access Code"
+                  value={form.access_code}
+                  onChange={handleChange}
+                />
+                <input
+                  name="worker_category_id"
+                  type="number"
+                  placeholder="Worker Category ID"
+                  value={form.worker_category_id}
+                  onChange={handleChange}
+                />
+              </>
             )}
+
             <input
               name="full_name"
               placeholder="Full Name"
               value={form.full_name}
               onChange={handleChange}
-              aria-label="Full Name"
             />
             <input
               name="email"
@@ -210,7 +213,6 @@ const Register = () => {
               placeholder="Email"
               value={form.email}
               onChange={handleChange}
-              aria-label="Email"
             />
 
             <div className="form-row">
@@ -239,7 +241,6 @@ const Register = () => {
               name="gender"
               value={form.gender}
               onChange={handleChange}
-              aria-label="Gender"
             >
               <option value="">Select Gender</option>
               <option value="MALE">Male</option>
@@ -254,7 +255,6 @@ const Register = () => {
                 placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
-                aria-label="Password"
               />
               <span onClick={() => setPasswordVisible((v) => !v)} className="toggle-password">
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
@@ -272,7 +272,6 @@ const Register = () => {
                 placeholder="Confirm Password"
                 value={form.password2}
                 onChange={handleChange}
-                aria-label="Confirm Password"
               />
               <span onClick={() => setPasswordVisible((v) => !v)} className="toggle-password">
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}

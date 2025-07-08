@@ -6,6 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Login.css';
 
+const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState({});
@@ -18,7 +20,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { login, auth } = useAuth();
   const user = auth?.user;
-  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
   const redirectByRole = useCallback((role) => {
     const routes = {
@@ -78,8 +79,10 @@ const Login = () => {
       return (
         data.message ||
         data.detail ||
-        data.error ||
-        Object.values(data)?.[0]?.[0] ||
+        data.error?.non_field_errors?.[0] ||
+        data.error?.email?.[0] ||
+        data.error?.password?.[0] ||
+        Object.values(data.error || {})[0] ||
         'Login failed. Please try again.'
       );
     }
@@ -129,7 +132,7 @@ const Login = () => {
     setLoading(true);
     try {
       const { data } = await axiosInstance.post('/accounts/google-register/', {
-        id_token: credential,
+        credential,
       });
       handleLoginSuccess(data);
     } catch (err) {
