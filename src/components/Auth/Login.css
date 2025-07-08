@@ -221,4 +221,21 @@ body.dark-mode .error-message {
   .login-button {
     font-size: 0.95rem;
   }
+
+  .password-input {
+  position: relative;
+}
+
+.show-password {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+}
 }

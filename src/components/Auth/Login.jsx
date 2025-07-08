@@ -37,10 +37,16 @@ const Login = () => {
 
   useEffect(() => {
     if (user?.role && !hasRedirected) {
-      redirectByRole(user.role);
       setHasRedirected(true);
+      redirectByRole(user.role);
     }
   }, [user, redirectByRole, hasRedirected]);
+
+  useEffect(() => {
+    if (!user && hasRedirected) {
+      setHasRedirected(false);
+    }
+  }, [user, hasRedirected]);
 
   const toggleDarkMode = () => {
     const updated = !darkMode;
@@ -98,6 +104,7 @@ const Login = () => {
     localStorage.setItem('user', JSON.stringify(userPayload));
 
     login({ access: tokens.access, refresh: tokens.refresh, user: userPayload });
+    setHasRedirected(true);
     redirectByRole(user.role);
   };
 
