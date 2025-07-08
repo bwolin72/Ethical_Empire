@@ -133,7 +133,7 @@ const Register = () => {
 
       await axiosInstance.post('/accounts/google-register/', {
         email,
-        full_name: name, // ✅ FIXED: Backend expects `full_name`
+        full_name: name,
       });
 
       setSuccess('Google registration successful! Redirecting...');
@@ -160,11 +160,12 @@ const Register = () => {
             <img src={logo} alt="Logo" />
             <span>Ethical Multimedia GH</span>
           </div>
-          <p style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>
+
+          <p className="register-subtitle">
             Join the Ethical Multimedia GH platform. Empower your creative journey with ethical tech.
           </p>
 
-          <div className="top-controls" style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="top-controls">
             <button className="dark-toggle" onClick={toggleDarkMode}>
               {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
             </button>
@@ -191,35 +192,47 @@ const Register = () => {
                 onChange={handleChange}
               />
             )}
-            <input name="full_name" placeholder="Full Name" value={form.full_name} onChange={handleChange} />
-            <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} />
+            <input
+              name="full_name"
+              placeholder="Full Name"
+              value={form.full_name}
+              onChange={handleChange}
+            />
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+            />
 
-            <div className="phone-dob-box" style={{ display: 'flex', gap: '1rem' }}>
-              <div style={{ flex: 1 }}>
-                <PhoneInput
-                  defaultCountry="GH"
-                  value={form.phone}
-                  onChange={handlePhoneChange}
-                  placeholder="Phone number"
-                  className="phone-input"
-                />
-              </div>
-              <div style={{ flex: 1 }}>
+            <div className="form-row">
+              <PhoneInput
+                defaultCountry="GH"
+                value={form.phone}
+                onChange={handlePhoneChange}
+                placeholder="Phone number"
+                className="phone-input"
+              />
+              <div className="dob-group">
+                <label htmlFor="dob" className="dob-label">
+                  Date of Birth
+                </label>
                 <input
                   name="dob"
                   type="date"
+                  id="dob"
                   value={form.dob}
                   onChange={handleChange}
-                  placeholder="Date of Birth"
                 />
               </div>
             </div>
 
             <select name="gender" value={form.gender} onChange={handleChange}>
               <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+              <option value="OTHER">Other</option>
             </select>
 
             <div className="password-field">

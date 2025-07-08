@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import { useAuth } from '../context/AuthContext';
@@ -14,7 +13,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [hasRedirected, setHasRedirected] = useState(false); // 👈 New state
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   const navigate = useNavigate();
   const { login, auth } = useAuth();
@@ -39,7 +38,7 @@ const Login = () => {
   useEffect(() => {
     if (user?.role && !hasRedirected) {
       redirectByRole(user.role);
-      setHasRedirected(true); // ✅ Prevents re-triggering
+      setHasRedirected(true);
     }
   }, [user, redirectByRole, hasRedirected]);
 
@@ -68,15 +67,21 @@ const Login = () => {
   const extractErrorMessage = (err) => {
     const data = err.response?.data;
     if (typeof data === 'string') return data;
-    return data?.message || data?.detail || data?.error || 'Login failed. Please try again.';
+    if (Array.isArray(data)) return data[0];
+    if (typeof data === 'object') {
+      return (
+        data.message ||
+        data.detail ||
+        data.error ||
+        Object.values(data)?.[0]?.[0] ||
+        'Login failed. Please try again.'
+      );
+    }
+    return 'Login failed. Please try again.';
   };
 
-  const handleLoginSuccess = (data) => {
-    const { tokens, user } = data;
-    const access = tokens?.access;
-    const refresh = tokens?.refresh;
-
-    if (!access || !refresh || !user) {
+  const handleLoginSuccess = ({ tokens, user }) => {
+    if (!tokens?.access || !tokens?.refresh || !user) {
       setError('Login failed. Invalid response from server.');
       return;
     }
@@ -88,11 +93,11 @@ const Login = () => {
       isAdmin: user.role === 'admin',
     };
 
-    localStorage.setItem('access', access);
-    localStorage.setItem('refresh', refresh);
+    localStorage.setItem('access', tokens.access);
+    localStorage.setItem('refresh', tokens.refresh);
     localStorage.setItem('user', JSON.stringify(userPayload));
 
-    login({ access, refresh, user: userPayload });
+    login({ access: tokens.access, refresh: tokens.refresh, user: userPayload });
     redirectByRole(user.role);
   };
 
@@ -106,9 +111,7 @@ const Login = () => {
       handleLoginSuccess(data);
     } catch (err) {
       setError(extractErrorMessage(err));
-      localStorage.removeItem('access');
-      localStorage.removeItem('refresh');
-      localStorage.removeItem('user');
+      localStorage.clear();
       setForm((prev) => ({ ...prev, password: '' }));
     } finally {
       setLoading(false);
@@ -118,22 +121,10 @@ const Login = () => {
   const handleGoogleSuccess = async ({ credential }) => {
     setLoading(true);
     try {
-      const decoded = jwtDecode(credential);
-      const loginData = {
-        email: decoded.email,
-        password: decoded.sub,
-      };
-
-      try {
-        const { data } = await axiosInstance.post('/accounts/login/', loginData);
-        handleLoginSuccess(data);
-      } catch {
-        const { data } = await axiosInstance.post('/accounts/google-register/', {
-          email: decoded.email,
-          name: decoded.name,
-        });
-        handleLoginSuccess(data);
-      }
+      const { data } = await axiosInstance.post('/accounts/google-register/', {
+        id_token: credential,
+      });
+      handleLoginSuccess(data);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
