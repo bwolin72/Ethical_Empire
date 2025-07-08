@@ -57,29 +57,31 @@ const Register = () => {
   };
 
   const extractErrorMessage = (err) => {
-    const data = err.response?.data;
+    const data = err?.response?.data;
+    if (!data) return 'Unexpected error. Please try again.';
     if (typeof data === 'string') return data;
     return (
       data?.message ||
       data?.detail ||
       data?.error ||
-      Object.values(data || {}).flat().join(' ') ||
+      Object.values(data).flat().join(' ') ||
       'Something went wrong. Please try again.'
     );
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const clean = DOMPurify.sanitize(value);
-
-    if (name === 'password') setPasswordStrength(getPasswordStrength(clean));
-    setForm((prev) => ({ ...prev, [name]: clean }));
+    const cleanValue = DOMPurify.sanitize(value);
+    if (name === 'password') setPasswordStrength(getPasswordStrength(cleanValue));
+    setForm((prev) => ({ ...prev, [name]: cleanValue }));
     setError('');
     setSuccess('');
   };
 
   const handlePhoneChange = (value) => {
     setForm((prev) => ({ ...prev, phone: value }));
+    setError('');
+    setSuccess('');
   };
 
   const handleSubmit = async (e) => {
@@ -108,11 +110,13 @@ const Register = () => {
       ...(isInternal ? { access_code: accessCode } : {}),
     };
 
-    const endpoint = isInternal ? '/accounts/internal-register/' : '/accounts/register/';
+    const endpoint = isInternal
+      ? '/accounts/internal-register/'
+      : '/accounts/register/';
 
     setLoading(true);
     try {
-      await axiosInstance.post(endpoint, payload);
+      const response = await axiosInstance.post(endpoint, payload);
       setSuccess('Registration successful! Please check your email to verify.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
