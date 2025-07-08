@@ -116,7 +116,7 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const response = await axiosInstance.post(endpoint, payload);
+      await axiosInstance.post(endpoint, payload);
       setSuccess('Registration successful! Please check your email to verify.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
@@ -194,6 +194,7 @@ const Register = () => {
                 placeholder="Access Code"
                 value={form.accessCode}
                 onChange={handleChange}
+                aria-label="Access Code"
               />
             )}
             <input
@@ -201,6 +202,7 @@ const Register = () => {
               placeholder="Full Name"
               value={form.full_name}
               onChange={handleChange}
+              aria-label="Full Name"
             />
             <input
               name="email"
@@ -208,6 +210,7 @@ const Register = () => {
               placeholder="Email"
               value={form.email}
               onChange={handleChange}
+              aria-label="Email"
             />
 
             <div className="form-row">
@@ -232,7 +235,12 @@ const Register = () => {
               </div>
             </div>
 
-            <select name="gender" value={form.gender} onChange={handleChange}>
+            <select
+              name="gender"
+              value={form.gender}
+              onChange={handleChange}
+              aria-label="Gender"
+            >
               <option value="">Select Gender</option>
               <option value="MALE">Male</option>
               <option value="FEMALE">Female</option>
@@ -246,6 +254,7 @@ const Register = () => {
                 placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
+                aria-label="Password"
               />
               <span onClick={() => setPasswordVisible((v) => !v)} className="toggle-password">
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
@@ -263,6 +272,7 @@ const Register = () => {
                 placeholder="Confirm Password"
                 value={form.password2}
                 onChange={handleChange}
+                aria-label="Confirm Password"
               />
               <span onClick={() => setPasswordVisible((v) => !v)} className="toggle-password">
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
@@ -284,7 +294,10 @@ const Register = () => {
           </div>
 
           <div className="login-prompt">
-            Already have an account? <span onClick={() => navigate('/login')}>Login</span>
+            Already have an account?{' '}
+            <span onClick={() => navigate('/login')} role="button" tabIndex={0}>
+              Login
+            </span>
           </div>
         </div>
       </div>
