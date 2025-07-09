@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
-import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 import axiosInstance from '../../api/axiosInstance';
 import logo from '../../assets/logo.png';
@@ -128,12 +127,18 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSuccess = async ({ credential }) => {
+  const handleGoogleSuccess = async (response) => {
     setError('');
     setSuccess('');
     setLoading(true);
 
     try {
+      const credential = response.credential;
+      if (!credential) {
+        setError('Google credential missing');
+        return;
+      }
+
       await axiosInstance.post('/accounts/google-register/', { credential });
       setSuccess('Google registration successful! Redirecting...');
       setTimeout(() => navigate('/login'), 3000);
@@ -243,9 +248,9 @@ const Register = () => {
               onChange={handleChange}
             >
               <option value="">Select Gender</option>
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-              <option value="OTHER">Other</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
             </select>
 
             <div className="password-field">

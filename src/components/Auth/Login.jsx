@@ -36,18 +36,12 @@ const Login = () => {
     document.body.classList.toggle('dark-mode', savedDark);
   }, []);
 
+  // ✅ FIXED: Clean, safe redirect logic
   useEffect(() => {
-    if (user?.role && !hasRedirected) {
-      setHasRedirected(true);
-      redirectByRole(user.role);
-    }
+    if (!user || hasRedirected) return;
+    setHasRedirected(true);
+    redirectByRole(user.role);
   }, [user, redirectByRole, hasRedirected]);
-
-  useEffect(() => {
-    if (!user && hasRedirected) {
-      setHasRedirected(false);
-    }
-  }, [user, hasRedirected]);
 
   const toggleDarkMode = () => {
     const updated = !darkMode;
@@ -107,8 +101,6 @@ const Login = () => {
     localStorage.setItem('user', JSON.stringify(userPayload));
 
     login({ access: tokens.access, refresh: tokens.refresh, user: userPayload });
-    setHasRedirected(true);
-    redirectByRole(user.role);
   };
 
   const handleSubmit = async (e) => {

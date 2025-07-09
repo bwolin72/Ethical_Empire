@@ -1,12 +1,13 @@
-// src/components/routing/ProtectedRoute.js
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from './AuthContext';
 
 const ProtectedRoute = ({ roles = [] }) => {
-  const { auth, isAuthenticated, loading } = useAuth();
+  const { auth, isAuthenticated, loading, ready } = useAuth();
 
-  if (loading) return <div className="protected-loading">Loading...</div>;
+  if (!ready || loading) {
+    return <div className="protected-loading">Loading...</div>;
+  }
 
   if (!isAuthenticated) {
     console.warn('ProtectedRoute: Not authenticated');
@@ -14,7 +15,7 @@ const ProtectedRoute = ({ roles = [] }) => {
   }
 
   const userRole = auth?.user?.role;
-  if (roles?.length && !roles.includes(userRole)) {
+  if (roles.length && !roles.includes(userRole)) {
     console.warn(`ProtectedRoute: Access denied for role: ${userRole}`);
     return <Navigate to="/unauthorized" replace />;
   }

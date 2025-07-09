@@ -6,8 +6,8 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../../api/axiosInstance';
 
 const AuthContext = createContext();
@@ -21,7 +21,7 @@ const AUTH_KEYS = {
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const refreshTimer = useRef(null);
-  const refreshAccessTokenRef = useRef(null); // <-- magic fix here
+  const refreshAccessTokenRef = useRef(null);
 
   const [auth, setAuth] = useState({
     access: null,
@@ -30,12 +30,11 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [loading, setLoading] = useState(true);
+  const [ready, setReady] = useState(false); // NEW: Ensures session check done
 
   const clearSession = () => {
     clearTimeout(refreshTimer.current);
-    localStorage.removeItem(AUTH_KEYS.ACCESS);
-    localStorage.removeItem(AUTH_KEYS.REFRESH);
-    localStorage.removeItem(AUTH_KEYS.USER);
+    Object.values(AUTH_KEYS).forEach(key => localStorage.removeItem(key));
   };
 
   const logout = useCallback(() => {
@@ -49,8 +48,7 @@ export const AuthProvider = ({ children }) => {
       const decoded = jwtDecode(accessToken);
       const exp = decoded.exp * 1000;
       const now = Date.now();
-      const buffer = 60 * 1000;
-      const delay = exp - now - buffer;
+      const delay = exp - now - 60000;
 
       if (delay <= 0) {
         refreshAccessTokenRef.current?.(refreshToken);
@@ -72,8 +70,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
       const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
-      const newAccess = data.access;
 
+      const newAccess = data.access;
       if (!newAccess) throw new Error('No access token returned');
 
       localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
@@ -85,7 +83,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [logout, scheduleTokenRefresh]);
 
-  // Assign the real function after it's defined
   refreshAccessTokenRef.current = refreshAccessToken;
 
   const login = useCallback(({ access, refresh, user }) => {
@@ -129,6 +126,7 @@ export const AuthProvider = ({ children }) => {
     const tryInitializeSession = async () => {
       if (!access || !refresh || !userRaw) {
         setLoading(false);
+        setReady(true);
         return;
       }
 
@@ -145,10 +143,11 @@ export const AuthProvider = ({ children }) => {
           scheduleTokenRefresh(access, refresh);
         }
       } catch (err) {
-        console.error('Session initialization failed:', err);
+        console.error('Session init failed:', err);
         logout();
       } finally {
         setLoading(false);
+        setReady(true); // ✅ Set ready once complete
       }
     };
 
@@ -158,7 +157,7 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!auth?.access && !!auth?.user;
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout, update, isAuthenticated, loading }}>
+    <AuthContext.Provider value={{ auth, login, logout, update, isAuthenticated, loading, ready }}>
       {children}
     </AuthContext.Provider>
   );
