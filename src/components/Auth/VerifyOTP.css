@@ -1,0 +1,98 @@
+/* Root Layout */
+.otp-container {
+  max-width: 420px;
+  margin: 4rem auto;
+  padding: 2.5rem 2rem;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  border: 1px solid #eaeaea;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Dark Mode Support */
+body.dark .otp-container {
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+  border-color: #2c2c2c;
+}
+
+/* Header */
+.otp-container h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #730c2e; /* Deep Burgundy */
+  margin-bottom: 1.5rem;
+}
+
+/* Input Field */
+.otp-container input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.otp-container input:focus {
+  border-color: #0b3c74; /* Royal Navy */
+}
+
+/* Button */
+.otp-container button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(to right, #730c2e, #0b3c74); /* Burgundy to Navy */
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.otp-container button:hover {
+  background: linear-gradient(to right, #0b3c74, #730c2e); /* Reversed */
+}
+
+.otp-container button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Error Message */
+.error-message {
+  color: #b00020; /* Muted danger red */
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  background-color: #ffe6e6;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ffcccc;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .otp-container {
+    margin: 2rem 1rem;
+    padding: 2rem 1.25rem;
+  }
+
+  .otp-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .otp-container button,
+  .otp-container input {
+    font-size: 0.95rem;
+  }
+}

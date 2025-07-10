@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import { useAuth } from '../context/AuthContext';
+import './VerifyOTP.css'; 
 
 export default function VerifyOTP() {
   const [otp, setOtp] = useState('');
@@ -14,9 +15,7 @@ export default function VerifyOTP() {
   const email = location.state?.email;
 
   useEffect(() => {
-    if (!email) {
-      navigate('/login'); // Or redirect to Forgot Password
-    }
+    if (!email) navigate('/login');
   }, [email, navigate]);
 
   const handleSubmit = async (e) => {
@@ -24,22 +23,34 @@ export default function VerifyOTP() {
     setError('');
     setLoading(true);
 
+    if (otp.length !== 6) {
+      setError('OTP must be 6 digits.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data } = await axiosInstance.post('/user-account/verify-otp/email/', {
         email,
         otp,
       });
 
-      const { token, user } = data;
-      localStorage.setItem('token', token);
-      login({ token, user });
+      const { access, refresh, user } = data;
 
-      const redirect = {
+      if (!access || !refresh || !user) {
+        setError('Invalid response from server.');
+        setLoading(false);
+        return;
+      }
+
+      login({ access, refresh, user });
+
+      const redirectMap = {
         ADMIN: '/admin',
         WORKER: '/worker',
         USER: '/user',
       };
-      navigate(redirect[user.role] || '/');
+      navigate(redirectMap[user.role] || '/');
     } catch (err) {
       const msg =
         err.response?.data?.error ||

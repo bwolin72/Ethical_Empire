@@ -1,5 +1,5 @@
-/* Base styles */
-.login-container {
+/* === Container === */
+.register-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -8,204 +8,276 @@
   background-color: #f9f9f9;
 }
 
-body.dark-mode {
+body.dark {
   background-color: #121212;
   color: #e0e0e0;
 }
 
-.login-box {
+/* === Registration Box === */
+.register-box {
   background: #fff;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.12);
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
+  position: relative;
 }
 
-body.dark-mode .login-box {
-  background: #1e1e1e;
+body.dark .register-box {
+  background-color: #1e1e1e;
 }
 
-.login-logo {
-  width: 70px;
-  display: block;
-  margin: 0 auto 1rem;
+/* === Logo & Branding === */
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
-h2 {
+.brand-header img {
+  width: 60px;
+  height: auto;
+}
+
+.brand-header span {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #0077ff;
+}
+
+/* === Subtitle === */
+.register-subtitle {
+  font-size: 0.95rem;
   text-align: center;
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: #444;
 }
 
-.login-form {
+body.dark .register-subtitle {
+  color: #ccc;
+}
+
+/* === Dark Mode Toggle & Internal === */
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.dark-toggle {
+  background: none;
+  border: none;
+  color: #0077ff;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.internal-toggle {
+  font-size: 0.85rem;
+  color: #333;
+}
+
+body.dark .internal-toggle {
+  color: #ccc;
+}
+
+/* === Form === */
+.register-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 1rem;
 }
 
-.login-form input {
+.register-form input,
+.register-form select {
   padding: 0.75rem;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
   outline: none;
-  width: 100%;
-  box-sizing: border-box;
 }
 
-.login-form input:focus {
+.register-form input:focus,
+.register-form select:focus {
   border-color: #0077ff;
 }
 
-.password-input {
+/* === Phone Input === */
+.phone-input {
+  width: 100%;
+}
+
+.phone-input input {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.phone-input input:focus {
+  border-color: #0077ff;
+}
+
+/* === Date and Gender === */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dob-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.dob-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+  color: #666;
+}
+
+body.dark .dob-label {
+  color: #aaa;
+}
+
+/* === Password Fields === */
+.password-field {
   position: relative;
 }
 
-.password-input input {
-  padding-right: 3rem !important; /* Space for the icon */
+.password-field input {
+  padding-right: 2.5rem;
 }
 
-/* Show/hide password icon */
-.show-password {
+.toggle-password {
   position: absolute;
   right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  background: transparent !important;
-  border: none;
-  color: #0077ff;
   font-size: 1.2rem;
+  color: #0077ff;
   cursor: pointer;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 2;
 }
 
-/* Error message styles */
-.error-message {
-  color: red;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  text-align: center;
-}
-
-.input-error {
-  border-color: red;
-}
-
-.input-feedback {
-  font-size: 0.8rem;
-  color: red;
+/* === Password Strength === */
+.password-strength {
+  font-size: 0.85rem;
   margin-top: -0.5rem;
   margin-bottom: 0.5rem;
 }
 
-/* Button */
-.login-button {
+.password-strength.weak {
+  color: red;
+}
+.password-strength.medium {
+  color: orange;
+}
+.password-strength.strong {
+  color: green;
+}
+
+/* === Buttons === */
+.register-button {
   padding: 0.75rem;
   background-color: #0077ff;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: 0.3s ease;
 }
 
-.login-button:disabled {
+.register-button:hover {
+  background-color: #005fcc;
+}
+
+.register-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Forgot password */
-.forgot-link {
-  text-align: right;
+/* === Error & Success === */
+.error-message {
+  color: red;
   font-size: 0.9rem;
-  color: #0077ff;
-  text-decoration: none;
-  margin-top: -0.5rem;
+  text-align: center;
 }
 
-/* Google */
-.social-buttons {
+.success-message {
+  color: green;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* === Google Sign-in === */
+.google-signup {
   margin-top: 1.5rem;
   text-align: center;
 }
 
-/* Toggle */
-.dark-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 1rem 0;
+.google-signup p {
   font-size: 0.9rem;
-  color: #0077ff;
+  margin-bottom: 0.5rem;
 }
 
-/* Register prompt */
-.register-prompt {
+/* === Already have account === */
+.login-prompt {
   text-align: center;
-  margin-top: 1.5rem;
   font-size: 0.9rem;
+  margin-top: 1.25rem;
 }
 
-.register-prompt a {
+.login-prompt span {
   color: #0077ff;
   font-weight: 500;
-  text-decoration: none;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
-/* Responsive styles for small screens */
-@media (max-width: 380px) {
-  .login-container {
+/* === Responsive === */
+@media (max-width: 480px) {
+  .register-box {
     padding: 1rem;
+    border-radius: 12px;
   }
 
-  .login-box {
-    padding: 1rem;
-    border-radius: 8px;
-    max-width: 100%;
-  }
-
-  .login-logo {
-    width: 50px;
-  }
-
-  h2 {
-    font-size: 1.2rem;
-  }
-
-  .login-form input,
-  .login-button {
+  .register-subtitle {
     font-size: 0.85rem;
-    padding: 0.6rem;
   }
 
-  .input-feedback {
-    font-size: 0.75rem;
+  .dark-toggle,
+  .internal-toggle {
+    font-size: 0.8rem;
   }
 
-  .show-password {
+  .register-form input,
+  .register-form select {
+    font-size: 0.9rem;
+    padding: 0.65rem;
+  }
+
+  .toggle-password {
     font-size: 1rem;
     right: 0.5rem;
-    width: 1.8rem;
-    height: 1.8rem;
   }
 
-  .password-input input {
-    padding-right: 2.5rem !important;
-  }
-
-  .forgot-link,
-  .register-prompt {
+  .password-strength {
     font-size: 0.8rem;
   }
 
-  .dark-toggle {
-    font-size: 0.8rem;
+  .register-button {
+    font-size: 0.95rem;
+  }
+
+  .login-prompt {
+    font-size: 0.85rem;
   }
 }

@@ -1,5 +1,3 @@
-// src/components/user/EditProfile.jsx
-
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./EditProfile.css";
 
 const EditProfile = () => {
-  const [form, setForm] = useState({ username: "", phone_number: "" });
+  const [form, setForm] = useState({ name: "", phone: "" });
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -16,8 +14,8 @@ const EditProfile = () => {
   useEffect(() => {
     axiosInstance.get("/accounts/profiles/profile/")
       .then(res => {
-        const { username, email, phone_number } = res.data;
-        setForm({ username, phone_number: phone_number || "" });
+        const { name, email, phone } = res.data;
+        setForm({ name, phone: phone || "" });
         setEmail(email || "");
       })
       .catch(() => toast.error("Failed to load profile."))
@@ -47,10 +45,10 @@ const EditProfile = () => {
 
       <input
         type="text"
-        name="username"
-        value={form.username}
+        name="name"
+        value={form.name}
         onChange={handleChange}
-        placeholder="Username"
+        placeholder="Full Name"
       />
 
       <input
@@ -63,8 +61,8 @@ const EditProfile = () => {
 
       <input
         type="tel"
-        name="phone_number"
-        value={form.phone_number}
+        name="phone"
+        value={form.phone}
         onChange={handleChange}
         placeholder="Phone Number"
       />

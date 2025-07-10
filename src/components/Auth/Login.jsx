@@ -15,6 +15,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [hasRedirected, setHasRedirected] = useState(false);
 
   const navigate = useNavigate();
@@ -36,7 +37,6 @@ const Login = () => {
     document.body.classList.toggle('dark-mode', savedDark);
   }, []);
 
-  // ✅ FIXED: Clean, safe redirect logic
   useEffect(() => {
     if (!user || hasRedirected) return;
     setHasRedirected(true);
@@ -83,6 +83,12 @@ const Login = () => {
     return 'Login failed. Please try again.';
   };
 
+  const storeTokens = (access, refresh, remember) => {
+    const storage = remember ? localStorage : sessionStorage;
+    storage.setItem('access', access);
+    storage.setItem('refresh', refresh);
+  };
+
   const handleLoginSuccess = ({ tokens, user }) => {
     if (!tokens?.access || !tokens?.refresh || !user) {
       setError('Login failed. Invalid response from server.');
@@ -96,10 +102,8 @@ const Login = () => {
       isAdmin: user.role === 'admin',
     };
 
-    localStorage.setItem('access', tokens.access);
-    localStorage.setItem('refresh', tokens.refresh);
-    localStorage.setItem('user', JSON.stringify(userPayload));
-
+    storeTokens(tokens.access, tokens.refresh, rememberMe);
+    localStorage.setItem('user', JSON.stringify(userPayload)); // Always persistent
     login({ access: tokens.access, refresh: tokens.refresh, user: userPayload });
   };
 
@@ -114,6 +118,7 @@ const Login = () => {
     } catch (err) {
       setError(extractErrorMessage(err));
       localStorage.clear();
+      sessionStorage.clear();
       setForm((prev) => ({ ...prev, password: '' }));
     } finally {
       setLoading(false);
@@ -192,6 +197,15 @@ const Login = () => {
             {formErrors.password && (
               <small className="input-feedback">{formErrors.password}</small>
             )}
+
+            <label className="remember-me">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+              />
+              Remember Me
+            </label>
 
             <Link to="/forgot-password" className="forgot-link">
               Forgot Password?

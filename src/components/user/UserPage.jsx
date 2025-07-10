@@ -33,7 +33,7 @@ const UserPage = () => {
     setLoading(true);
 
     Promise.allSettled([
-      axiosInstance.get("/accounts/profile/", { signal }),
+      axiosInstance.get("/accounts/profiles/profile/", { signal }),
       axiosInstance.get("/media/", {
         params: { type: "media", endpoint: "UserPage", is_active: true },
         signal,
@@ -80,7 +80,7 @@ const UserPage = () => {
       await axiosInstance.post("/newsletter/subscribe/", { email: subscriberEmail });
       toast.success("Subscribed! Please check your email to confirm.");
       setSubscriberEmail("");
-    } catch (error) {
+    } catch {
       toast.error("Subscription failed. Try again.");
     }
   };
@@ -90,7 +90,7 @@ const UserPage = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
 
       <header className="userpage-header">
-        <h2>Welcome {profile?.full_name || "Ethical Empire"}</h2>
+        <h2>Welcome {profile?.name || "Ethical Empire"}</h2>
         <div className="header-right">
           <button onClick={toggleDarkMode} className="dark-toggle">
             {darkMode ? "☀️ Light" : "🌙 Dark"}
@@ -238,7 +238,7 @@ const UserPage = () => {
             </div>
           </section>
 
-          {/* Newsletter Subscription */}
+          {/* Newsletter */}
           <section>
             <h3>Subscribe to Our Newsletter</h3>
             <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>

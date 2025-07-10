@@ -30,11 +30,12 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [loading, setLoading] = useState(true);
-  const [ready, setReady] = useState(false); // NEW: Ensures session check done
+  const [ready, setReady] = useState(false);
 
   const clearSession = () => {
     clearTimeout(refreshTimer.current);
-    Object.values(AUTH_KEYS).forEach(key => localStorage.removeItem(key));
+    Object.values(AUTH_KEYS).forEach((key) => localStorage.removeItem(key));
+    sessionStorage.clear(); // in case rememberMe = false
   };
 
   const logout = useCallback(() => {
@@ -74,7 +75,9 @@ export const AuthProvider = ({ children }) => {
       const newAccess = data.access;
       if (!newAccess) throw new Error('No access token returned');
 
-      localStorage.setItem(AUTH_KEYS.ACCESS, newAccess);
+      const storage = localStorage.getItem(AUTH_KEYS.REFRESH) ? localStorage : sessionStorage;
+
+      storage.setItem(AUTH_KEYS.ACCESS, newAccess);
       setAuth(prev => ({ ...prev, access: newAccess }));
       scheduleTokenRefresh(newAccess, refreshToken);
     } catch (err) {
@@ -85,33 +88,37 @@ export const AuthProvider = ({ children }) => {
 
   refreshAccessTokenRef.current = refreshAccessToken;
 
-  const login = useCallback(({ access, refresh, user }) => {
+  const login = useCallback(({ access, refresh, user, remember = true }) => {
     if (!access || !refresh || !user) {
       console.error('Login data incomplete');
       return logout();
     }
 
-    localStorage.setItem(AUTH_KEYS.ACCESS, access);
-    localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-    localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
+    const storage = remember ? localStorage : sessionStorage;
+
+    storage.setItem(AUTH_KEYS.ACCESS, access);
+    storage.setItem(AUTH_KEYS.REFRESH, refresh);
+    storage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
 
     setAuth({ access, refresh, user });
     scheduleTokenRefresh(access, refresh);
   }, [logout, scheduleTokenRefresh]);
 
   const update = useCallback(({ access, refresh, user }) => {
+    const storage = localStorage.getItem(AUTH_KEYS.REFRESH) ? localStorage : sessionStorage;
+
     setAuth(prev => {
       const updated = { ...prev };
       if (access !== undefined) {
-        localStorage.setItem(AUTH_KEYS.ACCESS, access);
+        storage.setItem(AUTH_KEYS.ACCESS, access);
         updated.access = access;
       }
       if (refresh !== undefined) {
-        localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+        storage.setItem(AUTH_KEYS.REFRESH, refresh);
         updated.refresh = refresh;
       }
       if (user !== undefined) {
-        localStorage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
+        storage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
         updated.user = user;
       }
       return updated;
@@ -119,9 +126,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const access = localStorage.getItem(AUTH_KEYS.ACCESS);
-    const refresh = localStorage.getItem(AUTH_KEYS.REFRESH);
-    const userRaw = localStorage.getItem(AUTH_KEYS.USER);
+    const storage = localStorage.getItem(AUTH_KEYS.REFRESH) ? localStorage : sessionStorage;
+    const access = storage.getItem(AUTH_KEYS.ACCESS);
+    const refresh = storage.getItem(AUTH_KEYS.REFRESH);
+    const userRaw = storage.getItem(AUTH_KEYS.USER);
 
     const tryInitializeSession = async () => {
       if (!access || !refresh || !userRaw) {
@@ -147,7 +155,7 @@ export const AuthProvider = ({ children }) => {
         logout();
       } finally {
         setLoading(false);
-        setReady(true); // ✅ Set ready once complete
+        setReady(true);
       }
     };
 
@@ -157,7 +165,17 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!auth?.access && !!auth?.user;
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout, update, isAuthenticated, loading, ready }}>
+    <AuthContext.Provider
+      value={{
+        auth,
+        login,
+        logout,
+        update,
+        isAuthenticated,
+        loading,
+        ready,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
