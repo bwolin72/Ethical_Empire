@@ -1,3 +1,4 @@
+// AuthContext.js
 import React, {
   createContext,
   useContext,
@@ -35,7 +36,7 @@ export const AuthProvider = ({ children }) => {
   const clearSession = () => {
     clearTimeout(refreshTimer.current);
     Object.values(AUTH_KEYS).forEach((key) => localStorage.removeItem(key));
-    sessionStorage.clear(); // in case rememberMe = false
+    sessionStorage.clear();
   };
 
   const logout = useCallback(() => {
@@ -140,6 +141,7 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const decoded = jwtDecode(access);
+        if (!decoded.exp) throw new Error('Access token invalid');
         const isExpired = decoded.exp * 1000 < Date.now();
         const user = JSON.parse(userRaw);
 
