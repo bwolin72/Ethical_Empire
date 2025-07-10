@@ -19,7 +19,7 @@ const Login = () => {
   const [hasRedirected, setHasRedirected] = useState(false);
 
   const navigate = useNavigate();
-  const { login, auth } = useAuth();
+  const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
   const redirectByRole = useCallback((role) => {
@@ -38,10 +38,10 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
-    if (!user || hasRedirected) return;
+    if (!ready || hasRedirected || !user) return;
     setHasRedirected(true);
     redirectByRole(user.role);
-  }, [user, redirectByRole, hasRedirected]);
+  }, [ready, user, hasRedirected, redirectByRole]);
 
   const toggleDarkMode = () => {
     const updated = !darkMode;
@@ -66,7 +66,7 @@ const Login = () => {
   };
 
   const extractErrorMessage = (err) => {
-    const data = err.response?.data;
+    const data = err?.response?.data;
     if (typeof data === 'string') return data;
     if (Array.isArray(data)) return data[0];
     if (typeof data === 'object') {
@@ -83,12 +83,6 @@ const Login = () => {
     return 'Login failed. Please try again.';
   };
 
-  const storeTokens = (access, refresh, remember) => {
-    const storage = remember ? localStorage : sessionStorage;
-    storage.setItem('access', access);
-    storage.setItem('refresh', refresh);
-  };
-
   const handleLoginSuccess = ({ tokens, user }) => {
     if (!tokens?.access || !tokens?.refresh || !user) {
       setError('Login failed. Invalid response from server.');
@@ -102,9 +96,12 @@ const Login = () => {
       isAdmin: user.role === 'admin',
     };
 
-    storeTokens(tokens.access, tokens.refresh, rememberMe);
-    localStorage.setItem('user', JSON.stringify(userPayload)); // Always persistent
-    login({ access: tokens.access, refresh: tokens.refresh, user: userPayload });
+    login({
+      access: tokens.access,
+      refresh: tokens.refresh,
+      user: userPayload,
+      remember: rememberMe,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -128,9 +125,7 @@ const Login = () => {
   const handleGoogleSuccess = async ({ credential }) => {
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post('/accounts/google-register/', {
-        credential,
-      });
+      const { data } = await axiosInstance.post('/accounts/google-register/', { credential });
       handleLoginSuccess(data);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -145,9 +140,6 @@ const Login = () => {
         <div className="login-box">
           <img src={logo} alt="Logo" className="login-logo" />
           <h2>MyCompany Portal</h2>
-          <p style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
-            Secure login for employees and administrators.
-          </p>
 
           <label className="dark-toggle">
             <input
@@ -170,9 +162,8 @@ const Login = () => {
               onChange={handleChange}
               className={formErrors.email ? 'input-error' : ''}
               disabled={loading}
-              aria-invalid={!!formErrors.email}
             />
-            {formErrors.email && <small className="input-feedback">{formErrors.email}</small>}
+            {formErrors.email && <small>{formErrors.email}</small>}
 
             <div className="password-input">
               <input
@@ -183,7 +174,6 @@ const Login = () => {
                 onChange={handleChange}
                 className={formErrors.password ? 'input-error' : ''}
                 disabled={loading}
-                aria-invalid={!!formErrors.password}
               />
               <button
                 type="button"
@@ -194,9 +184,7 @@ const Login = () => {
                 {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
-            {formErrors.password && (
-              <small className="input-feedback">{formErrors.password}</small>
-            )}
+            {formErrors.password && <small>{formErrors.password}</small>}
 
             <label className="remember-me">
               <input
@@ -207,9 +195,7 @@ const Login = () => {
               Remember Me
             </label>
 
-            <Link to="/forgot-password" className="forgot-link">
-              Forgot Password?
-            </Link>
+            <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
 
             <button type="submit" className="login-button" disabled={loading}>
               {loading ? 'Logging in…' : 'Login'}

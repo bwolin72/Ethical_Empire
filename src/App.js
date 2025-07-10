@@ -56,18 +56,14 @@ import ProtectedRoute from './components/context/ProtectedRoute';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // ==============================
-// Homepage with booking button
+// Homepage with Booking Button
 // ==============================
 const EethmHomePage = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
 
   const handleBookingClick = () => {
-    if (!auth?.access) {
-      navigate('/login');
-    } else {
-      navigate('/bookings');
-    }
+    navigate(auth?.access ? '/bookings' : '/login');
   };
 
   return (
@@ -83,94 +79,101 @@ const EethmHomePage = () => {
 };
 
 // ==============================
-// Redirect Handler for /connect
+// Role-Based Redirect Handler
 // ==============================
 const ConnectRedirect = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     const checkUserRole = async () => {
       try {
         const res = await axiosCommon.get('/accounts/user-role/');
-        const isAdmin = res.data.is_admin === true || res.data.is_admin === 'true';
+        if (!isMounted) return;
+
+        const isAdmin = res?.data?.is_admin?.toString() === 'true';
         navigate(isAdmin ? '/admin' : '/user', { replace: true });
       } catch {
-        navigate('/login', { replace: true });
+        if (isMounted) navigate('/login', { replace: true });
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
+
     checkUserRole();
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
-  if (loading) return <div className="loading-screen">Redirecting...</div>;
-  return null;
+  return loading ? <div className="loading-screen">Redirecting...</div> : null;
 };
 
 // ==============================
-// App Routes
+// App Routes Definition
 // ==============================
-const AppRoutes = () => {
-  return (
-    <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<EethmHomePage />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/services" element={<Services />} />
-      <Route path="/contact" element={<ContactForm />} />
-      <Route path="/services/live-band" element={<LiveBandServicePage />} />
-      <Route path="/services/catering" element={<CateringServicePage />} />
-      <Route path="/services/decor" element={<DecorServicePage />} />
-      <Route path="/services/media-hosting" element={<MediaHostingServicePage />} />
-      <Route path="/newsletter" element={<NewsletterSignup />} />
-      <Route path="/unsubscribe" element={<Unsubscribe />} />
+const AppRoutes = () => (
+  <Routes>
+    {/* Public Routes */}
+    <Route path="/" element={<EethmHomePage />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/services" element={<Services />} />
+    <Route path="/contact" element={<ContactForm />} />
+    <Route path="/services/live-band" element={<LiveBandServicePage />} />
+    <Route path="/services/catering" element={<CateringServicePage />} />
+    <Route path="/services/decor" element={<DecorServicePage />} />
+    <Route path="/services/media-hosting" element={<MediaHostingServicePage />} />
+    <Route path="/newsletter" element={<NewsletterSignup />} />
+    <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-      {/* Auth Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/verify-otp" element={<VerifyOTP />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
-      <Route path="/connect" element={<ConnectRedirect />} />
+    {/* Auth Routes */}
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+    <Route path="/verify-otp" element={<VerifyOTP />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
+    <Route path="/connect" element={<ConnectRedirect />} />
 
-      {/* Protected User Routes */}
-      <Route element={<ProtectedRoute roles={['user', 'admin']} />}>
-        <Route path="/user" element={<UserPage />} />
-        <Route path="/account" element={<AccountProfile />} />
-        <Route path="/bookings" element={<BookingForm />} />
-        <Route path="/edit-profile" element={<EditProfile />} />
-        <Route path="/update-password" element={<UpdatePassword />} />
-        <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
-      </Route>
+    {/* Protected User/Admin Routes */}
+    <Route element={<ProtectedRoute roles={['user', 'admin']} />}>
+      <Route path="/user" element={<UserPage />} />
+      <Route path="/account" element={<AccountProfile />} />
+      <Route path="/bookings" element={<BookingForm />} />
+      <Route path="/edit-profile" element={<EditProfile />} />
+      <Route path="/update-password" element={<UpdatePassword />} />
+      <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
+    </Route>
 
-      {/* Protected Admin Route */}
-      <Route element={<ProtectedRoute roles={['admin']} />}>
-        <Route path="/admin" element={<AdminPanel />} />
-      </Route>
+    {/* Protected Admin Route */}
+    <Route element={<ProtectedRoute roles={['admin']} />}>
+      <Route path="/admin" element={<AdminPanel />} />
+    </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
-};
+    {/* Unauthorized Access */}
+    <Route path="/unauthorized" element={<div className="unauthorized">Access Denied</div>} />
+
+    {/* Catch-all */}
+    <Route path="*" element={<Navigate to="/" replace />} />
+  </Routes>
+);
 
 // ==============================
-// App with Splash + Layout
+// App With Splash Screen & Auth
 // ==============================
 const AppWithAuth = () => {
-  const { loading } = useAuth();
+  const { loading, ready } = useAuth();
   const [splashVisible, setSplashVisible] = useState(true);
 
   useEffect(() => {
     const splashTimer = setTimeout(() => {
       setSplashVisible(false);
-    }, 5000);
+    }, 2500);
 
     return () => clearTimeout(splashTimer);
   }, []);
 
-  if (loading || splashVisible) {
+  if (!ready || loading || splashVisible) {
     return <SplashScreen onFinish={() => setSplashVisible(false)} />;
   }
 
@@ -187,7 +190,7 @@ const AppWithAuth = () => {
 };
 
 // ==============================
-// Final App Component
+// Root App Component
 // ==============================
 function App() {
   return (
