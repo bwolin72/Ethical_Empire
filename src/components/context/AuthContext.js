@@ -1,4 +1,5 @@
-// AuthContext.js
+// src/context/AuthContext.js
+
 import React, {
   createContext,
   useContext,
@@ -10,6 +11,7 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../../api/axiosInstance';
+import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
 
@@ -83,6 +85,7 @@ export const AuthProvider = ({ children }) => {
       scheduleTokenRefresh(newAccess, refreshToken);
     } catch (err) {
       console.error('Failed to refresh token:', err);
+      toast.error("Session expired. Please log in again.");
       logout();
     }
   }, [logout, scheduleTokenRefresh]);
@@ -141,7 +144,6 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const decoded = jwtDecode(access);
-        if (!decoded.exp) throw new Error('Access token invalid');
         const isExpired = decoded.exp * 1000 < Date.now();
         const user = JSON.parse(userRaw);
 

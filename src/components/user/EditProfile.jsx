@@ -6,16 +6,25 @@ import "react-toastify/dist/ReactToastify.css";
 import "./EditProfile.css";
 
 const EditProfile = () => {
-  const [form, setForm] = useState({ name: "", phone: "" });
+  const [form, setForm] = useState({
+    first_name: "",
+    last_name: "",
+    phone_number: "",
+  });
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axiosInstance.get("/accounts/profiles/profile/")
-      .then(res => {
-        const { name, email, phone } = res.data;
-        setForm({ name, phone: phone || "" });
+    axiosInstance
+      .get("/accounts/profiles/profile/")
+      .then((res) => {
+        const { first_name, last_name, email, phone_number } = res.data;
+        setForm({
+          first_name: first_name || "",
+          last_name: last_name || "",
+          phone_number: phone_number || "",
+        });
         setEmail(email || "");
       })
       .catch(() => toast.error("Failed to load profile."))
@@ -30,7 +39,7 @@ const EditProfile = () => {
     try {
       await axiosInstance.put("/accounts/profiles/profile/", form);
       toast.success("✅ Profile updated successfully!");
-      setTimeout(() => navigate(-1), 1000); // redirect after toast
+      setTimeout(() => navigate(-1), 1500);
     } catch {
       toast.error("❌ Failed to update profile.");
     }
@@ -45,10 +54,18 @@ const EditProfile = () => {
 
       <input
         type="text"
-        name="name"
-        value={form.name}
+        name="first_name"
+        value={form.first_name}
         onChange={handleChange}
-        placeholder="Full Name"
+        placeholder="First Name"
+      />
+
+      <input
+        type="text"
+        name="last_name"
+        value={form.last_name}
+        onChange={handleChange}
+        placeholder="Last Name"
       />
 
       <input
@@ -61,8 +78,8 @@ const EditProfile = () => {
 
       <input
         type="tel"
-        name="phone"
-        value={form.phone}
+        name="phone_number"
+        value={form.phone_number}
         onChange={handleChange}
         placeholder="Phone Number"
       />

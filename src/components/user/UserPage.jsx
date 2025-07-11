@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import BannerCards from "../context/BannerCards";
+import MediaCard from "../context/MediaCard";
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
 
@@ -20,7 +22,7 @@ const UserPage = () => {
   const [banners, setBanners] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [featuredVideo, setFeaturedVideo] = useState(null);
+  const [featured, setFeatured] = useState([]);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
   const [loading, setLoading] = useState(true);
   const [subscriberEmail, setSubscriberEmail] = useState("");
@@ -33,7 +35,7 @@ const UserPage = () => {
     setLoading(true);
 
     Promise.allSettled([
-      axiosInstance.get("/accounts/profiles/profile/", { signal }),
+      axiosInstance.get("/accounts/profile/", { signal }),
       axiosInstance.get("/media/", {
         params: { type: "media", endpoint: "UserPage", is_active: true },
         signal,
@@ -54,7 +56,7 @@ const UserPage = () => {
         else toast.error("Failed to load media.");
 
         if (bannerRes.status === "fulfilled") setBanners(bannerRes.value.data);
-        if (featuredRes.status === "fulfilled") setFeaturedVideo(featuredRes.value.data);
+        if (featuredRes.status === "fulfilled") setFeatured(featuredRes.value.data);
         if (reviewsRes.status === "fulfilled") setReviews(reviewsRes.value.data);
         else toast.error("Failed to load reviews.");
 
@@ -85,6 +87,8 @@ const UserPage = () => {
     }
   };
 
+  const featuredVideo = featured.find((item) => item.file?.endsWith(".mp4"));
+
   return (
     <div className={`userpage-container ${darkMode ? "dark" : ""}`}>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
@@ -112,10 +116,10 @@ const UserPage = () => {
       ) : (
         <>
           {/* Featured Video */}
-          {featuredVideo?.url ? (
+          {featuredVideo ? (
             <div className="asaase-card">
               <video controls width="100%" preload="metadata">
-                <source src={featuredVideo.url} type="video/mp4" />
+                <source src={featuredVideo.file} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -127,18 +131,7 @@ const UserPage = () => {
           {banners.length > 0 && (
             <section>
               <h3>Featured Banners</h3>
-              <div className="banner-grid">
-                {banners.map((item, idx) => (
-                  <img
-                    key={idx}
-                    src={item.file}
-                    alt={item.label || "Banner"}
-                    className="banner-image fade-in"
-                    onError={(e) => (e.target.src = "/fallback.jpg")}
-                    loading="lazy"
-                  />
-                ))}
-              </div>
+              <BannerCards banners={banners} />
             </section>
           )}
 
@@ -188,29 +181,15 @@ const UserPage = () => {
           {/* Media Gallery */}
           <section>
             <h3>Your Media Gallery</h3>
-            <div className="gallery-grid">
-              {media.length > 0 ? (
-                media.map((item, idx) => (
-                  <div key={idx} className="gallery-item fade-in">
-                    {item.file.endsWith(".mp4") ? (
-                      <video controls preload="metadata">
-                        <source src={item.file} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <img
-                        src={item.file}
-                        alt={item.label || "Media"}
-                        loading="lazy"
-                        onError={(e) => (e.target.src = "/fallback.jpg")}
-                      />
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p className="empty-text">No media to display.</p>
-              )}
-            </div>
+            {media.length > 0 ? (
+              <div className="gallery-grid">
+                {media.map((item, idx) => (
+                  <MediaCard key={idx} file={item.file} label={item.label} />
+                ))}
+              </div>
+            ) : (
+              <p className="empty-text">No media to display.</p>
+            )}
           </section>
 
           {/* Reviews */}

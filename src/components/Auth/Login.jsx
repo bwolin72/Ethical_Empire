@@ -140,7 +140,9 @@ const Login = () => {
       <div className="login-container">
         <div className="login-box">
           <img src={logo} alt="Logo" className="login-logo" />
-          <h2>MyCompany Portal</h2>
+          <h2>Eethm_GH</h2><br/>
+          <h2>Ethical Multimedia GH</h2>
+
 
           <label className="dark-toggle">
             <input

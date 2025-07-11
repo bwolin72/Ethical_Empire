@@ -1,5 +1,3 @@
-// src/components/AccountProfile.jsx
-
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -18,24 +16,28 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
-  // Fetch user profile and bookings
+  // Fetch profile and user bookings
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     if (!externalProfile) {
-      axiosInstance.get("/accounts/profiles/profile/")
+      axiosInstance.get("/accounts/profiles/profile/", { signal })
         .then(res => {
           setProfile(res.data);
           setProfileImage(res.data.profile_picture || "");
         })
-        .catch(() => toast.error("Failed to fetch profile."))
+        .catch(() => toast.error("Failed to load profile."))
         .finally(() => setLoading(false));
     }
 
-    axiosInstance.get("/bookings/user/")
+    axiosInstance.get("/bookings/user/", { signal })
       .then(res => setBookings(res.data))
       .catch(() => toast.warn("Could not fetch bookings."));
+
+    return () => controller.abort();
   }, [externalProfile]);
 
-  // Extract user initials from name
   const getInitials = (name) => {
     if (!name) return "?";
     const parts = name.trim().split(" ");
@@ -44,7 +46,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
       : parts[0][0].toUpperCase();
   };
 
-  // Handle image upload to Cloudinary
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !CLOUDINARY_UPLOAD_PRESET || !CLOUDINARY_CLOUD_NAME) {
@@ -57,12 +58,11 @@ const AccountProfile = ({ profile: externalProfile }) => {
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
     try {
-      const uploadRes = await fetch(
+      const res = await fetch(
         `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
         { method: "POST", body: formData }
       );
-      const data = await uploadRes.json();
-
+      const data = await res.json();
       if (!data.secure_url) throw new Error("Upload failed");
 
       await axiosInstance.put("/accounts/profiles/profile/", {
@@ -70,18 +70,17 @@ const AccountProfile = ({ profile: externalProfile }) => {
       });
 
       setProfileImage(data.secure_url);
-      toast.success("Profile picture updated.");
+      toast.success("Profile picture updated!");
     } catch (err) {
-      toast.error("Image upload failed.");
       console.error(err);
+      toast.error("Image upload failed.");
     }
   };
 
-  // Submit a review
   const handleReviewSubmit = async () => {
     if (!review.trim()) return toast.warn("Review cannot be empty.");
     try {
-      await axiosInstance.post("/reviews/", { message: review });
+      await axiosInstance.post("/reviews/", { comment: review });
       toast.success("Review submitted!");
       setReview("");
     } catch {
@@ -89,7 +88,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
   };
 
-  // Logout user
   const handleLogout = async () => {
     try {
       await axiosInstance.post("/accounts/profiles/logout/");
@@ -100,9 +98,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
   };
 
-  // Display booking status with color badge
   const renderBookingStatus = (status) => {
-    const statusMap = {
+    const colors = {
       pending: "#facc15",
       approved: "#22c55e",
       rejected: "#ef4444",
@@ -110,7 +107,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     return (
       <span
         style={{
-          backgroundColor: statusMap[status] || "#ccc",
+          backgroundColor: colors[status] || "#ccc",
           color: "#fff",
           padding: "0.3rem 0.6rem",
           borderRadius: "4px",
@@ -130,7 +127,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       <button className="close-btn" onClick={() => window.location.reload()}>✖</button>
 
       <div className="profile-wrapper">
-        {/* Profile picture and uploader */}
+        {/* Profile Picture */}
         <div className="profile-header">
           {profileImage ? (
             <img src={profileImage} alt="Profile" className="profile-pic" />
@@ -145,7 +142,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           </label>
         </div>
 
-        {/* User Info */}
+        {/* Info */}
         <div className="user-info">
           <h3>@{profile?.username}</h3>
           <p><strong>Name:</strong> {profile?.first_name} {profile?.last_name}</p>
@@ -157,7 +154,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           </div>
         </div>
 
-        {/* Bookings List */}
+        {/* Bookings */}
         <div className="booking-section">
           <h4>My Bookings ({bookings.length})</h4>
           {bookings.length ? (
@@ -173,7 +170,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           )}
         </div>
 
-        {/* Review Form */}
+        {/* Review */}
         <div className="review-section">
           <label htmlFor="review">Write a Review</label>
           <textarea
