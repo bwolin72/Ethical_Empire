@@ -12,10 +12,21 @@ import { useAuth } from './AuthContext';
  */
 const ProtectedRoute = ({ roles = [] }) => {
   const { auth, isAuthenticated, loading, ready } = useAuth();
-  const userRole = auth?.user?.role;
+  const user = auth?.user;
+  const userRole = user?.role;
 
-  // Show loading indicator while auth state is initializing
+  console.log('[ProtectedRoute] State snapshot:', {
+    loading,
+    ready,
+    isAuthenticated,
+    access: auth?.access,
+    user,
+    roles,
+  });
+
+  // Wait until auth context is initialized
   if (loading || !ready) {
+    console.log('[ProtectedRoute] Waiting for auth context...');
     return (
       <div className="flex items-center justify-center h-screen text-lg">
         Loading...
@@ -23,19 +34,26 @@ const ProtectedRoute = ({ roles = [] }) => {
     );
   }
 
-  // Redirect to login if not authenticated
+  // Redirect unauthenticated users
   if (!isAuthenticated) {
-    console.warn('ProtectedRoute: Not authenticated');
+    console.warn('[ProtectedRoute] Not authenticated. Redirecting to /login.');
     return <Navigate to="/login" replace />;
   }
 
-  // Redirect to unauthorized page if user lacks required role
-  if (roles.length && !roles.includes(userRole)) {
-    console.warn(`ProtectedRoute: Access denied for role: ${userRole}`);
-    return <Navigate to="/unauthorized" replace />;
+  // If role-based restriction is applied
+  if (roles.length > 0) {
+    if (!userRole) {
+      console.warn('[ProtectedRoute] No user role found. Redirecting to /unauthorized.');
+      return <Navigate to="/unauthorized" replace />;
+    }
+
+    if (!roles.includes(userRole)) {
+      console.warn(`[ProtectedRoute] Role "${userRole}" not in allowed roles:`, roles);
+      return <Navigate to="/unauthorized" replace />;
+    }
   }
 
-  // User is authenticated and authorized
+  console.log('[ProtectedRoute] Access granted. Rendering protected route.');
   return <Outlet />;
 };
 
