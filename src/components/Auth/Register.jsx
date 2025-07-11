@@ -1,3 +1,5 @@
+// src/pages/auth/Register.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DOMPurify from 'dompurify';
@@ -26,6 +28,7 @@ const Register = () => {
     password2: '',
     access_code: '',
     worker_category_id: '',
+    role: 'USER',
   });
 
   const [error, setError] = useState('');
@@ -48,11 +51,13 @@ const Register = () => {
     }
   }, [searchParams]);
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const getPasswordStrength = (password) => {
     if (password.length < 6) return 'Weak';
-    if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8) return 'Strong';
+    if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8)
+      return 'Strong';
     return 'Medium';
   };
 
@@ -89,7 +94,17 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    const { full_name, email, phone, dob, gender, password, password2, access_code, worker_category_id } = form;
+    const {
+      full_name,
+      email,
+      phone,
+      dob,
+      gender,
+      password,
+      password2,
+      access_code,
+      worker_category_id,
+    } = form;
 
     if (!full_name.trim()) return setError('Full name is required.');
     if (!validateEmail(email)) return setError('Invalid email format.');
@@ -98,10 +113,6 @@ const Register = () => {
     if (!gender) return setError('Gender is required.');
     if (!password) return setError('Password is required.');
     if (password !== password2) return setError('Passwords do not match.');
-    if (isInternal) {
-      if (!access_code.trim()) return setError('Access code is required.');
-      if (!worker_category_id) return setError('Worker category ID is required.');
-    }
 
     const payload = {
       full_name,
@@ -110,15 +121,20 @@ const Register = () => {
       dob,
       gender,
       password,
-      ...(isInternal ? { access_code, worker_category_id, role: 'WORKER' } : {}),
     };
 
-    const endpoint = isInternal ? '/accounts/internal-register/' : '/accounts/register/';
+    if (isInternal) {
+      if (!access_code.trim()) return setError('Access code is required.');
+      if (!worker_category_id) return setError('Worker category ID is required.');
+      payload.access_code = access_code;
+      payload.worker_category_id = worker_category_id;
+      payload.role = 'WORKER';
+    }
 
     setLoading(true);
     try {
-      await axiosInstance.post(endpoint, payload);
-      setSuccess('Registration successful! Please check your email to verify.');
+      await axiosInstance.post('/accounts/register/', payload);
+      setSuccess('Registration successful! Check your email to verify.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -127,18 +143,10 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSuccess = async (response) => {
-    setError('');
-    setSuccess('');
+  const handleGoogleSuccess = async ({ credential }) => {
+    if (!credential) return setError('Google login failed: Missing credential');
     setLoading(true);
-
     try {
-      const credential = response.credential;
-      if (!credential) {
-        setError('Google credential missing');
-        return;
-      }
-
       await axiosInstance.post('/accounts/google-register/', { credential });
       setSuccess('Google registration successful! Redirecting...');
       setTimeout(() => navigate('/login'), 3000);
@@ -242,11 +250,7 @@ const Register = () => {
               </div>
             </div>
 
-            <select
-              name="gender"
-              value={form.gender}
-              onChange={handleChange}
-            >
+            <select name="gender" value={form.gender} onChange={handleChange}>
               <option value="">Select Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>

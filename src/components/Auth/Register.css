@@ -81,6 +81,10 @@ body.dark .register-subtitle {
   color: #333;
 }
 
+.internal-toggle input {
+  margin-right: 0.4rem;
+}
+
 body.dark .internal-toggle {
   color: #ccc;
 }
@@ -99,11 +103,20 @@ body.dark .internal-toggle {
   border-radius: 8px;
   font-size: 1rem;
   outline: none;
+  background: #fff;
+  color: #000;
 }
 
 .register-form input:focus,
 .register-form select:focus {
   border-color: #0077ff;
+}
+
+body.dark .register-form input,
+body.dark .register-form select {
+  background-color: #2a2a2a;
+  border-color: #555;
+  color: #e0e0e0;
 }
 
 /* === Phone Input === */
@@ -117,10 +130,18 @@ body.dark .internal-toggle {
   border: 1px solid #ccc;
   width: 100%;
   font-size: 1rem;
+  background: #fff;
+  color: #000;
 }
 
 .phone-input input:focus {
   border-color: #0077ff;
+}
+
+body.dark .phone-input input {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #555;
 }
 
 /* === Date and Gender === */

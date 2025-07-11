@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Login.css';
 
@@ -84,9 +84,12 @@ const Login = () => {
     return 'Login failed. Please try again.';
   };
 
-  const handleLoginSuccess = ({ tokens, user }) => {
+  const handleLoginSuccess = (data) => {
+    const tokens = data.tokens;
+    const user = data.user;
+
     if (!tokens?.access || !tokens?.refresh || !user) {
-      setError('Login failed. Invalid response from server.');
+      setError('Login failed. Incomplete server response.');
       return;
     }
 
