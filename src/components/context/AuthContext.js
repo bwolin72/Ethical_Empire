@@ -19,6 +19,7 @@ const AUTH_KEYS = {
   ACCESS: 'access',
   REFRESH: 'refresh',
   USER: 'user',
+  REMEMBER: 'remember', // ✅ NEW KEY to store persistence flag
 };
 
 export const AuthProvider = ({ children }) => {
@@ -78,7 +79,8 @@ export const AuthProvider = ({ children }) => {
       const newAccess = data.access;
       if (!newAccess) throw new Error('No access token returned');
 
-      const storage = localStorage.getItem(AUTH_KEYS.REFRESH) ? localStorage : sessionStorage;
+      const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
+      const storage = remember ? localStorage : sessionStorage;
 
       storage.setItem(AUTH_KEYS.ACCESS, newAccess);
       setAuth(prev => ({ ...prev, access: newAccess }));
@@ -100,16 +102,21 @@ export const AuthProvider = ({ children }) => {
 
     const storage = remember ? localStorage : sessionStorage;
 
+    // ✅ Store 'remember' flag for future consistent storage
+    localStorage.setItem(AUTH_KEYS.REMEMBER, remember ? 'true' : 'false');
+
     storage.setItem(AUTH_KEYS.ACCESS, access);
     storage.setItem(AUTH_KEYS.REFRESH, refresh);
     storage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
 
     setAuth({ access, refresh, user });
+    setReady(true); // ✅ FIX: ensure app is marked as ready
     scheduleTokenRefresh(access, refresh);
   }, [logout, scheduleTokenRefresh]);
 
   const update = useCallback(({ access, refresh, user }) => {
-    const storage = localStorage.getItem(AUTH_KEYS.REFRESH) ? localStorage : sessionStorage;
+    const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
+    const storage = remember ? localStorage : sessionStorage;
 
     setAuth(prev => {
       const updated = { ...prev };
@@ -130,7 +137,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const storage = localStorage.getItem(AUTH_KEYS.REFRESH) ? localStorage : sessionStorage;
+    const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
+    const storage = remember ? localStorage : sessionStorage;
     const access = storage.getItem(AUTH_KEYS.ACCESS);
     const refresh = storage.getItem(AUTH_KEYS.REFRESH);
     const userRaw = storage.getItem(AUTH_KEYS.USER);
