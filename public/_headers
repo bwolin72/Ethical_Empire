@@ -1,7 +1,11 @@
-#  Prevent caching of critical auth-related pages 
-#  (login, register, user, admin, etc.)
+# Global defaults (apply to everything)
+# Set COOP and CORP policy for login-related popups to work
 
 
+#  Cross-Origin-Opener-Policy: unsafe-none
+ # Cross-Origin-Embedder-Policy: unsafe-none
+
+# Prevent caching of critical auth-related pages
 /login
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache

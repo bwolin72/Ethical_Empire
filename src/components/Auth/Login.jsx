@@ -1,4 +1,4 @@
-// Login.jsx
+// src/pages/auth/Login.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
@@ -140,9 +140,8 @@ const Login = () => {
       <div className="login-container">
         <div className="login-box">
           <img src={logo} alt="Logo" className="login-logo" />
-          <h2>Eethm_GH</h2><br/>
-          <h2>Ethical Multimedia GH</h2>
-
+          <h2>Eethm_GH</h2>
+          <h3>Ethical Multimedia GH</h3>
 
           <label className="dark-toggle">
             <input
