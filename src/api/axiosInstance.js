@@ -1,13 +1,15 @@
+// src/api/axiosInstance.js
+
 import axios from 'axios';
 import baseURL from './baseURL';
 import { applyCommonRequestHeaders, devLog } from './axiosCommon';
-import { logoutHelper } from '../utils/authUtils'; // ✅ Replace useContext with this
+import { logoutHelper } from '../utils/authUtils';
 
 const MAX_RETRIES = 2;
 
 const axiosInstance = axios.create({
   baseURL,
-  timeout: 10000, // 10 seconds
+  timeout: 10000,
 });
 
 // Request Interceptor
@@ -15,7 +17,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     config = applyCommonRequestHeaders(config, true);
     devLog('[Private Request]', config.method?.toUpperCase(), config.url, config);
-    config.metadata = { retryCount: 0 }; // for retry logic
+    config.metadata = { retryCount: 0 };
     return config;
   },
   (error) => {
@@ -34,33 +36,40 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
 
-    // Auto-refresh if token expired (401) and not already retried
+    const remember = localStorage.getItem('remember') === 'true';
+    const refreshToken = remember
+      ? localStorage.getItem('refresh')
+      : sessionStorage.getItem('refresh');
+
+    // Handle token refresh
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) throw new Error('No refresh token');
 
-        const response = await axios.post(
-          process.env.REACT_APP_API_REFRESH_URL || `${baseURL}auth/token/refresh/`,
-          { refresh: refreshToken }
-        );
+        const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || `${baseURL}accounts/token/refresh/`;
+        const { data } = await axios.post(refreshUrl, { refresh: refreshToken });
 
-        const newToken = response.data.access || response.data.token;
-        localStorage.setItem('token', newToken);
+        const newAccess = data.access;
+        if (!newAccess) throw new Error('No access token returned');
 
-        originalRequest.headers['Authorization'] = `Token ${newToken}`;
+        if (remember) {
+          localStorage.setItem('access', newAccess);
+        } else {
+          sessionStorage.setItem('access', newAccess);
+        }
+
+        originalRequest.headers['Authorization'] = `Bearer ${newAccess}`;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        logoutHelper(); // 🔁 Use logoutHelper instead of React hook
+        logoutHelper();
         return Promise.reject(refreshError);
       }
     }
 
-    // Retry on network or 5xx errors
-    const shouldRetry = !originalRequest._retrying && (
-      !error.response || (status >= 500 && status < 600)
-    );
+    // Retry on 5xx or network errors
+    const shouldRetry = !originalRequest._retrying &&
+      (!error.response || (status >= 500 && status < 600));
 
     if (shouldRetry && originalRequest.metadata.retryCount < MAX_RETRIES) {
       originalRequest.metadata.retryCount += 1;
@@ -69,10 +78,8 @@ axiosInstance.interceptors.response.use(
       return axiosInstance(originalRequest);
     }
 
-    // Final fallback
-    if (status === 401) {
-      logoutHelper(); // 🔁 Consistent logout
-    }
+    // Final fallback logout
+    if (status === 401) logoutHelper();
 
     devLog('[Private Response Error]', status, originalRequest?.url, error);
     return Promise.reject(error);

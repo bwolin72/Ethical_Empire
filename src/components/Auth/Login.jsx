@@ -124,6 +124,10 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = async ({ credential }) => {
+    if (!credential) {
+      setError('Google login failed: Missing credential');
+      return;
+    }
     setLoading(true);
     try {
       const { data } = await axiosInstance.post('/accounts/google-register/', { credential });
@@ -162,8 +166,10 @@ const Login = () => {
               placeholder="Email"
               value={form.email}
               onChange={handleChange}
+              autoComplete="username"
               className={formErrors.email ? 'input-error' : ''}
               disabled={loading}
+              required
             />
             {formErrors.email && <small>{formErrors.email}</small>}
 
@@ -174,8 +180,10 @@ const Login = () => {
                 placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
+                autoComplete="current-password"
                 className={formErrors.password ? 'input-error' : ''}
                 disabled={loading}
+                required
               />
               <button
                 type="button"

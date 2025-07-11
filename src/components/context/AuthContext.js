@@ -19,7 +19,7 @@ const AUTH_KEYS = {
   ACCESS: 'access',
   REFRESH: 'refresh',
   USER: 'user',
-  REMEMBER: 'remember', // ✅ NEW KEY to store persistence flag
+  REMEMBER: 'remember',
 };
 
 export const AuthProvider = ({ children }) => {
@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     clearSession();
     setAuth({ access: null, refresh: null, user: null });
+    setReady(true);
     navigate('/login', { replace: true });
   }, [navigate]);
 
@@ -92,7 +93,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [logout, scheduleTokenRefresh]);
 
-  refreshAccessTokenRef.current = refreshAccessToken;
+  useEffect(() => {
+    refreshAccessTokenRef.current = refreshAccessToken;
+  }, [refreshAccessToken]);
 
   const login = useCallback(({ access, refresh, user, remember = true }) => {
     if (!access || !refresh || !user) {
@@ -102,15 +105,19 @@ export const AuthProvider = ({ children }) => {
 
     const storage = remember ? localStorage : sessionStorage;
 
-    // ✅ Store 'remember' flag for future consistent storage
     localStorage.setItem(AUTH_KEYS.REMEMBER, remember ? 'true' : 'false');
-
     storage.setItem(AUTH_KEYS.ACCESS, access);
-    storage.setItem(AUTH_KEYS.REFRESH, refresh);
     storage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
+    
+    // ✅ Explicitly handle refresh token
+    if (remember) {
+      localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+    } else {
+      sessionStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+    }
 
     setAuth({ access, refresh, user });
-    setReady(true); // ✅ FIX: ensure app is marked as ready
+    setReady(true);
     scheduleTokenRefresh(access, refresh);
   }, [logout, scheduleTokenRefresh]);
 
@@ -125,7 +132,11 @@ export const AuthProvider = ({ children }) => {
         updated.access = access;
       }
       if (refresh !== undefined) {
-        storage.setItem(AUTH_KEYS.REFRESH, refresh);
+        if (remember) {
+          localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+        } else {
+          sessionStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+        }
         updated.refresh = refresh;
       }
       if (user !== undefined) {
@@ -140,7 +151,9 @@ export const AuthProvider = ({ children }) => {
     const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
     const storage = remember ? localStorage : sessionStorage;
     const access = storage.getItem(AUTH_KEYS.ACCESS);
-    const refresh = storage.getItem(AUTH_KEYS.REFRESH);
+    const refresh = remember
+      ? localStorage.getItem(AUTH_KEYS.REFRESH)
+      : sessionStorage.getItem(AUTH_KEYS.REFRESH);
     const userRaw = storage.getItem(AUTH_KEYS.USER);
 
     const tryInitializeSession = async () => {
