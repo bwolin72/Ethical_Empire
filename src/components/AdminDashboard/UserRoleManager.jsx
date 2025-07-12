@@ -98,7 +98,6 @@ const UserRoleManager = () => {
     }
   };
 
-  // ✅ Added `activeTab` to the dependency array
   useEffect(() => {
     fetchUsers(activeTab);
   }, [activeTab]);
@@ -136,7 +135,7 @@ const UserRoleManager = () => {
                         onCheckedChange={() => toggleSelection(user.id)}
                       />
                       <div style={{ color: palette.charcoal }}>
-                        <h2 className="font-semibold text-lg">{user.username}</h2>
+                        <h2 className="font-semibold text-lg">{user.name}</h2>
                         <p className="text-sm text-gray-500">{user.email}</p>
                         <p className="text-xs text-gray-400 uppercase">{user.role}</p>
                       </div>
