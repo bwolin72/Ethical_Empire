@@ -56,7 +56,17 @@ const UserPage = () => {
         else toast.error("Failed to load media.");
 
         if (bannerRes.status === "fulfilled") setBanners(bannerRes.value.data);
-        if (featuredRes.status === "fulfilled") setFeatured(featuredRes.value.data);
+
+        if (featuredRes.status === "fulfilled") {
+          const data = featuredRes.value.data;
+          if (Array.isArray(data)) {
+            setFeatured(data);
+          } else {
+            console.warn("Unexpected featured data:", data);
+            setFeatured([]);
+          }
+        }
+
         if (reviewsRes.status === "fulfilled") setReviews(reviewsRes.value.data);
         else toast.error("Failed to load reviews.");
 
@@ -87,7 +97,9 @@ const UserPage = () => {
     }
   };
 
-  const featuredVideo = featured.find((item) => item.file?.endsWith(".mp4"));
+  const featuredVideo = Array.isArray(featured)
+    ? featured.find((item) => item.file?.endsWith(".mp4"))
+    : null;
 
   return (
     <div className={`userpage-container ${darkMode ? "dark" : ""}`}>
