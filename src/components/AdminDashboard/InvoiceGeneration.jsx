@@ -22,8 +22,8 @@ const InvoiceGeneration = () => {
           axiosInstance.get('/bookings/'),
           axiosInstance.get('/services/')
         ]);
-        setBookings(bookingsRes.data);
-        setServices(servicesRes.data);
+        setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
+        setServices(Array.isArray(servicesRes.data) ? servicesRes.data : []);
       } catch (err) {
         console.error('Error fetching data:', err);
         setMessage('❌ Failed to load bookings or services.');
@@ -41,10 +41,13 @@ const InvoiceGeneration = () => {
     ? [booking.service_type]
     : [];
 
-  const total = serviceList.reduce((sum, s) => {
-    const match = Array.isArray(services) ? services.find(item => item.name === s) : null;
-    return sum + (match ? parseFloat(match.price) : 0);
-  }, 0);
+  const total =
+    Array.isArray(serviceList) && Array.isArray(services)
+      ? serviceList.reduce((sum, s) => {
+          const match = services.find(item => item.name === s);
+          return sum + (match ? parseFloat(match.price) : 0);
+        }, 0)
+      : 0;
 
   const paid = paymentStatus === 'full' ? total : paymentStatus === 'half' ? total / 2 : 0;
   const remaining = total - paid;

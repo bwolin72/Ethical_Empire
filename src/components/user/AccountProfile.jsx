@@ -1,3 +1,5 @@
+// src/components/Account/AccountProfile.jsx
+
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +14,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [review, setReview] = useState("");
   const [profileImage, setProfileImage] = useState(externalProfile?.profile_picture || "");
   const [bookings, setBookings] = useState([]);
+  const [loggingOut, setLoggingOut] = useState(false);
   const navigate = useNavigate();
 
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
@@ -23,7 +26,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
     if (!externalProfile) {
       axiosInstance
-        .get("/accounts/profiles/profile/", { signal }) // ✅ fixed endpoint
+        .get("/accounts/profiles/profile/", { signal }) // ✅ profile fetch
         .then((res) => {
           setProfile(res.data);
           setProfileImage(res.data.profile_picture || "");
@@ -91,13 +94,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
   };
 
   const handleLogout = async () => {
-    try {
-      await axiosInstance.post("/accounts/logout/"); // ✅ new correct endpoint
-    } catch (err) {
-      console.warn("Logout request failed, proceeding with local logout.");
-    } finally {
-      logoutHelper(); // ✅ consistent logout logic
-    }
+    setLoggingOut(true);
+    await logoutHelper(); // ✅ handles API call + local cleanup + redirect
   };
 
   const renderBookingStatus = (status) => {
@@ -185,7 +183,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
         </div>
 
         {/* Logout */}
-        <button className="btn danger" onClick={handleLogout}>Logout</button>
+        <button className="btn danger" onClick={handleLogout} disabled={loggingOut}>
+          {loggingOut ? "Logging out..." : "Logout"}
+        </button>
       </div>
     </div>
   );

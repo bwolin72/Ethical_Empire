@@ -21,6 +21,7 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const handleLogout = async () => {
+    console.log('[AdminPanel] Logout clicked');
     try {
       // Optional: Make backend logout request if needed
       // await axiosInstance.post('/accounts/logout/');
@@ -64,7 +65,7 @@ const AdminPanel = () => {
           <li className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
             Analytics
           </li>
-          <li className="logout-tab" onClick={handleLogout}>
+          <li className="logout-tab" onClick={() => handleLogout()}>
             Logout
           </li>
         </ul>
