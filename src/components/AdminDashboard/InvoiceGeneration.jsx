@@ -12,26 +12,29 @@ const InvoiceGeneration = () => {
   const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [bookingsRes, servicesRes] = await Promise.all([
           axiosInstance.get('/bookings/'),
-          axiosInstance.get('/service-prices/')
+          axiosInstance.get('/services/')  // ✅ fixed endpoint
         ]);
         setBookings(bookingsRes.data);
         setServices(servicesRes.data);
       } catch (err) {
         console.error('Error fetching data:', err);
         setMessage('❌ Failed to load bookings or services.');
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
 
   const booking = bookings.find(b => b.id === selectedId);
-
   const serviceList = Array.isArray(booking?.service_type)
     ? booking.service_type
     : booking?.service_type
@@ -57,6 +60,7 @@ const InvoiceGeneration = () => {
     setCreating(true);
     setMessage('');
     setPdfPreviewUrl(null);
+
     try {
       const res = await axiosInstance.post('/invoices/', {
         booking_id: booking.id,
@@ -115,6 +119,13 @@ const InvoiceGeneration = () => {
     }
   };
 
+  const resetInvoiceState = () => {
+    setCreatedInvoiceId(null);
+    setPdfPreviewUrl(null);
+    setPaymentStatus('none');
+    setMessage('');
+  };
+
   return (
     <div className="invoice-container">
       <motion.main
@@ -123,7 +134,9 @@ const InvoiceGeneration = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {booking ? (
+        {loading ? (
+          <p>Loading bookings...</p>
+        ) : booking ? (
           <>
             <h3>{booking.name}</h3>
             <p><strong>Booking Date:</strong> {formatDate(booking.created_at)}</p>
@@ -197,10 +210,7 @@ const InvoiceGeneration = () => {
             key={b.id}
             onClick={() => {
               setSelectedId(b.id);
-              setCreatedInvoiceId(null);
-              setMessage('');
-              setPaymentStatus('none');
-              setPdfPreviewUrl(null);
+              resetInvoiceState();
             }}
             className={`invoice-item ${b.id === selectedId ? 'active' : ''}`}
           >

@@ -2,7 +2,7 @@
 .booking-form-container {
   max-width: 900px;
   margin: auto;
-  padding: 2rem 1rem;
+  padding: 2rem 1.5rem;
   font-family: 'Segoe UI', sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -49,7 +49,7 @@
 .form-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .form-group {
@@ -72,12 +72,12 @@ label {
 input,
 textarea,
 .date-picker {
-  padding: 0.6rem 0.8rem;
+  padding: 0.65rem 0.8rem;
   border: 1px solid #ccc;
   border-radius: 0.5rem;
   font-size: 1rem;
   background-color: #fff;
-  color: #111;
+  color: #111827;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
@@ -151,7 +151,7 @@ textarea:focus,
 
 .service-option {
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
   font-weight: 500;
   color: inherit;
 }
@@ -186,18 +186,30 @@ textarea:focus,
   color: #15803d;
   margin-top: 1rem;
   font-weight: 600;
+  text-align: center;
 }
 
 .error-msg {
   color: #dc2626;
   margin-top: 1rem;
   font-weight: 600;
+  text-align: center;
 }
 
 /* === Responsive Design === */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .form-group {
     flex: 1 1 100%;
+  }
+
+  .form-grid {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .booking-form-container {
+    padding: 1.5rem 1rem;
   }
 
   .form-logo {
@@ -212,24 +224,6 @@ textarea:focus,
     font-size: 0.9rem;
   }
 
-  .submit-btn {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .booking-form-container {
-    padding: 1.5rem 1rem;
-  }
-
-  .form-header h2 {
-    font-size: 1.3rem;
-  }
-
-  .subtitle {
-    font-size: 0.85rem;
-  }
-
   input,
   textarea,
   .date-picker {
@@ -237,6 +231,25 @@ textarea:focus,
   }
 
   .submit-btn {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .form-logo {
+    width: 44px;
+  }
+
+  .form-group {
+    margin-bottom: 0.75rem;
+  }
+
+  .service-option {
     font-size: 0.95rem;
   }
 }
@@ -246,11 +259,12 @@ textarea:focus,
     font-size: 1.2rem;
   }
 
-  .submit-btn {
-    font-size: 0.9rem;
-  }
-
   .form-logo {
     width: 40px;
+  }
+
+  .submit-btn {
+    font-size: 0.9rem;
+    padding: 0.7rem 1rem;
   }
 }

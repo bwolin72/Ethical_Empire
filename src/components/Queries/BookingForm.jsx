@@ -26,7 +26,6 @@ const BookingForm = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Prefill user info
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
@@ -39,7 +38,6 @@ const BookingForm = () => {
     }
   }, []);
 
-  // Fetch available services
   const fetchServices = useCallback(() => {
     axiosInstance
       .get('/services/')
@@ -116,7 +114,7 @@ const BookingForm = () => {
     };
 
     try {
-      await axiosInstance.post('/bookings/', payload, {
+      await axiosInstance.post('/bookings/create/', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

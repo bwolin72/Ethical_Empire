@@ -20,8 +20,8 @@ const BookingManagement = () => {
   const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get('/bookings/', { headers });
-      let data = res.data;
+      const res = await axiosInstance.get('/bookings/admin/bookings/', { headers });
+      let data = res.data.results || res.data;
 
       if (search) {
         data = data.filter(b =>
@@ -59,7 +59,7 @@ const BookingManagement = () => {
   }, [fetchBookings, fetchServices]);
 
   const handleEdit = (booking) => {
-    setEditBooking({ ...booking, services: booking.service_details.map(s => s.id) });
+    setEditBooking({ ...booking, services: booking.services.map(s => s.id) });
   };
 
   const handleEditChange = (field, value) => {
@@ -87,8 +87,12 @@ const BookingManagement = () => {
         address: editBooking.address,
         message: editBooking.message,
         event_date: editBooking.event_date,
-        status: editBooking.status,
         services: editBooking.services,
+      }, { headers });
+
+      // Update status separately if changed
+      await axiosInstance.patch(`/bookings/admin/bookings/${editBooking.id}/status/`, {
+        status: editBooking.status,
       }, { headers });
 
       setEditBooking(null);
@@ -100,18 +104,9 @@ const BookingManagement = () => {
 
   const cancelEdit = () => setEditBooking(null);
 
-  const markComplete = async (id) => {
-    try {
-      await axiosInstance.patch(`/bookings/${id}/`, { status: 'Completed' }, { headers });
-      fetchBookings();
-    } catch (err) {
-      console.error('Failed to mark complete:', err);
-    }
-  };
-
   const deleteBooking = async (id) => {
     try {
-      await axiosInstance.delete(`/bookings/${id}/`, { headers });
+      await axiosInstance.delete(`/bookings/admin/bookings/${id}/delete/`, { headers });
       fetchBookings();
     } catch (err) {
       console.error('Failed to delete booking:', err);
@@ -153,28 +148,19 @@ const BookingManagement = () => {
         </thead>
         <tbody>
           {currentBookings.map((b) => (
-            <tr key={b.id} className={b.status === 'Completed' ? 'completed-row' : ''}>
+            <tr key={b.id} className={b.status === 'completed' ? 'completed-row' : ''}>
               <td>{b.name}</td>
               <td>{b.email}</td>
               <td>{b.phone}</td>
-              <td>{b.service_details?.map(s => s.name).join(', ') || '-'}</td>
+              <td>{b.services?.map(s => s.name).join(', ') || '-'}</td>
               <td>{b.event_date ? new Date(b.event_date).toLocaleDateString() : '-'}</td>
               <td>{new Date(b.created_at).toLocaleString()}</td>
               <td>{b.address}</td>
               <td>{b.message || '-'}</td>
               <td>{b.status}</td>
               <td>
-                <button onClick={() => handleEdit(b)}>✏️ Edit</button>
-                <button
-                  onClick={() => markComplete(b.id)}
-                  disabled={b.status === 'Completed'}
-                  className="mark-complete-btn"
-                >
-                  ✓
-                </button>
-                <button onClick={() => deleteBooking(b.id)} className="delete-btn">
-                  🗑
-                </button>
+                <button onClick={() => handleEdit(b)}>✏️</button>
+                <button onClick={() => deleteBooking(b.id)} className="delete-btn">🗑</button>
               </td>
             </tr>
           ))}
@@ -231,10 +217,10 @@ const BookingManagement = () => {
               value={editBooking.status}
               onChange={e => handleEditChange('status', e.target.value)}
             >
-              <option value="Pending">Pending</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="completed">Completed</option>
             </select>
 
             <div className="services-list">

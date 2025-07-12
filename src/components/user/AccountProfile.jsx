@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { logoutHelper } from "../../utils/logoutHelper"; // ✅ centralized logout
 import "react-toastify/dist/ReactToastify.css";
 import "./AccountProfile.css";
 
@@ -16,14 +17,14 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
-  // Fetch profile and user bookings
   useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
 
     if (!externalProfile) {
-      axiosInstance.get("/accounts/profiles/profile/", { signal })
-        .then(res => {
+      axiosInstance
+        .get("/accounts/profiles/profile/", { signal }) // ✅ fixed endpoint
+        .then((res) => {
           setProfile(res.data);
           setProfileImage(res.data.profile_picture || "");
         })
@@ -31,8 +32,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
         .finally(() => setLoading(false));
     }
 
-    axiosInstance.get("/bookings/user/", { signal })
-      .then(res => setBookings(res.data))
+    axiosInstance
+      .get("/bookings/user/", { signal })
+      .then((res) => setBookings(res.data))
       .catch(() => toast.warn("Could not fetch bookings."));
 
     return () => controller.abort();
@@ -90,11 +92,11 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/accounts/profiles/logout/");
-      localStorage.clear();
-      window.location.reload();
-    } catch {
-      toast.error("Logout failed.");
+      await axiosInstance.post("/accounts/logout/"); // ✅ new correct endpoint
+    } catch (err) {
+      console.warn("Logout request failed, proceeding with local logout.");
+    } finally {
+      logoutHelper(); // ✅ consistent logout logic
     }
   };
 

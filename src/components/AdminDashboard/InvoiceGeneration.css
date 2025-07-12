@@ -1,4 +1,4 @@
-/* Base Layout */
+/* === Container Layout === */
 .invoice-container {
   display: flex;
   flex-wrap: wrap;
@@ -8,7 +8,7 @@
   color: #1f2937;
 }
 
-/* Main Panel */
+/* === Main Content Panel === */
 .invoice-main {
   flex: 1;
   min-width: 300px;
@@ -31,7 +31,7 @@
   font-size: 0.95rem;
 }
 
-/* Sidebar */
+/* === Sidebar Panel === */
 .invoice-sidebar {
   width: 300px;
   min-width: 250px;
@@ -49,7 +49,7 @@
   margin-bottom: 1rem;
 }
 
-/* Booking Items */
+/* === Booking List Items === */
 .invoice-item {
   padding: 0.75rem 1rem;
   margin-bottom: 0.5rem;
@@ -71,7 +71,7 @@
   border: 1px solid #6366f1;
 }
 
-/* Payment Radio Options */
+/* === Payment Option Radios === */
 .payment-options {
   margin: 1.5rem 0 1rem;
   display: flex;
@@ -92,7 +92,7 @@
   accent-color: #4f46e5;
 }
 
-/* Buttons Container */
+/* === Action Buttons === */
 .invoice-actions {
   margin-top: 1rem;
   display: flex;
@@ -100,7 +100,6 @@
   gap: 0.75rem;
 }
 
-/* Button Styling */
 button {
   background-color: #4f46e5;
   color: #ffffff;
@@ -128,7 +127,7 @@ button:focus {
   outline-offset: 2px;
 }
 
-/* PDF Preview Box */
+/* === PDF Preview Section === */
 .pdf-preview {
   margin-top: 2rem;
   border: 1px solid #d1d5db;
@@ -154,7 +153,7 @@ button:focus {
   border: none;
 }
 
-/* Feedback Message */
+/* === Status Messages === */
 .message {
   margin-top: 1.5rem;
   font-size: 0.95rem;
@@ -166,7 +165,7 @@ button:focus {
   border: 1px solid #10b981;
 }
 
-/* Empty State */
+/* === Empty State Display === */
 .empty-state {
   font-size: 1.25rem;
   font-weight: 500;
@@ -175,7 +174,7 @@ button:focus {
   text-align: center;
 }
 
-/* Responsive Design */
+/* === Responsive Design === */
 @media (max-width: 1024px) {
   .invoice-container {
     flex-direction: column-reverse;

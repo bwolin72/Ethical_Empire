@@ -9,9 +9,10 @@ import ReviewsManagement from './ReviewsManagement';
 import NewsletterAdminPage from './NewsletterAdminPage';
 import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
-import AnalyticsDashboard from './AnalyticsDashboard'; // ✅ Make sure this component exists
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 import useAuth from '../../hooks/useAuth';
+import { logoutHelper } from '../../utils/logoutHelper'; // ✅ centralized logout
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -19,10 +20,16 @@ const AdminPanel = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  const handleLogout = () => {
-    setAuth({});
-    localStorage.removeItem('authToken');
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      // Optional: Make backend logout request if needed
+      // await axiosInstance.post('/accounts/logout/');
+    } catch (err) {
+      console.warn('Admin logout API failed, proceeding with local logout');
+    } finally {
+      setAuth({});
+      logoutHelper(); // ✅ handles storage clear + redirect + toast
+    }
   };
 
   return (
@@ -72,7 +79,7 @@ const AdminPanel = () => {
         {activeTab === 'newsletter' && <NewsletterAdminPage />}
         {activeTab === 'promotions' && <AdminPromotions />}
         {activeTab === 'roles' && <UserRoleManager />}
-        {activeTab === 'analytics' && <AnalyticsDashboard />} {/* ✅ Must create */}
+        {activeTab === 'analytics' && <AnalyticsDashboard />}
       </section>
     </div>
   );
