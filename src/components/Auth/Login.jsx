@@ -83,11 +83,11 @@ const Login = () => {
     return 'Login failed. Please try again.';
   };
 
+  // ✅ Updated to match new backend response
   const handleLoginSuccess = (data) => {
-    const tokens = data.tokens;
-    const user = data.user;
+    const { access, refresh, user } = data;
 
-    if (!tokens?.access || !tokens?.refresh || !user) {
+    if (!access || !refresh || !user) {
       setError('Login failed. Incomplete server response.');
       return;
     }
@@ -97,11 +97,12 @@ const Login = () => {
       email: user.email,
       role: user.role,
       isAdmin: user.role === 'admin',
+      is_email_verified: user.is_email_verified,
     };
 
     login({
-      access: tokens.access,
-      refresh: tokens.refresh,
+      access,
+      refresh,
       user: userPayload,
       remember: rememberMe,
     });
