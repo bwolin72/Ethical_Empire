@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Get token from correct storage
+// === Helper: Get token from correct storage ===
 const getStoredAccessToken = () => {
   const remember = localStorage.getItem('remember') === 'true';
   const storage = remember ? localStorage : sessionStorage;
@@ -8,12 +8,41 @@ const getStoredAccessToken = () => {
   return token && token !== 'null' && token !== 'undefined' ? token : null;
 };
 
+// === Main Axios Instance ===
+const axiosCommon = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api', // fallback for local dev
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// === Request Interceptor for Auth Header and Content-Type ===
+axiosCommon.interceptors.request.use((config) => {
+  const method = config.method?.toUpperCase();
+  const isFormData = config.data instanceof FormData;
+
+  // 🔒 Add JWT token
+  const token = getStoredAccessToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Set content-type only for non-GET and non-FormData
+  if (method === 'GET') {
+    delete config.headers['Content-Type'];
+  } else if (!isFormData) {
+    config.headers['Content-Type'] = 'application/json';
+  }
+
+  return config;
+});
+
+// === Exportable function to apply headers manually (for other axios instances) ===
 export const applyCommonRequestHeaders = (config, isAuth = false) => {
   config.headers = config.headers || {};
   const method = config.method?.toUpperCase();
   const isFormData = config.data instanceof FormData;
 
-  // ✅ Apply JWT auth
   if (isAuth) {
     const token = getStoredAccessToken();
     if (token) {
@@ -23,7 +52,6 @@ export const applyCommonRequestHeaders = (config, isAuth = false) => {
     }
   }
 
-  // Set appropriate content type
   if (method === 'GET') {
     delete config.headers['Content-Type'];
   } else if (!isFormData) {
@@ -33,14 +61,14 @@ export const applyCommonRequestHeaders = (config, isAuth = false) => {
   return config;
 };
 
-// Dev log (only in development mode)
+// === Dev-only Logger ===
 export const devLog = (...args) => {
   if (process.env.NODE_ENV === 'development') {
     console.log(...args);
   }
 };
 
-// Create cancel token for aborting requests
+// === Cancel token factory ===
 export const createCancelToken = () => {
   const controller = new AbortController();
   return {
@@ -49,4 +77,4 @@ export const createCancelToken = () => {
   };
 };
 
-export default axios;
+export default axiosCommon;

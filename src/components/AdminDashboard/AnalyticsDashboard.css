@@ -1,0 +1,25 @@
+.admin-analytics-page {
+  padding: 2rem;
+  color: #333;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.analytics-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.analytics-card p {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.chart-container {
+  margin-top: 2rem;
+}

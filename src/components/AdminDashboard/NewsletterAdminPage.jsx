@@ -20,8 +20,8 @@ const NewsletterManagement = () => {
       try {
         const [logsRes, countRes, subsRes] = await Promise.all([
           axiosInstance.get('/newsletter/logs/'),
-          axiosInstance.get('/newsletter/recipients/count/'),
-          axiosInstance.get('/newsletter/subscribers/'),
+          axiosInstance.get('/newsletter/count/'),
+          axiosInstance.get('/newsletter/list/'),
         ]);
 
         setNewsletterLog(logsRes.data);
@@ -49,8 +49,8 @@ const NewsletterManagement = () => {
   const refreshSubscribers = async () => {
     try {
       const [subsRes, countRes] = await Promise.all([
-        axiosInstance.get('/newsletter/subscribers/'),
-        axiosInstance.get('/newsletter/recipients/count/'),
+        axiosInstance.get('/newsletter/list/'),
+        axiosInstance.get('/newsletter/count/'),
       ]);
       setSubscribers(subsRes.data);
       setRecipientsCount(countRes.data.count);
@@ -93,7 +93,7 @@ const NewsletterManagement = () => {
   const handleDeleteSubscriber = async (id) => {
     if (!window.confirm('Are you sure you want to delete this subscriber?')) return;
     try {
-      await axiosInstance.delete(`/newsletter/subscribers/${id}/`);
+      await axiosInstance.delete(`/newsletter/delete/${id}/`);
       toast.success('✅ Subscriber deleted');
       await refreshSubscribers();
     } catch {
@@ -198,8 +198,10 @@ const NewsletterManagement = () => {
             </thead>
             <tbody>
               {subscribers.map((sub) => {
-                const status = sub.confirmed
-                  ? sub.unsubscribed ? 'Unsubscribed' : 'Confirmed'
+                const status = sub.unsubscribed
+                  ? 'Unsubscribed'
+                  : sub.confirmed
+                  ? 'Confirmed'
                   : 'Unconfirmed';
 
                 return (

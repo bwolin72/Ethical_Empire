@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import AdminDashboard from './AdminDashboard';
 import BookingManagement from './BookingManagement';
 import InvoiceGeneration from './InvoiceGeneration';
@@ -7,12 +9,13 @@ import ReviewsManagement from './ReviewsManagement';
 import NewsletterAdminPage from './NewsletterAdminPage';
 import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
+import AnalyticsDashboard from './AnalyticsDashboard'; // ✅ Make sure this component exists
+
 import useAuth from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
-  const { setAuth } = useAuth(); // ✅ Removed unused 'auth'
+  const { setAuth } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -51,6 +54,9 @@ const AdminPanel = () => {
           <li className={activeTab === 'roles' ? 'active' : ''} onClick={() => setActiveTab('roles')}>
             User Role Manager
           </li>
+          <li className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
+            Analytics
+          </li>
           <li className="logout-tab" onClick={handleLogout}>
             Logout
           </li>
@@ -66,6 +72,7 @@ const AdminPanel = () => {
         {activeTab === 'newsletter' && <NewsletterAdminPage />}
         {activeTab === 'promotions' && <AdminPromotions />}
         {activeTab === 'roles' && <UserRoleManager />}
+        {activeTab === 'analytics' && <AnalyticsDashboard />} {/* ✅ Must create */}
       </section>
     </div>
   );
