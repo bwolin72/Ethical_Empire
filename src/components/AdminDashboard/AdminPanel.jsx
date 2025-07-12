@@ -1,5 +1,6 @@
+// src/components/AdminDashboard/AdminPanel.jsx
+
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import AdminDashboard from './AdminDashboard';
 import BookingManagement from './BookingManagement';
@@ -17,7 +18,6 @@ import './AdminPanel.css';
 
 const AdminPanel = () => {
   const { setAuth } = useAuth();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const handleLogout = async () => {
