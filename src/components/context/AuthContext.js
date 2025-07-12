@@ -1,4 +1,4 @@
-// src/context/AuthContext.js
+// src/components/context/AuthContext.js
 
 import React, {
   createContext,
@@ -39,8 +39,10 @@ export const AuthProvider = ({ children }) => {
   const clearSession = () => {
     console.warn('[Auth] Clearing session');
     clearTimeout(refreshTimer.current);
-    Object.values(AUTH_KEYS).forEach((key) => localStorage.removeItem(key));
-    sessionStorage.clear();
+    Object.values(AUTH_KEYS).forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
   };
 
   const logout = useCallback(() => {
@@ -158,8 +160,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
+    const rememberStored = localStorage.getItem(AUTH_KEYS.REMEMBER);
+    const remember = rememberStored === null ? true : rememberStored === 'true';
     const storage = remember ? localStorage : sessionStorage;
+
     const access = storage.getItem(AUTH_KEYS.ACCESS);
     const refresh = remember
       ? localStorage.getItem(AUTH_KEYS.REFRESH)
@@ -186,6 +190,14 @@ export const AuthProvider = ({ children }) => {
         const decoded = jwtDecode(access);
         const isExpired = decoded.exp * 1000 < Date.now();
         const user = JSON.parse(userRaw);
+
+        if (!user?.email || !user?.role) {
+          console.warn('[Auth] Invalid user object in storage');
+          clearSession();
+          setLoading(false);
+          setReady(true);
+          return;
+        }
 
         setAuth({ access, refresh, user });
 

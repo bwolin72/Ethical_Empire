@@ -1,5 +1,3 @@
-// src/api/axiosInstance.js
-
 import axios from 'axios';
 import baseURL from './baseURL';
 import { applyCommonRequestHeaders, devLog } from './axiosCommon';
@@ -17,7 +15,7 @@ axiosInstance.interceptors.request.use(
   (config) => {
     config = applyCommonRequestHeaders(config, true);
     devLog('[Private Request]', config.method?.toUpperCase(), config.url, config);
-    config.metadata = { retryCount: 0 };
+    if (!config.metadata) config.metadata = { retryCount: 0 };
     return config;
   },
   (error) => {
@@ -36,12 +34,14 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
 
-    const remember = localStorage.getItem('remember') === 'true';
-    const refreshToken = remember
-      ? localStorage.getItem('refresh')
-      : sessionStorage.getItem('refresh');
+    // Determine remember mode (default to true if missing)
+    const rememberStored = localStorage.getItem('remember');
+    const remember = rememberStored === null ? true : rememberStored === 'true';
+    const storage = remember ? localStorage : sessionStorage;
 
-    // Handle token refresh
+    const refreshToken = storage.getItem('refresh');
+
+    // Handle token refresh if 401 and not retried before
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -53,32 +53,31 @@ axiosInstance.interceptors.response.use(
         const newAccess = data.access;
         if (!newAccess) throw new Error('No access token returned');
 
-        if (remember) {
-          localStorage.setItem('access', newAccess);
-        } else {
-          sessionStorage.setItem('access', newAccess);
-        }
-
+        storage.setItem('access', newAccess);
         originalRequest.headers['Authorization'] = `Bearer ${newAccess}`;
+
         return axiosInstance(originalRequest);
       } catch (refreshError) {
+        console.error('[Axios] Token refresh failed:', refreshError);
         logoutHelper();
         return Promise.reject(refreshError);
       }
     }
 
-    // Retry on 5xx or network errors
-    const shouldRetry = !originalRequest._retrying &&
-      (!error.response || (status >= 500 && status < 600));
+    // Retry on 5xx or network error
+    const shouldRetry = (
+      !originalRequest._retrying &&
+      (!error.response || (status >= 500 && status < 600))
+    );
 
-    if (shouldRetry && originalRequest.metadata.retryCount < MAX_RETRIES) {
+    if (shouldRetry && originalRequest.metadata?.retryCount < MAX_RETRIES) {
       originalRequest.metadata.retryCount += 1;
       originalRequest._retrying = true;
       devLog(`[Retrying ${originalRequest.metadata.retryCount}/${MAX_RETRIES}]`, originalRequest.url);
       return axiosInstance(originalRequest);
     }
 
-    // Final fallback logout
+    // Final fallback on unauthorized
     if (status === 401) logoutHelper();
 
     devLog('[Private Response Error]', status, originalRequest?.url, error);
