@@ -14,9 +14,10 @@ const AnalyticsDashboard = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await axiosInstance.get('/analytics/');
+        const response = await axiosInstance.get('/analytics/stats/');
         setData(response.data);
       } catch (err) {
+        console.error('[AnalyticsDashboard] Fetch error:', err);
         setError('Failed to fetch analytics data.');
       } finally {
         setLoading(false);
@@ -30,11 +31,16 @@ const AnalyticsDashboard = () => {
   if (error) return <div className="analytics-error">{error}</div>;
   if (!data) return null;
 
+  const totalUsers = data.total_users || 0;
+  const totalBookings = data.total_bookings || 0;
+  const totalInvoices = data.total_invoices || 0;
+  const totalRevenue = typeof data.total_revenue === 'number' ? data.total_revenue : 0;
+
   const chartData = [
-    { name: 'Users', value: data.total_users || 0 },
-    { name: 'Bookings', value: data.total_bookings || 0 },
-    { name: 'Invoices', value: data.total_invoices || 0 },
-    { name: 'Revenue', value: data.total_revenue || 0 },
+    { name: 'Users', value: totalUsers },
+    { name: 'Bookings', value: totalBookings },
+    { name: 'Invoices', value: totalInvoices },
+    { name: 'Revenue', value: totalRevenue },
   ];
 
   return (
@@ -45,25 +51,25 @@ const AnalyticsDashboard = () => {
         <Card className="analytics-card">
           <CardContent>
             <h3>Total Users</h3>
-            <p>{data.total_users}</p>
+            <p>{totalUsers}</p>
           </CardContent>
         </Card>
         <Card className="analytics-card">
           <CardContent>
             <h3>Total Bookings</h3>
-            <p>{data.total_bookings}</p>
+            <p>{totalBookings}</p>
           </CardContent>
         </Card>
         <Card className="analytics-card">
           <CardContent>
             <h3>Total Invoices</h3>
-            <p>{data.total_invoices}</p>
+            <p>{totalInvoices}</p>
           </CardContent>
         </Card>
         <Card className="analytics-card">
           <CardContent>
             <h3>Total Revenue</h3>
-            <p>₵ {data.total_revenue.toFixed(2)}</p>
+            <p>₵ {totalRevenue.toFixed(2)}</p>
           </CardContent>
         </Card>
       </div>

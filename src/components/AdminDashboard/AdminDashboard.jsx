@@ -48,8 +48,11 @@ const AdminDashboard = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const res = await axiosInstance.get('/analytics/');
-      setAnalytics(res.data);
+      const res = await axiosInstance.get('/analytics/stats/');
+      setAnalytics({
+        visits: res.data.total || 0,
+        users: res.data.unique_users || 0,
+      });
     } catch {
       setAnalytics({ visits: 0, users: 0 });
     }

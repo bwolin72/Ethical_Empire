@@ -145,7 +145,7 @@ const Login = () => {
     setLoading(true);
     console.log('[Login] Google credential received. Sending to backend...');
     try {
-      const { data } = await axiosInstance.post('/accounts/google-register/', { credential });
+      const { data } = await axiosInstance.post('/accounts/google-login/', { credential });
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
