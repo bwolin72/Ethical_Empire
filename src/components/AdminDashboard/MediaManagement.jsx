@@ -36,10 +36,11 @@ const MediaManagement = () => {
       }
 
       const res = await axiosInstance.get('/media/', { params });
-      setUploadedItems(res.data);
+      setUploadedItems(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Failed to fetch media:', error);
       toast.error('Failed to load media.');
+      setUploadedItems([]); // fallback to empty
     }
   }, [mediaType, selectedEndpoint, statusFilter]);
 
@@ -87,9 +88,11 @@ const MediaManagement = () => {
       const res = await axiosInstance.patch(`/media/${id}/toggle/`);
       toast.info(res.data.is_active ? 'Activated.' : 'Deactivated.');
       setUploadedItems((prev) =>
-        prev.map((item) =>
-          item.id === id ? { ...item, is_active: res.data.is_active } : item
-        )
+        Array.isArray(prev)
+          ? prev.map((item) =>
+              item.id === id ? { ...item, is_active: res.data.is_active } : item
+            )
+          : []
       );
     } catch (err) {
       console.error('Toggle failed:', err);
@@ -102,9 +105,11 @@ const MediaManagement = () => {
       const res = await axiosInstance.patch(`/media/${id}/toggle/featured/`);
       toast.info(res.data.is_featured ? 'Marked as featured.' : 'Unmarked as featured.');
       setUploadedItems((prev) =>
-        prev.map((item) =>
-          item.id === id ? { ...item, is_featured: res.data.is_featured } : item
-        )
+        Array.isArray(prev)
+          ? prev.map((item) =>
+              item.id === id ? { ...item, is_featured: res.data.is_featured } : item
+            )
+          : []
       );
     } catch (err) {
       console.error('Feature toggle failed:', err);
@@ -117,7 +122,7 @@ const MediaManagement = () => {
 
     try {
       await axiosInstance.delete(`/media/${id}/delete/`);
-      setUploadedItems((prev) => prev.filter((item) => item.id !== id));
+      setUploadedItems((prev) => (Array.isArray(prev) ? prev.filter((item) => item.id !== id) : []));
       toast.success('Media deleted.');
     } catch (err) {
       console.error('Delete failed:', err);
@@ -146,16 +151,13 @@ const MediaManagement = () => {
       <h2>{mediaType === 'media' ? 'Media Uploads' : mediaType === 'banner' ? 'Banner Uploads' : 'Featured Media'}</h2>
 
       <div className="media-controls">
-        <input
-          type="file"
-          multiple
-          accept="image/*,video/*"
-          onChange={handleFileChange}
-        />
+        <input type="file" multiple accept="image/*,video/*" onChange={handleFileChange} />
 
         <select value={selectedEndpoint} onChange={(e) => setSelectedEndpoint(e.target.value)}>
           {endpoints.map((ep) => (
-            <option key={ep.value} value={ep.value}>{ep.label}</option>
+            <option key={ep.value} value={ep.value}>
+              {ep.label}
+            </option>
           ))}
         </select>
 
@@ -169,13 +171,13 @@ const MediaManagement = () => {
           {uploading ? `Uploading ${uploadProgress}%...` : 'Upload'}
         </button>
 
-        <button onClick={() => {
-          setMediaType((prev) =>
-            prev === 'media' ? 'banner' :
-            prev === 'banner' ? 'featured' :
-            'media'
-          );
-        }}>
+        <button
+          onClick={() => {
+            setMediaType((prev) =>
+              prev === 'media' ? 'banner' : prev === 'banner' ? 'featured' : 'media'
+            );
+          }}
+        >
           Switch to {mediaType === 'media' ? 'Banner' : mediaType === 'banner' ? 'Featured' : 'Media'}
         </button>
       </div>
@@ -192,42 +194,49 @@ const MediaManagement = () => {
       {uploading && (
         <div className="upload-progress">
           <p>Uploading: {uploadProgress}%</p>
-          <progress value={uploadProgress} max="100"></progress>
+          <progress value={uploadProgress} max="100" />
         </div>
       )}
 
       <div className="media-list">
-        {uploadedItems.length === 0 && <p>No {mediaType}s found for this filter.</p>}
-        {uploadedItems
-          .filter((item) => item.url?.toLowerCase().includes(searchQuery.toLowerCase()))
-          .map((item) => (
-            <div className="media-card" key={item.id}>
-              <div onClick={() => setPreviewItem(item)} style={{ cursor: 'pointer' }}>
-                {renderPreview(item.url)}
-              </div>
-              <div className="media-actions">
-                <p>Status: {item.is_active ? '✅ Active' : '❌ Inactive'}</p>
-                {'is_featured' in item && (
-                  <p>Featured: {item.is_featured ? '⭐ Yes' : '—'}</p>
-                )}
-                <button onClick={() => toggleActive(item.id)}>
-                  {item.is_active ? 'Deactivate' : 'Activate'}
-                </button>
-                {'is_featured' in item && (
-                  <button onClick={() => toggleFeatured(item.id)}>
-                    {item.is_featured ? 'Unset Featured' : 'Set as Featured'}
+        {Array.isArray(uploadedItems) && uploadedItems.length === 0 && (
+          <p>No {mediaType}s found for this filter.</p>
+        )}
+        {Array.isArray(uploadedItems) &&
+          uploadedItems
+            .filter((item) =>
+              item.url?.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .map((item) => (
+              <div className="media-card" key={item.id}>
+                <div onClick={() => setPreviewItem(item)} style={{ cursor: 'pointer' }}>
+                  {renderPreview(item.url)}
+                </div>
+                <div className="media-actions">
+                  <p>Status: {item.is_active ? '✅ Active' : '❌ Inactive'}</p>
+                  {'is_featured' in item && (
+                    <p>Featured: {item.is_featured ? '⭐ Yes' : '—'}</p>
+                  )}
+                  <button onClick={() => toggleActive(item.id)}>
+                    {item.is_active ? 'Deactivate' : 'Activate'}
                   </button>
-                )}
-                <button onClick={() => deleteMedia(item.id)}>Delete</button>
+                  {'is_featured' in item && (
+                    <button onClick={() => toggleFeatured(item.id)}>
+                      {item.is_featured ? 'Unset Featured' : 'Set as Featured'}
+                    </button>
+                  )}
+                  <button onClick={() => deleteMedia(item.id)}>Delete</button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
       </div>
 
       {previewItem && (
         <div className="preview-overlay" onClick={() => setPreviewItem(null)}>
           <div className="preview-content" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setPreviewItem(null)} className="close-button">Close</button>
+            <button onClick={() => setPreviewItem(null)} className="close-button">
+              Close
+            </button>
             <h3>Preview</h3>
             {renderPreview(previewItem.url)}
           </div>

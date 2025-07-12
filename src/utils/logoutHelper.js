@@ -1,10 +1,19 @@
 // src/utils/logoutHelper.js
 
 import { toast } from 'react-hot-toast';
+import axiosInstance from '../api/axiosInstance';
 
-export const logoutHelper = () => {
+export const logoutHelper = async () => {
   try {
-    // Clear all stored tokens and user data
+    // Optional: Call backend logout if available
+    await axiosInstance.post('/accounts/logout/'); // ✅ Make sure this endpoint exists and is open to authenticated users
+
+    toast.success('You have been logged out from the server.');
+  } catch (err) {
+    console.warn('Logout API error:', err?.response?.status, err?.response?.data);
+    toast.error('Server logout failed. Logging out locally.');
+  } finally {
+    // Always clear local/session storage
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
     localStorage.removeItem('user');
@@ -13,19 +22,13 @@ export const logoutHelper = () => {
     sessionStorage.removeItem('access');
     sessionStorage.removeItem('refresh');
     sessionStorage.removeItem('user');
-
     sessionStorage.clear();
 
-    // Notify user before redirect (delay redirect slightly to allow toast to show)
+    // Notify and redirect
     toast.success('You have been logged out.');
 
-    // Delay redirect to give toast a moment
     setTimeout(() => {
       window.location.href = '/login';
     }, 500);
-    
-  } catch (err) {
-    console.error('Logout error:', err);
-    toast.error('Failed to logout properly');
   }
 };

@@ -20,7 +20,7 @@ const InvoiceGeneration = () => {
       try {
         const [bookingsRes, servicesRes] = await Promise.all([
           axiosInstance.get('/bookings/'),
-          axiosInstance.get('/services/')  // ✅ fixed endpoint
+          axiosInstance.get('/services/')
         ]);
         setBookings(bookingsRes.data);
         setServices(servicesRes.data);
@@ -42,7 +42,7 @@ const InvoiceGeneration = () => {
     : [];
 
   const total = serviceList.reduce((sum, s) => {
-    const match = services.find(item => item.name === s);
+    const match = Array.isArray(services) ? services.find(item => item.name === s) : null;
     return sum + (match ? parseFloat(match.price) : 0);
   }, 0);
 
