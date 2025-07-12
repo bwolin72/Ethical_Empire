@@ -1,5 +1,4 @@
 // src/components/context/AuthContext.js
-
 import React, {
   createContext,
   useContext,
@@ -27,26 +26,21 @@ export const AuthProvider = ({ children }) => {
   const refreshTimer = useRef(null);
   const refreshAccessTokenRef = useRef(null);
 
-  const [auth, setAuth] = useState({
-    access: null,
-    refresh: null,
-    user: null,
-  });
-
+  const [auth, setAuth] = useState({ access: null, refresh: null, user: null });
   const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState(false);
 
   const clearSession = () => {
-    console.warn('[Auth] Clearing session');
+    console.warn('[Auth] Clearing session storage and timers');
     clearTimeout(refreshTimer.current);
-    Object.values(AUTH_KEYS).forEach(key => {
+    Object.values(AUTH_KEYS).forEach((key) => {
       localStorage.removeItem(key);
       sessionStorage.removeItem(key);
     });
   };
 
-  const logout = useCallback(() => {
-    console.warn('[Auth] Logging out...');
+  const logout = useCallback((reason = 'manual') => {
+    console.warn(`[Auth] Logging out. Reason: ${reason}`);
     clearSession();
     setAuth({ access: null, refresh: null, user: null });
     setReady(true);
@@ -63,6 +57,7 @@ export const AuthProvider = ({ children }) => {
       console.log('[Auth] Scheduling token refresh in', delay / 1000, 'seconds');
 
       if (delay <= 0) {
+        console.warn('[Auth] Token expired or too close. Refreshing immediately.');
         refreshAccessTokenRef.current?.(refreshToken);
       } else {
         clearTimeout(refreshTimer.current);
@@ -71,20 +66,20 @@ export const AuthProvider = ({ children }) => {
         }, delay);
       }
     } catch (err) {
-      console.error('[Auth] Token scheduling failed:', err);
-      logout();
+      console.error('[Auth] scheduleTokenRefresh error', err);
+      logout('token_decode_failed');
     }
   }, [logout]);
 
   const refreshAccessToken = useCallback(async (refreshToken) => {
     if (!refreshToken) {
-      console.warn('[Auth] No refresh token available, logging out.');
-      return logout();
+      console.warn('[Auth] No refresh token. Logging out.');
+      return logout('missing_refresh_token');
     }
 
     try {
+      console.log('[Auth] Attempting token refresh...');
       const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
-      console.log('[Auth] Refreshing access token...');
       const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
 
       const newAccess = data.access;
@@ -93,14 +88,14 @@ export const AuthProvider = ({ children }) => {
       const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
       const storage = remember ? localStorage : sessionStorage;
 
-      console.log('[Auth] Token refreshed. Updating access token...');
       storage.setItem(AUTH_KEYS.ACCESS, newAccess);
-      setAuth(prev => ({ ...prev, access: newAccess }));
+      console.log('[Auth] Token refresh succeeded.');
+      setAuth((prev) => ({ ...prev, access: newAccess }));
       scheduleTokenRefresh(newAccess, refreshToken);
     } catch (err) {
-      console.error('[Auth] Failed to refresh token:', err);
-      toast.error('Session expired. Please log in again.');
-      logout();
+      console.error('[Auth] Token refresh failed:', err);
+      toast.error('Session expired, please log in again.');
+      logout('refresh_failed');
     }
   }, [logout, scheduleTokenRefresh]);
 
@@ -110,22 +105,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(({ access, refresh, user, remember = true }) => {
     if (!access || !refresh || !user) {
-      console.error('[Auth] Login data incomplete:', { access, refresh, user });
-      return logout();
+      console.error('[Auth] Invalid login payload:', { access, refresh, user });
+      return logout('invalid_login_data');
     }
 
-    console.log('[Auth] Logging in as:', user);
     const storage = remember ? localStorage : sessionStorage;
-
     localStorage.setItem(AUTH_KEYS.REMEMBER, remember ? 'true' : 'false');
     storage.setItem(AUTH_KEYS.ACCESS, access);
+    storage.setItem(AUTH_KEYS.REFRESH, refresh);
     storage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
-    if (remember) {
-      localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-    } else {
-      sessionStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-    }
 
+    console.log('[Auth] Logged in:', user);
     setAuth({ access, refresh, user });
     setReady(true);
     scheduleTokenRefresh(access, refresh);
@@ -135,20 +125,14 @@ export const AuthProvider = ({ children }) => {
     const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
     const storage = remember ? localStorage : sessionStorage;
 
-    console.log('[Auth] Updating session data:', { access, refresh, user });
-
-    setAuth(prev => {
+    setAuth((prev) => {
       const updated = { ...prev };
       if (access !== undefined) {
         storage.setItem(AUTH_KEYS.ACCESS, access);
         updated.access = access;
       }
       if (refresh !== undefined) {
-        if (remember) {
-          localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-        } else {
-          sessionStorage.setItem(AUTH_KEYS.REFRESH, refresh);
-        }
+        storage.setItem(AUTH_KEYS.REFRESH, refresh);
         updated.refresh = refresh;
       }
       if (user !== undefined) {
@@ -165,22 +149,15 @@ export const AuthProvider = ({ children }) => {
     const storage = remember ? localStorage : sessionStorage;
 
     const access = storage.getItem(AUTH_KEYS.ACCESS);
-    const refresh = remember
-      ? localStorage.getItem(AUTH_KEYS.REFRESH)
-      : sessionStorage.getItem(AUTH_KEYS.REFRESH);
+    const refresh = storage.getItem(AUTH_KEYS.REFRESH);
     const userRaw = storage.getItem(AUTH_KEYS.USER);
 
-    console.log('[Auth] Initializing session...');
-    console.log('[Auth] Storage:', {
-      access,
-      refresh,
-      userRaw,
-      remember,
-    });
+    console.log('[Auth] Initializing session from storage...');
+    console.log('[Auth] Storage:', { access, refresh, userRaw, remember });
 
-    const tryInitializeSession = async () => {
+    const tryInitialize = async () => {
       if (!access || !refresh || !userRaw) {
-        console.warn('[Auth] No saved session found.');
+        console.warn('[Auth] No valid stored session found');
         setLoading(false);
         setReady(true);
         return;
@@ -192,32 +169,29 @@ export const AuthProvider = ({ children }) => {
         const user = JSON.parse(userRaw);
 
         if (!user?.email || !user?.role) {
-          console.warn('[Auth] Invalid user object in storage');
-          clearSession();
-          setLoading(false);
-          setReady(true);
-          return;
+          console.warn('[Auth] Invalid stored user data');
+          return logout('invalid_user_data');
         }
 
         setAuth({ access, refresh, user });
 
         if (isExpired) {
-          console.warn('[Auth] Token expired. Refreshing...');
+          console.warn('[Auth] Access token expired. Refreshing...');
           await refreshAccessToken(refresh);
         } else {
-          console.log('[Auth] Valid session found.');
+          console.log('[Auth] Session is valid');
           scheduleTokenRefresh(access, refresh);
         }
       } catch (err) {
-        console.error('[Auth] Session initialization failed:', err);
-        logout();
+        console.error('[Auth] Failed to initialize session:', err);
+        logout('init_session_failed');
       } finally {
         setLoading(false);
         setReady(true);
       }
     };
 
-    tryInitializeSession();
+    tryInitialize();
   }, [refreshAccessToken, scheduleTokenRefresh, logout]);
 
   const isAuthenticated = !!auth?.access && !!auth?.user;
