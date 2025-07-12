@@ -1,4 +1,3 @@
-// src/pages/auth/Login.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
