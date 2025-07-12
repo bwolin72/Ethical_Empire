@@ -1,4 +1,3 @@
-// src/components/context/AuthContext.js
 import React, {
   createContext,
   useContext,
@@ -83,18 +82,31 @@ export const AuthProvider = ({ children }) => {
       const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
 
       const newAccess = data.access;
+      const newRefresh = data.refresh || refreshToken;
       if (!newAccess) throw new Error('No access token returned');
 
       const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
       const storage = remember ? localStorage : sessionStorage;
 
       storage.setItem(AUTH_KEYS.ACCESS, newAccess);
+      storage.setItem(AUTH_KEYS.REFRESH, newRefresh);
+
       console.log('[Auth] Token refresh succeeded.');
-      setAuth((prev) => ({ ...prev, access: newAccess }));
-      scheduleTokenRefresh(newAccess, refreshToken);
+      setAuth((prev) => ({ ...prev, access: newAccess, refresh: newRefresh }));
+      scheduleTokenRefresh(newAccess, newRefresh);
     } catch (err) {
-      console.error('[Auth] Token refresh failed:', err);
-      toast.error('Session expired, please log in again.');
+      const errorData = err?.response?.data || {};
+      const message = errorData?.detail || err.message;
+      const code = errorData?.code;
+
+      console.error('[Auth] Token refresh failed:', message, code);
+
+      if (code === 'token_not_valid' && message?.toLowerCase().includes('blacklisted')) {
+        toast.error('Your session has expired. Please log in again.');
+      } else {
+        toast.error('Unable to refresh session. Logging out.');
+      }
+
       logout('refresh_failed');
     }
   }, [logout, scheduleTokenRefresh]);
