@@ -1,3 +1,5 @@
+// src/components/Auth/Login.jsx
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
@@ -23,6 +25,7 @@ const Login = () => {
   const user = auth?.user;
 
   const redirectByRole = useCallback((role) => {
+    console.log(`[Login] Redirecting based on role: ${role}`);
     const routes = {
       admin: '/admin',
       worker: '/worker',
@@ -39,12 +42,14 @@ const Login = () => {
 
   useEffect(() => {
     if (!ready || hasRedirected || !user) return;
+    console.log('[Login] Auth is ready, user found. Redirecting...');
     setHasRedirected(true);
     redirectByRole(user.role);
   }, [ready, user, hasRedirected, redirectByRole]);
 
   const toggleDarkMode = () => {
     const updated = !darkMode;
+    console.log(`[Login] Dark mode toggled: ${updated}`);
     setDarkMode(updated);
     document.body.classList.toggle('dark-mode', updated);
     localStorage.setItem('darkMode', updated);
@@ -66,6 +71,7 @@ const Login = () => {
   };
 
   const extractErrorMessage = (err) => {
+    console.error('[Login] Extracting error from response:', err?.response);
     const data = err?.response?.data;
     if (typeof data === 'string') return data;
     if (Array.isArray(data)) return data[0];
@@ -83,11 +89,12 @@ const Login = () => {
     return 'Login failed. Please try again.';
   };
 
-  // ✅ Updated to match new backend response
   const handleLoginSuccess = (data) => {
+    console.log('[Login] Login successful. Response:', data);
     const { access, refresh, user } = data;
 
     if (!access || !refresh || !user) {
+      console.warn('[Login] Incomplete login response:', { access, refresh, user });
       setError('Login failed. Incomplete server response.');
       return;
     }
@@ -113,11 +120,14 @@ const Login = () => {
     if (!validateForm()) return;
 
     setLoading(true);
+    console.log('[Login] Submitting login form:', form);
     try {
       const { data } = await axiosInstance.post('/accounts/login/', form);
       handleLoginSuccess(data);
     } catch (err) {
-      setError(extractErrorMessage(err));
+      const msg = extractErrorMessage(err);
+      console.error('[Login] Login failed:', msg);
+      setError(msg);
       localStorage.clear();
       sessionStorage.clear();
       setForm((prev) => ({ ...prev, password: '' }));
@@ -128,15 +138,19 @@ const Login = () => {
 
   const handleGoogleSuccess = async ({ credential }) => {
     if (!credential) {
+      console.error('[Login] Google login failed: Missing credential');
       setError('Google login failed: Missing credential');
       return;
     }
     setLoading(true);
+    console.log('[Login] Google credential received. Sending to backend...');
     try {
       const { data } = await axiosInstance.post('/accounts/google-register/', { credential });
       handleLoginSuccess(data);
     } catch (err) {
-      setError(extractErrorMessage(err));
+      const msg = extractErrorMessage(err);
+      console.error('[Login] Google login failed:', msg);
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -218,7 +232,10 @@ const Login = () => {
           <div className="social-buttons">
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google login failed')}
+              onError={() => {
+                console.error('[Login] Google button error callback');
+                setError('Google login failed');
+              }}
               useOneTap
               theme="outline"
               size="large"
