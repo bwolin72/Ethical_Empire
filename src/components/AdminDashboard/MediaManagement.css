@@ -16,47 +16,24 @@
   min-height: 100vh;
 }
 
-.overview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-/* === Card Styling === */
-.overview-card {
-  background-color: var(--white);
-  border-left: 5px solid var(--deep-burgundy);
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: var(--box-shadow);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.media-controls {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
 }
 
-.overview-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+.media-controls input[type="file"],
+.media-controls select,
+.media-controls input[type="text"] {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
 }
 
-.overview-card h2 {
-  color: var(--deep-burgundy);
-  font-size: 1.3rem;
-  margin-bottom: 0.75rem;
-}
-
-.overview-card p {
-  color: var(--charcoal-gray);
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-
-/* === Buttons === */
-.overview-card button,
-.video-nav button,
-.media-controls button,
-.media-actions button {
+.media-controls button {
   background-color: var(--forest-green);
   color: var(--white);
   border: none;
@@ -65,60 +42,10 @@
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  align-self: flex-start;
 }
 
-.overview-card button:hover,
-.video-nav button:hover,
-.media-controls button:hover,
-.media-actions button:hover {
+.media-controls button:hover {
   background-color: var(--deep-burgundy);
-}
-
-/* === Video Nav Buttons === */
-.video-nav {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.video-nav button {
-  background-color: var(--royal-navy);
-  color: var(--white);
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  border-radius: 6px;
-  border: none;
-}
-
-.video-nav button:hover {
-  background-color: var(--muted-gold);
-  color: var(--charcoal-gray);
-}
-
-/* === Media Table === */
-.media-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
-
-.media-table th,
-.media-table td {
-  padding: 0.6rem;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.media-table th {
-  background-color: var(--muted-gold);
-  color: var(--charcoal-gray);
-  font-weight: 600;
-}
-
-.media-table td {
-  color: var(--charcoal-gray);
 }
 
 .media-search-bar {
@@ -131,67 +58,11 @@
   padding: 0.5rem;
   width: 300px;
   font-size: 1rem;
-}
-
-.preview-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.preview-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  max-width: 90%;
-  max-height: 90%;
-  overflow-y: auto;
-  position: relative;
-}
-
-.preview-content img,
-.preview-content video {
-  max-width: 100%;
-  max-height: 70vh;
-}
-
-.close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: crimson;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-}
-
-
-/* === Media Controls & Cards === */
-.media-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  align-items: center;
-}
-
-.media-controls input[type="file"],
-.media-controls select {
-  padding: 0.5rem;
-  border-radius: 6px;
   border: 1px solid #ccc;
-  font-size: 0.95rem;
+  border-radius: 6px;
 }
 
+/* === Media Cards === */
 .media-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -214,6 +85,13 @@
   transform: translateY(-4px);
 }
 
+.media-label {
+  color: var(--charcoal-gray);
+  font-size: 1rem;
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
 .media-preview {
   max-width: 100%;
   max-height: 200px;
@@ -228,78 +106,120 @@
   justify-content: center;
 }
 
-@media (max-width: 768px) {
-  .overview-card h2 {
-    font-size: 1.15rem;
-  }
-
-  .overview-card p,
-  .overview-card button {
-    font-size: 0.95rem;
-  }
-
-  .video-nav button,
-  .media-controls button,
-  .media-actions button {
-    font-size: 0.85rem;
-    padding: 0.5rem 0.8rem;
-  }
-
-  .media-table th,
-  .media-table td {
-    padding: 0.5rem;
-    font-size: 0.85rem;
-  }
+.media-actions button {
+  background-color: var(--forest-green);
+  color: var(--white);
+  border: none;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-@media (max-width: 480px) {
-  .overview-grid {
-    grid-template-columns: 1fr;
-  }
+.media-actions button:hover {
+  background-color: var(--deep-burgundy);
+}
 
-  .overview-card {
-    padding: 1.2rem;
-  }
+/* === Upload Progress === */
+.upload-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem 0;
+}
 
-  .overview-card h2 {
-    font-size: 1.1rem;
-  }
+.upload-progress progress {
+  width: 100%;
+  height: 12px;
+  margin-top: 0.5rem;
+}
 
-  .overview-card button,
-  .media-controls button,
-  .media-actions button {
-    width: 100%;
-    text-align: center;
-  }
+/* === Drag Overlay (DND-Kit specific) === */
+.dnd-dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+}
 
+/* === Preview Modal === */
+.preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.preview-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: var(--box-shadow);
+}
+
+.preview-content img,
+.preview-content video {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 12px;
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: crimson;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
   .media-controls {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .media-controls input,
+  .media-controls select,
+  .media-controls button {
+    width: 100%;
+  }
+
+  .media-search-bar input {
+    width: 100%;
+  }
+
+  .media-actions {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .media-list {
     grid-template-columns: 1fr;
   }
 }
+
 @media (max-width: 360px) {
-  .overview-card h2 {
-    font-size: 1rem;
+  .media-card {
+    padding: 0.75rem;
   }
 
-  .overview-card p {
-    font-size: 0.9rem;
-  }
-
-  .video-nav button,
-  .media-controls button,
   .media-actions button {
     font-size: 0.75rem;
     padding: 0.4rem 0.6rem;
-  }
-
-  .media-table th,
-  .media-table td {
-    font-size: 0.8rem;
-    padding: 0.4rem;
   }
 }
