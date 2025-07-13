@@ -17,10 +17,14 @@ const palette = {
   charcoal: '#36454F',
 };
 
-const roles = ['ADMIN', 'WORKER', 'USER'];
+const roles = [
+  { label: 'Admin', value: 'admin' },
+  { label: 'Worker', value: 'worker' },
+  { label: 'User', value: 'user' },
+];
 
 const UserRoleManager = () => {
-  const [activeTab, setActiveTab] = useState('ADMIN');
+  const [activeTab, setActiveTab] = useState('admin');
   const [users, setUsers] = useState([]);
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -134,19 +138,19 @@ const UserRoleManager = () => {
 
   return (
     <div style={{ backgroundColor: palette.cream }} className="p-4 md:p-8 min-h-screen">
-      <Tabs defaultValue={activeTab} onValueChange={handleTabChange}>
+      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange}>
         <TabsList className="flex gap-3 border-b pb-3 mb-5">
           {roles.map((role) => (
             <TabsTrigger
-              key={role}
-              value={role}
+              key={role.value}
+              value={role.value}
               className={`px-4 py-2 rounded-t-xl font-semibold text-sm transition ${
-                activeTab === role
+                activeTab === role.value
                   ? 'bg-[#4B0F24] text-white'
                   : 'bg-white text-black border border-gray-200'
               }`}
             >
-              {role.charAt(0) + role.slice(1).toLowerCase()}
+              {role.label}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -156,7 +160,7 @@ const UserRoleManager = () => {
             <p className="text-center text-gray-500">Loading users...</p>
           ) : (
             <>
-              {activeTab === 'WORKER' && (
+              {activeTab === 'worker' && (
                 <div className="flex gap-3 mb-6 items-center">
                   <Input
                     type="email"
@@ -213,7 +217,7 @@ const UserRoleManager = () => {
                     Delete Selected
                   </Button>
 
-                  {activeTab === 'USER' && (
+                  {activeTab === 'user' && (
                     <>
                       <Button
                         onClick={handleSendMsg}
@@ -233,7 +237,7 @@ const UserRoleManager = () => {
                   )}
                 </div>
 
-                {activeTab === 'USER' && (
+                {activeTab === 'user' && (
                   <Textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
