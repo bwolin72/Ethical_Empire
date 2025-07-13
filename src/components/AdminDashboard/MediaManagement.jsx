@@ -27,13 +27,14 @@ const MediaManagement = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [previewItem, setPreviewItem] = useState(null);
+  const [label, setLabel] = useState('');
 
   const fetchMedia = useCallback(async () => {
     try {
-      const params = {
-        type: mediaType,
-        endpoint: selectedEndpoint,
-      };
+      const params = { type: mediaType };
+      if (mediaType !== 'banner') {
+        params.endpoint = selectedEndpoint;
+      }
       if (statusFilter !== 'all') {
         params.is_active = statusFilter === 'active';
       }
@@ -82,7 +83,10 @@ const MediaManagement = () => {
     const formData = new FormData();
     files.forEach((file) => formData.append('media', file));
     formData.append('type', mediaType);
-    formData.append('endpoint', selectedEndpoint);
+    formData.append('label', label || 'Untitled');
+    if (mediaType !== 'banner') {
+      formData.append('endpoint', selectedEndpoint);
+    }
 
     try {
       await axiosInstance.post('/media/upload/', formData, {
@@ -94,6 +98,7 @@ const MediaManagement = () => {
 
       fetchMedia();
       setFiles([]);
+      setLabel('');
       toast.success('Upload successful!', { autoClose: 3000 });
     } catch (err) {
       console.error('Upload failed:', err);
@@ -170,6 +175,13 @@ const MediaManagement = () => {
       <div className="media-controls">
         <input type="file" multiple accept="image/*,video/*" onChange={handleFileChange} />
 
+        <input
+          type="text"
+          placeholder="Enter media label (e.g., Hero Banner)"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+        />
+
         <select value={selectedEndpoint} onChange={(e) => setSelectedEndpoint(e.target.value)}>
           {endpoints.map((ep) => (
             <option key={ep.value} value={ep.value}>
@@ -226,6 +238,7 @@ const MediaManagement = () => {
               <div onClick={() => setPreviewItem(item)} style={{ cursor: 'pointer' }}>
                 {renderPreview(item.url)}
               </div>
+              <p className="media-label"><strong>{item.label || 'No Label'}</strong></p>
               <div className="media-actions">
                 <p>Status: {item.is_active ? '✅ Active' : '❌ Inactive'}</p>
                 {'is_featured' in item && (

@@ -41,15 +41,19 @@ const BookingForm = () => {
 
   const fetchServices = useCallback(() => {
     axiosInstance
-      .get('/services/')
+      .get('/services/') // adjust this to '/api/services/' if needed
       .then((res) => {
-        if (Array.isArray(res.data)) {
+        console.log('Fetched services:', res.data);
+        if (Array.isArray(res.data) && res.data.length > 0) {
           setAvailableServices(res.data);
         } else {
-          toast.error('Service data invalid', { autoClose: 3000 });
+          toast.warning('No services available at the moment.', { autoClose: 3000 });
         }
       })
-      .catch(() => toast.error('Failed to fetch services.', { autoClose: 3000 }));
+      .catch((err) => {
+        console.error('Failed to fetch services:', err);
+        toast.error('Failed to fetch services.', { autoClose: 3000 });
+      });
   }, []);
 
   useEffect(() => {
@@ -227,18 +231,22 @@ const BookingForm = () => {
 
           {showServices && (
             <fieldset className="service-dropdown" id="services">
-              {availableServices.map((service) => (
-                <label key={service.id} className="service-option">
-                  <input
-                    type="checkbox"
-                    name="services"
-                    value={service.id}
-                    checked={formData.services.includes(service.id)}
-                    onChange={handleChange}
-                  />
-                  {service.name} — ${service.price}
-                </label>
-              ))}
+              {availableServices.length === 0 ? (
+                <p className="no-services-text">No services available at the moment.</p>
+              ) : (
+                availableServices.map((service) => (
+                  <label key={service.id} className="service-option">
+                    <input
+                      type="checkbox"
+                      name="services"
+                      value={service.id}
+                      checked={formData.services.includes(service.id)}
+                      onChange={handleChange}
+                    />
+                    {service.name} — GH₵{service.price}
+                  </label>
+                ))
+              )}
             </fieldset>
           )}
         </div>
