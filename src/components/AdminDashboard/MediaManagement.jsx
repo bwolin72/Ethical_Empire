@@ -207,7 +207,6 @@ const MediaManagement = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <h2>{mediaType === 'media' ? 'Media Uploads' : mediaType === 'banner' ? 'Banner Uploads' : 'Featured Media'}</h2>
 
-      {/* Upload Controls */}
       <div className="media-controls">
         <input type="file" multiple accept="image/*,video/*" onChange={handleFileChange} />
         <input type="text" placeholder="Enter media label" value={label} onChange={(e) => setLabel(e.target.value)} />
@@ -231,7 +230,6 @@ const MediaManagement = () => {
         </button>
       </div>
 
-      {/* Media List */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={uploadedItems.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="media-list">
@@ -253,13 +251,12 @@ const MediaManagement = () => {
         </SortableContext>
       </DndContext>
 
-      {/* Preview Modal */}
       {previewItem && (
         <div className="preview-overlay" onClick={() => setPreviewItem(null)}>
           <div className="preview-content" onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setPreviewItem(null)} className="close-button">Close</button>
             <h3>Preview</h3>
-            {SortableMediaCard({ item: previewItem }).props.children[0]}
+            <img src={previewItem.url} alt="preview" className="media-preview" />
           </div>
         </div>
       )}
