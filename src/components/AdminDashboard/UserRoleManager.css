@@ -1,0 +1,179 @@
+/* ======= COLOR PALETTE ======= */
+:root {
+  --burgundy: #4B0F24;
+  --navy: #1A1E3F;
+  --gold: #D4AF37;
+  --cream: #F5F5DC;
+  --forest: #228B22;
+  --charcoal: #36454F;
+  --white: #ffffff;
+  --gray-light: #f2f2f2;
+  --gray-border: #ddd;
+}
+
+/* ======= GLOBAL RESET ======= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--cream);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--charcoal);
+  line-height: 1.6;
+}
+
+/* ======= MAIN CONTAINER ======= */
+.user-role-manager {
+  padding: 1rem;
+  min-height: 100vh;
+  background-color: var(--cream);
+}
+
+@media screen and (min-width: 768px) {
+  .user-role-manager {
+    padding: 2rem;
+  }
+}
+
+/* ======= TABS ======= */
+.tabs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border-bottom: 2px solid var(--gray-border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab-trigger {
+  padding: 0.5rem 1rem;
+  border-radius: 1rem 1rem 0 0;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border: 1px solid var(--gray-border);
+  background-color: var(--white);
+  color: var(--charcoal);
+}
+
+.tab-trigger.active {
+  background-color: var(--burgundy);
+  color: var(--white);
+  border-color: var(--burgundy);
+}
+
+/* ======= USER CARD GRID ======= */
+.user-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media screen and (min-width: 600px) {
+  .user-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .user-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ======= CARD STYLES ======= */
+.user-card {
+  background-color: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  padding: 1rem;
+  display: flex;
+  align-items: start;
+  gap: 1rem;
+}
+
+.user-card h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
+.user-card p {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* ======= ACTION BUTTONS ======= */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.action-buttons button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--white);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-delete {
+  background-color: #b91c1c;
+}
+
+.btn-delete:hover {
+  background-color: #991b1b;
+}
+
+.btn-message {
+  background-color: var(--forest);
+}
+
+.btn-message:hover {
+  background-color: #1e6d1e;
+}
+
+.btn-offer {
+  background-color: var(--gold);
+  color: var(--charcoal);
+}
+
+.btn-offer:hover {
+  background-color: #c59f2f;
+}
+
+/* ======= TEXTAREA ======= */
+.custom-textarea {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--gray-border);
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  resize: vertical;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* ======= LOADING / EMPTY ======= */
+.loading-text {
+  text-align: center;
+  font-size: 1rem;
+  color: #777;
+  margin: 2rem 0;
+}
+
+/* ======= CHECKBOX STYLING (optional custom) ======= */
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}

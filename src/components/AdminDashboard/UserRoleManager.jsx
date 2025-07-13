@@ -5,6 +5,9 @@ import { Card, CardContent } from '../../components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import { Checkbox } from '../../components/ui/checkbox';
 import { Textarea } from '../../components/ui/textarea';
+import { Input } from '../../components/ui/input';
+import { toast } from 'react-toastify';
+import './UserRoleManager.css';
 
 const palette = {
   burgundy: '#4B0F24',
@@ -23,6 +26,7 @@ const UserRoleManager = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
 
   const fetchUsers = async (role) => {
     setLoading(true);
@@ -98,6 +102,32 @@ const UserRoleManager = () => {
     }
   };
 
+  const handleInviteWorker = async () => {
+    if (!inviteEmail.trim()) return;
+    setSubmitting(true);
+    try {
+      const res = await axiosInstance.post('/accounts/admin/invite-worker/', {
+        email: inviteEmail,
+      });
+      toast.success(`Worker invited. Access code: ${res.data.access_code}`);
+      setInviteEmail('');
+    } catch (err) {
+      console.error('Invite failed:', err);
+      toast.error('Worker invite failed');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleToggleActive = async (userId) => {
+    try {
+      await axiosInstance.post(`/accounts/profiles/toggle-active/${userId}/`);
+      fetchUsers(activeTab);
+    } catch (err) {
+      console.error('Toggle active failed:', err);
+    }
+  };
+
   useEffect(() => {
     fetchUsers(activeTab);
   }, [activeTab]);
@@ -126,18 +156,47 @@ const UserRoleManager = () => {
             <p className="text-center text-gray-500">Loading users...</p>
           ) : (
             <>
+              {activeTab === 'WORKER' && (
+                <div className="flex gap-3 mb-6 items-center">
+                  <Input
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder="Enter worker email to invite"
+                  />
+                  <Button
+                    onClick={handleInviteWorker}
+                    disabled={submitting || !inviteEmail.trim()}
+                    className="bg-[#4B0F24] text-white"
+                  >
+                    Invite Worker
+                  </Button>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {users.map((user) => (
                   <Card key={user.id} className="rounded-2xl border shadow-md p-4 bg-white">
-                    <CardContent className="flex items-start gap-4">
+                    <CardContent className="flex items-start gap-4 justify-between">
                       <Checkbox
                         checked={selected.includes(user.id)}
                         onCheckedChange={() => toggleSelection(user.id)}
                       />
-                      <div style={{ color: palette.charcoal }}>
+                      <div className="flex-grow" style={{ color: palette.charcoal }}>
                         <h2 className="font-semibold text-lg">{user.name}</h2>
                         <p className="text-sm text-gray-500">{user.email}</p>
                         <p className="text-xs text-gray-400 uppercase">{user.role}</p>
+                        <p className={`text-xs mt-1 ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
+                          {user.is_active ? 'Active' : 'Inactive'}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          onClick={() => handleToggleActive(user.id)}
+                          className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
+                        >
+                          {user.is_active ? 'Deactivate' : 'Activate'}
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
