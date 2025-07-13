@@ -1,10 +1,8 @@
-// src/components/Account/AccountProfile.jsx
-
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { logoutHelper } from "../../utils/logoutHelper"; // ✅ centralized logout
+import { logoutHelper } from "../../utils/logoutHelper";
 import "react-toastify/dist/ReactToastify.css";
 import "./AccountProfile.css";
 
@@ -12,7 +10,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [profile, setProfile] = useState(externalProfile || null);
   const [loading, setLoading] = useState(!externalProfile);
   const [review, setReview] = useState("");
-  const [profileImage, setProfileImage] = useState(externalProfile?.profile_picture || "");
+  const [profileImage, setProfileImage] = useState(externalProfile?.profile_image || "");
   const [bookings, setBookings] = useState([]);
   const [loggingOut, setLoggingOut] = useState(false);
   const navigate = useNavigate();
@@ -26,19 +24,19 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
     if (!externalProfile) {
       axiosInstance
-        .get("/accounts/profiles/profile/", { signal }) // ✅ profile fetch
+        .get("/accounts/profiles/profile/", { signal })
         .then((res) => {
           setProfile(res.data);
-          setProfileImage(res.data.profile_picture || "");
+          setProfileImage(res.data.profile_image || "");
         })
-        .catch(() => toast.error("Failed to load profile."))
+        .catch(() => toast.error("Failed to load profile.", { autoClose: 3000 }))
         .finally(() => setLoading(false));
     }
 
     axiosInstance
       .get("/bookings/user/", { signal })
       .then((res) => setBookings(res.data))
-      .catch(() => toast.warn("Could not fetch bookings."));
+      .catch(() => toast.warn("Could not fetch bookings.", { autoClose: 3000 }));
 
     return () => controller.abort();
   }, [externalProfile]);
@@ -54,7 +52,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file || !CLOUDINARY_UPLOAD_PRESET || !CLOUDINARY_CLOUD_NAME) {
-      toast.error("Missing file or Cloudinary config.");
+      toast.error("Missing file or Cloudinary config.", { autoClose: 3000 });
       return;
     }
 
@@ -70,32 +68,35 @@ const AccountProfile = ({ profile: externalProfile }) => {
       const data = await res.json();
       if (!data.secure_url) throw new Error("Upload failed");
 
-      await axiosInstance.put("/accounts/profiles/profile/", {
-        profile_picture: data.secure_url,
+      await axiosInstance.patch("/accounts/profiles/profile/", {
+        profile_image: data.secure_url,
       });
 
       setProfileImage(data.secure_url);
-      toast.success("Profile picture updated!");
+      toast.success("Profile picture updated!", { autoClose: 3000 });
     } catch (err) {
       console.error(err);
-      toast.error("Image upload failed.");
+      toast.error("Image upload failed.", { autoClose: 3000 });
     }
   };
 
   const handleReviewSubmit = async () => {
-    if (!review.trim()) return toast.warn("Review cannot be empty.");
+    if (!review.trim()) {
+      toast.warn("Review cannot be empty.", { autoClose: 3000 });
+      return;
+    }
     try {
       await axiosInstance.post("/reviews/", { comment: review });
-      toast.success("Review submitted!");
+      toast.success("Review submitted!", { autoClose: 3000 });
       setReview("");
     } catch {
-      toast.error("Failed to submit review.");
+      toast.error("Failed to submit review.", { autoClose: 3000 });
     }
   };
 
   const handleLogout = async () => {
     setLoggingOut(true);
-    await logoutHelper(); // ✅ handles API call + local cleanup + redirect
+    await logoutHelper();
   };
 
   const renderBookingStatus = (status) => {
@@ -133,7 +134,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
             <img src={profileImage} alt="Profile" className="profile-pic" />
           ) : (
             <div className="profile-initials">
-              {getInitials(`${profile?.first_name} ${profile?.last_name}`)}
+              {getInitials(profile?.name)}
             </div>
           )}
           <label className="upload-label" role="button">
@@ -144,10 +145,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
         {/* Info */}
         <div className="user-info">
-          <h3>@{profile?.username}</h3>
-          <p><strong>Name:</strong> {profile?.first_name} {profile?.last_name}</p>
+          <h3>@{profile?.name}</h3>
+          <p><strong>Name:</strong> {profile?.name}</p>
           <p><strong>Email:</strong> {profile?.email}</p>
-          <p><strong>Phone:</strong> {profile?.phone_number || "N/A"}</p>
+          <p><strong>Phone:</strong> {profile?.phone || "N/A"}</p>
           <div className="button-group">
             <button onClick={() => navigate("/edit-profile")}>Edit Profile</button>
             <button onClick={() => navigate("/update-password")}>Change Password</button>

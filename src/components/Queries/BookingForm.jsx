@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import { toast, ToastContainer } from 'react-toastify';
 import { FaCalendarAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { useTheme } from '../../context/ThemeContext';
+import 'react-datepicker/dist/react-datepicker.css';
 import logo from '../../assets/logo.png';
 import './BookingForm.css';
+import { useTheme } from '../../context/ThemeContext';
 
 const BookingForm = () => {
   const { darkMode } = useTheme();
@@ -22,8 +25,6 @@ const BookingForm = () => {
 
   const [availableServices, setAvailableServices] = useState([]);
   const [showServices, setShowServices] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -41,8 +42,14 @@ const BookingForm = () => {
   const fetchServices = useCallback(() => {
     axiosInstance
       .get('/services/')
-      .then((res) => setAvailableServices(res.data))
-      .catch((err) => console.error('Failed to fetch services:', err));
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setAvailableServices(res.data);
+        } else {
+          toast.error('Service data invalid', { autoClose: 3000 });
+        }
+      })
+      .catch(() => toast.error('Failed to fetch services.', { autoClose: 3000 }));
   }, []);
 
   useEffect(() => {
@@ -51,7 +58,6 @@ const BookingForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (type === 'checkbox') {
       const id = parseInt(value, 10);
       setFormData((prev) => ({
@@ -75,6 +81,13 @@ const BookingForm = () => {
     }));
   };
 
+  const handlePhoneChange = (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      phone: value,
+    }));
+  };
+
   const resetForm = () => {
     setFormData({
       name: '',
@@ -90,27 +103,20 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccessMessage('');
-    setErrorMessage('');
     setIsSubmitting(true);
-
     const token = localStorage.getItem('access');
+
     if (!token) {
-      setErrorMessage('You must be logged in to submit a booking.');
+      toast.error('You must be logged in to submit a booking.', { autoClose: 3000 });
       setIsSubmitting(false);
       return;
     }
 
     const payload = {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      address: formData.address,
-      message: formData.message,
+      ...formData,
       event_date: formData.event_date
         ? formData.event_date.toISOString().split('T')[0]
         : null,
-      services: formData.services,
     };
 
     try {
@@ -120,7 +126,9 @@ const BookingForm = () => {
         },
       });
 
-      setSuccessMessage('🎉 Booking request submitted successfully!');
+      toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
+      toast.info('📧 A confirmation email has been sent to you.', { autoClose: 4000 });
+
       resetForm();
     } catch (err) {
       const response = err.response?.data;
@@ -129,10 +137,11 @@ const BookingForm = () => {
           ? Object.values(response)[0]
           : response?.detail;
 
-      setErrorMessage(
+      toast.error(
         Array.isArray(extractedError)
           ? extractedError[0]
-          : extractedError || 'An error occurred while submitting the form.'
+          : extractedError || 'Error occurred submitting form.',
+        { autoClose: 3000 }
       );
     } finally {
       setIsSubmitting(false);
@@ -141,6 +150,7 @@ const BookingForm = () => {
 
   return (
     <div className={`booking-form-container ${darkMode ? 'dark' : 'light'}`}>
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
       <div className="form-header">
         <img src={logo} alt="Ethical Multimedia Logo" className="form-logo" />
         <h2>Ethical Multimedia GH</h2>
@@ -148,13 +158,11 @@ const BookingForm = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="form-grid" noValidate>
-        {['name', 'email', 'phone', 'address'].map((field) => (
+        {['name', 'email', 'address'].map((field) => (
           <div className="form-group" key={field}>
             <label htmlFor={field}>
               {field === 'email'
                 ? 'Email Address'
-                : field === 'phone'
-                ? 'Phone Number'
                 : field === 'address'
                 ? 'Event Venue'
                 : 'Full Name'}
@@ -162,13 +170,29 @@ const BookingForm = () => {
             <input
               id={field}
               name={field}
-              type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+              type={field === 'email' ? 'email' : 'text'}
               value={formData[field]}
               onChange={handleChange}
               required
             />
           </div>
         ))}
+
+        <div className="form-group">
+          <label htmlFor="phone">Phone Number</label>
+          <PhoneInput
+            country={'gh'}
+            value={formData.phone}
+            onChange={handlePhoneChange}
+            inputProps={{
+              name: 'phone',
+              required: true,
+              autoFocus: false,
+            }}
+            enableSearch
+            disableDropdown={false}
+          />
+        </div>
 
         <div className="form-group">
           <label htmlFor="event_date">Event Date</label>
@@ -230,16 +254,9 @@ const BookingForm = () => {
           />
         </div>
 
-        <button
-          type="submit"
-          className="submit-btn full-width"
-          disabled={isSubmitting}
-        >
+        <button type="submit" className="submit-btn full-width" disabled={isSubmitting}>
           {isSubmitting ? 'Submitting...' : 'Submit Booking'}
         </button>
-
-        {successMessage && <p className="success-msg">{successMessage}</p>}
-        {errorMessage && <p className="error-msg">{errorMessage}</p>}
       </form>
     </div>
   );

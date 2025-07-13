@@ -14,6 +14,9 @@ const endpoints = [
   { label: 'Media Hosting', value: 'MediaHostingServicePage' },
 ];
 
+const MAX_FILE_SIZE_MB = 10;
+const ACCEPTED_FILE_TYPES = ['image/', 'video/'];
+
 const MediaManagement = () => {
   const [mediaType, setMediaType] = useState('media');
   const [selectedEndpoint, setSelectedEndpoint] = useState('EethmHome');
@@ -39,8 +42,8 @@ const MediaManagement = () => {
       setUploadedItems(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error('Failed to fetch media:', error);
-      toast.error('Failed to load media.');
-      setUploadedItems([]); // fallback to empty
+      toast.error('Failed to load media.', { autoClose: 4000 });
+      setUploadedItems([]);
     }
   }, [mediaType, selectedEndpoint, statusFilter]);
 
@@ -49,11 +52,29 @@ const MediaManagement = () => {
   }, [fetchMedia]);
 
   const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files));
+    const selected = Array.from(e.target.files);
+    const invalidFiles = selected.filter(
+      (file) =>
+        !ACCEPTED_FILE_TYPES.some((type) => file.type.startsWith(type)) ||
+        file.size > MAX_FILE_SIZE_MB * 1024 * 1024
+    );
+
+    if (invalidFiles.length > 0) {
+      invalidFiles.forEach((file) => {
+        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+          toast.warn(`${file.name} exceeds 10MB limit.`, { autoClose: 5000 });
+        } else {
+          toast.warn(`${file.name} is not a valid image/video.`, { autoClose: 5000 });
+        }
+      });
+      return;
+    }
+
+    setFiles(selected);
   };
 
   const handleUpload = async () => {
-    if (!files.length) return toast.warn('Select at least one file.');
+    if (!files.length) return toast.warn('Select at least one file.', { autoClose: 3000 });
 
     setUploading(true);
     setUploadProgress(0);
@@ -73,10 +94,15 @@ const MediaManagement = () => {
 
       fetchMedia();
       setFiles([]);
-      toast.success('Upload successful!');
+      toast.success('Upload successful!', { autoClose: 3000 });
     } catch (err) {
       console.error('Upload failed:', err);
-      toast.error('Upload failed. Try again.');
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        'Upload failed. Try again.';
+      toast.error(msg, { autoClose: 5000 });
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -86,34 +112,26 @@ const MediaManagement = () => {
   const toggleActive = async (id) => {
     try {
       const res = await axiosInstance.patch(`/media/${id}/toggle/`);
-      toast.info(res.data.is_active ? 'Activated.' : 'Deactivated.');
+      toast.info(res.data.is_active ? 'Activated.' : 'Deactivated.', { autoClose: 2500 });
       setUploadedItems((prev) =>
-        Array.isArray(prev)
-          ? prev.map((item) =>
-              item.id === id ? { ...item, is_active: res.data.is_active } : item
-            )
-          : []
+        prev.map((item) => (item.id === id ? { ...item, is_active: res.data.is_active } : item))
       );
     } catch (err) {
-      console.error('Toggle failed:', err);
-      toast.error('Toggle failed.');
+      toast.error('Toggle failed.', { autoClose: 3000 });
     }
   };
 
   const toggleFeatured = async (id) => {
     try {
       const res = await axiosInstance.patch(`/media/${id}/toggle/featured/`);
-      toast.info(res.data.is_featured ? 'Marked as featured.' : 'Unmarked as featured.');
+      toast.info(res.data.is_featured ? 'Marked as featured.' : 'Unmarked as featured.', {
+        autoClose: 2500,
+      });
       setUploadedItems((prev) =>
-        Array.isArray(prev)
-          ? prev.map((item) =>
-              item.id === id ? { ...item, is_featured: res.data.is_featured } : item
-            )
-          : []
+        prev.map((item) => (item.id === id ? { ...item, is_featured: res.data.is_featured } : item))
       );
     } catch (err) {
-      console.error('Feature toggle failed:', err);
-      toast.error('Feature toggle failed.');
+      toast.error('Feature toggle failed.', { autoClose: 3000 });
     }
   };
 
@@ -122,11 +140,10 @@ const MediaManagement = () => {
 
     try {
       await axiosInstance.delete(`/media/${id}/delete/`);
-      setUploadedItems((prev) => (Array.isArray(prev) ? prev.filter((item) => item.id !== id) : []));
-      toast.success('Media deleted.');
+      setUploadedItems((prev) => prev.filter((item) => item.id !== id));
+      toast.success('Media deleted.', { autoClose: 3000 });
     } catch (err) {
-      console.error('Delete failed:', err);
-      toast.error('Deletion failed.');
+      toast.error('Deletion failed.', { autoClose: 3000 });
     }
   };
 
@@ -202,33 +219,30 @@ const MediaManagement = () => {
         {Array.isArray(uploadedItems) && uploadedItems.length === 0 && (
           <p>No {mediaType}s found for this filter.</p>
         )}
-        {Array.isArray(uploadedItems) &&
-          uploadedItems
-            .filter((item) =>
-              item.url?.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-            .map((item) => (
-              <div className="media-card" key={item.id}>
-                <div onClick={() => setPreviewItem(item)} style={{ cursor: 'pointer' }}>
-                  {renderPreview(item.url)}
-                </div>
-                <div className="media-actions">
-                  <p>Status: {item.is_active ? '✅ Active' : '❌ Inactive'}</p>
-                  {'is_featured' in item && (
-                    <p>Featured: {item.is_featured ? '⭐ Yes' : '—'}</p>
-                  )}
-                  <button onClick={() => toggleActive(item.id)}>
-                    {item.is_active ? 'Deactivate' : 'Activate'}
-                  </button>
-                  {'is_featured' in item && (
-                    <button onClick={() => toggleFeatured(item.id)}>
-                      {item.is_featured ? 'Unset Featured' : 'Set as Featured'}
-                    </button>
-                  )}
-                  <button onClick={() => deleteMedia(item.id)}>Delete</button>
-                </div>
+        {uploadedItems
+          .filter((item) => item.url?.toLowerCase().includes(searchQuery.toLowerCase()))
+          .map((item) => (
+            <div className="media-card" key={item.id}>
+              <div onClick={() => setPreviewItem(item)} style={{ cursor: 'pointer' }}>
+                {renderPreview(item.url)}
               </div>
-            ))}
+              <div className="media-actions">
+                <p>Status: {item.is_active ? '✅ Active' : '❌ Inactive'}</p>
+                {'is_featured' in item && (
+                  <p>Featured: {item.is_featured ? '⭐ Yes' : '—'}</p>
+                )}
+                <button onClick={() => toggleActive(item.id)}>
+                  {item.is_active ? 'Deactivate' : 'Activate'}
+                </button>
+                {'is_featured' in item && (
+                  <button onClick={() => toggleFeatured(item.id)}>
+                    {item.is_featured ? 'Unset Featured' : 'Set as Featured'}
+                  </button>
+                )}
+                <button onClick={() => deleteMedia(item.id)}>Delete</button>
+              </div>
+            </div>
+          ))}
       </div>
 
       {previewItem && (

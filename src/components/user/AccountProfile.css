@@ -12,6 +12,7 @@
   --status-rejected: #ef4444;
 }
 
+/* === Main Container === */
 .account-profile {
   background-color: var(--cream);
   padding: 2rem;
@@ -42,6 +43,7 @@
   color: var(--charcoal);
 }
 
+/* === Profile Header === */
 .account-profile .profile-wrapper {
   display: flex;
   flex-direction: column;
@@ -87,6 +89,7 @@
   background-color: var(--white);
 }
 
+/* === User Info === */
 .account-profile .user-info {
   text-align: center;
   margin-bottom: 2rem;
@@ -104,6 +107,7 @@
   color: var(--charcoal);
 }
 
+/* === Button Group === */
 .account-profile .button-group {
   display: flex;
   justify-content: center;
@@ -164,15 +168,15 @@
   color: var(--white);
 }
 
-.account-profile .booking-card .status-pending {
+.status-pending {
   background-color: var(--status-pending);
 }
 
-.account-profile .booking-card .status-approved {
+.status-approved {
   background-color: var(--status-approved);
 }
 
-.account-profile .booking-card .status-rejected {
+.status-rejected {
   background-color: var(--status-rejected);
 }
 
