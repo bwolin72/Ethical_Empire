@@ -210,6 +210,7 @@ const MediaManagement = () => {
       <div className="media-controls">
         <input type="file" multiple accept="image/*,video/*" onChange={handleFileChange} />
         <input type="text" placeholder="Enter media label" value={label} onChange={(e) => setLabel(e.target.value)} />
+        <input type="text" placeholder="Search media..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         <select value={selectedEndpoint} onChange={(e) => setSelectedEndpoint(e.target.value)}>
           {endpoints.map((ep) => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
         </select>
