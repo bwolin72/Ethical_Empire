@@ -12,7 +12,7 @@ import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { logoutHelper } from '../../utils/logoutHelper'; // ✅ centralized logout
 import './AdminPanel.css';
 
