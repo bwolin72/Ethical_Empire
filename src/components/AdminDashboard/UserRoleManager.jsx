@@ -69,7 +69,7 @@ const UserRoleManager = () => {
       await Promise.all(
         selected.map((id) =>
           axiosInstance.delete(`/accounts/delete-by-email/`, {
-            data: { id }, // Backend must accept ID in body
+            data: { id },
           })
         )
       );
@@ -134,12 +134,9 @@ const UserRoleManager = () => {
     }
   };
 
-  const handleToggleActive = async (userEmail) => {
+  const handleToggleActive = async (userId) => {
     try {
-      await axiosInstance.post('/accounts/profile-by-email/', {
-        email: userEmail,
-        action: 'toggle_active',
-      });
+      await axiosInstance.post(`/accounts/profiles/toggle-active/${userId}/`);
       toast.success('Status updated');
       fetchUsers(activeTab);
     } catch (err) {
@@ -207,7 +204,7 @@ const UserRoleManager = () => {
                           </p>
                         </div>
                         <Button
-                          onClick={() => handleToggleActive(user.email)}
+                          onClick={() => handleToggleActive(user.id)}
                           className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
                         >
                           {user.is_active ? 'Deactivate' : 'Activate'}
@@ -234,14 +231,14 @@ const UserRoleManager = () => {
                     <>
                       <Button
                         onClick={handleSendMsg}
-                        disabled={submitting || !message.trim()}
+                        disabled={submitting || !message.trim() || !selected.length}
                         className="bg-[#228B22] hover:bg-green-700 text-white"
                       >
                         Send Message
                       </Button>
                       <Button
                         onClick={handleOffer}
-                        disabled={submitting || !message.trim()}
+                        disabled={submitting || !message.trim() || !selected.length}
                         className="bg-[#D4AF37] hover:bg-yellow-500 text-white"
                       >
                         Send Offer
