@@ -36,9 +36,11 @@ const UserRoleManager = () => {
     setLoading(true);
     try {
       const res = await axiosInstance.get(`/accounts/profiles/list/?role=${role}`);
-      setUsers(res.data);
+      console.log('[UserRoleManager] Response data:', res.data);
+      setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Failed to fetch users:', err);
+      setUsers([]); // fallback if error or unexpected shape
     } finally {
       setLoading(false);
     }
@@ -178,34 +180,38 @@ const UserRoleManager = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {users.map((user) => (
-                  <Card key={user.id} className="rounded-2xl border shadow-md p-4 bg-white">
-                    <CardContent className="flex items-start gap-4 justify-between">
-                      <Checkbox
-                        checked={selected.includes(user.id)}
-                        onCheckedChange={() => toggleSelection(user.id)}
-                      />
-                      <div className="flex-grow" style={{ color: palette.charcoal }}>
-                        <h2 className="font-semibold text-lg">{user.name}</h2>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                        <p className="text-xs text-gray-400 uppercase">{user.role}</p>
-                        <p className={`text-xs mt-1 ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
-                          {user.is_active ? 'Active' : 'Inactive'}
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Button
-                          onClick={() => handleToggleActive(user.id)}
-                          className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
-                        >
-                          {user.is_active ? 'Deactivate' : 'Activate'}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {Array.isArray(users) && users.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {users.map((user) => (
+                    <Card key={user.id} className="rounded-2xl border shadow-md p-4 bg-white">
+                      <CardContent className="flex items-start gap-4 justify-between">
+                        <Checkbox
+                          checked={selected.includes(user.id)}
+                          onCheckedChange={() => toggleSelection(user.id)}
+                        />
+                        <div className="flex-grow" style={{ color: palette.charcoal }}>
+                          <h2 className="font-semibold text-lg">{user.name}</h2>
+                          <p className="text-sm text-gray-500">{user.email}</p>
+                          <p className="text-xs text-gray-400 uppercase">{user.role}</p>
+                          <p className={`text-xs mt-1 ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
+                            {user.is_active ? 'Active' : 'Inactive'}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            onClick={() => handleToggleActive(user.id)}
+                            className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
+                          >
+                            {user.is_active ? 'Deactivate' : 'Activate'}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-gray-400 mt-8">No users found for this role.</p>
+              )}
 
               <div className="mt-6 space-y-4">
                 <div className="flex flex-wrap gap-3">

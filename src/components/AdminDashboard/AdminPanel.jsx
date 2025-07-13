@@ -1,5 +1,3 @@
-// src/components/AdminDashboard/AdminPanel.jsx
-
 import React, { useState } from 'react';
 
 import AdminDashboard from './AdminDashboard';
@@ -12,12 +10,12 @@ import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
-import useAuth from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext'; // ✅ fixed: useAuth is called properly
 import { logoutHelper } from '../../utils/logoutHelper'; // ✅ centralized logout
 import './AdminPanel.css';
 
 const AdminPanel = () => {
-  const { setAuth } = useAuth();
+  const { setAccess, setRefresh, setUser, setIsAuthenticated } = useAuth(); // ✅ correct destructuring
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const handleLogout = async () => {
@@ -28,7 +26,11 @@ const AdminPanel = () => {
     } catch (err) {
       console.warn('Admin logout API failed, proceeding with local logout');
     } finally {
-      setAuth({});
+      // ✅ clear local auth state
+      setAccess(null);
+      setRefresh(null);
+      setUser(null);
+      setIsAuthenticated(false);
       logoutHelper(); // ✅ handles storage clear + redirect + toast
     }
   };
@@ -65,7 +67,7 @@ const AdminPanel = () => {
           <li className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
             Analytics
           </li>
-          <li className="logout-tab" onClick={() => handleLogout()}>
+          <li className="logout-tab" onClick={handleLogout}>
             Logout
           </li>
         </ul>
