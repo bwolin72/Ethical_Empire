@@ -10,7 +10,7 @@ import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
-import { useAuth } from '../../context/AuthContext'; // ✅ fixed: useAuth is called properly
+import { useAuth } from '../context/AuthContext'; // ✅ fixed: useAuth is called properly
 import { logoutHelper } from '../../utils/logoutHelper'; // ✅ centralized logout
 import './AdminPanel.css';
 
