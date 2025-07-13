@@ -23,6 +23,8 @@ const roles = [
   { label: 'User', value: 'user' },
 ];
 
+const validRoles = roles.map((r) => r.value);
+
 const UserRoleManager = () => {
   const [activeTab, setActiveTab] = useState('admin');
   const [users, setUsers] = useState([]);
@@ -33,14 +35,19 @@ const UserRoleManager = () => {
   const [inviteEmail, setInviteEmail] = useState('');
 
   const fetchUsers = async (role) => {
+    if (!validRoles.includes(role)) {
+      console.warn('[UserRoleManager] Invalid role requested:', role);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await axiosInstance.get(`/accounts/profiles/list/?role=${role}`);
-      console.log('[UserRoleManager] Response data:', res.data);
+      console.log('[UserRoleManager] Fetched users:', res.data);
       setUsers(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error('Failed to fetch users:', err);
-      setUsers([]); // fallback if error or unexpected shape
+      console.error('[UserRoleManager] Failed to fetch users:', err);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -67,10 +74,12 @@ const UserRoleManager = () => {
           axiosInstance.delete(`/accounts/profiles/delete/${id}/`)
         )
       );
+      toast.success('Selected users deleted');
       fetchUsers(activeTab);
       setSelected([]);
     } catch (err) {
       console.error('Delete failed:', err);
+      toast.error('Failed to delete selected users');
     } finally {
       setSubmitting(false);
     }
@@ -84,9 +93,11 @@ const UserRoleManager = () => {
         ids: selected,
         message,
       });
+      toast.success('Message sent to selected users');
       setMessage('');
     } catch (err) {
       console.error('Sending message failed:', err);
+      toast.error('Failed to send message');
     } finally {
       setSubmitting(false);
     }
@@ -100,9 +111,11 @@ const UserRoleManager = () => {
         ids: selected,
         message,
       });
+      toast.success('Offer sent to selected users');
       setMessage('');
     } catch (err) {
       console.error('Sending offer failed:', err);
+      toast.error('Failed to send offer');
     } finally {
       setSubmitting(false);
     }
@@ -131,6 +144,7 @@ const UserRoleManager = () => {
       fetchUsers(activeTab);
     } catch (err) {
       console.error('Toggle active failed:', err);
+      toast.error('Failed to toggle user active status');
     }
   };
 
@@ -261,3 +275,6 @@ const UserRoleManager = () => {
 };
 
 export default UserRoleManager;
+
+
+

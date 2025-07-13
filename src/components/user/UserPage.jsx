@@ -1,9 +1,11 @@
+// src/components/user/UserPage.jsx
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCard";
+import FadeInSection from "../FadeInSection";
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
 
@@ -127,76 +129,81 @@ const UserPage = () => {
         <p className="loading-text">Loading...</p>
       ) : (
         <>
-          {/* Featured Video */}
           {featuredVideo ? (
-            <div className="asaase-card">
-              <video controls width="100%" preload="metadata">
-                <source src={featuredVideo.file} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
+            <FadeInSection>
+              <div className="asaase-card">
+                <video controls width="100%" preload="metadata">
+                  <source src={featuredVideo.file} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </FadeInSection>
           ) : (
             <p className="empty-text">No featured video available.</p>
           )}
 
-          {/* Banners */}
           {banners.length > 0 && (
             <section>
               <h3>Featured Banners</h3>
-              <BannerCards banners={banners} />
+              <FadeInSection>
+                <BannerCards banners={banners} />
+              </FadeInSection>
             </section>
           )}
 
-          {/* Promotions */}
           {promotions.length > 0 && (
             <section>
               <h3>Special Offers</h3>
               <div className="promotions-grid">
                 {promotions.map((promo) => (
-                  <div key={promo.id} className="promo-card fade-in">
-                    {promo.image_url && (
-                      <img
-                        src={promo.image_url}
-                        alt={promo.title}
-                        loading="lazy"
-                        onError={(e) => (e.target.src = "/fallback.jpg")}
-                      />
-                    )}
-                    <h4>{promo.title}</h4>
-                    <p>{promo.description}</p>
-                    {promo.discount_percentage && (
-                      <p className="promo-discount">Discount: {promo.discount_percentage}%</p>
-                    )}
-                    <p className="promo-valid">
-                      Valid: {promo.valid_from} to {promo.valid_to}
-                    </p>
-                  </div>
+                  <FadeInSection key={promo.id}>
+                    <div className="promo-card">
+                      {promo.image_url && (
+                        <img
+                          src={promo.image_url}
+                          alt={promo.title}
+                          loading="lazy"
+                          onError={(e) => (e.target.src = "/fallback.jpg")}
+                        />
+                      )}
+                      <h4>{promo.title}</h4>
+                      <p>{promo.description}</p>
+                      {promo.discount_percentage && (
+                        <p className="promo-discount">Discount: {promo.discount_percentage}%</p>
+                      )}
+                      <p className="promo-valid">
+                        Valid: {promo.valid_from} to {promo.valid_to}
+                      </p>
+                    </div>
+                  </FadeInSection>
                 ))}
               </div>
             </section>
           )}
 
-          {/* Services */}
           <section>
             <h3>Our Services</h3>
             <div className="services-grid">
               {services.map((s, i) => (
-                <div key={i} className="service-card fade-in">
-                  <div className="icon">{s.icon}</div>
-                  <h4>{s.title}</h4>
-                  <p>{s.desc}</p>
-                </div>
+                <FadeInSection key={i}>
+                  <div className="service-card">
+                    <div className="icon">{s.icon}</div>
+                    <h4>{s.title}</h4>
+                    <p>{s.desc}</p>
+                  </div>
+                </FadeInSection>
               ))}
             </div>
           </section>
 
-          {/* Media Gallery */}
           <section>
             <h3>Your Media Gallery</h3>
             {media.length > 0 ? (
               <div className="gallery-grid">
                 {media.map((item, idx) => (
-                  <MediaCard key={idx} file={item.file} label={item.label} />
+                  <FadeInSection key={idx}>
+                    <MediaCard file={item.file} label={item.label} />
+                  </FadeInSection>
                 ))}
               </div>
             ) : (
@@ -204,32 +211,30 @@ const UserPage = () => {
             )}
           </section>
 
-          {/* Reviews */}
           <section>
             <h3>Client Reviews</h3>
             <div className="reviews-list">
               {reviews.length > 0 ? (
                 reviews.map((r, i) => (
-                  <div key={i} className="review-card fade-in">
-                    <p>"{r.comment}"</p>
-                    <small>- {r.user_email || "Anonymous"}</small>
-                    {r.reply && (
-                      <div className="review-reply">
-                        <strong>Admin Reply:</strong> <p>{r.reply}</p>
-                      </div>
-                    )}
-                  </div>
+                  <FadeInSection key={i}>
+                    <div className="review-card">
+                      <p>"{r.comment}"</p>
+                      <small>- {r.user_email || "Anonymous"}</small>
+                      {r.reply && (
+                        <div className="review-reply">
+                          <strong>Admin Reply:</strong> <p>{r.reply}</p>
+                        </div>
+                      )}
+                    </div>
+                  </FadeInSection>
                 ))
               ) : (
                 <p className="empty-text">No reviews yet.</p>
               )}
-              <button className="review-btn" onClick={() => navigate("/account#reviews")}>
-                Write a Review
-              </button>
+              <button className="review-btn" onClick={() => navigate("/account#reviews")}>Write a Review</button>
             </div>
           </section>
 
-          {/* Newsletter */}
           <section>
             <h3>Subscribe to Our Newsletter</h3>
             <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
