@@ -10,6 +10,7 @@ import {
 import { Link } from 'react-router-dom';
 import publicAxios from '../../api/publicAxios';
 import MediaCard from '../context/MediaCard';
+import BannerCards from '../context/BannerCards';
 import './About.css';
 
 const services = [
@@ -41,7 +42,7 @@ const services = [
 ];
 
 function About() {
-  const [banners, setBanners] = useState([]);
+  const [heroBanner, setHeroBanner] = useState(null);
   const [mediaList, setMediaList] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
 
@@ -50,11 +51,12 @@ function About() {
       try {
         const [bannerRes, mediaRes, reviewsRes] = await Promise.all([
           publicAxios.get('/media/banners/?endpoint=About'),
-        publicAxios.get('/media/featured/?endpoint=About'),
+          publicAxios.get('/media/featured/?endpoint=About'),
           publicAxios.get('/reviews/'),
         ]);
 
-        setBanners(bannerRes.data || []);
+        const banners = bannerRes.data || [];
+        setHeroBanner(banners[0] || null);
         setMediaList(mediaRes.data || []);
         setTestimonials(reviewsRes.data || []);
       } catch (error) {
@@ -68,29 +70,25 @@ function About() {
   return (
     <div className="about-container">
       {/* === Hero Banner === */}
-      {banners.length > 0 && (
+      {heroBanner && (
         <div className="hero-banner mb-10">
-          <MediaCard media={banners[0]} fullWidth />
+          <MediaCard media={heroBanner} fullWidth />
         </div>
       )}
 
       {/* === Intro === */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-12 px-4">
         <h1 className="section-heading">Ethical Multimedia GH</h1>
-        <p className="subtext">We don’t just provide services — we craft unforgettable experiences.</p>
+        <p className="subtext">
+          We don’t just provide services — we craft unforgettable experiences.
+        </p>
       </div>
 
-      {/* === Additional Banners === */}
-      {banners.length > 1 && (
-        <div className="about-banners grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto mb-10">
-          {banners.slice(1).map((media) => (
-            <MediaCard key={media.id} media={media} />
-          ))}
-        </div>
-      )}
+      {/* === Banner Section (thumbnails) === */}
+      <BannerCards endpoint="About" title="Explore Our Visual Banners" />
 
       {/* === Services === */}
-      <div className="service-grid">
+      <div className="service-grid px-4">
         {services.map(({ icon, title, desc }, idx) => (
           <div key={idx} className="service-card">
             <div className="service-icon">{icon}</div>
@@ -101,17 +99,21 @@ function About() {
       </div>
 
       {/* === Who We Are === */}
-      <div className="about-text">
+      <div className="about-text px-4">
         <h2 className="section-heading">Who We Are</h2>
         <p>
-          At <strong>Ethical Multimedia GH</strong>, we blend creativity with professionalism to deliver unforgettable event experiences. From vibrant live band performances and cinematic videography to breathtaking decor and seamless event management, our team is built to make your vision a reality.
-          With over a decade of experience across weddings, concerts, and corporate functions, we execute with both precision and passion.
+          At <strong>Ethical Multimedia GH</strong>, we blend creativity with professionalism to deliver unforgettable event experiences.
+          From vibrant live band performances and cinematic videography to breathtaking decor and seamless event management,
+          our team is built to make your vision a reality.
+          <br /><br />
+          With over a decade of experience across weddings, concerts, and corporate functions,
+          we execute with both precision and passion.
         </p>
       </div>
 
       {/* === Media Gallery === */}
       {mediaList.length > 0 && (
-        <div className="about-gallery max-w-6xl mx-auto my-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="about-gallery max-w-6xl mx-auto my-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4">
           {mediaList.map((media) => (
             <MediaCard key={media.id} media={media} />
           ))}
@@ -119,18 +121,20 @@ function About() {
       )}
 
       {/* === Our Promise === */}
-      <div className="about-text">
+      <div className="about-text px-4">
         <h2 className="section-heading">Our Promise</h2>
         <p>
-          Every service is guided by integrity, artistry, and a deep respect for your vision. We bring passion, precision, and professionalism to every celebration — whether it’s a wedding, concert, conference, or private party.
+          Every service is guided by integrity, artistry, and a deep respect for your vision.
+          We bring passion, precision, and professionalism to every celebration —
+          whether it’s a wedding, concert, conference, or private party.
         </p>
       </div>
 
       {/* === Why Choose Us === */}
-      <div className="why-section max-w-6xl mx-auto">
+      <div className="why-section max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center mt-16 px-4">
         <div>
           <h3 className="text-xl font-bold text-[#c9a356] mb-4">Why Choose Us?</h3>
-          <ul>
+          <ul className="list-disc pl-6 space-y-2">
             {[
               'Over a decade of experience in multimedia and live events.',
               'Dedicated team of skilled creatives and coordinators.',
@@ -142,14 +146,14 @@ function About() {
             ))}
           </ul>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="flex justify-center">
           <FaStar className="text-[#c9a356] text-7xl" />
         </div>
       </div>
 
       {/* === Testimonials === */}
       {testimonials.length > 0 && (
-        <div className="testimonial-section">
+        <div className="testimonial-section px-4">
           <h2 className="section-heading">What Our Clients Say</h2>
           <div className="testimonial-grid">
             {testimonials.map((review) => (
@@ -163,8 +167,10 @@ function About() {
       )}
 
       {/* === CTA === */}
-      <div className="cta-section">
-        <h3 className="text-xl font-semibold mb-3">Ready to plan something unforgettable?</h3>
+      <div className="cta-section text-center mt-12 px-4">
+        <h3 className="text-xl font-semibold mb-3">
+          Ready to plan something unforgettable?
+        </h3>
         <Link to="/bookings" className="cta-button">
           Book Now
         </Link>

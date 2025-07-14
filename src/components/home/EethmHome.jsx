@@ -1,17 +1,16 @@
-// EethmHome.jsx
-
 import React, { useState, useEffect, useRef } from 'react';
-import axiosCommon from '../../api/axiosCommon';
 import { useNavigate } from 'react-router-dom';
+import useMediaFetcher from '../../hooks/useMediaFetcher';
+import axiosCommon from '../../api/axiosCommon';
 import MediaCard from '../context/MediaCard';
+import BannerCards from '../context/BannerCards';
 import FadeInSection from '../FadeInSection';
 import './EethmHome.css';
 
 const serviceDetails = {
   'live-band': {
     title: 'Live Band Performance',
-    description:
-      'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
+    description: 'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
     details: ['Customizable song lists', 'Professional sound equipment', 'Multiple band size options'],
   },
   catering: {
@@ -28,73 +27,58 @@ const serviceDetails = {
 
 const getMediaUrl = (media) => {
   if (!media) return '';
-  return media.url || media.file_url || '';
+  return media.url?.full || media.file_url || '';
 };
 
 const EethmHome = () => {
-  const [heroMedia, setHeroMedia] = useState(null);
-  const [banners, setBanners] = useState([]);
-  const [promotions, setPromotions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isMuted, setIsMuted] = useState(true);
-
-  const videoRef = useRef(null);
   const navigate = useNavigate();
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
+  const [promotions, setPromotions] = useState([]);
+  const [promoError, setPromoError] = useState(null);
+
+  // Fetch hero media (type: media)
+  const {
+    media: heroMediaArr,
+    loading: heroLoading,
+    error: heroError
+  } = useMediaFetcher({ type: 'media', endpoint: 'EethmHome', isActive: true });
+
+  const heroMedia = heroMediaArr?.[0] || null;
+  const heroURL = getMediaUrl(heroMedia);
+  const isVideo = heroURL.endsWith('.mp4');
 
   const toggleMute = () => {
-    setIsMuted((prev) => !prev);
+    setIsMuted(prev => !prev);
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
     }
   };
 
+  // Promotions fetch
   useEffect(() => {
     const controller = new AbortController();
-    const signal = controller.signal;
-
-    const fetchContent = async () => {
-      try {
-        const [heroRes, bannerRes, promoRes] = await Promise.all([
-          axiosCommon.get('/media/', {
-            params: { type: 'media', endpoint: 'EethmHome', is_active: true },
-            signal,
-          }),
-          axiosCommon.get('/media/', {
-            params: { type: 'banner', endpoint: 'EethmHome', is_active: true },
-            signal,
-          }),
-          axiosCommon.get('/promotions/', { signal }),
-        ]);
-
-        setHeroMedia(heroRes?.data?.[0] || null);
-        setBanners(Array.isArray(bannerRes?.data) ? bannerRes.data : []);
-        setPromotions(Array.isArray(promoRes?.data) ? promoRes.data : []);
-      } catch (err) {
+    axiosCommon.get('/promotions/', { signal: controller.signal })
+      .then(res => {
+        setPromotions(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch(err => {
         if (err.name !== 'CanceledError') {
-          console.error('Homepage fetch error:', err);
-          setError('Failed to load homepage content.');
+          console.error('Promotions fetch error:', err);
+          setPromoError('Failed to load promotions.');
         }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContent();
+      });
     return () => controller.abort();
   }, []);
-
-  const heroURL = getMediaUrl(heroMedia);
-  const isVideo = heroURL.endsWith('.mp4');
 
   return (
     <div className="eethm-home-page">
       {/* === Hero Section === */}
       <section className="video-hero-section">
-        {loading ? (
+        {heroLoading ? (
           <p className="video-fallback">Loading hero...</p>
-        ) : error ? (
-          <p className="video-fallback" style={{ color: 'red' }}>{error}</p>
+        ) : heroError ? (
+          <p className="video-fallback" style={{ color: 'red' }}>{heroError}</p>
         ) : heroURL ? (
           <>
             {isVideo ? (
@@ -160,7 +144,7 @@ const EethmHome = () => {
           <h2>Current Offers</h2>
           {promotions.length > 0 ? (
             <div className="promos-container">
-              {promotions.map((promo) => (
+              {promotions.map(promo => (
                 <div key={promo.id} className="promo-card">
                   {promo.image_url && (
                     <img
@@ -183,6 +167,8 @@ const EethmHome = () => {
                 </div>
               ))}
             </div>
+          ) : promoError ? (
+            <p style={{ color: 'red' }}>{promoError}</p>
           ) : (
             <p>No current promotions.</p>
           )}
@@ -191,20 +177,7 @@ const EethmHome = () => {
 
       {/* === Banner Highlights Section === */}
       <FadeInSection>
-        <section className="banners-section">
-          <h2>Highlights</h2>
-          {banners.length > 0 ? (
-            <div className="banners-container">
-              {banners.map((media) => (
-                <div key={media.id} className="banner-item">
-                  <MediaCard media={{ url: getMediaUrl(media), title: media.title }} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No highlights available at this time.</p>
-          )}
-        </section>
+        <BannerCards endpoint="EethmHome" title="Highlights" />
       </FadeInSection>
     </div>
   );

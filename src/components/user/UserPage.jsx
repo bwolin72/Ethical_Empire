@@ -1,4 +1,3 @@
-// src/components/user/UserPage.jsx
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
@@ -21,7 +20,6 @@ const services = [
 const UserPage = () => {
   const [profile, setProfile] = useState(null);
   const [media, setMedia] = useState([]);
-  const [banners, setBanners] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [featured, setFeatured] = useState([]);
@@ -42,22 +40,16 @@ const UserPage = () => {
         params: { type: "media", endpoint: "UserPage", is_active: true },
         signal,
       }),
-      axiosInstance.get("/media/", {
-        params: { type: "banner", endpoint: "UserPage", is_active: true },
-        signal,
-      }),
       axiosInstance.get("/media/featured/", { signal }),
       axiosInstance.get("/reviews/", { signal }),
       axiosInstance.get("/promotions/", { signal }),
     ])
-      .then(([profileRes, mediaRes, bannerRes, featuredRes, reviewsRes, promoRes]) => {
+      .then(([profileRes, mediaRes, featuredRes, reviewsRes, promoRes]) => {
         if (profileRes.status === "fulfilled") setProfile(profileRes.value.data);
         else toast.error("Failed to load profile.");
 
         if (mediaRes.status === "fulfilled") setMedia(mediaRes.value.data);
         else toast.error("Failed to load media.");
-
-        if (bannerRes.status === "fulfilled") setBanners(bannerRes.value.data);
 
         if (featuredRes.status === "fulfilled") {
           const data = featuredRes.value.data;
@@ -129,6 +121,7 @@ const UserPage = () => {
         <p className="loading-text">Loading...</p>
       ) : (
         <>
+          {/* === Featured Video === */}
           {featuredVideo ? (
             <FadeInSection>
               <div className="asaase-card">
@@ -142,15 +135,15 @@ const UserPage = () => {
             <p className="empty-text">No featured video available.</p>
           )}
 
-          {banners.length > 0 && (
+          {/* === Banners Section === */}
+          <FadeInSection>
             <section>
               <h3>Featured Banners</h3>
-              <FadeInSection>
-                <BannerCards banners={banners} />
-              </FadeInSection>
+              <BannerCards endpoint="UserPage" />
             </section>
-          )}
+          </FadeInSection>
 
+          {/* === Promotions === */}
           {promotions.length > 0 && (
             <section>
               <h3>Special Offers</h3>
@@ -181,6 +174,7 @@ const UserPage = () => {
             </section>
           )}
 
+          {/* === Services Section === */}
           <section>
             <h3>Our Services</h3>
             <div className="services-grid">
@@ -196,13 +190,14 @@ const UserPage = () => {
             </div>
           </section>
 
+          {/* === Media Gallery === */}
           <section>
             <h3>Your Media Gallery</h3>
             {media.length > 0 ? (
               <div className="gallery-grid">
                 {media.map((item, idx) => (
                   <FadeInSection key={idx}>
-                    <MediaCard file={item.file} label={item.label} />
+                    <MediaCard media={item} />
                   </FadeInSection>
                 ))}
               </div>
@@ -211,6 +206,7 @@ const UserPage = () => {
             )}
           </section>
 
+          {/* === Client Reviews === */}
           <section>
             <h3>Client Reviews</h3>
             <div className="reviews-list">
@@ -231,10 +227,13 @@ const UserPage = () => {
               ) : (
                 <p className="empty-text">No reviews yet.</p>
               )}
-              <button className="review-btn" onClick={() => navigate("/account#reviews")}>Write a Review</button>
+              <button className="review-btn" onClick={() => navigate("/account#reviews")}>
+                Write a Review
+              </button>
             </div>
           </section>
 
+          {/* === Newsletter Section === */}
           <section>
             <h3>Subscribe to Our Newsletter</h3>
             <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
