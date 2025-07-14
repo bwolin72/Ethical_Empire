@@ -45,6 +45,7 @@ function SortableMediaCard({ item, index, toggleActive, toggleFeatured, deleteMe
   };
 
   const renderPreview = (url) => {
+    if (!url) return <span>Broken link</span>;
     const ext = url.split('.').pop().toLowerCase();
     if (['mp4', 'webm'].includes(ext)) return <video src={url} controls className="media-preview" />;
     if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) return <img src={url} alt="preview" className="media-preview" />;
@@ -54,7 +55,7 @@ function SortableMediaCard({ item, index, toggleActive, toggleFeatured, deleteMe
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="media-card">
       <div onClick={() => setPreviewItem(item)} style={{ cursor: 'pointer' }}>
-        {renderPreview(item.url)}
+        {renderPreview(item.url?.thumb || item.url?.full)}
       </div>
       <p className="media-label"><strong>{item.label || 'No Label'}</strong></p>
       <div className="media-actions">
@@ -86,7 +87,7 @@ const MediaManagement = () => {
     try {
       const params = { type: mediaType };
       if (statusFilter !== 'all') params.is_active = statusFilter === 'active';
-      params.endpoint = selectedEndpoint;
+      if (mediaType !== 'banner') params.endpoint = selectedEndpoint;
 
       const res = await axiosInstance.get('/media/', { params });
       setUploadedItems(Array.isArray(res.data) ? res.data : []);
@@ -110,7 +111,7 @@ const MediaManagement = () => {
     files.forEach((file) => formData.append('media', file));
     formData.append('type', mediaType);
     formData.append('label', label || 'Untitled');
-    formData.append('endpoint', selectedEndpoint); // ✅ Always include endpoint
+    if (mediaType !== 'banner') formData.append('endpoint', selectedEndpoint);
 
     try {
       await axiosInstance.post('/media/upload/', formData, {
@@ -195,7 +196,7 @@ const MediaManagement = () => {
 
     try {
       const orderedIds = reordered.map((item, index) => ({ id: item.id, position: index }));
-      await axiosInstance.post('/media/reorder/', { items: orderedIds });
+      await axiosInstance.post('/media/reorder/', orderedIds);
       toast.success('Order updated.', { autoClose: 2000 });
     } catch {
       toast.error('Reorder failed.', { autoClose: 3000 });
@@ -236,7 +237,10 @@ const MediaManagement = () => {
           <div className="media-list">
             {uploadedItems.length === 0 && <p>No media found.</p>}
             {uploadedItems
-              .filter((item) => item.url?.toLowerCase().includes(searchQuery.toLowerCase()))
+              .filter((item) =>
+                item.label?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.url?.full?.toLowerCase().includes(searchQuery.toLowerCase())
+              )
               .map((item, index) => (
                 <SortableMediaCard
                   key={item.id}
@@ -257,7 +261,7 @@ const MediaManagement = () => {
           <div className="preview-content" onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setPreviewItem(null)} className="close-button">Close</button>
             <h3>Preview</h3>
-            <img src={previewItem.url} alt="preview" className="media-preview" />
+            <img src={previewItem.url?.full} alt="preview" className="media-preview" />
           </div>
         </div>
       )}
