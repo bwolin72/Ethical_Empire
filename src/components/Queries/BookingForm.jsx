@@ -41,11 +41,12 @@ const BookingForm = () => {
 
   const fetchServices = useCallback(() => {
     axiosInstance
-      .get('/services/') // adjust this to '/api/services/' if needed
+      .get('/services/')
       .then((res) => {
         console.log('Fetched services:', res.data);
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          setAvailableServices(res.data);
+        const data = Array.isArray(res.data.results) ? res.data.results : res.data;
+        if (Array.isArray(data) && data.length > 0) {
+          setAvailableServices(data);
         } else {
           toast.warning('No services available at the moment.', { autoClose: 3000 });
         }
