@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import axiosCommon from '../../api/axiosCommon';
 import BannerCards from '../context/BannerCards';
+import MediaCard from '../context/MediaCard';
 import FadeInSection from '../FadeInSection';
 import './EethmHome.css';
 
@@ -174,7 +175,18 @@ const EethmHome = () => {
 
       {/* === Banner Highlights === */}
       <FadeInSection>
-        <BannerCards endpoint="EethmHome" title="Highlights from Our Services" />
+        <section className="banners-section">
+          <h2>Highlights from Our Services</h2>
+          <BannerCards endpoint="EethmHome" />
+        </section>
+      </FadeInSection>
+
+      {/* === Media Cards Section (Optional) === */}
+      <FadeInSection>
+        <section className="banners-section">
+          <h2>Featured Media</h2>
+          <MediaCard endpoint="EethmHome" type="media" />
+        </section>
       </FadeInSection>
     </div>
   );
