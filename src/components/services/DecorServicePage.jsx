@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import publixios from '../../api/publicAxios';
 import './decor.css';
 import MediaCard from '../context/MediaCard';
+import BannerCards from '../context/BannerCards';
 
 const DecorPage = () => {
   const navigate = useNavigate();
   const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [bannerUrl, setBannerUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const decorServices = [
     'Wedding & Event Decor',
@@ -21,43 +22,34 @@ const DecorPage = () => {
   ];
 
   useEffect(() => {
-    const fetchMedia = async () => {
+    const fetchContent = async () => {
       try {
-        const [mediaRes, bannerRes, reviewsRes] = await Promise.all([
+        const [mediaRes, reviewsRes] = await Promise.all([
           publixios.get('/media/featured/?endpoint=DecorPage'),
-          publixios.get('/media/banners/?endpoint=DecorPage'),
           publixios.get('/reviews/'),
         ]);
 
-        setMediaCards(mediaRes.data || []);
-        setBannerUrl(bannerRes.data?.[0]?.url || null);
+        const media = (mediaRes.data || []).filter(item => item.is_active && item.type === 'media');
+        setMediaCards(media);
         setTestimonials(reviewsRes.data || []);
       } catch (error) {
-        console.error('Error fetching decor page content:', error);
+        console.error('Error fetching decor content:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchMedia();
+    fetchContent();
   }, []);
 
   return (
-    <div className="catering-page-container">
-      {/* Hero Banner */}
-      <header className="hero-banner">
-        {bannerUrl ? (
-          <img
-            src={bannerUrl}
-            alt="Elegant decor setup"
-            className="hero-banner-image"
-          />
-        ) : (
-          <div className="hero-banner-placeholder">Elegant Decor Solutions</div>
-        )}
-        <div className="hero-overlay" />
-        <h1 className="hero-title">Elegant Decor Solutions</h1>
-      </header>
+    <div className="decor-page-container">
+      {/* === Hero Banner Section === */}
+      <section className="banner-section">
+        <BannerCards endpoint="DecorPage" title="Decor Showcases" />
+      </section>
 
-      {/* CTA Button */}
+      {/* === CTA Section === */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -68,7 +60,7 @@ const DecorPage = () => {
         </motion.button>
       </section>
 
-      {/* Decor Services */}
+      {/* === Decor Services === */}
       <section className="section">
         <h2 className="section-title">Our Decor Services</h2>
         <div className="card-grid">
@@ -80,7 +72,7 @@ const DecorPage = () => {
         </div>
       </section>
 
-      {/* Transform Your Venue */}
+      {/* === Transform Section === */}
       <section className="section creative-layout">
         <div className="creative-text">
           <h3>Transform Your Venue</h3>
@@ -90,13 +82,17 @@ const DecorPage = () => {
           </p>
         </div>
         <div className="creative-media">
-          {mediaCards.slice(0, 2).map((media) => (
-            <MediaCard key={media.id || media.url} media={media} />
-          ))}
+          {loading
+            ? Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="skeleton-card shimmer" />
+              ))
+            : mediaCards.slice(0, 2).map((media) => (
+                <MediaCard key={media.id || media.url} media={media} />
+              ))}
         </div>
       </section>
 
-      {/* Decor Gallery */}
+      {/* === Decor Gallery === */}
       <section className="section">
         <h2 className="section-title">Decor Highlights</h2>
         <p className="section-description">
@@ -104,32 +100,43 @@ const DecorPage = () => {
           Discover the beauty of our decor setups in the gallery below.
         </p>
         <div className="card-grid">
-          {mediaCards.length > 0 ? (
-            mediaCards.slice(0, 6).map((media) => (
-              <MediaCard key={media.id || media.url} media={media} />
-            ))
-          ) : (
-            <p className="text-center text-gray-500">No decor media available at the moment.</p>
-          )}
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="skeleton-card shimmer" />
+              ))
+            : mediaCards.length > 0 ? (
+                mediaCards.slice(0, 6).map((media) => (
+                  <MediaCard key={media.id || media.url} media={media} />
+                ))
+              ) : (
+                <p className="text-center text-gray-500">No decor media available at the moment.</p>
+              )}
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* === Testimonials === */}
       <section className="section">
         <h2 className="section-title">Client Impressions</h2>
         <div className="testimonial-grid">
-          {testimonials.slice(0, 6).map((review) => (
-            <div key={review.id || review.message} className="testimonial-card">
-              <p className="testimonial-text">
-                {review.message ? `"${review.message}"` : '"No comment provided."'}
-              </p>
-              <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-            </div>
-          ))}
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="testimonial-card shimmer">
+                  <div className="testimonial-text">Loading review...</div>
+                  <div className="testimonial-user">Loading...</div>
+                </div>
+              ))
+            : testimonials.slice(0, 6).map((review) => (
+                <div key={review.id || review.message} className="testimonial-card">
+                  <p className="testimonial-text">
+                    {review.message ? `"${review.message}"` : '"No comment provided."'}
+                  </p>
+                  <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                </div>
+              ))}
         </div>
       </section>
 
-      {/* WhatsApp Floating Button */}
+      {/* === WhatsApp CTA === */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

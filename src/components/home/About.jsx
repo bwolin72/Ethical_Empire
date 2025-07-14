@@ -17,31 +17,31 @@ const services = [
   {
     icon: <FaCamera />,
     title: 'Photography & Videography',
-    desc: 'Capturing your moments with artistic precision and cinematic quality.',
+    desc: 'Capturing your story with cinematic quality and artistic flair.',
   },
   {
     icon: <FaGuitar />,
     title: 'Live Band & DJ',
-    desc: 'Electrify your event with soulful live performances and top-tier DJs.',
+    desc: 'Soulful live music and high-energy DJ performances to energize your event.',
   },
   {
     icon: <FaUtensils />,
     title: 'Catering',
-    desc: 'Serving delightful menus tailored for all occasions and tastes.',
+    desc: 'Customized culinary experiences crafted to suit every palate and occasion.',
   },
   {
     icon: <FaMicrophone />,
     title: 'Hosting & MC',
-    desc: 'Engaging, charismatic hosts that keep your event flowing flawlessly.',
+    desc: 'Charismatic, engaging hosts that keep your event seamless and vibrant.',
   },
   {
     icon: <FaUsers />,
     title: 'Event Coordination',
-    desc: 'From concept to execution, we handle every detail professionally.',
+    desc: 'From concept to cleanup, we manage every detail so you don’t have to.',
   },
 ];
 
-function About() {
+const About = () => {
   const [heroBanner, setHeroBanner] = useState(null);
   const [mediaList, setMediaList] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
@@ -50,17 +50,16 @@ function About() {
     const fetchContent = async () => {
       try {
         const [bannerRes, mediaRes, reviewsRes] = await Promise.all([
-          publicAxios.get('/media/banners/?endpoint=About'),
-          publicAxios.get('/media/featured/?endpoint=About'),
+          publicAxios.get('/media/banner/', { params: { endpoint: 'About' } }),
+          publicAxios.get('/media/featured/', { params: { endpoint: 'About' } }),
           publicAxios.get('/reviews/'),
         ]);
 
-        const banners = bannerRes.data || [];
-        setHeroBanner(banners[0] || null);
+        setHeroBanner(bannerRes.data?.[0] || null);
         setMediaList(mediaRes.data || []);
         setTestimonials(reviewsRes.data || []);
       } catch (error) {
-        console.error('Error fetching About page content:', error);
+        console.error('Error loading About page content:', error);
       }
     };
 
@@ -76,19 +75,19 @@ function About() {
         </div>
       )}
 
-      {/* === Intro === */}
-      <div className="text-center mb-12 px-4">
+      {/* === Introduction === */}
+      <section className="text-center mb-12 px-4">
         <h1 className="section-heading">Ethical Multimedia GH</h1>
         <p className="subtext">
-          We don’t just provide services — we craft unforgettable experiences.
+          We don’t just offer services — we deliver lasting impressions.
         </p>
-      </div>
+      </section>
 
-      {/* === Banner Section (thumbnails) === */}
-      <BannerCards endpoint="About" title="Explore Our Visual Banners" />
+      {/* === Banners === */}
+      <BannerCards endpoint="About" title="Explore Our Visual Stories" />
 
-      {/* === Services === */}
-      <div className="service-grid px-4">
+      {/* === Our Services === */}
+      <section className="service-grid px-4">
         {services.map(({ icon, title, desc }, idx) => (
           <div key={idx} className="service-card">
             <div className="service-icon">{icon}</div>
@@ -96,64 +95,62 @@ function About() {
             <p className="service-desc">{desc}</p>
           </div>
         ))}
-      </div>
+      </section>
 
       {/* === Who We Are === */}
-      <div className="about-text px-4">
+      <section className="about-text px-4 mt-12">
         <h2 className="section-heading">Who We Are</h2>
         <p>
-          At <strong>Ethical Multimedia GH</strong>, we blend creativity with professionalism to deliver unforgettable event experiences.
-          From vibrant live band performances and cinematic videography to breathtaking decor and seamless event management,
-          our team is built to make your vision a reality.
+          At <strong>Ethical Multimedia GH</strong>, we merge artistic passion with event precision.
+          From vibrant performances and stunning visuals to coordinated event execution, we bring your vision to life with professionalism and creativity.
           <br /><br />
-          With over a decade of experience across weddings, concerts, and corporate functions,
-          we execute with both precision and passion.
+          With over a decade of experience across weddings, concerts, and corporate events,
+          our diverse team brings the tools and talent to turn ideas into unforgettable experiences.
         </p>
-      </div>
+      </section>
 
       {/* === Media Gallery === */}
       {mediaList.length > 0 && (
-        <div className="about-gallery max-w-6xl mx-auto my-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4">
+        <section className="about-gallery max-w-6xl mx-auto my-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4">
           {mediaList.map((media) => (
             <MediaCard key={media.id} media={media} />
           ))}
-        </div>
+        </section>
       )}
 
-      {/* === Our Promise === */}
-      <div className="about-text px-4">
-        <h2 className="section-heading">Our Promise</h2>
+      {/* === Our Commitment === */}
+      <section className="about-text px-4 mt-12">
+        <h2 className="section-heading">Our Commitment</h2>
         <p>
-          Every service is guided by integrity, artistry, and a deep respect for your vision.
-          We bring passion, precision, and professionalism to every celebration —
-          whether it’s a wedding, concert, conference, or private party.
+          We value integrity, artistry, and a deep understanding of your goals.
+          Every event is approached with care, strategy, and passion — ensuring it's not just successful, but unforgettable.
         </p>
-      </div>
+      </section>
 
       {/* === Why Choose Us === */}
-      <div className="why-section max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center mt-16 px-4">
+      <section className="why-section max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center mt-16 px-4">
         <div>
-          <h3 className="text-xl font-bold text-[#c9a356] mb-4">Why Choose Us?</h3>
+          <h3 className="text-xl font-bold text-[#c9a356] mb-4">Why Clients Trust Us</h3>
           <ul className="list-disc pl-6 space-y-2">
             {[
-              'Over a decade of experience in multimedia and live events.',
-              'Dedicated team of skilled creatives and coordinators.',
-              'State-of-the-art equipment and production standards.',
-              'Client-first approach with flexible packages and honest pricing.',
-              'Proven record of delivering flawless events across Ghana and beyond.',
-            ].map((item, i) => (
-              <li key={i}>{item}</li>
+              'Over a decade of multimedia and event expertise.',
+              'A versatile team of creatives, planners, and performers.',
+              'Cutting-edge equipment and visual production.',
+              'Flexible packages and transparent pricing.',
+              'A track record of flawless delivery across Ghana and beyond.',
+            ].map((item, idx) => (
+              <li key={idx}>{item}</li>
             ))}
           </ul>
         </div>
         <div className="flex justify-center">
           <FaStar className="text-[#c9a356] text-7xl" />
         </div>
-      </div>
+      </section>
 
       {/* === Testimonials === */}
       {testimonials.length > 0 && (
-        <div className="testimonial-section px-4">
+        <section className="testimonial-section px-4 mt-16">
           <h2 className="section-heading">What Our Clients Say</h2>
           <div className="testimonial-grid">
             {testimonials.map((review) => (
@@ -163,20 +160,20 @@ function About() {
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      {/* === CTA === */}
-      <div className="cta-section text-center mt-12 px-4">
+      {/* === Call to Action === */}
+      <section className="cta-section text-center mt-16 px-4">
         <h3 className="text-xl font-semibold mb-3">
-          Ready to plan something unforgettable?
+          Let’s create something remarkable together.
         </h3>
         <Link to="/bookings" className="cta-button">
-          Book Now
+          Book a Service
         </Link>
-      </div>
+      </section>
     </div>
   );
-}
+};
 
 export default About;

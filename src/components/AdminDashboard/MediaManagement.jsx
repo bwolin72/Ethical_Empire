@@ -85,11 +85,17 @@ const MediaManagement = () => {
 
   const fetchMedia = useCallback(async () => {
     try {
-      const params = { type: mediaType };
-      if (statusFilter !== 'all') params.is_active = statusFilter === 'active';
-      if (mediaType !== 'banner') params.endpoint = selectedEndpoint;
+      let res;
 
-      const res = await axiosInstance.get('/media/', { params });
+      if (mediaType === 'featured') {
+        res = await axiosInstance.get('/media/featured/');
+      } else {
+        const params = { type: mediaType };
+        if (statusFilter !== 'all') params.is_active = statusFilter === 'active';
+        if (mediaType !== 'banner') params.endpoint = selectedEndpoint;
+        res = await axiosInstance.get('/media/', { params });
+      }
+
       setUploadedItems(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       toast.error('Failed to load media.', { autoClose: 4000 });

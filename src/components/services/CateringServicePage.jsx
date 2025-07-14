@@ -4,13 +4,13 @@ import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
 import publicAxios from '../../api/publicAxios';
 import MediaCard from '../context/MediaCard';
+import BannerCards from '../context/BannerCards';
 import { useNavigate } from 'react-router-dom';
 
 const CateringPage = () => {
   const navigate = useNavigate();
   const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [bannerUrl, setBannerUrl] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const cateringServices = [
@@ -30,19 +30,13 @@ const CateringPage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const [mediaRes, , reviewsRes] = await Promise.all([
+      const [mediaRes, reviewsRes] = await Promise.all([
         publicAxios.get('/media/featured/?endpoint=CateringPage'),
-        publicAxios.get('/media/banners/?endpoint=CateringPage'),
         publicAxios.get('/reviews/')
       ]);
 
-      const allMedia = mediaRes.data || [];
-      const activeMedia = allMedia.filter(item => item.is_active);
-      const media = activeMedia.filter(item => item.type === 'media');
-      const banner = activeMedia.find(item => item.type === 'banner');
-
+      const media = (mediaRes.data || []).filter(item => item.is_active && item.type === 'media');
       setMediaCards(media);
-      setBannerUrl(banner?.file || null);
       setTestimonials(reviewsRes.data || []);
     } catch (error) {
       console.error('Error loading catering content:', error);
@@ -57,22 +51,12 @@ const CateringPage = () => {
 
   return (
     <div className="catering-page-container">
-      {/* Hero Banner */}
-      <div className="hero-banner">
-        {bannerUrl ? (
-          <img
-            src={bannerUrl}
-            alt="Catering banner featuring Ghanaian and fusion cuisine"
-            className="hero-banner-image"
-          />
-        ) : (
-          <div className="hero-banner-placeholder shimmer">Loading Banner...</div>
-        )}
-        <div className="hero-overlay" />
-        <h1 className="hero-title">Ethical Kitchen</h1>
-      </div>
+      {/* === Hero Banner Section === */}
+      <section className="catering-banners">
+        <BannerCards endpoint="CateringPage" title="Catering Highlights" />
+      </section>
 
-      {/* CTA */}
+      {/* === CTA Section === */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -83,7 +67,7 @@ const CateringPage = () => {
         </motion.button>
       </section>
 
-      {/* Services */}
+      {/* === Catering Services === */}
       <section className="section services-section">
         <h2>Our Catering Services</h2>
         <div className="card-grid">
@@ -95,7 +79,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Creative Catering Ideas */}
+      {/* === Creative Catering Media === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
@@ -118,7 +102,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Dietary Options */}
+      {/* === Dietary Options === */}
       <section className="section dietary-section">
         <h2>Dietary Options</h2>
         <div className="dietary-grid">
@@ -130,7 +114,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* === Testimonials === */}
       <section className="section testimonial-section">
         <h2>What Clients Say</h2>
         <div className="testimonial-grid">
@@ -152,6 +136,7 @@ const CateringPage = () => {
         </div>
       </section>
 
+      {/* === WhatsApp Button === */}
       <WhatsAppButton />
     </div>
   );

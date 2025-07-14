@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import publicAxios from '../../api/publicAxios';
 import BannerCards from '../context/BannerCards';
+import MediaCard from '../context/MediaCard';
 import './MediaHostingServicePage.css';
 
 // Skeleton Loaders
@@ -25,7 +26,6 @@ const hostingServices = [
 const MediaHostingServicePage = () => {
   const [mediaItems, setMediaItems] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [bannerImage, setBannerImage] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -37,13 +37,9 @@ const MediaHostingServicePage = () => {
         publicAxios.get('/reviews/'),
       ]);
 
-      const mediaItemsData = mediaRes.data || [];
-      const activeMedia = mediaItemsData.filter(item => item.is_active);
-      const banner = activeMedia.find(item => item.type === 'banner');
-      const media = activeMedia.filter(item => item.type === 'media');
-
-      setBannerImage(banner?.file || null);
-      setMediaItems(media);
+      const mediaData = mediaRes.data || [];
+      const activeMedia = mediaData.filter(item => item.is_active && item.type === 'media');
+      setMediaItems(activeMedia);
       setTestimonials(reviewsRes.data || []);
     } catch (error) {
       console.error('Error fetching media hosting data:', error);
@@ -57,26 +53,20 @@ const MediaHostingServicePage = () => {
   }, [fetchData]);
 
   return (
-    <div className="liveband-page">
-      {/* Hero Section */}
-      <header className="hero-banner">
-        {bannerImage ? (
-          <img src={bannerImage} alt="Media Hosting Banner" className="hero-banner-image" />
-        ) : (
-          <div className="hero-banner-placeholder shimmer">Loading Banner...</div>
-        )}
-        <div className="hero-overlay" />
-        <h1 className="hero-title">Capture & Host with Ethical Precision</h1>
-      </header>
+    <div className="liveband-page-container">
+      {/* === Hero Banner === */}
+      <section className="banner-section">
+        <BannerCards endpoint="mediaHostingServicePage" title="Capture & Host with Ethical Precision" />
+      </section>
 
-      {/* CTA Section */}
+      {/* === CTA Section === */}
       <section className="cta-section">
         <button className="cta-button" onClick={() => navigate('/bookings')}>
           Request Hosting Services
         </button>
       </section>
 
-      {/* Services Section */}
+      {/* === Hosting Services === */}
       <section className="section services-section">
         <h2 className="section-title">Our Multimedia & Hosting Services</h2>
         <div className="card-grid">
@@ -88,21 +78,14 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* Media Showcase */}
+      {/* === Media Showcase === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
             {loading
               ? Array.from({ length: 3 }).map((_, index) => <SkeletonCard key={index} />)
               : mediaItems.slice(0, 3).map((item, index) => (
-                  <div key={index} className="media-card">
-                    <img
-                      src={item.file}
-                      alt={item.label || 'Media Item'}
-                      className="media-image"
-                    />
-                    <p className="media-title">{item.label || 'Untitled'}</p>
-                  </div>
+                  <MediaCard key={index} media={item} />
                 ))}
           </div>
           <div className="creative-text">
@@ -117,9 +100,9 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* Venue Section */}
+      {/* === Hosting Venue Info === */}
       <section className="section event-hosting-section">
-        <h3 className="section-title">Hosting Event Place</h3>
+        <h2 className="section-title">Hosting Event Place</h2>
         <p>
           Need a location for your next shoot, seminar, or celebration? We offer fully equipped
           event spaces with lighting, seating, sound, and ambiance—ready for recording,
@@ -127,12 +110,19 @@ const MediaHostingServicePage = () => {
         </p>
       </section>
 
-      {/* Banner Cards Section */}
-      <section className="banner-cards-wrapper">
-        <BannerCards endpoint="mediaHostingServicePage" />
+      {/* === Gallery Section === */}
+      <section className="section">
+        <h2 className="section-title">Multimedia Gallery</h2>
+        <div className="card-grid">
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+            : mediaItems.slice(0, 6).map((item, index) => (
+                <MediaCard key={index} media={item} />
+              ))}
+        </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* === Testimonials Section === */}
       <section className="section testimonial-section">
         <h2 className="section-title">Client Reviews</h2>
         <div className="testimonial-grid">
@@ -147,7 +137,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* WhatsApp Button */}
+      {/* === WhatsApp Button === */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

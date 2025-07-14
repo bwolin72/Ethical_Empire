@@ -4,13 +4,14 @@ import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
 import publixios from '../../api/publicAxios';
 import MediaCard from '../context/MediaCard';
+import BannerCards from '../context/BannerCards';
 import { useNavigate } from 'react-router-dom';
 
 const LiveBandServicePage = () => {
   const navigate = useNavigate();
   const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [bannerUrl, setBannerUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const liveBandServices = [
     'Wedding Performances',
@@ -24,17 +25,18 @@ const LiveBandServicePage = () => {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const [mediaRes, bannerRes, reviewsRes] = await Promise.all([
+        const [mediaRes, reviewsRes] = await Promise.all([
           publixios.get('/media/featured/?endpoint=LiveBandServicePage'),
-          publixios.get('/media/banners/?endpoint=LiveBandServicePage'),
           publixios.get('/reviews/'),
         ]);
 
-        setMediaCards(mediaRes.data || []);
-        setBannerUrl(bannerRes.data?.[0]?.url || null);
+        const activeMedia = (mediaRes.data || []).filter(item => item.is_active && item.type === 'media');
+        setMediaCards(activeMedia);
         setTestimonials(reviewsRes.data || []);
       } catch (error) {
         console.error('Failed to load content:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -43,18 +45,12 @@ const LiveBandServicePage = () => {
 
   return (
     <div className="liveband-page-container">
-      {/* Hero Banner */}
-      <header className="hero-banner">
-        {bannerUrl ? (
-          <img src={bannerUrl} alt="Live Band Banner" className="hero-banner-image" />
-        ) : (
-          <div className="hero-banner-placeholder">No Banner Uploaded</div>
-        )}
-        <div className="hero-overlay" />
-        <h1 className="hero-title">Ethical Sounds</h1>
-      </header>
+      {/* === Hero Banner === */}
+      <section className="banner-section">
+        <BannerCards endpoint="LiveBandServicePage" title="Live Band Highlights" />
+      </section>
 
-      {/* CTA Button */}
+      {/* === CTA Button === */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -65,7 +61,7 @@ const LiveBandServicePage = () => {
         </motion.button>
       </section>
 
-      {/* Services Offered */}
+      {/* === Services Offered === */}
       <section className="section services-section">
         <h2 className="section-title">Live Band Services</h2>
         <p className="section-description">
@@ -80,7 +76,7 @@ const LiveBandServicePage = () => {
         </div>
       </section>
 
-      {/* Media Showcase */}
+      {/* === Media Showcase === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-text">
@@ -92,44 +88,49 @@ const LiveBandServicePage = () => {
             </p>
           </div>
           <div className="creative-media">
-            {mediaCards.length > 0 ? (
-              mediaCards.slice(0, 3).map((media, index) => (
-                <MediaCard key={index} media={media} />
-              ))
-            ) : (
-              <p className="section-description text-gray-500 text-center">
-                No live band media available at the moment.
-              </p>
-            )}
+            {loading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="skeleton-card shimmer" />
+                ))
+              : mediaCards.slice(0, 3).map((media, index) => (
+                  <MediaCard key={index} media={media} />
+                ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* === Testimonials === */}
       <section className="section testimonial-section">
         <h2 className="section-title">Client Reviews</h2>
         <p className="section-description">
           Hear what our clients have to say about their unforgettable experiences.
         </p>
         <div className="testimonial-grid">
-          {testimonials.length > 0 ? (
-            testimonials.slice(0, 6).map((review, index) => (
-              <Card key={index} className="testimonial-card">
-                <CardContent>
-                  <p className="testimonial-text">"{review.message}"</p>
-                  <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            <p className="section-description text-center text-gray-500">
-              No client reviews available yet.
-            </p>
-          )}
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="testimonial-card shimmer">
+                  <div className="testimonial-text">Loading...</div>
+                  <div className="testimonial-user">Loading...</div>
+                </div>
+              ))
+            : testimonials.length > 0 ? (
+                testimonials.slice(0, 6).map((review, index) => (
+                  <Card key={index} className="testimonial-card">
+                    <CardContent>
+                      <p className="testimonial-text">"{review.message}"</p>
+                      <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <p className="section-description text-center text-gray-500">
+                  No client reviews available yet.
+                </p>
+              )}
         </div>
       </section>
 
-      {/* WhatsApp Button */}
+      {/* === WhatsApp CTA Button === */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

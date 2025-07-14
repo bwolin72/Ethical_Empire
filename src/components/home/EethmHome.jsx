@@ -158,7 +158,7 @@ const EethmHome = () => {
                       <p className="discount">Save {promo.discount_percentage}%</p>
                     )}
                     <p className="validity">
-                      Valid: {promo.valid_from} - {promo.valid_to}
+                      Valid: {promo.valid_from} – {promo.valid_to}
                     </p>
                   </div>
                 </div>
@@ -172,9 +172,9 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* === Banner Highlights Section === */}
+      {/* === Banner Highlights === */}
       <FadeInSection>
-        <BannerCards endpoint="EethmHome" title="Highlights" />
+        <BannerCards endpoint="EethmHome" title="Highlights from Our Services" />
       </FadeInSection>
     </div>
   );
