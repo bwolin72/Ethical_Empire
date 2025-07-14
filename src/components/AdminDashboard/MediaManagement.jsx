@@ -85,8 +85,8 @@ const MediaManagement = () => {
   const fetchMedia = useCallback(async () => {
     try {
       const params = { type: mediaType };
-      if (mediaType !== 'banner') params.endpoint = selectedEndpoint;
       if (statusFilter !== 'all') params.is_active = statusFilter === 'active';
+      params.endpoint = selectedEndpoint;
 
       const res = await axiosInstance.get('/media/', { params });
       setUploadedItems(Array.isArray(res.data) ? res.data : []);
@@ -110,7 +110,7 @@ const MediaManagement = () => {
     files.forEach((file) => formData.append('media', file));
     formData.append('type', mediaType);
     formData.append('label', label || 'Untitled');
-    if (mediaType !== 'banner') formData.append('endpoint', selectedEndpoint);
+    formData.append('endpoint', selectedEndpoint); // ✅ Always include endpoint
 
     try {
       await axiosInstance.post('/media/upload/', formData, {
