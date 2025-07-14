@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import axiosCommon from '../../api/axiosCommon';
-import MediaCard from '../context/MediaCard';
 import BannerCards from '../context/BannerCards';
 import FadeInSection from '../FadeInSection';
 import './EethmHome.css';
@@ -37,7 +36,6 @@ const EethmHome = () => {
   const [promotions, setPromotions] = useState([]);
   const [promoError, setPromoError] = useState(null);
 
-  // Fetch hero media (type: media)
   const {
     media: heroMediaArr,
     loading: heroLoading,
@@ -55,7 +53,6 @@ const EethmHome = () => {
     }
   };
 
-  // Promotions fetch
   useEffect(() => {
     const controller = new AbortController();
     axiosCommon.get('/promotions/', { signal: controller.signal })
