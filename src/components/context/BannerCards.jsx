@@ -35,11 +35,11 @@ const BannerCards = ({ endpoint, title }) => {
           banners.map((banner, index) => (
             <div key={index} className="banner-card">
               <img
-                src={banner.url}
-                alt={banner.title || `Banner ${index + 1}`}
+                src={banner.url?.thumb || banner.url?.full}
+                alt={banner.label || `Banner ${index + 1}`}
                 className="banner-card-image"
               />
-              {banner.title && <p className="banner-card-caption">{banner.title}</p>}
+              {banner.label && <p className="banner-card-caption">{banner.label}</p>}
             </div>
           ))
         )}
