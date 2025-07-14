@@ -11,7 +11,7 @@ const BannerCards = ({ endpoint, title }) => {
 
     const fetchBanners = async () => {
       try {
-        const res = await axiosInstance.get(`/service_app/media/?endpoint=${endpoint}`);
+        const res = await axiosInstance.get(`/media/?endpoint=${endpoint}`);
         setBanners(res.data);
       } catch (error) {
         console.error('Error fetching banners:', error);
