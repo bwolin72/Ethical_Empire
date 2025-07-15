@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import MediaCard from './MediaCard';
-import './MediaCards.css'; // Optional for layout
+import './MediaCard.css'; // Optional for layout
 
 const MediaCards = ({ endpoint, title, fullWidth = false }) => {
   const [mediaItems, setMediaItems] = useState([]);
