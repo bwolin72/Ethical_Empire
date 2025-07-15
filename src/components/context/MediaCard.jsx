@@ -1,4 +1,3 @@
-// src/components/context/MediaCards.jsx
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import MediaCard from './MediaCard';
@@ -19,11 +18,11 @@ const MediaCards = ({ endpoint, title, fullWidth = false }) => {
         const res = await axiosInstance.get('/media/', {
           params: {
             type: 'media',
-            endpoints__contains: endpoint, // ✅ array filter support
+            endpoints__contains: endpoint,
             is_active: true,
           },
         });
-        setMediaItems(res.data?.results || []); // if paginated
+        setMediaItems(Array.isArray(res.data?.results) ? res.data.results : []);
       } catch (err) {
         console.error('Error fetching media:', err);
         setError('Failed to load media.');
@@ -43,7 +42,7 @@ const MediaCards = ({ endpoint, title, fullWidth = false }) => {
     <section className="media-cards-container">
       {title && <h2 className="media-cards-title">{title}</h2>}
       <div className={`media-cards-grid ${fullWidth ? 'full' : ''}`}>
-        {mediaItems.length === 0 ? (
+        {!Array.isArray(mediaItems) || mediaItems.length === 0 ? (
           <p className="media-card-empty">No media available for this section.</p>
         ) : (
           mediaItems.map((media) => (

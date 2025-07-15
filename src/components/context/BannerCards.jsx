@@ -15,9 +15,9 @@ const BannerCards = ({ endpoint, title }) => {
       setError('');
       try {
         const res = await axiosInstance.get('/media/banners/', {
-          params: { endpoints__contains: endpoint }, // ✅ updated line
+          params: { endpoints__contains: endpoint }, // ✅ safe filter
         });
-        setBanners(res.data || []);
+        setBanners(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error('Error fetching banners:', err);
         setError('Failed to load banners. Please try again.');
@@ -37,7 +37,7 @@ const BannerCards = ({ endpoint, title }) => {
     <section className="banner-cards-container">
       {title && <h2 className="banner-cards-title">{title}</h2>}
       <div className="banner-cards-grid">
-        {banners.length === 0 ? (
+        {!Array.isArray(banners) || banners.length === 0 ? (
           <p className="banner-card-empty">No banners available for this section.</p>
         ) : (
           banners.map((banner) => (
