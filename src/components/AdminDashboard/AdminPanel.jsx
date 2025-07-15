@@ -12,7 +12,7 @@ import AnalyticsDashboard from './AnalyticsDashboard';
 
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../../api/axiosInstance';
-import AccountProfile from './AccountProfile';
+import AccountProfile from '../user/AccountProfile';
 
 import './AdminPanel.css';
 
