@@ -29,8 +29,11 @@ const DecorPage = () => {
           publixios.get('/reviews/'),
         ]);
 
-        const media = (mediaRes.data || []).filter(item => item.is_active && item.type === 'media');
+        const media = (mediaRes.data?.results || []).filter(
+          item => item.is_active && item.type === 'media'
+        );
         setMediaCards(media);
+
         setTestimonials(reviewsRes.data || []);
       } catch (error) {
         console.error('Error fetching decor content:', error);

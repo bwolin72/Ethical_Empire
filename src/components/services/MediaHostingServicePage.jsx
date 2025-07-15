@@ -37,9 +37,10 @@ const MediaHostingServicePage = () => {
         publicAxios.get('/reviews/'),
       ]);
 
-      const mediaData = mediaRes.data || [];
+      const mediaData = mediaRes.data?.results || [];
       const activeMedia = mediaData.filter(item => item.is_active && item.type === 'media');
       setMediaItems(activeMedia);
+
       setTestimonials(reviewsRes.data || []);
     } catch (error) {
       console.error('Error fetching media hosting data:', error);
@@ -85,7 +86,7 @@ const MediaHostingServicePage = () => {
             {loading
               ? Array.from({ length: 3 }).map((_, index) => <SkeletonCard key={index} />)
               : mediaItems.slice(0, 3).map((item, index) => (
-                  <MediaCard key={index} media={item} />
+                  <MediaCard key={item.id || index} media={item} />
                 ))}
           </div>
           <div className="creative-text">
@@ -93,8 +94,7 @@ const MediaHostingServicePage = () => {
             <p>
               Whether it’s a corporate launch, private shoot, or public concert,
               Ethical Multimedia ensures every moment is captured in stunning clarity.
-              From cinematic videography to detailed photography and reliable hosting—
-              your memories and messages are in expert hands.
+              From cinematic videography to detailed photography and reliable hosting—your memories and messages are in expert hands.
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ const MediaHostingServicePage = () => {
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
             : mediaItems.slice(0, 6).map((item, index) => (
-                <MediaCard key={index} media={item} />
+                <MediaCard key={item.id || index} media={item} />
               ))}
         </div>
       </section>
@@ -129,7 +129,7 @@ const MediaHostingServicePage = () => {
           {loading
             ? Array.from({ length: 3 }).map((_, index) => <SkeletonTestimonial key={index} />)
             : testimonials.slice(0, 6).map((review, index) => (
-                <div key={index} className="testimonial-card">
+                <div key={review.id || index} className="testimonial-card">
                   <p className="testimonial-text">"{review.message}"</p>
                   <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
                 </div>

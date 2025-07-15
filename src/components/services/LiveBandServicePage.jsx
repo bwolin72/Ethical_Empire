@@ -26,11 +26,15 @@ const LiveBandServicePage = () => {
     const fetchContent = async () => {
       try {
         const [mediaRes, reviewsRes] = await Promise.all([
-          publixios.get('/media/featured/?endpoint=LiveBandServicePage'),
+          publixios.get('/media/featured/', {
+            params: { endpoint: 'LiveBandServicePage' }
+          }),
           publixios.get('/reviews/'),
         ]);
 
-        const activeMedia = (mediaRes.data || []).filter(item => item.is_active && item.type === 'media');
+        const activeMedia = (mediaRes.data?.results || []).filter(
+          item => item.is_active && item.type === 'media'
+        );
         setMediaCards(activeMedia);
         setTestimonials(reviewsRes.data || []);
       } catch (error) {

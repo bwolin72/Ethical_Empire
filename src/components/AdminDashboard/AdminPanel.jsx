@@ -10,28 +10,37 @@ import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
-import { useAuth } from '../context/AuthContext'; // ✅ fixed: useAuth is called properly
-import { logoutHelper } from '../../utils/logoutHelper'; // ✅ centralized logout
+import { useAuth } from '../context/AuthContext';
+import { logoutHelper } from '../../utils/logoutHelper';
+
 import './AdminPanel.css';
 
 const AdminPanel = () => {
-  const { setAccess, setRefresh, setUser, setIsAuthenticated } = useAuth(); // ✅ correct destructuring
+  const { setAccess, setRefresh, setUser, setIsAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const handleLogout = async () => {
     console.log('[AdminPanel] Logout clicked');
+
     try {
-      // Optional: Make backend logout request if needed
+      // Optional: Make backend logout request here if needed
       // await axiosInstance.post('/accounts/logout/');
     } catch (err) {
-      console.warn('Admin logout API failed, proceeding with local logout');
+      console.warn('[AdminPanel] Logout API failed:', err);
     } finally {
-      // ✅ clear local auth state
+      // Reset auth context state
       setAccess(null);
       setRefresh(null);
       setUser(null);
       setIsAuthenticated(false);
-      logoutHelper(); // ✅ handles storage clear + redirect + toast
+
+      try {
+        logoutHelper(); // clears storage, redirects, shows toast
+      } catch (e) {
+        console.error('[AdminPanel] logoutHelper failed:', e);
+        // fallback: redirect manually if logoutHelper is buggy
+        window.location.href = '/';
+      }
     }
   };
 
@@ -67,8 +76,10 @@ const AdminPanel = () => {
           <li className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
             Analytics
           </li>
-          <li className="logout-tab" onClick={handleLogout}>
-            Logout
+          <li className="logout-tab">
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
           </li>
         </ul>
       </aside>
