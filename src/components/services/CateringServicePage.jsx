@@ -35,12 +35,18 @@ const CateringPage = () => {
         publicAxios.get('/reviews/')
       ]);
 
-      const media = (mediaRes.data?.results || []).filter(
-        item => item.is_active && item.type === 'media'
-      );
+      const media = Array.isArray(mediaRes.data?.results)
+        ? mediaRes.data.results.filter(
+            (item) => item && item.is_active && item.type === 'media'
+          )
+        : [];
+
+      const reviews = Array.isArray(reviewsRes.data)
+        ? reviewsRes.data
+        : [];
 
       setMediaCards(media);
-      setTestimonials(reviewsRes.data || []);
+      setTestimonials(reviews);
     } catch (error) {
       console.error('Error loading catering content:', error);
     } finally {
@@ -129,7 +135,7 @@ const CateringPage = () => {
                 </div>
               ))
             : testimonials.slice(0, 6).map((review) => (
-                <Card key={review.id} className="testimonial-card">
+                <Card key={review.id || review.email || index} className="testimonial-card">
                   <CardContent>
                     <p className="testimonial-text">"{review?.message || 'No message provided.'}"</p>
                     <p className="testimonial-user">— {review?.user?.username || 'Anonymous'}</p>

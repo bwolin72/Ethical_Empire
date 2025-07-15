@@ -7,6 +7,8 @@ import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import axiosInstance from '../../api/axiosInstance';
 import logo from '../../assets/logo.png';
@@ -31,8 +33,6 @@ const Register = () => {
     role: 'USER',
   });
 
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -65,13 +65,14 @@ const Register = () => {
     const data = err?.response?.data;
     if (!data) return 'Unexpected error. Please try again.';
     if (typeof data === 'string') return data;
-    return (
-      data?.message ||
-      data?.detail ||
-      data?.error ||
-      Object.values(data).flat().join(' ') ||
-      'Something went wrong. Please try again.'
-    );
+    if (typeof data === 'object') {
+      try {
+        return Object.values(data).flat().join(' ');
+      } catch {
+        return 'Something went wrong.';
+      }
+    }
+    return 'Something went wrong. Please try again.';
   };
 
   const handleChange = (e) => {
@@ -79,20 +80,14 @@ const Register = () => {
     const cleanValue = DOMPurify.sanitize(value);
     if (name === 'password') setPasswordStrength(getPasswordStrength(cleanValue));
     setForm((prev) => ({ ...prev, [name]: cleanValue }));
-    setError('');
-    setSuccess('');
   };
 
   const handlePhoneChange = (value) => {
     setForm((prev) => ({ ...prev, phone: value }));
-    setError('');
-    setSuccess('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     const {
       full_name,
@@ -106,13 +101,14 @@ const Register = () => {
       worker_category_id,
     } = form;
 
-    if (!full_name.trim()) return setError('Full name is required.');
-    if (!validateEmail(email)) return setError('Invalid email format.');
-    if (!phone || phone.length < 10) return setError('Enter a valid phone number.');
-    if (!dob) return setError('Date of birth is required.');
-    if (!gender) return setError('Gender is required.');
-    if (!password) return setError('Password is required.');
-    if (password !== password2) return setError('Passwords do not match.');
+    // Client-side validation
+    if (!full_name.trim()) return toast.error('Full name is required.');
+    if (!validateEmail(email)) return toast.error('Invalid email format.');
+    if (!phone || phone.length < 10) return toast.error('Enter a valid phone number.');
+    if (!dob) return toast.error('Date of birth is required.');
+    if (!gender) return toast.error('Gender is required.');
+    if (!password) return toast.error('Password is required.');
+    if (password !== password2) return toast.error('Passwords do not match.');
 
     const payload = {
       full_name,
@@ -124,8 +120,8 @@ const Register = () => {
     };
 
     if (isInternal) {
-      if (!access_code.trim()) return setError('Access code is required.');
-      if (!worker_category_id) return setError('Worker category ID is required.');
+      if (!access_code.trim()) return toast.error('Access code is required.');
+      if (!worker_category_id) return toast.error('Worker category ID is required.');
       payload.access_code = access_code;
       payload.worker_category_id = worker_category_id;
       payload.role = 'WORKER';
@@ -134,24 +130,24 @@ const Register = () => {
     setLoading(true);
     try {
       await axiosInstance.post('/accounts/register/', payload);
-      setSuccess('Registration successful! Check your email to verify.');
+      toast.success('Registration successful! Check your email to verify.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
-      setError(extractErrorMessage(err));
+      toast.error(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSuccess = async ({ credential }) => {
-    if (!credential) return setError('Google login failed: Missing credential');
+    if (!credential) return toast.error('Google login failed: Missing credential');
     setLoading(true);
     try {
       await axiosInstance.post('/accounts/google-register/', { credential });
-      setSuccess('Google registration successful! Redirecting...');
+      toast.success('Google registration successful! Redirecting...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
-      setError(extractErrorMessage(err));
+      toast.error(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -167,6 +163,7 @@ const Register = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`register-container ${darkMode ? 'dark' : ''}`}>
+        <ToastContainer autoClose={4000} />
         <div className="register-box">
           <div className="brand-header">
             <img src={logo} alt="Logo" />
@@ -192,8 +189,6 @@ const Register = () => {
           </div>
 
           <h2>{isInternal ? 'Internal Registration' : 'Create an Account'}</h2>
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
 
           <form onSubmit={handleSubmit} className="register-form" noValidate>
             {isInternal && (
@@ -296,7 +291,7 @@ const Register = () => {
             <p>Or register with Google:</p>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google sign-up failed.')}
+              onError={() => toast.error('Google sign-up failed.')}
               useOneTap
             />
           </div>
