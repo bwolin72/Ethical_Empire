@@ -58,6 +58,8 @@ function SortableMediaCard({ item, index, toggleActive, toggleFeatured, deleteMe
         {renderPreview(item.url?.thumb || item.url?.full)}
       </div>
       <p className="media-label"><strong>{item.label || 'No Label'}</strong></p>
+      <p className="media-meta">Uploaded by: {item.uploaded_by || '—'}</p>
+      <p className="media-meta">Date: {new Date(item.uploaded_at).toLocaleString()}</p>
       <div className="media-actions">
         <p>Status: {item.is_active ? '✅ Active' : '❌ Inactive'}</p>
         {'is_featured' in item && <p>Featured: {item.is_featured ? '⭐ Yes' : '—'}</p>}
@@ -71,7 +73,7 @@ function SortableMediaCard({ item, index, toggleActive, toggleFeatured, deleteMe
 
 const MediaManagement = () => {
   const [mediaType, setMediaType] = useState('media');
-  const [selectedEndpoint, setSelectedEndpoint] = useState('EethmHome');
+  const [selectedEndpoints, setSelectedEndpoints] = useState(['EethmHome']);
   const [statusFilter, setStatusFilter] = useState('all');
   const [files, setFiles] = useState([]);
   const [uploadedItems, setUploadedItems] = useState([]);
@@ -86,22 +88,20 @@ const MediaManagement = () => {
   const fetchMedia = useCallback(async () => {
     try {
       let res;
-
       if (mediaType === 'featured') {
         res = await axiosInstance.get('/media/featured/');
       } else {
         const params = { type: mediaType };
         if (statusFilter !== 'all') params.is_active = statusFilter === 'active';
-        if (mediaType !== 'banner') params.endpoint = selectedEndpoint;
+        if (mediaType !== 'banner') params.endpoint = selectedEndpoints[0];
         res = await axiosInstance.get('/media/', { params });
       }
-
       setUploadedItems(Array.isArray(res.data) ? res.data : []);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load media.', { autoClose: 4000 });
       setUploadedItems([]);
     }
-  }, [mediaType, selectedEndpoint, statusFilter]);
+  }, [mediaType, selectedEndpoints, statusFilter]);
 
   useEffect(() => {
     fetchMedia();
@@ -109,7 +109,6 @@ const MediaManagement = () => {
 
   const handleUpload = async () => {
     if (!files.length) return toast.warn('Select at least one file.', { autoClose: 3000 });
-
     setUploading(true);
     setUploadProgress(0);
 
@@ -117,7 +116,7 @@ const MediaManagement = () => {
     files.forEach((file) => formData.append('media', file));
     formData.append('type', mediaType);
     formData.append('label', label || 'Untitled');
-    if (mediaType !== 'banner') formData.append('endpoint', selectedEndpoint);
+    selectedEndpoints.forEach((ep) => formData.append('endpoint', ep));
 
     try {
       await axiosInstance.post('/media/upload/', formData, {
@@ -218,7 +217,7 @@ const MediaManagement = () => {
         <input type="file" multiple accept="image/*,video/*" onChange={handleFileChange} />
         <input type="text" placeholder="Enter media label" value={label} onChange={(e) => setLabel(e.target.value)} />
         <input type="text" placeholder="Search media..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-        <select value={selectedEndpoint} onChange={(e) => setSelectedEndpoint(e.target.value)}>
+        <select multiple value={selectedEndpoints} onChange={(e) => setSelectedEndpoints(Array.from(e.target.selectedOptions, opt => opt.value))}>
           {endpoints.map((ep) => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
