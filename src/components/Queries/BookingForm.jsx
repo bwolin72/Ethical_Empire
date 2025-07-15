@@ -1,3 +1,5 @@
+// src/components/Booking/BookingForm.jsx
+
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
@@ -9,11 +11,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 import logo from '../../assets/logo.png';
 import './BookingForm.css';
 import { useTheme } from '../../context/ThemeContext';
-import { useAuth } from '../context/AuthContext'; // ✅ use auth context
+import { useAuth } from '../context/AuthContext';
 
 const BookingForm = () => {
   const { darkMode } = useTheme();
-  const { isAuthenticated, access, user } = useAuth(); // ✅ get access from context
+  const { isAuthenticated, user } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -29,6 +31,7 @@ const BookingForm = () => {
   const [showServices, setShowServices] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Prefill name/email from user context
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({
@@ -94,8 +97,8 @@ const BookingForm = () => {
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      email: '',
+      name: user?.full_name || '',
+      email: user?.email || '',
       phone: '',
       event_date: null,
       address: '',
@@ -109,10 +112,7 @@ const BookingForm = () => {
     e.preventDefault();
 
     console.log('[BookingForm] Submitting...');
-    console.log('[BookingForm] Authenticated:', isAuthenticated);
-    console.log('[BookingForm] Access token:', access);
-
-    if (!isAuthenticated || !access) {
+    if (!isAuthenticated) {
       toast.error('You must be logged in to submit a booking.', { autoClose: 3000 });
       return;
     }
@@ -127,11 +127,7 @@ const BookingForm = () => {
     };
 
     try {
-      await axiosInstance.post('/bookings/create/', payload, {
-        headers: {
-          Authorization: `Bearer ${access}`,
-        },
-      });
+      await axiosInstance.post('/bookings/create/', payload);
 
       toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
       toast.info('📧 A confirmation email has been sent to you.', { autoClose: 4000 });

@@ -1,3 +1,5 @@
+// src/api/axiosInstance.js
+
 import axios from 'axios';
 import baseURL from './baseURL';
 import { applyCommonRequestHeaders, devLog } from './axiosCommon';
@@ -24,6 +26,11 @@ axiosInstance.interceptors.request.use(
 
     const token = storage.getItem('access');
     devLog('[Auth] Using', remember ? 'localStorage' : 'sessionStorage', 'Access:', token?.slice(0, 20) + '...');
+
+    // ✅ Add Authorization header if access token is found
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
 
     return config;
   },
