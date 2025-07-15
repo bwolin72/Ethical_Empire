@@ -1,105 +1,58 @@
-import React, { useState } from 'react';
-import './MediaCard.css';
+// src/components/context/MediaCards.jsx
+import React, { useEffect, useState } from 'react';
+import axiosInstance from '../../api/axiosInstance';
+import MediaCard from './MediaCard';
+import './MediaCards.css'; // Optional for layout
 
-const fallbackImage = '/fallback-image.jpg'; // Place in public/
-const fallbackVideo = '/fallback-video.mp4'; // Optional, place in public/
-
-const MediaCard = ({ media, fullWidth = false }) => {
+const MediaCards = ({ endpoint, title, fullWidth = false }) => {
+  const [mediaItems, setMediaItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
 
-  if (!media || !media.url || !media.url.full) return null;
+  useEffect(() => {
+    if (!endpoint) return;
 
-  const fullUrl = media.url.full;
-  const thumbUrl = media.url.thumb || fullUrl;
+    const fetchMedia = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await axiosInstance.get('/media/', {
+          params: {
+            type: 'media',
+            endpoints__contains: endpoint, // ✅ array filter support
+            is_active: true,
+          },
+        });
+        setMediaItems(res.data?.results || []); // if paginated
+      } catch (err) {
+        console.error('Error fetching media:', err);
+        setError('Failed to load media.');
+        setMediaItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const extension = fullUrl?.split('.').pop()?.toLowerCase() || '';
-  const isVideo = ['mp4', 'webm', 'ogg'].includes(extension);
-  const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension);
+    fetchMedia();
+  }, [endpoint]);
 
-  const handleLoad = () => setLoading(false);
-  const handleError = () => {
-    setError(true);
-    setLoading(false);
-  };
-
-  const renderMedia = () => {
-    if (error) {
-      return isVideo ? (
-        <video
-          src={fallbackVideo}
-          controls
-          className="media-preview video fallback"
-          aria-label="Fallback video"
-        />
-      ) : (
-        <img
-          src={fallbackImage}
-          alt="Fallback media"
-          className="media-preview image fallback"
-        />
-      );
-    }
-
-    if (isVideo) {
-      return (
-        <video
-          src={fullUrl}
-          controls
-          preload="metadata"
-          className={`media-preview video ${loading ? 'hidden' : ''}`}
-          onCanPlay={handleLoad}
-          onError={handleError}
-          aria-label={media.label || 'Video'}
-        />
-      );
-    }
-
-    if (isImage) {
-      return (
-        <img
-          src={thumbUrl}
-          alt={media.label || 'Image'}
-          data-full={fullUrl}
-          onLoad={handleLoad}
-          onError={handleError}
-          className={`media-preview image ${loading ? 'hidden' : ''}`}
-          loading="lazy"
-        />
-      );
-    }
-
-    return (
-      <div className="media-preview fallback">
-        <p>Unsupported media type</p>
-        <a href={fullUrl} target="_blank" rel="noopener noreferrer">View File</a>
-      </div>
-    );
-  };
+  if (loading) return <div className="media-loading">Loading media...</div>;
+  if (error) return <div className="media-error">{error}</div>;
 
   return (
-    <div className={`media-card-wrapper ${fullWidth ? 'full-width' : ''}`}>
-      {loading && (
-        <div className="media-skeleton">
-          <div className="skeleton-box" />
-        </div>
-      )}
-
-      {renderMedia()}
-
-      <div className="media-card-meta">
-        {media.label && <p className="media-caption">{media.label}</p>}
-        {media.uploaded_by && (
-          <p className="media-meta">Uploaded by: {media.uploaded_by}</p>
-        )}
-        {media.uploaded_at && (
-          <p className="media-meta">
-            Uploaded at: {new Date(media.uploaded_at).toLocaleString()}
-          </p>
+    <section className="media-cards-container">
+      {title && <h2 className="media-cards-title">{title}</h2>}
+      <div className={`media-cards-grid ${fullWidth ? 'full' : ''}`}>
+        {mediaItems.length === 0 ? (
+          <p className="media-card-empty">No media available for this section.</p>
+        ) : (
+          mediaItems.map((media) => (
+            <MediaCard key={media.id || media.url?.full} media={media} fullWidth={fullWidth} />
+          ))
         )}
       </div>
-    </div>
+    </section>
   );
 };
 
-export default MediaCard;
+export default MediaCards;
