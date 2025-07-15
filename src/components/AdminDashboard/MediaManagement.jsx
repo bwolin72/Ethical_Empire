@@ -1,5 +1,3 @@
-// src/components/AdminDashboard/MediaManagement.jsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './MediaManagement.css';
@@ -90,13 +88,14 @@ const MediaManagement = () => {
       let res;
       if (mediaType === 'featured') {
         res = await axiosInstance.get('/media/featured/');
+        setUploadedItems(Array.isArray(res.data) ? res.data : []);
       } else {
         const params = { type: mediaType };
         if (statusFilter !== 'all') params.is_active = statusFilter === 'active';
         if (mediaType !== 'banner') params.endpoint = selectedEndpoints[0];
         res = await axiosInstance.get('/media/', { params });
+        setUploadedItems(Array.isArray(res.data.results) ? res.data.results : []);
       }
-      setUploadedItems(Array.isArray(res.data) ? res.data : []);
     } catch {
       toast.error('Failed to load media.', { autoClose: 4000 });
       setUploadedItems([]);

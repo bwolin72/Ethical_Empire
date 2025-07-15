@@ -50,12 +50,12 @@ const About = () => {
     const fetchContent = async () => {
       try {
         const [bannerRes, mediaRes, reviewsRes] = await Promise.all([
-          publicAxios.get('/media/banner/', { params: { endpoint: 'About' } }),
+          publicAxios.get('/media/', { params: { type: 'banner', endpoint: 'About' } }),
           publicAxios.get('/media/featured/', { params: { endpoint: 'About' } }),
           publicAxios.get('/reviews/'),
         ]);
 
-        setHeroBanner(bannerRes.data?.[0] || null);
+        setHeroBanner(bannerRes.data?.results?.[0] || null);
         setMediaList(mediaRes.data || []);
         setTestimonials(reviewsRes.data || []);
       } catch (error) {
