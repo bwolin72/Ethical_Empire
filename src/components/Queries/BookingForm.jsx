@@ -111,9 +111,17 @@ const BookingForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('[BookingForm] Submitting...');
+    if (isSubmitting) return;
+
     if (!isAuthenticated) {
       toast.error('You must be logged in to submit a booking.', { autoClose: 3000 });
+      return;
+    }
+
+    // Basic client-side validation
+    const { name, email, phone, event_date, address, services } = formData;
+    if (!name || !email || !phone || !event_date || !address || services.length === 0) {
+      toast.error('Please complete all required fields and select at least one service.', { autoClose: 3000 });
       return;
     }
 
@@ -127,7 +135,7 @@ const BookingForm = () => {
     };
 
     try {
-      await axiosInstance.post('/bookings/create/', payload);
+      await axiosInstance.post('/bookings/submit/', payload);
 
       toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
       toast.info('📧 A confirmation email has been sent to you.', { autoClose: 4000 });

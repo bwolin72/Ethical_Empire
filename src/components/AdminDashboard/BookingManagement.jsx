@@ -47,7 +47,8 @@ const BookingManagement = () => {
   const fetchServices = useCallback(async () => {
     try {
       const res = await axiosInstance.get('/services/', { headers });
-      setServices(res.data);
+      const data = res.data.results || res.data;
+      setServices(data);
     } catch (err) {
       console.error('Error fetching services:', err);
     }
@@ -59,7 +60,11 @@ const BookingManagement = () => {
   }, [fetchBookings, fetchServices]);
 
   const handleEdit = (booking) => {
-    setEditBooking({ ...booking, services: booking.services.map(s => s.id) });
+    setEditBooking({
+      ...booking,
+      services: booking.services.map(s => s.id),
+      event_date: booking.event_date || '',
+    });
   };
 
   const handleEditChange = (field, value) => {
@@ -80,25 +85,32 @@ const BookingManagement = () => {
 
   const saveEdit = async () => {
     try {
-      await axiosInstance.patch(`/bookings/${editBooking.id}/`, {
-        name: editBooking.name,
-        email: editBooking.email,
-        phone: editBooking.phone,
-        address: editBooking.address,
-        message: editBooking.message,
-        event_date: editBooking.event_date,
-        services: editBooking.services,
-      }, { headers });
+      // Update core fields
+      await axiosInstance.patch(
+        `/bookings/admin/bookings/${editBooking.id}/update/`,
+        {
+          name: editBooking.name,
+          email: editBooking.email,
+          phone: editBooking.phone,
+          address: editBooking.address,
+          message: editBooking.message,
+          event_date: editBooking.event_date,
+          services: editBooking.services,
+        },
+        { headers }
+      );
 
-      // Update status separately if changed
-      await axiosInstance.patch(`/bookings/admin/bookings/${editBooking.id}/status/`, {
-        status: editBooking.status,
-      }, { headers });
+      // Update status separately
+      await axiosInstance.patch(
+        `/bookings/admin/bookings/${editBooking.id}/status/`,
+        { status: editBooking.status },
+        { headers }
+      );
 
       setEditBooking(null);
       fetchBookings();
     } catch (err) {
-      console.error('Failed to save booking:', err);
+      console.error('Failed to save booking:', err.response?.data || err.message);
     }
   };
 
@@ -109,7 +121,7 @@ const BookingManagement = () => {
       await axiosInstance.delete(`/bookings/admin/bookings/${id}/delete/`, { headers });
       fetchBookings();
     } catch (err) {
-      console.error('Failed to delete booking:', err);
+      console.error('Failed to delete booking:', err.response?.data || err.message);
     }
   };
 
@@ -210,7 +222,7 @@ const BookingManagement = () => {
             />
             <input
               type="date"
-              value={editBooking.event_date || ''}
+              value={editBooking.event_date?.slice(0, 10) || ''}
               onChange={e => handleEditChange('event_date', e.target.value)}
             />
             <select
