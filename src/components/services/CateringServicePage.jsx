@@ -134,8 +134,8 @@ const CateringPage = () => {
                   <div className="testimonial-user">Loading...</div>
                 </div>
               ))
-            : testimonials.slice(0, 6).map((review) => (
-                <Card key={review.id || review.email || index} className="testimonial-card">
+            : testimonials.slice(0, 6).map((review, index) => (
+                <Card key={review.id || index} className="testimonial-card">
                   <CardContent>
                     <p className="testimonial-text">"{review?.message || 'No message provided.'}"</p>
                     <p className="testimonial-user">— {review?.user?.username || 'Anonymous'}</p>
