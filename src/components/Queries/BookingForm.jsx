@@ -9,9 +9,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 import logo from '../../assets/logo.png';
 import './BookingForm.css';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../context/AuthContext'; // ✅ use auth context
 
 const BookingForm = () => {
   const { darkMode } = useTheme();
+  const { isAuthenticated, access, user } = useAuth(); // ✅ get access from context
 
   const [formData, setFormData] = useState({
     name: '',
@@ -28,22 +30,19 @@ const BookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
+    if (user) {
       setFormData((prev) => ({
         ...prev,
-        name: user.full_name || '',
+        name: user.full_name || user.name || '',
         email: user.email || '',
       }));
     }
-  }, []);
+  }, [user]);
 
   const fetchServices = useCallback(() => {
     axiosInstance
       .get('/services/')
       .then((res) => {
-        console.log('Fetched services:', res.data);
         const data = Array.isArray(res.data.results) ? res.data.results : res.data;
         if (Array.isArray(data) && data.length > 0) {
           setAvailableServices(data);
@@ -108,14 +107,17 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    const token = localStorage.getItem('access');
 
-    if (!token) {
+    console.log('[BookingForm] Submitting...');
+    console.log('[BookingForm] Authenticated:', isAuthenticated);
+    console.log('[BookingForm] Access token:', access);
+
+    if (!isAuthenticated || !access) {
       toast.error('You must be logged in to submit a booking.', { autoClose: 3000 });
-      setIsSubmitting(false);
       return;
     }
+
+    setIsSubmitting(true);
 
     const payload = {
       ...formData,
@@ -127,7 +129,7 @@ const BookingForm = () => {
     try {
       await axiosInstance.post('/bookings/create/', payload, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${access}`,
         },
       });
 
@@ -136,6 +138,7 @@ const BookingForm = () => {
 
       resetForm();
     } catch (err) {
+      console.error('[BookingForm] Submit error:', err.response?.data || err.message);
       const response = err.response?.data;
       const extractedError =
         typeof response === 'object' && response !== null

@@ -35,10 +35,10 @@ const AdminPanel = () => {
       setIsAuthenticated(false);
 
       try {
-        logoutHelper(); // clears storage, redirects, shows toast
+        await logoutHelper(); // ✅ await async call to prevent crash
       } catch (e) {
         console.error('[AdminPanel] logoutHelper failed:', e);
-        // fallback: redirect manually if logoutHelper is buggy
+        // Fallback redirect
         window.location.href = '/';
       }
     }
