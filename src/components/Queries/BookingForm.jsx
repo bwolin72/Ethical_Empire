@@ -31,7 +31,6 @@ const BookingForm = () => {
   const [showServices, setShowServices] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Prefill name/email from user context
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({
@@ -89,9 +88,10 @@ const BookingForm = () => {
   };
 
   const handlePhoneChange = (value) => {
+    // Always prepend '+' to comply with E.164 international format
     setFormData((prev) => ({
       ...prev,
-      phone: value,
+      phone: `+${value}`,
     }));
   };
 
@@ -118,10 +118,15 @@ const BookingForm = () => {
       return;
     }
 
-    // Basic client-side validation
     const { name, email, phone, event_date, address, services } = formData;
     if (!name || !email || !phone || !event_date || !address || services.length === 0) {
       toast.error('Please complete all required fields and select at least one service.', { autoClose: 3000 });
+      return;
+    }
+
+    // Optional frontend phone number validation for Ghana
+    if (!phone.startsWith('+233') || phone.length < 13) {
+      toast.error('Please enter a valid Ghanaian phone number (e.g. +233XXXXXXXXX)', { autoClose: 3000 });
       return;
     }
 
@@ -136,10 +141,8 @@ const BookingForm = () => {
 
     try {
       await axiosInstance.post('/bookings/submit/', payload);
-
       toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
       toast.info('📧 A confirmation email has been sent to you.', { autoClose: 4000 });
-
       resetForm();
     } catch (err) {
       console.error('[BookingForm] Submit error:', err.response?.data || err.message);
@@ -194,7 +197,7 @@ const BookingForm = () => {
           <label htmlFor="phone">Phone Number</label>
           <PhoneInput
             country={'gh'}
-            value={formData.phone}
+            value={formData.phone.replace(/^\+/, '')} // remove + for input, since we'll prepend manually
             onChange={handlePhoneChange}
             inputProps={{
               name: 'phone',
@@ -230,11 +233,7 @@ const BookingForm = () => {
             aria-expanded={showServices}
           >
             Select Services{' '}
-            {showServices ? (
-              <FaChevronUp className="dropdown-icon" />
-            ) : (
-              <FaChevronDown className="dropdown-icon" />
-            )}
+            {showServices ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}
           </label>
 
           {showServices && (
