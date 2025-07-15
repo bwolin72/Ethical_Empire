@@ -101,7 +101,6 @@ const Register = () => {
       worker_category_id,
     } = form;
 
-    // Client-side validation
     if (!full_name.trim()) return toast.error('Full name is required.');
     if (!validateEmail(email)) return toast.error('Invalid email format.');
     if (!phone || phone.length < 10) return toast.error('Enter a valid phone number.');
@@ -111,12 +110,13 @@ const Register = () => {
     if (password !== password2) return toast.error('Passwords do not match.');
 
     const payload = {
-      full_name,
+      name: full_name,
       email,
       phone,
       dob,
       gender,
       password,
+      password2,
     };
 
     if (isInternal) {
@@ -257,6 +257,7 @@ const Register = () => {
                 name="password"
                 type={passwordVisible ? 'text' : 'password'}
                 placeholder="Password"
+                autoComplete="new-password"
                 value={form.password}
                 onChange={handleChange}
               />
@@ -274,6 +275,7 @@ const Register = () => {
                 name="password2"
                 type={passwordVisible ? 'text' : 'password'}
                 placeholder="Confirm Password"
+                autoComplete="new-password"
                 value={form.password2}
                 onChange={handleChange}
               />
