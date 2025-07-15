@@ -25,18 +25,54 @@
   color: #fff;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem;
+  background-color: #14213d;
+  border-bottom: 3px solid #8b0000;
 }
 
 .admin-sidebar h2 {
   margin: 0;
-  padding: 1.2rem;
-  background-color: #14213d;
   font-size: 1.3rem;
   font-weight: bold;
   color: #ffd700;
-  border-bottom: 3px solid #8b0000;
 }
 
+/* Profile Icon */
+.admin-profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ccc;
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px white;
+  transition: transform 0.2s ease;
+}
+
+.admin-profile-icon:hover {
+  transform: scale(1.05);
+}
+
+.admin-profile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Sidebar Navigation */
 .admin-sidebar ul {
   list-style: none;
   margin: 0;
@@ -62,7 +98,7 @@
   font-weight: 600;
 }
 
-/* Logout tab */
+/* Logout tab (if reused later) */
 .logout-tab {
   background-color: #14213d;
   color: #f0f0f0;
@@ -74,7 +110,7 @@
   color: #fff;
 }
 
-/* Content Area */
+/* Main Content Area */
 .admin-content {
   flex: 1;
   padding: 2rem;
@@ -83,7 +119,38 @@
   color: #333;
 }
 
-/* Responsive Styles */
+/* === Profile Modal === */
+.profile-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+}
+
+.profile-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.profile-content {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  margin: 5vh auto;
+  background: white;
+  border-radius: 10px;
+  overflow-y: auto;
+  max-height: 90vh;
+  z-index: 1000;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* === Responsive Styles === */
 @media (max-width: 1024px) {
   .admin-sidebar h2 {
     font-size: 1.1rem;
@@ -126,6 +193,15 @@
 
   .admin-content {
     padding: 1.2rem;
+  }
+
+  .sidebar-header {
+    padding: 1rem;
+  }
+
+  .admin-profile-icon {
+    width: 36px;
+    height: 36px;
   }
 }
 

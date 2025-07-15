@@ -13,6 +13,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [profileImage, setProfileImage] = useState(externalProfile?.profile_image || "");
   const [bookings, setBookings] = useState([]);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [roleInfo, setRoleInfo] = useState(null);
   const navigate = useNavigate();
 
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
@@ -37,6 +38,11 @@ const AccountProfile = ({ profile: externalProfile }) => {
       .get("/bookings/user/", { signal })
       .then((res) => setBookings(res.data))
       .catch(() => toast.warn("Could not fetch bookings.", { autoClose: 3000 }));
+
+    axiosInstance
+      .get("/accounts/profile/role/")
+      .then((res) => setRoleInfo(res.data))
+      .catch(() => toast.warn("Could not fetch role info.", { autoClose: 3000 }));
 
     return () => controller.abort();
   }, [externalProfile]);
@@ -133,9 +139,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           {profileImage ? (
             <img src={profileImage} alt="Profile" className="profile-pic" />
           ) : (
-            <div className="profile-initials">
-              {getInitials(profile?.name)}
-            </div>
+            <div className="profile-initials">{getInitials(profile?.name)}</div>
           )}
           <label className="upload-label" role="button">
             Upload Picture
@@ -149,6 +153,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           <p><strong>Name:</strong> {profile?.name}</p>
           <p><strong>Email:</strong> {profile?.email}</p>
           <p><strong>Phone:</strong> {profile?.phone || "N/A"}</p>
+          {roleInfo?.role && <p><strong>Role:</strong> {roleInfo.role}</p>}
           <div className="button-group">
             <button onClick={() => navigate("/edit-profile")}>Edit Profile</button>
             <button onClick={() => navigate("/update-password")}>Change Password</button>
@@ -161,7 +166,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           {bookings.length ? (
             bookings.map((bk) => (
               <div key={bk.id} className="booking-card">
-                <p><strong>Service:</strong> {bk.service_type?.join(", ")}</p>
+                <p><strong>Service:</strong> {Array.isArray(bk.service_type) ? bk.service_type.join(", ") : "N/A"}</p>
                 <p><strong>Date:</strong> {bk.event_date}</p>
                 <p><strong>Status:</strong> {renderBookingStatus(bk.status)}</p>
               </div>

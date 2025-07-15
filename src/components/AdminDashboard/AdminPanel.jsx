@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import AdminDashboard from './AdminDashboard';
 import BookingManagement from './BookingManagement';
@@ -11,43 +11,50 @@ import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
 import { useAuth } from '../context/AuthContext';
-import { logoutHelper } from '../../utils/logoutHelper';
+import axiosInstance from '../../api/axiosInstance';
+import AccountProfile from './AccountProfile';
 
 import './AdminPanel.css';
 
 const AdminPanel = () => {
-  const { setAccess, setRefresh, setUser, setIsAuthenticated } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showProfile, setShowProfile] = useState(false);
+  const [profileData, setProfileData] = useState(null);
 
-  const handleLogout = async () => {
-    console.log('[AdminPanel] Logout clicked');
-
-    try {
-      // Optional: Make backend logout request here if needed
-      // await axiosInstance.post('/accounts/logout/');
-    } catch (err) {
-      console.warn('[AdminPanel] Logout API failed:', err);
-    } finally {
-      // Reset auth context state
-      setAccess(null);
-      setRefresh(null);
-      setUser(null);
-      setIsAuthenticated(false);
-
-      try {
-        await logoutHelper(); // ✅ await async call to prevent crash
-      } catch (e) {
-        console.error('[AdminPanel] logoutHelper failed:', e);
-        // Fallback redirect
-        window.location.href = '/';
-      }
+  useEffect(() => {
+    if (!profileData && showProfile) {
+      axiosInstance
+        .get('/accounts/profiles/profile/')
+        .then((res) => setProfileData(res.data))
+        .catch((err) => {
+          console.error('Failed to load profile', err);
+        });
     }
+  }, [showProfile, profileData]);
+
+  const getInitials = (name) => {
+    if (!name) return '?';
+    const parts = name.trim().split(' ');
+    return parts.length > 1
+      ? parts[0][0].toUpperCase() + parts[1][0].toUpperCase()
+      : parts[0][0].toUpperCase();
   };
 
   return (
     <div className="admin-panel">
       <aside className="admin-sidebar">
-        <h2>Admin Panel</h2>
+        <div className="sidebar-header">
+          <h2>Admin Panel</h2>
+          <div className="admin-profile-icon" onClick={() => setShowProfile(true)}>
+            {profileData?.profile_image ? (
+              <img src={profileData.profile_image} alt="Profile" />
+            ) : (
+              <span>{getInitials(profileData?.name || user?.name)}</span>
+            )}
+          </div>
+        </div>
+
         <ul>
           <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>
             Dashboard
@@ -76,11 +83,6 @@ const AdminPanel = () => {
           <li className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
             Analytics
           </li>
-          <li className="logout-tab">
-            <button className="logout-button" onClick={handleLogout}>
-              Logout
-            </button>
-          </li>
         </ul>
       </aside>
 
@@ -95,6 +97,15 @@ const AdminPanel = () => {
         {activeTab === 'roles' && <UserRoleManager />}
         {activeTab === 'analytics' && <AnalyticsDashboard />}
       </section>
+
+      {showProfile && (
+        <div className="profile-modal">
+          <div className="profile-overlay" onClick={() => setShowProfile(false)}></div>
+          <div className="profile-content">
+            <AccountProfile profile={profileData} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
