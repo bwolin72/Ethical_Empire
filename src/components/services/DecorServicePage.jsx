@@ -29,12 +29,14 @@ const DecorPage = () => {
           publixios.get('/reviews/'),
         ]);
 
-        const media = (mediaRes.data?.results || []).filter(
-          item => item.is_active && item.type === 'media'
-        );
+        const media = Array.isArray(mediaRes.data?.results)
+          ? mediaRes.data.results.filter(item => item.is_active && item.type === 'media')
+          : [];
+
         setMediaCards(media);
 
-        setTestimonials(reviewsRes.data || []);
+        const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
+        setTestimonials(reviews);
       } catch (error) {
         console.error('Error fetching decor content:', error);
       } finally {
@@ -89,9 +91,11 @@ const DecorPage = () => {
             ? Array.from({ length: 2 }).map((_, i) => (
                 <div key={i} className="skeleton-card shimmer" />
               ))
-            : mediaCards.slice(0, 2).map((media) => (
-                <MediaCard key={media.id || media.url} media={media} />
-              ))}
+            : Array.isArray(mediaCards)
+              ? mediaCards.slice(0, 2).map((media) => (
+                  <MediaCard key={media.id || media.url} media={media} />
+                ))
+              : null}
         </div>
       </section>
 
@@ -107,7 +111,7 @@ const DecorPage = () => {
             ? Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="skeleton-card shimmer" />
               ))
-            : mediaCards.length > 0 ? (
+            : Array.isArray(mediaCards) && mediaCards.length > 0 ? (
                 mediaCards.slice(0, 6).map((media) => (
                   <MediaCard key={media.id || media.url} media={media} />
                 ))
@@ -128,14 +132,18 @@ const DecorPage = () => {
                   <div className="testimonial-user">Loading...</div>
                 </div>
               ))
-            : testimonials.slice(0, 6).map((review) => (
-                <div key={review.id || review.message} className="testimonial-card">
-                  <p className="testimonial-text">
-                    {review.message ? `"${review.message}"` : '"No comment provided."'}
-                  </p>
-                  <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-                </div>
-              ))}
+            : Array.isArray(testimonials) && testimonials.length > 0 ? (
+                testimonials.slice(0, 6).map((review) => (
+                  <div key={review.id || review.message} className="testimonial-card">
+                    <p className="testimonial-text">
+                      {review.message ? `"${review.message}"` : '"No comment provided."'}
+                    </p>
+                    <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-500">No reviews yet.</p>
+              )}
         </div>
       </section>
 
