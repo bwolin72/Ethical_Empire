@@ -37,11 +37,12 @@ const MediaHostingServicePage = () => {
         publicAxios.get('/reviews/'),
       ]);
 
-      const mediaData = mediaRes.data?.results || [];
+      const mediaData = Array.isArray(mediaRes.data?.results) ? mediaRes.data.results : [];
       const activeMedia = mediaData.filter(item => item.is_active && item.type === 'media');
       setMediaItems(activeMedia);
 
-      setTestimonials(reviewsRes.data || []);
+      const reviewData = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
+      setTestimonials(reviewData);
     } catch (error) {
       console.error('Error fetching media hosting data:', error);
     } finally {
@@ -85,9 +86,11 @@ const MediaHostingServicePage = () => {
           <div className="creative-media">
             {loading
               ? Array.from({ length: 3 }).map((_, index) => <SkeletonCard key={index} />)
-              : mediaItems.slice(0, 3).map((item, index) => (
-                  <MediaCard key={item.id || index} media={item} />
-                ))}
+              : Array.isArray(mediaItems)
+                ? mediaItems.slice(0, 3).map((item, index) => (
+                    <MediaCard key={item.id || index} media={item} />
+                  ))
+                : null}
           </div>
           <div className="creative-text">
             <h3>Visual Storytelling & Professional Coverage</h3>
@@ -116,9 +119,11 @@ const MediaHostingServicePage = () => {
         <div className="card-grid">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-            : mediaItems.slice(0, 6).map((item, index) => (
-                <MediaCard key={item.id || index} media={item} />
-              ))}
+            : Array.isArray(mediaItems)
+              ? mediaItems.slice(0, 6).map((item, index) => (
+                  <MediaCard key={item.id || index} media={item} />
+                ))
+              : null}
         </div>
       </section>
 
@@ -128,12 +133,14 @@ const MediaHostingServicePage = () => {
         <div className="testimonial-grid">
           {loading
             ? Array.from({ length: 3 }).map((_, index) => <SkeletonTestimonial key={index} />)
-            : testimonials.slice(0, 6).map((review, index) => (
-                <div key={review.id || index} className="testimonial-card">
-                  <p className="testimonial-text">"{review.message}"</p>
-                  <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-                </div>
-              ))}
+            : Array.isArray(testimonials)
+              ? testimonials.slice(0, 6).map((review, index) => (
+                  <div key={review.id || index} className="testimonial-card">
+                    <p className="testimonial-text">"{review.message}"</p>
+                    <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                  </div>
+                ))
+              : null}
         </div>
       </section>
 
