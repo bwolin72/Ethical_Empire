@@ -4,6 +4,7 @@ import publicAxios from '../../api/publicAxios';
 import BannerCards from '../context/BannerCards';
 import MediaCard from '../context/MediaCard';
 import './MediaHostingServicePage.css';
+import { Card, CardContent } from '../../components/ui/card';
 
 // Skeleton Loaders
 const SkeletonCard = () => <div className="skeleton-card shimmer" />;
@@ -33,7 +34,9 @@ const MediaHostingServicePage = () => {
   const fetchData = useCallback(async () => {
     try {
       const [mediaRes, reviewsRes] = await Promise.all([
-        publicAxios.get('/media/featured/?endpoint=mediaHostingServicePage'),
+        publicAxios.get('/media/featured/', {
+          params: { endpoint: 'mediaHostingServicePage' },
+        }),
         publicAxios.get('/reviews/'),
       ]);
 
@@ -73,9 +76,9 @@ const MediaHostingServicePage = () => {
         <h2 className="section-title">Our Multimedia & Hosting Services</h2>
         <div className="card-grid">
           {hostingServices.map((service, index) => (
-            <div key={index} className="card">
-              <div className="card-content">{service}</div>
-            </div>
+            <Card key={index} className="service-card">
+              <CardContent className="card-content">{service}</CardContent>
+            </Card>
           ))}
         </div>
       </section>
@@ -83,6 +86,14 @@ const MediaHostingServicePage = () => {
       {/* === Media Showcase === */}
       <section className="section creative-section">
         <div className="creative-layout">
+          <div className="creative-text">
+            <h3 className="section-subtitle">Visual Storytelling & Professional Coverage</h3>
+            <p className="section-description">
+              Whether it’s a corporate launch, private shoot, or public concert,
+              Ethical Multimedia ensures every moment is captured in stunning clarity.
+              From cinematic videography to detailed photography and reliable hosting—your memories and messages are in expert hands.
+            </p>
+          </div>
           <div className="creative-media">
             {loading
               ? Array.from({ length: 3 }).map((_, index) => <SkeletonCard key={index} />)
@@ -92,21 +103,13 @@ const MediaHostingServicePage = () => {
                   ))
                 : null}
           </div>
-          <div className="creative-text">
-            <h3>Visual Storytelling & Professional Coverage</h3>
-            <p>
-              Whether it’s a corporate launch, private shoot, or public concert,
-              Ethical Multimedia ensures every moment is captured in stunning clarity.
-              From cinematic videography to detailed photography and reliable hosting—your memories and messages are in expert hands.
-            </p>
-          </div>
         </div>
       </section>
 
       {/* === Hosting Venue Info === */}
       <section className="section event-hosting-section">
         <h2 className="section-title">Hosting Event Place</h2>
-        <p>
+        <p className="section-description">
           Need a location for your next shoot, seminar, or celebration? We offer fully equipped
           event spaces with lighting, seating, sound, and ambiance—ready for recording,
           streaming, or staging your unforgettable moment. Let us be your venue partner.
@@ -135,10 +138,12 @@ const MediaHostingServicePage = () => {
             ? Array.from({ length: 3 }).map((_, index) => <SkeletonTestimonial key={index} />)
             : Array.isArray(testimonials)
               ? testimonials.slice(0, 6).map((review, index) => (
-                  <div key={review.id || index} className="testimonial-card">
-                    <p className="testimonial-text">"{review.message}"</p>
-                    <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-                  </div>
+                  <Card key={review.id || index} className="testimonial-card">
+                    <CardContent>
+                      <p className="testimonial-text">"{review.message}"</p>
+                      <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                    </CardContent>
+                  </Card>
                 ))
               : null}
         </div>

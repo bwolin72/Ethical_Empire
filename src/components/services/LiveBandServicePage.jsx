@@ -3,13 +3,12 @@ import './liveband.css';
 import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
 import publixios from '../../api/publicAxios';
-import MediaCard from '../context/MediaCard';
-import BannerCards from '../context/BannerCards';
 import { useNavigate } from 'react-router-dom';
+import BannerCards from '../context/BannerCards';
+import MediaCards from '../context/MediaCards'; // ✅ NEW
 
 const LiveBandServicePage = () => {
   const navigate = useNavigate();
-  const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,28 +22,18 @@ const LiveBandServicePage = () => {
   ];
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const fetchTestimonials = async () => {
       try {
-        const [mediaRes, reviewsRes] = await Promise.all([
-          publixios.get('/media/featured/', {
-            params: { endpoint: 'LiveBandServicePage' }
-          }),
-          publixios.get('/reviews/'),
-        ]);
-
-        const activeMedia = (mediaRes.data?.results || []).filter(
-          item => item.is_active && item.type === 'media'
-        );
-        setMediaCards(activeMedia);
-        setTestimonials(reviewsRes.data || []);
+        const res = await publixios.get('/reviews/');
+        setTestimonials(res.data || []);
       } catch (error) {
-        console.error('Failed to load content:', error);
+        console.error('Failed to load reviews:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchContent();
+    fetchTestimonials();
   }, []);
 
   return (
@@ -80,7 +69,7 @@ const LiveBandServicePage = () => {
         </div>
       </section>
 
-      {/* === Media Showcase === */}
+      {/* === Immersive Preview (Mini Media Set) === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-text">
@@ -92,13 +81,8 @@ const LiveBandServicePage = () => {
             </p>
           </div>
           <div className="creative-media">
-            {loading
-              ? Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="skeleton-card shimmer" />
-                ))
-              : mediaCards.slice(0, 3).map((media, index) => (
-                  <MediaCard key={index} media={media} />
-                ))}
+            {/* ✅ Inline use of MediaCards with slice */}
+            <MediaCards endpoint="LiveBandServicePage" fullWidth={false} />
           </div>
         </div>
       </section>
@@ -132,6 +116,12 @@ const LiveBandServicePage = () => {
                 </p>
               )}
         </div>
+      </section>
+
+      {/* === Full Media Gallery (Full Width) === */}
+      <section className="section media-gallery-section">
+        <h2 className="section-title">Full Gallery</h2>
+        <MediaCards endpoint="LiveBandServicePage" fullWidth={true} />
       </section>
 
       {/* === WhatsApp CTA Button === */}

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import publixios from '../../api/publicAxios';
+import publicAxios from '../../api/publicAxios';
 import './decor.css';
 import MediaCard from '../context/MediaCard';
 import BannerCards from '../context/BannerCards';
@@ -21,31 +21,33 @@ const DecorPage = () => {
     'Backdrop & Photo Booths',
   ];
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const [mediaRes, reviewsRes] = await Promise.all([
-          publixios.get('/media/featured/?endpoint=DecorPage'),
-          publixios.get('/reviews/'),
-        ]);
+  const fetchContent = useCallback(async () => {
+    try {
+      const [mediaRes, reviewsRes] = await Promise.all([
+        publicAxios.get('/media/featured/', {
+          params: { endpoint: 'DecorPage' },
+        }),
+        publicAxios.get('/reviews/'),
+      ]);
 
-        const media = Array.isArray(mediaRes.data?.results)
-          ? mediaRes.data.results.filter(item => item.is_active && item.type === 'media')
-          : [];
+      const media = Array.isArray(mediaRes.data?.results)
+        ? mediaRes.data.results.filter(item => item && item.is_active && item.type === 'media')
+        : [];
 
-        setMediaCards(media);
+      const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
 
-        const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
-        setTestimonials(reviews);
-      } catch (error) {
-        console.error('Error fetching decor content:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchContent();
+      setMediaCards(media);
+      setTestimonials(reviews);
+    } catch (error) {
+      console.error('Error loading decor content:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchContent();
+  }, [fetchContent]);
 
   return (
     <div className="decor-page-container">
@@ -83,7 +85,8 @@ const DecorPage = () => {
           <h3>Transform Your Venue</h3>
           <p>
             Ethical Multimedia creates immersive, elegant decor tailored to your theme.
-            From romantic weddings to vibrant cultural events, we handle every detail—so your space becomes unforgettable.
+            From romantic weddings to vibrant cultural events, we handle every detail—
+            so your space becomes unforgettable.
           </p>
         </div>
         <div className="creative-media">
@@ -91,11 +94,9 @@ const DecorPage = () => {
             ? Array.from({ length: 2 }).map((_, i) => (
                 <div key={i} className="skeleton-card shimmer" />
               ))
-            : Array.isArray(mediaCards)
-              ? mediaCards.slice(0, 2).map((media) => (
-                  <MediaCard key={media.id || media.url} media={media} />
-                ))
-              : null}
+            : mediaCards.slice(0, 2).map((media) => (
+                <MediaCard key={media.id || media.url} media={media} />
+              ))}
         </div>
       </section>
 
@@ -111,7 +112,7 @@ const DecorPage = () => {
             ? Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="skeleton-card shimmer" />
               ))
-            : Array.isArray(mediaCards) && mediaCards.length > 0 ? (
+            : mediaCards.length > 0 ? (
                 mediaCards.slice(0, 6).map((media) => (
                   <MediaCard key={media.id || media.url} media={media} />
                 ))
@@ -132,7 +133,7 @@ const DecorPage = () => {
                   <div className="testimonial-user">Loading...</div>
                 </div>
               ))
-            : Array.isArray(testimonials) && testimonials.length > 0 ? (
+            : testimonials.length > 0 ? (
                 testimonials.slice(0, 6).map((review) => (
                   <div key={review.id || review.message} className="testimonial-card">
                     <p className="testimonial-text">

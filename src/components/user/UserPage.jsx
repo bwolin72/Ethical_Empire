@@ -40,7 +40,7 @@ const UserPage = () => {
         params: { type: "media", endpoint: "UserPage", is_active: true },
         signal,
       }),
-      axiosInstance.get("/media/featured/", { signal }),
+      axiosInstance.get("/media/featured/?endpoint=UserPage", { signal }),
       axiosInstance.get("/reviews/", { signal }),
       axiosInstance.get("/promotions/", { signal }),
     ])
@@ -48,17 +48,12 @@ const UserPage = () => {
         if (profileRes.status === "fulfilled") setProfile(profileRes.value.data);
         else toast.error("Failed to load profile.");
 
-        if (mediaRes.status === "fulfilled") setMedia(mediaRes.value.data);
+        if (mediaRes.status === "fulfilled") setMedia(mediaRes.value.data?.results || []);
         else toast.error("Failed to load media.");
 
         if (featuredRes.status === "fulfilled") {
-          const data = featuredRes.value.data;
-          if (Array.isArray(data)) {
-            setFeatured(data);
-          } else {
-            console.warn("Unexpected featured data:", data);
-            setFeatured([]);
-          }
+          const data = featuredRes.value.data?.results || [];
+          setFeatured(data);
         }
 
         if (reviewsRes.status === "fulfilled") setReviews(reviewsRes.value.data);
@@ -227,9 +222,7 @@ const UserPage = () => {
               ) : (
                 <p className="empty-text">No reviews yet.</p>
               )}
-              <button className="review-btn" onClick={() => navigate("/account#reviews")}>
-                Write a Review
-              </button>
+              <button className="review-btn" onClick={() => navigate("/account#reviews")}>Write a Review</button>
             </div>
           </section>
 

@@ -31,7 +31,9 @@ const CateringPage = () => {
   const fetchData = useCallback(async () => {
     try {
       const [mediaRes, reviewsRes] = await Promise.all([
-        publicAxios.get('/media/featured/?endpoint=CateringPage'),
+        publicAxios.get('/media/featured/', {
+          params: { endpoint: 'CateringPage' },
+        }),
         publicAxios.get('/reviews/')
       ]);
 
@@ -97,7 +99,7 @@ const CateringPage = () => {
                   <div key={i} className="skeleton-card shimmer" />
                 ))
               : mediaCards.slice(0, 3).map((media) => (
-                  <MediaCard key={media.id} media={media} />
+                  <MediaCard key={media.id || media.url?.full} media={media} />
                 ))}
           </div>
           <div className="creative-text">
