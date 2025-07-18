@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import publixios from '../../api/publicAxios';
 import { useNavigate } from 'react-router-dom';
 import BannerCards from '../context/BannerCards';
-import MediaCards from '../context/MediaCards'; // ✅ NEW
+import MediaCards from '../context/MediaCard'; // ✅ NEW
 
 const LiveBandServicePage = () => {
   const navigate = useNavigate();
