@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axiosInstance from '../../api/axiosInstance';
+import axiosCommon from '../../api/axiosCommon';
 import MediaCard from './MediaCard';
 import './MediaCard.css';
 
@@ -15,7 +15,7 @@ const MediaCards = ({ endpoint, type = 'media', title, fullWidth = false }) => {
       setLoading(true);
       setError('');
       try {
-        const response = await axiosInstance.get('/media/', {
+        const response = await axiosCommon.get('/media/', {
           params: {
             type,
             endpoint,

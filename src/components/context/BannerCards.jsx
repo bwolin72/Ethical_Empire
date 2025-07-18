@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axiosInstance from '../../api/axiosInstance';
+import axiosCommon from '../../api/axiosCommon';
 import './BannerCards.css';
 
 const BannerCards = ({ endpoint, title }) => {
@@ -14,7 +14,7 @@ const BannerCards = ({ endpoint, title }) => {
       setLoading(true);
       setError('');
       try {
-        const res = await axiosInstance.get('/media/banners/', {
+        const res = await axiosCommon.get('/media/banners/', {
           params: { endpoints__contains: endpoint },
         });
         setBanners(Array.isArray(res.data) ? res.data : []);
