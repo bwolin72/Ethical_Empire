@@ -153,9 +153,11 @@ const Register = () => {
 
     setLoading(true);
     try {
-      await axiosInstance.post(endpoint, payload);
-      toast.success('Registration successful! Check your email to verify.');
-      setTimeout(() => navigate('/login'), 3000);
+      const res = await axiosInstance.post(endpoint, payload);
+      const { email, phone } = res.data;
+
+      toast.success('✅ Verification code sent. Check your email and SMS.');
+      navigate(`/verify-otp?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`);
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {

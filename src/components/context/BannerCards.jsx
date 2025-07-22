@@ -15,7 +15,7 @@ const BannerCards = ({ endpoint, title }) => {
       setError('');
       try {
         const res = await axiosCommon.get('/media/banners/', {
-          params: { endpoints__contains: endpoint },
+          params: { endpoint }, // ✅ Corrected param key
         });
         setBanners(Array.isArray(res.data) ? res.data : []);
       } catch (err) {

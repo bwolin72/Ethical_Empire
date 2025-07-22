@@ -12,17 +12,34 @@ const AdminDashboard = () => {
   const [analytics, setAnalytics] = useState({ visits: 0, users: 0 });
 
   useEffect(() => {
+    fetchAllDashboardData();
+  }, []);
+
+  const fetchAllDashboardData = () => {
     fetchMediaStats();
     fetchReviewCount();
     fetchNewsletterStats();
     fetchAnalytics();
-  }, []);
+  };
 
   const fetchMediaStats = async () => {
     try {
       const res = await axiosInstance.get('/media/stats/');
-      setMediaStats(res.data);
-    } catch {
+      /**
+       * Expected backend format:
+       * {
+       *   "UserPage": { "media": 3, "banner": 1 },
+       *   "About": { "media": 2, "banner": 0 },
+       *   ...
+       * }
+       */
+      if (typeof res.data === 'object') {
+        setMediaStats(res.data);
+      } else {
+        throw new Error('Invalid media stats format');
+      }
+    } catch (err) {
+      console.error('Failed to fetch media stats:', err);
       setMediaStats({});
     }
   };
@@ -30,18 +47,23 @@ const AdminDashboard = () => {
   const fetchReviewCount = async () => {
     try {
       const res = await axiosInstance.get('/reviews/');
-      setReviewCount(res.data.length);
-    } catch {
+      setReviewCount(Array.isArray(res.data) ? res.data.length : 0);
+    } catch (err) {
+      console.error('Failed to fetch reviews:', err);
       setReviewCount(0);
     }
   };
 
   const fetchNewsletterStats = async () => {
     try {
-      const logs = await axiosInstance.get('/newsletter/logs/');
-      const subs = await axiosInstance.get('/newsletter/count/');
-      setNewsletterStats({ posts: logs.data.length, subscribers: subs.data.count });
-    } catch {
+      const logsRes = await axiosInstance.get('/newsletter/logs/');
+      const subsRes = await axiosInstance.get('/newsletter/count/');
+      setNewsletterStats({
+        posts: Array.isArray(logsRes.data) ? logsRes.data.length : 0,
+        subscribers: subsRes.data?.count || 0,
+      });
+    } catch (err) {
+      console.error('Failed to fetch newsletter stats:', err);
       setNewsletterStats({ posts: 0, subscribers: 0 });
     }
   };
@@ -50,10 +72,11 @@ const AdminDashboard = () => {
     try {
       const res = await axiosInstance.get('/analytics/stats/');
       setAnalytics({
-        visits: res.data.total || 0,
-        users: res.data.unique_users || 0,
+        visits: res.data?.total || 0,
+        users: res.data?.unique_users || 0,
       });
-    } catch {
+    } catch (err) {
+      console.error('Failed to fetch analytics:', err);
       setAnalytics({ visits: 0, users: 0 });
     }
   };
@@ -61,15 +84,16 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dashboard-preview">
       <div className="overview-grid">
+
         <div className="overview-card">
           <h2>Bookings</h2>
-          <p>23 active bookings</p>
+          <p>23 active bookings</p> {/* Placeholder. Replace with dynamic data if available */}
           <button onClick={() => navigate('/admin?tab=booking')}>Learn More</button>
         </div>
 
         <div className="overview-card">
           <h2>Videos</h2>
-          <p>Currently showing: Promo Video 1</p>
+          <p>Currently showing: Promo Video 1</p> {/* Placeholder. Could pull from media if needed */}
           <div className="video-nav">
             <button>Prev</button>
             <button>Next</button>
@@ -79,7 +103,7 @@ const AdminDashboard = () => {
 
         <div className="overview-card">
           <h2>Invoices</h2>
-          <p>5 invoices pending</p>
+          <p>5 invoices pending</p> {/* Placeholder */}
           <button onClick={() => navigate('/admin?tab=invoice')}>Learn More</button>
         </div>
 
