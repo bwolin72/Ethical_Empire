@@ -48,7 +48,6 @@ const services = [
 const About = () => {
   const {
     media: bannerList,
-    loading: bannerLoading,
   } = useMediaFetcher({
     type: 'banner',
     endpoint: 'About',
@@ -58,9 +57,9 @@ const About = () => {
 
   const [testimonials, setTestimonials] = React.useState([]);
 
-  // Fetch testimonials (not using the hook)
   React.useEffect(() => {
-    publicAxios.get('/reviews/')
+    publicAxios
+      .get('/reviews/')
       .then(res => setTestimonials(res.data || []))
       .catch(err => console.error('Testimonials fetch error:', err));
   }, []);
@@ -102,7 +101,8 @@ const About = () => {
         <h2 className="section-heading">Who We Are</h2>
         <p>
           At <strong>Ethical Multimedia GH</strong>, we merge artistic passion with event precision.
-          From vibrant performances and stunning visuals to coordinated event execution, we bring your vision to life with professionalism and creativity.
+          From vibrant performances and stunning visuals to coordinated event execution,
+          we bring your vision to life with professionalism and creativity.
           <br /><br />
           With over a decade of experience across weddings, concerts, and corporate events,
           our diverse team brings the tools and talent to turn ideas into unforgettable experiences.
@@ -117,7 +117,8 @@ const About = () => {
         <h2 className="section-heading">Our Commitment</h2>
         <p>
           We value integrity, artistry, and a deep understanding of your goals.
-          Every event is approached with care, strategy, and passion — ensuring it's not just successful, but unforgettable.
+          Every event is approached with care, strategy, and passion —
+          ensuring it's not just successful, but unforgettable.
         </p>
       </section>
 
