@@ -5,7 +5,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import axiosCommon from '../../api/axiosCommon';
 import './Footer.css';
 
-const SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY;
+const SITE_KEY = process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY;
 
 function Footer() {
   const [email, setEmail] = useState('');
