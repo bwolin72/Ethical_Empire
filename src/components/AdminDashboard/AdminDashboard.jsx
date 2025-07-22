@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import './AdminDashboard.css';
@@ -11,28 +11,9 @@ const AdminDashboard = () => {
   const [newsletterStats, setNewsletterStats] = useState({ posts: 0, subscribers: 0 });
   const [analytics, setAnalytics] = useState({ visits: 0, users: 0 });
 
-  useEffect(() => {
-    fetchAllDashboardData();
-  }, []);
-
-  const fetchAllDashboardData = () => {
-    fetchMediaStats();
-    fetchReviewCount();
-    fetchNewsletterStats();
-    fetchAnalytics();
-  };
-
   const fetchMediaStats = async () => {
     try {
       const res = await axiosInstance.get('/media/stats/');
-      /**
-       * Expected backend format:
-       * {
-       *   "UserPage": { "media": 3, "banner": 1 },
-       *   "About": { "media": 2, "banner": 0 },
-       *   ...
-       * }
-       */
       if (typeof res.data === 'object') {
         setMediaStats(res.data);
       } else {
@@ -81,19 +62,30 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchAllDashboardData = useCallback(() => {
+    fetchMediaStats();
+    fetchReviewCount();
+    fetchNewsletterStats();
+    fetchAnalytics();
+  }, []);
+
+  useEffect(() => {
+    fetchAllDashboardData();
+  }, [fetchAllDashboardData]);
+
   return (
     <div className="admin-dashboard-preview">
       <div className="overview-grid">
 
         <div className="overview-card">
           <h2>Bookings</h2>
-          <p>23 active bookings</p> {/* Placeholder. Replace with dynamic data if available */}
+          <p>23 active bookings</p>
           <button onClick={() => navigate('/admin?tab=booking')}>Learn More</button>
         </div>
 
         <div className="overview-card">
           <h2>Videos</h2>
-          <p>Currently showing: Promo Video 1</p> {/* Placeholder. Could pull from media if needed */}
+          <p>Currently showing: Promo Video 1</p>
           <div className="video-nav">
             <button>Prev</button>
             <button>Next</button>
@@ -103,7 +95,7 @@ const AdminDashboard = () => {
 
         <div className="overview-card">
           <h2>Invoices</h2>
-          <p>5 invoices pending</p> {/* Placeholder */}
+          <p>5 invoices pending</p>
           <button onClick={() => navigate('/admin?tab=invoice')}>Learn More</button>
         </div>
 
