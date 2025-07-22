@@ -10,8 +10,9 @@
   --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Media Card Wrapper */
-.media-card-wrapper {
+/* === Wrapper Card === */
+.media-card-wrapper,
+.media-card {
   background-color: var(--light-bg);
   border: 2px solid var(--charcoal);
   border-radius: 1.25rem;
@@ -22,20 +23,23 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   max-width: 100%;
   animation: fadeIn 0.5s ease-out;
+  position: relative;
+  cursor: pointer;
 }
 
-.media-card-wrapper:hover {
+.media-card:hover {
   transform: scale(1.01);
   box-shadow: var(--shadow-hover);
   border-color: var(--gold);
 }
 
-.media-card-wrapper.full-width {
+.media-card.full-width {
   width: 100%;
 }
 
-/* Media Elements (Image or Video) */
-.media-preview {
+/* === Media Preview === */
+.media-img,
+.media-video {
   width: 100%;
   height: auto;
   max-height: 600px;
@@ -47,20 +51,88 @@
   transition: filter 0.3s ease;
 }
 
-.media-preview:hover {
+.media-img:hover,
+.media-video:hover {
   filter: brightness(1.05);
 }
 
-.media-preview.image,
-.media-preview.video {
+/* === Caption === */
+.media-caption {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  color: var(--charcoal);
+}
+
+/* === Skeleton Loader === */
+.media-skeleton {
+  width: 100%;
+  height: 300px;
+  background-color: #ddd;
+  border-radius: 0.75rem;
+  animation: pulse 1.5s infinite ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-box {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #eaeaea, #f3f3f3, #eaeaea);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+/* === Modal Styles === */
+.media-modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.media-modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-hover);
+}
+
+.modal-image,
+.modal-video {
+  width: 100%;
+  height: auto;
+  max-height: 80vh;
+  object-fit: contain;
+  background: #000;
   display: block;
 }
 
-.media-preview.hidden {
-  display: none;
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  font-size: 1.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  z-index: 10;
 }
 
-/* Fallback Display */
+/* === Fallback Display === */
 .media-preview.fallback {
   padding: 1rem;
   text-align: center;
@@ -81,42 +153,7 @@
   font-weight: 500;
 }
 
-/* Caption & Meta */
-.media-caption {
-  text-align: center;
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-top: 0.75rem;
-  color: var(--charcoal);
-}
-
-.media-meta {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 0.25rem;
-}
-
-/* Skeleton Loader */
-.media-skeleton {
-  width: 100%;
-  height: 300px;
-  background-color: #ddd;
-  border-radius: 0.75rem;
-  animation: pulse 1.5s infinite ease-in-out;
-  position: relative;
-  overflow: hidden;
-}
-
-.skeleton-box {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, #eaeaea, #f3f3f3, #eaeaea);
-  background-size: 200% 100%;
-  animation: shimmer 1.6s infinite linear;
-}
-
-/* Animations */
+/* === Animations === */
 @keyframes pulse {
   0% { opacity: 0.9; }
   50% { opacity: 0.4; }
@@ -133,13 +170,15 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive Design */
+/* === Responsive === */
 @media (max-width: 768px) {
-  .media-preview {
+  .media-img,
+  .media-video {
     max-height: 400px;
   }
 
-  .media-card-wrapper {
+  .media-card-wrapper,
+  .media-card {
     padding: 0.75rem;
   }
 
@@ -149,16 +188,24 @@
 }
 
 @media (max-width: 480px) {
-  .media-preview {
+  .media-img,
+  .media-video {
     max-height: 300px;
   }
 
-  .media-card-wrapper {
+  .media-card-wrapper,
+  .media-card {
     padding: 0.6rem;
     border-radius: 1rem;
   }
 
   .media-skeleton {
     height: 180px;
+  }
+
+  .close-button {
+    font-size: 1.2rem;
+    top: 8px;
+    right: 10px;
   }
 }

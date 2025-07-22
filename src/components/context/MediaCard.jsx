@@ -1,58 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import axiosCommon from '../../api/axiosCommon';
+// src/components/context/MediaCards.jsx
+
+import React from 'react';
+import useMediaFetcher from '../../hooks/useMediaFetcher';
 import MediaCard from './MediaCard';
+import MediaSkeleton from './MediaSkeleton';
 import './MediaCard.css';
 
 const MediaCards = ({ endpoint, type = 'media', title, fullWidth = false }) => {
-  const [mediaItems, setMediaItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    if (!endpoint || !type) return;
-
-    const fetchMedia = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const response = await axiosCommon.get('/media/', {
-          params: {
-            type,
-            endpoint,
-            is_active: true,
-          },
-        });
-
-        const results = response?.data?.results || response?.data || [];
-        if (!Array.isArray(results)) {
-          throw new Error('Invalid response format');
-        }
-
-        setMediaItems(results);
-      } catch (err) {
-        console.error('Error fetching media:', err);
-        setError('Failed to load media.');
-        setMediaItems([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMedia();
-  }, [endpoint, type]);
-
-  if (loading) return <div className="media-loading">Loading media...</div>;
-  if (error) return <div className="media-error">{error}</div>;
+  const {
+    media: mediaItems,
+    loading,
+    error,
+  } = useMediaFetcher({
+    type,
+    endpoint,
+    isActive: true,
+    autoFetch: true,
+    pageSize: 20,
+  });
 
   return (
     <section className="media-cards-container">
       {title && <h2 className="media-cards-title">{title}</h2>}
+
       <div className={`media-cards-grid ${fullWidth ? 'full' : ''}`}>
-        {mediaItems.length === 0 ? (
-          <p className="media-card-empty">No media available for this section.</p>
+        {loading ? (
+          Array.from({ length: 3 }).map((_, idx) => (
+            <div key={idx} className="media-card-wrapper">
+              <MediaSkeleton />
+            </div>
+          ))
+        ) : error ? (
+          <p className="media-error">{error}</p>
+        ) : mediaItems.length === 0 ? (
+          <p className="media-card-empty">
+            📭 No media uploaded yet for <strong>{endpoint}</strong>.
+          </p>
         ) : (
           mediaItems.map((media) => (
-            <MediaCard key={media.id || media.url?.full} media={media} fullWidth={fullWidth} />
+            <MediaCard
+              key={`media-${media.id ?? media.url?.full ?? Math.random()}`}
+              media={media}
+              fullWidth={fullWidth}
+            />
           ))
         )}
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   FaGuitar,
   FaCamera,
@@ -8,9 +8,13 @@ import {
   FaStar,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import publicAxios from '../../api/publicAxios';
+
+import useMediaFetcher from '../../hooks/useMediaFetcher';
 import MediaCard from '../context/MediaCard';
+import MediaCards from '../context/MediaCards';
 import BannerCards from '../context/BannerCards';
+import publicAxios from '../../api/publicAxios';
+
 import './About.css';
 
 const services = [
@@ -42,40 +46,36 @@ const services = [
 ];
 
 const About = () => {
-  const [heroBanner, setHeroBanner] = useState(null);
-  const [mediaList, setMediaList] = useState([]);
-  const [testimonials, setTestimonials] = useState([]);
+  const {
+    media: bannerList,
+    loading: bannerLoading,
+  } = useMediaFetcher({
+    type: 'banner',
+    endpoint: 'About',
+    isActive: true,
+    pageSize: 1,
+  });
 
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        const [bannerRes, mediaRes, reviewsRes] = await Promise.all([
-          publicAxios.get('/media/', { params: { type: 'banner', endpoint: 'About' } }),
-          publicAxios.get('/media/featured/', { params: { endpoint: 'About' } }),
-          publicAxios.get('/reviews/'),
-        ]);
+  const [testimonials, setTestimonials] = React.useState([]);
 
-        setHeroBanner(bannerRes.data?.results?.[0] || null);
-        setMediaList(mediaRes.data?.results || []); // ✅ FIXED: Use .results for paginated data
-        setTestimonials(reviewsRes.data || []);
-      } catch (error) {
-        console.error('Error loading About page content:', error);
-      }
-    };
-
-    fetchContent();
+  // Fetch testimonials (not using the hook)
+  React.useEffect(() => {
+    publicAxios.get('/reviews/')
+      .then(res => setTestimonials(res.data || []))
+      .catch(err => console.error('Testimonials fetch error:', err));
   }, []);
 
   return (
     <div className="about-container">
+
       {/* === Hero Banner === */}
-      {heroBanner && (
+      {bannerList.length > 0 && (
         <div className="hero-banner mb-10">
-          <MediaCard media={heroBanner} fullWidth />
+          <MediaCard media={bannerList[0]} fullWidth />
         </div>
       )}
 
-      {/* === Introduction === */}
+      {/* === Intro Text === */}
       <section className="text-center mb-12 px-4">
         <h1 className="section-heading">Ethical Multimedia GH</h1>
         <p className="subtext">
@@ -83,7 +83,7 @@ const About = () => {
         </p>
       </section>
 
-      {/* === Banners === */}
+      {/* === Banners Grid === */}
       <BannerCards endpoint="About" title="Explore Our Visual Stories" />
 
       {/* === Our Services === */}
@@ -110,13 +110,7 @@ const About = () => {
       </section>
 
       {/* === Media Gallery === */}
-      {mediaList.length > 0 && (
-        <section className="about-gallery max-w-6xl mx-auto my-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4">
-          {mediaList.map((media) => (
-            <MediaCard key={media.id} media={media} />
-          ))}
-        </section>
-      )}
+      <MediaCards endpoint="About" type="featured" title="Our Work in Action" fullWidth />
 
       {/* === Our Commitment === */}
       <section className="about-text px-4 mt-12">

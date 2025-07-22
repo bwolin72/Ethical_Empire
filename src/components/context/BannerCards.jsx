@@ -1,61 +1,70 @@
-import React, { useEffect, useState } from 'react';
-import axiosCommon from '../../api/axiosCommon';
+// src/components/context/BannerCards.jsx
+
+import React, { useState } from 'react';
+import useMediaFetcher from '../../hooks/useMediaFetcher';
+import placeholderImg from '../../assets/placeholder.jpg';
+import BannerSkeleton from './BannerSkeleton';
 import './BannerCards.css';
 
 const BannerCards = ({ endpoint, title }) => {
-  const [banners, setBanners] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [previewBanner, setPreviewBanner] = useState(null);
 
-  useEffect(() => {
-    if (!endpoint) return;
-
-    const fetchBanners = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const res = await axiosCommon.get('/media/banners/', {
-          params: { endpoint }, // ✅ Corrected param key
-        });
-        setBanners(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error('Error fetching banners:', err);
-        setError('Failed to load banners. Please try again.');
-        setBanners([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBanners();
-  }, [endpoint]);
-
-  if (loading) return <div className="banner-loading">Loading banners...</div>;
-  if (error) return <div className="banner-error">{error}</div>;
+  const {
+    media: banners,
+    loading,
+    error,
+  } = useMediaFetcher({
+    type: 'banner',
+    endpoint,
+    isActive: true,
+    autoFetch: true,
+    pageSize: 20,
+  });
 
   return (
     <section className="banner-cards-container">
       {title && <h2 className="banner-cards-title">{title}</h2>}
       <div className="banner-cards-grid">
-        {!Array.isArray(banners) || banners.length === 0 ? (
-          <p className="banner-card-empty">No banners available for this section.</p>
+        {loading ? (
+          Array.from({ length: 3 }).map((_, idx) => (
+            <div key={idx} className="banner-card">
+              <BannerSkeleton />
+            </div>
+          ))
+        ) : error ? (
+          <div className="banner-error">{error}</div>
+        ) : banners.length === 0 ? (
+          <p className="banner-card-empty">
+            📭 No banners available for <strong>{endpoint}</strong>.
+          </p>
         ) : (
           banners.map((banner) => (
-            <div key={banner.id || banner.url?.full || banner.label} className="banner-card">
+            <div
+              key={banner.id || banner.url?.full || banner.label}
+              className="banner-card"
+              onClick={() => setPreviewBanner(banner)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setPreviewBanner(banner)}
+            >
               <img
-                src={banner.url?.thumb || banner.url?.full}
+                src={banner.url?.thumb || banner.url?.full || placeholderImg}
                 alt={banner.label || 'Banner Image'}
                 loading="lazy"
                 className="banner-card-image"
+                onError={(e) => (e.target.src = placeholderImg)}
               />
               <div className="banner-card-info">
-                {banner.label && <p className="banner-card-caption">{banner.label}</p>}
+                {banner.label && (
+                  <p className="banner-card-caption">{banner.label}</p>
+                )}
                 {banner.uploaded_by && (
                   <p className="banner-card-meta">Uploaded by: {banner.uploaded_by}</p>
                 )}
                 {banner.uploaded_at && (
                   <p className="banner-card-meta">
-                    Uploaded at: {new Date(banner.uploaded_at).toLocaleDateString()}
+                    Uploaded at:{' '}
+                    {new Date(banner.uploaded_at).toLocaleDateString()}
                   </p>
                 )}
               </div>
@@ -63,6 +72,22 @@ const BannerCards = ({ endpoint, title }) => {
           ))
         )}
       </div>
+
+      {/* === Modal Preview === */}
+      {previewBanner && (
+        <div className="banner-modal" onClick={() => setPreviewBanner(null)}>
+          <div className="banner-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-button" onClick={() => setPreviewBanner(null)}>✖</button>
+            <img
+              src={previewBanner.url?.full || placeholderImg}
+              alt={previewBanner.label || 'Preview'}
+              className="modal-banner-image"
+              onError={(e) => (e.target.src = placeholderImg)}
+            />
+            <p className="modal-banner-caption">{previewBanner.label}</p>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

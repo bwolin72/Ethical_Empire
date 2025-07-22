@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import publicAxios from '../../api/publicAxios';
 import './decor.css';
 import MediaCard from '../context/MediaCard';
+import MediaSkeleton from '../context/MediaSkeleton';
 import BannerCards from '../context/BannerCards';
 
 const DecorPage = () => {
@@ -11,6 +12,7 @@ const DecorPage = () => {
   const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mediaError, setMediaError] = useState(false);
 
   const decorServices = [
     'Wedding & Event Decor',
@@ -22,6 +24,8 @@ const DecorPage = () => {
   ];
 
   const fetchContent = useCallback(async () => {
+    setLoading(true);
+    setMediaError(false);
     try {
       const [mediaRes, reviewsRes] = await Promise.all([
         publicAxios.get('/media/featured/', {
@@ -31,7 +35,7 @@ const DecorPage = () => {
       ]);
 
       const media = Array.isArray(mediaRes.data?.results)
-        ? mediaRes.data.results.filter(item => item && item.is_active && item.type === 'media')
+        ? mediaRes.data.results.filter(item => item?.is_active && item?.type === 'media')
         : [];
 
       const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
@@ -40,6 +44,7 @@ const DecorPage = () => {
       setTestimonials(reviews);
     } catch (error) {
       console.error('Error loading decor content:', error);
+      setMediaError(true);
     } finally {
       setLoading(false);
     }
@@ -91,9 +96,9 @@ const DecorPage = () => {
         </div>
         <div className="creative-media">
           {loading
-            ? Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className="skeleton-card shimmer" />
-              ))
+            ? Array.from({ length: 2 }).map((_, i) => <MediaSkeleton key={i} />)
+            : mediaError || mediaCards.length === 0
+            ? <p className="text-gray-500">No media available.</p>
             : mediaCards.slice(0, 2).map((media) => (
                 <MediaCard key={media.id || media.url} media={media} />
               ))}
@@ -109,16 +114,12 @@ const DecorPage = () => {
         </p>
         <div className="card-grid">
           {loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="skeleton-card shimmer" />
-              ))
-            : mediaCards.length > 0 ? (
-                mediaCards.slice(0, 6).map((media) => (
-                  <MediaCard key={media.id || media.url} media={media} />
-                ))
-              ) : (
-                <p className="text-center text-gray-500">No decor media available at the moment.</p>
-              )}
+            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+            : mediaError || mediaCards.length === 0
+            ? <p className="text-center text-gray-500">No decor media available at the moment.</p>
+            : mediaCards.slice(0, 6).map((media) => (
+                <MediaCard key={media.id || media.url} media={media} />
+              ))}
         </div>
       </section>
 
@@ -133,18 +134,16 @@ const DecorPage = () => {
                   <div className="testimonial-user">Loading...</div>
                 </div>
               ))
-            : testimonials.length > 0 ? (
-                testimonials.slice(0, 6).map((review) => (
-                  <div key={review.id || review.message} className="testimonial-card">
-                    <p className="testimonial-text">
-                      {review.message ? `"${review.message}"` : '"No comment provided."'}
-                    </p>
-                    <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-gray-500">No reviews yet.</p>
-              )}
+            : testimonials.length > 0
+            ? testimonials.slice(0, 6).map((review) => (
+                <div key={review.id || review.message} className="testimonial-card">
+                  <p className="testimonial-text">
+                    {review.message ? `"${review.message}"` : '"No comment provided."'}
+                  </p>
+                  <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                </div>
+              ))
+            : <p className="text-center text-gray-500">No reviews yet.</p>}
         </div>
       </section>
 

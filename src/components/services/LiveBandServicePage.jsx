@@ -1,11 +1,13 @@
+// src/pages/LiveBandServicePage.jsx
+
 import React, { useEffect, useState } from 'react';
 import './liveband.css';
 import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
-import publixios from '../../api/publicAxios';
+import publicAxios from '../../api/publicAxios';
 import { useNavigate } from 'react-router-dom';
 import BannerCards from '../context/BannerCards';
-import MediaCards from '../context/MediaCard'; // ✅ NEW
+import MediaCards from '../context/MediaCards'; // ✅ Corrected import
 
 const LiveBandServicePage = () => {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ const LiveBandServicePage = () => {
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const res = await publixios.get('/reviews/');
+        const res = await publicAxios.get('/reviews/');
         setTestimonials(res.data || []);
       } catch (error) {
         console.error('Failed to load reviews:', error);
@@ -69,7 +71,7 @@ const LiveBandServicePage = () => {
         </div>
       </section>
 
-      {/* === Immersive Preview (Mini Media Set) === */}
+      {/* === Immersive Preview (Inline MediaCards) === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-text">
@@ -81,8 +83,7 @@ const LiveBandServicePage = () => {
             </p>
           </div>
           <div className="creative-media">
-            {/* ✅ Inline use of MediaCards with slice */}
-            <MediaCards endpoint="LiveBandServicePage" fullWidth={false} />
+            <MediaCards endpoint="LiveBandServicePage" fullWidth={false} title="" />
           </div>
         </div>
       </section>
@@ -118,13 +119,13 @@ const LiveBandServicePage = () => {
         </div>
       </section>
 
-      {/* === Full Media Gallery (Full Width) === */}
+      {/* === Full Media Gallery === */}
       <section className="section media-gallery-section">
         <h2 className="section-title">Full Gallery</h2>
-        <MediaCards endpoint="LiveBandServicePage" fullWidth={true} />
+        <MediaCards endpoint="LiveBandServicePage" fullWidth={true} title="" />
       </section>
 
-      {/* === WhatsApp CTA Button === */}
+      {/* === WhatsApp CTA === */}
       <a
         href="https://wa.me/233552988735"
         className="whatsapp-button"

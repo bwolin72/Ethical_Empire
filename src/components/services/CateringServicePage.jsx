@@ -3,13 +3,12 @@ import './catering.custom.css';
 import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
 import publicAxios from '../../api/publicAxios';
-import MediaCard from '../context/MediaCard';
+import MediaCards from '../context/MediaCards'; // ✅ NEW reusable version
 import BannerCards from '../context/BannerCards';
 import { useNavigate } from 'react-router-dom';
 
 const CateringPage = () => {
   const navigate = useNavigate();
-  const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,24 +29,8 @@ const CateringPage = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const [mediaRes, reviewsRes] = await Promise.all([
-        publicAxios.get('/media/featured/', {
-          params: { endpoint: 'CateringPage' },
-        }),
-        publicAxios.get('/reviews/')
-      ]);
-
-      const media = Array.isArray(mediaRes.data?.results)
-        ? mediaRes.data.results.filter(
-            (item) => item && item.is_active && item.type === 'media'
-          )
-        : [];
-
-      const reviews = Array.isArray(reviewsRes.data)
-        ? reviewsRes.data
-        : [];
-
-      setMediaCards(media);
+      const reviewsRes = await publicAxios.get('/reviews/');
+      const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
       setTestimonials(reviews);
     } catch (error) {
       console.error('Error loading catering content:', error);
@@ -94,13 +77,7 @@ const CateringPage = () => {
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
-            {loading
-              ? Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="skeleton-card shimmer" />
-                ))
-              : mediaCards.slice(0, 3).map((media) => (
-                  <MediaCard key={media.id || media.url?.full} media={media} />
-                ))}
+            <MediaCards endpoint="CateringPage" type="media" title="Creative Catering Ideas" />
           </div>
           <div className="creative-text">
             <h3>Creative Catering Ideas</h3>
