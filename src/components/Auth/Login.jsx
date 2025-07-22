@@ -25,7 +25,6 @@ const Login = () => {
   const user = auth?.user;
 
   const redirectByRole = useCallback((role) => {
-    console.log(`[Login] Redirecting based on role: ${role}`);
     const routes = {
       admin: '/admin',
       worker: '/worker',
@@ -37,21 +36,19 @@ const Login = () => {
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
-    document.body.classList.toggle('dark-mode', savedDark);
+    document.body.classList.toggle('dark', savedDark);
   }, []);
 
   useEffect(() => {
     if (!ready || hasRedirected || !user) return;
-    console.log('[Login] Auth is ready, user found. Redirecting...');
     setHasRedirected(true);
     redirectByRole(user.role);
   }, [ready, user, hasRedirected, redirectByRole]);
 
   const toggleDarkMode = () => {
     const updated = !darkMode;
-    console.log(`[Login] Dark mode toggled: ${updated}`);
     setDarkMode(updated);
-    document.body.classList.toggle('dark-mode', updated);
+    document.body.classList.toggle('dark', updated);
     localStorage.setItem('darkMode', updated);
   };
 
@@ -71,7 +68,6 @@ const Login = () => {
   };
 
   const extractErrorMessage = (err) => {
-    console.error('[Login] Extracting error from response:', err?.response);
     const data = err?.response?.data;
     if (typeof data === 'string') return data;
     if (Array.isArray(data)) return data[0];
@@ -90,11 +86,9 @@ const Login = () => {
   };
 
   const handleLoginSuccess = (data) => {
-    console.log('[Login] Login successful. Response:', data);
     const { access, refresh, user } = data;
 
     if (!access || !refresh || !user) {
-      console.warn('[Login] Incomplete login response:', { access, refresh, user });
       setError('Login failed. Incomplete server response.');
       return;
     }
@@ -107,12 +101,7 @@ const Login = () => {
       is_email_verified: user.is_email_verified,
     };
 
-    login({
-      access,
-      refresh,
-      user: userPayload,
-      remember: rememberMe,
-    });
+    login({ access, refresh, user: userPayload, remember: rememberMe });
   };
 
   const handleSubmit = async (e) => {
@@ -120,13 +109,11 @@ const Login = () => {
     if (!validateForm()) return;
 
     setLoading(true);
-    console.log('[Login] Submitting login form:', form);
     try {
       const { data } = await axiosInstance.post('/accounts/login/', form);
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
-      console.error('[Login] Login failed:', msg);
       setError(msg);
       localStorage.clear();
       sessionStorage.clear();
@@ -138,18 +125,15 @@ const Login = () => {
 
   const handleGoogleSuccess = async ({ credential }) => {
     if (!credential) {
-      console.error('[Login] Google login failed: Missing credential');
       setError('Google login failed: Missing credential');
       return;
     }
     setLoading(true);
-    console.log('[Login] Google credential received. Sending to backend...');
     try {
       const { data } = await axiosInstance.post('/accounts/google-login/', { credential });
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
-      console.error('[Login] Google login failed:', msg);
       setError(msg);
     } finally {
       setLoading(false);
@@ -158,11 +142,19 @@ const Login = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className="login-container">
-        <div className="login-box">
-          <img src={logo} alt="Logo" className="login-logo" />
-          <h2>Eethm_GH</h2>
-          <h3>Ethical Multimedia GH</h3>
+      <div className="login-page">
+        {/* Left Section: Branding */}
+        <div className="login-left">
+          <div className="login-brand">
+            <img src={logo} alt="Logo" />
+            <h1>Eethm_GH</h1>
+            <p>Ethical Multimedia Ghana - Your Trusted Digital Hub</p>
+          </div>
+        </div>
+
+        {/* Right Section: Login Form */}
+        <div className="login-right">
+          <h2>Welcome Back</h2>
 
           <label className="dark-toggle">
             <input
@@ -190,7 +182,7 @@ const Login = () => {
             />
             {formErrors.email && <small>{formErrors.email}</small>}
 
-            <div className="password-input">
+            <div className="password-field">
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
@@ -202,14 +194,9 @@ const Login = () => {
                 disabled={loading}
                 required
               />
-              <button
-                type="button"
-                className="show-password"
-                onClick={() => setShowPassword((prev) => !prev)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
+              <span onClick={() => setShowPassword((prev) => !prev)}>
                 {showPassword ? '🙈' : '👁️'}
-              </button>
+              </span>
             </div>
             {formErrors.password && <small>{formErrors.password}</small>}
 
@@ -229,13 +216,11 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="social-buttons">
+          <div className="google-signup">
+            <p>Or login with:</p>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => {
-                console.error('[Login] Google button error callback');
-                setError('Google login failed');
-              }}
+              onError={() => setError('Google login failed')}
               useOneTap
               theme="outline"
               size="large"

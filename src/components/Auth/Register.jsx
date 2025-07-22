@@ -30,6 +30,8 @@ const Register = () => {
     password2: '',
     access_code: '',
     worker_category_id: '',
+    company_name: '',
+    agency_name: '',
     role: 'USER',
   });
 
@@ -37,7 +39,6 @@ const Register = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState('');
-  const [isInternal, setIsInternal] = useState(false);
 
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
@@ -46,8 +47,7 @@ const Register = () => {
 
     const urlCode = searchParams.get('code');
     if (urlCode) {
-      setIsInternal(true);
-      setForm((prev) => ({ ...prev, access_code: urlCode }));
+      setForm((prev) => ({ ...prev, access_code: urlCode, role: 'WORKER' }));
     }
   }, [searchParams]);
 
@@ -72,7 +72,7 @@ const Register = () => {
         return 'Something went wrong.';
       }
     }
-    return 'Something went wrong. Please try again.';
+    return 'Something went wrong.';
   };
 
   const handleChange = (e) => {
@@ -97,8 +97,11 @@ const Register = () => {
       gender,
       password,
       password2,
+      role,
       access_code,
       worker_category_id,
+      company_name,
+      agency_name,
     } = form;
 
     if (!full_name.trim()) return toast.error('Full name is required.');
@@ -119,17 +122,27 @@ const Register = () => {
       password2,
     };
 
-    if (isInternal) {
+    let endpoint = '/accounts/register/';
+
+    if (role === 'WORKER') {
       if (!access_code.trim()) return toast.error('Access code is required.');
       if (!worker_category_id) return toast.error('Worker category ID is required.');
       payload.access_code = access_code;
       payload.worker_category_id = worker_category_id;
-      payload.role = 'WORKER';
+      endpoint = '/accounts/register/worker/';
+    } else if (role === 'VENDOR') {
+      if (!company_name.trim()) return toast.error('Company name is required.');
+      payload.company_name = company_name;
+      endpoint = '/accounts/register/vendor/';
+    } else if (role === 'PARTNER') {
+      if (!agency_name.trim()) return toast.error('Agency name is required.');
+      payload.agency_name = agency_name;
+      endpoint = '/accounts/register/partner/';
     }
 
     setLoading(true);
     try {
-      await axiosInstance.post('/accounts/register/', payload);
+      await axiosInstance.post(endpoint, payload);
       toast.success('Registration successful! Check your email to verify.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
@@ -153,45 +166,33 @@ const Register = () => {
     }
   };
 
-  const toggleDarkMode = () => {
-    const updated = !darkMode;
-    setDarkMode(updated);
-    document.body.classList.toggle('dark', updated);
-    localStorage.setItem('darkMode', updated);
-  };
-
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className={`register-container ${darkMode ? 'dark' : ''}`}>
+      <div className={`register-page ${darkMode ? 'dark' : ''}`}>
         <ToastContainer autoClose={4000} />
-        <div className="register-box">
-          <div className="brand-header">
-            <img src={logo} alt="Logo" />
-            <span>Ethical Multimedia GH</span>
+        <div className="register-left">
+          <div className="register-brand">
+            <img src={logo} alt="Logo" className="register-logo" />
+            <h1>Ethical Multimedia GH</h1>
+            <p>
+              Empowering creatives, vendors, and partners with ethical, community-driven technology. 
+              Register to get started with our inclusive ecosystem.
+            </p>
           </div>
+        </div>
 
-          <p className="register-subtitle">
-            Join the Ethical Multimedia GH platform. Empower your creative journey with ethical tech.
-          </p>
-
-          <div className="top-controls">
-            <button className="dark-toggle" onClick={toggleDarkMode}>
-              {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
-            </button>
-            <label className="internal-toggle">
-              <input
-                type="checkbox"
-                checked={isInternal}
-                onChange={(e) => setIsInternal(e.target.checked)}
-              />
-              Internal
-            </label>
-          </div>
-
-          <h2>{isInternal ? 'Internal Registration' : 'Create an Account'}</h2>
+        <div className="register-right">
+          <h2>Create an Account</h2>
 
           <form onSubmit={handleSubmit} className="register-form" noValidate>
-            {isInternal && (
+            <select name="role" value={form.role} onChange={handleChange}>
+              <option value="USER">Regular User</option>
+              <option value="WORKER">Worker</option>
+              <option value="VENDOR">Vendor</option>
+              <option value="PARTNER">Partner</option>
+            </select>
+
+            {form.role === 'WORKER' && (
               <>
                 <input
                   name="access_code"
@@ -209,6 +210,24 @@ const Register = () => {
               </>
             )}
 
+            {form.role === 'VENDOR' && (
+              <input
+                name="company_name"
+                placeholder="Company Name"
+                value={form.company_name}
+                onChange={handleChange}
+              />
+            )}
+
+            {form.role === 'PARTNER' && (
+              <input
+                name="agency_name"
+                placeholder="Agency Name"
+                value={form.agency_name}
+                onChange={handleChange}
+              />
+            )}
+
             <input
               name="full_name"
               placeholder="Full Name"
@@ -223,27 +242,19 @@ const Register = () => {
               onChange={handleChange}
             />
 
-            <div className="form-row">
-              <PhoneInput
-                defaultCountry="GH"
-                value={form.phone}
-                onChange={handlePhoneChange}
-                placeholder="Phone number"
-                className="phone-input"
-              />
-              <div className="dob-group">
-                <label htmlFor="dob" className="dob-label">
-                  Date of Birth
-                </label>
-                <input
-                  name="dob"
-                  type="date"
-                  id="dob"
-                  value={form.dob}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+            <PhoneInput
+              defaultCountry="GH"
+              value={form.phone}
+              onChange={handlePhoneChange}
+              placeholder="Phone number"
+            />
+
+            <input
+              name="dob"
+              type="date"
+              value={form.dob}
+              onChange={handleChange}
+            />
 
             <select name="gender" value={form.gender} onChange={handleChange}>
               <option value="">Select Gender</option>
@@ -257,11 +268,10 @@ const Register = () => {
                 name="password"
                 type={passwordVisible ? 'text' : 'password'}
                 placeholder="Password"
-                autoComplete="new-password"
                 value={form.password}
                 onChange={handleChange}
               />
-              <span onClick={() => setPasswordVisible((v) => !v)} className="toggle-password">
+              <span onClick={() => setPasswordVisible((v) => !v)}>
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
               </span>
             </div>
@@ -275,16 +285,15 @@ const Register = () => {
                 name="password2"
                 type={passwordVisible ? 'text' : 'password'}
                 placeholder="Confirm Password"
-                autoComplete="new-password"
                 value={form.password2}
                 onChange={handleChange}
               />
-              <span onClick={() => setPasswordVisible((v) => !v)} className="toggle-password">
+              <span onClick={() => setPasswordVisible((v) => !v)}>
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
               </span>
             </div>
 
-            <button type="submit" className="register-button" disabled={loading}>
+            <button type="submit" disabled={loading}>
               {loading ? 'Registering…' : 'Register'}
             </button>
           </form>
