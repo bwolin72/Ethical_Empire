@@ -2,7 +2,7 @@
 
 import React from 'react';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
-import MediaCard from './MediaCard';
+import MediaCard from './MediaCards';
 import MediaSkeleton from './MediaSkeleton';
 import './MediaCard.css';
 

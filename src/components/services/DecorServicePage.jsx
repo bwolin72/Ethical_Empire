@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import publicAxios from '../../api/publicAxios';
 import './decor.css';
-import MediaCard from '../context/MediaCard';
+import MediaCard from '../context/MediaCards';
 import MediaSkeleton from '../context/MediaSkeleton';
 import BannerCards from '../context/BannerCards';
 
