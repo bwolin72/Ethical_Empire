@@ -56,7 +56,7 @@ const About = () => {
         ]);
 
         setHeroBanner(bannerRes.data?.results?.[0] || null);
-        setMediaList(mediaRes.data || []);
+        setMediaList(mediaRes.data?.results || []); // ✅ FIXED: Use .results for paginated data
         setTestimonials(reviewsRes.data || []);
       } catch (error) {
         console.error('Error loading About page content:', error);

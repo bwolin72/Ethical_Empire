@@ -61,18 +61,29 @@ const Register = () => {
     return 'Medium';
   };
 
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (!data) return 'Unexpected error. Please try again.';
-    if (typeof data === 'string') return data;
-    if (typeof data === 'object') {
-      try {
-        return Object.values(data).flat().join(' ');
-      } catch {
-        return 'Something went wrong.';
-      }
+
+    if (data.errors && typeof data.errors === 'object') {
+      return Object.entries(data.errors)
+        .map(([field, messages]) => `${capitalize(field)}: ${messages.join(' ')}`)
+        .join('\n');
     }
-    return 'Something went wrong.';
+
+    if (typeof data === 'object') {
+      return Object.entries(data)
+        .map(([field, messages]) =>
+          `${capitalize(field)}: ${Array.isArray(messages) ? messages.join(' ') : messages}`
+        )
+        .join('\n');
+    }
+
+    if (typeof data === 'string') return data;
+
+    return 'An error occurred. Please check your input.';
   };
 
   const handleChange = (e) => {
@@ -175,7 +186,7 @@ const Register = () => {
             <img src={logo} alt="Logo" className="register-logo" />
             <h1>Ethical Multimedia GH</h1>
             <p>
-              Empowering creatives, vendors, and partners with ethical, community-driven technology. 
+              Empowering creatives, vendors, and partners with ethical, community-driven technology.
               Register to get started with our inclusive ecosystem.
             </p>
           </div>

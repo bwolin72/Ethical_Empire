@@ -222,15 +222,23 @@ body.dark .login-prompt span {
 }
 
 /* === Phone Input Override === */
-.phone-input input {
+.phone-input input,
+.react-phone-number-input__input {
   padding: 0.75rem;
   border-radius: 8px;
   border: 1px solid #ccc;
   width: 100%;
   font-size: 1rem;
+  background-color: #fff;
+  color: #000;
 }
 
-body.dark .phone-input input {
+.react-phone-number-input__input:focus {
+  border-color: #1a2c5a;
+  outline: none;
+}
+
+body.dark .react-phone-number-input__input {
   background-color: #2a2a2a;
   border-color: #555;
   color: #e0e0e0;
