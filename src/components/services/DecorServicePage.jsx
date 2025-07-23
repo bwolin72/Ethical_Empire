@@ -28,17 +28,23 @@ const DecorPage = () => {
     setMediaError(false);
     try {
       const [mediaRes, reviewsRes] = await Promise.all([
-        publicAxios.get('/media/featured/', {
-          params: { endpoint: 'DecorPage' },
+        publicAxios.get('/media/', {
+          params: {
+            endpoint: 'DecorPage',
+            type: 'featured',
+            is_active: true,
+          },
         }),
         publicAxios.get('/reviews/'),
       ]);
 
       const media = Array.isArray(mediaRes.data?.results)
-        ? mediaRes.data.results.filter(item => item?.is_active && item?.type === 'media')
+        ? mediaRes.data.results
         : [];
 
-      const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
+      const reviews = Array.isArray(reviewsRes.data)
+        ? reviewsRes.data
+        : [];
 
       setMediaCards(media);
       setTestimonials(reviews);
@@ -97,11 +103,11 @@ const DecorPage = () => {
         <div className="creative-media">
           {loading
             ? Array.from({ length: 2 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaError || mediaCards.length === 0
-            ? <p className="text-gray-500">No media available.</p>
-            : mediaCards.slice(0, 2).map((media) => (
-                <MediaCard key={media.id || media.url} media={media} />
-              ))}
+            : mediaCards.length > 0
+              ? mediaCards.slice(0, 2).map((media) => (
+                  <MediaCard key={media.id || media.url} media={media} />
+                ))
+              : <p className="text-gray-500">No media available.</p>}
         </div>
       </section>
 
@@ -115,11 +121,11 @@ const DecorPage = () => {
         <div className="card-grid">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaError || mediaCards.length === 0
-            ? <p className="text-center text-gray-500">No decor media available at the moment.</p>
-            : mediaCards.slice(0, 6).map((media) => (
-                <MediaCard key={media.id || media.url} media={media} />
-              ))}
+            : mediaCards.length > 0
+              ? mediaCards.slice(0, 6).map((media) => (
+                  <MediaCard key={media.id || media.url} media={media} />
+                ))
+              : <p className="text-center text-gray-500">No decor media available at the moment.</p>}
         </div>
       </section>
 
@@ -135,15 +141,15 @@ const DecorPage = () => {
                 </div>
               ))
             : testimonials.length > 0
-            ? testimonials.slice(0, 6).map((review) => (
-                <div key={review.id || review.message} className="testimonial-card">
-                  <p className="testimonial-text">
-                    {review.message ? `"${review.message}"` : '"No comment provided."'}
-                  </p>
-                  <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-                </div>
-              ))
-            : <p className="text-center text-gray-500">No reviews yet.</p>}
+              ? testimonials.slice(0, 6).map((review) => (
+                  <div key={review.id || review.message} className="testimonial-card">
+                    <p className="testimonial-text">
+                      {review.message ? `"${review.message}"` : '"No comment provided."'}
+                    </p>
+                    <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                  </div>
+                ))
+              : <p className="text-center text-gray-500">No reviews yet.</p>}
         </div>
       </section>
 
