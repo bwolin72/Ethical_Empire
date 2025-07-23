@@ -12,7 +12,6 @@ const DecorPage = () => {
   const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mediaError, setMediaError] = useState(false);
 
   const decorServices = [
     'Wedding & Event Decor',
@@ -25,7 +24,6 @@ const DecorPage = () => {
 
   const fetchContent = useCallback(async () => {
     setLoading(true);
-    setMediaError(false);
     try {
       const [mediaRes, reviewsRes] = await Promise.all([
         publicAxios.get('/media/', {
@@ -50,7 +48,6 @@ const DecorPage = () => {
       setTestimonials(reviews);
     } catch (error) {
       console.error('Error loading decor content:', error);
-      setMediaError(true);
     } finally {
       setLoading(false);
     }
@@ -96,8 +93,7 @@ const DecorPage = () => {
           <h3>Transform Your Venue</h3>
           <p>
             Ethical Multimedia creates immersive, elegant decor tailored to your theme.
-            From romantic weddings to vibrant cultural events, we handle every detail—
-            so your space becomes unforgettable.
+            From romantic weddings to vibrant cultural events, we handle every detail—so your space becomes unforgettable.
           </p>
         </div>
         <div className="creative-media">
