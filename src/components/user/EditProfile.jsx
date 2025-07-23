@@ -27,7 +27,7 @@ const EditProfile = () => {
         });
         setEmail(email || "");
       })
-      .catch(() => toast.error("Failed to load profile."))
+      .catch(() => toast.error("❌ Failed to load profile."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -36,11 +36,17 @@ const EditProfile = () => {
   };
 
   const handleSubmit = async () => {
+    // Remove empty or whitespace-only fields before sending
+    const filteredForm = Object.fromEntries(
+      Object.entries(form).filter(([_, value]) => value?.trim())
+    );
+
     try {
-      await axiosInstance.put("/accounts/profiles/profile/", form);
+      await axiosInstance.patch("/accounts/profiles/profile/", filteredForm);
       toast.success("✅ Profile updated successfully!");
       setTimeout(() => navigate(-1), 1500);
-    } catch {
+    } catch (err) {
+      console.error("[EditProfile] Update failed", err);
       toast.error("❌ Failed to update profile.");
     }
   };

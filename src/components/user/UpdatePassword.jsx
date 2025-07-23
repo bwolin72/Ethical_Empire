@@ -7,11 +7,21 @@ import "./UpdatePassword.css";
 const UpdatePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRequest = async () => {
-    if (!currentPassword || !newPassword) {
-      return toast.warn("Please fill out both fields.");
+    // Validation checks
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return toast.warn("⚠️ Please fill out all fields.");
+    }
+
+    if (newPassword !== confirmPassword) {
+      return toast.error("❌ New passwords do not match.");
+    }
+
+    if (newPassword.length < 8) {
+      return toast.warn("🔐 Password must be at least 8 characters.");
     }
 
     setLoading(true);
@@ -20,11 +30,17 @@ const UpdatePassword = () => {
         current_password: currentPassword,
         new_password: newPassword,
       });
-      toast.success("✅ Check your email to confirm the password change.");
+
+      toast.success("✅ Password changed successfully.");
       setCurrentPassword("");
       setNewPassword("");
+      setConfirmPassword("");
     } catch (err) {
-      toast.error(err.response?.data?.error || "❌ Request failed.");
+      const errorMsg =
+        err.response?.data?.error ||
+        (err.response?.data?.new_password && err.response?.data?.new_password[0]) ||
+        "❌ Password update failed.";
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -34,6 +50,7 @@ const UpdatePassword = () => {
     <div className="password-update">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
       <h2>Change Password</h2>
+
       <input
         type="password"
         placeholder="Current Password"
@@ -42,6 +59,7 @@ const UpdatePassword = () => {
         required
         aria-label="Current Password"
       />
+
       <input
         type="password"
         placeholder="New Password"
@@ -50,6 +68,16 @@ const UpdatePassword = () => {
         required
         aria-label="New Password"
       />
+
+      <input
+        type="password"
+        placeholder="Confirm New Password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        required
+        aria-label="Confirm New Password"
+      />
+
       <button className="btn" onClick={handleRequest} disabled={loading}>
         {loading ? "Submitting..." : "Submit Request"}
       </button>

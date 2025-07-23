@@ -3,23 +3,25 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./ConfirmPasswordChange.css"; // Ensure CSS path is correct
+import "./ConfirmPasswordChange.css"; // Ensure this file exists
 
 const ConfirmPasswordChange = () => {
   const [params] = useSearchParams();
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("loading"); // loading, success, error
-  const [message, setMessage] = useState("Processing password change...");
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("loading"); // loading | success | error
+  const [message, setMessage] = useState("Processing password change...");
 
   useEffect(() => {
     const email = params.get("email");
     const token = params.get("token");
+    let redirectTimeout;
 
     if (!email || !token) {
       toast.error("Missing email or token.");
       setStatus("error");
-      setMessage("Missing email or token in the URL.");
+      setMessage("❌ Missing email or token in the URL.");
       setLoading(false);
       return;
     }
@@ -27,18 +29,23 @@ const ConfirmPasswordChange = () => {
     axiosInstance
       .post("/accounts/profiles/password-update/confirm/", { email, token })
       .then(() => {
-        toast.success("✅ Password updated. Please login.");
+        toast.success("✅ Password updated. Please log in.");
         setStatus("success");
         setMessage("✅ Password updated successfully. Redirecting to login...");
-        setTimeout(() => navigate("/login"), 2500);
+        redirectTimeout = setTimeout(() => navigate("/login"), 2500);
       })
-      .catch(() => {
-        toast.error("❌ Invalid or expired link.");
+      .catch((err) => {
+        const backendError = err.response?.data?.error || "❌ Invalid or expired link.";
+        toast.error(backendError);
         setStatus("error");
-        setMessage("❌ Invalid or expired link. Redirecting to retry...");
-        setTimeout(() => navigate("/update-password"), 3000);
+        setMessage(`${backendError} Redirecting to retry...`);
+        redirectTimeout = setTimeout(() => navigate("/update-password"), 3000);
       })
       .finally(() => setLoading(false));
+
+    return () => {
+      if (redirectTimeout) clearTimeout(redirectTimeout);
+    };
   }, [params, navigate]);
 
   return (
@@ -48,7 +55,7 @@ const ConfirmPasswordChange = () => {
       <div className={`confirm-message ${status}`}>
         {loading ? (
           <div className="loader">
-            <span className="spinner" /> {/* Optionally use an animated spinner */}
+            <span className="spinner" role="status" aria-label="Processing..." />
             <p>{message}</p>
           </div>
         ) : (

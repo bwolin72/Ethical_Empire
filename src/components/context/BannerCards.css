@@ -7,55 +7,73 @@
   --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
+/* === Section Container === */
 .banner-cards-container {
   padding: 2rem;
   background-color: #fff;
-  text-align: center;
+  text-align: left;
+  position: relative;
 }
 
 .banner-cards-title {
   font-size: 2rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   color: var(--charcoal);
 }
 
-.banner-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
-  justify-items: center;
+/* === Scrollable Row === */
+.banner-cards-scroll-wrapper {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold) transparent;
 }
 
-/* Individual card */
+.banner-cards-scroll-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.banner-cards-scroll-wrapper::-webkit-scrollbar-thumb {
+  background-color: var(--gold);
+  border-radius: 6px;
+}
+
+/* === Individual Banner Card === */
 .banner-card {
+  flex: 0 0 auto;
+  width: 260px;
   border-radius: 1rem;
   overflow: hidden;
+  background-color: var(--light-bg);
   box-shadow: var(--shadow-main);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  background-color: var(--light-bg);
+  scroll-snap-align: start;
   cursor: pointer;
 }
 
 .banner-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-hover);
 }
 
 .banner-card-image {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 180px;
   object-fit: cover;
+  display: block;
+  border-bottom: 2px solid var(--gold);
 }
 
 .banner-card-info {
   padding: 0.75rem 1rem;
-  text-align: left;
 }
 
 .banner-card-caption {
   font-size: 1rem;
-  color: #444;
+  color: var(--charcoal);
   font-weight: 600;
   margin-bottom: 0.25rem;
 }
@@ -65,22 +83,24 @@
   color: #777;
 }
 
-/* Empty and error states */
+/* === Empty and Error States === */
 .banner-card-empty,
 .banner-error {
   color: #999;
   font-size: 1rem;
   padding: 1rem;
+  text-align: center;
 }
 
-/* Skeleton Loader */
+/* === Skeleton Loader === */
 .banner-skeleton {
-  width: 100%;
-  height: 260px;
+  width: 260px;
+  height: 180px;
   border-radius: 1rem;
   overflow: hidden;
   background-color: #e0e0e0;
   position: relative;
+  flex-shrink: 0;
 }
 
 .skeleton-box {
@@ -91,7 +111,7 @@
   animation: shimmer 1.6s infinite linear;
 }
 
-/* Modal styles */
+/* === Modal === */
 .banner-modal {
   position: fixed;
   top: 0;
@@ -103,6 +123,7 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  padding: 1rem;
 }
 
 .banner-modal-content {
@@ -119,9 +140,11 @@
 .modal-banner-image {
   width: 100%;
   height: auto;
+  max-height: 80vh;
   border-radius: 0.5rem;
   object-fit: contain;
   display: block;
+  background-color: #000;
 }
 
 .modal-banner-caption {
@@ -131,7 +154,7 @@
   text-align: center;
 }
 
-/* Close Button */
+/* === Close Button === */
 .close-button {
   position: absolute;
   top: 0.75rem;
@@ -144,7 +167,7 @@
   z-index: 10;
 }
 
-/* Animations */
+/* === Animations === */
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
@@ -154,10 +177,23 @@
   }
 }
 
-/* Responsive Design */
+/* === Responsive === */
 @media (max-width: 768px) {
   .banner-cards-container {
     padding: 1rem;
+  }
+
+  .banner-card {
+    width: 200px;
+  }
+
+  .banner-card-image {
+    height: 140px;
+  }
+
+  .banner-skeleton {
+    width: 200px;
+    height: 140px;
   }
 
   .banner-modal-content {

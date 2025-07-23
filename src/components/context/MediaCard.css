@@ -10,17 +10,34 @@
   --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
+/* === Scrollable Media Cards Wrapper === */
+.media-cards-scroll-wrapper {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem 0;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.media-cards-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
 /* === Wrapper Card === */
 .media-card-wrapper,
 .media-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
   background-color: var(--light-bg);
   border: 2px solid var(--charcoal);
   border-radius: 1.25rem;
   padding: 1rem;
-  margin: 1rem auto;
   box-shadow: var(--shadow-main);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 220px;
   max-width: 100%;
   animation: fadeIn 0.5s ease-out;
   position: relative;
@@ -180,6 +197,7 @@
   .media-card-wrapper,
   .media-card {
     padding: 0.75rem;
+    width: 180px;
   }
 
   .media-skeleton {
@@ -197,6 +215,7 @@
   .media-card {
     padding: 0.6rem;
     border-radius: 1rem;
+    width: 150px;
   }
 
   .media-skeleton {

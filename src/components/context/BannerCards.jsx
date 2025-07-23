@@ -24,7 +24,8 @@ const BannerCards = ({ endpoint, title }) => {
   return (
     <section className="banner-cards-container">
       {title && <h2 className="banner-cards-title">{title}</h2>}
-      <div className="banner-cards-grid">
+
+      <div className="banner-cards-scroll-wrapper">
         {loading ? (
           Array.from({ length: 3 }).map((_, idx) => (
             <div key={idx} className="banner-card">

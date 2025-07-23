@@ -23,7 +23,7 @@ const MediaCards = ({ endpoint, type = 'media', title, fullWidth = false }) => {
     <section className="media-cards-container">
       {title && <h2 className="media-cards-title">{title}</h2>}
 
-      <div className={`media-cards-grid ${fullWidth ? 'full' : ''}`}>
+      <div className={`media-cards-scroll-wrapper ${fullWidth ? 'full' : ''}`}>
         {loading ? (
           Array.from({ length: 3 }).map((_, idx) => (
             <div key={idx} className="media-card-wrapper">
@@ -38,11 +38,9 @@ const MediaCards = ({ endpoint, type = 'media', title, fullWidth = false }) => {
           </p>
         ) : (
           mediaItems.map((media) => (
-            <MediaCard
-              key={`media-${media.id ?? media.url?.full ?? Math.random()}`}
-              media={media}
-              fullWidth={fullWidth}
-            />
+            <div key={`media-${media.id ?? media.url?.full ?? Math.random()}`} className="media-card-wrapper">
+              <MediaCard media={media} fullWidth={fullWidth} />
+            </div>
           ))
         )}
       </div>

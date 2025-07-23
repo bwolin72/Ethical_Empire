@@ -14,7 +14,7 @@ const ReviewsManagement = () => {
 
   const fetchReviews = async () => {
     try {
-      const res = await axiosInstance.get('/reviews/');
+      const res = await axiosInstance.get('/reviews/admin/');
       const data = Array.isArray(res.data) ? res.data : [];
       setReviews(data);
     } catch (err) {
@@ -51,6 +51,17 @@ const ReviewsManagement = () => {
     }
   };
 
+  const handleApprove = async (id) => {
+    try {
+      await axiosInstance.patch(`/reviews/${id}/approve/`);
+      toast.success('✅ Review approved.');
+      fetchReviews();
+    } catch (err) {
+      console.error('[ReviewsManagement] Error approving review:', err);
+      toast.error('❌ Failed to approve review.');
+    }
+  };
+
   const handleReplyChange = (id, value) => {
     setReplyMap((prev) => ({ ...prev, [id]: value }));
   };
@@ -63,8 +74,11 @@ const ReviewsManagement = () => {
       {Array.isArray(reviews) && reviews.length > 0 ? (
         reviews.map((review) => (
           <div className="review-card" key={review.id}>
-            <p className="review-message">"{review.message}"</p>
-            <p className="review-author">— {review.reviewer_name}</p>
+            <p><strong>Service:</strong> {review.service_display}</p>
+            <p><strong>Rating:</strong> {review.rating} ⭐</p>
+            <p><strong>Comment:</strong> "{review.comment}"</p>
+            <p><strong>By:</strong> {review.user_email}</p>
+            <p><strong>Submitted:</strong> {new Date(review.created_at).toLocaleString()}</p>
 
             {review.reply && (
               <p className="review-reply">
@@ -72,14 +86,21 @@ const ReviewsManagement = () => {
               </p>
             )}
 
+            {!review.approved && (
+              <button className="approve-btn" onClick={() => handleApprove(review.id)}>
+                ✅ Approve
+              </button>
+            )}
+
             <textarea
               placeholder="Type your reply..."
               value={replyMap[review.id] || ''}
               onChange={(e) => handleReplyChange(review.id, e.target.value)}
             />
+
             <div className="review-actions">
-              <button onClick={() => handleReply(review.id)}>Reply</button>
-              <button onClick={() => handleDelete(review.id)}>Delete</button>
+              <button onClick={() => handleReply(review.id)}>💬 Reply</button>
+              <button onClick={() => handleDelete(review.id)}>🗑️ Delete</button>
             </div>
           </div>
         ))

@@ -10,6 +10,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [profile, setProfile] = useState(externalProfile || null);
   const [loading, setLoading] = useState(!externalProfile);
   const [review, setReview] = useState("");
+  const [reviewService, setReviewService] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
   const [profileImage, setProfileImage] = useState(externalProfile?.profile_image || "");
   const [bookings, setBookings] = useState([]);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -87,14 +89,20 @@ const AccountProfile = ({ profile: externalProfile }) => {
   };
 
   const handleReviewSubmit = async () => {
-    if (!review.trim()) {
-      toast.warn("Review cannot be empty.", { autoClose: 3000 });
+    if (!review.trim() || !reviewService) {
+      toast.warn("Review and service are required.", { autoClose: 3000 });
       return;
     }
     try {
-      await axiosInstance.post("/reviews/", { comment: review });
+      await axiosInstance.post("/reviews/", {
+        comment: review,
+        service: reviewService,
+        rating: reviewRating,
+      });
       toast.success("Review submitted!", { autoClose: 3000 });
       setReview("");
+      setReviewService("");
+      setReviewRating(5);
     } catch {
       toast.error("Failed to submit review.", { autoClose: 3000 });
     }
@@ -103,6 +111,29 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const handleLogout = async () => {
     setLoggingOut(true);
     await logoutHelper();
+  };
+
+  const handleClose = () => {
+    const role = roleInfo?.role?.toLowerCase();
+    switch (role) {
+      case "admin":
+        navigate("/admin/dashboard");
+        break;
+      case "user":
+        navigate("/user/dashboard");
+        break;
+      case "worker":
+        navigate("/worker/dashboard");
+        break;
+      case "partner":
+        navigate("/partner/dashboard");
+        break;
+      case "vendor":
+        navigate("/vendor/dashboard");
+        break;
+      default:
+        navigate("/"); // fallback
+    }
   };
 
   const renderBookingStatus = (status) => {
@@ -131,7 +162,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   return (
     <div className="account-profile">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
-      <button className="close-btn" onClick={() => window.location.reload()}>✖</button>
+      <button className="close-btn" onClick={handleClose}>✖</button>
 
       <div className="profile-wrapper">
         {/* Profile Picture */}
@@ -185,6 +216,38 @@ const AccountProfile = ({ profile: externalProfile }) => {
             onChange={(e) => setReview(e.target.value)}
             placeholder="Share your experience..."
           />
+
+          <label htmlFor="review-service">Service</label>
+          <select
+            id="review-service"
+            value={reviewService}
+            onChange={(e) => setReviewService(e.target.value)}
+          >
+            <option value="">Select Service</option>
+            <option value="Live Band">Live Band</option>
+            <option value="DJ">DJ</option>
+            <option value="Photography">Photography</option>
+            <option value="Videography">Videography</option>
+            <option value="Catering">Catering</option>
+            <option value="Event Planning">Event Planning</option>
+            <option value="Lighting">Lighting</option>
+            <option value="MC/Host">MC/Host</option>
+            <option value="Sound Setup">Sound Setup</option>
+          </select>
+
+          <label htmlFor="review-rating">Rating</label>
+          <select
+            id="review-rating"
+            value={reviewRating}
+            onChange={(e) => setReviewRating(Number(e.target.value))}
+          >
+            {[5, 4, 3, 2, 1].map((num) => (
+              <option key={num} value={num}>
+                {num} Star{num !== 1 && "s"}
+              </option>
+            ))}
+          </select>
+
           <button className="btn" onClick={handleReviewSubmit}>Submit Review</button>
         </div>
 
