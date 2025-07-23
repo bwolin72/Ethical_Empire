@@ -89,7 +89,7 @@ const ConnectRedirect = () => {
     let isMounted = true;
     const checkUserRole = async () => {
       try {
-        const res = await axiosCommon.get('/accounts/user-role/');
+        const res = await axiosCommon.get('/accounts/profile/role/');
         if (!isMounted) return;
 
         const isAdmin = res?.data?.is_admin?.toString() === 'true';
