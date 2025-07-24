@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axiosCommon from '../../api/axiosCommon'; // uses baseURL with /api/
+import axiosCommon from '../../api/axiosCommon';
 import './PromotionPopup.css';
 
 const BACKEND_BASE_URL = 'https://ethical-backend-production.up.railway.app';
@@ -20,11 +20,15 @@ const PromotionPopup = () => {
           if (promo.image && !promo.image.startsWith('http')) {
             promo.image = `${BACKEND_BASE_URL}${promo.image.startsWith('/') ? '' : '/'}${promo.image}`;
           }
+
           if (promo.video && !promo.video.startsWith('http')) {
             promo.video = `${BACKEND_BASE_URL}${promo.video.startsWith('/') ? '' : '/'}${promo.video}`;
           }
 
           setPromotion(promo);
+
+          // (Optional) Mark promotion as seen/viewed on backend
+          // await axiosCommon.patch(`/promotions/${promo.id}/`, { seen: true }); // Adjust if needed
         }
       } catch (err) {
         console.error('Failed to load promotion', err);

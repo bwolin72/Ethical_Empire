@@ -33,9 +33,13 @@ const getMediaUrl = (media) => {
 const EethmHome = () => {
   const navigate = useNavigate();
   const videoRef = useRef(null);
+
   const [isMuted, setIsMuted] = useState(true);
   const [promotions, setPromotions] = useState([]);
   const [promoError, setPromoError] = useState(null);
+
+  const [reviews, setReviews] = useState([]);
+  const [reviewError, setReviewError] = useState(null);
 
   const {
     media: heroMediaArr,
@@ -56,7 +60,9 @@ const EethmHome = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    axiosCommon.get('/promotions/', { signal: controller.signal })
+
+    // Fetch active promotions
+    axiosCommon.get('/promotions/active/', { signal: controller.signal })
       .then(res => {
         setPromotions(Array.isArray(res.data) ? res.data : []);
       })
@@ -66,6 +72,19 @@ const EethmHome = () => {
           setPromoError('Failed to load promotions.');
         }
       });
+
+    // Fetch approved reviews
+    axiosCommon.get('/reviews/', { signal: controller.signal })
+      .then(res => {
+        setReviews(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch(err => {
+        if (err.name !== 'CanceledError') {
+          console.error('Reviews fetch error:', err);
+          setReviewError('Failed to load reviews.');
+        }
+      });
+
     return () => controller.abort();
   }, []);
 
@@ -173,6 +192,27 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
+      {/* === Client Testimonials Section === */}
+      <FadeInSection>
+        <section className="reviews-section">
+          <h2>What Our Clients Say</h2>
+          {reviews.length > 0 ? (
+            <div className="reviews-container">
+              {reviews.map(review => (
+                <div key={review.id} className="review-card">
+                  <p className="review-text">"{review.comment}"</p>
+                  <p className="review-author">— {review.name || 'Anonymous'}</p>
+                </div>
+              ))}
+            </div>
+          ) : reviewError ? (
+            <p style={{ color: 'red' }}>{reviewError}</p>
+          ) : (
+            <p>No client reviews available.</p>
+          )}
+        </section>
+      </FadeInSection>
+
       {/* === Banner Highlights === */}
       <FadeInSection>
         <section className="banners-section">
@@ -181,7 +221,7 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* === Media Cards Section (Optional) === */}
+      {/* === Media Cards Section === */}
       <FadeInSection>
         <section className="banners-section">
           <h2>Featured Media</h2>

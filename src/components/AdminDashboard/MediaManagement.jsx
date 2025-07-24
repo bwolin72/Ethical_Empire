@@ -89,13 +89,17 @@ const MediaManagement = () => {
   const fetchMedia = useCallback(async () => {
     try {
       let res;
+      const endpoint = selectedEndpoints[0];
+
       if (mediaType === 'featured') {
-        res = await axiosInstance.get('/media/featured/');
+        res = await axiosInstance.get('/media/featured/', {
+          params: { endpoint }
+        });
         setUploadedItems(Array.isArray(res.data) ? res.data : []);
       } else {
         const params = { type: mediaType };
         if (statusFilter !== 'all') params.is_active = statusFilter === 'active';
-        if (mediaType !== 'banner') params.endpoint = selectedEndpoints[0];
+        if (mediaType !== 'banner') params.endpoint = endpoint;
         res = await axiosInstance.get('/media/', { params });
         setUploadedItems(Array.isArray(res.data.results) ? res.data.results : []);
       }

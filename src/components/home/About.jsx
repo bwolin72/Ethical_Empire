@@ -11,7 +11,6 @@ import { Link } from 'react-router-dom';
 
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import MediaCard from '../context/MediaCards';
-import MediaCards from '../context/MediaCards';
 import BannerCards from '../context/BannerCards';
 import publicAxios from '../../api/publicAxios';
 
@@ -58,10 +57,24 @@ const About = () => {
   const [testimonials, setTestimonials] = React.useState([]);
 
   React.useEffect(() => {
-    publicAxios
-      .get('/reviews/')
-      .then(res => setTestimonials(res.data || []))
-      .catch(err => console.error('Testimonials fetch error:', err));
+    let isMounted = true;
+
+    const fetchTestimonials = async () => {
+      try {
+        const res = await publicAxios.get('/reviews/');
+        if (isMounted) {
+          setTestimonials(res.data || []);
+        }
+      } catch (error) {
+        console.error('Testimonials fetch error:', error);
+      }
+    };
+
+    fetchTestimonials();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -82,7 +95,7 @@ const About = () => {
         </p>
       </section>
 
-      {/* === Banners Grid === */}
+      {/* === Visual Stories === */}
       <BannerCards endpoint="About" title="Explore Our Visual Stories" />
 
       {/* === Our Services === */}
@@ -109,8 +122,8 @@ const About = () => {
         </p>
       </section>
 
-      {/* === Media Gallery === */}
-      <MediaCards endpoint="About" type="featured" title="Our Work in Action" fullWidth />
+      {/* === Featured Gallery === */}
+      <MediaCard endpoint="About" type="featured" title="Our Work in Action" fullWidth />
 
       {/* === Our Commitment === */}
       <section className="about-text px-4 mt-12">
