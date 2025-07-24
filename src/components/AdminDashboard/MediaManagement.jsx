@@ -51,9 +51,12 @@ function SortableMediaCard({ item, index, toggleActive, toggleFeatured, deleteMe
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="media-card">
-      <div onClick={() => setPreviewItem(item)} style={{ cursor: 'pointer' }}>
-        {renderPreview(item.url?.thumb || item.url?.full)}
+    <div ref={setNodeRef} style={style} className="media-card">
+      <div className="media-card-header">
+        <span className="drag-handle" {...attributes} {...listeners}>☰</span>
+        <div onClick={() => setPreviewItem(item)} style={{ cursor: 'pointer', flex: 1 }}>
+          {renderPreview(item.url?.thumb || item.url?.full)}
+        </div>
       </div>
       <p className="media-label"><strong>{item.label || 'No Label'}</strong></p>
       <p className="media-meta">Uploaded by: {item.uploaded_by || '—'}</p>

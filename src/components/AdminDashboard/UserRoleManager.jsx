@@ -5,7 +5,7 @@ import { Card, CardContent } from '../ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
 import { Checkbox } from '../ui/checkbox';
 import { Textarea } from '../ui/textarea';
-import { Input } from '../ui/Input';
+import { Input } from '../ui/input';
 import { toast } from 'react-toastify';
 import './UserRoleManager.css';
 
@@ -21,6 +21,8 @@ const roles = [
   { label: 'Admin', value: 'admin' },
   { label: 'Worker', value: 'worker' },
   { label: 'User', value: 'user' },
+  { label: 'Vendor', value: 'vendor' },
+  { label: 'Partner', value: 'partner' },
 ];
 
 const UserRoleManager = () => {
@@ -68,16 +70,13 @@ const UserRoleManager = () => {
     try {
       await Promise.all(
         selected.map((id) =>
-          axiosInstance.delete(`/accounts/delete-by-email/`, {
-            data: { id },
-          })
+          axiosInstance.delete(`/accounts/delete-by-email/`, { data: { id } })
         )
       );
       toast.success('Users deleted');
       fetchUsers(activeTab);
       setSelected([]);
     } catch (err) {
-      console.error('Delete error:', err);
       toast.error('Error deleting users');
     } finally {
       setSubmitting(false);
@@ -147,7 +146,7 @@ const UserRoleManager = () => {
   return (
     <div style={{ backgroundColor: palette.cream }} className="p-4 md:p-8 min-h-screen">
       <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="flex gap-3 border-b pb-3 mb-5">
+        <TabsList className="flex gap-3 border-b pb-3 mb-5 overflow-x-auto">
           {roles.map((role) => (
             <TabsTrigger
               key={role.value}
@@ -186,7 +185,7 @@ const UserRoleManager = () => {
                 </div>
               )}
 
-              {Array.isArray(users) && users.length > 0 ? (
+              {users.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {users.map((user) => (
                     <Card key={user.id} className="rounded-2xl border shadow-md p-4 bg-white">

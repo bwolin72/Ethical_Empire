@@ -24,18 +24,15 @@ body.dark-mode {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background: radial-gradient(circle at 10% 10%, #dbe9ff 0%, transparent 40%),
-              radial-gradient(circle at 90% 10%, #dbe9ff 0%, transparent 40%),
-              radial-gradient(circle at 50% 90%, #dbe9ff 0%, transparent 40%);
-  background-repeat: no-repeat;
-  background-color: #f5f5f5;
+  background: 
+    linear-gradient(rgba(245, 245, 245, 0.85), rgba(245, 245, 245, 0.85)),
+    url('/images/login-bg.png') center center / cover no-repeat;
 }
 
 body.dark-mode .login-page {
-  background: radial-gradient(circle at 10% 10%, #1f1f2e 0%, transparent 40%),
-              radial-gradient(circle at 90% 10%, #1f1f2e 0%, transparent 40%),
-              radial-gradient(circle at 50% 90%, #1f1f2e 0%, transparent 40%);
-  background-color: #121212;
+  background: 
+    linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.85)),
+    url('/images/login-bg.png') center center / cover no-repeat;
 }
 
 /* === LEFT (BRANDING) === */
@@ -98,7 +95,7 @@ body.dark-mode .login-right {
   margin-bottom: 1.2rem;
 }
 
-/* === DARK TOGGLE === */
+/* === DARK MODE TOGGLE === */
 .dark-toggle {
   display: flex;
   align-items: center;
@@ -148,6 +145,10 @@ body.dark-mode .login-form input {
   position: relative;
 }
 
+.password-field input {
+  padding-right: 2.5rem;
+}
+
 .password-field span {
   position: absolute;
   right: 0.75rem;
@@ -178,17 +179,14 @@ body.dark-mode .password-field span {
 .remember-me {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
   font-size: 0.9rem;
 }
 
 .forgot-link {
-  display: block;
-  text-align: right;
   font-size: 0.9rem;
   color: #4a90e2;
   text-decoration: none;
-  margin-bottom: 1rem;
 }
 
 .forgot-link:hover {
@@ -233,7 +231,7 @@ body.dark-mode .error-message {
   color: #f5b7b1;
 }
 
-/* === GOOGLE === */
+/* === GOOGLE SIGN-IN === */
 .google-signup {
   margin-top: 1.5rem;
   text-align: center;
@@ -264,6 +262,15 @@ body.dark-mode .error-message {
 @media screen and (max-width: 768px) {
   .login-page {
     flex-direction: column;
+    background: 
+      linear-gradient(rgba(245, 245, 245, 0.92), rgba(245, 245, 245, 0.92)),
+      url('/images/login-bg.png') center center / cover no-repeat;
+  }
+
+  body.dark-mode .login-page {
+    background: 
+      linear-gradient(rgba(18, 18, 18, 0.92), rgba(18, 18, 18, 0.92)),
+      url('/images/login.png') center center / cover no-repeat;
   }
 
   .login-left,
