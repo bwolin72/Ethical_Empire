@@ -26,13 +26,13 @@ body.dark-mode {
   width: 100%;
   background: 
     linear-gradient(rgba(245, 245, 245, 0.85), rgba(245, 245, 245, 0.85)),
-    url('/images/login.png') center center / cover no-repeat;
+    url('../../assets/images/login.jpg') center center / cover no-repeat;
 }
 
 body.dark-mode .login-page {
   background: 
     linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.85)),
-    url('/images/login.png') center center / cover no-repeat;
+    url('../../assets/images/login.jpg') center center / cover no-repeat;
 }
 
 /* === LEFT (BRANDING) === */
@@ -264,13 +264,13 @@ body.dark-mode .error-message {
     flex-direction: column;
     background: 
       linear-gradient(rgba(245, 245, 245, 0.92), rgba(245, 245, 245, 0.92)),
-      url('/images/login.png') center center / cover no-repeat;
+      url('../../assets/images/login.jpg') center center / cover no-repeat;
   }
 
   body.dark-mode .login-page {
     background: 
       linear-gradient(rgba(18, 18, 18, 0.92), rgba(18, 18, 18, 0.92)),
-      url('/images/login.png') center center / cover no-repeat;
+      url('../../assets/images/login.jpg') center center / cover no-repeat;
   }
 
   .login-left,
