@@ -5,7 +5,7 @@ import { Card, CardContent } from '../ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
 import { Checkbox } from '../ui/checkbox';
 import { Textarea } from '../ui/textarea';
-import { Input } from '../ui/input';
+import { Input } from '../ui/Input';
 import { toast } from 'react-toastify';
 import './UserRoleManager.css';
 
