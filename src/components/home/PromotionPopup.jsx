@@ -12,14 +12,11 @@ const PromotionPopup = () => {
     const fetchPromotions = async () => {
       try {
         const response = await axiosCommon.get('/promotions/active/');
-
-        // Handle paginated response
         const promotions = response.data.results || response.data;
 
         if (Array.isArray(promotions) && promotions.length > 0) {
           const promo = promotions[0];
 
-          // Fix media URLs
           if (promo.image && !promo.image.startsWith('http')) {
             promo.image = `${BACKEND_BASE_URL}${promo.image.startsWith('/') ? '' : '/'}${promo.image}`;
           }
@@ -50,27 +47,27 @@ const PromotionPopup = () => {
   if (!promotion || !visible) return null;
 
   return (
-    <div className="promotion-popup">
-      <div className="promotion-content">
-        <button className="close-button" onClick={handleClose}>×</button>
-        <h3>{promotion.title}</h3>
+    <div className="promotion-popup-overlay">
+      <div className="promotion-popup">
+        <div className="promotion-content">
+          <button className="close-button" onClick={handleClose}>×</button>
+          <h3>{promotion.title}</h3>
 
-        {/* Render media if available */}
-        {promotion.image && (
-          <img src={promotion.image} alt={promotion.title} className="promo-image" />
-        )}
-        {promotion.video && (
-          <video controls className="promo-video">
-            <source src={promotion.video} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        )}
+          {promotion.image && (
+            <img src={promotion.image} alt={promotion.title} className="promo-image" />
+          )}
+          {promotion.video && (
+            <video controls className="promo-video">
+              <source src={promotion.video} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          )}
 
-        {/* Render HTML content */}
-        <div
-          className="promo-html"
-          dangerouslySetInnerHTML={{ __html: promotion.html_content }}
-        />
+          <div
+            className="promo-html"
+            dangerouslySetInnerHTML={{ __html: promotion.html_content }}
+          />
+        </div>
       </div>
     </div>
   );

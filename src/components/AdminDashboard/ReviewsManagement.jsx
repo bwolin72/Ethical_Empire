@@ -7,30 +7,37 @@ import 'react-toastify/dist/ReactToastify.css';
 const ReviewsManagement = () => {
   const [reviews, setReviews] = useState([]);
   const [replyMap, setReplyMap] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchReviews();
   }, []);
 
   const fetchReviews = async () => {
+    const toastId = toast.loading('Loading reviews...');
+    setLoading(true);
     try {
       const res = await axiosInstance.get('/reviews/admin/');
       const data = Array.isArray(res.data) ? res.data : [];
       setReviews(data);
+      toast.update(toastId, { render: '✅ Reviews loaded', type: 'success', isLoading: false, autoClose: 3000 });
     } catch (err) {
       console.error('[ReviewsManagement] Error fetching reviews:', err);
-      toast.error('❌ Failed to load reviews.');
+      toast.update(toastId, { render: '❌ Failed to load reviews', type: 'error', isLoading: false, autoClose: 3000 });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
+    const toastId = toast.loading('Deleting review...');
     try {
       await axiosInstance.delete(`/reviews/${id}/delete/`);
-      toast.success('🗑️ Review deleted.');
+      toast.update(toastId, { render: '🗑️ Review deleted.', type: 'success', isLoading: false, autoClose: 3000 });
       fetchReviews();
     } catch (err) {
       console.error('[ReviewsManagement] Error deleting review:', err);
-      toast.error('❌ Failed to delete review.');
+      toast.update(toastId, { render: '❌ Failed to delete review.', type: 'error', isLoading: false, autoClose: 3000 });
     }
   };
 
@@ -40,25 +47,27 @@ const ReviewsManagement = () => {
       toast.warning('⚠️ Reply cannot be empty.');
       return;
     }
+    const toastId = toast.loading('Sending reply...');
     try {
       await axiosInstance.patch(`/reviews/${id}/reply/`, { reply });
-      toast.success('✅ Reply sent.');
+      toast.update(toastId, { render: '✅ Reply sent.', type: 'success', isLoading: false, autoClose: 3000 });
       setReplyMap((prev) => ({ ...prev, [id]: '' }));
       fetchReviews();
     } catch (err) {
       console.error('[ReviewsManagement] Error sending reply:', err);
-      toast.error('❌ Failed to send reply.');
+      toast.update(toastId, { render: '❌ Failed to send reply.', type: 'error', isLoading: false, autoClose: 3000 });
     }
   };
 
   const handleApprove = async (id) => {
+    const toastId = toast.loading('Approving review...');
     try {
       await axiosInstance.patch(`/reviews/${id}/approve/`);
-      toast.success('✅ Review approved.');
+      toast.update(toastId, { render: '✅ Review approved.', type: 'success', isLoading: false, autoClose: 3000 });
       fetchReviews();
     } catch (err) {
       console.error('[ReviewsManagement] Error approving review:', err);
-      toast.error('❌ Failed to approve review.');
+      toast.update(toastId, { render: '❌ Failed to approve review.', type: 'error', isLoading: false, autoClose: 3000 });
     }
   };
 
@@ -68,10 +77,12 @@ const ReviewsManagement = () => {
 
   return (
     <div className="reviews-panel">
-      <ToastContainer position="top-right" />
+      <ToastContainer position="top-right" autoClose={3000} />
       <h2>Reviews Management</h2>
 
-      {Array.isArray(reviews) && reviews.length > 0 ? (
+      {loading ? (
+        <p>Loading...</p>
+      ) : Array.isArray(reviews) && reviews.length > 0 ? (
         reviews.map((review) => (
           <div className="review-card" key={review.id}>
             <p><strong>Service:</strong> {review.service_display}</p>

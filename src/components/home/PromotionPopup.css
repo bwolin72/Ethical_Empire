@@ -1,18 +1,22 @@
 /* Root container for the popup */
 .promotion-popup {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  background-color: #2b2b2b; /* Charcoal */
-  border: 2px solid #8b0000; /* Deep Burgundy */
+  top: 50%;
+  left: 50%;
+  width: 70vw;
+  height: 60vh;
+  transform: translate(-50%, -50%);
+  background-color: #2b2b2b;
+  border: 2px solid #8b0000;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  max-width: 400px;
-  width: 90%;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
   z-index: 1000;
-  animation: fadeInUp 0.5s ease-in-out;
   color: #f9f6f2;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  animation: popupBounceIn 0.6s ease-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Inner content styling */
@@ -20,35 +24,37 @@
   padding: 1.5rem;
   background-color: #8b0000;
   border-radius: 10px;
+  flex: 1;
+  overflow-y: auto;
   position: relative;
-  overflow: hidden;
 }
 
 /* Close button */
 .close-button {
   position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  font-size: 1.25rem;
+  top: 0.75rem;
+  right: 1rem;
+  font-size: 1.5rem;
   background: none;
   color: #fff;
   border: none;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: transform 0.2s ease, color 0.3s ease;
 }
 
 .close-button:hover {
   color: #ffd700;
+  transform: scale(1.2);
 }
 
 /* Title */
 .promotion-content h3 {
   margin-top: 0;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: #ffd700;
 }
 
-/* Text message fallback (if used) */
+/* Text message fallback */
 .promotion-content p {
   margin: 0.5rem 0 0;
   line-height: 1.5;
@@ -58,17 +64,21 @@
 /* Image styling */
 .promo-image {
   max-width: 100%;
+  max-height: 40vh;
   margin-top: 0.75rem;
   border-radius: 8px;
+  object-fit: contain;
 }
 
 /* Video styling */
 .promo-video {
   width: 100%;
   height: auto;
+  max-height: 40vh;
   margin-top: 0.75rem;
   border-radius: 8px;
   outline: none;
+  object-fit: contain;
 }
 
 /* Rendered HTML block */
@@ -93,26 +103,41 @@
   height: auto;
   margin-top: 0.75rem;
   border-radius: 6px;
+  object-fit: contain;
 }
 
-/* Fade-in animation */
-@keyframes fadeInUp {
+/* Bounce In Animation */
+@keyframes popupBounceIn {
   0% {
-    transform: translateY(30px);
+    transform: translate(-50%, -60%) scale(0.8);
     opacity: 0;
   }
-  100% {
-    transform: translateY(0px);
+  60% {
+    transform: translate(-50%, -52%) scale(1.05);
     opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Fade Out Animation (if needed) */
+@keyframes popupFadeOut {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -60%) scale(0.8);
+    opacity: 0;
   }
 }
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
   .promotion-popup {
-    bottom: 1rem;
-    right: 1rem;
-    max-width: 90%;
+    width: 90vw;
+    height: 70vh;
   }
 
   .promotion-content {
@@ -120,7 +145,7 @@
   }
 
   .promotion-content h3 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 
   .promotion-content p {
@@ -128,18 +153,14 @@
   }
 
   .close-button {
-    font-size: 1rem;
-    top: 0.3rem;
-    right: 0.5rem;
+    font-size: 1.25rem;
   }
 }
 
 @media (max-width: 480px) {
   .promotion-popup {
-    bottom: 0.5rem;
-    right: 0.5rem;
-    width: 95%;
-    border-radius: 10px;
+    width: 95vw;
+    height: 75vh;
   }
 
   .promotion-content {
@@ -152,5 +173,9 @@
 
   .promotion-content p {
     font-size: 0.9rem;
+  }
+
+  .close-button {
+    font-size: 1.1rem;
   }
 }
