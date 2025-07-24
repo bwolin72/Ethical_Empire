@@ -9,6 +9,7 @@ import axiosCommon from '../api/axiosCommon';
  * @param {'media'|'banner'} options.type - Type of media
  * @param {string|null} options.endpoint - Optional endpoint
  * @param {boolean|null} options.isActive - Filter by active status
+ * @param {boolean|null} options.isFeatured - Filter by featured flag
  * @param {boolean} options.autoFetch - Whether to auto-fetch
  * @param {number} options.pageSize - Items per page
  * @param {string} options.labelQuery - Optional search query for label
@@ -18,6 +19,7 @@ const useMediaFetcher = ({
   type = 'media',
   endpoint = null,
   isActive = true,
+  isFeatured = null,
   autoFetch = true,
   pageSize = 10,
   labelQuery = '',
@@ -33,7 +35,7 @@ const useMediaFetcher = ({
 
   const [debouncedQuery, setDebouncedQuery] = useState(labelQuery);
 
-  // Debounce logic for search
+  // Debounce logic for label search
   useEffect(() => {
     const delay = setTimeout(() => {
       setDebouncedQuery(labelQuery);
@@ -57,6 +59,7 @@ const useMediaFetcher = ({
         page_size: pageSize,
       };
       if (isActive !== null) params.is_active = isActive;
+      if (isFeatured !== null) params.is_featured = isFeatured;
       if (endpoint) params.endpoint = endpoint;
       if (debouncedQuery) params.search = debouncedQuery;
       if (fileType) params.file_type = fileType;
@@ -75,7 +78,7 @@ const useMediaFetcher = ({
     } finally {
       setLoading(false);
     }
-  }, [type, endpoint, isActive, page, pageSize, debouncedQuery, fileType]);
+  }, [type, endpoint, isActive, isFeatured, page, pageSize, debouncedQuery, fileType]);
 
   useEffect(() => {
     if (autoFetch) fetchMedia();
