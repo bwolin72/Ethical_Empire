@@ -10,8 +10,11 @@ const UpdatePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const handleRequest = async () => {
-    // Validation checks
     if (!currentPassword || !newPassword || !confirmPassword) {
       return toast.warn("⚠️ Please fill out all fields.");
     }
@@ -51,32 +54,62 @@ const UpdatePassword = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
       <h2>Change Password</h2>
 
-      <input
-        type="password"
-        placeholder="Current Password"
-        value={currentPassword}
-        onChange={(e) => setCurrentPassword(e.target.value)}
-        required
-        aria-label="Current Password"
-      />
+      {/* Current Password */}
+      <div className="password-field">
+        <input
+          type={showCurrent ? "text" : "password"}
+          placeholder="Current Password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          required
+          aria-label="Current Password"
+        />
+        <button
+          type="button"
+          className="toggle-btn"
+          onClick={() => setShowCurrent((prev) => !prev)}
+        >
+          {showCurrent ? "🙈" : "👁️"}
+        </button>
+      </div>
 
-      <input
-        type="password"
-        placeholder="New Password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        required
-        aria-label="New Password"
-      />
+      {/* New Password */}
+      <div className="password-field">
+        <input
+          type={showNew ? "text" : "password"}
+          placeholder="New Password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          required
+          aria-label="New Password"
+        />
+        <button
+          type="button"
+          className="toggle-btn"
+          onClick={() => setShowNew((prev) => !prev)}
+        >
+          {showNew ? "🙈" : "👁️"}
+        </button>
+      </div>
 
-      <input
-        type="password"
-        placeholder="Confirm New Password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-        required
-        aria-label="Confirm New Password"
-      />
+      {/* Confirm New Password */}
+      <div className="password-field">
+        <input
+          type={showConfirm ? "text" : "password"}
+          placeholder="Confirm New Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          aria-label="Confirm New Password"
+        />
+        <button
+          type="button"
+          className="toggle-btn"
+          onClick={() => setShowConfirm((prev) => !prev)}
+        >
+          {showConfirm ? "🙈" : "👁️"}
+        </button>
+      </div>
 
       <button className="btn" onClick={handleRequest} disabled={loading}>
         {loading ? "Submitting..." : "Submit Request"}

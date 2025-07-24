@@ -76,7 +76,7 @@ const ResetPassword = () => {
             className="toggle-password"
             onClick={() => setPasswordVisible((v) => !v)}
           >
-            {passwordVisible ? 'Hide' : 'Show'}
+            {passwordVisible ? '🙈' : '👁️'}
           </button>
         </div>
 

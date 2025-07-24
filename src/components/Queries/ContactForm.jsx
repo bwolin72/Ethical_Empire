@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axiosCommon from '../../api/axiosCommon';
 import './ContactForm.css';
 import logo from '../../assets/logo.png';
+import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 
 const enquiryOptions = ['', 'Services', 'Support', 'General', 'Feedback'];
 const serviceOptions = [
@@ -12,8 +13,10 @@ const serviceOptions = [
 const ContactForm = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', country: '', region: '',
-    enquiry_type: '', service_type: '', event_date: '', description: ''
+    name: '', email: '', phone: '',
+    country: '', region: '',
+    enquiry_type: '', service_type: '',
+    event_date: '', description: ''
   });
   const [statusMessage, setStatusMessage] = useState('');
 
@@ -34,8 +37,10 @@ const ContactForm = () => {
 
       setStatusMessage('✅ Message sent successfully!');
       setFormData({
-        name: '', email: '', phone: '', country: '', region: '',
-        enquiry_type: '', service_type: '', event_date: '', description: ''
+        name: '', email: '', phone: '',
+        country: '', region: '',
+        enquiry_type: '', service_type: '',
+        event_date: '', description: ''
       });
     } catch (error) {
       const errMsg = error.response?.data || '❌ Network error. Try again.';
@@ -57,7 +62,7 @@ const ContactForm = () => {
       <main className="contact-grid">
         <section className="contact-form-section">
           <form onSubmit={handleSubmit} noValidate>
-            {['name', 'email', 'phone', 'country', 'region'].map((field) => (
+            {['name', 'email', 'phone'].map((field) => (
               <div className="form-group" key={field}>
                 <input
                   type={field === 'email' ? 'email' : 'text'}
@@ -71,6 +76,25 @@ const ContactForm = () => {
                 <label htmlFor={field}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
               </div>
             ))}
+
+            <div className="form-group">
+              <CountryDropdown
+                value={formData.country}
+                onChange={(val) => setFormData(prev => ({ ...prev, country: val, region: '' }))}
+                classes="country-dropdown"
+              />
+              <label>Country *</label>
+            </div>
+
+            <div className="form-group">
+              <RegionDropdown
+                country={formData.country}
+                value={formData.region}
+                onChange={(val) => setFormData(prev => ({ ...prev, region: val }))}
+                classes="region-dropdown"
+              />
+              <label>Region / State *</label>
+            </div>
 
             <div className="form-group">
               <select
