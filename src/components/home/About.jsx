@@ -10,7 +10,7 @@ import {
 import { Link } from 'react-router-dom';
 
 import useMediaFetcher from '../../hooks/useMediaFetcher';
-import MediaCard from '../context/MediaCards';
+import MediaCard from '../context/MediaCard';
 import BannerCards from '../context/BannerCards';
 import publicAxios from '../../api/publicAxios';
 

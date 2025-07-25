@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import axiosCommon from '../../api/axiosCommon';
 import BannerCards from '../context/BannerCards';
-import MediaCard from '../context/MediaCards';
+import MediaCard from '../context/MediaCard';
 import FadeInSection from '../FadeInSection';
 import './EethmHome.css';
 

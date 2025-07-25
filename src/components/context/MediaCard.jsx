@@ -19,7 +19,7 @@ import './MediaCard.css';
  * @param {string} [props.fileType] - Optional MIME filter like 'image/', 'video/'
  * @param {string} [props.labelQuery] - Optional search keyword for label
  */
-const MediaCards = ({
+const MediaCard = ({
   endpoint,
   type = 'media',
   title,
@@ -108,4 +108,4 @@ const MediaCards = ({
   );
 };
 
-export default MediaCards;
+export default MediaCard;
