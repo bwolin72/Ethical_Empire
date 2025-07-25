@@ -1,6 +1,6 @@
 // src/components/context/MediaCards.jsx
 
-import React from 'react';
+import React, { useState } from 'react';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import MediaCard from './MediaCard';
 import MediaSkeleton from './MediaSkeleton';
@@ -29,6 +29,8 @@ const MediaCards = ({
   fileType = '',
   labelQuery = '',
 }) => {
+  const [previewMedia, setPreviewMedia] = useState(null);
+
   const {
     media: mediaItems,
     loading,
@@ -37,11 +39,21 @@ const MediaCards = ({
     type,
     endpoint,
     isActive,
+    isFeatured,
     autoFetch: true,
     pageSize: 20,
     fileType,
     labelQuery,
+  });
+
+  console.log('📦 MediaCards fetch debug:', {
+    type,
+    endpoint,
+    isActive,
     isFeatured,
+    fileType,
+    labelQuery,
+    mediaCount: mediaItems.length,
   });
 
   return (
@@ -59,16 +71,39 @@ const MediaCards = ({
           <p className="media-error">{error}</p>
         ) : mediaItems.length === 0 ? (
           <p className="media-card-empty">
-            📭 No media uploaded yet{endpoint ? ` for ${endpoint}` : ''}.
+            📭 No media uploaded{endpoint ? ` for ${endpoint}` : ''}.
           </p>
         ) : (
           mediaItems.map((media) => (
-            <div key={`media-${media.id ?? media.url?.full ?? Math.random()}`} className="media-card-wrapper">
+            <div
+              key={media.id || media.url?.full || media.label}
+              className="media-card-wrapper"
+              onClick={() => setPreviewMedia(media)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setPreviewMedia(media)}
+            >
               <MediaCard media={media} fullWidth={fullWidth} />
             </div>
           ))
         )}
       </div>
+
+      {/* === Modal Preview === */}
+      {previewMedia && (
+        <div className="media-modal" onClick={() => setPreviewMedia(null)}>
+          <div className="media-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-button" onClick={() => setPreviewMedia(null)}>✖</button>
+            <img
+              src={previewMedia.url?.full}
+              alt={previewMedia.label || 'Media Preview'}
+              className="modal-media-image"
+              onError={(e) => (e.target.src = '/placeholder.jpg')}
+            />
+            <p className="modal-media-caption">{previewMedia.label}</p>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
