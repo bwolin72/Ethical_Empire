@@ -1,11 +1,26 @@
 :root {
+  /* Brand Colors */
   --deep-burgundy: #6e1414;
   --royal-navy: #1a2a6c;
   --muted-gold: #d4af37;
   --forest-green: #228B22;
+
+  /* Neutral Palette */
   --charcoal-gray: #2e2e2e;
+  --medium-gray: #cccccc;
   --light-gray: #f8f8f8;
+  --off-white: #fafafa;
   --white: #ffffff;
+
+  /* Status Colors */
+  --error-red: #cc0000;
+  --warning-orange: #ffa500;
+  --success-green: #4CAF50;
+
+  /* Shadow Styles */
+  --box-shadow-light: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --box-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --box-shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 /* Page Container */
@@ -38,7 +53,7 @@
 .controls select {
   padding: 0.5rem 1rem;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--medium-gray);
   border-radius: 8px;
   flex: 1;
   min-width: 200px;
@@ -51,7 +66,7 @@
   background-color: var(--white);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--box-shadow-light);
 }
 
 .booking-table thead {
@@ -68,7 +83,7 @@
 }
 
 .booking-table tr:hover {
-  background-color: #fafafa;
+  background-color: var(--off-white);
 }
 
 .completed-row {
@@ -155,7 +170,7 @@
   border-radius: 12px;
   max-width: 600px;
   width: 95%;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-heavy);
   animation: fadeIn 0.3s ease;
 }
 
@@ -174,7 +189,7 @@
   margin-bottom: 1rem;
   padding: 0.6rem 1rem;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--medium-gray);
   border-radius: 8px;
   background-color: var(--light-gray);
   box-sizing: border-box;
@@ -296,7 +311,7 @@
     margin-bottom: 1.5rem;
     background-color: var(--white);
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--box-shadow-light);
     padding: 1rem;
     overflow: hidden;
   }

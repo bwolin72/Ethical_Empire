@@ -3,7 +3,7 @@ import axiosInstance from "../../api/axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import BannerCards from "../context/BannerCards";
-import MediaCard from "../context/MediaCards";
+import MediaCards from "../../context/MediaCards";
 import FadeInSection from "../FadeInSection";
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
@@ -192,7 +192,7 @@ const UserPage = () => {
               <div className="gallery-grid">
                 {media.map((item, idx) => (
                   <FadeInSection key={idx}>
-                    <MediaCard media={item} />
+                    <MediaCards media={item} />
                   </FadeInSection>
                 ))}
               </div>

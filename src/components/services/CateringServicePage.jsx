@@ -3,7 +3,7 @@ import './catering.custom.css';
 import { Card, CardContent } from '../../components/ui/card';
 import { motion } from 'framer-motion';
 import publicAxios from '../../api/publicAxios';
-import MediaCards from '../context/MediaCards'; // ✅ NEW reusable version
+import MediaCards from '../context/MediaCards';
 import BannerCards from '../context/BannerCards';
 import { useNavigate } from 'react-router-dom';
 
@@ -77,7 +77,13 @@ const CateringPage = () => {
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
-            <MediaCards endpoint="CateringPage" type="media" title="Creative Catering Ideas" />
+            <MediaCards
+              endpoint="CateringPage"
+              type="media"
+              title="Creative Catering Ideas"
+              isFeatured={true}
+              isActive={true}
+            />
           </div>
           <div className="creative-text">
             <h3>Creative Catering Ideas</h3>

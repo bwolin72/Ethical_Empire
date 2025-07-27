@@ -1,3 +1,7 @@
+/**
+ * Improved BookingManagement component with responsive layout,
+ * consistent input styling, and aligned with updated backend.
+ */
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './BookingManagement.css';
@@ -85,7 +89,6 @@ const BookingManagement = () => {
 
   const saveEdit = async () => {
     try {
-      // Update core fields
       await axiosInstance.patch(
         `/bookings/admin/bookings/${editBooking.id}/update/`,
         {
@@ -100,7 +103,6 @@ const BookingManagement = () => {
         { headers }
       );
 
-      // Update status separately
       await axiosInstance.patch(
         `/bookings/admin/bookings/${editBooking.id}/status/`,
         { status: editBooking.status },
@@ -150,34 +152,36 @@ const BookingManagement = () => {
         </select>
       </div>
 
-      <table className="booking-table">
-        <thead>
-          <tr>
-            <th>Name</th><th>Email</th><th>Phone</th>
-            <th>Services</th><th>Event Date</th><th>Booking Time</th>
-            <th>Address</th><th>Message</th><th>Status</th><th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentBookings.map((b) => (
-            <tr key={b.id} className={b.status === 'completed' ? 'completed-row' : ''}>
-              <td>{b.name}</td>
-              <td>{b.email}</td>
-              <td>{b.phone}</td>
-              <td>{b.services?.map(s => s.name).join(', ') || '-'}</td>
-              <td>{b.event_date ? new Date(b.event_date).toLocaleDateString() : '-'}</td>
-              <td>{new Date(b.created_at).toLocaleString()}</td>
-              <td>{b.address}</td>
-              <td>{b.message || '-'}</td>
-              <td>{b.status}</td>
-              <td>
-                <button onClick={() => handleEdit(b)}>✏️</button>
-                <button onClick={() => deleteBooking(b.id)} className="delete-btn">🗑</button>
-              </td>
+      <div className="table-responsive">
+        <table className="booking-table">
+          <thead>
+            <tr>
+              <th>Name</th><th>Email</th><th>Phone</th>
+              <th>Services</th><th>Event Date</th><th>Created</th>
+              <th>Address</th><th>Message</th><th>Status</th><th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentBookings.map((b) => (
+              <tr key={b.id} className={b.status === 'completed' ? 'completed-row' : ''}>
+                <td>{b.name}</td>
+                <td>{b.email}</td>
+                <td>{b.phone}</td>
+                <td>{b.services?.map(s => s.name).join(', ') || '-'}</td>
+                <td>{b.event_date ? new Date(b.event_date).toLocaleDateString() : '-'}</td>
+                <td>{new Date(b.created_at).toLocaleString()}</td>
+                <td>{b.address}</td>
+                <td>{b.message || '-'}</td>
+                <td>{b.status}</td>
+                <td>
+                  <button onClick={() => handleEdit(b)}>✏️</button>
+                  <button onClick={() => deleteBooking(b.id)} className="delete-btn">🗑</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="pagination">
         {Array.from({ length: totalPages }, (_, i) => (
@@ -195,58 +199,62 @@ const BookingManagement = () => {
         <div className="modal">
           <div className="modal-content">
             <h3>Edit Booking</h3>
-            <input
-              value={editBooking.name}
-              onChange={e => handleEditChange('name', e.target.value)}
-              placeholder="Name"
-            />
-            <input
-              value={editBooking.email}
-              onChange={e => handleEditChange('email', e.target.value)}
-              placeholder="Email"
-            />
-            <input
-              value={editBooking.phone}
-              onChange={e => handleEditChange('phone', e.target.value)}
-              placeholder="Phone"
-            />
-            <input
-              value={editBooking.address}
-              onChange={e => handleEditChange('address', e.target.value)}
-              placeholder="Address"
-            />
-            <textarea
-              value={editBooking.message || ''}
-              onChange={e => handleEditChange('message', e.target.value)}
-              placeholder="Message"
-            />
-            <input
-              type="date"
-              value={editBooking.event_date?.slice(0, 10) || ''}
-              onChange={e => handleEditChange('event_date', e.target.value)}
-            />
-            <select
-              value={editBooking.status}
-              onChange={e => handleEditChange('status', e.target.value)}
-            >
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="completed">Completed</option>
-            </select>
+            <div className="form-grid">
+              <input
+                value={editBooking.name}
+                onChange={e => handleEditChange('name', e.target.value)}
+                placeholder="Name"
+              />
+              <input
+                value={editBooking.email}
+                onChange={e => handleEditChange('email', e.target.value)}
+                placeholder="Email"
+              />
+              <input
+                value={editBooking.phone}
+                onChange={e => handleEditChange('phone', e.target.value)}
+                placeholder="Phone"
+              />
+              <input
+                value={editBooking.address}
+                onChange={e => handleEditChange('address', e.target.value)}
+                placeholder="Address"
+              />
+              <input
+                type="date"
+                value={editBooking.event_date?.slice(0, 10) || ''}
+                onChange={e => handleEditChange('event_date', e.target.value)}
+              />
+              <select
+                value={editBooking.status}
+                onChange={e => handleEditChange('status', e.target.value)}
+              >
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="completed">Completed</option>
+              </select>
+              <textarea
+                value={editBooking.message || ''}
+                onChange={e => handleEditChange('message', e.target.value)}
+                placeholder="Message"
+              />
+            </div>
 
             <div className="services-list">
               <label>Services:</label>
-              {services.map(service => (
-                <div key={service.id}>
-                  <input
-                    type="checkbox"
-                    checked={editBooking.services.includes(service.id)}
-                    onChange={() => handleServiceToggle(service.id)}
-                  />
-                  {service.name}
-                </div>
-              ))}
+              <div className="checkbox-grid">
+                {services.map(service => (
+                  <label key={service.id}>
+                    <input
+                      type="checkbox"
+                      checked={editBooking.services.includes(service.id)}
+                      onChange={() => handleServiceToggle(service.id)}
+                    />
+                    {service.name}
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div className="modal-actions">

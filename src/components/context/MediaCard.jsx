@@ -1,111 +1,35 @@
-// src/components/context/MediaCards.jsx
-
-import React, { useState } from 'react';
-import useMediaFetcher from '../../hooks/useMediaFetcher';
-import MediaCard from './MediaCard';
-import MediaSkeleton from './MediaSkeleton';
+import React from 'react';
 import './MediaCard.css';
 
 /**
- * Displays a scrollable list of media or banner cards.
+ * Renders an individual media card
  *
  * @param {Object} props
- * @param {string} props.endpoint - The endpoint this media belongs to (required for media type)
- * @param {'media'|'banner'} [props.type='media'] - Type of content
- * @param {string} [props.title] - Optional title heading
- * @param {boolean} [props.fullWidth=false] - Whether the scroll container spans full width
- * @param {boolean|null} [props.isActive=true] - Filter by active status
- * @param {boolean} [props.isFeatured=false] - Whether to show only featured items
- * @param {string} [props.fileType] - Optional MIME filter like 'image/', 'video/'
- * @param {string} [props.labelQuery] - Optional search keyword for label
+ * @param {Object} props.media - The media object
+ * @param {boolean} [props.fullWidth=false] - Whether the card spans full width
  */
-const MediaCard = ({
-  endpoint,
-  type = 'media',
-  title,
-  fullWidth = false,
-  isActive = true,
-  isFeatured = false,
-  fileType = '',
-  labelQuery = '',
-}) => {
-  const [previewMedia, setPreviewMedia] = useState(null);
-
-  const {
-    media: mediaItems,
-    loading,
-    error,
-  } = useMediaFetcher({
-    type,
-    endpoint,
-    isActive,
-    isFeatured,
-    autoFetch: true,
-    pageSize: 20,
-    fileType,
-    labelQuery,
-  });
-
-  console.log('📦 MediaCards fetch debug:', {
-    type,
-    endpoint,
-    isActive,
-    isFeatured,
-    fileType,
-    labelQuery,
-    mediaCount: mediaItems.length,
-  });
+const SingleMediaCard = ({ media, fullWidth = false }) => {
+  const thumbnail = media.url?.thumbnail || media.url?.full || '';
+  const isVideo = media.file_type?.includes('video');
 
   return (
-    <section className="media-cards-container">
-      {title && <h2 className="media-cards-title">{title}</h2>}
-
-      <div className={`media-cards-scroll-wrapper ${fullWidth ? 'full' : ''}`}>
-        {loading ? (
-          Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="media-card-wrapper">
-              <MediaSkeleton />
-            </div>
-          ))
-        ) : error ? (
-          <p className="media-error">{error}</p>
-        ) : mediaItems.length === 0 ? (
-          <p className="media-card-empty">
-            📭 No media uploaded{endpoint ? ` for ${endpoint}` : ''}.
-          </p>
-        ) : (
-          mediaItems.map((media) => (
-            <div
-              key={media.id || media.url?.full || media.label}
-              className="media-card-wrapper"
-              onClick={() => setPreviewMedia(media)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && setPreviewMedia(media)}
-            >
-              <MediaCard media={media} fullWidth={fullWidth} />
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* === Modal Preview === */}
-      {previewMedia && (
-        <div className="media-modal" onClick={() => setPreviewMedia(null)}>
-          <div className="media-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setPreviewMedia(null)}>✖</button>
-            <img
-              src={previewMedia.url?.full}
-              alt={previewMedia.label || 'Media Preview'}
-              className="modal-media-image"
-              onError={(e) => (e.target.src = '/placeholder.jpg')}
-            />
-            <p className="modal-media-caption">{previewMedia.label}</p>
-          </div>
-        </div>
+    <div className={`media-card ${fullWidth ? 'full' : ''}`}>
+      {isVideo ? (
+        <video className="media-thumb" controls>
+          <source src={media.url?.full} type={media.file_type} />
+          Your browser does not support the video tag.
+        </video>
+      ) : (
+        <img
+          src={thumbnail}
+          alt={media.label || 'Media'}
+          className="media-thumb"
+          onError={(e) => (e.target.src = '/placeholder.jpg')}
+        />
       )}
-    </section>
+      <div className="media-label">{media.label}</div>
+    </div>
   );
 };
 
-export default MediaCard;
+export default SingleMediaCard;

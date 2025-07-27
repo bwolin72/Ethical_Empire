@@ -52,12 +52,6 @@ const UserRoleManager = () => {
     fetchUsers(activeTab);
   }, [activeTab]);
 
-  const handleTabChange = (role) => {
-    setActiveTab(role);
-    setSelected([]);
-    setMessage('');
-  };
-
   const toggleSelection = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
@@ -145,7 +139,7 @@ const UserRoleManager = () => {
 
   return (
     <div style={{ backgroundColor: palette.cream }} className="p-4 md:p-8 min-h-screen">
-      <Tabs defaultValue={activeTab} value={activeTab} onValueChange={handleTabChange}>
+      <Tabs defaultValue="admin" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex gap-3 border-b pb-3 mb-5 overflow-x-auto">
           {roles.map((role) => (
             <TabsTrigger
@@ -162,102 +156,100 @@ const UserRoleManager = () => {
           ))}
         </TabsList>
 
-        <TabsContent value={activeTab}>
-          {loading ? (
-            <p className="text-center text-gray-500">Loading users...</p>
-          ) : (
-            <>
-              {activeTab === 'worker' && (
-                <div className="flex gap-3 mb-6 items-center">
-                  <Input
-                    type="email"
-                    value={inviteEmail}
-                    onChange={(e) => setInviteEmail(e.target.value)}
-                    placeholder="Enter worker email"
-                  />
-                  <Button
-                    onClick={handleInviteWorker}
-                    disabled={submitting || !inviteEmail.trim()}
-                    className="bg-[#4B0F24] text-white"
-                  >
-                    Invite Worker
-                  </Button>
-                </div>
-              )}
+        {roles.map((role) => (
+          <TabsContent key={role.value} value={role.value}>
+            {activeTab === 'worker' && (
+              <div className="flex gap-3 mb-6 items-center">
+                <Input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="Enter worker email"
+                />
+                <Button
+                  onClick={handleInviteWorker}
+                  disabled={submitting || !inviteEmail.trim()}
+                  className="bg-[#4B0F24] text-white"
+                >
+                  Invite Worker
+                </Button>
+              </div>
+            )}
 
-              {users.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {users.map((user) => (
-                    <Card key={user.id} className="rounded-2xl border shadow-md p-4 bg-white">
-                      <CardContent className="flex items-start gap-4 justify-between">
-                        <Checkbox
-                          checked={selected.includes(user.id)}
-                          onCheckedChange={() => toggleSelection(user.id)}
-                        />
-                        <div className="flex-grow text-gray-800">
-                          <h2 className="font-semibold text-lg">{user.name}</h2>
-                          <p className="text-sm">{user.email}</p>
-                          <p className="text-xs uppercase">{user.role}</p>
-                          <p className={`text-xs mt-1 ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
-                            {user.is_active ? 'Active' : 'Inactive'}
-                          </p>
-                        </div>
-                        <Button
-                          onClick={() => handleToggleActive(user.id)}
-                          className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
-                        >
-                          {user.is_active ? 'Deactivate' : 'Activate'}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-gray-400 mt-8">No users found for this role.</p>
-              )}
-
-              <div className="mt-6 space-y-4">
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    onClick={handleDelete}
-                    disabled={submitting || !selected.length}
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                  >
-                    Delete Selected
-                  </Button>
-
-                  {activeTab === 'user' && (
-                    <>
+            {loading ? (
+              <p className="text-center text-gray-500">Loading users...</p>
+            ) : users.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {users.map((user) => (
+                  <Card key={user.id} className="rounded-2xl border shadow-md p-4 bg-white">
+                    <CardContent className="flex items-start gap-4 justify-between">
+                      <Checkbox
+                        checked={selected.includes(user.id)}
+                        onCheckedChange={() => toggleSelection(user.id)}
+                      />
+                      <div className="flex-grow text-gray-800">
+                        <h2 className="font-semibold text-lg">{user.name}</h2>
+                        <p className="text-sm">{user.email}</p>
+                        <p className="text-xs uppercase">{user.role}</p>
+                        <p className={`text-xs mt-1 ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
+                          {user.is_active ? 'Active' : 'Inactive'}
+                        </p>
+                      </div>
                       <Button
-                        onClick={handleSendMsg}
-                        disabled={submitting || !message.trim() || !selected.length}
-                        className="bg-[#228B22] hover:bg-green-700 text-white"
+                        onClick={() => handleToggleActive(user.id)}
+                        className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
                       >
-                        Send Message
+                        {user.is_active ? 'Deactivate' : 'Activate'}
                       </Button>
-                      <Button
-                        onClick={handleOffer}
-                        disabled={submitting || !message.trim() || !selected.length}
-                        className="bg-[#D4AF37] hover:bg-yellow-500 text-white"
-                      >
-                        Send Offer
-                      </Button>
-                    </>
-                  )}
-                </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-gray-400 mt-8">No users found for this role.</p>
+            )}
+
+            <div className="mt-6 space-y-4">
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  onClick={handleDelete}
+                  disabled={submitting || !selected.length}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete Selected
+                </Button>
 
                 {activeTab === 'user' && (
-                  <Textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Write your message or offer..."
-                    className="w-full p-3 border rounded-xl shadow-sm"
-                  />
+                  <>
+                    <Button
+                      onClick={handleSendMsg}
+                      disabled={submitting || !message.trim() || !selected.length}
+                      className="bg-[#228B22] hover:bg-green-700 text-white"
+                    >
+                      Send Message
+                    </Button>
+                    <Button
+                      onClick={handleOffer}
+                      disabled={submitting || !message.trim() || !selected.length}
+                      className="bg-[#D4AF37] hover:bg-yellow-500 text-white"
+                    >
+                      Send Offer
+                    </Button>
+                  </>
                 )}
               </div>
-            </>
-          )}
-        </TabsContent>
+
+              {activeTab === 'user' && (
+                <Textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Write your message or offer..."
+                  className="w-full p-3 border rounded-xl shadow-sm"
+                />
+              )}
+            </div>
+          </TabsContent>
+        ))}
       </Tabs>
     </div>
   );

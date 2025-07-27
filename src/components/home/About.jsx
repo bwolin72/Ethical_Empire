@@ -10,7 +10,8 @@ import {
 import { Link } from 'react-router-dom';
 
 import useMediaFetcher from '../../hooks/useMediaFetcher';
-import MediaCard from '../context/MediaCard';
+import MediaCards from '../context/MediaCards'; // scrollable list
+import MediaCard from '../context/MediaCard'; // single card display
 import BannerCards from '../context/BannerCards';
 import publicAxios from '../../api/publicAxios';
 
@@ -123,7 +124,13 @@ const About = () => {
       </section>
 
       {/* === Featured Gallery === */}
-      <MediaCard endpoint="About" type="featured" title="Our Work in Action" fullWidth />
+      <MediaCards
+        endpoint="About"
+        type="media"
+        title="Our Work in Action"
+        fullWidth
+        isFeatured={true}
+      />
 
       {/* === Our Commitment === */}
       <section className="about-text px-4 mt-12">
