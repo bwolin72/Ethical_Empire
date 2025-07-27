@@ -3,7 +3,7 @@ import axiosInstance from "../../api/axiosInstance";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import BannerCards from "../context/BannerCards";
-import MediaCards from "../../context/MediaCards";
+import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
