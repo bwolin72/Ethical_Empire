@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
+import ProfileAvatar from "./ProfileAvatar";
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
 
@@ -100,15 +101,12 @@ const UserPage = () => {
           <button onClick={toggleDarkMode} className="dark-toggle">
             {darkMode ? "☀️ Light" : "🌙 Dark"}
           </button>
-          <button
-            className="profile-icon"
-            title="Account Settings"
-            onClick={() => navigate("/account")}
-          >
-            👤
-          </button>
         </div>
       </header>
+
+      <FadeInSection>
+        <ProfileAvatar profile={profile} onClick={() => navigate("/account")} />
+      </FadeInSection>
 
       <p className="intro-text">Presenting Asaase Band</p>
 
