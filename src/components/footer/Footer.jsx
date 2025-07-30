@@ -5,7 +5,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import axiosCommon from '../../api/axiosCommon';
 import './Footer.css';
 
-const SITE_KEY = process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY;
+const SITE_KEY = process.env.REACT_APP_RECAPTCHA_PUBLIC_KEY;
 
 function Footer() {
   const [email, setEmail] = useState('');
@@ -18,8 +18,16 @@ function Footer() {
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return toast.error('Please enter an email address.');
-    if (!captchaToken) return toast.error('Please complete the reCAPTCHA.');
+
+    if (!email) {
+      toast.error('Please enter an email address.');
+      return;
+    }
+
+    if (!captchaToken) {
+      toast.error('Please complete the reCAPTCHA.');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -27,6 +35,7 @@ function Footer() {
         email,
         token: captchaToken,
       });
+
       toast.success('✅ Please check your email to confirm your subscription.');
       setEmail('');
       setCaptchaToken('');
@@ -69,7 +78,7 @@ function Footer() {
           <p>Phone: <a href="tel:+233553424865">+233 55 342 4865</a></p>
         </div>
 
-        {/* Newsletter */}
+        {/* Newsletter Signup */}
         <div className="footer-section newsletter">
           <h4>Subscribe to Our Newsletter</h4>
           <form onSubmit={handleNewsletterSubmit}>
@@ -103,7 +112,7 @@ function Footer() {
         </div>
       </div>
 
-      {/* Bottom Line */}
+      {/* Footer Bottom */}
       <div className="footer-bottom">
         <p>&copy; {new Date().getFullYear()} Ethical Empire. All rights reserved.</p>
       </div>

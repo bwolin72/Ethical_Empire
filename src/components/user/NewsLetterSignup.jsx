@@ -1,4 +1,3 @@
-// src/components/newsletter/NewsletterSignup.jsx
 import { useState, useRef } from 'react';
 import publicAxios from '../../api/publicAxios';
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -6,7 +5,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './newsletter.css';
 
-const SITE_KEY = process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY;
+// ✅ Use the correct env variable name
+const SITE_KEY = process.env.REACT_APP_RECAPTCHA_PUBLIC_KEY;
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('');
