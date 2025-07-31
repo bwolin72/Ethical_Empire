@@ -1,5 +1,3 @@
-// src/components/Booking/BookingForm.jsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
@@ -22,8 +20,11 @@ const BookingForm = () => {
     name: '',
     email: '',
     phone: '',
-    event_date: null,
+    country: '',
+    state_or_region: '',
+    venue_name: '',
     address: '',
+    event_date: null,
     message: '',
     services: [],
   });
@@ -32,7 +33,6 @@ const BookingForm = () => {
   const [showServices, setShowServices] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Autofill name/email for logged-in users
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({
@@ -101,8 +101,11 @@ const BookingForm = () => {
       name: user?.full_name || '',
       email: user?.email || '',
       phone: '',
-      event_date: null,
+      country: '',
+      state_or_region: '',
+      venue_name: '',
       address: '',
+      event_date: null,
       message: '',
       services: [],
     });
@@ -113,26 +116,32 @@ const BookingForm = () => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    if (!isAuthenticated) {
-      toast.error('You must be logged in to submit a booking.', { autoClose: 3000 });
-      return;
-    }
+    const {
+      name, email, phone, country, state_or_region,
+      venue_name, address, event_date, services
+    } = formData;
 
-    const { name, email, phone, event_date, address, services } = formData;
-    if (!name || !email || !phone || !event_date || !address || services.length === 0) {
+    // Basic validation
+    if (
+      !isAuthenticated ||
+      !name || !email || !phone || !country || !state_or_region ||
+      !venue_name || !address || !event_date || services.length === 0
+    ) {
       toast.error('Please complete all required fields and select at least one service.', { autoClose: 3000 });
       return;
     }
 
-    if (!phone.startsWith('+233') || phone.length < 13) {
-      toast.error('Please enter a valid Ghanaian phone number (e.g. +233XXXXXXXXX)', { autoClose: 3000 });
+    // Phone validation (international)
+    if (!/^\+\d{7,15}$/.test(phone)) {
+      toast.error('Please enter a valid international phone number.', { autoClose: 3000 });
       return;
     }
 
     setIsSubmitting(true);
+
     const payload = {
       ...formData,
-      event_date: formData.event_date?.toISOString().split('T')[0],
+      event_date: event_date?.toISOString().split('T')[0],
     };
 
     try {
@@ -160,24 +169,23 @@ const BookingForm = () => {
     <div className={`booking-page ${darkMode ? 'dark' : 'light'}`}>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
       <div className="booking-wrapper">
-        {/* Left Form */}
         <form onSubmit={handleSubmit} className="booking-form" noValidate>
           <h2>Book Your Event</h2>
 
-          {['name', 'email', 'address'].map((field) => (
-            <div className="form-group" key={field}>
-              <label htmlFor={field}>
-                {field === 'email'
-                  ? 'Email Address'
-                  : field === 'address'
-                  ? 'Event Venue'
-                  : 'Full Name'}
-              </label>
+          {[{ id: 'name', label: 'Full Name' },
+            { id: 'email', label: 'Email Address', type: 'email' },
+            { id: 'country', label: 'Country' },
+            { id: 'state_or_region', label: 'State or Region' },
+            { id: 'venue_name', label: 'Venue Name (Alias)' },
+            { id: 'address', label: 'Full Address / Directions' }
+          ].map(({ id, label, type = 'text' }) => (
+            <div className="form-group" key={id}>
+              <label htmlFor={id}>{label}</label>
               <input
-                id={field}
-                name={field}
-                type={field === 'email' ? 'email' : 'text'}
-                value={formData[field]}
+                id={id}
+                name={id}
+                type={type}
+                value={formData[id]}
                 onChange={handleChange}
                 required
               />
@@ -192,7 +200,7 @@ const BookingForm = () => {
               onChange={handlePhoneChange}
               inputProps={{ name: 'phone', required: true }}
               enableSearch
-              disableDropdown={false}
+              international
             />
           </div>
 
@@ -237,7 +245,7 @@ const BookingForm = () => {
                         checked={formData.services.includes(service.id)}
                         onChange={handleChange}
                       />
-                      {service.name} — GH₵{service.price}
+                      {service.name}
                     </label>
                   ))
                 )}
@@ -261,7 +269,6 @@ const BookingForm = () => {
           </button>
         </form>
 
-        {/* Right Branding/Animation */}
         <div className="booking-right-panel">
           <img src={logo} alt="Ethical Multimedia Logo" className="right-logo" />
           <h2>Ethical Multimedia GH</h2>

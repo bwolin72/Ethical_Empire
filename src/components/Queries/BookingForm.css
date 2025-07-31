@@ -309,3 +309,45 @@ textarea:focus,
     padding: 0.7rem 1rem;
   }
 }
+
+/* === Booking Wrapper Layout === */
+.booking-wrapper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem 1rem;
+  flex-wrap: wrap;
+}
+
+.booking-image {
+  flex: 1 1 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.booking-image img {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* === Responsive Behavior === */
+@media (max-width: 768px) {
+  .booking-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .booking-image,
+  .booking-form-container {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .booking-form-container {
+    margin-top: 1.5rem;
+  }
+}
