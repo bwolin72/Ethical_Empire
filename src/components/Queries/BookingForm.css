@@ -1,3 +1,30 @@
+/* === Color Variables === */
+:root {
+  --color-bg-light: #f9fafb;
+  --color-bg-dark: #1f2937;
+  --color-text-light: #1f2937;
+  --color-text-dark: #f9fafb;
+
+  --color-primary: #581c1c;
+  --color-primary-dark: #401010;
+
+  --color-muted: #6b7280;
+  --color-muted-dark: #d1d5db;
+
+  --color-border-light: #ccc;
+  --color-border-dark: #4b5563;
+
+  --color-success: #15803d;
+  --color-error: #dc2626;
+  --color-disabled: #9ca3af;
+
+  --color-calendar-icon: #6b7280;
+  --color-dropdown-icon: #1e3a8a;
+
+  --color-service-bg-light: #f3f4f6;
+  --color-service-bg-dark: #374151;
+}
+
 /* === Booking Form Container === */
 .booking-form-container {
   max-width: 900px;
@@ -7,15 +34,14 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* === Light/Dark Mode === */
 .booking-form-container.light {
-  background-color: #f9fafb;
-  color: #1f2937;
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
 }
 
 .booking-form-container.dark {
-  background-color: #1f2937;
-  color: #f9fafb;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
 }
 
 /* === Header Section === */
@@ -32,17 +58,17 @@
 
 .form-header h2 {
   font-size: 1.8rem;
-  color: #581c1c;
+  color: var(--color-primary);
   font-weight: bold;
 }
 
 .subtitle {
   font-size: 1rem;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 .dark .subtitle {
-  color: #d1d5db;
+  color: var(--color-muted-dark);
 }
 
 /* === Form Grid === */
@@ -74,7 +100,7 @@ textarea,
 .date-picker,
 .react-tel-input .form-control {
   padding: 0.65rem 0.8rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-light);
   border-radius: 0.5rem;
   font-size: 1rem;
   background-color: #fff;
@@ -86,7 +112,7 @@ input:focus,
 textarea:focus,
 .date-picker:focus,
 .react-tel-input .form-control:focus {
-  border-color: #1e3a8a;
+  border-color: var(--color-dropdown-icon);
   outline: none;
 }
 
@@ -94,9 +120,9 @@ textarea:focus,
 .dark textarea,
 .dark .date-picker,
 .dark .react-tel-input .form-control {
-  background-color: #374151;
-  color: #f3f4f6;
-  border: 1px solid #4b5563;
+  background-color: var(--color-service-bg-dark);
+  color: var(--color-text-dark);
+  border: 1px solid var(--color-border-dark);
 }
 
 .dark input:focus,
@@ -126,7 +152,7 @@ textarea:focus,
 .calendar-icon {
   position: absolute;
   left: 0.75rem;
-  color: #6b7280;
+  color: var(--color-calendar-icon);
   pointer-events: none;
   z-index: 1;
 }
@@ -147,7 +173,7 @@ textarea:focus,
 
 .dropdown-icon {
   margin-left: 0.5rem;
-  color: #1e3a8a;
+  color: var(--color-dropdown-icon);
 }
 
 .service-dropdown {
@@ -155,12 +181,12 @@ textarea:focus,
   border: 1px solid #d1d5db;
   padding: 0.8rem;
   border-radius: 0.5rem;
-  background-color: #f3f4f6;
+  background-color: var(--color-service-bg-light);
 }
 
 .dark .service-dropdown {
-  background-color: #374151;
-  border-color: #4b5563;
+  background-color: var(--color-service-bg-dark);
+  border-color: var(--color-border-dark);
 }
 
 .service-option {
@@ -176,7 +202,7 @@ textarea:focus,
 
 /* === Submit Button === */
 .submit-btn {
-  background-color: #581c1c;
+  background-color: var(--color-primary);
   color: white;
   font-weight: 600;
   padding: 0.8rem 1.2rem;
@@ -187,24 +213,24 @@ textarea:focus,
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #401010;
+  background-color: var(--color-primary-dark);
 }
 
 .submit-btn:disabled {
-  background-color: #9ca3af;
+  background-color: var(--color-disabled);
   cursor: not-allowed;
 }
 
 /* === Messages === */
 .success-msg {
-  color: #15803d;
+  color: var(--color-success);
   margin-top: 1rem;
   font-weight: 600;
   text-align: center;
 }
 
 .error-msg {
-  color: #dc2626;
+  color: var(--color-error);
   margin-top: 1rem;
   font-weight: 600;
   text-align: center;
