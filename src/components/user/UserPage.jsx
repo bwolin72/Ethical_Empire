@@ -105,7 +105,12 @@ const UserPage = () => {
       </header>
 
       <FadeInSection>
-        <ProfileAvatar profile={profile} onClick={() => navigate("/account")} />
+        <div onClick={() => navigate("/AccountProfile")} style={{ cursor: "pointer", textAlign: "center" }}>
+          <ProfileAvatar profile={profile} />
+          <p style={{ marginTop: "0.5rem", fontWeight: 500, color: "#007BFF" }}>
+            Open Profile
+          </p>
+        </div>
       </FadeInSection>
 
       <p className="intro-text">Presenting Asaase Band</p>
@@ -114,7 +119,6 @@ const UserPage = () => {
         <p className="loading-text">Loading...</p>
       ) : (
         <>
-          {/* === Featured Video === */}
           {featuredVideo ? (
             <FadeInSection>
               <div className="asaase-card">
@@ -128,7 +132,6 @@ const UserPage = () => {
             <p className="empty-text">No featured video available.</p>
           )}
 
-          {/* === Banners Section === */}
           <FadeInSection>
             <section>
               <h3>Featured Banners</h3>
@@ -136,7 +139,6 @@ const UserPage = () => {
             </section>
           </FadeInSection>
 
-          {/* === Promotions === */}
           {promotions.length > 0 && (
             <section>
               <h3>Special Offers</h3>
@@ -167,7 +169,6 @@ const UserPage = () => {
             </section>
           )}
 
-          {/* === Services Section === */}
           <section>
             <h3>Our Services</h3>
             <div className="services-grid">
@@ -183,7 +184,6 @@ const UserPage = () => {
             </div>
           </section>
 
-          {/* === Media Gallery === */}
           <section>
             <h3>Your Media Gallery</h3>
             {media.length > 0 ? (
@@ -199,7 +199,6 @@ const UserPage = () => {
             )}
           </section>
 
-          {/* === Client Reviews === */}
           <section>
             <h3>Client Reviews</h3>
             <div className="reviews-list">
@@ -224,7 +223,6 @@ const UserPage = () => {
             </div>
           </section>
 
-          {/* === Newsletter Section === */}
           <section>
             <h3>Subscribe to Our Newsletter</h3>
             <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
