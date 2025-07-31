@@ -1,19 +1,43 @@
+/* === Variables === */
+:root {
+  --color-bg-light: #ffffff;
+  --color-bg-dark: #1a1a1a;
+  --color-text-light: #222;
+  --color-text-dark: #f0f0f0;
+  --color-accent: #bfa046;
+  --color-accent-dark: #a2883d;
+  --color-primary: #4B0F24;
+  --color-secondary: #2f4f2f;
+  --color-highlight: #800020;
+  --color-highlight-dark: #5c0017;
+  --color-info: #1f3c88;
+  --color-info-dark: #162e66;
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
 /* === Global === */
 html {
   scroll-behavior: smooth;
 }
 
+body {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 .userpage-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 1.5rem 1rem;
-  background-color: #ffffff;
-  color: #222;
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .userpage-container.dark {
-  background-color: #1a1a1a;
-  color: #f0f0f0;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
 }
 
 /* === Header === */
@@ -24,12 +48,13 @@ html {
   gap: 0.75rem;
   margin-bottom: 2rem;
   text-align: center;
+  animation: slideFade 0.8s ease forwards;
 }
 
 .userpage-header h2 {
   font-size: 1.8rem;
   font-weight: 600;
-  color: #4B0F24;
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -41,26 +66,45 @@ html {
 .dark-toggle,
 .profile-icon {
   padding: 0.5rem 1.1rem;
-  background-color: #bfa046;
+  background-color: var(--color-accent);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s;
 }
 
 .dark-toggle:hover,
 .profile-icon:hover {
-  background-color: #a2883d;
+  background-color: var(--color-accent-dark);
+  transform: translateY(-2px);
 }
 
-/* === Intro === */
+/* === Intro Text === */
 .intro-text {
   text-align: center;
   font-size: 1.1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   color: #333;
+  animation: fadeInUp 0.9s ease forwards;
+}
+
+/* === Section Headings === */
+section {
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.3s;
+  will-change: transform, opacity;
+}
+
+section h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--color-secondary);
+  padding-left: 0.75rem;
+  color: var(--color-secondary);
 }
 
 /* === Messages === */
@@ -72,20 +116,7 @@ html {
   color: #666;
 }
 
-/* === Section === */
-section {
-  margin-bottom: 3rem;
-}
-
-section h3 {
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid #2f4f2f;
-  padding-left: 0.75rem;
-  color: #2f4f2f;
-}
-
-/* === Cards & Grids === */
+/* === Card Grids === */
 .services-grid,
 .gallery-grid,
 .promotions-grid {
@@ -107,21 +138,22 @@ section h3 {
 
 /* === Service Cards === */
 .service-card {
-  background-color: rgba(191, 160, 70, 0.1);
-  border: 1px solid #bfa046;
-  border-radius: 10px;
+  background: linear-gradient(145deg, #fff8e1, #faf3c3);
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
   padding: 1.25rem;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s;
+  box-shadow: var(--shadow-card);
 }
 
 .service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-hover);
 }
 
 .service-card .icon {
-  font-size: 2rem;
+  font-size: 2.3rem;
   margin-bottom: 0.6rem;
 }
 
@@ -135,31 +167,25 @@ section h3 {
   color: #444;
 }
 
-/* === Gallery === */
-.gallery-item img,
-.gallery-item video {
-  width: 100%;
-  height: auto;
-  border-radius: 10px;
-}
-
 /* === Promo Cards === */
 .promo-card {
   background: #fffbea;
-  border: 1px solid #bfa046;
-  border-left: 5px solid #2f4f2f;
-  border-radius: 10px;
+  border: 1px solid var(--color-accent);
+  border-left: 5px solid var(--color-secondary);
+  border-radius: 12px;
   padding: 1rem;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: var(--shadow-card);
 }
 
 .promo-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
 }
 
 .promo-card img {
   max-width: 100%;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-bottom: 0.5rem;
 }
 
@@ -167,7 +193,7 @@ section h3 {
   font-size: 1.1rem;
   font-weight: bold;
   margin-bottom: 0.3rem;
-  color: #800020;
+  color: var(--color-highlight);
 }
 
 .promo-card p {
@@ -187,6 +213,15 @@ section h3 {
   margin-top: 0.3rem;
 }
 
+/* === Gallery === */
+.gallery-item img,
+.gallery-item video {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+}
+
 /* === Reviews === */
 .reviews-list {
   display: flex;
@@ -196,9 +231,14 @@ section h3 {
 
 .review-card {
   background-color: rgba(47, 79, 47, 0.08);
-  border-left: 4px solid #2f4f2f;
+  border-left: 4px solid var(--color-secondary);
   padding: 1rem;
   border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.review-card:hover {
+  box-shadow: var(--shadow-hover);
 }
 
 .review-card p {
@@ -216,18 +256,19 @@ section h3 {
 .review-btn {
   align-self: center;
   margin-top: 1.5rem;
-  background-color: #1f3c88;
+  background-color: var(--color-info);
   color: white;
   padding: 0.75rem 1.4rem;
   border-radius: 8px;
   border: none;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s;
 }
 
 .review-btn:hover {
-  background-color: #162e66;
+  background-color: var(--color-info-dark);
+  transform: scale(1.05);
 }
 
 /* === Newsletter === */
@@ -245,32 +286,40 @@ section h3 {
   border: 1px solid #ccc;
   border-radius: 6px;
   width: 100%;
+  transition: border-color 0.3s ease;
+}
+
+.newsletter-form input:focus {
+  outline: none;
+  border-color: var(--color-accent);
 }
 
 .newsletter-form button {
-  background-color: #800020;
+  background-color: var(--color-highlight);
   color: white;
   border: none;
   padding: 0.75rem;
   font-size: 1rem;
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s;
 }
 
 .newsletter-form button:hover {
-  background-color: #5c0017;
+  background-color: var(--color-highlight-dark);
+  transform: translateY(-2px);
 }
 
-/* === Video Container === */
+/* === Featured Video === */
 .asaase-card {
   max-width: 900px;
   margin: 0 auto 2rem;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
 }
 
-/* === Fade Animation === */
+/* === Animations === */
 .fade-in {
   opacity: 0;
   animation: fadeIn 0.8s ease-in forwards;
@@ -279,6 +328,28 @@ section h3 {
 @keyframes fadeIn {
   to {
     opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -323,3 +394,4 @@ section h3 {
     grid-template-columns: 1fr;
   }
 }
+

@@ -105,7 +105,7 @@ const UserPage = () => {
       </header>
 
       <FadeInSection>
-        <div onClick={() => navigate("/AccountProfile")} style={{ cursor: "pointer", textAlign: "center" }}>
+        <div onClick={() => navigate("/account")} style={{ cursor: "pointer", textAlign: "center" }}>
           <ProfileAvatar profile={profile} />
           <p style={{ marginTop: "0.5rem", fontWeight: 500, color: "#007BFF" }}>
             Open Profile
@@ -113,7 +113,7 @@ const UserPage = () => {
         </div>
       </FadeInSection>
 
-      <p className="intro-text">Presenting Asaase Band</p>
+      <p className="intro-text">It's a great day to explore our services!</p>
 
       {loading ? (
         <p className="loading-text">Loading...</p>
