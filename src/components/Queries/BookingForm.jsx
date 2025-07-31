@@ -1,3 +1,4 @@
+// BookingForm.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
@@ -44,8 +45,7 @@ const BookingForm = () => {
   }, [user]);
 
   const fetchServices = useCallback(() => {
-    axiosInstance
-      .get('/services/')
+    axiosInstance.get('/services/')
       .then((res) => {
         const data = Array.isArray(res.data.results) ? res.data.results : res.data;
         if (Array.isArray(data) && data.length > 0) {
@@ -121,7 +121,6 @@ const BookingForm = () => {
       venue_name, address, event_date, services
     } = formData;
 
-    // Basic validation
     if (
       !isAuthenticated ||
       !name || !email || !phone || !country || !state_or_region ||
@@ -131,8 +130,7 @@ const BookingForm = () => {
       return;
     }
 
-    // Phone validation (international)
-    if (!/^\+\d{7,15}$/.test(phone)) {
+    if (!/^\\+\d{7,15}$/.test(phone)) {
       toast.error('Please enter a valid international phone number.', { autoClose: 3000 });
       return;
     }
