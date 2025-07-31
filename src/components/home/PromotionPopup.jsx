@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axiosCommon from '../../api/axiosCommon';
 import './PromotionPopup.css';
 
-const BACKEND_BASE_URL = 'https://ethical-backend-production.up.railway.app';
+const BACKEND_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const PromotionPopup = () => {
   const [promotion, setPromotion] = useState(null);
@@ -26,9 +26,6 @@ const PromotionPopup = () => {
           }
 
           setPromotion(promo);
-
-          // (Optional) Mark promotion as seen/viewed on backend
-          // await axiosCommon.patch(`/promotions/${promo.id}/`, { seen: true }); // Adjust if needed
         }
       } catch (err) {
         console.error('Failed to load promotion', err);
