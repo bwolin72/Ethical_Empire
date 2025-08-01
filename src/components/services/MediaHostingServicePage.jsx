@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// Removed unused: import { useNavigate } from 'react-router-dom';
 import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
 import './MediaHostingServicePage.css';
@@ -19,7 +19,6 @@ const hostingServices = [
 ];
 
 const MediaHostingServicePage = () => {
-  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -32,9 +31,9 @@ const MediaHostingServicePage = () => {
   const phone = watch('phone');
 
   const onSubmit = (data) => {
-    if (!phone) return; // prevent submission without phone
+    if (!phone) return;
     console.log('Form submitted:', data);
-    // navigate('/thank-you'); // optional: redirect after submit
+    // Optional: send to backend or navigate to another page
   };
 
   useEffect(() => {
