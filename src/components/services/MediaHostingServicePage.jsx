@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
@@ -20,13 +20,26 @@ const hostingServices = [
 
 const MediaHostingServicePage = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    trigger,
+    formState: { errors },
+  } = useForm();
+
   const phone = watch('phone');
 
   const onSubmit = (data) => {
+    if (!phone) return; // prevent submission without phone
     console.log('Form submitted:', data);
-    // You can send this to a backend here
+    // navigate('/thank-you'); // optional: redirect after submit
   };
+
+  useEffect(() => {
+    register('phone', { required: true });
+  }, [register]);
 
   return (
     <div className="liveband-page-container">
@@ -38,16 +51,16 @@ const MediaHostingServicePage = () => {
         />
       </section>
 
-      {/* === CTA Booking Form Section === */}
+      {/* === Booking Form Section === */}
       <section className="cta-section booking-form-section">
         <h2 className="section-title">Book Hosting Service</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="booking-form">
           <input
-            {...register('name', { required: true })}
+            {...register('name', { required: 'Name is required' })}
             type="text"
             placeholder="Your Full Name"
           />
-          {errors.name && <span className="error">Name is required</span>}
+          {errors.name && <span className="error">{errors.name.message}</span>}
 
           <PhoneInput
             defaultCountry="GH"
@@ -55,16 +68,19 @@ const MediaHostingServicePage = () => {
             countryCallingCodeEditable={false}
             placeholder="Enter phone number"
             value={phone}
-            onChange={(value) => setValue('phone', value)}
+            onChange={(value) => {
+              setValue('phone', value);
+              trigger('phone');
+            }}
           />
           {!phone && <span className="error">Phone number is required</span>}
 
           <input
-            {...register('eventType', { required: true })}
+            {...register('eventType', { required: 'Event type is required' })}
             type="text"
             placeholder="Type of Event (e.g., Wedding)"
           />
-          {errors.eventType && <span className="error">Event type is required</span>}
+          {errors.eventType && <span className="error">{errors.eventType.message}</span>}
 
           <button className="cta-button" type="submit">
             Submit Booking Request
