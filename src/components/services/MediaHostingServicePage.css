@@ -5,18 +5,20 @@
   --color-light: #fff;
   --color-dark: #111;
   --color-muted: #f8f8f8;
+  scroll-behavior: smooth;
 }
 
 /* === Base Styling === */
-body, .liveband-page {
+body, .liveband-page-container {
   font-family: 'Segoe UI', sans-serif;
   background: var(--color-light);
   color: var(--color-dark);
   overflow-x: hidden;
   padding-bottom: 4rem;
+  scroll-behavior: smooth;
 }
 
-.liveband-page.dark {
+.liveband-page-container.dark {
   background: var(--color-dark);
   color: var(--color-light);
 }
@@ -60,6 +62,37 @@ body, .liveband-page {
   animation: fadeInDown 1s ease;
 }
 
+/* === Booking Form Section === */
+.booking-form-section {
+  padding: 2rem 1rem;
+  background: var(--color-muted);
+  border-radius: 1rem;
+  margin: 2rem auto;
+  width: 90%;
+  max-width: 600px;
+  animation: fadeIn 1s ease;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.booking-form input,
+.booking-form .PhoneInput input {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  outline: none;
+}
+
+.booking-form .error {
+  color: red;
+  font-size: 0.85rem;
+}
+
 /* === CTA Button === */
 .cta-section {
   text-align: center;
@@ -100,44 +133,13 @@ body, .liveband-page {
   margin-bottom: 2rem;
 }
 
-.card {
+.service-card {
   background: rgba(74, 0, 31, 0.7);
   color: var(--color-light);
   padding: 1rem;
   border-radius: 1rem;
   text-align: center;
   font-weight: 500;
-  animation: fadeIn 1s ease;
-}
-
-.preview-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.preview-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  max-width: 90%;
-  max-height: 90%;
-  overflow-y: auto;
-}
-
-
-@media (min-width: 768px) {
-  .card-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 0 2rem;
-  }
 }
 
 /* === Media Showcase === */
@@ -183,29 +185,18 @@ body, .liveband-page {
   animation: fadeInUp 1s ease;
 }
 
-@media (min-width: 768px) {
-  .creative-layout {
-    flex-direction: row;
-  }
-
-  .creative-media {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
 /* === Venue Section === */
 .event-hosting-section {
   padding: 2rem 1rem;
   animation: fadeIn 1s ease;
 }
 
-/* === Banner Cards === */
-.banner-cards-wrapper {
-  margin: 2rem 0;
-  padding: 0 1rem;
+/* === Full Gallery === */
+.section {
+  padding: 2rem 1rem;
 }
 
-/* === Testimonials === */
+/* === Testimonial Section === */
 .testimonial-section h2 {
   animation: fadeInUp 0.8s ease;
 }
@@ -233,18 +224,6 @@ body, .liveband-page {
   font-weight: 600;
   margin-top: 0.5rem;
   color: var(--color-primary);
-}
-
-@media (min-width: 768px) {
-  .testimonial-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .testimonial-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 /* === WhatsApp Floating Button === */
@@ -287,9 +266,7 @@ body, .liveband-page {
 
 /* === Animations === */
 @keyframes shimmer {
-  100% {
-    background-position: -200% 0;
-  }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes fadeIn {
@@ -322,7 +299,32 @@ body, .liveband-page {
   50% { transform: translateY(-5px); }
 }
 
-/* === Mobile Tweaks === */
+/* === Responsive === */
+@media (min-width: 768px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 2rem;
+  }
+
+  .creative-layout {
+    flex-direction: row;
+  }
+
+  .creative-media {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .testimonial-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .testimonial-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 480px) {
   .hero-title {
     font-size: 1.8rem;

@@ -6,6 +6,7 @@ import './decor.css';
 import MediaCard from '../context/MediaCards';
 import MediaSkeleton from '../context/MediaSkeleton';
 import BannerCards from '../context/BannerCards';
+import { FaCrown, FaPalette, FaLightbulb, FaTable, FaCameraRetro, FaTree } from 'react-icons/fa';
 
 const DecorPage = () => {
   const navigate = useNavigate();
@@ -14,12 +15,12 @@ const DecorPage = () => {
   const [loading, setLoading] = useState(true);
 
   const decorServices = [
-    'Wedding & Event Decor',
-    'Stage Design',
-    'Theme Styling',
-    'Lighting & Ambience',
-    'Table & Floral Arrangements',
-    'Backdrop & Photo Booths',
+    { icon: <FaCrown />, label: 'Wedding & Event Decor' },
+    { icon: <FaTree />, label: 'Stage Design' },
+    { icon: <FaPalette />, label: 'Theme Styling' },
+    { icon: <FaLightbulb />, label: 'Lighting & Ambience' },
+    { icon: <FaTable />, label: 'Table & Floral Arrangements' },
+    { icon: <FaCameraRetro />, label: 'Backdrop & Photo Booths' },
   ];
 
   const fetchContent = useCallback(async () => {
@@ -36,13 +37,8 @@ const DecorPage = () => {
         publicAxios.get('/reviews/'),
       ]);
 
-      const media = Array.isArray(mediaRes.data?.results)
-        ? mediaRes.data.results
-        : [];
-
-      const reviews = Array.isArray(reviewsRes.data)
-        ? reviewsRes.data
-        : [];
+      const media = Array.isArray(mediaRes.data?.results) ? mediaRes.data.results : [];
+      const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
 
       setMediaCards(media);
       setTestimonials(reviews);
@@ -79,9 +75,12 @@ const DecorPage = () => {
       <section className="section">
         <h2 className="section-title">Our Decor Services</h2>
         <div className="card-grid">
-          {decorServices.map((service, index) => (
+          {decorServices.map(({ icon, label }, index) => (
             <div key={index} className="card">
-              <div className="card-content">{service}</div>
+              <div className="card-content">
+                <span className="icon">{icon}</span>
+                <p>{label}</p>
+              </div>
             </div>
           ))}
         </div>

@@ -10,8 +10,8 @@ import {
 import { Link } from 'react-router-dom';
 
 import useMediaFetcher from '../../hooks/useMediaFetcher';
-import MediaCards from '../context/MediaCards'; // scrollable list
-import MediaCard from '../context/MediaCard'; // single card display
+import MediaCards from '../context/MediaCards';
+import MediaCard from '../context/MediaCard';
 import BannerCards from '../context/BannerCards';
 import publicAxios from '../../api/publicAxios';
 
@@ -80,6 +80,11 @@ const About = () => {
 
   return (
     <div className="about-container">
+
+      {/* === Sticky CTA Bar === */}
+      <div className="sticky-cta-bar">
+        <Link to="/bookings">Let’s Talk</Link>
+      </div>
 
       {/* === Hero Banner === */}
       {bannerList.length > 0 && (
@@ -163,13 +168,44 @@ const About = () => {
         </div>
       </section>
 
-      {/* === Testimonials === */}
+      {/* === Team Section === */}
+      <section className="team-section px-4 mt-16 text-center">
+        <h2 className="section-heading">Meet the Team</h2>
+        <p className="mb-6">
+          Behind every successful event is a passionate team of visionaries, creators, and coordinators.
+        </p>
+        <div className="team-grid">
+          {/* Example Static */}
+          <div className="team-member">
+            <img src="/team/jane.jpg" alt="Jane" />
+            <h4>Jane Doe</h4>
+            <p>Creative Director</p>
+          </div>
+          <div className="team-member">
+            <img src="/team/john.jpg" alt="John" />
+            <h4>John Smith</h4>
+            <p>Event Manager</p>
+          </div>
+        </div>
+      </section>
+
+      {/* === Press / Clients === */}
+      <section className="press-logos px-4 mt-16">
+        <h2 className="section-heading text-center">Trusted By</h2>
+        <div className="logo-carousel">
+          <img src="/logos/client1.png" alt="Client 1" />
+          <img src="/logos/client2.png" alt="Client 2" />
+          <img src="/logos/client3.png" alt="Client 3" />
+        </div>
+      </section>
+
+      {/* === Testimonials Carousel === */}
       {testimonials.length > 0 && (
-        <section className="testimonial-section px-4 mt-16">
+        <section className="testimonial-carousel px-4 mt-16 text-center">
           <h2 className="section-heading">What Our Clients Say</h2>
-          <div className="testimonial-grid">
-            {testimonials.map((review) => (
-              <div key={review.id} className="testimonial-card">
+          <div className="carousel-wrapper">
+            {testimonials.map((review, idx) => (
+              <div key={idx} className="testimonial-slide">
                 <p>“{review.message}”</p>
                 <p className="testimonial-author">— {review.reviewer_name}</p>
               </div>

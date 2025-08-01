@@ -285,3 +285,55 @@
     padding: 1rem;
   }
 }
+
+/* === Smooth Scrolling === */
+html {
+  scroll-behavior: smooth;
+}
+
+/* === Background Decorative Icons === */
+.section::before {
+  content: '';
+  position: absolute;
+  background-image: url('/public/assets/icons/music-notes.svg'); /* Replace with your icon path */
+  background-repeat: no-repeat;
+  background-size: 150px;
+  opacity: 0.05;
+  width: 150px;
+  height: 150px;
+  top: 1rem;
+  left: 1rem;
+  z-index: 0;
+  animation: float 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.section.testimonial-section::before {
+  top: unset;
+  bottom: 2rem;
+  right: 1rem;
+  left: unset;
+  transform: rotate(180deg);
+}
+
+/* Floating animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* === Layer Control for Decorative Icons === */
+.section,
+.hero-banner,
+.creative-section,
+.media-gallery-section {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure content is above background icons */
+.section > * {
+  position: relative;
+  z-index: 2;
+}

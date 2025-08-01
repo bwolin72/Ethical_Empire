@@ -6,6 +6,7 @@ import publicAxios from '../../api/publicAxios';
 import MediaCards from '../context/MediaCards';
 import BannerCards from '../context/BannerCards';
 import { useNavigate } from 'react-router-dom';
+import { FaLeaf, FaPepperHot, FaCarrot, FaFish, FaDrumstickBite, FaAppleAlt, FaSeedling } from 'react-icons/fa';
 
 const CateringPage = () => {
   const navigate = useNavigate();
@@ -22,9 +23,27 @@ const CateringPage = () => {
   ];
 
   const dietarySuggestions = [
-    'Vegan Waakye', 'Keto Banku', 'Gluten-Free Fufu', 'Low Carb Jollof',
-    'Dairy-Free Stew', 'Nut-Free Soup', 'Halal Grill', 'Kosher Platter',
-    'Vegetarian Jollof', 'Paleo Plantain Mix', 'Organic Yam Chips', 'Diabetic-Friendly Tilapia',
+    { label: 'Vegan Waakye', icon: <FaLeaf /> },
+    { label: 'Keto Banku', icon: <FaPepperHot /> },
+    { label: 'Gluten-Free Fufu', icon: <FaCarrot /> },
+    { label: 'Low Carb Jollof', icon: <FaSeedling /> },
+    { label: 'Dairy-Free Stew', icon: <FaAppleAlt /> },
+    { label: 'Nut-Free Soup', icon: <FaFish /> },
+    { label: 'Halal Grill', icon: <FaDrumstickBite /> },
+    { label: 'Kosher Platter', icon: <FaFish /> },
+    { label: 'Vegetarian Jollof', icon: <FaLeaf /> },
+    { label: 'Paleo Plantain Mix', icon: <FaCarrot /> },
+    { label: 'Organic Yam Chips', icon: <FaAppleAlt /> },
+    { label: 'Diabetic-Friendly Tilapia', icon: <FaFish /> },
+  ];
+
+  const eventTypes = [
+    'Weddings',
+    'Corporate Galas',
+    'Private Dinners',
+    'Product Launches',
+    'Birthday Soirées',
+    'Cocktail Receptions'
   ];
 
   const fetchData = useCallback(async () => {
@@ -73,6 +92,18 @@ const CateringPage = () => {
         </div>
       </section>
 
+      {/* === Event Types Section === */}
+      <section className="section event-types-section">
+        <h2>We Cater For</h2>
+        <div className="card-grid">
+          {eventTypes.map((event, index) => (
+            <Card key={index} className="card">
+              <CardContent className="card-content">{event}</CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* === Creative Catering Media === */}
       <section className="section creative-section">
         <div className="creative-layout">
@@ -102,7 +133,8 @@ const CateringPage = () => {
         <div className="dietary-grid">
           {dietarySuggestions.map((item, index) => (
             <motion.div key={index} whileHover={{ scale: 1.05 }} className="dietary-card">
-              {item}
+              <span className="dietary-icon">{item.icon}</span>
+              {item.label}
             </motion.div>
           ))}
         </div>

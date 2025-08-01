@@ -9,8 +9,12 @@
   --text-dark: #1a1a1a;
 
   --section-bg: #f5f5f5;
-  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-bg: rgba(255, 255, 255, 0.9);
   --testimonial-bg: #fff8f0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 .about-container {
@@ -18,6 +22,7 @@
   background-color: var(--section-bg);
   color: var(--charcoal);
   font-family: 'Segoe UI', sans-serif;
+  transition: background-color 0.5s ease;
 }
 
 .hero-banner img {
@@ -25,26 +30,32 @@
   height: auto;
   border-radius: 1rem;
   object-fit: cover;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 /* Section Titles */
 .section-heading {
-  font-size: 2rem;
+  font-size: 2.25rem;
   color: var(--deep-burgundy);
   font-weight: 700;
   margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
 }
 
 .subtext {
   color: var(--royal-navy);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
 /* Service Cards */
 .service-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
   margin: 3rem auto;
   max-width: 1100px;
 }
@@ -52,32 +63,40 @@
 .service-card {
   background-color: var(--card-bg);
   border: 1px solid var(--muted-gold);
-  border-radius: 1rem;
-  padding: 1.5rem;
+  border-radius: 1.25rem;
+  padding: 2rem;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.07);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  cursor: pointer;
 }
 
 .service-card:hover {
-  transform: translateY(-5px);
+  transform: scale(1.03);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 .service-icon {
-  font-size: 2rem;
+  font-size: 2.25rem;
   color: var(--forest-green);
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-icon {
+  transform: scale(1.2);
 }
 
 .service-title {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: bold;
   color: var(--royal-navy);
 }
 
 .service-desc {
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--charcoal);
+  margin-top: 0.5rem;
 }
 
 /* About Text Sections */
@@ -85,17 +104,15 @@
   max-width: 800px;
   margin: 3rem auto;
   text-align: center;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--charcoal);
+  font-size: 1.05rem;
+  padding: 0 1rem;
+  transition: color 0.3s ease;
 }
 
 .about-text strong {
   color: var(--deep-burgundy);
-}
-
-/* Gallery */
-.about-gallery {
-  padding-top: 1rem;
 }
 
 /* Why Choose Us */
@@ -106,8 +123,9 @@
   margin-top: 3rem;
   padding: 2rem;
   background-color: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.4s ease;
 }
 
 @media (min-width: 768px) {
@@ -122,33 +140,46 @@
   list-style: disc;
   padding-left: 1.5rem;
   color: var(--royal-navy);
+  font-size: 1rem;
+}
+
+.why-section li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
 }
 
 /* Testimonials */
 .testimonial-section {
   margin-top: 4rem;
   text-align: center;
+  padding: 0 1rem;
 }
 
 .testimonial-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
+  gap: 2rem;
   max-width: 1100px;
   margin: 2rem auto 0;
 }
 
 .testimonial-card {
   background-color: var(--testimonial-bg);
-  padding: 1.5rem;
-  border-left: 4px solid var(--muted-gold);
-  border-radius: 0.5rem;
+  padding: 1.5rem 1.25rem;
+  border-left: 5px solid var(--muted-gold);
+  border-radius: 0.75rem;
   font-style: italic;
   color: var(--charcoal);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
 }
 
 .testimonial-author {
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   font-weight: bold;
   color: var(--deep-burgundy);
 }
@@ -158,24 +189,27 @@
   margin: 4rem auto 2rem;
   text-align: center;
   background-color: var(--deep-burgundy);
-  padding: 2rem;
+  padding: 2.5rem 2rem;
   color: var(--text-light);
-  border-radius: 1rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 .cta-button {
   display: inline-block;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   background-color: var(--muted-gold);
   color: var(--charcoal);
-  padding: 0.75rem 1.5rem;
-  font-weight: bold;
+  padding: 0.85rem 2rem;
+  font-weight: 600;
   border-radius: 999px;
   text-decoration: none;
-  transition: background-color 0.3s ease;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
 }
 
 .cta-button:hover {
   background-color: var(--forest-green);
   color: var(--text-light);
+  transform: scale(1.05);
 }

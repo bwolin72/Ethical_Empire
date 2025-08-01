@@ -32,7 +32,6 @@ const UserPage = () => {
   useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
-
     setLoading(true);
 
     Promise.allSettled([
@@ -52,11 +51,7 @@ const UserPage = () => {
         if (mediaRes.status === "fulfilled") setMedia(mediaRes.value.data?.results || []);
         else toast.error("Failed to load media.");
 
-        if (featuredRes.status === "fulfilled") {
-          const data = featuredRes.value.data?.results || [];
-          setFeatured(data);
-        }
-
+        if (featuredRes.status === "fulfilled") setFeatured(featuredRes.value.data?.results || []);
         if (reviewsRes.status === "fulfilled") setReviews(reviewsRes.value.data);
         else toast.error("Failed to load reviews.");
 
@@ -105,10 +100,14 @@ const UserPage = () => {
       </header>
 
       <FadeInSection>
-        <div onClick={() => navigate("/account")} style={{ cursor: "pointer", textAlign: "center" }}>
+        <div
+          className="avatar-section"
+          onClick={() => navigate("/account")}
+          style={{ cursor: "pointer", textAlign: "center" }}
+        >
           <ProfileAvatar profile={profile} />
-          <p style={{ marginTop: "0.5rem", fontWeight: 500, color: "#007BFF" }}>
-            Open Profile
+          <p className="open-profile-link">
+            {profile?.avatar ? "Change Profile" : "Set Up Profile"}
           </p>
         </div>
       </FadeInSection>
@@ -219,7 +218,9 @@ const UserPage = () => {
               ) : (
                 <p className="empty-text">No reviews yet.</p>
               )}
-              <button className="review-btn" onClick={() => navigate("/account#reviews")}>Write a Review</button>
+              <button className="review-btn" onClick={() => navigate("/account#reviews")}>
+                Write a Review
+              </button>
             </div>
           </section>
 

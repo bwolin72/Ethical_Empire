@@ -3,8 +3,22 @@ import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { logoutHelper } from "../../utils/logoutHelper";
+import { FaStar } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import "./AccountProfile.css";
+
+const StarRating = ({ rating, setRating }) => (
+  <div className="star-rating">
+    {[...Array(5)].map((_, i) => (
+      <FaStar
+        key={i}
+        onClick={() => setRating(i + 1)}
+        color={i < rating ? "#FFD700" : "#ccc"}
+        style={{ cursor: "pointer", fontSize: "1.2rem" }}
+      />
+    ))}
+  </div>
+);
 
 const AccountProfile = ({ profile: externalProfile }) => {
   const [profile, setProfile] = useState(externalProfile || null);
@@ -69,6 +83,16 @@ const AccountProfile = ({ profile: externalProfile }) => {
       return;
     }
 
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file.");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be under 2MB.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
@@ -83,12 +107,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       if (!uploadData.secure_url) throw new Error("Upload failed");
 
       const imageUrl = uploadData.secure_url;
-
-      // Update profile image in backend
-      await axiosInstance.patch("/accounts/profiles/profile/", {
-        profile_image: imageUrl,
-      });
-
+      await axiosInstance.patch("/accounts/profiles/profile/", { profile_image: imageUrl });
       setProfileImage(imageUrl);
       toast.success("Profile picture updated!");
     } catch (err) {
@@ -119,6 +138,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
   };
 
   const handleLogout = async () => {
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    if (!confirmLogout) return;
     setLoggingOut(true);
     await logoutHelper();
   };
@@ -156,7 +177,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
     );
   };
 
-  if (loading) return <p className="loading-text">Loading profile...</p>;
+  if (loading) {
+    return <div className="skeleton-loader">Loading profile...</div>;
+  }
 
   return (
     <div className="account-profile">
@@ -199,7 +222,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
               </div>
             ))
           ) : (
-            <p>No bookings yet.</p>
+            <div className="empty-bookings">
+              <img src="/no-bookings.svg" alt="No bookings" />
+              <p>No bookings yet. Explore services to get started!</p>
+            </div>
           )}
         </div>
 
@@ -219,24 +245,13 @@ const AccountProfile = ({ profile: externalProfile }) => {
             onChange={(e) => setReviewService(e.target.value)}
           >
             <option value="">Select Service</option>
-            {[
-              "Live Band", "DJ", "Photography", "Videography", "Catering",
-              "Event Planning", "Lighting", "MC/Host", "Sound Setup"
-            ].map(service => (
+            {["Live Band", "DJ", "Photography", "Videography", "Catering", "Event Planning", "Lighting", "MC/Host", "Sound Setup"].map(service => (
               <option key={service} value={service}>{service}</option>
             ))}
           </select>
 
-          <label htmlFor="review-rating">Rating</label>
-          <select
-            id="review-rating"
-            value={reviewRating}
-            onChange={(e) => setReviewRating(Number(e.target.value))}
-          >
-            {[5, 4, 3, 2, 1].map((num) => (
-              <option key={num} value={num}>{num} Star{num !== 1 && "s"}</option>
-            ))}
-          </select>
+          <label>Rating</label>
+          <StarRating rating={reviewRating} setRating={setReviewRating} />
 
           <button className="btn" onClick={handleReviewSubmit}>Submit Review</button>
         </div>

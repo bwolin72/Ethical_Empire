@@ -9,13 +9,17 @@
 }
 
 /* === Base === */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
 body, .eethm-home-page {
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--white);
   color: var(--charcoal);
-  scroll-behavior: smooth;
 }
 
 /* === Hero Section === */

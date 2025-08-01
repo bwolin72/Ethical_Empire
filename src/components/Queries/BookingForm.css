@@ -32,6 +32,11 @@
   padding: 2rem 1.5rem;
   font-family: 'Segoe UI', sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  background: linear-gradient(to bottom right, #ffffff, #f3f4f6);
+  overflow-y: auto;
+  max-height: 100vh;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
 }
 
 .booking-form-container.light {
@@ -162,41 +167,27 @@ textarea:focus,
   padding-left: 2.5rem;
 }
 
-/* === Dropdown Services === */
-.dropdown-label {
+/* === Services Section === */
+.checkbox-group {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.dropdown-icon {
-  margin-left: 0.5rem;
-  color: var(--color-dropdown-icon);
-}
-
-.service-dropdown {
-  margin-top: 0.5rem;
-  border: 1px solid #d1d5db;
-  padding: 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: var(--color-service-bg-light);
+  padding: 0.75rem;
   border-radius: 0.5rem;
-  background-color: var(--color-service-bg-light);
 }
 
-.dark .service-dropdown {
-  background-color: var(--color-service-bg-dark);
-  border-color: var(--color-border-dark);
+.dark .checkbox-group {
+  background: var(--color-service-bg-dark);
 }
 
-.service-option {
-  display: block;
-  margin-bottom: 0.5rem;
+.checkbox-option {
+  display: flex;
+  align-items: center;
   font-weight: 500;
-  color: inherit;
 }
 
-.service-option input {
+.checkbox-option input {
   margin-right: 0.5rem;
 }
 
@@ -210,6 +201,7 @@ textarea:focus,
   border-radius: 0.5rem;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  width: 100%;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -272,7 +264,6 @@ textarea:focus,
   }
 
   .submit-btn {
-    width: 100%;
     font-size: 0.95rem;
   }
 }
@@ -290,7 +281,7 @@ textarea:focus,
     margin-bottom: 0.75rem;
   }
 
-  .service-option {
+  .checkbox-option {
     font-size: 0.95rem;
   }
 }
@@ -307,47 +298,5 @@ textarea:focus,
   .submit-btn {
     font-size: 0.9rem;
     padding: 0.7rem 1rem;
-  }
-}
-
-/* === Booking Wrapper Layout === */
-.booking-wrapper {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 2rem;
-  padding: 2rem 1rem;
-  flex-wrap: wrap;
-}
-
-.booking-image {
-  flex: 1 1 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.booking-image img {
-  width: 100%;
-  max-width: 260px;
-  height: auto;
-  border-radius: 8px;
-}
-
-/* === Responsive Behavior === */
-@media (max-width: 768px) {
-  .booking-wrapper {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .booking-image,
-  .booking-form-container {
-    width: 100%;
-    max-width: 500px;
-  }
-
-  .booking-form-container {
-    margin-top: 1.5rem;
   }
 }

@@ -9,6 +9,7 @@ import NewsletterAdminPage from './NewsletterAdminPage';
 import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import VideoUpload from './VideoUpload'; // ✅ NEW
 
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../../api/axiosInstance';
@@ -68,6 +69,9 @@ const AdminPanel = () => {
           <li className={activeTab === 'media' ? 'active' : ''} onClick={() => setActiveTab('media')}>
             Media Management
           </li>
+          <li className={activeTab === 'video' ? 'active' : ''} onClick={() => setActiveTab('video')}>
+            Video Upload {/* ✅ NEW tab */}
+          </li>
           <li className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>
             Reviews
           </li>
@@ -91,6 +95,7 @@ const AdminPanel = () => {
         {activeTab === 'booking' && <BookingManagement />}
         {activeTab === 'invoice' && <InvoiceGeneration />}
         {activeTab === 'media' && <MediaManagement />}
+        {activeTab === 'video' && <VideoUpload />} {/* ✅ Render VideoUpload */}
         {activeTab === 'reviews' && <ReviewsManagement />}
         {activeTab === 'newsletter' && <NewsletterAdminPage />}
         {activeTab === 'promotions' && <AdminPromotions />}

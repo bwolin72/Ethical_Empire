@@ -4,6 +4,10 @@ import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
 import './MediaHostingServicePage.css';
 import { Card, CardContent } from '../../components/ui/card';
+import { motion } from 'framer-motion';
+import { useForm } from 'react-hook-form';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const hostingServices = [
   'Videography Coverage',
@@ -16,6 +20,13 @@ const hostingServices = [
 
 const MediaHostingServicePage = () => {
   const navigate = useNavigate();
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+  const phone = watch('phone');
+
+  const onSubmit = (data) => {
+    console.log('Form submitted:', data);
+    // You can send this to a backend here
+  };
 
   return (
     <div className="liveband-page-container">
@@ -27,11 +38,38 @@ const MediaHostingServicePage = () => {
         />
       </section>
 
-      {/* === CTA Section === */}
-      <section className="cta-section">
-        <button className="cta-button" onClick={() => navigate('/bookings')}>
-          Request Hosting Services
-        </button>
+      {/* === CTA Booking Form Section === */}
+      <section className="cta-section booking-form-section">
+        <h2 className="section-title">Book Hosting Service</h2>
+        <form onSubmit={handleSubmit(onSubmit)} className="booking-form">
+          <input
+            {...register('name', { required: true })}
+            type="text"
+            placeholder="Your Full Name"
+          />
+          {errors.name && <span className="error">Name is required</span>}
+
+          <PhoneInput
+            defaultCountry="GH"
+            international
+            countryCallingCodeEditable={false}
+            placeholder="Enter phone number"
+            value={phone}
+            onChange={(value) => setValue('phone', value)}
+          />
+          {!phone && <span className="error">Phone number is required</span>}
+
+          <input
+            {...register('eventType', { required: true })}
+            type="text"
+            placeholder="Type of Event (e.g., Wedding)"
+          />
+          {errors.eventType && <span className="error">Event type is required</span>}
+
+          <button className="cta-button" type="submit">
+            Submit Booking Request
+          </button>
+        </form>
       </section>
 
       {/* === Hosting Services === */}
@@ -39,9 +77,18 @@ const MediaHostingServicePage = () => {
         <h2 className="section-title">Our Multimedia & Hosting Services</h2>
         <div className="card-grid">
           {hostingServices.map((service, index) => (
-            <Card key={index} className="service-card">
-              <CardContent className="card-content">{service}</CardContent>
-            </Card>
+            <motion.div
+              key={index}
+              className="service-card"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <Card>
+                <CardContent className="card-content">{service}</CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </section>

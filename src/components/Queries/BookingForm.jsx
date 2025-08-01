@@ -4,7 +4,7 @@ import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
 import PhoneInput from 'react-phone-input-2';
 import { toast, ToastContainer } from 'react-toastify';
-import { FaCalendarAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaCalendarAlt } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -31,7 +31,6 @@ const BookingForm = () => {
   });
 
   const [availableServices, setAvailableServices] = useState([]);
-  const [showServices, setShowServices] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -109,7 +108,6 @@ const BookingForm = () => {
       message: '',
       services: [],
     });
-    setShowServices(false);
   };
 
   const handleSubmit = async (e) => {
@@ -121,16 +119,13 @@ const BookingForm = () => {
       venue_name, address, event_date, services
     } = formData;
 
-    if (
-      !isAuthenticated ||
-      !name || !email || !phone || !country || !state_or_region ||
-      !venue_name || !address || !event_date || services.length === 0
-    ) {
+    if (!isAuthenticated || !name || !email || !phone || !country || !state_or_region || !venue_name || !address || !event_date || services.length === 0) {
       toast.error('Please complete all required fields and select at least one service.', { autoClose: 3000 });
       return;
     }
 
-    if (!/^\\+\d{7,15}$/.test(phone)) {
+    // E.164 phone validation (international format)
+    if (!/^\+\d{8,15}$/.test(phone)) {
       toast.error('Please enter a valid international phone number.', { autoClose: 3000 });
       return;
     }
@@ -149,35 +144,35 @@ const BookingForm = () => {
       resetForm();
     } catch (err) {
       const response = err.response?.data;
-      const extractedError =
-        typeof response === 'object' && response !== null
-          ? Object.values(response)[0]
-          : response?.detail;
-
-      toast.error(
-        Array.isArray(extractedError) ? extractedError[0] : extractedError || 'Error occurred submitting form.',
-        { autoClose: 3000 }
-      );
+      const extractedError = typeof response === 'object' && response !== null ? Object.values(response)[0] : response?.detail;
+      toast.error(Array.isArray(extractedError) ? extractedError[0] : extractedError || 'Error occurred submitting form.', { autoClose: 3000 });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className={`booking-page ${darkMode ? 'dark' : 'light'}`}>
+    <div className={`booking-container ${darkMode ? 'dark' : 'light'}`}>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
-      <div className="booking-wrapper">
-        <form onSubmit={handleSubmit} className="booking-form" noValidate>
-          <h2>Book Your Event</h2>
+      <div className="form-card">
+        <div className="form-left">
+          <img src={logo} alt="Ethical Multimedia Logo" className="logo" />
+          <h2>Ethical Multimedia GH</h2>
+          <p className="subtitle">Premium Event Experience</p>
+        </div>
 
-          {[{ id: 'name', label: 'Full Name' },
+        <form onSubmit={handleSubmit} className="form-content" noValidate>
+          <h3>Event Booking Form</h3>
+
+          {[
+            { id: 'name', label: 'Full Name' },
             { id: 'email', label: 'Email Address', type: 'email' },
             { id: 'country', label: 'Country' },
-            { id: 'state_or_region', label: 'State or Region' },
-            { id: 'venue_name', label: 'Venue Name (Alias)' },
-            { id: 'address', label: 'Full Address / Directions' }
+            { id: 'state_or_region', label: 'State/Region' },
+            { id: 'venue_name', label: 'Venue Name' },
+            { id: 'address', label: 'Full Address' },
           ].map(({ id, label, type = 'text' }) => (
-            <div className="form-group" key={id}>
+            <div key={id} className="input-group">
               <label htmlFor={id}>{label}</label>
               <input
                 id={id}
@@ -190,68 +185,66 @@ const BookingForm = () => {
             </div>
           ))}
 
-          <div className="form-group">
+          <div className="input-group">
             <label htmlFor="phone">Phone Number</label>
             <PhoneInput
-              country={'gh'}
+              country="gh"
               value={formData.phone.replace(/^\+/, '')}
               onChange={handlePhoneChange}
-              inputProps={{ name: 'phone', required: true }}
+              inputProps={{
+                name: 'phone',
+                required: true,
+                autoFocus: false,
+                autoComplete: 'tel',
+              }}
+              placeholder="Enter phone number"
               enableSearch
+              enableAreaCodes
               international
+              disableCountryCode={false}
+              disableDropdown={false}
+              preferredCountries={['gh', 'us', 'gb', 'ng', 'de']}
             />
           </div>
 
-          <div className="form-group">
+          <div className="input-group">
             <label htmlFor="event_date">Event Date</label>
-            <div className="calendar-input-container">
-              <FaCalendarAlt className="calendar-icon" />
+            <div className="datepicker-wrapper">
+              <FaCalendarAlt className="icon" />
               <DatePicker
                 id="event_date"
                 selected={formData.event_date}
                 onChange={handleDateChange}
                 placeholderText="Select a date"
-                className="date-picker"
                 dateFormat="yyyy-MM-dd"
                 required
               />
             </div>
           </div>
 
-          <div className="form-group full-width">
-            <label
-              htmlFor="services"
-              className="dropdown-label"
-              onClick={() => setShowServices((prev) => !prev)}
-              aria-expanded={showServices}
-            >
-              Select Services{' '}
-              {showServices ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}
-            </label>
-
-            {showServices && (
-              <fieldset className="service-dropdown" id="services">
-                {availableServices.length === 0 ? (
-                  <p className="no-services-text">No services available at the moment.</p>
-                ) : (
-                  availableServices.map((service) => (
-                    <label key={service.id} className="service-option">
-                      <input
-                        type="checkbox"
-                        name="services"
-                        value={service.id}
-                        checked={formData.services.includes(service.id)}
-                        onChange={handleChange}
-                      />
-                      {service.name}
-                    </label>
-                  ))
-                )}
-              </fieldset>
-            )}
+          <div className="input-group">
+            <label htmlFor="services">Services</label>
+            <div className="checkbox-group">
+              {availableServices.length > 0 ? (
+                availableServices.map((service) => (
+                  <label key={service.id} className="checkbox-option">
+                    <input
+                      type="checkbox"
+                      name="services"
+                      value={service.id}
+                      checked={formData.services.includes(service.id)}
+                      onChange={handleChange}
+                    />
+                    {service.name}
+                  </label>
+                ))
+              ) : (
+                <p>No services available</p>
+              )}
+            </div>
           </div>
 
-          <div className="form-group full-width">
+          <div className="input-group">
             <label htmlFor="message">Additional Notes</label>
             <textarea
               id="message"
@@ -262,17 +255,10 @@ const BookingForm = () => {
             />
           </div>
 
-          <button type="submit" className="submit-btn full-width" disabled={isSubmitting}>
+          <button type="submit" className="submit-btn" disabled={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Submit Booking'}
           </button>
         </form>
-
-        <div className="booking-right-panel">
-          <img src={logo} alt="Ethical Multimedia Logo" className="right-logo" />
-          <h2>Ethical Multimedia GH</h2>
-          <p>Book your premium event experience</p>
-          <p className="animated-text">✨ Music | Media | Events | Rentals</p>
-        </div>
       </div>
     </div>
   );

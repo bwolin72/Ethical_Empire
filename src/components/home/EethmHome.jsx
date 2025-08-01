@@ -61,7 +61,6 @@ const EethmHome = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    // Fetch active promotions
     axiosCommon.get('/promotions/active/', { signal: controller.signal })
       .then(res => {
         setPromotions(Array.isArray(res.data) ? res.data : []);
@@ -73,7 +72,6 @@ const EethmHome = () => {
         }
       });
 
-    // Fetch approved reviews
     axiosCommon.get('/reviews/', { signal: controller.signal })
       .then(res => {
         setReviews(Array.isArray(res.data) ? res.data : []);
@@ -90,7 +88,6 @@ const EethmHome = () => {
 
   return (
     <div className="eethm-home-page">
-      {/* === Hero Section === */}
       <section className="video-hero-section">
         {heroLoading ? (
           <p className="video-fallback">Loading hero...</p>
@@ -134,7 +131,6 @@ const EethmHome = () => {
         )}
       </section>
 
-      {/* === Services Section === */}
       <FadeInSection>
         <section className="services-page">
           <h2>Our Services</h2>
@@ -155,7 +151,6 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* === Promotions Section === */}
       <FadeInSection>
         <section className="promotions-section">
           <h2>Current Offers</h2>
@@ -192,7 +187,6 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* === Client Testimonials Section === */}
       <FadeInSection>
         <section className="reviews-section">
           <h2>What Our Clients Say</h2>
@@ -213,7 +207,6 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* === Banner Highlights === */}
       <FadeInSection>
         <section className="banners-section">
           <h2>Highlights from Our Services</h2>
@@ -221,7 +214,6 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* === Media Cards Section === */}
       <FadeInSection>
         <section className="banners-section">
           <h2>Featured Media</h2>

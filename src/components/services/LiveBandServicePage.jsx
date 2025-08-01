@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import publicAxios from '../../api/publicAxios';
 import { useNavigate } from 'react-router-dom';
 import BannerCards from '../context/BannerCards';
-import MediaCards from '../context/MediaCards'; // ✅ Corrected import
+import MediaCards from '../context/MediaCards';
 
 const LiveBandServicePage = () => {
   const navigate = useNavigate();
@@ -15,12 +15,12 @@ const LiveBandServicePage = () => {
   const [loading, setLoading] = useState(true);
 
   const liveBandServices = [
-    'Wedding Performances',
-    'Corporate Event Entertainment',
-    'Birthday Live Music',
-    'Jazz & Acoustic Sets',
-    'Cultural & Traditional Shows',
-    'Custom Music Experiences',
+    '🎤 Wedding Performances',
+    '🏢 Corporate Event Entertainment',
+    '🎂 Birthday Live Music',
+    '🎷 Jazz & Acoustic Sets',
+    '🪘 Cultural & Traditional Shows',
+    '🎼 Custom Music Experiences',
   ];
 
   useEffect(() => {
@@ -42,44 +42,54 @@ const LiveBandServicePage = () => {
     <div className="liveband-page-container">
       {/* === Hero Banner === */}
       <section className="banner-section">
-        <BannerCards endpoint="LiveBandServicePage" title="Live Band Highlights" />
-      </section>
-
-      {/* === CTA Button === */}
-      <section className="cta-section">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          className="cta-button"
-          onClick={() => navigate('/bookings')}
-        >
-          Book a Live Band
-        </motion.button>
+        <div className="hero-overlay">
+          <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
+          <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            className="cta-button hero-button"
+            onClick={() => navigate('/bookings')}
+          >
+            Book a Live Band
+          </motion.button>
+        </div>
+        <div className="banner-cards-wrapper">
+          <BannerCards endpoint="LiveBandServicePage" title="Live Band Highlights" />
+        </div>
       </section>
 
       {/* === Services Offered === */}
       <section className="section services-section">
         <h2 className="section-title">Live Band Services</h2>
         <p className="section-description">
-          Explore our wide range of live band offerings tailored to elevate your special event.
+          From intimate acoustic duos to full orchestras — choose your sound.
         </p>
         <div className="card-grid">
           {liveBandServices.map((service, index) => (
-            <Card key={index} className="service-card">
-              <CardContent className="card-content">{service}</CardContent>
-            </Card>
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              viewport={{ once: true }}
+            >
+              <Card className="service-card">
+                <CardContent className="card-content">{service}</CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </section>
 
-      {/* === Immersive Preview (Inline MediaCards) === */}
+      {/* === Immersive Preview === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-text">
             <h3 className="section-subtitle">Immersive Musical Moments</h3>
             <p className="section-description">
               Whether you're planning a wedding, corporate gala, or private soirée,
-              our live bands craft unforgettable experiences. From soulful ballads
-              to upbeat rhythms, we deliver music that elevates every moment.
+              our live bands deliver timeless melodies and unmatched ambiance that
+              elevate your event to extraordinary.
             </p>
           </div>
           <div className="creative-media">
@@ -92,7 +102,7 @@ const LiveBandServicePage = () => {
       <section className="section testimonial-section">
         <h2 className="section-title">Client Reviews</h2>
         <p className="section-description">
-          Hear what our clients have to say about their unforgettable experiences.
+          Hear what our clients say about their elevated musical experiences.
         </p>
         <div className="testimonial-grid">
           {loading
@@ -104,12 +114,20 @@ const LiveBandServicePage = () => {
               ))
             : testimonials.length > 0 ? (
                 testimonials.slice(0, 6).map((review, index) => (
-                  <Card key={index} className="testimonial-card">
-                    <CardContent>
-                      <p className="testimonial-text">"{review.message}"</p>
-                      <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-                    </CardContent>
-                  </Card>
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Card className="testimonial-card">
+                      <CardContent>
+                        <p className="testimonial-text">"{review.message}"</p>
+                        <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 ))
               ) : (
                 <p className="section-description text-center text-gray-500">

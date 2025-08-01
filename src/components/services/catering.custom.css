@@ -5,6 +5,7 @@
   color: #1e1e1e;
   overflow-x: hidden;
   line-height: 1.6;
+  scroll-behavior: smooth;
 }
 
 /* === Hero Banner === */
