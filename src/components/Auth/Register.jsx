@@ -140,7 +140,7 @@ const Register = () => {
       if (!worker_category_id) return toast.error('Worker category ID is required.');
       payload.access_code = access_code;
       payload.worker_category_id = worker_category_id;
-      endpoint = '/accounts/register/worker/';
+      endpoint = '/accounts/internal-register/'; // ✅ Corrected
     } else if (role === 'VENDOR') {
       if (!company_name.trim()) return toast.error('Company name is required.');
       payload.company_name = company_name;

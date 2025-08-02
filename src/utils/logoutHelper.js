@@ -3,32 +3,46 @@
 import { toast } from 'react-hot-toast';
 import axiosInstance from '../api/axiosInstance';
 
+const AUTH_KEYS = ['access', 'refresh', 'user', 'remember'];
+
+/**
+ * Logs out the user by:
+ * 1. Attempting a server-side logout using access token
+ * 2. Clearing both localStorage and sessionStorage
+ * 3. Redirecting to /login after 600ms
+ */
 export const logoutHelper = async () => {
+  const access = localStorage.getItem('access') || sessionStorage.getItem('access');
+  let didServerLogout = false;
+
   try {
-    const access = localStorage.getItem('access') || sessionStorage.getItem('access');
     if (access) {
-      // Attempt server-side logout only if token exists
+      // Attempt to notify backend to invalidate the session
       await axiosInstance.post('/accounts/logout/');
       toast.success('✅ You have been logged out from the server.');
+      didServerLogout = true;
     } else {
       console.log('[Logout] No token found, skipping server logout.');
     }
   } catch (err) {
     console.warn('[Logout] Server logout failed:', err?.response?.status, err?.response?.data);
-    toast.error('⚠️ Server logout failed. Logging out locally.');
+    if (!didServerLogout) {
+      toast.error('⚠️ Server logout failed. Logging out locally.');
+    }
   } finally {
-    // Clear both storage types
-    const keys = ['access', 'refresh', 'user', 'remember'];
-    keys.forEach((k) => {
-      localStorage.removeItem(k);
-      sessionStorage.removeItem(k);
+    // Clear stored auth/session data
+    AUTH_KEYS.forEach((key) => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
     });
 
-    sessionStorage.clear(); // Just in case
-
     toast.success('👋 You have been logged out.');
-    setTimeout(() => {
-      window.location.href = '/login';
-    }, 600);
+
+    // Redirect if not already on the login page
+    if (!window.location.pathname.includes('/login')) {
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 600);
+    }
   }
 };

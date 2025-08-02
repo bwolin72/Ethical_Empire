@@ -38,6 +38,9 @@ import UserPage from './components/user/UserPage';
 import BookingForm from './components/Queries/BookingForm';
 import NewsletterSignup from './components/user/NewsLetterSignup';
 import Unsubscribe from './components/user/UnsubscribePage';
+import VendorProfile from './components/agency/VendorProfile';
+import PartnerProfilePage from './components/agency/PartnerProfilePage';
+
 
 // Pages - Services
 import LiveBandServicePage from './components/services/LiveBandServicePage';
@@ -143,6 +146,8 @@ const AppRoutes = () => (
       <Route path="/edit-profile" element={<EditProfile />} />
       <Route path="/update-password" element={<UpdatePassword />} />
       <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
+      <Route path="/vendor-profile" element={<VendorProfile />} />
+      <Route path="/partner-profile" element={<PartnerProfilePage />} />
     </Route>
 
     {/* Protected Admin Route */}

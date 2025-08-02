@@ -18,7 +18,9 @@ export default function VerifyOTP() {
   const location = useLocation();
   const { login } = useAuth();
 
-  const email = location.state?.email || '';
+  // Extract email from query params
+  const searchParams = new URLSearchParams(location.search);
+  const email = searchParams.get('email') || '';
 
   useEffect(() => {
     if (!email) {
@@ -29,7 +31,9 @@ export default function VerifyOTP() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (otp.length !== 6) {
+    const trimmedOtp = otp.trim();
+
+    if (trimmedOtp.length !== 6) {
       toast.error('OTP must be 6 digits.');
       return;
     }
@@ -38,7 +42,7 @@ export default function VerifyOTP() {
     try {
       const { data } = await axiosInstance.post('/user-account/verify-otp/email/', {
         email,
-        otp,
+        otp: trimmedOtp,
       });
 
       const { access, refresh, user } = data;
@@ -58,7 +62,9 @@ export default function VerifyOTP() {
         USER: '/user',
       };
 
-      const redirectPath = redirectMap[user.role?.toUpperCase()] || '/';
+      const roleKey = user.role?.toUpperCase() || '';
+      const redirectPath = redirectMap[roleKey] || '/';
+
       toast.success('OTP verified successfully! Redirecting...');
       setTimeout(() => navigate(redirectPath), 1500);
     } catch (err) {
@@ -82,8 +88,8 @@ export default function VerifyOTP() {
     } catch (err) {
       toast.error(
         err.response?.data?.error ||
-          err.response?.data?.message ||
-          'Failed to resend OTP.'
+        err.response?.data?.message ||
+        'Failed to resend OTP.'
       );
     } finally {
       setResending(false);
@@ -101,13 +107,14 @@ export default function VerifyOTP() {
           type="text"
           inputMode="numeric"
           maxLength={6}
+          autoFocus
           value={otp}
-          onChange={(e) => setOtp(e.target.value)}
+          onChange={(e) => setOtp(e.target.value.trim())}
           placeholder="Enter OTP"
           required
         />
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading || otp.trim().length !== 6}>
           {loading ? 'Verifying…' : 'Verify OTP'}
         </button>
       </form>

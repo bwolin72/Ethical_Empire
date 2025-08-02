@@ -2,14 +2,21 @@
 
 import axios from 'axios';
 import baseURL from './baseURL';
-import { applyCommonRequestHeaders, devLog } from './axiosCommon';
+import { applyCommonRequestHeaders, devLog as rawDevLog } from './axiosCommon';
 import { logoutHelper } from '../utils/authUtils';
 
 const MAX_RETRIES = 2;
 
+// Log only in development
+const devLog = (...args) => {
+  if (process.env.NODE_ENV === 'development') {
+    rawDevLog(...args);
+  }
+};
+
 const axiosInstance = axios.create({
   baseURL,
-  timeout: 30000,
+  timeout: 30000, // 30 seconds timeout
 });
 
 // Request Interceptor
@@ -18,6 +25,7 @@ axiosInstance.interceptors.request.use(
     config = applyCommonRequestHeaders(config, true);
     devLog('[Request]', config.method?.toUpperCase(), config.url, config);
 
+    // Attach retry metadata
     if (!config.metadata) config.metadata = { retryCount: 0 };
 
     const rememberStored = localStorage.getItem('remember');
@@ -27,7 +35,6 @@ axiosInstance.interceptors.request.use(
     const token = storage.getItem('access');
     devLog('[Auth] Using', remember ? 'localStorage' : 'sessionStorage', 'Access:', token?.slice(0, 20) + '...');
 
-    // ✅ Add Authorization header if access token is found
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -47,7 +54,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config || {};
     const status = error.response?.status;
 
     const rememberStored = localStorage.getItem('remember');
@@ -55,10 +62,24 @@ axiosInstance.interceptors.response.use(
     const storage = remember ? localStorage : sessionStorage;
 
     const refreshToken = storage.getItem('refresh');
-    devLog('[Error]', status, originalRequest?.url);
-    devLog('[Access Expired?]', storage.getItem('access')?.slice(0, 20) + '...');
+    const accessToken = storage.getItem('access');
 
-    // Handle 401 with token refresh
+    devLog('[Error]', status, originalRequest?.url);
+    devLog('[Access Expired?]', accessToken?.slice(0, 20) + '...');
+
+    // Handle network errors (CORS, DNS, etc.)
+    if (!error.response) {
+      devLog('[Network Error]', error.message);
+      return Promise.reject(error);
+    }
+
+    // Timeout error
+    if (error.code === 'ECONNABORTED') {
+      devLog('[Timeout Error]', error.message);
+      return Promise.reject(error);
+    }
+
+    // Attempt token refresh for 401s
     if (status === 401 && !originalRequest._retry) {
       devLog('[Token] Access expired, attempting refresh...');
       originalRequest._retry = true;
@@ -69,10 +90,12 @@ axiosInstance.interceptors.response.use(
           throw new Error('No refresh token');
         }
 
-        const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || `${baseURL}accounts/token/refresh/`;
-        const { data } = await axios.post(refreshUrl, { refresh: refreshToken });
+        const refreshUrl =
+          process.env.REACT_APP_API_REFRESH_URL || `${baseURL}accounts/token/refresh/`;
 
+        const { data } = await axios.post(refreshUrl, { refresh: refreshToken });
         const newAccess = data.access;
+
         if (!newAccess) throw new Error('Refresh succeeded but no access token returned');
 
         devLog('[Token] Refresh successful. New access set.');
@@ -88,7 +111,7 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // Retry for server/network errors
+    // Retry server or network errors (5xx)
     const shouldRetry = (
       !originalRequest._retrying &&
       (!error.response || (status >= 500 && status < 600))
