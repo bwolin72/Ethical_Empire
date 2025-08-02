@@ -41,7 +41,6 @@ import Unsubscribe from './components/user/UnsubscribePage';
 import VendorProfile from './components/agency/VendorProfile';
 import PartnerProfilePage from './components/agency/PartnerProfilePage';
 
-
 // Pages - Services
 import LiveBandServicePage from './components/services/LiveBandServicePage';
 import CateringServicePage from './components/services/CateringServicePage';
@@ -146,7 +145,15 @@ const AppRoutes = () => (
       <Route path="/edit-profile" element={<EditProfile />} />
       <Route path="/update-password" element={<UpdatePassword />} />
       <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
+    </Route>
+
+    {/* Protected Vendor Routes */}
+    <Route element={<ProtectedRoute roles={['vendor']} />}>
       <Route path="/vendor-profile" element={<VendorProfile />} />
+    </Route>
+
+    {/* Protected Partner Routes */}
+    <Route element={<ProtectedRoute roles={['partner']} />}>
       <Route path="/partner-profile" element={<PartnerProfilePage />} />
     </Route>
 

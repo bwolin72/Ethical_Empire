@@ -19,6 +19,12 @@ const VideoUpload = () => {
       return;
     }
 
+    const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo'];
+    if (!files.every(file => validTypes.includes(file.type))) {
+      alert('❌ Invalid file type. Only MP4, MOV, or AVI files are allowed.');
+      return;
+    }
+
     const formData = new FormData();
 
     files.forEach((file) => {
@@ -28,12 +34,10 @@ const VideoUpload = () => {
     formData.append('label', label);
     formData.append('type', type);
 
-    // Append endpoints as multiple 'endpoint' entries
     endpoints.forEach((ep) => {
       formData.append('endpoint', ep);
     });
 
-    // Strings for backend interpretation
     formData.append('is_active', isActive.toString());
     formData.append('is_featured', isFeatured.toString());
 
@@ -43,6 +47,14 @@ const VideoUpload = () => {
       });
       console.log('[Upload Success]', response.data);
       setStatus('✅ Upload successful!');
+
+      // Reset form
+      setFiles([]);
+      setLabel('');
+      setType('media');
+      setEndpoints(['EethmHome']);
+      setIsActive(true);
+      setIsFeatured(false);
     } catch (error) {
       console.error('[Upload Error]', error?.response?.data || error.message);
       const detail =
@@ -78,6 +90,14 @@ const VideoUpload = () => {
           />
         </label>
 
+        {files.length > 0 && (
+          <ul>
+            {files.map((file, idx) => (
+              <li key={idx}>{file.name}</li>
+            ))}
+          </ul>
+        )}
+
         <label>
           Type:
           <select value={type} onChange={(e) => setType(e.target.value)}>
@@ -87,10 +107,13 @@ const VideoUpload = () => {
         </label>
 
         <label>
-          Endpoint:
+          Endpoints:
           <select
-            value={endpoints[0]}
-            onChange={(e) => setEndpoints([e.target.value])}
+            multiple
+            value={endpoints}
+            onChange={(e) =>
+              setEndpoints(Array.from(e.target.selectedOptions, (opt) => opt.value))
+            }
           >
             <option value="EethmHome">EethmHome</option>
             <option value="UserPage">UserPage</option>
