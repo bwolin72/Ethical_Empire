@@ -3,7 +3,7 @@ import axiosInstance from '../../api/axiosInstance';
 import './VideoUpload.css';
 
 const VideoUpload = () => {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [label, setLabel] = useState('');
   const [type, setType] = useState('media');
   const [endpoints, setEndpoints] = useState(['EethmHome']);
@@ -14,33 +14,38 @@ const VideoUpload = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!file) {
-      alert('Please select a file to upload');
+    if (!files.length) {
+      alert('Please select at least one video file.');
       return;
     }
 
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('label', label);
-    formData.append('type', type);
-    endpoints.forEach(ep => formData.append('endpoints', ep)); // Use 'endpoints[]' if backend expects array
 
-    // Send booleans as strings
-    formData.append('is_active', isActive ? 'true' : 'false');
-    formData.append('is_featured', isFeatured ? 'true' : 'false');
-
-    // Debug: print form data
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ':', pair[1]);
+    // Append all selected files as 'media'
+    for (let i = 0; i < files.length; i++) {
+      formData.append('media', files[i]);
     }
 
+    formData.append('label', label);
+    formData.append('type', type);
+
+    // If backend expects 'endpoint' or 'endpoints[]'
+    endpoints.forEach(ep => formData.append('endpoint', ep)); // or 'endpoints[]'
+
+    formData.append('is_active', isActive);
+    formData.append('is_featured', isFeatured);
+
     try {
-      await axiosInstance.post('/media/upload/', formData); // Let Axios handle Content-Type
+      const response = await axiosInstance.post('/media/upload/', formData);
+      console.log('[Upload Success]', response.data);
       setStatus('✅ Upload successful!');
-    } catch (err) {
-      console.error('[VideoUpload] Upload error:', err?.response || err);
-      const errorMsg = err?.response?.data?.detail || '❌ Upload failed.';
-      setStatus(errorMsg);
+    } catch (error) {
+      console.error('[Upload Error]', error?.response?.data || error.message);
+      const detail =
+        error?.response?.data?.error ||
+        error?.response?.data?.detail ||
+        '❌ Upload failed.';
+      setStatus(detail);
     }
   };
 
@@ -60,11 +65,12 @@ const VideoUpload = () => {
         </label>
 
         <label>
-          File:
+          File(s):
           <input
             type="file"
             accept="video/*"
-            onChange={e => setFile(e.target.files[0])}
+            multiple
+            onChange={e => setFiles([...e.target.files])}
             required
           />
         </label>
