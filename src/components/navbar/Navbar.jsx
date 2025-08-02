@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { logoutHelper } from '../../utils/logoutHelper';
 import './Navbar.css';
 import logo from '../../assets/logo.png';
 
@@ -7,7 +8,15 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 960);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+
+  // Detect authentication status
+  useEffect(() => {
+    const access = localStorage.getItem('access') || sessionStorage.getItem('access');
+    const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
+    setIsLoggedIn(!!(access && refresh));
+  }, [location]); // Update on route change
 
   // Close menu when route changes
   useEffect(() => {
@@ -27,6 +36,11 @@ function Navbar() {
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+
+  const handleLogout = async () => {
+    await logoutHelper();
+    setIsLoggedIn(false); // Update UI immediately
+  };
 
   return (
     <nav className="navbar">
@@ -101,6 +115,19 @@ function Navbar() {
             <Link to="/connect" className="nav-links">
               Connect With Us
             </Link>
+          </li>
+
+          {/* Login/Logout Button */}
+          <li className="nav-item">
+            {isLoggedIn ? (
+              <button onClick={handleLogout} className="nav-links logout-btn">
+                Logout
+              </button>
+            ) : (
+              <Link to="/login" className="nav-links">
+                Login
+              </Link>
+            )}
           </li>
         </ul>
       </div>

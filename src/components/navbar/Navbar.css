@@ -1,14 +1,35 @@
+/* === Variable Definitions === */
+:root {
+  /* Colors */
+  --color-bg-dark: #2E2E2E;
+  --color-bg-darker: #3A3A3A;
+  --color-text-light: #FDFCFB;
+  --color-accent: #CBA135;
+  --color-hover: #800020;
+  --color-white: #FFFFFF;
+
+  /* Sizes */
+  --navbar-height: 80px;
+  --max-width: 1300px;
+  --logo-size: 40px;
+  --logo-size-sm: 32px;
+  --font-base: 1rem;
+  --font-large: 1.8rem;
+  --font-small: 0.95rem;
+  --transition-speed: 0.3s;
+}
+
 /* === Navbar Base === */
 .navbar {
-  background-color: #2E2E2E; /* Charcoal Gray */
-  height: 80px;
+  background-color: var(--color-bg-dark);
+  height: var(--navbar-height);
   display: flex;
   justify-content: center;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 999;
-  font-size: 1rem;
+  font-size: var(--font-base);
   width: 100%;
 }
 
@@ -16,9 +37,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 80px;
+  height: var(--navbar-height);
   width: 100%;
-  max-width: 1300px;
+  max-width: var(--max-width);
   padding: 0 40px;
   position: relative;
 }
@@ -28,14 +49,14 @@
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #FDFCFB; /* Light Cream */
-  font-size: 1.8rem;
+  color: var(--color-text-light);
+  font-size: var(--font-large);
   font-weight: 600;
   cursor: pointer;
 }
 
 .logo-img {
-  height: 40px;
+  height: var(--logo-size);
   margin-right: 10px;
   object-fit: contain;
 }
@@ -48,8 +69,8 @@
 /* === Menu Icon (Mobile) === */
 .menu-icon {
   display: none;
-  font-size: 1.8rem;
-  color: #FDFCFB;
+  font-size: var(--font-large);
+  color: var(--color-text-light);
   cursor: pointer;
   position: absolute;
   right: 20px;
@@ -73,22 +94,22 @@
 
 .nav-item {
   position: relative;
-  height: 80px;
+  height: var(--navbar-height);
 }
 
 .nav-links {
-  color: #FDFCFB;
+  color: var(--color-text-light);
   text-decoration: none;
   padding: 0 1rem;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.3s ease;
+  transition: color var(--transition-speed) ease;
 }
 
 .nav-links:hover {
-  color: #CBA135; /* Muted Gold */
+  color: var(--color-accent);
 }
 
 .caret {
@@ -99,9 +120,9 @@
 /* === Dropdown === */
 .dropdown-menu {
   position: absolute;
-  top: 80px;
+  top: var(--navbar-height);
   left: 0;
-  background-color: #3A3A3A;
+  background-color: var(--color-bg-darker);
   width: 220px;
   padding: 0;
   list-style: none;
@@ -120,14 +141,33 @@
   width: 100%;
   padding: 12px 16px;
   text-decoration: none;
-  color: #FDFCFB;
-  background-color: #3A3A3A;
-  transition: background 0.3s ease;
+  color: var(--color-text-light);
+  background-color: var(--color-bg-darker);
+  transition: background var(--transition-speed) ease;
 }
 
 .dropdown-link:hover {
-  background-color: #800020; /* Deep Burgundy */
-  color: #fff;
+  background-color: var(--color-hover);
+  color: var(--color-white);
+}
+
+/* === Logout Button Styling === */
+.logout-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-light);
+  font: inherit;
+  cursor: pointer;
+  padding: 0 1rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-speed) ease;
+}
+
+.logout-btn:hover {
+  color: var(--color-accent);
 }
 
 /* === Mobile Responsive === */
@@ -145,12 +185,12 @@
     justify-content: flex-start;
     align-items: center;
     position: absolute;
-    top: 80px;
+    top: var(--navbar-height);
     left: -100%;
     width: 100%;
-    height: calc(100vh - 80px);
-    background-color: #2E2E2E;
-    transition: left 0.4s ease, opacity 0.3s ease;
+    height: calc(100vh - var(--navbar-height));
+    background-color: var(--color-bg-dark);
+    transition: left 0.4s ease, opacity var(--transition-speed) ease;
     z-index: 998;
     opacity: 0;
     overflow-y: auto;
@@ -176,7 +216,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #3A3A3A;
+    background-color: var(--color-bg-darker);
     box-shadow: none;
   }
 
@@ -185,29 +225,29 @@
     text-align: center;
     width: 100%;
     display: block;
-    background-color: #3A3A3A;
+    background-color: var(--color-bg-darker);
   }
 
   .dropdown-link:hover {
-    background-color: #800020;
+    background-color: var(--color-hover);
   }
 }
 
-/* === Extra Small Screens (optional for below 480px) === */
+/* === Extra Small Screens === */
 @media screen and (max-width: 480px) {
   .navbar-logo {
     font-size: 1.4rem;
   }
 
   .logo-img {
-    height: 32px;
+    height: var(--logo-size-sm);
   }
 
   .nav-links {
-    font-size: 1rem;
+    font-size: var(--font-base);
   }
 
   .dropdown-link {
-    font-size: 0.95rem;
+    font-size: var(--font-small);
   }
 }
