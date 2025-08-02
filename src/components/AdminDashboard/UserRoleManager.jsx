@@ -195,10 +195,12 @@ const UserRoleManager = () => {
                   return (
                     <Card key={id} className="rounded-2xl border shadow-md p-4 bg-white">
                       <CardContent className="flex items-start gap-4 justify-between">
-                        <Checkbox
-                          checked={selected.includes(id)}
-                          onCheckedChange={() => toggleSelection(id)}
-                        />
+                        <div className="pt-1">
+                          <Checkbox
+                            checked={selected.includes(id)}
+                            onCheckedChange={() => toggleSelection(id)}
+                          />
+                        </div>
                         <div className="flex-grow text-gray-800">
                           <h2 className="font-semibold text-lg">{name}</h2>
                           <p className="text-sm">{email}</p>

@@ -11,35 +11,33 @@ function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
 
-  // Detect authentication status
   useEffect(() => {
     const access = localStorage.getItem('access') || sessionStorage.getItem('access');
     const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
     setIsLoggedIn(!!(access && refresh));
-  }, [location]); // Update on route change
+  }, [location]);
 
-  // Close menu when route changes
   useEffect(() => {
     setMenuOpen(false);
     setDropdownOpen(false);
   }, [location]);
 
-  // Handle screen resize
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 960);
-      if (window.innerWidth > 960) setDropdownOpen(false);
+      const mobile = window.innerWidth <= 960;
+      setIsMobile(mobile);
+      if (!mobile) setDropdownOpen(false);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
-  const toggleDropdown = () => setDropdownOpen((prev) => !prev);
+  const toggleMenu = () => setMenuOpen(prev => !prev);
+  const toggleDropdown = () => setDropdownOpen(prev => !prev);
 
   const handleLogout = async () => {
     await logoutHelper();
-    setIsLoggedIn(false); // Update UI immediately
+    setIsLoggedIn(false);
   };
 
   return (
@@ -50,25 +48,19 @@ function Navbar() {
           <span className="logo-text">EETHM_GH</span>
         </Link>
 
-        {/* Mobile menu toggle */}
         <div className="menu-icon" onClick={toggleMenu}>
           {menuOpen ? '✖' : '☰'}
         </div>
 
         <ul className={menuOpen ? 'nav-menu active' : 'nav-menu'}>
           <li className="nav-item">
-            <Link to="/bookings" className="nav-links">
-              Bookings
-            </Link>
+            <Link to="/bookings" className="nav-links">Bookings</Link>
           </li>
 
           <li className="nav-item">
-            <Link to="/about" className="nav-links">
-              About
-            </Link>
+            <Link to="/about" className="nav-links">About</Link>
           </li>
 
-          {/* Services Dropdown */}
           <li
             className="nav-item dropdown"
             onClick={() => isMobile && toggleDropdown()}
@@ -82,51 +74,34 @@ function Navbar() {
             {dropdownOpen && (
               <ul className="dropdown-menu">
                 <li className="dropdown-item">
-                  <Link to="/services/live-band" className="dropdown-link">
-                    Live Band
-                  </Link>
+                  <Link to="/services/live-band" className="dropdown-link">Live Band</Link>
                 </li>
                 <li className="dropdown-item">
-                  <Link to="/services/catering" className="dropdown-link">
-                    Catering
-                  </Link>
+                  <Link to="/services/catering" className="dropdown-link">Catering</Link>
                 </li>
                 <li className="dropdown-item">
-                  <Link to="/services/decor" className="dropdown-link">
-                    Decor
-                  </Link>
+                  <Link to="/services/decor" className="dropdown-link">Decor</Link>
                 </li>
                 <li className="dropdown-item">
-                  <Link to="/services/media-hosting" className="dropdown-link">
-                    Media & Event Hosting
-                  </Link>
+                  <Link to="/services/media-hosting" className="dropdown-link">Media & Event Hosting</Link>
                 </li>
               </ul>
             )}
           </li>
 
           <li className="nav-item">
-            <Link to="/contact" className="nav-links">
-              Contact
-            </Link>
+            <Link to="/contact" className="nav-links">Contact</Link>
           </li>
 
           <li className="nav-item">
-            <Link to="/connect" className="nav-links">
-              Connect With Us
-            </Link>
+            <Link to="/connect" className="nav-links">Connect With Us</Link>
           </li>
 
-          {/* Login/Logout Button */}
           <li className="nav-item">
             {isLoggedIn ? (
-              <button onClick={handleLogout} className="nav-links logout-btn">
-                Logout
-              </button>
+              <button onClick={handleLogout} className="nav-links logout-btn">Logout</button>
             ) : (
-              <Link to="/login" className="nav-links">
-                Login
-              </Link>
+              <Link to="/login" className="nav-links">Login</Link>
             )}
           </li>
         </ul>

@@ -21,22 +21,26 @@ const VideoUpload = () => {
 
     const formData = new FormData();
 
-    // Append all selected files as 'media'
-    for (let i = 0; i < files.length; i++) {
-      formData.append('media', files[i]);
-    }
+    files.forEach((file) => {
+      formData.append('media', file);
+    });
 
     formData.append('label', label);
     formData.append('type', type);
 
-    // If backend expects 'endpoint' or 'endpoints[]'
-    endpoints.forEach(ep => formData.append('endpoint', ep)); // or 'endpoints[]'
+    // Append endpoints as multiple 'endpoint' entries
+    endpoints.forEach((ep) => {
+      formData.append('endpoint', ep);
+    });
 
-    formData.append('is_active', isActive);
-    formData.append('is_featured', isFeatured);
+    // Strings for backend interpretation
+    formData.append('is_active', isActive.toString());
+    formData.append('is_featured', isFeatured.toString());
 
     try {
-      const response = await axiosInstance.post('/media/upload/', formData);
+      const response = await axiosInstance.post('/media/upload/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       console.log('[Upload Success]', response.data);
       setStatus('✅ Upload successful!');
     } catch (error) {
@@ -53,13 +57,12 @@ const VideoUpload = () => {
     <div className="upload-form-container">
       <h2>Upload Video</h2>
       <form onSubmit={handleSubmit}>
-
         <label>
           Label:
           <input
             type="text"
             value={label}
-            onChange={e => setLabel(e.target.value)}
+            onChange={(e) => setLabel(e.target.value)}
             required
           />
         </label>
@@ -70,14 +73,14 @@ const VideoUpload = () => {
             type="file"
             accept="video/*"
             multiple
-            onChange={e => setFiles([...e.target.files])}
+            onChange={(e) => setFiles([...e.target.files])}
             required
           />
         </label>
 
         <label>
           Type:
-          <select value={type} onChange={e => setType(e.target.value)}>
+          <select value={type} onChange={(e) => setType(e.target.value)}>
             <option value="media">Media</option>
             <option value="banner">Banner</option>
           </select>
@@ -85,7 +88,10 @@ const VideoUpload = () => {
 
         <label>
           Endpoint:
-          <select value={endpoints[0]} onChange={e => setEndpoints([e.target.value])}>
+          <select
+            value={endpoints[0]}
+            onChange={(e) => setEndpoints([e.target.value])}
+          >
             <option value="EethmHome">EethmHome</option>
             <option value="UserPage">UserPage</option>
             <option value="About">About</option>
@@ -100,7 +106,7 @@ const VideoUpload = () => {
           <input
             type="checkbox"
             checked={isActive}
-            onChange={e => setIsActive(e.target.checked)}
+            onChange={(e) => setIsActive(e.target.checked)}
           />
           Active
         </label>
@@ -109,7 +115,7 @@ const VideoUpload = () => {
           <input
             type="checkbox"
             checked={isFeatured}
-            onChange={e => setIsFeatured(e.target.checked)}
+            onChange={(e) => setIsFeatured(e.target.checked)}
           />
           Featured
         </label>
