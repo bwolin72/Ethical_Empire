@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
 import './MediaHostingServicePage.css';
-import { Card, CardContent } from '../../components/ui/card';
+import { Card, CardContent } from '../ui/Card';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import PhoneInput from 'react-phone-number-input';

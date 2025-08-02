@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import './liveband.css';
-import { Card, CardContent } from '../../components/ui/card';
+import { Card, CardContent } from '../ui/Card';
 import { motion } from 'framer-motion';
 import publicAxios from '../../api/publicAxios';
 import { useNavigate } from 'react-router-dom';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import './catering.custom.css';
-import { Card, CardContent } from '../../components/ui/card';
+import { Card, CardContent } from '../ui/Card';
 import { motion } from 'framer-motion';
 import publicAxios from '../../api/publicAxios';
 import MediaCards from '../context/MediaCards';

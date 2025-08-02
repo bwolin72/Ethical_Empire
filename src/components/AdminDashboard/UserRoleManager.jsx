@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
-import { Button } from '../ui/button';
-import { Card, CardContent } from '../ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
+import { Button } from '../ui/Button';
+import { Card, CardContent } from '../ui/Card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/Tabs';
 import { Checkbox } from '../ui/checkbox';
-import { Textarea } from '../ui/textarea';
-import { Input } from '../ui/input';
+import { Textarea } from '../ui/Textarea';
+import { Input } from '../ui/Input';
 import { toast } from 'react-toastify';
 import './UserRoleManager.css';
 

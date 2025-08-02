@@ -1,7 +1,7 @@
 // src/components/AdminDashboard/AnalyticsDashboard.jsx
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '../../components/ui/card';
+import { Card, CardContent } from '../ui/Card';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import axiosInstance from '../../api/axiosInstance';
 import './AnalyticsDashboard.css';
