@@ -1,7 +1,3 @@
-/**
- * Improved BookingManagement component with responsive layout,
- * consistent input styling, and aligned with updated backend.
- */
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './BookingManagement.css';
@@ -108,6 +104,15 @@ const BookingManagement = () => {
         { status: editBooking.status },
         { headers }
       );
+
+      // ⬇️ Send confirmation email if approved or rejected
+      if (['approved', 'rejected'].includes(editBooking.status)) {
+        await axiosInstance.post(
+          `/bookings/admin/bookings/${editBooking.id}/send-confirmation/`,
+          {},
+          { headers }
+        );
+      }
 
       setEditBooking(null);
       fetchBookings();

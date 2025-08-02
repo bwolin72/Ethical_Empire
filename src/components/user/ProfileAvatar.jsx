@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import "./ProfileAvatar.css";
 
-const ProfileAvatar = ({ imageUrl, name, email, onUpload, onRemove }) => {
+const ProfileAvatar = ({ imageUrl, name, email }) => {
   const fileInputRef = useRef();
 
   const handleClick = () => {
@@ -20,17 +20,71 @@ const ProfileAvatar = ({ imageUrl, name, email, onUpload, onRemove }) => {
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
     try {
-      const res = await fetch(uploadUrl, { method: "POST", body: formData });
+      const res = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
+      });
       const data = await res.json();
 
-      if (data.secure_url) onUpload(data.secure_url);
+      if (data.secure_url) {
+        await updateProfileImage(data.secure_url);
+      }
     } catch (err) {
       console.error("Upload failed", err);
     }
   };
 
+  const updateProfileImage = async (url) => {
+    try {
+      const token = localStorage.getItem("authToken"); // Adjust if using cookies or other auth
+      const res = await fetch("/api/accounts/profile/", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ profile_image_url: url }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update profile image.");
+      }
+
+      window.location.reload(); // Optional: update UI after upload
+    } catch (err) {
+      console.error("Profile update failed", err);
+    }
+  };
+
+  const handleRemove = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const res = await fetch("/api/accounts/profile/", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ profile_image_url: null }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to remove profile image.");
+      }
+
+      window.location.reload(); // Optional: update UI after removal
+    } catch (err) {
+      console.error("Failed to remove image", err);
+    }
+  };
+
   const initials = name
-    ? name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    ? name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
     : "?";
 
   return (
@@ -55,7 +109,11 @@ const ProfileAvatar = ({ imageUrl, name, email, onUpload, onRemove }) => {
       <div className="profile-desc">
         <p><strong>{name}</strong></p>
         <p>{email}</p>
-        {imageUrl && <button onClick={onRemove} className="remove-btn">Remove Photo</button>}
+        {imageUrl && (
+          <button onClick={handleRemove} className="remove-btn">
+            Remove Photo
+          </button>
+        )}
       </div>
     </div>
   );

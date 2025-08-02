@@ -34,6 +34,10 @@ const UserRoleManager = () => {
   const [submitting, setSubmitting] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
 
+  useEffect(() => {
+    fetchUsers(activeTab);
+  }, [activeTab]);
+
   const fetchUsers = async (role) => {
     setLoading(true);
     try {
@@ -47,10 +51,6 @@ const UserRoleManager = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchUsers(activeTab);
-  }, [activeTab]);
 
   const toggleSelection = (id) => {
     setSelected((prev) =>
@@ -68,8 +68,8 @@ const UserRoleManager = () => {
         )
       );
       toast.success('Users deleted');
-      fetchUsers(activeTab);
       setSelected([]);
+      fetchUsers(activeTab);
     } catch (err) {
       toast.error('Error deleting users');
     } finally {
@@ -128,12 +128,15 @@ const UserRoleManager = () => {
   };
 
   const handleToggleActive = async (userId) => {
+    setSubmitting(true);
     try {
       await axiosInstance.post(`/accounts/profiles/toggle-active/${userId}/`);
       toast.success('Status updated');
       fetchUsers(activeTab);
     } catch (err) {
       toast.error('Failed to update user status');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -180,30 +183,40 @@ const UserRoleManager = () => {
               <p className="text-center text-gray-500">Loading users...</p>
             ) : users.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {users.map((user) => (
-                  <Card key={user.id} className="rounded-2xl border shadow-md p-4 bg-white">
-                    <CardContent className="flex items-start gap-4 justify-between">
-                      <Checkbox
-                        checked={selected.includes(user.id)}
-                        onCheckedChange={() => toggleSelection(user.id)}
-                      />
-                      <div className="flex-grow text-gray-800">
-                        <h2 className="font-semibold text-lg">{user.name}</h2>
-                        <p className="text-sm">{user.email}</p>
-                        <p className="text-xs uppercase">{user.role}</p>
-                        <p className={`text-xs mt-1 ${user.is_active ? 'text-green-600' : 'text-red-500'}`}>
-                          {user.is_active ? 'Active' : 'Inactive'}
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => handleToggleActive(user.id)}
-                        className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
-                      >
-                        {user.is_active ? 'Deactivate' : 'Activate'}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                {users.map((user) => {
+                  const {
+                    id,
+                    name = 'Unnamed',
+                    email = 'No email',
+                    role: userRole = '',
+                    is_active = false,
+                  } = user;
+
+                  return (
+                    <Card key={id} className="rounded-2xl border shadow-md p-4 bg-white">
+                      <CardContent className="flex items-start gap-4 justify-between">
+                        <Checkbox
+                          checked={selected.includes(id)}
+                          onCheckedChange={() => toggleSelection(id)}
+                        />
+                        <div className="flex-grow text-gray-800">
+                          <h2 className="font-semibold text-lg">{name}</h2>
+                          <p className="text-sm">{email}</p>
+                          <p className="text-xs uppercase">{userRole}</p>
+                          <p className={`text-xs mt-1 ${is_active ? 'text-green-600' : 'text-red-500'}`}>
+                            {is_active ? 'Active' : 'Inactive'}
+                          </p>
+                        </div>
+                        <Button
+                          onClick={() => handleToggleActive(id)}
+                          className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
+                        >
+                          {is_active ? 'Deactivate' : 'Activate'}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <p className="text-center text-gray-400 mt-8">No users found for this role.</p>

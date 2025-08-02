@@ -1,14 +1,21 @@
 .profile-avatar {
   text-align: center;
   margin: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* === Avatar Box === */
 .avatar-box {
   position: relative;
   width: 120px;
   height: 120px;
   margin: auto;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.avatar-box:hover {
+  transform: scale(1.03);
 }
 
 .avatar-image,
@@ -35,10 +42,19 @@
   text-align: center;
   padding: 4px 0;
   border-radius: 0 0 50% 50%;
+  transition: background 0.2s ease;
 }
 
+.avatar-box:hover .avatar-overlay,
+.avatar-box:focus-within .avatar-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* === Profile Description === */
 .profile-desc p {
   margin: 0.3rem 0;
+  font-size: 0.95rem;
+  color: #333;
 }
 
 .remove-btn {
@@ -46,7 +62,72 @@
   background: #f87171;
   color: white;
   border: none;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.3s ease;
+}
+
+.remove-btn:hover,
+.remove-btn:focus {
+  background: #dc2626;
+  outline: none;
+}
+
+
+/* === Responsive === */
+@media screen and (max-width: 480px) {
+  .avatar-box {
+    width: 90px;
+    height: 90px;
+  }
+
+  .avatar-image,
+  .avatar-fallback {
+    font-size: 28px;
+  }
+
+  .avatar-overlay {
+    font-size: 12px;
+    padding: 3px 0;
+  }
+
+  .remove-btn {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+
+  .profile-desc p {
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 380px) {
+  .profile-avatar {
+    margin: 0.5rem;
+  }
+
+  .avatar-box {
+    width: 75px;
+    height: 75px;
+  }
+
+  .avatar-image,
+  .avatar-fallback {
+    font-size: 24px;
+  }
+
+  .avatar-overlay {
+    font-size: 11px;
+  }
+
+  .remove-btn {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  .profile-desc p {
+    font-size: 0.85rem;
+  }
 }

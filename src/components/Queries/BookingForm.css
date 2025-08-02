@@ -25,155 +25,143 @@
   --color-service-bg-dark: #374151;
 }
 
-/* === Booking Form Container === */
-.booking-form-container {
-  max-width: 900px;
-  margin: auto;
-  padding: 2rem 1.5rem;
-  font-family: 'Segoe UI', sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  background: linear-gradient(to bottom right, #ffffff, #f3f4f6);
-  overflow-y: auto;
-  max-height: 100vh;
+/* === Booking Container & Card === */
+.booking-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.form-card {
+  background-color: white;
+  max-width: 960px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
   border-radius: 1rem;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
 
-.booking-form-container.light {
-  background-color: var(--color-bg-light);
-  color: var(--color-text-light);
-}
-
-.booking-form-container.dark {
+.dark .form-card {
   background-color: var(--color-bg-dark);
-  color: var(--color-text-dark);
 }
 
-/* === Header Section === */
-.form-header {
-  text-align: center;
-  margin-bottom: 2rem;
+/* === Form Left Panel === */
+.form-left {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 2rem;
+  flex: 1 1 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.form-logo {
-  width: 60px;
-  height: auto;
+.logo {
+  width: 80px;
+  margin-bottom: 1rem;
+}
+
+.form-left h2 {
+  font-size: 1.6rem;
   margin-bottom: 0.5rem;
 }
 
-.form-header h2 {
-  font-size: 1.8rem;
-  color: var(--color-primary);
-  font-weight: bold;
-}
-
-.subtitle {
+.form-left .subtitle {
   font-size: 1rem;
-  color: var(--color-muted);
+  font-weight: 300;
+  text-align: center;
 }
 
-.dark .subtitle {
-  color: var(--color-muted-dark);
+/* === Form Right Content === */
+.form-content {
+  flex: 1 1 60%;
+  padding: 2rem;
+  background: var(--color-bg-light);
 }
 
-/* === Form Grid === */
-.form-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
+.dark .form-content {
+  background: var(--color-bg-dark);
+  color: var(--color-text-dark);
 }
 
-.form-group {
-  flex: 1 1 45%;
+.form-content h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+/* === Input Group === */
+.input-group {
+  margin-bottom: 1.2rem;
   display: flex;
   flex-direction: column;
 }
 
-.full-width {
-  flex: 1 1 100%;
-}
-
-/* === Labels and Inputs === */
-label {
+.input-group label {
+  margin-bottom: 0.5rem;
   font-weight: 600;
-  margin-bottom: 0.4rem;
-  color: inherit;
 }
 
-input,
-textarea,
-.date-picker,
+.input-group input,
+.input-group textarea,
+.datepicker-wrapper input,
 .react-tel-input .form-control {
-  padding: 0.65rem 0.8rem;
-  border: 1px solid var(--color-border-light);
+  padding: 0.7rem 0.9rem;
   border-radius: 0.5rem;
+  border: 1px solid var(--color-border-light);
   font-size: 1rem;
-  background-color: #fff;
   color: #111827;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-input:focus,
-textarea:focus,
-.date-picker:focus,
-.react-tel-input .form-control:focus {
-  border-color: var(--color-dropdown-icon);
-  outline: none;
-}
-
-.dark input,
-.dark textarea,
-.dark .date-picker,
+.dark .input-group input,
+.dark .input-group textarea,
+.dark .datepicker-wrapper input,
 .dark .react-tel-input .form-control {
   background-color: var(--color-service-bg-dark);
-  color: var(--color-text-dark);
   border: 1px solid var(--color-border-dark);
+  color: var(--color-text-dark);
 }
 
-.dark input:focus,
-.dark textarea:focus,
-.dark .date-picker:focus,
-.dark .react-tel-input .form-control:focus {
-  border-color: #93c5fd;
-}
-
-/* === React Phone Input Styles === */
+/* === Phone Input === */
 .react-tel-input {
   width: 100%;
 }
 
 .react-tel-input .form-control {
-  width: 100%;
   padding-left: 48px;
+  font-size: 1rem;
 }
 
-/* === Calendar Input === */
-.calendar-input-container {
+/* === Date Picker === */
+.datepicker-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.calendar-icon {
+.datepicker-wrapper .icon {
   position: absolute;
   left: 0.75rem;
+  z-index: 2;
   color: var(--color-calendar-icon);
-  pointer-events: none;
-  z-index: 1;
 }
 
-.date-picker {
+.datepicker-wrapper input {
   width: 100%;
   padding-left: 2.5rem;
 }
 
-/* === Services Section === */
+/* === Checkbox Group (Services) === */
 .checkbox-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  background: var(--color-service-bg-light);
   padding: 0.75rem;
+  background-color: var(--color-service-bg-light);
   border-radius: 0.5rem;
 }
 
@@ -185,23 +173,30 @@ textarea:focus,
   display: flex;
   align-items: center;
   font-weight: 500;
+  font-size: 0.95rem;
 }
 
 .checkbox-option input {
   margin-right: 0.5rem;
 }
 
+/* === Textarea === */
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
 /* === Submit Button === */
 .submit-btn {
   background-color: var(--color-primary);
   color: white;
+  padding: 0.8rem;
   font-weight: 600;
-  padding: 0.8rem 1.2rem;
   border: none;
   border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
   width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -213,52 +208,35 @@ textarea:focus,
   cursor: not-allowed;
 }
 
-/* === Messages === */
-.success-msg {
-  color: var(--color-success);
-  margin-top: 1rem;
-  font-weight: 600;
-  text-align: center;
-}
+/* === Responsive === */
+@media (max-width: 768px) {
+  .form-card {
+    flex-direction: column;
+  }
 
-.error-msg {
-  color: var(--color-error);
-  margin-top: 1rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-/* === Responsive Design === */
-@media (max-width: 1024px) {
-  .form-group {
+  .form-left,
+  .form-content {
     flex: 1 1 100%;
   }
 
-  .form-grid {
-    gap: 1rem;
+  .form-left {
+    padding: 1.5rem;
   }
-}
 
-@media (max-width: 768px) {
-  .booking-form-container {
+  .form-content {
     padding: 1.5rem 1rem;
   }
 
-  .form-logo {
-    width: 50px;
+  .logo {
+    width: 60px;
   }
 
-  .form-header h2 {
-    font-size: 1.5rem;
+  .form-content h3 {
+    font-size: 1.3rem;
   }
 
-  .subtitle {
-    font-size: 0.9rem;
-  }
-
-  input,
-  textarea,
-  .date-picker,
+  .input-group input,
+  .input-group textarea,
   .react-tel-input .form-control {
     font-size: 0.95rem;
   }
@@ -269,34 +247,55 @@ textarea:focus,
 }
 
 @media (max-width: 480px) {
-  .form-header h2 {
+  .form-left h2 {
     font-size: 1.3rem;
   }
 
-  .form-logo {
-    width: 44px;
-  }
-
-  .form-group {
-    margin-bottom: 0.75rem;
-  }
-
-  .checkbox-option {
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 360px) {
-  .form-header h2 {
-    font-size: 1.2rem;
-  }
-
-  .form-logo {
-    width: 40px;
+  .logo {
+    width: 50px;
   }
 
   .submit-btn {
     font-size: 0.9rem;
     padding: 0.7rem 1rem;
+  }
+
+  .checkbox-option {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .logo {
+    width: 44px;
+  }
+
+  .form-left h2 {
+    font-size: 1.2rem;
+  }
+
+  .form-content h3 {
+    font-size: 1.2rem;
+  }
+
+  .submit-btn {
+    font-size: 0.85rem;
+  }
+
+  .input-group input,
+  .react-tel-input .form-control {
+    font-size: 0.9rem;
+  }
+
+  .datepicker-wrapper .icon {
+    left: 0.5rem;
+  }
+
+  .datepicker-wrapper input {
+    padding-left: 2rem;
+  }
+
+  .checkbox-option {
+    font-size: 0.85rem;
   }
 }

@@ -10,7 +10,7 @@
   --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* === Scrollable Media Cards Wrapper === */
+/* === Scroll Wrapper === */
 .media-cards-scroll-wrapper {
   display: flex;
   flex-direction: row;
@@ -25,7 +25,7 @@
   display: none;
 }
 
-/* === Wrapper Card === */
+/* === Media Card === */
 .media-card-wrapper,
 .media-card {
   flex: 0 0 auto;
@@ -50,31 +50,52 @@
   border-color: var(--gold);
 }
 
-.media-card.full-width {
+.media-card.full {
   width: 100%;
 }
 
-/* === Media Preview === */
-.media-img,
-.media-video {
+/* === Media Preview Wrapper === */
+.media-thumb-wrapper {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: 0.75rem;
+}
+
+/* === Image / Video Styling === */
+.media-thumb {
   width: 100%;
   height: auto;
   max-height: 600px;
   object-fit: cover;
-  border-radius: 0.75rem;
+  display: block;
   border: 3px solid var(--gold);
   background-color: var(--charcoal);
-  display: block;
+  border-radius: 0.75rem;
   transition: filter 0.3s ease;
 }
 
-.media-img:hover,
-.media-video:hover {
+.media-thumb:hover {
   filter: brightness(1.05);
 }
 
-/* === Caption === */
-.media-caption {
+/* === Video Icon Overlay === */
+.video-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.65);
+  color: white;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.4rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* === Media Label / Caption === */
+.media-label {
   text-align: center;
   font-size: 0.95rem;
   font-weight: 600;
@@ -82,7 +103,7 @@
   color: var(--charcoal);
 }
 
-/* === Skeleton Loader === */
+/* === Skeleton Placeholder === */
 .media-skeleton {
   width: 100%;
   height: 300px;
@@ -101,7 +122,7 @@
   animation: shimmer 1.6s infinite linear;
 }
 
-/* === Modal Styles === */
+/* === Modal === */
 .media-modal {
   position: fixed;
   top: 0; left: 0;
@@ -149,7 +170,7 @@
   z-index: 10;
 }
 
-/* === Fallback Display === */
+/* === Fallback === */
 .media-preview.fallback {
   padding: 1rem;
   text-align: center;
@@ -189,8 +210,7 @@
 
 /* === Responsive === */
 @media (max-width: 768px) {
-  .media-img,
-  .media-video {
+  .media-thumb {
     max-height: 400px;
   }
 
@@ -206,8 +226,7 @@
 }
 
 @media (max-width: 480px) {
-  .media-img,
-  .media-video {
+  .media-thumb {
     max-height: 300px;
   }
 

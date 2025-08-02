@@ -14,14 +14,9 @@ const AdminDashboard = () => {
   const fetchMediaStats = async () => {
     try {
       const res = await axiosInstance.get('/media/stats/');
-      if (typeof res.data === 'object') {
-        setMediaStats(res.data);
-      } else {
-        throw new Error('Invalid media stats format');
-      }
+      setMediaStats(typeof res.data === 'object' ? res.data : {});
     } catch (err) {
       console.error('Failed to fetch media stats:', err);
-      setMediaStats({});
     }
   };
 
@@ -31,7 +26,6 @@ const AdminDashboard = () => {
       setReviewCount(Array.isArray(res.data) ? res.data.length : 0);
     } catch (err) {
       console.error('Failed to fetch reviews:', err);
-      setReviewCount(0);
     }
   };
 
@@ -45,7 +39,6 @@ const AdminDashboard = () => {
       });
     } catch (err) {
       console.error('Failed to fetch newsletter stats:', err);
-      setNewsletterStats({ posts: 0, subscribers: 0 });
     }
   };
 
@@ -58,7 +51,6 @@ const AdminDashboard = () => {
       });
     } catch (err) {
       console.error('Failed to fetch analytics:', err);
-      setAnalytics({ visits: 0, users: 0 });
     }
   };
 
@@ -75,6 +67,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard-preview">
+      <h1 className="dashboard-heading">Admin Dashboard</h1>
       <div className="overview-grid">
 
         <div className="overview-card">
@@ -143,6 +136,7 @@ const AdminDashboard = () => {
           <p>{analytics.visits} visits • {analytics.users} users</p>
           <button onClick={() => navigate('/admin/analytics')}>View Analytics</button>
         </div>
+
       </div>
     </div>
   );

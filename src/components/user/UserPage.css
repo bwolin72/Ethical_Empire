@@ -325,6 +325,19 @@ section h3 {
   animation: fadeIn 0.8s ease-in forwards;
 }
 
+.open-profile-link {
+  color: var(--color-accent);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.avatar-section {
+  margin: 1rem auto;
+  text-align: center;
+}
+
 @keyframes fadeIn {
   to {
     opacity: 1;

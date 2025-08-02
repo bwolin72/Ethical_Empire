@@ -32,33 +32,40 @@ const UserPage = () => {
   useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
-    setLoading(true);
 
-    Promise.allSettled([
-      axiosInstance.get("/accounts/profile/", { signal }),
-      axiosInstance.get("/media/", {
-        params: { type: "media", endpoint: "UserPage", is_active: true },
-        signal,
-      }),
-      axiosInstance.get("/media/featured/?endpoint=UserPage", { signal }),
-      axiosInstance.get("/reviews/", { signal }),
-      axiosInstance.get("/promotions/", { signal }),
-    ])
-      .then(([profileRes, mediaRes, featuredRes, reviewsRes, promoRes]) => {
-        if (profileRes.status === "fulfilled") setProfile(profileRes.value.data);
-        else toast.error("Failed to load profile.");
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [
+          profileRes,
+          mediaRes,
+          featuredRes,
+          reviewsRes,
+          promoRes,
+        ] = await Promise.all([
+          axiosInstance.get("/accounts/profile/", { signal }),
+          axiosInstance.get("/media/", {
+            params: { type: "media", endpoint: "UserPage", is_active: true },
+            signal,
+          }),
+          axiosInstance.get("/media/featured/?endpoint=UserPage", { signal }),
+          axiosInstance.get("/reviews/", { signal }),
+          axiosInstance.get("/promotions/", { signal }),
+        ]);
 
-        if (mediaRes.status === "fulfilled") setMedia(mediaRes.value.data?.results || []);
-        else toast.error("Failed to load media.");
+        setProfile(profileRes.data);
+        setMedia(mediaRes.data?.results || []);
+        setFeatured(featuredRes.data?.results || []);
+        setReviews(reviewsRes.data || []);
+        setPromotions(promoRes.data || []);
+      } catch (err) {
+        toast.error("Error loading data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        if (featuredRes.status === "fulfilled") setFeatured(featuredRes.value.data?.results || []);
-        if (reviewsRes.status === "fulfilled") setReviews(reviewsRes.value.data);
-        else toast.error("Failed to load reviews.");
-
-        if (promoRes.status === "fulfilled") setPromotions(promoRes.value.data);
-      })
-      .catch(() => toast.error("Something went wrong loading the user page."))
-      .finally(() => setLoading(false));
+    fetchData();
 
     return () => controller.abort();
   }, []);

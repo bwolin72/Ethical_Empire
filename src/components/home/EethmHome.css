@@ -330,6 +330,42 @@ body, .eethm-home-page {
   color: var(--charcoal);
   font-style: italic;
 }
+.reviews-section {
+  padding: 60px 30px;
+  background-color: var(--cream);
+  text-align: center;
+}
+
+.reviews-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.review-card {
+  background-color: var(--white);
+  border-left: 6px solid var(--navy-blue);
+  padding: 20px;
+  max-width: 300px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.review-text {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: var(--charcoal);
+}
+
+.review-author {
+  font-weight: bold;
+  color: var(--burgundy);
+  font-size: 0.9rem;
+}
+
 
 /* === Responsive === */
 @media (max-width: 768px) {

@@ -6,7 +6,10 @@ import publicAxios from '../../api/publicAxios';
 import MediaCards from '../context/MediaCards';
 import BannerCards from '../context/BannerCards';
 import { useNavigate } from 'react-router-dom';
-import { FaLeaf, FaPepperHot, FaCarrot, FaFish, FaDrumstickBite, FaAppleAlt, FaSeedling } from 'react-icons/fa';
+import {
+  FaLeaf, FaPepperHot, FaCarrot, FaFish,
+  FaDrumstickBite, FaAppleAlt, FaSeedling,
+} from 'react-icons/fa';
 
 const CateringPage = () => {
   const navigate = useNavigate();
@@ -43,16 +46,15 @@ const CateringPage = () => {
     'Private Dinners',
     'Product Launches',
     'Birthday Soirées',
-    'Cocktail Receptions'
+    'Cocktail Receptions',
   ];
 
   const fetchData = useCallback(async () => {
     try {
-      const reviewsRes = await publicAxios.get('/reviews/');
-      const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
-      setTestimonials(reviews);
+      const { data } = await publicAxios.get('/reviews/');
+      setTestimonials(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Error loading catering content:', error);
+      console.error('Error loading testimonials:', error);
     } finally {
       setLoading(false);
     }
@@ -64,12 +66,12 @@ const CateringPage = () => {
 
   return (
     <div className="catering-page-container">
-      {/* === Hero Banner Section === */}
+      {/* === Hero Section === */}
       <section className="catering-banners">
         <BannerCards endpoint="CateringPage" title="Catering Highlights" />
       </section>
 
-      {/* === CTA Section === */}
+      {/* === Call to Action === */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -84,22 +86,26 @@ const CateringPage = () => {
       <section className="section services-section">
         <h2>Our Catering Services</h2>
         <div className="card-grid">
-          {cateringServices.map((service, index) => (
-            <Card key={index} className="card">
-              <CardContent className="card-content">{service}</CardContent>
-            </Card>
+          {cateringServices.map((service, i) => (
+            <motion.div key={i} whileHover={{ scale: 1.03 }}>
+              <Card className="card">
+                <CardContent className="card-content">{service}</CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </section>
 
-      {/* === Event Types Section === */}
+      {/* === Event Types === */}
       <section className="section event-types-section">
         <h2>We Cater For</h2>
         <div className="card-grid">
-          {eventTypes.map((event, index) => (
-            <Card key={index} className="card">
-              <CardContent className="card-content">{event}</CardContent>
-            </Card>
+          {eventTypes.map((event, i) => (
+            <motion.div key={i} whileHover={{ scale: 1.03 }}>
+              <Card className="card">
+                <CardContent className="card-content">{event}</CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -112,8 +118,8 @@ const CateringPage = () => {
               endpoint="CateringPage"
               type="media"
               title="Creative Catering Ideas"
-              isFeatured={true}
-              isActive={true}
+              isFeatured
+              isActive
             />
           </div>
           <div className="creative-text">
@@ -131,10 +137,10 @@ const CateringPage = () => {
       <section className="section dietary-section">
         <h2>Dietary Options</h2>
         <div className="dietary-grid">
-          {dietarySuggestions.map((item, index) => (
-            <motion.div key={index} whileHover={{ scale: 1.05 }} className="dietary-card">
-              <span className="dietary-icon">{item.icon}</span>
-              {item.label}
+          {dietarySuggestions.map(({ label, icon }, i) => (
+            <motion.div key={i} className="dietary-card" whileHover={{ scale: 1.08 }}>
+              <span className="dietary-icon">{icon}</span>
+              {label}
             </motion.div>
           ))}
         </div>
@@ -145,24 +151,26 @@ const CateringPage = () => {
         <h2>What Clients Say</h2>
         <div className="testimonial-grid">
           {loading
-            ? Array.from({ length: 3 }).map((_, i) => (
+            ? [...Array(3)].map((_, i) => (
                 <div key={i} className="testimonial-card skeleton shimmer">
                   <div className="testimonial-message">Loading review...</div>
                   <div className="testimonial-user">Loading...</div>
                 </div>
               ))
-            : testimonials.slice(0, 6).map((review, index) => (
-                <Card key={review.id || index} className="testimonial-card">
-                  <CardContent>
-                    <p className="testimonial-text">"{review?.message || 'No message provided.'}"</p>
-                    <p className="testimonial-user">— {review?.user?.username || 'Anonymous'}</p>
-                  </CardContent>
-                </Card>
+            : testimonials.slice(0, 6).map((review, i) => (
+                <motion.div key={review?.id || i} whileHover={{ scale: 1.02 }}>
+                  <Card className="testimonial-card">
+                    <CardContent>
+                      <p className="testimonial-text">"{review.message || 'No message provided.'}"</p>
+                      <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
         </div>
       </section>
 
-      {/* === WhatsApp Button === */}
+      {/* === WhatsApp CTA === */}
       <WhatsAppButton />
     </div>
   );

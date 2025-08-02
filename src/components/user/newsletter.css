@@ -1,8 +1,8 @@
 /* === newsletter.css === */
 /* === Color Variables Scoped to Newsletter === */
 .newsletter-form {
-  --primary-color: #5a1a01;       /* Deep Burgundy */
-  --secondary-color: #f6f6f6;     /* Light background */
+  --primary-color: #5a1a01;
+  --secondary-color: #f6f6f6;
   --text-color: #1a1a1a;
   --input-bg: #ffffff;
   --input-border: #ccc;
@@ -148,5 +148,56 @@
 
   .newsletter-recaptcha {
     transform: scale(0.85);
+  }
+}
+
+@media (max-width: 420px) {
+  .newsletter-form {
+    padding: 1.25rem;
+    border-radius: 10px;
+  }
+
+  .newsletter-title {
+    font-size: 1.2rem;
+  }
+
+  .newsletter-input,
+  .newsletter-button {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.9rem;
+  }
+
+  .newsletter-success {
+    font-size: 0.85rem;
+  }
+
+  .newsletter-recaptcha {
+    transform: scale(0.75);
+  }
+}
+
+@media (max-width: 380px) {
+  .newsletter-form {
+    padding: 1rem;
+    box-shadow: none;
+    border-radius: 8px;
+  }
+
+  .newsletter-title {
+    font-size: 1.1rem;
+  }
+
+  .newsletter-input,
+  .newsletter-button {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .newsletter-link {
+    font-size: 0.8rem;
+  }
+
+  .newsletter-recaptcha {
+    transform: scale(0.7);
   }
 }

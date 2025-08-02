@@ -149,6 +149,11 @@
   transform: scale(1.05);
 }
 
+.status-approved { color: var(--success-green); font-weight: bold; }
+.status-rejected { color: var(--error-red); font-weight: bold; }
+.status-pending  { color: var(--warning-orange); font-style: italic; }
+
+
 /* Modal Overlay */
 .modal {
   position: fixed;

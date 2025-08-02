@@ -192,6 +192,7 @@
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: var(--charcoal);
+  text-align: left;
 }
 
 .account-profile .review-section textarea {
@@ -207,6 +208,16 @@
   box-sizing: border-box;
 }
 
+.account-profile .review-section select {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
 /* === Buttons === */
 .account-profile .btn {
   background-color: var(--forest-green);
@@ -217,6 +228,7 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  min-width: 150px;
 }
 
 .account-profile .btn:hover {
@@ -285,5 +297,79 @@
     top: 0.5rem;
     right: 0.5rem;
     font-size: 1.2rem;
+  }
+}
+
+@media screen and (max-width: 380px) {
+  .account-profile {
+    padding: 0.75rem 1rem;
+    margin: 1rem;
+    border-radius: 8px;
+  }
+
+  .account-profile .profile-pic,
+  .account-profile .profile-initials {
+    width: 70px;
+    height: 70px;
+    font-size: 1.3rem;
+    border-width: 2px;
+    margin-bottom: 0.7rem;
+  }
+
+  .account-profile .upload-label {
+    font-size: 0.85rem;
+    margin-top: -0.3rem;
+  }
+
+  .account-profile .user-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .account-profile .user-info p {
+    font-size: 0.85rem;
+  }
+
+  .account-profile .button-group {
+    gap: 0.6rem;
+  }
+
+  .account-profile .button-group button {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    min-width: auto;
+  }
+
+  .account-profile .booking-section h4 {
+    font-size: 1rem;
+  }
+
+  .account-profile .booking-card p {
+    font-size: 0.85rem;
+  }
+
+  .account-profile .review-section label {
+    font-size: 0.85rem;
+  }
+
+  .account-profile .review-section textarea,
+  .account-profile .review-section select {
+    font-size: 0.85rem;
+  }
+
+  .account-profile .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    min-width: 120px;
+  }
+
+  .account-profile .btn.danger {
+    margin-top: 0.75rem;
+  }
+
+  .account-profile .close-btn {
+    top: 0.3rem;
+    right: 0.3rem;
+    font-size: 1rem;
   }
 }

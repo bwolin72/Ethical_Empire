@@ -39,7 +39,7 @@ const LiveBandServicePage = () => {
   }, []);
 
   return (
-    <div className="liveband-page-container">
+    <div className="liveband-page">
       {/* === Hero Banner === */}
       <section className="banner-section">
         <div className="hero-overlay">
@@ -122,7 +122,7 @@ const LiveBandServicePage = () => {
                     viewport={{ once: true }}
                   >
                     <Card className="testimonial-card">
-                      <CardContent>
+                      <CardContent className="card-content">
                         <p className="testimonial-text">"{review.message}"</p>
                         <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
                       </CardContent>

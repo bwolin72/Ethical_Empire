@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './newsletter.css';
 
-// ✅ Use the correct env variable name
 const SITE_KEY = process.env.REACT_APP_RECAPTCHA_PUBLIC_KEY;
 
 export default function NewsletterSignup() {
@@ -22,6 +21,9 @@ export default function NewsletterSignup() {
     recaptchaRef.current?.reset();
   };
 
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -31,7 +33,7 @@ export default function NewsletterSignup() {
       return;
     }
 
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!validateEmail(email)) {
       toast.warn('⚠️ A valid email is required.');
       setInputError(true);
       setTimeout(() => setInputError(false), 3000);
@@ -55,13 +57,24 @@ export default function NewsletterSignup() {
       const errorMsg =
         err?.response?.data?.error ||
         '❌ Subscription failed. Please try again later.';
-      toast.error(errorMsg);
+
+      if (errorMsg.toLowerCase().includes('already')) {
+        toast.info('📬 You are already subscribed or confirmed.');
+      } else {
+        toast.error(errorMsg);
+      }
+
       setInputError(true);
       setTimeout(() => setInputError(false), 3000);
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (!SITE_KEY) {
+    console.warn('Missing reCAPTCHA site key');
+    return <p>⚠️ Cannot load subscription form. Please try again later.</p>;
+  }
 
   return (
     <form
@@ -89,6 +102,12 @@ export default function NewsletterSignup() {
         placeholder="you@example.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        onBlur={() => {
+          if (email && !validateEmail(email)) {
+            setInputError(true);
+            toast.warn('⚠️ Invalid email format');
+          }
+        }}
         required
         className={`newsletter-input ${inputError ? 'error' : ''}`}
         aria-invalid={inputError}
@@ -109,7 +128,7 @@ export default function NewsletterSignup() {
         aria-busy={submitting}
         aria-label="Submit newsletter subscription"
       >
-        {submitting ? 'Submitting…' : 'Subscribe'}
+        {submitting ? <span className="spinner" /> : 'Subscribe'}
       </button>
 
       {showSuccess && (

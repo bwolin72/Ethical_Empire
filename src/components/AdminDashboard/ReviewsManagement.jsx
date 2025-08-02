@@ -26,8 +26,7 @@ const ReviewsManagement = () => {
         isLoading: false,
         autoClose: 3000,
       });
-    } catch (err) {
-      console.error('[ReviewsManagement] Error fetching reviews:', err);
+    } catch (error) {
       toast.update(toastId, {
         render: '❌ Failed to load reviews',
         type: 'error',
@@ -50,8 +49,7 @@ const ReviewsManagement = () => {
         autoClose: 3000,
       });
       fetchReviews();
-    } catch (err) {
-      console.error('[ReviewsManagement] Error deleting review:', err);
+    } catch (error) {
       toast.update(toastId, {
         render: '❌ Failed to delete review.',
         type: 'error',
@@ -67,6 +65,7 @@ const ReviewsManagement = () => {
       toast.warning('⚠️ Reply cannot be empty.');
       return;
     }
+
     const toastId = toast.loading('Sending reply...');
     try {
       await axiosInstance.patch(`/reviews/${id}/reply/`, { reply });
@@ -78,8 +77,7 @@ const ReviewsManagement = () => {
       });
       setReplyMap((prev) => ({ ...prev, [id]: '' }));
       fetchReviews();
-    } catch (err) {
-      console.error('[ReviewsManagement] Error sending reply:', err);
+    } catch (error) {
       toast.update(toastId, {
         render: '❌ Failed to send reply.',
         type: 'error',
@@ -100,8 +98,7 @@ const ReviewsManagement = () => {
         autoClose: 3000,
       });
       fetchReviews();
-    } catch (err) {
-      console.error('[ReviewsManagement] Error approving review:', err);
+    } catch (error) {
       toast.update(toastId, {
         render: '❌ Failed to approve review.',
         type: 'error',
@@ -121,17 +118,18 @@ const ReviewsManagement = () => {
       <h2>Reviews Management</h2>
 
       {loading ? (
-        <p>Loading reviews...</p>
+        <p className="review-message">Loading reviews...</p>
       ) : reviews.length === 0 ? (
-        <p>No reviews available.</p>
+        <p className="review-message">No reviews available.</p>
       ) : (
         reviews.map((review) => (
           <div className="review-card" key={review.id}>
             <p><strong>Service:</strong> {review.service_display || review.service}</p>
             <p><strong>Rating:</strong> {review.rating} ⭐</p>
             <p><strong>Comment:</strong> "{review.comment}"</p>
-            <p><strong>By:</strong> {review.user_email}</p>
+            <p className="review-author"><strong>By:</strong> {review.user_email}</p>
             <p><strong>Submitted:</strong> {new Date(review.created_at).toLocaleString()}</p>
+            <p><strong>Status:</strong> {review.approved ? '✅ Approved' : '❌ Pending Approval'}</p>
 
             {review.reply && (
               <p className="review-reply">

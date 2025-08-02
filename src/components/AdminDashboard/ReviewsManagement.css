@@ -1,6 +1,8 @@
 .reviews-panel {
   padding: 2rem;
   background: #f8f8f8;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .review-card {
@@ -8,12 +10,16 @@
   padding: 1rem 1.5rem;
   margin-bottom: 1.5rem;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
 }
 
 .review-message {
   font-style: italic;
   color: #333;
+  text-align: center;
+  margin-top: 2rem;
 }
 
 .review-author {
@@ -36,24 +42,78 @@ textarea {
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid #ccc;
+  resize: vertical;
+  min-height: 60px;
+  font-size: 1rem;
 }
 
 .review-actions {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
   margin-top: 0.75rem;
 }
 
-.review-actions button {
+.review-actions button,
+.approve-btn {
   background-color: #1a1a2e;
   color: white;
-  padding: 0.4rem 1.2rem;
+  padding: 0.45rem 1.2rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-size: 0.95rem;
   transition: background-color 0.3s ease;
 }
 
-.review-actions button:hover {
+.review-actions button:hover,
+.approve-btn:hover {
   background-color: #6e1414;
+}
+
+/* Responsive styles for small screens */
+@media (max-width: 600px) {
+  .reviews-panel {
+    padding: 1rem;
+  }
+
+  .review-card {
+    padding: 1rem;
+  }
+
+  textarea {
+    font-size: 0.95rem;
+  }
+
+  .review-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .review-actions button,
+  .approve-btn {
+    width: 100%;
+    padding: 0.5rem;
+  }
+}
+
+/* Additional scaling for very small screens (like 380px) */
+@media (max-width: 400px) {
+  .reviews-panel {
+    padding: 0.75rem;
+  }
+
+  .review-card {
+    padding: 0.75rem;
+  }
+
+  .review-actions button,
+  .approve-btn {
+    font-size: 0.9rem;
+  }
+
+  textarea {
+    font-size: 0.9rem;
+    min-height: 50px;
+  }
 }

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-// Removed unused: import { useNavigate } from 'react-router-dom';
 import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
 import './MediaHostingServicePage.css';
@@ -30,15 +29,15 @@ const MediaHostingServicePage = () => {
 
   const phone = watch('phone');
 
+  useEffect(() => {
+    register('phone', { required: 'Phone number is required' });
+  }, [register]);
+
   const onSubmit = (data) => {
     if (!phone) return;
-    console.log('Form submitted:', data);
-    // Optional: send to backend or navigate to another page
+    console.log('Booking Submitted:', data);
+    // Optional: send data to backend
   };
-
-  useEffect(() => {
-    register('phone', { required: true });
-  }, [register]);
 
   return (
     <div className="liveband-page-container">
@@ -50,7 +49,7 @@ const MediaHostingServicePage = () => {
         />
       </section>
 
-      {/* === Booking Form Section === */}
+      {/* === Booking Form === */}
       <section className="cta-section booking-form-section">
         <h2 className="section-title">Book Hosting Service</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="booking-form">
@@ -87,7 +86,7 @@ const MediaHostingServicePage = () => {
         </form>
       </section>
 
-      {/* === Hosting Services === */}
+      {/* === Services Grid === */}
       <section className="section services-section">
         <h2 className="section-title">Our Multimedia & Hosting Services</h2>
         <div className="card-grid">
@@ -108,7 +107,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* === Media Preview Section === */}
+      {/* === Creative Media Preview (3 items) === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-text">
@@ -116,8 +115,8 @@ const MediaHostingServicePage = () => {
             <p className="section-description">
               Whether it’s a corporate launch, private shoot, or public concert,
               Ethical Multimedia ensures every moment is captured in stunning clarity.
-              From cinematic videography to detailed photography and reliable hosting—
-              your memories and messages are in expert hands.
+              From cinematic videography to detailed photography and reliable hosting—your
+              memories and messages are in expert hands.
             </p>
           </div>
           <div className="creative-media">
@@ -126,12 +125,13 @@ const MediaHostingServicePage = () => {
               type="media"
               limit={3}
               fullWidth={false}
+              supportPreview={true} // Enables both video & image
             />
           </div>
         </div>
       </section>
 
-      {/* === Hosting Venue Info === */}
+      {/* === Event Hosting Venue Info === */}
       <section className="section event-hosting-section">
         <h2 className="section-title">Hosting Event Place</h2>
         <p className="section-description">
@@ -150,6 +150,7 @@ const MediaHostingServicePage = () => {
           type="media"
           limit={6}
           fullWidth={true}
+          supportPreview={true}
         />
       </section>
     </div>

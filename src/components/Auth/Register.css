@@ -266,3 +266,55 @@ body.dark .react-phone-number-input__input {
     font-size: 1.5rem;
   }
 }
+@media (max-width: 400px) {
+  .register-page {
+    flex-direction: column;
+  }
+
+  .register-left, .register-right {
+    padding: 1.5rem 1rem;
+  }
+
+  .register-brand img {
+    width: 60px;
+  }
+
+  .register-brand h1 {
+    font-size: 1.3rem;
+  }
+
+  .register-brand p {
+    font-size: 0.85rem;
+  }
+
+  .register-right h2 {
+    font-size: 1.3rem;
+  }
+
+  .register-form input,
+  .register-form select,
+  .react-phone-number-input__input {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .register-form button {
+    font-size: 0.95rem;
+    padding: 0.65rem;
+  }
+
+  .password-field span {
+    font-size: 1rem;
+    right: 0.75rem;
+  }
+
+  .login-prompt,
+  .google-signup p {
+    font-size: 0.85rem;
+  }
+
+  .password-strength {
+    font-size: 0.75rem;
+  }
+}
+

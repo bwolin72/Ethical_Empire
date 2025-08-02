@@ -99,20 +99,9 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const {
-      full_name,
-      email,
-      phone,
-      dob,
-      gender,
-      password,
-      password2,
-      role,
-      access_code,
-      worker_category_id,
-      company_name,
-      agency_name,
+      full_name, email, phone, dob, gender, password, password2,
+      role, access_code, worker_category_id, company_name, agency_name,
     } = form;
 
     if (!full_name.trim()) return toast.error('Full name is required.');
@@ -124,23 +113,16 @@ const Register = () => {
     if (password !== password2) return toast.error('Passwords do not match.');
 
     const payload = {
-      name: full_name,
-      email,
-      phone,
-      dob,
-      gender,
-      password,
-      password2,
+      name: full_name, email, phone, dob, gender, password, password2,
     };
 
     let endpoint = '/accounts/register/';
-
     if (role === 'WORKER') {
       if (!access_code.trim()) return toast.error('Access code is required.');
       if (!worker_category_id) return toast.error('Worker category ID is required.');
       payload.access_code = access_code;
       payload.worker_category_id = worker_category_id;
-      endpoint = '/accounts/internal-register/'; // ✅ Corrected
+      endpoint = '/accounts/internal-register/';
     } else if (role === 'VENDOR') {
       if (!company_name.trim()) return toast.error('Company name is required.');
       payload.company_name = company_name;
@@ -155,7 +137,6 @@ const Register = () => {
     try {
       const res = await axiosInstance.post(endpoint, payload);
       const { email, phone } = res.data;
-
       toast.success('✅ Verification code sent. Check your email and SMS.');
       navigate(`/verify-otp?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`);
     } catch (err) {
@@ -182,7 +163,18 @@ const Register = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`register-page ${darkMode ? 'dark' : ''}`}>
-        <ToastContainer autoClose={4000} />
+        <ToastContainer
+          position="top-right"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+
         <div className="register-left">
           <div className="register-brand">
             <img src={logo} alt="Logo" className="register-logo" />
@@ -198,106 +190,102 @@ const Register = () => {
           <h2>Create an Account</h2>
 
           <form onSubmit={handleSubmit} className="register-form" noValidate>
-            <select name="role" value={form.role} onChange={handleChange}>
-              <option value="USER">Regular User</option>
-              <option value="WORKER">Worker</option>
-              <option value="VENDOR">Vendor</option>
-              <option value="PARTNER">Partner</option>
-            </select>
+            <div className="form-group">
+              <label htmlFor="role">Account Type</label>
+              <select id="role" name="role" value={form.role} onChange={handleChange}>
+                <option value="USER">Regular User</option>
+                <option value="WORKER">Worker</option>
+                <option value="VENDOR">Vendor</option>
+                <option value="PARTNER">Partner</option>
+              </select>
+            </div>
 
             {form.role === 'WORKER' && (
               <>
-                <input
-                  name="access_code"
-                  placeholder="Access Code"
-                  value={form.access_code}
-                  onChange={handleChange}
-                />
-                <input
-                  name="worker_category_id"
-                  type="number"
-                  placeholder="Worker Category ID"
-                  value={form.worker_category_id}
-                  onChange={handleChange}
-                />
+                <div className="form-group">
+                  <label htmlFor="access_code">Access Code</label>
+                  <input id="access_code" name="access_code" value={form.access_code} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="worker_category_id">Worker Category ID</label>
+                  <input id="worker_category_id" name="worker_category_id" type="number" value={form.worker_category_id} onChange={handleChange} />
+                </div>
               </>
             )}
 
             {form.role === 'VENDOR' && (
-              <input
-                name="company_name"
-                placeholder="Company Name"
-                value={form.company_name}
-                onChange={handleChange}
-              />
+              <div className="form-group">
+                <label htmlFor="company_name">Company Name</label>
+                <input id="company_name" name="company_name" value={form.company_name} onChange={handleChange} />
+              </div>
             )}
 
             {form.role === 'PARTNER' && (
-              <input
-                name="agency_name"
-                placeholder="Agency Name"
-                value={form.agency_name}
-                onChange={handleChange}
-              />
+              <div className="form-group">
+                <label htmlFor="agency_name">Agency Name</label>
+                <input id="agency_name" name="agency_name" value={form.agency_name} onChange={handleChange} />
+              </div>
             )}
 
-            <input
-              name="full_name"
-              placeholder="Full Name"
-              value={form.full_name}
-              onChange={handleChange}
-            />
-            <input
-              name="email"
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-            />
+            <div className="form-group">
+              <label htmlFor="full_name">Full Name</label>
+              <input id="full_name" name="full_name" value={form.full_name} onChange={handleChange} />
+            </div>
 
-            <PhoneInput
-              defaultCountry="GH"
-              value={form.phone}
-              onChange={handlePhoneChange}
-              placeholder="Phone number"
-            />
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input id="email" name="email" type="email" value={form.email} onChange={handleChange} />
+            </div>
 
-            <input
-              name="dob"
-              type="date"
-              value={form.dob}
-              onChange={handleChange}
-            />
+            <div className="form-group">
+              <label htmlFor="phone">Phone Number</label>
+              <PhoneInput
+                id="phone"
+                defaultCountry="GH"
+                value={form.phone}
+                onChange={handlePhoneChange}
+                placeholder="Phone number"
+              />
+            </div>
 
-            <select name="gender" value={form.gender} onChange={handleChange}>
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
+            <div className="form-group">
+              <label htmlFor="dob">Date of Birth</label>
+              <input id="dob" name="dob" type="date" value={form.dob} onChange={handleChange} />
+            </div>
 
-            <div className="password-field">
+            <div className="form-group">
+              <label htmlFor="gender">Gender</label>
+              <select id="gender" name="gender" value={form.gender} onChange={handleChange}>
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div className="form-group password-field">
+              <label htmlFor="password">Password</label>
               <input
+                id="password"
                 name="password"
                 type={passwordVisible ? 'text' : 'password'}
-                placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
               />
               <span onClick={() => setPasswordVisible((v) => !v)}>
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
               </span>
+              <div className={`password-strength ${passwordStrength.toLowerCase()}`}>
+                Password Strength: {passwordStrength}
+              </div>
             </div>
 
-            <div className={`password-strength ${passwordStrength.toLowerCase()}`}>
-              Password Strength: {passwordStrength}
-            </div>
-
-            <div className="password-field">
+            <div className="form-group password-field">
+              <label htmlFor="password2">Confirm Password</label>
               <input
+                id="password2"
                 name="password2"
                 type={passwordVisible ? 'text' : 'password'}
-                placeholder="Confirm Password"
                 value={form.password2}
                 onChange={handleChange}
               />

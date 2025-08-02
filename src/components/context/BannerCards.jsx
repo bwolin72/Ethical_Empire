@@ -1,6 +1,6 @@
 // src/components/context/BannerCards.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import placeholderImg from '../../assets/placeholder.jpg';
 import BannerSkeleton from './BannerSkeleton';
@@ -8,6 +8,7 @@ import './BannerCards.css';
 
 const BannerCards = ({ endpoint, title }) => {
   const [previewBanner, setPreviewBanner] = useState(null);
+  const scrollRef = useRef(null);
 
   const {
     media: banners,
@@ -21,11 +22,35 @@ const BannerCards = ({ endpoint, title }) => {
     pageSize: 20,
   });
 
+  const scrollLeft = () => {
+    scrollRef.current?.scrollBy({ left: -300, behavior: 'smooth' });
+  };
+
+  const scrollRight = () => {
+    scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
+  };
+
+  // Close modal on Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setPreviewBanner(null);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <section className="banner-cards-container">
       {title && <h2 className="banner-cards-title">{title}</h2>}
 
-      <div className="banner-cards-scroll-wrapper">
+      <div className="scroll-controls">
+        <button onClick={scrollLeft} className="scroll-btn left">◀</button>
+        <button onClick={scrollRight} className="scroll-btn right">▶</button>
+      </div>
+
+      <div className="banner-cards-scroll-wrapper" ref={scrollRef}>
         {loading ? (
           Array.from({ length: 3 }).map((_, idx) => (
             <div key={idx} className="banner-card">
@@ -48,26 +73,18 @@ const BannerCards = ({ endpoint, title }) => {
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && setPreviewBanner(banner)}
             >
-              <img
-                src={banner.url?.thumb || banner.url?.full || placeholderImg}
-                alt={banner.label || 'Banner Image'}
-                loading="lazy"
-                className="banner-card-image"
-                onError={(e) => (e.target.src = placeholderImg)}
-              />
-              <div className="banner-card-info">
-                {banner.label && (
-                  <p className="banner-card-caption">{banner.label}</p>
-                )}
-                {banner.uploaded_by && (
-                  <p className="banner-card-meta">Uploaded by: {banner.uploaded_by}</p>
-                )}
-                {banner.uploaded_at && (
-                  <p className="banner-card-meta">
-                    Uploaded at:{' '}
-                    {new Date(banner.uploaded_at).toLocaleDateString()}
-                  </p>
-                )}
+              <div className="banner-img-wrapper">
+                <img
+                  src={banner.url?.thumb || banner.url?.full || placeholderImg}
+                  alt={banner.label || 'Banner Image'}
+                  loading="lazy"
+                  className="banner-card-image"
+                  onError={(e) => (e.target.src = placeholderImg)}
+                />
+                <div className="banner-hover-overlay">
+                  {banner.label && <p>{banner.label}</p>}
+                  {banner.uploaded_by && <span>{banner.uploaded_by}</span>}
+                </div>
               </div>
             </div>
           ))
