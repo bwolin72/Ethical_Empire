@@ -97,13 +97,21 @@ export const AuthProvider = ({ children }) => {
   const login = useCallback(({ access, refresh, user, remember = true }) => {
     if (!access || !refresh || !user) return logout('invalid_login_data');
 
+    // Normalize and validate role
+    const normalizedRole = user?.role?.trim().toLowerCase();
+    if (!user.email || !normalizedRole || !['admin', 'user', 'vendor', 'partner'].includes(normalizedRole)) {
+      return logout('invalid_user_role');
+    }
+
+    const cleanUser = { ...user, role: normalizedRole };
     const storage = remember ? localStorage : sessionStorage;
     localStorage.setItem(AUTH_KEYS.REMEMBER, remember ? 'true' : 'false');
     storage.setItem(AUTH_KEYS.ACCESS, access);
     storage.setItem(AUTH_KEYS.REFRESH, refresh);
-    storage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
+    storage.setItem(AUTH_KEYS.USER, JSON.stringify(cleanUser));
 
-    setAuth({ access, refresh, user });
+    console.log('[Auth] Logged in user role:', normalizedRole);
+    setAuth({ access, refresh, user: cleanUser });
     scheduleTokenRefresh(access, refresh);
     setReady(true);
   }, [logout, scheduleTokenRefresh]);
@@ -123,8 +131,9 @@ export const AuthProvider = ({ children }) => {
         updated.refresh = refresh;
       }
       if (user !== undefined) {
-        storage.setItem(AUTH_KEYS.USER, JSON.stringify(user));
-        updated.user = user;
+        const normalizedRole = user?.role?.trim().toLowerCase();
+        updated.user = { ...user, role: normalizedRole };
+        storage.setItem(AUTH_KEYS.USER, JSON.stringify(updated.user));
       }
       return updated;
     });
@@ -151,12 +160,16 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const user = JSON.parse(userRaw);
+        const normalizedRole = user?.role?.trim().toLowerCase();
+        if (!user.email || !normalizedRole || !['admin', 'user', 'vendor', 'partner'].includes(normalizedRole)) {
+          return logout('invalid_user_data');
+        }
+
+        const cleanUser = { ...user, role: normalizedRole };
         const decoded = jwtDecode(access);
         const isExpired = decoded.exp * 1000 < Date.now();
 
-        if (!user?.email || !user?.role) return logout('invalid_user_data');
-
-        setAuth({ access, refresh, user });
+        setAuth({ access, refresh, user: cleanUser });
 
         if (isExpired) {
           console.warn('[Auth] Access token expired. Refreshing...');

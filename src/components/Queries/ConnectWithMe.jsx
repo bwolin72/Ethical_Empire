@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // adjust path if needed
 import axiosInstance from '../../api/axiosInstance';
-import './ConnectWithMe.css'; // Optional CSS if needed
+import './ConnectWithMe.css';
 
 const ConnectWithMe = () => {
   const navigate = useNavigate();
+  const { ready, isAuthenticated } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const handleConnect = async () => {
+    if (!ready || !isAuthenticated) {
+      console.warn('[ConnectWithMe] Auth not ready or not logged in');
+      return navigate('/login');
+    }
+
+    setLoading(true);
     try {
       const response = await axiosInstance.get('/user-account/role/');
-      const { role } = response.data;
+      const role = (response.data.role || '').toLowerCase().trim();
 
-      // Redirect based on user role
       switch (role) {
         case 'admin':
           navigate('/admin');
@@ -27,14 +35,16 @@ const ConnectWithMe = () => {
           navigate('/user');
       }
     } catch (error) {
-      console.error('Authentication required or failed:', error);
+      console.error('[ConnectWithMe] Failed to fetch role:', error);
       navigate('/login');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <button onClick={handleConnect} className="connect-btn">
-      Connect with Me
+    <button onClick={handleConnect} className="connect-btn" disabled={loading}>
+      {loading ? 'Connecting...' : 'Connect with Me'}
     </button>
   );
 };

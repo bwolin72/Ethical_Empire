@@ -95,7 +95,8 @@ const ConnectRedirect = () => {
         const res = await axiosCommon.get('/accounts/profile/role/');
         if (!isMounted) return;
 
-        const role = res?.data?.role;
+        const role = res?.data?.role?.trim()?.toLowerCase();
+        console.log('[ConnectRedirect] Redirecting based on role:', role);
 
         switch (role) {
           case 'admin':
@@ -111,6 +112,7 @@ const ConnectRedirect = () => {
             navigate('/partner-profile', { replace: true });
             break;
           default:
+            console.warn('[ConnectRedirect] Unknown role:', role);
             navigate('/unauthorized', { replace: true });
         }
       } catch (err) {
