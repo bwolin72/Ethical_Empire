@@ -32,14 +32,7 @@
   width: 100%;
 }
 
-/* Prevent theme overrides (like body.light) */
-body.light .navbar,
-body.light .nav-links,
-body.light .dropdown-link,
-body.light .logout-btn,
-body.light .logo-text {
-  color: var(--color-text-light) !important;
-}
+
 
 /* === Container === */
 .navbar-container {
