@@ -18,37 +18,37 @@ export default function VerifyOTP() {
   const location = useLocation();
   const { login } = useAuth();
 
-  // Extract email from query params
   const searchParams = new URLSearchParams(location.search);
   const email = searchParams.get('email') || '';
+  const phone = searchParams.get('phone') || '';
 
   useEffect(() => {
-    if (!email) {
-      toast.error('Missing email. Redirecting...');
+    if (!email && !phone) {
+      toast.error('Missing email or phone. Redirecting...');
       setTimeout(() => navigate('/login'), 3000);
     }
-  }, [email, navigate]);
+  }, [email, phone, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmedOtp = otp.trim();
 
-    if (trimmedOtp.length !== 6) {
-      toast.error('OTP must be 6 digits.');
+    if (trimmedOtp.length !== 6 || !/^\d{6}$/.test(trimmedOtp)) {
+      toast.error('OTP must be exactly 6 digits.');
       return;
     }
 
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post('/user-account/verify-otp/email/', {
+      const response = await axiosInstance.post('/accounts/verify-otp/email/', {
         email,
         otp: trimmedOtp,
       });
 
-      const { access, refresh, user } = data;
+      const { access, refresh, user } = response.data;
 
       if (!access || !refresh || !user) {
-        toast.error('Invalid response from server.');
+        toast.error('Invalid server response.');
         return;
       }
 
@@ -62,10 +62,10 @@ export default function VerifyOTP() {
         USER: '/user',
       };
 
-      const roleKey = user.role?.toUpperCase() || '';
-      const redirectPath = redirectMap[roleKey] || '/';
+      const role = user?.role?.toUpperCase() || 'USER';
+      const redirectPath = redirectMap[role] || '/';
 
-      toast.success('OTP verified successfully! Redirecting...');
+      toast.success('✅ OTP verified! Redirecting...');
       setTimeout(() => navigate(redirectPath), 1500);
     } catch (err) {
       const msg =
@@ -79,18 +79,21 @@ export default function VerifyOTP() {
   };
 
   const handleResendOTP = async () => {
-    if (!email) return;
+    if (!email) {
+      toast.error('Email not found. Cannot resend.');
+      return;
+    }
 
     setResending(true);
     try {
-      await axiosInstance.post('/user-account/resend-otp/email/', { email });
-      toast.success('OTP resent successfully!');
+      await axiosInstance.post('/accounts/resend-otp/email/', { email });
+      toast.success(`OTP resent to ${email}${phone ? ` and ${phone}` : ''}`);
     } catch (err) {
-      toast.error(
+      const msg =
         err.response?.data?.error ||
         err.response?.data?.message ||
-        'Failed to resend OTP.'
-      );
+        'Failed to resend OTP.';
+      toast.error(msg);
     } finally {
       setResending(false);
     }
@@ -99,8 +102,16 @@ export default function VerifyOTP() {
   return (
     <div className="otp-container">
       <ToastContainer autoClose={4000} />
-      <h2>Verify Your Email</h2>
-      <p>We've sent a 6-digit code to <strong>{email}</strong>. Enter it below to continue.</p>
+      <h2>Email Verification</h2>
+      <p>
+        We've sent a 6-digit code to <strong>{email}</strong>
+        {phone && (
+          <>
+            {' and '}<strong>{phone}</strong>
+          </>
+        )}
+        . Enter it below to activate your account.
+      </p>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -109,8 +120,8 @@ export default function VerifyOTP() {
           maxLength={6}
           autoFocus
           value={otp}
-          onChange={(e) => setOtp(e.target.value.trim())}
-          placeholder="Enter OTP"
+          onChange={(e) => setOtp(e.target.value)}
+          placeholder="Enter 6-digit OTP"
           required
         />
 
@@ -119,14 +130,20 @@ export default function VerifyOTP() {
         </button>
       </form>
 
-      <button
-        type="button"
-        className="resend-btn"
-        onClick={handleResendOTP}
-        disabled={resending}
-      >
-        {resending ? 'Resending…' : 'Resend OTP'}
-      </button>
+      <div className="resend-wrapper">
+        <button
+          type="button"
+          className="resend-btn"
+          onClick={handleResendOTP}
+          disabled={resending}
+        >
+          {resending ? 'Resending…' : 'Resend OTP'}
+        </button>
+      </div>
+
+      <p className="support-note">
+        Didn’t receive the code? Please check your spam or junk folder.
+      </p>
     </div>
   );
 }
