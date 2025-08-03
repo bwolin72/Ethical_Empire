@@ -26,7 +26,11 @@ const AnalyticsDashboard = () => {
         setData(response.data);
       } catch (err) {
         console.error('[AnalyticsDashboard] Fetch error:', err);
-        setError('Failed to fetch analytics data.');
+        if (err.response?.status === 401) {
+          setError('You are not authorized to view this dashboard.');
+        } else {
+          setError('Failed to fetch analytics data.');
+        }
       } finally {
         setLoading(false);
       }
@@ -35,9 +39,17 @@ const AnalyticsDashboard = () => {
     fetchAnalytics();
   }, []);
 
-  if (loading) return <div className="analytics-loading">Loading analytics...</div>;
-  if (error) return <div className="analytics-error">{error}</div>;
-  if (!data) return null;
+  if (loading) {
+    return <div className="analytics-loading">🔄 Loading analytics...</div>;
+  }
+
+  if (error) {
+    return <div className="analytics-error">⚠️ {error}</div>;
+  }
+
+  if (!data) {
+    return <div className="analytics-error">No analytics data available.</div>;
+  }
 
   const {
     total_users = 0,
@@ -56,56 +68,46 @@ const AnalyticsDashboard = () => {
     { name: 'Page Views', value: total_visits },
   ];
 
+  // Validate and clean chart_data
+  const validChartData = Array.isArray(chart_data)
+    ? chart_data.filter((entry) => entry.date && typeof entry.visits === 'number')
+    : [];
+
   return (
     <div className="admin-analytics-page">
       <h2>📊 Analytics Dashboard</h2>
 
+      {/* Summary Cards */}
       <div className="analytics-grid">
-        <Card className="analytics-card">
-          <CardContent>
-            <h3>Total Users</h3>
-            <p>{total_users}</p>
-          </CardContent>
-        </Card>
-        <Card className="analytics-card">
-          <CardContent>
-            <h3>Total Bookings</h3>
-            <p>{total_bookings}</p>
-          </CardContent>
-        </Card>
-        <Card className="analytics-card">
-          <CardContent>
-            <h3>Total Invoices</h3>
-            <p>{total_invoices}</p>
-          </CardContent>
-        </Card>
-        <Card className="analytics-card">
-          <CardContent>
-            <h3>Total Revenue</h3>
-            <p>₵ {total_revenue.toFixed(2)}</p>
-          </CardContent>
-        </Card>
-        <Card className="analytics-card">
-          <CardContent>
-            <h3>Total Page Views</h3>
-            <p>{total_visits}</p>
-          </CardContent>
-        </Card>
+        {summaryData.map(({ name, value }) => (
+          <Card key={name} className="analytics-card">
+            <CardContent>
+              <h3>Total {name}</h3>
+              <p>{name === 'Revenue' ? `₵ ${value.toFixed(2)}` : value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
+      {/* Chart: Visits in last 7 days */}
       <div className="chart-container">
         <h4>📅 Visits in the Last 7 Days</h4>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chart_data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="visits" fill="#02807d" />
-          </BarChart>
-        </ResponsiveContainer>
+        {validChartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={validChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis allowDecimals={false} />
+              <Tooltip />
+              <Bar dataKey="visits" fill="#02807d" />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <p>No recent visit data available.</p>
+        )}
       </div>
 
+      {/* Chart: Summary Overview */}
       <div className="chart-container">
         <h4>📈 Summary Chart</h4>
         <ResponsiveContainer width="100%" height={300}>

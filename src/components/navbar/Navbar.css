@@ -171,6 +171,36 @@
   color: var(--color-accent);
 }
 
+/* === Logo Text (Fix visibility & layout) === */
+.logo-text {
+  color: var(--color-text-light, #ffffff); /* Explicit */
+  font-family: 'Segoe UI', sans-serif;
+  font-size: var(--font-large);
+  font-weight: 600;
+  letter-spacing: 1px;
+  display: inline-block;
+}
+
+/* === Nav Links Fixes === */
+.nav-links,
+.dropdown-link,
+.logout-btn {
+  color: var(--color-text-light, #ffffff); /* Ensure visibility */
+  font-size: var(--font-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* === Ensure Nav Links Are Visible in All Modes === */
+.nav-links:hover,
+.dropdown-link:hover,
+.logout-btn:hover {
+  color: var(--color-accent);
+}
+
+
 /* === Mobile Responsive === */
 @media screen and (max-width: 960px) {
   .navbar-container {
