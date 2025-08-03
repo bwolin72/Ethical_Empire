@@ -15,9 +15,9 @@ const StarRating = ({ rating, setRating }) => (
         onClick={() => setRating(i + 1)}
         color={i < rating ? "#FFD700" : "#ccc"}
         style={{ cursor: "pointer", fontSize: "1.2rem" }}
-        aria-label={`Rate ${i + 1} star${i > 0 ? "s" : ""}`}
         role="button"
         tabIndex={0}
+        aria-label={`Rate ${i + 1} star${i > 0 ? "s" : ""}`}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") setRating(i + 1);
         }}
@@ -32,7 +32,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [review, setReview] = useState("");
   const [reviewService, setReviewService] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
-  const [profileImage, setProfileImage] = useState(externalProfile?.profile_image || "");
+  const [profileImage, setProfileImage] = useState("");
   const [bookings, setBookings] = useState([]);
   const [loggingOut, setLoggingOut] = useState(false);
   const [roleInfo, setRoleInfo] = useState(null);
@@ -42,45 +42,44 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
-  // Fetch profile, bookings, and role info only if no externalProfile provided
   useEffect(() => {
-    if (externalProfile) return;
+    if (externalProfile) {
+      setProfileImage(externalProfile.profile_image_url || "");
+      return;
+    }
 
     const controller = new AbortController();
-    const { signal } = controller;
-
     const fetchData = async () => {
-      setLoading(true);
       try {
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
-          axiosInstance.get("/accounts/profiles/profile/", { signal }),
-          axiosInstance.get("/bookings/user/", { signal }),
-          axiosInstance.get("/accounts/profile/role/", { signal }),
+          axiosInstance.get("/accounts/profiles/profile/", { signal: controller.signal }),
+          axiosInstance.get("/bookings/user/", { signal: controller.signal }),
+          axiosInstance.get("/accounts/profile/role/", { signal: controller.signal }),
         ]);
 
         setProfile(profileRes.data);
-        setProfileImage(profileRes.data.profile_image || "");
+        setProfileImage(profileRes.data.profile_image_url || "");
         setBookings(bookingsRes.data);
         setRoleInfo(roleRes.data);
-      } catch (error) {
-        if (!signal.aborted) {
-          toast.error("Failed to load profile data.");
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          toast.error("Failed to load profile.");
         }
       } finally {
-        if (!signal.aborted) setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
-
     return () => controller.abort();
   }, [externalProfile]);
 
   const getInitials = useCallback((name) => {
     if (!name) return "?";
     const parts = name.trim().split(" ");
-    if (parts.length === 1) return parts[0][0].toUpperCase();
-    return (parts[0][0] + parts[1][0]).toUpperCase();
+    return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
   }, []);
 
   const handleImageUpload = async (e) => {
@@ -88,17 +87,17 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!file) return;
 
     if (!CLOUDINARY_UPLOAD_PRESET || !CLOUDINARY_CLOUD_NAME) {
-      toast.error("Cloudinary configuration is missing.");
+      toast.error("Cloudinary config missing.");
       return;
     }
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please upload a valid image file.");
+      toast.error("Only image files allowed.");
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image must be under 2MB.");
+      toast.error("Max file size: 2MB");
       return;
     }
 
@@ -109,37 +108,32 @@ const AccountProfile = ({ profile: externalProfile }) => {
     try {
       const uploadRes = await fetch(
         `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
+        { method: "POST", body: formData }
       );
       const uploadData = await uploadRes.json();
-
       if (!uploadData.secure_url) throw new Error("Upload failed");
 
-      // Update backend profile image
       const patchRes = await axiosInstance.patch("/accounts/profiles/profile/", {
-        profile_image: uploadData.secure_url,
+        profile_image_url: uploadData.secure_url,
       });
 
       setProfileImage(uploadData.secure_url);
       setProfile((prev) => ({
         ...prev,
-        profile_image: uploadData.secure_url,
+        profile_image_url: uploadData.secure_url,
         ...(patchRes.data || {}),
       }));
 
       toast.success("Profile picture updated!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to upload or update image.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload failed.");
     }
   };
 
   const handleReviewSubmit = async () => {
     if (!review.trim() || !reviewService) {
-      toast.warn("Please fill in all review fields.");
+      toast.warn("Please fill in all fields.");
       return;
     }
 
@@ -153,14 +147,14 @@ const AccountProfile = ({ profile: externalProfile }) => {
       setReview("");
       setReviewService("");
       setReviewRating(5);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to submit review.");
     }
   };
 
   const handleLogout = async () => {
-    if (!window.confirm("Are you sure you want to log out?")) return;
+    if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     await logoutHelper();
   };
@@ -168,11 +162,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const handleClose = () => {
     const role = roleInfo?.role?.toLowerCase();
     const paths = {
-      admin: "/admin/dashboard",
-      user: "/user/dashboard",
-      worker: "/worker/dashboard",
-      partner: "/partner/dashboard",
-      vendor: "/vendor/dashboard",
+      admin: "/admin",
+      user: "/user",
+      vendor: "/vendor-profile",
+      partner: "/partner-profile",
     };
     navigate(paths[role] || "/");
   };
@@ -183,11 +176,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
       approved: "#22c55e",
       rejected: "#ef4444",
     };
-    const color = colors[status] || "#ccc";
     return (
       <span
         style={{
-          backgroundColor: color,
+          backgroundColor: colors[status] || "#ccc",
           color: "#fff",
           padding: "0.3rem 0.6rem",
           borderRadius: 4,
@@ -199,30 +191,19 @@ const AccountProfile = ({ profile: externalProfile }) => {
     );
   };
 
-  if (loading) {
-    return <div className="skeleton-loader">Loading profile...</div>;
-  }
+  if (loading) return <div className="skeleton-loader">Loading profile...</div>;
 
   return (
     <div className="account-profile" role="main" aria-label="Account Profile">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
-      <button
-        className="close-btn"
-        onClick={handleClose}
-        aria-label="Close profile"
-        type="button"
-      >
-        ✖
-      </button>
+      <button className="close-btn" onClick={handleClose} aria-label="Close profile">✖</button>
 
       <div className="profile-wrapper">
         <div className="profile-header">
           {profileImage ? (
             <img src={profileImage} alt="Profile" className="profile-pic" />
           ) : (
-            <div className="profile-initials" aria-label="Profile initials">
-              {getInitials(profile?.name)}
-            </div>
+            <div className="profile-initials">{getInitials(profile?.name)}</div>
           )}
           <label className="upload-label" htmlFor="profile-image-upload" tabIndex={0}>
             Upload Picture
@@ -236,47 +217,26 @@ const AccountProfile = ({ profile: externalProfile }) => {
           </label>
         </div>
 
-        <section className="user-info" aria-label="User information">
+        <section className="user-info">
           <h3>@{profile?.name}</h3>
-          <p>
-            <strong>Name:</strong> {profile?.name}
-          </p>
-          <p>
-            <strong>Email:</strong> {profile?.email}
-          </p>
-          <p>
-            <strong>Phone:</strong> {profile?.phone || "N/A"}
-          </p>
-          {roleInfo?.role && (
-            <p>
-              <strong>Role:</strong> {roleInfo.role}
-            </p>
-          )}
+          <p><strong>Name:</strong> {profile?.name}</p>
+          <p><strong>Email:</strong> {profile?.email}</p>
+          <p><strong>Phone:</strong> {profile?.phone || "N/A"}</p>
+          {roleInfo?.role && <p><strong>Role:</strong> {roleInfo.role}</p>}
           <div className="button-group">
-            <button type="button" onClick={() => navigate("/edit-profile")}>
-              Edit Profile
-            </button>
-            <button type="button" onClick={() => navigate("/update-password")}>
-              Change Password
-            </button>
+            <button onClick={() => navigate("/edit-profile")}>Edit Profile</button>
+            <button onClick={() => navigate("/update-password")}>Change Password</button>
           </div>
         </section>
 
-        <section className="booking-section" aria-label="User bookings">
+        <section className="booking-section">
           <h4>My Bookings ({bookings.length})</h4>
           {bookings.length > 0 ? (
             bookings.map((bk) => (
-              <article key={bk.id} className="booking-card" aria-label={`Booking for ${bk.service_type}`}>
-                <p>
-                  <strong>Service:</strong>{" "}
-                  {Array.isArray(bk.service_type) ? bk.service_type.join(", ") : bk.service_type || "N/A"}
-                </p>
-                <p>
-                  <strong>Date:</strong> {new Date(bk.event_date).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Status:</strong> {renderBookingStatus(bk.status)}
-                </p>
+              <article key={bk.id} className="booking-card">
+                <p><strong>Service:</strong> {bk.service_type}</p>
+                <p><strong>Date:</strong> {new Date(bk.event_date).toLocaleDateString()}</p>
+                <p><strong>Status:</strong> {renderBookingStatus(bk.status)}</p>
               </article>
             ))
           ) : (
@@ -287,7 +247,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           )}
         </section>
 
-        <section className="review-section" aria-label="Submit a review">
+        <section className="review-section">
           <label htmlFor="review-textarea">Write a Review</label>
           <textarea
             id="review-textarea"
@@ -296,7 +256,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
             placeholder="Share your experience..."
             rows={4}
           />
-
           <label htmlFor="review-service-select">Service</label>
           <select
             id="review-service-select"
@@ -315,23 +274,16 @@ const AccountProfile = ({ profile: externalProfile }) => {
               "MC/Host",
               "Sound Setup",
             ].map((service) => (
-              <option key={service} value={service}>
-                {service}
-              </option>
+              <option key={service} value={service}>{service}</option>
             ))}
           </select>
-
           <label>Rating</label>
           <StarRating rating={reviewRating} setRating={setReviewRating} />
-
-          <button className="btn" type="button" onClick={handleReviewSubmit}>
-            Submit Review
-          </button>
+          <button className="btn" onClick={handleReviewSubmit}>Submit Review</button>
         </section>
 
         <button
           className="btn danger"
-          type="button"
           onClick={handleLogout}
           disabled={loggingOut}
           aria-busy={loggingOut}
