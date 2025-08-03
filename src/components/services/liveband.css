@@ -325,7 +325,7 @@ html {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-image: url('/path-to-your-banner.jpg'); /* optional */
+  background-image: url('../../../src/assets/images/celebration.jpg'); /* optional */
   background-size: cover;
   background-position: center;
   overflow: hidden;
