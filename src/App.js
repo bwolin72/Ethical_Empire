@@ -89,14 +89,32 @@ const ConnectRedirect = () => {
 
   useEffect(() => {
     let isMounted = true;
+
     const checkUserRole = async () => {
       try {
         const res = await axiosCommon.get('/accounts/profile/role/');
         if (!isMounted) return;
 
-        const isAdmin = res?.data?.is_admin?.toString() === 'true';
-        navigate(isAdmin ? '/admin' : '/user', { replace: true });
-      } catch {
+        const role = res?.data?.role;
+
+        switch (role) {
+          case 'admin':
+            navigate('/admin', { replace: true });
+            break;
+          case 'user':
+            navigate('/user', { replace: true });
+            break;
+          case 'vendor':
+            navigate('/vendor-profile', { replace: true });
+            break;
+          case 'partner':
+            navigate('/partner-profile', { replace: true });
+            break;
+          default:
+            navigate('/unauthorized', { replace: true });
+        }
+      } catch (err) {
+        console.error('Failed to determine role:', err);
         if (isMounted) navigate('/login', { replace: true });
       } finally {
         if (isMounted) setLoading(false);

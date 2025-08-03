@@ -9,12 +9,22 @@ const ConnectWithMe = () => {
   const handleConnect = async () => {
     try {
       const response = await axiosInstance.get('/user-account/role/');
-      const { is_admin } = response.data;
+      const { role } = response.data;
 
-      if (is_admin) {
-        navigate('/admin');
-      } else {
-        navigate('/user');
+      // Redirect based on user role
+      switch (role) {
+        case 'admin':
+          navigate('/admin');
+          break;
+        case 'vendor':
+          navigate('/vendor-profile');
+          break;
+        case 'partner':
+          navigate('/partner-profile');
+          break;
+        case 'user':
+        default:
+          navigate('/user');
       }
     } catch (error) {
       console.error('Authentication required or failed:', error);

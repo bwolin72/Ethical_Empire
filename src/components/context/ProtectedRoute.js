@@ -1,5 +1,3 @@
-// src/context/ProtectedRoute.jsx
-
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext';
@@ -8,25 +6,23 @@ import { useAuth } from './AuthContext';
  * ProtectedRoute
  * A wrapper for routes that require authentication and optional role-based access.
  *
- * @param {Array} roles - Optional array of allowed user roles ['admin', 'user', etc.]
+ * @param {Array} roles - Optional array of allowed user roles ['admin', 'user', 'vendor', 'partner']
  */
 const ProtectedRoute = ({ roles = [] }) => {
   const { auth, isAuthenticated, loading, ready } = useAuth();
-  const user = auth?.user;
-  const userRole = user?.role;
+  const user = auth?.user || {};
+  const userRole = user?.role || '';
 
-  console.log('[ProtectedRoute] State snapshot:', {
+  console.log('[ProtectedRoute] Snapshot:', {
     loading,
     ready,
     isAuthenticated,
-    access: auth?.access,
     user,
-    roles,
+    allowedRoles: roles,
   });
 
-  // Wait until auth context is initialized
+  // Wait until context is ready
   if (loading || !ready) {
-    console.log('[ProtectedRoute] Waiting for auth context...');
     return (
       <div className="flex items-center justify-center h-screen text-lg">
         Loading...
@@ -34,26 +30,23 @@ const ProtectedRoute = ({ roles = [] }) => {
     );
   }
 
-  // Redirect unauthenticated users
+  // Not logged in
   if (!isAuthenticated) {
-    console.warn('[ProtectedRoute] Not authenticated. Redirecting to /login.');
+    console.warn('[ProtectedRoute] Not authenticated. Redirecting to login.');
     return <Navigate to="/login" replace />;
   }
 
-  // If role-based restriction is applied
+  // Role-based access control
   if (roles.length > 0) {
-    if (!userRole) {
-      console.warn('[ProtectedRoute] No user role found. Redirecting to /unauthorized.');
-      return <Navigate to="/unauthorized" replace />;
-    }
-
-    if (!roles.includes(userRole)) {
-      console.warn(`[ProtectedRoute] Role "${userRole}" not in allowed roles:`, roles);
+    if (!userRole || !roles.includes(userRole)) {
+      console.warn(
+        `[ProtectedRoute] Access denied. Role "${userRole}" is not allowed.`,
+      );
       return <Navigate to="/unauthorized" replace />;
     }
   }
 
-  console.log('[ProtectedRoute] Access granted. Rendering protected route.');
+  // All checks passed
   return <Outlet />;
 };
 
