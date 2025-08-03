@@ -54,13 +54,11 @@ function Navbar() {
 
         <ul className={menuOpen ? 'nav-menu active' : 'nav-menu'}>
           <li className="nav-item">
-            <Link to="/bookings" className="nav-links">Bookings</Link>
+            <Link to="/bookings" className="nav-links" onClick={() => setMenuOpen(false)}>Bookings</Link>
           </li>
-
           <li className="nav-item">
-            <Link to="/about" className="nav-links">About</Link>
+            <Link to="/about" className="nav-links" onClick={() => setMenuOpen(false)}>About</Link>
           </li>
-
           <li
             className="nav-item dropdown"
             onClick={() => isMobile && toggleDropdown()}
@@ -74,34 +72,31 @@ function Navbar() {
             {dropdownOpen && (
               <ul className="dropdown-menu">
                 <li className="dropdown-item">
-                  <Link to="/services/live-band" className="dropdown-link">Live Band</Link>
+                  <Link to="/services/live-band" className="dropdown-link" onClick={() => setMenuOpen(false)}>Live Band</Link>
                 </li>
                 <li className="dropdown-item">
-                  <Link to="/services/catering" className="dropdown-link">Catering</Link>
+                  <Link to="/services/catering" className="dropdown-link" onClick={() => setMenuOpen(false)}>Catering</Link>
                 </li>
                 <li className="dropdown-item">
-                  <Link to="/services/decor" className="dropdown-link">Decor</Link>
+                  <Link to="/services/decor" className="dropdown-link" onClick={() => setMenuOpen(false)}>Decor</Link>
                 </li>
                 <li className="dropdown-item">
-                  <Link to="/services/media-hosting" className="dropdown-link">Media & Event Hosting</Link>
+                  <Link to="/services/media-hosting" className="dropdown-link" onClick={() => setMenuOpen(false)}>Media & Event Hosting</Link>
                 </li>
               </ul>
             )}
           </li>
-
           <li className="nav-item">
-            <Link to="/contact" className="nav-links">Contact</Link>
+            <Link to="/contact" className="nav-links" onClick={() => setMenuOpen(false)}>Contact</Link>
           </li>
-
           <li className="nav-item">
-            <Link to="/connect" className="nav-links">Connect With Us</Link>
+            <Link to="/connect" className="nav-links" onClick={() => setMenuOpen(false)}>Connect With Us</Link>
           </li>
-
           <li className="nav-item">
             {isLoggedIn ? (
               <button onClick={handleLogout} className="nav-links logout-btn">Logout</button>
             ) : (
-              <Link to="/login" className="nav-links">Login</Link>
+              <Link to="/login" className="nav-links" onClick={() => setMenuOpen(false)}>Login</Link>
             )}
           </li>
         </ul>
