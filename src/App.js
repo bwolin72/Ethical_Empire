@@ -32,6 +32,8 @@ import EditProfile from './components/user/EditProfile';
 import UpdatePassword from './components/user/UpdatePassword';
 import ConfirmPasswordChange from './components/user/ConfirmPasswordChange';
 import AccountProfile from './components/user/AccountProfile';
+import AgencyDashboard from './components/agency/AgencyDashboard';
+
 
 // Pages - Dashboard & Forms
 import AdminPanel from './components/AdminDashboard/AdminPanel';
@@ -41,6 +43,7 @@ import NewsletterSignup from './components/user/NewsLetterSignup';
 import Unsubscribe from './components/user/UnsubscribePage';
 import VendorProfile from './components/agency/VendorProfile';
 import PartnerProfilePage from './components/agency/PartnerProfilePage';
+
 
 // Pages - Services
 import LiveBandServicePage from './components/services/LiveBandServicePage';
@@ -166,6 +169,8 @@ const AppRoutes = () => (
       <Route path="/edit-profile" element={<EditProfile />} />
       <Route path="/update-password" element={<UpdatePassword />} />
       <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
+      <Route path="/agency-dashboard" element={<AgencyDashboard />} />
+
     </Route>
 
     {/* Protected Vendor Routes */}

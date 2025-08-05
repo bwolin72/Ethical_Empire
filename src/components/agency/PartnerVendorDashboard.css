@@ -1,0 +1,142 @@
+
+.dashboard-container {
+  display: flex;
+  font-family: var(--font-main);
+  background-color: var(--color-white);
+  color: var(--color-neutral);
+  min-height: 100vh;
+}
+
+/* === Sidebar === */
+.sidebar {
+  width: 250px;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  padding: 2rem 1rem;
+  box-shadow: var(--shadow-lg);
+  border-right: 2px solid var(--color-primary-dark);
+}
+
+.sidebar h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-accent);
+  color: var(--color-accent-gold-light);
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin-bottom: 1rem;
+}
+
+.sidebar nav ul li a {
+  color: var(--color-white);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.sidebar nav ul li a:hover {
+  color: var(--color-accent-gold);
+}
+
+/* === Main Content === */
+.dashboard-main {
+  flex-grow: 1;
+  padding: 2rem;
+  animation: fade-in-up 0.5s ease;
+}
+
+.dashboard-main h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--color-primary-dark);
+}
+
+/* === Stat Cards === */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-cards .card {
+  background: var(--color-white);
+  border: 1px solid var(--color-neutral-light);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+}
+
+.dashboard-cards h2 {
+  font-size: 1.1rem;
+  color: var(--color-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-cards p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-primary-dark);
+}
+
+/* === Chart Section === */
+.chart-section {
+  background: var(--color-neutral-light);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+}
+
+.chart-section h2 {
+  font-size: 1.25rem;
+  color: var(--color-white);
+  margin-bottom: 1rem;
+}
+
+/* === Profile Summary === */
+.profile-summary {
+  background: var(--color-accent-green-light);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-white);
+}
+
+.profile-summary h2 {
+  font-size: 1.25rem;
+  color: var(--color-white);
+  margin-bottom: 1rem;
+}
+
+.profile-summary p {
+  margin: 0.25rem 0;
+  font-size: 1rem;
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 2px solid var(--color-primary-dark);
+  }
+
+  .dashboard-main {
+    padding: 1rem;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+}
