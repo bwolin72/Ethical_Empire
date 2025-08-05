@@ -27,8 +27,8 @@ const Login = () => {
       admin: '/admin',
       worker: '/worker',
       user: '/user',
-      vendor: '/vendor',
-      partner: '/partner',
+      vendor: '/vendor-profile',
+      partner: '/partner-profile',
     };
     navigate(routes[role] || '/user', { replace: true });
   }, [navigate]);
