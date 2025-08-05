@@ -4,7 +4,7 @@ import { Card, CardContent } from '../ui/Card';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import ProfileAvatar from '../account/ProfileAvatar';
+import ProfileAvatar from '../user/ProfileAvatar';
 import './PartnerVendorDashboard.css';
 
 const PartnerVendorDashboard = () => {
@@ -20,7 +20,7 @@ const PartnerVendorDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const userRes = await axiosInstance.get('/accounts/user-type/');
+        const userRes = await axiosInstance.get('/accounts/user-role/');
         const type = userRes.data.type;
         setUserType(type);
 
