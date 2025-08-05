@@ -43,7 +43,7 @@
 }
 
 /* === Hero Banner === */
-.hero-banner {
+.decor-page-container .hero-banner {
   position: relative;
   height: 60vh;
   background-color: var(--color-primary);
@@ -54,7 +54,7 @@
   overflow: hidden;
 }
 
-.hero-banner-image {
+.decor-page-container .hero-banner-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -65,7 +65,7 @@
   filter: brightness(0.6);
 }
 
-.hero-overlay {
+.decor-page-container .hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -75,7 +75,7 @@
   z-index: 2;
 }
 
-.hero-title {
+.decor-page-container .hero-title {
   color: var(--color-light);
   font-size: var(--font-size-xxl);
   font-weight: 800;
@@ -86,12 +86,12 @@
 }
 
 /* === CTA Section === */
-.cta-section {
+.decor-page-container .cta-section {
   text-align: center;
   padding: var(--spacing-lg) var(--spacing-sm);
 }
 
-.cta-button {
+.decor-page-container .cta-button {
   background-color: var(--color-primary);
   color: var(--color-light);
   padding: 0.8rem 2.2rem;
@@ -104,36 +104,36 @@
   transition: var(--transition-fast);
 }
 
-.cta-button:hover {
+.decor-page-container .cta-button:hover {
   background-color: var(--color-primary-dark);
   transform: scale(1.05);
 }
 
 /* === Section === */
-.section {
+.decor-page-container .section {
   padding: var(--spacing-xl) var(--spacing-sm);
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.section-title,
-.section-subtitle {
+.decor-page-container .section-title,
+.decor-page-container .section-subtitle {
   font-weight: 700;
   text-align: center;
   color: var(--color-primary);
   margin-bottom: var(--spacing-sm);
 }
 
-.section-title {
+.decor-page-container .section-title {
   font-size: var(--font-size-xl);
 }
 
-.section-subtitle {
+.decor-page-container .section-subtitle {
   font-size: var(--font-size-lg);
   margin-top: var(--spacing-sm);
 }
 
-.section-description {
+.decor-page-container .section-description {
   font-size: var(--font-size-md);
   color: var(--color-gray);
   line-height: 1.6;
@@ -143,18 +143,18 @@
 }
 
 /* === Grid Cards === */
-.card-grid,
-.media-grid,
-.service-grid,
-.testimonial-grid {
+.decor-page-container .card-grid,
+.decor-page-container .media-grid,
+.decor-page-container .service-grid,
+.decor-page-container .testimonial-grid {
   display: grid;
   gap: var(--spacing-md);
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
-.card,
-.service-card,
-.testimonial-card {
+.decor-page-container .card,
+.decor-page-container .service-card,
+.decor-page-container .testimonial-card {
   background-color: var(--color-light);
   border: 1px solid #ddd;
   border-radius: var(--radius-md);
@@ -166,14 +166,14 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card:hover,
-.service-card:hover,
-.testimonial-card:hover {
+.decor-page-container .card:hover,
+.decor-page-container .service-card:hover,
+.decor-page-container .testimonial-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-strong);
 }
 
-.card-content {
+.decor-page-container .card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -182,13 +182,13 @@
   color: var(--color-gray);
 }
 
-.card-content svg {
+.decor-page-container .card-content svg {
   font-size: 1.8rem;
   color: var(--color-primary);
 }
 
 /* === Creative Section === */
-.creative-layout {
+.decor-page-container .creative-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-lg);
@@ -197,20 +197,20 @@
   margin-top: var(--spacing-lg);
 }
 
-.creative-text h3 {
+.decor-page-container .creative-text h3 {
   font-size: var(--font-size-lg);
   color: var(--color-primary);
   font-weight: 700;
   margin-bottom: var(--spacing-xs);
 }
 
-.creative-text p {
+.decor-page-container .creative-text p {
   font-size: 1rem;
   color: var(--color-muted);
   line-height: 1.6;
 }
 
-.creative-media {
+.decor-page-container .creative-media {
   display: flex;
   gap: var(--spacing-sm);
   flex-wrap: wrap;
@@ -218,21 +218,21 @@
 }
 
 /* === Testimonials === */
-.testimonial-text {
+.decor-page-container .testimonial-text {
   font-style: italic;
   font-size: 1rem;
   color: var(--color-muted);
   margin-bottom: var(--spacing-xs);
 }
 
-.testimonial-user {
+.decor-page-container .testimonial-user {
   font-weight: bold;
   text-align: right;
   color: var(--color-primary);
 }
 
 /* === WhatsApp Floating Button === */
-.whatsapp-button {
+.decor-page-container .whatsapp-button {
   position: fixed;
   bottom: var(--spacing-md);
   right: var(--spacing-md);
@@ -247,11 +247,11 @@
   transition: transform var(--transition-fast);
 }
 
-.whatsapp-button:hover {
+.decor-page-container .whatsapp-button:hover {
   transform: scale(1.1);
 }
 
-.whatsapp-button svg {
+.decor-page-container .whatsapp-button svg {
   width: 24px;
   height: 24px;
   color: var(--color-light);
@@ -285,55 +285,55 @@
 
 /* === Responsive === */
 @media (max-width: 768px) {
-  .hero-title {
+  .decor-page-container .hero-title {
     font-size: 2.2rem;
   }
 
-  .section-title {
+  .decor-page-container .section-title {
     font-size: 1.7rem;
   }
 
-  .section-subtitle {
+  .decor-page-container .section-subtitle {
     font-size: 1.3rem;
   }
 
-  .section-description {
+  .decor-page-container .section-description {
     font-size: 1rem;
   }
 
-  .cta-button {
+  .decor-page-container .cta-button {
     font-size: 1rem;
     width: 90%;
     max-width: 300px;
   }
 
-  .creative-layout {
+  .decor-page-container .creative-layout {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .hero-title {
+  .decor-page-container .hero-title {
     font-size: 1.8rem;
   }
 
-  .section-title {
+  .decor-page-container .section-title {
     font-size: 1.5rem;
   }
 
-  .section-subtitle {
+  .decor-page-container .section-subtitle {
     font-size: 1.2rem;
   }
 
-  .section-description {
+  .decor-page-container .section-description {
     font-size: 0.95rem;
     padding: 0 1rem;
   }
 
-  .media-grid,
-  .testimonial-grid,
-  .card-grid,
-  .service-grid {
+  .decor-page-container .media-grid,
+  .decor-page-container .testimonial-grid,
+  .decor-page-container .card-grid,
+  .decor-page-container .service-grid {
     grid-template-columns: 1fr;
   }
 }

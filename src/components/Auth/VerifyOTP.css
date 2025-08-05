@@ -80,6 +80,51 @@ body.dark .otp-container {
   border: 1px solid #ffcccc;
 }
 
+/* Optional: Toastify override */
+.Toastify__toast {
+  border-radius: 8px;
+}
+
+.support-note {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 1rem;
+}
+body.dark .support-note {
+  color: #aaa;
+}
+
+.resend-wrapper {
+  margin-top: 1rem;
+}
+
+.resend-btn {
+  background: transparent;
+  color: #0b3c74;
+  border: none;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+  font-size: 0.95rem;
+}
+
+.resend-btn:hover {
+  color: #730c2e;
+}
+
+.resend-btn:disabled {
+  color: #999;
+  cursor: not-allowed;
+}
+body.dark .resend-btn {
+  color: #9fcfff;
+}
+body.dark .resend-btn:hover {
+  color: #e3a6b5;
+}
+
+
 /* Responsive */
 @media (max-width: 480px) {
   .otp-container {

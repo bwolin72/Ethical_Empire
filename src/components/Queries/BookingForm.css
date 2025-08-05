@@ -1,5 +1,5 @@
-/* === Color Variables === */
-:root {
+/* === Scoped Booking Styles === */
+.booking {
   --color-bg-light: #f9fafb;
   --color-bg-dark: #1f2937;
   --color-text-light: #1f2937;
@@ -25,14 +25,13 @@
   --color-service-bg-dark: #374151;
 }
 
-/* === Booking Container & Card === */
-.booking-container {
+.booking .booking-container {
   display: flex;
   justify-content: center;
   padding: 2rem 1rem;
 }
 
-.form-card {
+.booking .form-card {
   background-color: white;
   max-width: 960px;
   width: 100%;
@@ -43,12 +42,11 @@
   overflow: hidden;
 }
 
-.dark .form-card {
+.booking.dark .form-card {
   background-color: var(--color-bg-dark);
 }
 
-/* === Form Left Panel === */
-.form-left {
+.booking .form-left {
   background-color: var(--color-primary);
   color: white;
   padding: 2rem;
@@ -57,59 +55,57 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
-.logo {
+.booking .logo {
   width: 80px;
   margin-bottom: 1rem;
 }
 
-.form-left h2 {
+.booking .form-left h2 {
   font-size: 1.6rem;
   margin-bottom: 0.5rem;
 }
 
-.form-left .subtitle {
+.booking .form-left .subtitle {
   font-size: 1rem;
   font-weight: 300;
-  text-align: center;
 }
 
-/* === Form Right Content === */
-.form-content {
+.booking .form-content {
   flex: 1 1 60%;
   padding: 2rem;
   background: var(--color-bg-light);
 }
 
-.dark .form-content {
+.booking.dark .form-content {
   background: var(--color-bg-dark);
   color: var(--color-text-dark);
 }
 
-.form-content h3 {
+.booking .form-content h3 {
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--color-primary);
 }
 
-/* === Input Group === */
-.input-group {
+.booking .input-group {
   margin-bottom: 1.2rem;
   display: flex;
   flex-direction: column;
 }
 
-.input-group label {
+.booking .input-group label {
   margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
-.input-group input,
-.input-group textarea,
-.datepicker-wrapper input,
-.react-tel-input .form-control {
+.booking .input-group input,
+.booking .input-group textarea,
+.booking .datepicker-wrapper input,
+.booking .react-tel-input .form-control {
   padding: 0.7rem 0.9rem;
   border-radius: 0.5rem;
   border: 1px solid var(--color-border-light);
@@ -117,46 +113,44 @@
   color: #111827;
 }
 
-.dark .input-group input,
-.dark .input-group textarea,
-.dark .datepicker-wrapper input,
-.dark .react-tel-input .form-control {
+.booking.dark .input-group input,
+.booking.dark .input-group textarea,
+.booking.dark .datepicker-wrapper input,
+.booking.dark .react-tel-input .form-control {
   background-color: var(--color-service-bg-dark);
   border: 1px solid var(--color-border-dark);
   color: var(--color-text-dark);
 }
 
-/* === Phone Input === */
-.react-tel-input {
+.booking .react-tel-input {
   width: 100%;
 }
 
-.react-tel-input .form-control {
+.booking .react-tel-input .form-control {
   padding-left: 48px;
   font-size: 1rem;
 }
 
-/* === Date Picker === */
-.datepicker-wrapper {
+.booking .datepicker-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.datepicker-wrapper .icon {
+.booking .datepicker-wrapper .icon {
   position: absolute;
   left: 0.75rem;
   z-index: 2;
   color: var(--color-calendar-icon);
 }
 
-.datepicker-wrapper input {
+.booking .datepicker-wrapper input {
   width: 100%;
   padding-left: 2.5rem;
 }
 
-/* === Checkbox Group (Services) === */
-.checkbox-group {
+/* Services */
+.booking .checkbox-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -165,29 +159,29 @@
   border-radius: 0.5rem;
 }
 
-.dark .checkbox-group {
+.booking.dark .checkbox-group {
   background: var(--color-service-bg-dark);
 }
 
-.checkbox-option {
+.booking .checkbox-option {
   display: flex;
   align-items: center;
   font-weight: 500;
   font-size: 0.95rem;
 }
 
-.checkbox-option input {
+.booking .checkbox-option input {
   margin-right: 0.5rem;
 }
 
-/* === Textarea === */
-textarea {
+/* Textarea */
+.booking textarea {
   resize: vertical;
   min-height: 100px;
 }
 
-/* === Submit Button === */
-.submit-btn {
+/* Submit Button */
+.booking .submit-btn {
   background-color: var(--color-primary);
   color: white;
   padding: 0.8rem;
@@ -199,103 +193,133 @@ textarea {
   transition: background-color 0.2s ease;
 }
 
-.submit-btn:hover:not(:disabled) {
+.booking .submit-btn:hover:not(:disabled) {
   background-color: var(--color-primary-dark);
 }
 
-.submit-btn:disabled {
+.booking .submit-btn:disabled {
   background-color: var(--color-disabled);
   cursor: not-allowed;
 }
 
-/* === Responsive === */
+/* Extra Styling for Feedback */
+.booking .error-message {
+  color: var(--color-error);
+  font-size: 0.9rem;
+  margin-top: -0.8rem;
+  margin-bottom: 1rem;
+}
+
+.booking .success-message {
+  color: var(--color-success);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.booking .loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid white;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fallback: no services */
+.booking .no-services {
+  font-style: italic;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+/* === Responsive Adjustments (Scoped) === */
 @media (max-width: 768px) {
-  .form-card {
+  .booking .form-card {
     flex-direction: column;
   }
 
-  .form-left,
-  .form-content {
+  .booking .form-left,
+  .booking .form-content {
     flex: 1 1 100%;
   }
 
-  .form-left {
+  .booking .form-left {
     padding: 1.5rem;
   }
 
-  .form-content {
+  .booking .form-content {
     padding: 1.5rem 1rem;
   }
 
-  .logo {
+  .booking .logo {
     width: 60px;
   }
 
-  .form-content h3 {
+  .booking .form-content h3 {
     font-size: 1.3rem;
-  }
-
-  .input-group input,
-  .input-group textarea,
-  .react-tel-input .form-control {
-    font-size: 0.95rem;
-  }
-
-  .submit-btn {
-    font-size: 0.95rem;
   }
 }
 
 @media (max-width: 480px) {
-  .form-left h2 {
+  .booking .form-left h2 {
     font-size: 1.3rem;
   }
 
-  .logo {
+  .booking .logo {
     width: 50px;
   }
 
-  .submit-btn {
+  .booking .submit-btn {
     font-size: 0.9rem;
     padding: 0.7rem 1rem;
   }
 
-  .checkbox-option {
+  .booking .checkbox-option {
     font-size: 0.9rem;
   }
 }
 
 @media (max-width: 380px) {
-  .logo {
+  .booking .logo {
     width: 44px;
   }
 
-  .form-left h2 {
+  .booking .form-left h2 {
     font-size: 1.2rem;
   }
 
-  .form-content h3 {
+  .booking .form-content h3 {
     font-size: 1.2rem;
   }
 
-  .submit-btn {
+  .booking .submit-btn {
     font-size: 0.85rem;
   }
 
-  .input-group input,
-  .react-tel-input .form-control {
+  .booking .input-group input,
+  .booking .react-tel-input .form-control {
     font-size: 0.9rem;
   }
 
-  .datepicker-wrapper .icon {
+  .booking .datepicker-wrapper .icon {
     left: 0.5rem;
   }
 
-  .datepicker-wrapper input {
+  .booking .datepicker-wrapper input {
     padding-left: 2rem;
   }
 
-  .checkbox-option {
+  .booking .checkbox-option {
     font-size: 0.85rem;
   }
 }

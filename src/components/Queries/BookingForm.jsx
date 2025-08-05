@@ -1,4 +1,3 @@
-// BookingForm.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
@@ -12,6 +11,19 @@ import 'react-phone-input-2/lib/style.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './BookingForm.css';
 import logo from '../../assets/logo.png';
+
+// Country and Region Mapping
+const countryRegionData = {
+  Ghana: [
+    'Greater Accra', 'Ashanti', 'Central', 'Eastern', 'Northern', 'Volta',
+    'Western', 'Upper East', 'Upper West', 'Bono', 'Bono East', 'Ahafo',
+    'Oti', 'Savannah', 'North East', 'Western North',
+  ],
+  Nigeria: ['Lagos', 'Abuja', 'Rivers', 'Kano', 'Kaduna', 'Oyo'],
+  USA: ['California', 'New York', 'Texas', 'Florida', 'Illinois'],
+  UK: ['England', 'Scotland', 'Wales', 'Northern Ireland'],
+  Germany: ['Berlin', 'Bavaria', 'Saxony', 'Hesse', 'Hamburg'],
+};
 
 const BookingForm = () => {
   const { darkMode } = useTheme();
@@ -30,9 +42,11 @@ const BookingForm = () => {
     services: [],
   });
 
+  const [regionOptions, setRegionOptions] = useState([]);
   const [availableServices, setAvailableServices] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Prefill name & email if user is authenticated
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({
@@ -42,6 +56,16 @@ const BookingForm = () => {
       }));
     }
   }, [user]);
+
+  // Prefill country as Ghana and set regions
+  useEffect(() => {
+    const defaultCountry = 'Ghana';
+    setFormData((prev) => ({
+      ...prev,
+      country: defaultCountry,
+    }));
+    setRegionOptions(countryRegionData[defaultCountry] || []);
+  }, []);
 
   const fetchServices = useCallback(() => {
     axiosInstance.get('/services/')
@@ -74,10 +98,20 @@ const BookingForm = () => {
           : prev.services.filter((s) => s !== id),
       }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      if (name === 'country') {
+        const regions = countryRegionData[value] || [];
+        setRegionOptions(regions);
+        setFormData((prev) => ({
+          ...prev,
+          country: value,
+          state_or_region: '',
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
     }
   };
 
@@ -100,7 +134,7 @@ const BookingForm = () => {
       name: user?.full_name || '',
       email: user?.email || '',
       phone: '',
-      country: '',
+      country: 'Ghana',
       state_or_region: '',
       venue_name: '',
       address: '',
@@ -108,6 +142,7 @@ const BookingForm = () => {
       message: '',
       services: [],
     });
+    setRegionOptions(countryRegionData['Ghana'] || []);
   };
 
   const handleSubmit = async (e) => {
@@ -124,7 +159,6 @@ const BookingForm = () => {
       return;
     }
 
-    // E.164 phone validation (international format)
     if (!/^\+\d{8,15}$/.test(phone)) {
       toast.error('Please enter a valid international phone number.', { autoClose: 3000 });
       return;
@@ -164,11 +198,10 @@ const BookingForm = () => {
         <form onSubmit={handleSubmit} className="form-content" noValidate>
           <h3>Event Booking Form</h3>
 
+          {/* Full Name and Email */}
           {[
             { id: 'name', label: 'Full Name' },
             { id: 'email', label: 'Email Address', type: 'email' },
-            { id: 'country', label: 'Country' },
-            { id: 'state_or_region', label: 'State/Region' },
             { id: 'venue_name', label: 'Venue Name' },
             { id: 'address', label: 'Full Address' },
           ].map(({ id, label, type = 'text' }) => (
@@ -185,6 +218,45 @@ const BookingForm = () => {
             </div>
           ))}
 
+          {/* Country Dropdown */}
+          <div className="input-group">
+            <label htmlFor="country">Country</label>
+            <select
+              id="country"
+              name="country"
+              value={formData.country}
+              onChange={handleChange}
+              required
+            >
+              <option value="">-- Select Country --</option>
+              {Object.keys(countryRegionData).map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Region Dropdown */}
+          <div className="input-group">
+            <label htmlFor="state_or_region">State/Region</label>
+            <select
+              id="state_or_region"
+              name="state_or_region"
+              value={formData.state_or_region}
+              onChange={handleChange}
+              required
+            >
+              <option value="">-- Select Region --</option>
+              {regionOptions.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Phone Input */}
           <div className="input-group">
             <label htmlFor="phone">Phone Number</label>
             <PhoneInput
@@ -194,7 +266,6 @@ const BookingForm = () => {
               inputProps={{
                 name: 'phone',
                 required: true,
-                autoFocus: false,
                 autoComplete: 'tel',
               }}
               placeholder="Enter phone number"
@@ -207,6 +278,7 @@ const BookingForm = () => {
             />
           </div>
 
+          {/* Event Date */}
           <div className="input-group">
             <label htmlFor="event_date">Event Date</label>
             <div className="datepicker-wrapper">
@@ -222,6 +294,7 @@ const BookingForm = () => {
             </div>
           </div>
 
+          {/* Services */}
           <div className="input-group">
             <label htmlFor="services">Services</label>
             <div className="checkbox-group">
@@ -244,6 +317,7 @@ const BookingForm = () => {
             </div>
           </div>
 
+          {/* Message */}
           <div className="input-group">
             <label htmlFor="message">Additional Notes</label>
             <textarea

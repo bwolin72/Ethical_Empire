@@ -11,10 +11,11 @@ const Services = () => {
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [flippedIndex, setFlippedIndex] = useState(null);
 
   useEffect(() => {
     if (service) {
-      fetchServiceDetail(service); // Optional, if slug-based detail is added
+      fetchServiceDetail(service);
     } else {
       fetchAllServices();
     }
@@ -48,6 +49,10 @@ const Services = () => {
     }
   };
 
+  const handleCardClick = (index) => {
+    setFlippedIndex(index === flippedIndex ? null : index);
+  };
+
   if (loading) {
     return (
       <div className="services-page">
@@ -75,10 +80,21 @@ const Services = () => {
         <>
           <h2>Our Services</h2>
           <section className="service-list">
-            {services.map((srv) => (
-              <div key={srv.id} className="service-item">
-                <h3>{srv.name}</h3>
-                <p className="price">GH₵{srv.price}</p>
+            {services.map((srv, index) => (
+              <div
+                key={srv.id}
+                className={`service-card ${flippedIndex === index ? 'flipped' : ''}`}
+                onClick={() => handleCardClick(index)}
+              >
+                <div className="card-inner">
+                  <div className="card-front">
+                    <h3>{srv.name}</h3>
+                  </div>
+                  <div className="card-back">
+                    <p>{srv.description || 'No description available.'}</p>
+                    <Link to="/booking" className="book-btn">Book Now</Link>
+                  </div>
+                </div>
               </div>
             ))}
           </section>

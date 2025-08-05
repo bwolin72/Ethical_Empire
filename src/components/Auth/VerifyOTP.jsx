@@ -40,19 +40,19 @@ export default function VerifyOTP() {
 
     setLoading(true);
     try {
-      const response = await axiosInstance.post('/accounts/verify-otp/email/', {
-        email,
+      const response = await axiosInstance.post('/accounts/verify-otp/', {
         otp: trimmedOtp,
+        email: email || undefined,
+        phone: phone || undefined,
       });
 
-      const { access, refresh, user } = response.data;
-
-      if (!access || !refresh || !user) {
+      const { tokens, user } = response.data;
+      if (!tokens?.access || !tokens?.refresh || !user) {
         toast.error('Invalid server response.');
         return;
       }
 
-      login({ access, refresh, user });
+      login({ access: tokens.access, refresh: tokens.refresh, user });
 
       const redirectMap = {
         ADMIN: '/admin',
@@ -71,7 +71,7 @@ export default function VerifyOTP() {
       const msg =
         err.response?.data?.error ||
         err.response?.data?.message ||
-        'Invalid OTP. Please try again.';
+        'Invalid or expired OTP.';
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -79,15 +79,18 @@ export default function VerifyOTP() {
   };
 
   const handleResendOTP = async () => {
-    if (!email) {
-      toast.error('Email not found. Cannot resend.');
+    if (!email && !phone) {
+      toast.error('Cannot resend OTP without email or phone.');
       return;
     }
 
     setResending(true);
     try {
-      await axiosInstance.post('/accounts/resend-otp/email/', { email });
-      toast.success(`OTP resent to ${email}${phone ? ` and ${phone}` : ''}`);
+      await axiosInstance.post('/accounts/resend-otp/', {
+        email: email || undefined,
+        phone: phone || undefined,
+      });
+      toast.success(`OTP resent to ${email || ''}${email && phone ? ' and ' : ''}${phone || ''}`);
     } catch (err) {
       const msg =
         err.response?.data?.error ||
@@ -102,15 +105,12 @@ export default function VerifyOTP() {
   return (
     <div className="otp-container">
       <ToastContainer autoClose={4000} />
-      <h2>Email Verification</h2>
+      <h2>Verify Your Account</h2>
       <p>
-        We've sent a 6-digit code to <strong>{email}</strong>
-        {phone && (
-          <>
-            {' and '}<strong>{phone}</strong>
-          </>
-        )}
-        . Enter it below to activate your account.
+        A 6-digit code has been sent to
+        {email && <strong> {email}</strong>}
+        {email && phone && ' and'}
+        {phone && <strong> {phone}</strong>}.
       </p>
 
       <form onSubmit={handleSubmit}>
@@ -142,7 +142,7 @@ export default function VerifyOTP() {
       </div>
 
       <p className="support-note">
-        Didn’t receive the code? Please check your spam or junk folder.
+        Didn’t receive the code? Check your spam or junk folder.
       </p>
     </div>
   );
