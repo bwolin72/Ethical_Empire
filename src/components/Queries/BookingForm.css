@@ -79,6 +79,10 @@
   border-radius: 5px;
   background-color: transparent; /* or remove entirely */
 }
+.form-left {
+  text-align: center;
+}
+
 
 
 .booking .form-content {
