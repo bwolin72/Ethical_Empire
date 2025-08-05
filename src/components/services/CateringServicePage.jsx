@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import './catering.custom.css';
 import { Card, CardContent } from '../ui/Card';
 import { motion } from 'framer-motion';
 import publicAxios from '../../api/publicAxios';
+import axiosCommon from '../../api/axiosCommon';
 import MediaCards from '../context/MediaCards';
 import BannerCards from '../context/BannerCards';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +16,9 @@ const CateringPage = () => {
   const navigate = useNavigate();
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [videoUrl, setVideoUrl] = useState('');
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   const cateringServices = [
     'Traditional Ghanaian Buffet',
@@ -62,13 +66,50 @@ const CateringPage = () => {
 
   useEffect(() => {
     fetchData();
+
+    axiosCommon
+      .get('/api/videos/?endpoint=CateringPage&is_active=true')
+      .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setVideoUrl(res.data[0].video_url);
+        }
+      })
+      .catch(err => {
+        console.error('Video fetch error:', err);
+      });
   }, [fetchData]);
+
+  const toggleMute = () => {
+    setIsMuted(prev => !prev);
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+    }
+  };
 
   return (
     <div className="catering-page-container">
       {/* === Hero Section === */}
       <section className="catering-banners">
-        <BannerCards endpoint="CateringPage" title="Catering Highlights" />
+        {videoUrl ? (
+          <div className="video-wrapper">
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              className="hero-video"
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+            >
+              Your browser does not support the video tag.
+            </video>
+            <button className="mute-button" onClick={toggleMute}>
+              {isMuted ? '🔇' : '🔊'}
+            </button>
+          </div>
+        ) : (
+          <BannerCards endpoint="CateringPage" title="Catering Highlights" />
+        )}
       </section>
 
       {/* === Call to Action === */}

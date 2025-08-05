@@ -1,10 +1,9 @@
-// src/pages/LiveBandServicePage.jsx
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './liveband.css';
 import { Card, CardContent } from '../ui/Card';
 import { motion } from 'framer-motion';
 import publicAxios from '../../api/publicAxios';
+import axiosCommon from '../../api/axiosCommon';
 import { useNavigate } from 'react-router-dom';
 import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
@@ -13,6 +12,9 @@ const LiveBandServicePage = () => {
   const navigate = useNavigate();
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [videoUrl, setVideoUrl] = useState('');
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   const liveBandServices = [
     '🎤 Wedding Performances',
@@ -24,38 +26,80 @@ const LiveBandServicePage = () => {
   ];
 
   useEffect(() => {
-    const fetchTestimonials = async () => {
+    const fetchContent = async () => {
       try {
-        const res = await publicAxios.get('/reviews/');
-        setTestimonials(res.data || []);
+        const [reviewRes, videoRes] = await Promise.all([
+          publicAxios.get('/reviews/'),
+          axiosCommon.get('/api/videos/?endpoint=LiveBandServicePage&is_active=true'),
+        ]);
+        setTestimonials(Array.isArray(reviewRes.data) ? reviewRes.data : []);
+
+        if (Array.isArray(videoRes.data) && videoRes.data.length > 0) {
+          setVideoUrl(videoRes.data[0].video_url);
+        }
       } catch (error) {
-        console.error('Failed to load reviews:', error);
+        console.error('Failed to load content:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTestimonials();
+    fetchContent();
   }, []);
+
+  const toggleMute = () => {
+    setIsMuted((prev) => !prev);
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+    }
+  };
 
   return (
     <div className="liveband-page">
-      {/* === Hero Banner === */}
+      {/* === Hero Banner or Video === */}
       <section className="banner-section">
-        <div className="hero-overlay">
-          <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
-          <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            className="cta-button hero-button"
-            onClick={() => navigate('/bookings')}
-          >
-            Book a Live Band
-          </motion.button>
-        </div>
-        <div className="banner-cards-wrapper">
-          <BannerCards endpoint="LiveBandServicePage" title="Live Band Highlights" />
-        </div>
+        {videoUrl ? (
+          <div className="video-wrapper">
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              className="hero-video"
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+            />
+            <button className="mute-button" onClick={toggleMute}>
+              {isMuted ? '🔇' : '🔊'}
+            </button>
+            <div className="hero-overlay">
+              <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
+              <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="cta-button hero-button"
+                onClick={() => navigate('/bookings')}
+              >
+                Book a Live Band
+              </motion.button>
+            </div>
+          </div>
+        ) : (
+          <div className="hero-overlay">
+            <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
+            <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              className="cta-button hero-button"
+              onClick={() => navigate('/bookings')}
+            >
+              Book a Live Band
+            </motion.button>
+            <div className="banner-cards-wrapper">
+              <BannerCards endpoint="LiveBandServicePage" title="Live Band Highlights" />
+            </div>
+          </div>
+        )}
       </section>
 
       {/* === Services Offered === */}
@@ -115,7 +159,7 @@ const LiveBandServicePage = () => {
             : testimonials.length > 0 ? (
                 testimonials.slice(0, 6).map((review, index) => (
                   <motion.div
-                    key={index}
+                    key={review.id || index}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}

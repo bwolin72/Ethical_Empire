@@ -37,9 +37,10 @@ const EethmHome = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [promotions, setPromotions] = useState([]);
   const [promoError, setPromoError] = useState(null);
-
   const [reviews, setReviews] = useState([]);
   const [reviewError, setReviewError] = useState(null);
+  const [videos, setVideos] = useState([]);
+  const [videoError, setVideoError] = useState(null);
 
   const {
     media: heroMediaArr,
@@ -49,7 +50,10 @@ const EethmHome = () => {
 
   const heroMedia = heroMediaArr?.[0] || null;
   const heroURL = getMediaUrl(heroMedia);
-  const isVideo = heroURL.endsWith('.mp4');
+  const isImageHero = heroURL && !heroURL.endsWith('.mp4');
+
+  const featuredVideo = videos.find(v => v.is_featured) || videos[0];
+  const featuredVideoUrl = featuredVideo?.url;
 
   const toggleMute = () => {
     setIsMuted(prev => !prev);
@@ -61,13 +65,23 @@ const EethmHome = () => {
   useEffect(() => {
     const controller = new AbortController();
 
+    axiosCommon.get('/api/videos/')
+      .then(res => {
+        const all = Array.isArray(res.data) ? res.data : [];
+        const filtered = all.filter(v => v.is_active && v.endpoints.includes('EethmHome'));
+        setVideos(filtered);
+      })
+      .catch(err => {
+        console.error('Video fetch error:', err);
+        setVideoError('❌ Failed to load videos.');
+      });
+
     axiosCommon.get('/promotions/active/', { signal: controller.signal })
       .then(res => {
         setPromotions(Array.isArray(res.data) ? res.data : []);
       })
       .catch(err => {
         if (err.name !== 'CanceledError') {
-          console.error('Promotions fetch error:', err);
           setPromoError('Failed to load promotions.');
         }
       });
@@ -78,7 +92,6 @@ const EethmHome = () => {
       })
       .catch(err => {
         if (err.name !== 'CanceledError') {
-          console.error('Reviews fetch error:', err);
           setReviewError('Failed to load reviews.');
         }
       });
@@ -93,23 +106,19 @@ const EethmHome = () => {
           <p className="video-fallback">Loading hero...</p>
         ) : heroError ? (
           <p className="video-fallback" style={{ color: 'red' }}>{heroError}</p>
-        ) : heroURL ? (
+        ) : featuredVideoUrl ? (
           <>
-            {isVideo ? (
-              <video
-                ref={videoRef}
-                className="background-video"
-                autoPlay
-                loop
-                muted={isMuted}
-                playsInline
-              >
-                <source src={heroURL} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            ) : (
-              <img src={heroURL} alt="Hero" className="background-video" loading="lazy" />
-            )}
+            <video
+              ref={videoRef}
+              className="background-video"
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+            >
+              <source src={featuredVideoUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
             <div className="overlay-content">
               <h1>Ethical Multimedia GH Services</h1>
               <p>Live Band • Catering • Multimedia • Decor Services</p>
@@ -120,14 +129,20 @@ const EethmHome = () => {
                 </button>
               </div>
             </div>
-            {isVideo && (
-              <button className="mute-button" onClick={toggleMute}>
-                {isMuted ? '🔇' : '🔊'}
-              </button>
-            )}
+            <button className="mute-button" onClick={toggleMute}>
+              {isMuted ? '🔇' : '🔊'}
+            </button>
+          </>
+        ) : isImageHero ? (
+          <>
+            <img src={heroURL} alt="Hero" className="background-video" loading="lazy" />
+            <div className="overlay-content">
+              <h1>Ethical Multimedia GH Services</h1>
+              <p>Live Band • Catering • Multimedia • Decor Services</p>
+            </div>
           </>
         ) : (
-          <p className="video-fallback">No hero media available.</p>
+          <p className="video-fallback">No hero media or video available.</p>
         )}
       </section>
 

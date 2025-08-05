@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import publicAxios from '../../api/publicAxios';
+import axiosCommon from '../../api/axiosCommon';
 import './decor.css';
 import MediaCard from '../context/MediaCards';
 import MediaSkeleton from '../context/MediaSkeleton';
@@ -20,6 +21,9 @@ const DecorPage = () => {
   const [mediaCards, setMediaCards] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [videoUrl, setVideoUrl] = useState('');
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   const decorServices = [
     { icon: <FaCrown />, label: 'Wedding & Event Decor' },
@@ -33,7 +37,7 @@ const DecorPage = () => {
   const fetchContent = useCallback(async () => {
     setLoading(true);
     try {
-      const [mediaRes, reviewsRes] = await Promise.all([
+      const [mediaRes, reviewsRes, videoRes] = await Promise.all([
         publicAxios.get('/media/', {
           params: {
             endpoint: 'DecorPage',
@@ -42,6 +46,7 @@ const DecorPage = () => {
           },
         }),
         publicAxios.get('/reviews/'),
+        axiosCommon.get('/api/videos/?endpoint=DecorPage&is_active=true'),
       ]);
 
       const media = Array.isArray(mediaRes.data?.results) ? mediaRes.data.results : [];
@@ -49,6 +54,10 @@ const DecorPage = () => {
 
       setMediaCards(media);
       setTestimonials(reviews);
+
+      if (Array.isArray(videoRes.data) && videoRes.data.length > 0) {
+        setVideoUrl(videoRes.data[0].video_url);
+      }
     } catch (error) {
       console.error('Error loading decor content:', error);
     } finally {
@@ -60,11 +69,35 @@ const DecorPage = () => {
     fetchContent();
   }, [fetchContent]);
 
+  const toggleMute = () => {
+    setIsMuted((prev) => !prev);
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+    }
+  };
+
   return (
     <div className="decor-page-container">
-      {/* === Hero Banner === */}
+      {/* === Hero Banner or Video === */}
       <section className="banner-section">
-        <BannerCards endpoint="DecorPage" title="Decor Showcases" />
+        {videoUrl ? (
+          <div className="video-wrapper">
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              className="hero-video"
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+            />
+            <button className="mute-button" onClick={toggleMute}>
+              {isMuted ? '🔇' : '🔊'}
+            </button>
+          </div>
+        ) : (
+          <BannerCards endpoint="DecorPage" title="Decor Showcases" />
+        )}
       </section>
 
       {/* === CTA Button === */}

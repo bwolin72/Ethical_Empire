@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FaGuitar,
   FaCamera,
@@ -14,7 +14,7 @@ import MediaCards from '../context/MediaCards';
 import MediaCard from '../context/MediaCard';
 import BannerCards from '../context/BannerCards';
 import publicAxios from '../../api/publicAxios';
-
+import axiosCommon from '../../api/axiosCommon';
 import './About.css';
 
 const services = [
@@ -46,18 +46,17 @@ const services = [
 ];
 
 const About = () => {
-  const {
-    media: bannerList,
-  } = useMediaFetcher({
+  const { media: bannerList } = useMediaFetcher({
     type: 'banner',
     endpoint: 'About',
     isActive: true,
     pageSize: 1,
   });
 
-  const [testimonials, setTestimonials] = React.useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [videoHeroUrl, setVideoHeroUrl] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let isMounted = true;
 
     const fetchTestimonials = async () => {
@@ -71,7 +70,19 @@ const About = () => {
       }
     };
 
+    const fetchVideoHero = async () => {
+      try {
+        const res = await axiosCommon.get('/api/videos/?endpoint=About&is_active=true');
+        const videoList = Array.isArray(res.data) ? res.data : [];
+        const featured = videoList.find(v => v.is_featured) || videoList[0];
+        if (featured?.video_url) setVideoHeroUrl(featured.video_url);
+      } catch (error) {
+        console.error('Hero video fetch error:', error);
+      }
+    };
+
     fetchTestimonials();
+    fetchVideoHero();
 
     return () => {
       isMounted = false;
@@ -80,20 +91,28 @@ const About = () => {
 
   return (
     <div className="about-container">
-
-      {/* === Sticky CTA Bar === */}
       <div className="sticky-cta-bar">
         <Link to="/bookings">Let’s Talk</Link>
       </div>
 
-      {/* === Hero Banner === */}
-      {bannerList.length > 0 && (
+      {/* === Hero Video or Banner === */}
+      {videoHeroUrl ? (
+        <div className="hero-banner video">
+          <video
+            src={videoHeroUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="hero-video"
+          />
+        </div>
+      ) : bannerList.length > 0 ? (
         <div className="hero-banner mb-10">
           <MediaCard media={bannerList[0]} fullWidth />
         </div>
-      )}
+      ) : null}
 
-      {/* === Intro Text === */}
       <section className="text-center mb-12 px-4">
         <h1 className="section-heading">Ethical Multimedia GH</h1>
         <p className="subtext">
@@ -101,10 +120,8 @@ const About = () => {
         </p>
       </section>
 
-      {/* === Visual Stories === */}
       <BannerCards endpoint="About" title="Explore Our Visual Stories" />
 
-      {/* === Our Services === */}
       <section className="service-grid px-4">
         {services.map(({ icon, title, desc }, idx) => (
           <div key={idx} className="service-card">
@@ -115,7 +132,6 @@ const About = () => {
         ))}
       </section>
 
-      {/* === Who We Are === */}
       <section className="about-text px-4 mt-12">
         <h2 className="section-heading">Who We Are</h2>
         <p>
@@ -128,16 +144,8 @@ const About = () => {
         </p>
       </section>
 
-      {/* === Featured Gallery === */}
-      <MediaCards
-        endpoint="About"
-        type="media"
-        title="Our Work in Action"
-        fullWidth
-        isFeatured={true}
-      />
+      <MediaCards endpoint="About" type="media" title="Our Work in Action" fullWidth isFeatured={true} />
 
-      {/* === Our Commitment === */}
       <section className="about-text px-4 mt-12">
         <h2 className="section-heading">Our Commitment</h2>
         <p>
@@ -147,7 +155,6 @@ const About = () => {
         </p>
       </section>
 
-      {/* === Why Choose Us === */}
       <section className="why-section max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center mt-16 px-4">
         <div>
           <h3 className="text-xl font-bold text-[#c9a356] mb-4">Why Clients Trust Us</h3>
@@ -168,14 +175,12 @@ const About = () => {
         </div>
       </section>
 
-      {/* === Team Section === */}
       <section className="team-section px-4 mt-16 text-center">
         <h2 className="section-heading">Meet the Team</h2>
         <p className="mb-6">
           Behind every successful event is a passionate team of visionaries, creators, and coordinators.
         </p>
         <div className="team-grid">
-          {/* Example Static */}
           <div className="team-member">
             <img src="/team/jane.jpg" alt="Jane" />
             <h4>Jane Doe</h4>
@@ -189,7 +194,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* === Press / Clients === */}
       <section className="press-logos px-4 mt-16">
         <h2 className="section-heading text-center">Trusted By</h2>
         <div className="logo-carousel">
@@ -199,7 +203,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* === Testimonials Carousel === */}
       {testimonials.length > 0 && (
         <section className="testimonial-carousel px-4 mt-16 text-center">
           <h2 className="section-heading">What Our Clients Say</h2>
@@ -207,14 +210,14 @@ const About = () => {
             {testimonials.map((review, idx) => (
               <div key={idx} className="testimonial-slide">
                 <p>“{review.message}”</p>
-                <p className="testimonial-author">— {review.reviewer_name}</p>
+                <p className="testimonial-author">— {review.reviewer_name || 'Anonymous'}
+                </p>
               </div>
             ))}
           </div>
         </section>
       )}
 
-      {/* === Call to Action === */}
       <section className="cta-section text-center mt-16 px-4">
         <h3 className="text-xl font-semibold mb-3">
           Let’s create something remarkable together.

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
 import './MediaHostingServicePage.css';
@@ -6,7 +6,9 @@ import { Card, CardContent } from '../ui/Card';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import PhoneInput from 'react-phone-number-input';
+import axiosCommon from '../../api/axiosCommon';
 import 'react-phone-number-input/style.css';
+import { toast } from 'react-toastify';
 
 const hostingServices = [
   'Videography Coverage',
@@ -18,6 +20,10 @@ const hostingServices = [
 ];
 
 const MediaHostingServicePage = () => {
+  const [videoUrl, setVideoUrl] = useState('');
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
+
   const {
     register,
     handleSubmit,
@@ -33,20 +39,71 @@ const MediaHostingServicePage = () => {
     register('phone', { required: 'Phone number is required' });
   }, [register]);
 
-  const onSubmit = (data) => {
-    if (!phone) return;
-    console.log('📩 Booking Submitted:', data);
-    // Optional: send data to backend
+  useEffect(() => {
+    const fetchVideo = async () => {
+      try {
+        const res = await axiosCommon.get('/api/videos/', {
+          params: { endpoint: 'mediaHostingServicePage', is_active: true },
+        });
+        if (res.data.length > 0) setVideoUrl(res.data[0].video_url);
+      } catch (error) {
+        console.error('Video load failed:', error);
+      }
+    };
+    fetchVideo();
+  }, []);
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+    }
+  };
+
+  const onSubmit = async (data) => {
+    if (!phone) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+
+    try {
+      // Example backend POST endpoint (replace with actual if needed)
+      await axiosCommon.post('/api/bookings/', {
+        ...data,
+        phone,
+        service_type: 'Media Hosting',
+      });
+      toast.success('Booking submitted successfully!');
+    } catch (err) {
+      toast.error('Submission failed. Please try again.');
+    }
   };
 
   return (
     <div className="media-hosting-page">
-      {/* === Hero Banner === */}
+      {/* === Hero Banner or Video === */}
       <section className="hero-banner">
-        <BannerCards
-          endpoint="mediaHostingServicePage"
-          title="Capture & Host with Ethical Precision"
-        />
+        {videoUrl ? (
+          <div className="video-wrapper">
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              className="hero-video"
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+            />
+            <button className="mute-button" onClick={toggleMute}>
+              {isMuted ? '🔇' : '🔊'}
+            </button>
+          </div>
+        ) : (
+          <BannerCards
+            endpoint="mediaHostingServicePage"
+            title="Capture & Host with Ethical Precision"
+          />
+        )}
       </section>
 
       {/* === Booking Form === */}
@@ -71,16 +128,39 @@ const MediaHostingServicePage = () => {
               trigger('phone');
             }}
           />
-          {!phone && <span className="error">Phone number is required</span>}
+          {errors.phone && <span className="error">{errors.phone.message}</span>}
+
+          <input
+            {...register('email', {
+              required: 'Email is required',
+              pattern: {
+                value: /^\S+@\S+$/i,
+                message: 'Invalid email address',
+              },
+            })}
+            type="email"
+            placeholder="Your Email"
+          />
+          {errors.email && <span className="error">{errors.email.message}</span>}
 
           <input
             {...register('eventType', { required: 'Event type is required' })}
             type="text"
             placeholder="Type of Event (e.g., Wedding)"
           />
-          {errors.eventType && (
-            <span className="error">{errors.eventType.message}</span>
-          )}
+          {errors.eventType && <span className="error">{errors.eventType.message}</span>}
+
+          <input
+            {...register('eventDate')}
+            type="date"
+            placeholder="Event Date"
+          />
+
+          <textarea
+            {...register('message')}
+            placeholder="Additional Information (optional)"
+            rows={4}
+          />
 
           <button className="cta-button" type="submit">
             Submit Booking Request
@@ -109,7 +189,7 @@ const MediaHostingServicePage = () => {
         </div>
       </section>
 
-      {/* === Creative Media Preview (3 items) === */}
+      {/* === Creative Media Preview === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-text">
@@ -144,7 +224,7 @@ const MediaHostingServicePage = () => {
         </p>
       </section>
 
-      {/* === Full Media Gallery === */}
+      {/* === Full Gallery === */}
       <section className="section">
         <h2 className="section-title">Multimedia Gallery</h2>
         <MediaCards

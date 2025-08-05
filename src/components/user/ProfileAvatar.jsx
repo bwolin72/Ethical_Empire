@@ -1,8 +1,11 @@
 import React, { useRef } from "react";
 import "./ProfileAvatar.css";
 
-const ProfileAvatar = ({ imageUrl, name, email }) => {
+const ProfileAvatar = ({ profile }) => {
   const fileInputRef = useRef();
+  const imageUrl = profile?.avatar || "";
+  const name = profile?.name || "Guest";
+  const email = profile?.email || "";
 
   const handleClick = () => {
     fileInputRef.current.click();
@@ -36,21 +39,18 @@ const ProfileAvatar = ({ imageUrl, name, email }) => {
 
   const updateProfileImage = async (url) => {
     try {
-      const token = localStorage.getItem("authToken"); // Adjust if using cookies or other auth
+      const token = localStorage.getItem("authToken");
       const res = await fetch("/api/accounts/profile/", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ profile_image_url: url }),
+        body: JSON.stringify({ avatar: url }),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to update profile image.");
-      }
-
-      window.location.reload(); // Optional: update UI after upload
+      if (!res.ok) throw new Error("Failed to update profile image.");
+      window.location.reload(); // Force update after success
     } catch (err) {
       console.error("Profile update failed", err);
     }
@@ -65,27 +65,22 @@ const ProfileAvatar = ({ imageUrl, name, email }) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ profile_image_url: null }),
+        body: JSON.stringify({ avatar: null }),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to remove profile image.");
-      }
-
-      window.location.reload(); // Optional: update UI after removal
+      if (!res.ok) throw new Error("Failed to remove image.");
+      window.location.reload();
     } catch (err) {
       console.error("Failed to remove image", err);
     }
   };
 
   const initials = name
-    ? name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
-    : "?";
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <div className="profile-avatar">

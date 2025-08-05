@@ -1,3 +1,5 @@
+/* === Admin Video Upload & Management Styles === */
+
 .upload-form-container {
   max-width: 600px;
   width: 90%;
@@ -79,6 +81,84 @@ button:hover {
   text-align: center;
 }
 
+.file-preview-list {
+  list-style: disc;
+  padding-left: 1.2rem;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.video-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 3rem auto;
+  max-width: 1000px;
+  font-size: 0.95rem;
+}
+
+.video-table th,
+.video-table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.video-table th {
+  background-color: #1a1a2e;
+  color: white;
+  font-weight: 600;
+}
+
+.video-table td button {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  margin: 0 0.25rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  color: white;
+  background-color: #1a1a2e;
+}
+
+.video-table td button:hover {
+  background-color: #6e1414;
+}
+
+.video-preview-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.video-preview-modal video {
+  width: 90%;
+  max-width: 800px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.video-preview-modal .close-btn {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 2rem;
+  color: white;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.drag-handle {
+  cursor: grab;
+  font-size: 1.2rem;
+  color: #888;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
   .upload-form-container {
@@ -95,6 +175,10 @@ button:hover {
 
   button {
     width: 100%;
+  }
+
+  .video-table {
+    font-size: 0.85rem;
   }
 }
 
@@ -119,6 +203,11 @@ button:hover {
   button {
     font-size: 0.95rem;
     padding: 0.5rem 1rem;
+  }
+
+  .video-table th,
+  .video-table td {
+    padding: 0.5rem;
   }
 }
 

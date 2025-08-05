@@ -21,6 +21,7 @@ const services = [
 const UserPage = () => {
   const [profile, setProfile] = useState(null);
   const [media, setMedia] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [featured, setFeatured] = useState([]);
@@ -42,6 +43,7 @@ const UserPage = () => {
           featuredRes,
           reviewsRes,
           promoRes,
+          videosRes,
         ] = await Promise.all([
           axiosInstance.get("/accounts/profile/", { signal }),
           axiosInstance.get("/media/", {
@@ -51,6 +53,7 @@ const UserPage = () => {
           axiosInstance.get("/media/featured/?endpoint=UserPage", { signal }),
           axiosInstance.get("/reviews/", { signal }),
           axiosInstance.get("/promotions/", { signal }),
+          axiosInstance.get("/api/videos/?endpoint=UserPage", { signal }),
         ]);
 
         setProfile(profileRes.data);
@@ -58,6 +61,7 @@ const UserPage = () => {
         setFeatured(featuredRes.data?.results || []);
         setReviews(reviewsRes.data || []);
         setPromotions(promoRes.data || []);
+        setVideos(videosRes.data?.results || []);
       } catch (err) {
         toast.error("Error loading data. Please try again.");
       } finally {
@@ -89,8 +93,8 @@ const UserPage = () => {
     }
   };
 
-  const featuredVideo = Array.isArray(featured)
-    ? featured.find((item) => item.file?.endsWith(".mp4"))
+  const featuredVideo = Array.isArray(videos)
+    ? videos.find((item) => item.file?.endsWith(".mp4") && item.is_featured)
     : null;
 
   return (
@@ -225,9 +229,7 @@ const UserPage = () => {
               ) : (
                 <p className="empty-text">No reviews yet.</p>
               )}
-              <button className="review-btn" onClick={() => navigate("/account#reviews")}>
-                Write a Review
-              </button>
+              <button className="review-btn" onClick={() => navigate("/account#reviews")}>Write a Review</button>
             </div>
           </section>
 

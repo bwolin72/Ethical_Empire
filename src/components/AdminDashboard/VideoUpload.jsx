@@ -1,175 +1,129 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './VideoUpload.css';
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
-const VideoUpload = ({ videoId = null, existingData = null }) => {
-  const [files, setFiles] = useState([]);
-  const [label, setLabel] = useState('');
-  const [type, setType] = useState('media');
-  const [endpoints, setEndpoints] = useState(['EethmHome']);
-  const [isActive, setIsActive] = useState(true);
-  const [isFeatured, setIsFeatured] = useState(false);
-  const [status, setStatus] = useState(null);
-  const isUpdating = !!videoId;
+const ENDPOINT_OPTIONS = [
+  'EethmHome', 'UserPage', 'About', 'CateringServicePage',
+  'LiveBandServicePage', 'DecorServicePage', 'MediaHostingServicePage',
+  'VendorPage', 'PartnerPage', 'AgencyDashboard',
+];
 
-  useEffect(() => {
-    if (existingData) {
-      setLabel(existingData.label || '');
-      setType(existingData.type || 'media');
-      setEndpoints(existingData.endpoints || ['EethmHome']);
-      setIsActive(existingData.is_active ?? true);
-      setIsFeatured(existingData.is_featured ?? false);
-    }
-  }, [existingData]);
-
-  const handleFileChange = (e) => {
-    const selected = Array.from(e.target.files);
-    setFiles(selected);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    setStatus(null); // Reset status
-
-    if (!files.length && !isUpdating) {
-      setStatus('❌ Please select at least one video file.');
-      return;
-    }
-
-    const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo'];
-    if (files.length && !files.every(file => validTypes.includes(file.type))) {
-      setStatus('❌ Invalid file type. Only MP4, MOV, or AVI files are allowed.');
-      return;
-    }
-
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('media', file);
-    });
-
-    formData.append('label', label);
-    formData.append('type', type);
-    formData.append('endpoints', JSON.stringify(endpoints));
-    formData.append('is_active', isActive.toString());
-    formData.append('is_featured', isFeatured.toString());
-
-    try {
-      let response;
-      if (isUpdating) {
-        response = await axiosInstance.patch(`/media/upload/${videoId}/`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        setStatus('✅ Video updated successfully!');
-      } else {
-        response = await axiosInstance.post('/media/upload/', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        setStatus('✅ Video uploaded successfully!');
-      }
-
-      console.log('[Success]', response.data);
-
-      // Reset form
-      setFiles([]);
-      setLabel('');
-      setType('media');
-      setEndpoints(['EethmHome']);
-      setIsActive(true);
-      setIsFeatured(false);
-    } catch (error) {
-      console.error('[Error]', error?.response?.data || error.message);
-      const detail =
-        error?.response?.data?.error ||
-        error?.response?.data?.detail ||
-        '❌ Request failed.';
-      setStatus(detail);
-    }
+const SortableItem = ({ video, index, onToggleActive, onToggleFeatured, onPreview }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: video.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    border: '1px solid #ccc',
+    borderRadius: '8px',
+    padding: '1rem',
+    marginBottom: '1rem',
+    backgroundColor: '#fff',
   };
 
   return (
-    <div className="upload-form-container">
-      <h2>{isUpdating ? 'Update Video' : 'Upload Video'}</h2>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="label">Label:</label>
-        <input
-          id="label"
-          type="text"
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          required
-        />
-
-        <label htmlFor="fileUpload">File(s):</label>
-        <input
-          id="fileUpload"
-          type="file"
-          accept="video/*"
-          multiple
-          onChange={handleFileChange}
-          required={!isUpdating}
-        />
-
-        {files.length > 0 && (
-          <ul className="file-preview-list">
-            {files.map((file, index) => (
-              <li key={index}>{file.name}</li>
-            ))}
-          </ul>
-        )}
-
-        <label htmlFor="type">Type:</label>
-        <select id="type" value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="media">Media</option>
-          <option value="banner">Banner</option>
-        </select>
-
-        <label htmlFor="endpoints">Endpoints:</label>
-        <select
-          id="endpoints"
-          multiple
-          value={endpoints}
-          onChange={(e) =>
-            setEndpoints(Array.from(e.target.selectedOptions, (opt) => opt.value))
-          }
-        >
-          <option value="EethmHome">EethmHome</option>
-          <option value="UserPage">UserPage</option>
-          <option value="About">About</option>
-          <option value="CateringPage">CateringPage</option>
-          <option value="LiveBandServicePage">Live Band</option>
-          <option value="DecorPage">Decor</option>
-          <option value="MediaHostingServicePage">Media Hosting</option>
-          <option value="VendorPage">Vendor Page</option>
-          <option value="PartnerPage">Partner Page</option>
-        </select>
-
-        <div className="checkbox-group">
-          <label>
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-            />
-            Active
-          </label>
-
-          <label>
-            <input
-              type="checkbox"
-              checked={isFeatured}
-              onChange={(e) => setIsFeatured(e.target.checked)}
-            />
-            Featured
-          </label>
-        </div>
-
-        <button type="submit">{isUpdating ? 'Update' : 'Upload'}</button>
-
-        {status && <p className="upload-status">{status}</p>}
-      </form>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <p><strong>{video.label}</strong></p>
+      <p>Type: {video.type} | Active: {video.is_active ? '✅' : '❌'} | Featured: {video.is_featured ? '⭐' : '—'}</p>
+      <button onClick={() => onToggleActive(video.id)}>Toggle Active</button>
+      <button onClick={() => onToggleFeatured(video.id)}>Toggle Featured</button>
+      <button onClick={() => onPreview(video)}>Preview</button>
     </div>
   );
 };
 
-export default VideoUpload;
+const VideoManagerAdmin = () => {
+  const [videos, setVideos] = useState([]);
+  const [previewVideo, setPreviewVideo] = useState(null);
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  const fetchVideos = async () => {
+    try {
+      const res = await axiosInstance.get('/api/videos/');
+      setVideos(res.data);
+    } catch (err) {
+      console.error('Failed to fetch videos:', err);
+    }
+  };
+
+  const handleToggleActive = async (id) => {
+    try {
+      await axiosInstance.patch(`/api/videos/${id}/toggle_active/`);
+      fetchVideos();
+    } catch (err) {
+      console.error('Toggle active failed:', err);
+    }
+  };
+
+  const handleToggleFeatured = async (id) => {
+    try {
+      await axiosInstance.patch(`/api/videos/${id}/toggle_featured/`);
+      fetchVideos();
+    } catch (err) {
+      console.error('Toggle featured failed:', err);
+    }
+  };
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = videos.findIndex((v) => v.id === active.id);
+      const newIndex = videos.findIndex((v) => v.id === over?.id);
+      const reordered = arrayMove(videos, oldIndex, newIndex);
+      setVideos(reordered);
+
+      // Optional: send new order to backend
+      try {
+        await axiosInstance.post('/api/videos/reorder/', {
+          order: reordered.map((v) => v.id),
+        });
+      } catch (err) {
+        console.error('Reorder failed:', err);
+      }
+    }
+  };
+
+  return (
+    <div className="video-admin-panel">
+      <h2>📽️ Video Manager</h2>
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={videos.map((v) => v.id)} strategy={verticalListSortingStrategy}>
+          {videos.map((video, index) => (
+            <SortableItem
+              key={video.id}
+              video={video}
+              index={index}
+              onToggleActive={handleToggleActive}
+              onToggleFeatured={handleToggleFeatured}
+              onPreview={setPreviewVideo}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
+
+      {/* Preview Modal */}
+      {previewVideo && (
+        <div className="video-modal">
+          <div className="video-modal-content">
+            <h3>{previewVideo.label}</h3>
+            <video
+              src={previewVideo.video_url || previewVideo.video}
+              controls
+              width="100%"
+            />
+            <button onClick={() => setPreviewVideo(null)}>Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default VideoManagerAdmin;
