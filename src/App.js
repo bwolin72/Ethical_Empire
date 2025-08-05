@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import './components/styles/variables.css';
 import {
   BrowserRouter as Router,
   Routes,

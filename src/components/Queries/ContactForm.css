@@ -2,17 +2,17 @@
 
 /* Root Container */
 .contact-page {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #fefefe;
-  color: #1a1a1a;
+  font-family: var(--font-main);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
   padding: 2rem 1rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 /* Dark Mode */
 .contact-page.dark-mode {
-  background-color: #0f0f0f;
-  color: #f5f5f5;
+  background-color: var(--color-neutral-dark);
+  color: var(--color-white);
 }
 
 /* Header */
@@ -24,7 +24,8 @@
 .contact-page .form-header h2 {
   font-size: 1.8rem;
   margin: 0.5rem 0;
-  color: #7b002c;
+  color: var(--color-primary);
+  font-family: var(--font-accent);
 }
 
 .contact-page .logo {
@@ -33,18 +34,19 @@
 }
 
 .contact-page .theme-toggle {
-  background-color: #7b002c;
-  color: #fff;
+  background-color: var(--color-primary);
+  color: var(--color-white);
   padding: 0.4rem 1rem;
   border: none;
   border-radius: 20px;
   cursor: pointer;
   margin-top: 0.6rem;
   font-size: 0.9rem;
+  transition: background-color var(--transition-fast);
 }
 
 .contact-page .theme-toggle:hover {
-  background-color: #5b001f;
+  background-color: var(--color-primary-dark);
 }
 
 /* Grid Layout */
@@ -76,17 +78,18 @@
   width: 100%;
   padding: 0.8rem 0.9rem;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: inherit;
   outline: none;
+  font-family: var(--font-main);
 }
 
 .contact-page .form-group input:focus,
 .contact-page .form-group select:focus,
 .contact-page .form-group textarea:focus {
-  border-color: #7b002c;
+  border-color: var(--color-primary);
 }
 
 .contact-page .form-group label {
@@ -95,9 +98,9 @@
   left: 0.9rem;
   background-color: inherit;
   padding: 0 0.3rem;
-  color: #888;
+  color: var(--color-neutral-light);
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
   pointer-events: none;
 }
 
@@ -110,12 +113,12 @@
   top: -0.6rem;
   left: 0.7rem;
   font-size: 0.75rem;
-  color: #7b002c;
-  background-color: #fff;
+  color: var(--color-primary);
+  background-color: var(--color-white);
 }
 
 .contact-page.dark-mode .form-group label {
-  background-color: #0f0f0f;
+  background-color: var(--color-neutral-dark);
 }
 
 /* Full width field */
@@ -125,28 +128,28 @@
 
 /* Submit Button */
 .contact-page .submit-btn {
-  background-color: #7b002c;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-white);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.9rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .contact-page .submit-btn:hover {
-  background-color: #5c001f;
+  background-color: var(--color-primary-dark);
 }
 
 /* Toast / Message */
 .contact-page .toast-notification {
   margin-top: 1rem;
   background-color: #e5ffe5;
-  color: #1b5e20;
+  color: var(--color-success);
   padding: 0.8rem;
   border: 1px solid #8bc34a;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
 }
 
 /* Company Details */
@@ -164,15 +167,15 @@
 
 .contact-page .info-block {
   flex: 1 1 240px;
-  background-color: rgba(123, 0, 44, 0.05);
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background-color: rgba(88, 28, 28, 0.05); /* semi-transparent burgundy */
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-md);
   padding: 1rem;
 }
 
 .contact-page .info-block h3 {
   margin-bottom: 0.5rem;
-  color: #7b002c;
+  color: var(--color-primary);
 }
 
 .contact-page .info-block p {
@@ -191,9 +194,9 @@
   flex: 1;
   text-align: center;
   padding: 0.7rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-weight: 500;
-  color: #fff;
+  color: var(--color-white);
   text-decoration: none;
 }
 
@@ -214,18 +217,18 @@
 
 .contact-page .social-media-links a {
   flex: 1 1 48%;
-  background-color: #222;
-  color: #fff;
+  background-color: var(--color-black);
+  color: var(--color-white);
   text-align: center;
   padding: 0.6rem 0.8rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
   text-decoration: none;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .contact-page .social-media-links a:hover {
-  background-color: #7b002c;
+  background-color: var(--color-primary);
 }
 
 /* Map Section */
@@ -237,14 +240,14 @@
 .contact-page .map-section h4 {
   font-size: 1.2rem;
   margin-bottom: 1rem;
-  color: #7b002c;
+  color: var(--color-primary);
 }
 
 .contact-page .map-section iframe {
   width: 100%;
   height: 300px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 /* === Responsive === */
@@ -303,6 +306,7 @@
     height: 250px;
   }
 }
+
 @media (max-width: 400px) {
   .contact-page {
     padding: 1rem 0.5rem;

@@ -1,28 +1,30 @@
+@import '../styles/variables.css';
+
 /* === Scoped Booking Styles === */
 .booking {
-  --color-bg-light: #f9fafb;
-  --color-bg-dark: #1f2937;
-  --color-text-light: #1f2937;
-  --color-text-dark: #f9fafb;
+  --color-bg-light: var(--color-white);
+  --color-bg-dark: var(--color-neutral-dark);
+  --color-text-light: var(--color-neutral-dark);
+  --color-text-dark: var(--color-white);
 
-  --color-primary: #581c1c;
-  --color-primary-dark: #401010;
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
 
-  --color-muted: #6b7280;
-  --color-muted-dark: #d1d5db;
+  --color-muted: var(--color-neutral-light);
+  --color-muted-dark: #d1d5db; /* You can add a variable for this if reused */
 
-  --color-border-light: #ccc;
-  --color-border-dark: #4b5563;
+  --color-border-light: #e5e7eb;
+  --color-border-dark: var(--color-neutral);
 
-  --color-success: #15803d;
-  --color-error: #dc2626;
-  --color-disabled: #9ca3af;
+  --color-success: var(--color-success);
+  --color-error: var(--color-error);
+  --color-disabled: var(--color-disabled);
 
-  --color-calendar-icon: #6b7280;
-  --color-dropdown-icon: #1e3a8a;
+  --color-calendar-icon: var(--color-muted);
+  --color-dropdown-icon: var(--color-secondary);
 
   --color-service-bg-light: #f3f4f6;
-  --color-service-bg-dark: #374151;
+  --color-service-bg-dark: var(--color-neutral);
 }
 
 .booking .booking-container {
@@ -32,13 +34,13 @@
 }
 
 .booking .form-card {
-  background-color: white;
+  background-color: var(--color-bg-light);
   max-width: 960px;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  border-radius: 1rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
@@ -48,7 +50,7 @@
 
 .booking .form-left {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-white);
   padding: 2rem;
   flex: 1 1 40%;
   display: flex;
@@ -65,18 +67,21 @@
 
 .booking .form-left h2 {
   font-size: 1.6rem;
+  font-family: var(--font-accent);
   margin-bottom: 0.5rem;
 }
 
 .booking .form-left .subtitle {
   font-size: 1rem;
   font-weight: 300;
+  font-family: var(--font-main);
 }
 
 .booking .form-content {
   flex: 1 1 60%;
   padding: 2rem;
   background: var(--color-bg-light);
+  color: var(--color-text-light);
 }
 
 .booking.dark .form-content {
@@ -89,6 +94,7 @@
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--color-primary);
+  font-family: var(--font-accent);
 }
 
 .booking .input-group {
@@ -107,10 +113,11 @@
 .booking .datepicker-wrapper input,
 .booking .react-tel-input .form-control {
   padding: 0.7rem 0.9rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   border: 1px solid var(--color-border-light);
   font-size: 1rem;
-  color: #111827;
+  font-family: var(--font-main);
+  color: var(--color-text-light);
 }
 
 .booking.dark .input-group input,
@@ -149,14 +156,13 @@
   padding-left: 2.5rem;
 }
 
-/* Services */
 .booking .checkbox-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.75rem;
   background-color: var(--color-service-bg-light);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
 }
 
 .booking.dark .checkbox-group {
@@ -174,23 +180,21 @@
   margin-right: 0.5rem;
 }
 
-/* Textarea */
 .booking textarea {
   resize: vertical;
   min-height: 100px;
 }
 
-/* Submit Button */
 .booking .submit-btn {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-white);
   padding: 0.8rem;
   font-weight: 600;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   width: 100%;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .booking .submit-btn:hover:not(:disabled) {
@@ -202,7 +206,6 @@
   cursor: not-allowed;
 }
 
-/* Extra Styling for Feedback */
 .booking .error-message {
   color: var(--color-error);
   font-size: 0.9rem;
@@ -220,7 +223,7 @@
   display: inline-block;
   width: 1rem;
   height: 1rem;
-  border: 2px solid white;
+  border: 2px solid var(--color-white);
   border-top: 2px solid transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -234,7 +237,6 @@
   }
 }
 
-/* Fallback: no services */
 .booking .no-services {
   font-style: italic;
   color: var(--color-muted);
@@ -242,7 +244,7 @@
   margin-bottom: 1rem;
 }
 
-/* === Responsive Adjustments (Scoped) === */
+/* === Responsive Styles === */
 @media (max-width: 768px) {
   .booking .form-card {
     flex-direction: column;

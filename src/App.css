@@ -1,22 +1,22 @@
 /* ========= Root Variables ========= */
 :root {
-  --primary-color: #000000;
-  --accent-color: #d4af37;
-  --background-color: #f9f9f9;
-  --text-color: #FFFFFF;
-  --card-bg: #C0C0C0;
-  --shadow: rgba(0, 0, 0, 0.08);
-  --error-color: #8b0000;
+  --primary-color: var(--color-primary); /* #581c1c */
+  --accent-color: var(--color-accent-gold); /* #d4af37 */
+  --background-color: var(--color-white); /* #ffffff */
+  --text-color: var(--color-neutral-dark); /* #1f2937 */
+  --card-bg: var(--color-neutral-light); /* #6b7280 */
+  --shadow: var(--shadow-md); /* rgba(0,0,0,0.1) */
+  --error-color: var(--color-error); /* #dc2626 */
 }
 
 /* ========= Dark Theme Overrides ========= */
 [data-theme="dark"] {
-  --primary-color: #ffffff;
-  --accent-color: #d4af37;
-  --background-color: #121212;
-  --text-color: #e0e0e0;
-  --card-bg: #1e1e1e;
-  --shadow: rgba(255, 255, 255, 0.05);
+  --primary-color: var(--color-white); /* #ffffff */
+  --accent-color: var(--color-accent-gold); /* #d4af37 */
+  --background-color: var(--color-neutral-dark); /* #1f2937 */
+  --text-color: var(--color-accent-gold); /* #d4af37 */
+  --card-bg: var(--color-neutral); /* #374151 */
+  --shadow: var(--shadow-sm); /* rgba(0,0,0,0.05) */
 }
 
 /* ========= Global Reset ========= */
@@ -24,13 +24,13 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-main);
 }
 
 body {
   background-color: var(--background-color);
   color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
   line-height: 1.6;
 }
 
@@ -62,7 +62,7 @@ main {
   font-size: 1.2rem;
   color: var(--error-color);
   background-color: var(--card-bg);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   max-width: 600px;
   margin: 2rem auto;
   box-shadow: 0 2px 8px var(--shadow);
@@ -83,18 +83,18 @@ main {
 
 .booking-button {
   background-color: var(--accent-color);
-  color: #fff;
+  color: var(--color-white);
   border: none;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .booking-button:hover {
-  background-color: #b8982e;
+  background-color: var(--color-accent-gold-dark); /* #bfa132 */
 }
 
 
@@ -132,4 +132,3 @@ main {
     padding: 1rem;
   }
 }
-

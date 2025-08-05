@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
 import PhoneInput from 'react-phone-input-2';
+import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import { toast, ToastContainer } from 'react-toastify';
 import { FaCalendarAlt } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
@@ -11,33 +12,6 @@ import 'react-phone-input-2/lib/style.css';
 import 'react-toastify/dist/ReactToastify.css';
 import './BookingForm.css';
 import logo from '../../assets/logo.png';
-import { format } from 'date-fns';
-
-const countryRegionData = {
-  Ghana: [
-    'Greater Accra', 'Ashanti', 'Central', 'Eastern', 'Northern', 'Volta',
-    'Western', 'Upper East', 'Upper West', 'Bono', 'Bono East', 'Ahafo',
-    'Oti', 'Savannah', 'North East', 'Western North',
-  ],
-  Nigeria: ['Lagos', 'Abuja', 'Rivers', 'Kano', 'Kaduna', 'Oyo'],
-  USA: ['California', 'New York', 'Texas', 'Florida', 'Illinois'],
-  UK: ['England', 'Scotland', 'Wales', 'Northern Ireland'],
-  Germany: ['Berlin', 'Bavaria', 'Saxony', 'Hesse', 'Hamburg'],
-};
-
-const InputField = ({ id, label, type = 'text', value, onChange }) => (
-  <div className="input-group">
-    <label htmlFor={id}>{label}</label>
-    <input
-      id={id}
-      name={id}
-      type={type}
-      value={value}
-      onChange={onChange}
-      required
-    />
-  </div>
-);
 
 const BookingForm = () => {
   const { darkMode } = useTheme();
@@ -47,7 +21,7 @@ const BookingForm = () => {
     name: '',
     email: '',
     phone: '',
-    country: 'Ghana',
+    country: '',
     state_or_region: '',
     venue_name: '',
     address: '',
@@ -56,7 +30,6 @@ const BookingForm = () => {
     services: [],
   });
 
-  const [regionOptions, setRegionOptions] = useState(countryRegionData['Ghana'] || []);
   const [availableServices, setAvailableServices] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,6 +42,13 @@ const BookingForm = () => {
       }));
     }
   }, [user]);
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      country: 'Ghana',
+    }));
+  }, []);
 
   const fetchServices = useCallback(() => {
     axiosInstance.get('/services/')
@@ -100,21 +80,26 @@ const BookingForm = () => {
           ? [...new Set([...prev.services, id])]
           : prev.services.filter((s) => s !== id),
       }));
-    } else if (name === 'country') {
-      const regions = countryRegionData[value] || [];
-      setRegionOptions(regions);
-      setFormData((prev) => ({ ...prev, country: value, state_or_region: '' }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
   const handleDateChange = (date) => {
-    setFormData((prev) => ({ ...prev, event_date: date }));
+    setFormData((prev) => ({
+      ...prev,
+      event_date: date,
+    }));
   };
 
   const handlePhoneChange = (value) => {
-    setFormData((prev) => ({ ...prev, phone: `+${value}` }));
+    setFormData((prev) => ({
+      ...prev,
+      phone: `+${value}`,
+    }));
   };
 
   const resetForm = () => {
@@ -130,32 +115,24 @@ const BookingForm = () => {
       message: '',
       services: [],
     });
-    setRegionOptions(countryRegionData['Ghana'] || []);
-  };
-
-  const validateForm = () => {
-    const {
-      name, email, phone, country, state_or_region,
-      venue_name, address, event_date, services
-    } = formData;
-
-    if (!isAuthenticated) return 'You must be logged in to book an event.';
-    if (!name || !email || !phone || !country || !state_or_region || !venue_name || !address || !event_date || services.length === 0) {
-      return 'Please complete all required fields and select at least one service.';
-    }
-    if (!/^\+\d{8,15}$/.test(phone)) {
-      return 'Please enter a valid international phone number.';
-    }
-    return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    const error = validateForm();
-    if (error) {
-      toast.error(error, { autoClose: 3000 });
+    const {
+      name, email, phone, country, state_or_region,
+      venue_name, address, event_date, services
+    } = formData;
+
+    if (!isAuthenticated || !name || !email || !phone || !country || !state_or_region || !venue_name || !address || !event_date || services.length === 0) {
+      toast.error('Please complete all required fields and select at least one service.', { autoClose: 3000 });
+      return;
+    }
+
+    if (!/^\+\d{8,15}$/.test(phone)) {
+      toast.error('Please enter a valid international phone number.', { autoClose: 3000 });
       return;
     }
 
@@ -163,7 +140,7 @@ const BookingForm = () => {
 
     const payload = {
       ...formData,
-      event_date: formData.event_date ? format(formData.event_date, 'yyyy-MM-dd') : null,
+      event_date: event_date?.toISOString().split('T')[0],
     };
 
     try {
@@ -193,37 +170,26 @@ const BookingForm = () => {
         <form onSubmit={handleSubmit} className="form-content" noValidate>
           <h3>Event Booking Form</h3>
 
-          {["name", "email", "venue_name", "address"].map((field) => (
-            <InputField
-              key={field}
-              id={field}
-              label={field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-              value={formData[field]}
-              onChange={handleChange}
-              type={field === 'email' ? 'email' : 'text'}
-            />
+          {/* Inputs */}
+          {[{ id: 'name', label: 'Full Name' }, { id: 'email', label: 'Email Address', type: 'email' }, { id: 'venue_name', label: 'Venue Name' }, { id: 'address', label: 'Full Address' }].map(({ id, label, type = 'text' }) => (
+            <div key={id} className="input-group">
+              <label htmlFor={id}>{label}</label>
+              <input id={id} name={id} type={type} value={formData[id]} onChange={handleChange} required />
+            </div>
           ))}
 
+          {/* Country & Region */}
           <div className="input-group">
             <label htmlFor="country">Country</label>
-            <select id="country" name="country" value={formData.country} onChange={handleChange} required>
-              <option value="" disabled hidden>-- Select Country --</option>
-              {Object.keys(countryRegionData).map((country) => (
-                <option key={country} value={country}>{country}</option>
-              ))}
-            </select>
+            <CountryDropdown value={formData.country} onChange={(val) => setFormData((prev) => ({ ...prev, country: val, state_or_region: '' }))} />
           </div>
 
           <div className="input-group">
-            <label htmlFor="state_or_region">State/Region</label>
-            <select id="state_or_region" name="state_or_region" value={formData.state_or_region} onChange={handleChange} required>
-              <option value="" disabled hidden>-- Select Region --</option>
-              {regionOptions.map((region) => (
-                <option key={region} value={region}>{region}</option>
-              ))}
-            </select>
+            <label htmlFor="state_or_region">State / Region</label>
+            <RegionDropdown country={formData.country} value={formData.state_or_region} onChange={(val) => setFormData((prev) => ({ ...prev, state_or_region: val }))} />
           </div>
 
+          {/* Phone */}
           <div className="input-group">
             <label htmlFor="phone">Phone Number</label>
             <PhoneInput
@@ -231,7 +197,6 @@ const BookingForm = () => {
               value={formData.phone.replace(/^\+/, '')}
               onChange={handlePhoneChange}
               inputProps={{ name: 'phone', required: true, autoComplete: 'tel' }}
-              placeholder="Enter phone number"
               enableSearch
               enableAreaCodes
               international
@@ -241,6 +206,7 @@ const BookingForm = () => {
             />
           </div>
 
+          {/* Event Date */}
           <div className="input-group">
             <label htmlFor="event_date">Event Date</label>
             <div className="datepicker-wrapper">
@@ -256,6 +222,7 @@ const BookingForm = () => {
             </div>
           </div>
 
+          {/* Services */}
           <div className="input-group">
             <label htmlFor="services">Services</label>
             <div className="checkbox-group">
@@ -278,15 +245,10 @@ const BookingForm = () => {
             </div>
           </div>
 
+          {/* Message */}
           <div className="input-group">
             <label htmlFor="message">Additional Notes</label>
-            <textarea
-              id="message"
-              name="message"
-              rows="4"
-              value={formData.message}
-              onChange={handleChange}
-            />
+            <textarea id="message" name="message" rows="4" value={formData.message} onChange={handleChange} />
           </div>
 
           <button type="submit" className="submit-btn" disabled={isSubmitting}>
