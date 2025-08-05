@@ -98,3 +98,33 @@
 .animate-pulse {
   animation: pulse 1.5s infinite ease-in-out;
 }
+
+/* === Extended UI Colors (used in forms and inputs) === */
+:root {
+  --color-bg-light: #f9f9f9;
+  --color-bg-dark: #1f2937;
+
+  --color-text-light: #1f2937;
+  --color-text-dark: #f3f4f6;
+
+  --color-border-light: #d1d5db;
+  --color-border-dark: #374151;
+
+  --color-input-bg: #ffffff;
+  --color-input-bg-dark: #2d3748;
+
+  --color-service-bg-light: #f3f4f6;
+  --color-service-bg-dark: #374151;
+
+  --color-muted: #6b7280;
+  --color-calendar-icon: #9ca3af;
+}
+
+.dark {
+  --color-bg: var(--color-bg-dark);
+  --color-text: var(--color-text-dark);
+  --color-input-bg: var(--color-input-bg-dark);
+  --color-border: var(--color-border-dark);
+  --color-service-bg: var(--color-service-bg-dark);
+  --color-calendar-icon: #d1d5db;
+}
