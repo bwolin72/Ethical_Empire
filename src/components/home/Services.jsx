@@ -140,7 +140,7 @@ const Services = () => {
                   </div>
                   <div className="card-back">
                     <p>{srv.description}</p>
-                    <Link to="/booking" className="book-btn">Book Now</Link>
+                    <Link to="/bookings" className="book-btn">Book Now</Link>
                   </div>
                 </div>
               </div>
