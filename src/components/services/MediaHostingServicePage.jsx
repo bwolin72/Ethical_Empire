@@ -35,14 +35,14 @@ const MediaHostingServicePage = () => {
 
   const onSubmit = (data) => {
     if (!phone) return;
-    console.log('Booking Submitted:', data);
+    console.log('📩 Booking Submitted:', data);
     // Optional: send data to backend
   };
 
   return (
-    <div className="liveband-page-container">
+    <div className="media-hosting-page">
       {/* === Hero Banner === */}
-      <section className="banner-section">
+      <section className="hero-banner">
         <BannerCards
           endpoint="mediaHostingServicePage"
           title="Capture & Host with Ethical Precision"
@@ -50,7 +50,7 @@ const MediaHostingServicePage = () => {
       </section>
 
       {/* === Booking Form === */}
-      <section className="cta-section booking-form-section">
+      <section className="booking-form-section">
         <h2 className="section-title">Book Hosting Service</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="booking-form">
           <input
@@ -78,7 +78,9 @@ const MediaHostingServicePage = () => {
             type="text"
             placeholder="Type of Event (e.g., Wedding)"
           />
-          {errors.eventType && <span className="error">{errors.eventType.message}</span>}
+          {errors.eventType && (
+            <span className="error">{errors.eventType.message}</span>
+          )}
 
           <button className="cta-button" type="submit">
             Submit Booking Request
@@ -115,8 +117,8 @@ const MediaHostingServicePage = () => {
             <p className="section-description">
               Whether it’s a corporate launch, private shoot, or public concert,
               Ethical Multimedia ensures every moment is captured in stunning clarity.
-              From cinematic videography to detailed photography and reliable hosting—your
-              memories and messages are in expert hands.
+              From cinematic videography to detailed photography and reliable hosting—
+              your memories and messages are in expert hands.
             </p>
           </div>
           <div className="creative-media">
@@ -125,13 +127,13 @@ const MediaHostingServicePage = () => {
               type="media"
               limit={3}
               fullWidth={false}
-              supportPreview={true} // Enables both video & image
+              supportPreview={true}
             />
           </div>
         </div>
       </section>
 
-      {/* === Event Hosting Venue Info === */}
+      {/* === Hosting Venue Info === */}
       <section className="section event-hosting-section">
         <h2 className="section-title">Hosting Event Place</h2>
         <p className="section-description">

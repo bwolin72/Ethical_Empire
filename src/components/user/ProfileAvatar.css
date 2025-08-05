@@ -1,7 +1,7 @@
 .profile-avatar {
   text-align: center;
   margin: 1rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-main);
 }
 
 /* === Avatar Box === */
@@ -11,7 +11,7 @@
   height: 120px;
   margin: auto;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-fast);
 }
 
 .avatar-box:hover {
@@ -24,12 +24,12 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  background-color: #ddd;
+  background-color: var(--color-neutral-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 36px;
-  color: #555;
+  color: var(--color-neutral);
 }
 
 .avatar-overlay {
@@ -37,12 +37,12 @@
   bottom: 0;
   width: 100%;
   background: rgba(0, 0, 0, 0.4);
-  color: white;
+  color: var(--color-white);
   font-size: 14px;
   text-align: center;
   padding: 4px 0;
   border-radius: 0 0 50% 50%;
-  transition: background 0.2s ease;
+  transition: background var(--transition-fast);
 }
 
 .avatar-box:hover .avatar-overlay,
@@ -54,27 +54,26 @@
 .profile-desc p {
   margin: 0.3rem 0;
   font-size: 0.95rem;
-  color: #333;
+  color: var(--color-neutral-dark);
 }
 
 .remove-btn {
   margin-top: 6px;
-  background: #f87171;
-  color: white;
+  background: var(--color-error);
+  color: var(--color-white);
   border: none;
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background 0.3s ease;
+  transition: background var(--transition-fast);
 }
 
 .remove-btn:hover,
 .remove-btn:focus {
-  background: #dc2626;
+  background: #b91c1c; /* darker red (custom inline) or use a new variable if reused */
   outline: none;
 }
-
 
 /* === Responsive === */
 @media screen and (max-width: 480px) {

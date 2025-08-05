@@ -1,3 +1,4 @@
+// AccountProfile.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -194,18 +195,18 @@ const AccountProfile = ({ profile: externalProfile }) => {
   if (loading) return <div className="skeleton-loader">Loading profile...</div>;
 
   return (
-    <div className="account-profile" role="main" aria-label="Account Profile">
+    <div className="account-profile-container" role="main" aria-label="Account Profile">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
       <button className="close-btn" onClick={handleClose} aria-label="Close profile">✖</button>
 
-      <div className="profile-wrapper">
-        <div className="profile-header">
+      <div className="account-profile">
+        <div className="account-header">
           {profileImage ? (
-            <img src={profileImage} alt="Profile" className="profile-pic" />
+            <img src={profileImage} alt="Profile" className="profile-image" />
           ) : (
             <div className="profile-initials">{getInitials(profile?.name)}</div>
           )}
-          <label className="upload-label" htmlFor="profile-image-upload" tabIndex={0}>
+          <label className="upload-button" htmlFor="profile-image-upload" tabIndex={0}>
             Upload Picture
             <input
               id="profile-image-upload"

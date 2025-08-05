@@ -1,31 +1,19 @@
-/* EditProfile.css */
-
-:root {
-  --burgundy: #800020;
-  --navy: #001F54;
-  --muted-gold: #C9B037;
-  --forest-green: #228B22;
-  --charcoal: #2E2E2E;
-  --white: #ffffff;
-  --cream: #f9f6f2;
-}
-
 /* === Container === */
 .edit-profile {
-  background-color: var(--cream);
+  background-color: var(--color-white); /* cream → closest match: white */
   max-width: 600px;
   margin: 2rem auto;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--charcoal);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-main);
+  color: var(--color-neutral-dark); /* charcoal */
 }
 
 /* === Heading === */
 .edit-profile h2 {
   text-align: center;
-  color: var(--navy);
+  color: var(--color-secondary); /* navy */
   font-size: 1.8rem;
   margin-bottom: 1.5rem;
 }
@@ -35,24 +23,24 @@
   width: 100%;
   padding: 0.8rem;
   margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 1px solid var(--color-neutral-light); /* #ccc → neutral light */
+  border-radius: var(--radius-md);
   font-size: 1rem;
   font-family: inherit;
   box-sizing: border-box;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--transition-fast);
 }
 
 .edit-profile input:focus {
   outline: none;
-  border-color: var(--muted-gold);
-  box-shadow: 0 0 4px var(--muted-gold);
+  border-color: var(--color-accent-gold); /* muted-gold */
+  box-shadow: 0 0 4px var(--color-accent-gold);
 }
 
 .edit-profile input[readonly] {
-  background-color: #f3f3f3;
+  background-color: var(--color-neutral-light); /* #f3f3f3 → neutral-light */
   cursor: not-allowed;
-  color: var(--charcoal);
+  color: var(--color-neutral-dark); /* charcoal */
 }
 
 /* === Button Group === */
@@ -66,34 +54,34 @@
 
 /* === Buttons === */
 .edit-profile .btn {
-  background-color: var(--navy);
-  color: var(--white);
+  background-color: var(--color-secondary); /* navy */
+  color: var(--color-white);
   padding: 0.6rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
 }
 
 .edit-profile .btn:hover {
-  background-color: var(--muted-gold);
-  color: var(--charcoal);
+  background-color: var(--color-accent-gold); /* muted-gold */
+  color: var(--color-neutral-dark); /* charcoal */
 }
 
 .edit-profile .btn.danger {
-  background-color: var(--burgundy);
+  background-color: var(--color-primary); /* burgundy */
 }
 
 .edit-profile .btn.danger:hover {
-  background-color: #a61c30;
+  background-color: var(--color-primary-light); /* lighter danger */
 }
 
 /* === Loading State === */
 .edit-profile .loading-text {
   text-align: center;
   font-size: 1.1rem;
-  color: var(--charcoal);
+  color: var(--color-neutral-dark); /* charcoal */
 }
 
 /* === Responsive Design === */

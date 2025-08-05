@@ -21,7 +21,7 @@ const BookingForm = () => {
     name: '',
     email: '',
     phone: '',
-    country: '',
+    country: 'Ghana',
     state_or_region: '',
     venue_name: '',
     address: '',
@@ -42,13 +42,6 @@ const BookingForm = () => {
       }));
     }
   }, [user]);
-
-  useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      country: 'Ghana',
-    }));
-  }, []);
 
   const fetchServices = useCallback(() => {
     axiosInstance.get('/services/')
@@ -148,6 +141,7 @@ const BookingForm = () => {
       toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
       toast.info('📧 A confirmation email has been sent to you.', { autoClose: 4000 });
       resetForm();
+      fetchServices(); // Fetch again if services could have changed
     } catch (err) {
       const response = err.response?.data;
       const extractedError = typeof response === 'object' && response !== null ? Object.values(response)[0] : response?.detail;
@@ -158,103 +152,138 @@ const BookingForm = () => {
   };
 
   return (
-    <div className={`booking-container ${darkMode ? 'dark' : 'light'}`}>
+    <div className={`booking ${darkMode ? 'dark' : 'light'}`}>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
-      <div className="form-card">
-        <div className="form-left">
-          <img src={logo} alt="Ethical Multimedia Logo" className="logo" />
-          <h2>Ethical Multimedia GH</h2>
-          <p className="subtitle">Premium Event Experience</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="form-content" noValidate>
-          <h3>Event Booking Form</h3>
-
-          {/* Inputs */}
-          {[{ id: 'name', label: 'Full Name' }, { id: 'email', label: 'Email Address', type: 'email' }, { id: 'venue_name', label: 'Venue Name' }, { id: 'address', label: 'Full Address' }].map(({ id, label, type = 'text' }) => (
-            <div key={id} className="input-group">
-              <label htmlFor={id}>{label}</label>
-              <input id={id} name={id} type={type} value={formData[id]} onChange={handleChange} required />
-            </div>
-          ))}
-
-          {/* Country & Region */}
-          <div className="input-group">
-            <label htmlFor="country">Country</label>
-            <CountryDropdown value={formData.country} onChange={(val) => setFormData((prev) => ({ ...prev, country: val, state_or_region: '' }))} />
+      <div className="booking-container">
+        <div className="form-card">
+          <div className="form-left">
+            <img src={logo} alt="Ethical Multimedia Logo" className="logo" />
+            <h2>Ethical Multimedia GH</h2>
+            <p className="subtitle">Premium Event Experience</p>
           </div>
 
-          <div className="input-group">
-            <label htmlFor="state_or_region">State / Region</label>
-            <RegionDropdown country={formData.country} value={formData.state_or_region} onChange={(val) => setFormData((prev) => ({ ...prev, state_or_region: val }))} />
-          </div>
+          <form onSubmit={handleSubmit} className="form-content" noValidate>
+            <h3>Event Booking Form</h3>
 
-          {/* Phone */}
-          <div className="input-group">
-            <label htmlFor="phone">Phone Number</label>
-            <PhoneInput
-              country="gh"
-              value={formData.phone.replace(/^\+/, '')}
-              onChange={handlePhoneChange}
-              inputProps={{ name: 'phone', required: true, autoComplete: 'tel' }}
-              enableSearch
-              enableAreaCodes
-              international
-              disableCountryCode={false}
-              disableDropdown={false}
-              preferredCountries={['gh', 'us', 'gb', 'ng', 'de']}
-            />
-          </div>
+            {/* Input Fields */}
+            {[
+              { id: 'name', label: 'Full Name' },
+              { id: 'email', label: 'Email Address', type: 'email' },
+              { id: 'venue_name', label: 'Venue Name' },
+              { id: 'address', label: 'Full Address' },
+            ].map(({ id, label, type = 'text' }) => (
+              <div key={id} className="input-group">
+                <label htmlFor={id}>{label}</label>
+                <input
+                  id={id}
+                  name={id}
+                  type={type}
+                  value={formData[id]}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            ))}
 
-          {/* Event Date */}
-          <div className="input-group">
-            <label htmlFor="event_date">Event Date</label>
-            <div className="datepicker-wrapper">
-              <FaCalendarAlt className="icon" />
-              <DatePicker
-                id="event_date"
-                selected={formData.event_date}
-                onChange={handleDateChange}
-                placeholderText="Select a date"
-                dateFormat="yyyy-MM-dd"
-                required
+            {/* Country & Region */}
+            <div className="input-group">
+              <label htmlFor="country">Country</label>
+              <CountryDropdown
+                value={formData.country}
+                onChange={(val) => setFormData((prev) => ({ ...prev, country: val, state_or_region: '' }))}
               />
             </div>
-          </div>
 
-          {/* Services */}
-          <div className="input-group">
-            <label htmlFor="services">Services</label>
-            <div className="checkbox-group">
-              {availableServices.length > 0 ? (
-                availableServices.map((service) => (
-                  <label key={service.id} className="checkbox-option">
-                    <input
-                      type="checkbox"
-                      name="services"
-                      value={service.id}
-                      checked={formData.services.includes(service.id)}
-                      onChange={handleChange}
-                    />
-                    {service.name}
-                  </label>
-                ))
-              ) : (
-                <p>No services available</p>
-              )}
+            <div className="input-group">
+              <label htmlFor="state_or_region">State / Region</label>
+              <RegionDropdown
+                country={formData.country}
+                value={formData.state_or_region}
+                onChange={(val) => setFormData((prev) => ({ ...prev, state_or_region: val }))}
+              />
             </div>
-          </div>
 
-          {/* Message */}
-          <div className="input-group">
-            <label htmlFor="message">Additional Notes</label>
-            <textarea id="message" name="message" rows="4" value={formData.message} onChange={handleChange} />
-          </div>
+            {/* Phone Number */}
+            <div className="input-group">
+              <label htmlFor="phone">Phone Number</label>
+              <PhoneInput
+                country="gh"
+                value={formData.phone.replace(/^\+/, '')}
+                onChange={handlePhoneChange}
+                inputProps={{ name: 'phone', required: true, autoComplete: 'tel' }}
+                enableSearch
+                enableAreaCodes
+                international
+                disableCountryCode={false}
+                disableDropdown={false}
+                preferredCountries={['gh', 'us', 'gb', 'ng', 'de']}
+              />
+            </div>
 
-          <button type="submit" className="submit-btn" disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Submit Booking'}
-          </button>
-        </form>
+            {/* Date Picker */}
+            <div className="input-group">
+              <label htmlFor="event_date">Event Date</label>
+              <div className="datepicker-wrapper">
+                <FaCalendarAlt className="icon" />
+                <DatePicker
+                  id="event_date"
+                  selected={formData.event_date}
+                  onChange={handleDateChange}
+                  placeholderText="Select a date"
+                  dateFormat="yyyy-MM-dd"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Services */}
+            <div className="input-group">
+              <label htmlFor="services">Services</label>
+              <div className="checkbox-group">
+                {availableServices.length > 0 ? (
+                  availableServices.map((service) => (
+                    <label key={service.id} className="checkbox-option">
+                      <input
+                        type="checkbox"
+                        name="services"
+                        value={service.id}
+                        checked={formData.services.includes(service.id)}
+                        onChange={handleChange}
+                      />
+                      {service.name}
+                    </label>
+                  ))
+                ) : (
+                  <p className="no-services">No services available</p>
+                )}
+              </div>
+            </div>
+
+            {/* Message */}
+            <div className="input-group">
+              <label htmlFor="message">Additional Notes</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="4"
+                value={formData.message}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button type="submit" className="submit-btn" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  Submitting...
+                  <span className="loading-spinner" />
+                </>
+              ) : (
+                'Submit Booking'
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

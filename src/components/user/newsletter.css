@@ -1,4 +1,3 @@
-/* === newsletter.css — Themed with Root Variables === */
 .newsletter-form {
   width: 100%;
   max-width: 500px;
@@ -38,6 +37,7 @@
 .newsletter-input:focus {
   border-color: var(--color-primary);
   outline: none;
+  box-shadow: 0 0 4px var(--color-primary-light);
 }
 
 .newsletter-input.error {
@@ -73,7 +73,6 @@
   cursor: not-allowed;
 }
 
-/* Spinner inside button */
 .spinner {
   width: 20px;
   height: 20px;

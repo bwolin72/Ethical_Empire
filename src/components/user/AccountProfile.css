@@ -1,399 +1,106 @@
-/* === Global Reset === */
-/*:root {
-  /* Variables are inherited from variables.css 
-}
-*/
-/* === Base Styles === */
-html {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
-}
-
-body, .eethm-home-page {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-main);
+/* === Account/Profile Page === */
+.account-profile-container {
   background-color: var(--color-white);
   color: var(--color-neutral-dark);
+  padding: 60px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-main);
 }
 
-/* === Hero Section === */
-.video-hero-section {
-  position: relative;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+.account-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: var(--color-black);
+  margin-bottom: 30px;
 }
 
-.background-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  min-width: 100%;
-  min-height: 100%;
+.account-header h2 {
+  font-size: 2rem;
+  color: var(--color-secondary);
+  margin-bottom: 10px;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
   object-fit: cover;
-  z-index: 1;
+  border: 4px solid var(--color-accent-gold);
+  margin-bottom: 15px;
+  box-shadow: var(--shadow-sm);
 }
 
-.background-video[type="image"] {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-}
-
-.overlay-content {
-  position: relative;
-  z-index: 2;
+.profile-info {
+  font-size: 1rem;
+  color: var(--color-neutral);
+  margin-bottom: 20px;
   text-align: center;
+}
+
+.profile-info p {
+  margin: 8px 0;
+}
+
+.profile-info strong {
+  color: var(--color-primary);
+}
+
+.upload-section {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.upload-button {
+  padding: 10px 20px;
+  background-color: var(--color-primary);
   color: var(--color-white);
-  padding: 20px;
-}
-
-.overlay-content h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: var(--color-accent-gold);
-}
-
-.overlay-content p {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: var(--color-neutral-light);
-}
-
-.hero-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.hero-buttons button {
-  padding: 12px 24px;
   border: none;
-  border-radius: var(--radius-sm);
-  font-weight: bold;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
-.hero-buttons button:first-child {
-  background-color: var(--color-secondary);
-  color: var(--color-white);
-}
-
-.hero-buttons button:first-child:hover {
-  background-color: var(--color-secondary-dark);
-}
-
-.newsletter-btn {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-.newsletter-btn:hover {
+.upload-button:hover {
   background-color: var(--color-primary-dark);
 }
 
-.mute-button {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 3;
-  font-size: 1.5rem;
-  background: transparent;
-  border: none;
-  color: var(--color-white);
-  cursor: pointer;
-}
-
-.video-fallback {
-  color: var(--color-white);
-  font-size: 1.5rem;
-  text-align: center;
-  padding: 50px;
-}
-
-/* === Fade-in Reveal Animation === */
-.fade-in-section {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all var(--transition-slow);
-}
-
-.fade-in-section.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* === Services Section === */
-.services-page {
-  padding: 60px 30px;
-  background: var(--color-white);
-}
-
-.services-page h2 {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 40px;
-  color: var(--color-secondary);
-}
-
-.service-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-.service-item {
-  background: var(--color-white);
-  padding: 20px;
-  border-radius: var(--radius-md);
-  max-width: 300px;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-  text-align: left;
-  border-left: 6px solid var(--color-accent-green);
-  transition: transform var(--transition-fast);
-}
-
-.service-item:hover {
-  transform: translateY(-5px);
-}
-
-.service-item h3 {
-  font-size: 1.25rem;
-  margin-bottom: 10px;
-  color: var(--color-primary);
-}
-
-.service-item p,
-.service-item li {
-  font-size: 1rem;
-  margin-bottom: 6px;
-}
-
-.service-item ul {
-  padding-left: 20px;
-  margin-bottom: 10px;
-}
-
-.service-item a {
-  color: var(--color-secondary);
-  text-decoration: underline;
-  font-weight: bold;
-}
-
-/* === Banners & Media Cards === */
-.banner-cards-container,
-.banners-section {
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.banner-cards-title,
-.banners-section h2 {
-  font-size: 2.2rem;
-  color: var(--color-secondary);
-  margin-bottom: 30px;
-}
-
-.banner-cards-grid,
-.banners-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 25px;
-}
-
-.banner-card,
-.banner-item,
-.media-card-wrapper {
-  background-color: var(--color-neutral-light);
-  border-radius: var(--radius-md);
-  padding: 10px;
-  max-width: 320px;
-  width: 100%;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
-}
-
-.banner-card:hover,
-.banner-item:hover,
-.media-card-wrapper:hover {
-  transform: scale(1.02);
-}
-
-.banner-card img,
-.banner-item img,
-.banner-item video,
-.media-preview {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-sm);
-  margin-bottom: 10px;
-}
-
-.banner-card-caption,
-.banner-item h4 {
-  font-size: 1.1rem;
-  color: var(--color-accent-green);
-  margin-top: 5px;
-}
-
-.media-preview.fallback {
-  background-color: var(--color-neutral);
-  color: var(--color-white);
-  padding: 20px;
-  text-align: center;
-  border-radius: var(--radius-sm);
-}
-
-.media-preview.fallback a {
-  color: var(--color-accent-gold);
-  text-decoration: underline;
-}
-
-/* === Promotions Section === */
-.promotions-section {
-  padding: 60px 30px;
-  background-color: var(--color-white);
-  text-align: center;
-}
-
-.promotions-section h2 {
-  font-size: 2.5rem;
-  color: var(--color-primary);
-  margin-bottom: 30px;
-}
-
-.promos-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-.promo-card {
-  background-color: var(--color-neutral-light);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  max-width: 300px;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-  border-left: 6px solid var(--color-accent-gold);
-  text-align: left;
-  transition: transform var(--transition-fast);
-}
-
-.promo-card:hover {
-  transform: translateY(-5px);
-}
-
-.promo-card img {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-md);
-  margin-bottom: 12px;
-}
-
-.promo-content h3 {
-  font-size: 1.25rem;
-  color: var(--color-secondary);
-  margin-bottom: 10px;
-}
-
-.promo-content p {
-  font-size: 1rem;
-  margin-bottom: 8px;
-}
-
-.discount {
-  color: var(--color-accent-green);
-  font-weight: bold;
-}
-
-.validity {
+.file-input {
+  margin-top: 10px;
   font-size: 0.9rem;
   color: var(--color-neutral-dark);
-  font-style: italic;
 }
 
-/* === Reviews Section === */
-.reviews-section {
-  padding: 60px 30px;
-  background-color: var(--color-neutral-light);
-  text-align: center;
-}
-
-.reviews-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-.review-card {
-  background-color: var(--color-white);
-  border-left: 6px solid var(--color-secondary);
-  padding: 20px;
-  max-width: 300px;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-  border-radius: var(--radius-md);
-  text-align: left;
-}
-
-.review-text {
-  font-size: 1rem;
-  margin-bottom: 10px;
-  color: var(--color-neutral-dark);
-}
-
-.review-author {
+.success-message {
+  margin-top: 15px;
+  color: var(--color-success);
   font-weight: bold;
-  color: var(--color-primary);
-  font-size: 0.9rem;
 }
 
-/* === Responsive Design === */
+.error-message {
+  margin-top: 15px;
+  color: var(--color-error);
+  font-weight: bold;
+}
+
 @media (max-width: 768px) {
-  .overlay-content h1 {
-    font-size: 2rem;
-  }
-
-  .overlay-content p {
-    font-size: 1rem;
-  }
-
-  .hero-buttons button {
-    font-size: 0.9rem;
-    padding: 10px 20px;
-  }
-
-  .services-page {
+  .account-profile-container {
     padding: 40px 15px;
   }
 
-  .banners-container,
-  .banner-cards-grid {
-    flex-direction: column;
-    align-items: center;
+  .account-header h2 {
+    font-size: 1.5rem;
   }
 
-  .banner-cards-title,
-  .banners-section h2,
-  .promotions-section h2 {
-    font-size: 1.8rem;
+  .profile-info {
+    font-size: 0.95rem;
   }
 
-  .promo-card {
-    max-width: 90%;
+  .profile-image {
+    width: 120px;
+    height: 120px;
   }
 }

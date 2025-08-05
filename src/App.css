@@ -1,134 +1,196 @@
-/* ========= Root Variables ========= */
-:root {
-  --primary-color: var(--color-primary); /* #581c1c */
-  --accent-color: var(--color-accent-gold); /* #d4af37 */
-  --background-color: var(--color-white); /* #ffffff */
-  --text-color: var(--color-neutral-dark); /* #1f2937 */
-  --card-bg: var(--color-neutral-light); /* #6b7280 */
-  --shadow: var(--shadow-md); /* rgba(0,0,0,0.1) */
-  --error-color: var(--color-error); /* #dc2626 */
-}
+/* =============================
+   🌐 Base Theme Styling
+   Matches variables.css root
+   ============================= */
 
-/* ========= Dark Theme Overrides ========= */
-[data-theme="dark"] {
-  --primary-color: var(--color-white); /* #ffffff */
-  --accent-color: var(--color-accent-gold); /* #d4af37 */
-  --background-color: var(--color-neutral-dark); /* #1f2937 */
-  --text-color: var(--color-accent-gold); /* #d4af37 */
-  --card-bg: var(--color-neutral); /* #374151 */
-  --shadow: var(--shadow-sm); /* rgba(0,0,0,0.05) */
-}
-
-/* ========= Global Reset ========= */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: var(--font-main);
-}
-
-body {
-  background-color: var(--background-color);
-  color: var(--text-color);
-  transition: background-color var(--transition-fast), color var(--transition-fast);
-  line-height: 1.6;
-}
-
-/* ========= Layout Structure ========= */
-.App {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-main {
-  flex: 1;
-  padding: 20px;
-}
-
-/* ========= Generic Loading Screen ========= */
-.loading-screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  font-size: 1.5rem;
-  color: var(--accent-color);
-}
-
-.unauthorized {
-  padding: 2rem;
-  text-align: center;
-  font-size: 1.2rem;
-  color: var(--error-color);
-  background-color: var(--card-bg);
-  border-radius: var(--radius-md);
-  max-width: 600px;
-  margin: 2rem auto;
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.home-page {
-  padding: 1rem;
-  background-color: var(--background-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.booking-toggle {
-  margin-top: 1.5rem;
-}
-
-.booking-button {
-  background-color: var(--accent-color);
+/* === Buttons === */
+.button-primary {
+  background-color: var(--primary-color);
   color: var(--color-white);
   border: none;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
   font-weight: bold;
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  box-shadow: var(--shadow);
+}
+
+.button-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.button-secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-weight: bold;
+  font-size: 1rem;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
-.booking-button:hover {
-  background-color: var(--color-accent-gold-dark); /* #bfa132 */
+.button-secondary:hover {
+  background-color: var(--color-secondary-dark);
 }
 
-
-/* ========= Responsive Utilities ========= */
-@media (max-width: 768px) {
-  main {
-    padding: 1rem;
-  }
-
-  .loading-screen {
-    font-size: 1.2rem;
-  }
+.button-accent {
+  background-color: var(--accent-color);
+  color: var(--color-black);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
 }
 
-@media (max-width: 480px) {
-  main {
-    padding: 0.8rem;
-  }
-
-  .loading-screen {
-    font-size: 1rem;
-    text-align: center;
-    padding: 1rem;
-  }
+.button-accent:hover {
+  background-color: var(--color-accent-gold-dark);
 }
 
-@media (max-width: 380px) {
-  .booking-button {
-    font-size: 0.9rem;
-    padding: 0.6rem 1.2rem;
-  }
+/* === Cards === */
+.card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: box-shadow var(--transition-fast);
+}
 
-  .unauthorized {
-    font-size: 1rem;
-    padding: 1rem;
-  }
+.card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* === Navbar === */
+.navbar {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-md);
+}
+
+.navbar a {
+  color: var(--color-white);
+  text-decoration: none;
+  margin: 0 1rem;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.navbar a:hover {
+  color: var(--accent-color);
+}
+
+/* === Footer === */
+.footer {
+  background-color: var(--color-neutral-dark);
+  color: var(--color-white);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* === Forms === */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-neutral);
+  border-radius: var(--radius-sm);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: border-color var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+/* === Section Title === */
+.section-title {
+  font-size: 2rem;
+  font-family: var(--font-accent);
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* === Utilities === */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+.mt-4 {
+  margin-top: 1rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.p-4 {
+  padding: 1rem;
+}
+
+.rounded {
+  border-radius: var(--radius-sm);
+}
+
+.shadow {
+  box-shadow: var(--shadow);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+/* === Links === */
+a {
+  color: var(--color-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-secondary-light);
+}
+
+/* === Disabled === */
+.disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
