@@ -1,11 +1,7 @@
 :root {
-  --burgundy: #800020;
-  --navy-blue: #243c5a;
-  --muted-gold: #d4af37;
-  --forest-green: #228b22;
-  --charcoal: #333333;
-  --cream: #f5f5f5;
-  --white: #ffffff;
+  /* Already defined in your variables.css */
+    /* --color-primary: #661111; */
+
 }
 
 /* === Base === */
@@ -17,9 +13,9 @@ html {
 body, .eethm-home-page {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--white);
-  color: var(--charcoal);
+  font-family: var(--font-main);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
 }
 
 /* === Hero Section === */
@@ -31,7 +27,7 @@ body, .eethm-home-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000;
+  background: var(--color-black);
 }
 
 .background-video {
@@ -54,20 +50,20 @@ body, .eethm-home-page {
   position: relative;
   z-index: 2;
   text-align: center;
-  color: var(--white);
+  color: var(--color-white);
   padding: 20px;
 }
 
 .overlay-content h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
-  color: var(--muted-gold);
+  color: var(--color-accent-gold);
 }
 
 .overlay-content p {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
-  color: var(--cream);
+  color: var(--color-neutral-light);
 }
 
 .hero-buttons {
@@ -80,29 +76,29 @@ body, .eethm-home-page {
 .hero-buttons button {
   padding: 12px 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .hero-buttons button:first-child {
-  background-color: var(--navy-blue);
-  color: var(--white);
+  background-color: var(--color-secondary);
+  color: var(--color-white);
 }
 
 .hero-buttons button:first-child:hover {
-  background-color: #1a2f47;
+  background-color: var(--color-secondary-dark);
 }
 
 .newsletter-btn {
-  background-color: var(--burgundy);
-  color: var(--white);
+  background-color: var(--color-primary);
+  color: var(--color-white);
 }
 
 .newsletter-btn:hover {
-  background-color: #660019;
+  background-color: var(--color-primary-dark);
 }
 
 .mute-button {
@@ -113,12 +109,12 @@ body, .eethm-home-page {
   font-size: 1.5rem;
   background: transparent;
   border: none;
-  color: var(--white);
+  color: var(--color-white);
   cursor: pointer;
 }
 
 .video-fallback {
-  color: var(--white);
+  color: var(--color-white);
   font-size: 1.5rem;
   text-align: center;
   padding: 50px;
@@ -128,7 +124,7 @@ body, .eethm-home-page {
 .fade-in-section {
   opacity: 0;
   transform: translateY(20px);
-  transition: all 0.6s ease-out;
+  transition: all var(--transition-slow);
 }
 
 .fade-in-section.is-visible {
@@ -139,14 +135,14 @@ body, .eethm-home-page {
 /* === Services Section === */
 .services-page {
   padding: 60px 30px;
-  background: var(--cream);
+  background: var(--color-white);
 }
 
 .services-page h2 {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 40px;
-  color: var(--navy-blue);
+  color: var(--color-secondary);
 }
 
 .service-list {
@@ -157,15 +153,15 @@ body, .eethm-home-page {
 }
 
 .service-item {
-  background: var(--white);
+  background: var(--color-white);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   max-width: 300px;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   text-align: left;
-  border-left: 6px solid var(--forest-green);
-  transition: transform 0.3s ease;
+  border-left: 6px solid var(--color-accent-green);
+  transition: transform var(--transition-fast);
 }
 
 .service-item:hover {
@@ -175,7 +171,7 @@ body, .eethm-home-page {
 .service-item h3 {
   font-size: 1.25rem;
   margin-bottom: 10px;
-  color: var(--burgundy);
+  color: var(--color-primary);
 }
 
 .service-item p,
@@ -190,7 +186,7 @@ body, .eethm-home-page {
 }
 
 .service-item a {
-  color: var(--navy-blue);
+  color: var(--color-secondary);
   text-decoration: underline;
   font-weight: bold;
 }
@@ -205,7 +201,7 @@ body, .eethm-home-page {
 .banner-cards-title,
 .banners-section h2 {
   font-size: 2.2rem;
-  color: var(--navy-blue);
+  color: var(--color-secondary);
   margin-bottom: 30px;
 }
 
@@ -220,13 +216,13 @@ body, .eethm-home-page {
 .banner-card,
 .banner-item,
 .media-card-wrapper {
-  background-color: var(--cream);
-  border-radius: 8px;
+  background-color: var(--color-neutral-light);
+  border-radius: var(--radius-md);
   padding: 10px;
   max-width: 320px;
   width: 100%;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
 }
 
 .banner-card:hover,
@@ -241,41 +237,40 @@ body, .eethm-home-page {
 .media-preview {
   width: 100%;
   height: auto;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   margin-bottom: 10px;
 }
 
 .banner-card-caption,
 .banner-item h4 {
   font-size: 1.1rem;
-  color: var(--forest-green);
+  color: var(--color-accent-green);
   margin-top: 5px;
 }
 
-/* === Media Preview Fallback === */
 .media-preview.fallback {
-  background-color: var(--charcoal);
-  color: var(--white);
+  background-color: var(--color-neutral);
+  color: var(--color-white);
   padding: 20px;
   text-align: center;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .media-preview.fallback a {
-  color: var(--muted-gold);
+  color: var(--color-accent-gold);
   text-decoration: underline;
 }
 
 /* === Promotions Section === */
 .promotions-section {
   padding: 60px 30px;
-  background-color: var(--white);
+  background-color: var(--color-white);
   text-align: center;
 }
 
 .promotions-section h2 {
   font-size: 2.5rem;
-  color: var(--burgundy);
+  color: var(--color-primary);
   margin-bottom: 30px;
 }
 
@@ -287,15 +282,15 @@ body, .eethm-home-page {
 }
 
 .promo-card {
-  background-color: var(--cream);
-  border-radius: 8px;
+  background-color: var(--color-neutral-light);
+  border-radius: var(--radius-md);
   padding: 20px;
   max-width: 300px;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-left: 6px solid var(--muted-gold);
+  box-shadow: var(--shadow-md);
+  border-left: 6px solid var(--color-accent-gold);
   text-align: left;
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-fast);
 }
 
 .promo-card:hover {
@@ -305,13 +300,13 @@ body, .eethm-home-page {
 .promo-card img {
   width: 100%;
   height: auto;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   margin-bottom: 12px;
 }
 
 .promo-content h3 {
   font-size: 1.25rem;
-  color: var(--navy-blue);
+  color: var(--color-secondary);
   margin-bottom: 10px;
 }
 
@@ -321,18 +316,20 @@ body, .eethm-home-page {
 }
 
 .discount {
-  color: var(--forest-green);
+  color: var(--color-accent-green);
   font-weight: bold;
 }
 
 .validity {
   font-size: 0.9rem;
-  color: var(--charcoal);
+  color: var(--color-neutral-dark);
   font-style: italic;
 }
+
+/* === Reviews Section === */
 .reviews-section {
   padding: 60px 30px;
-  background-color: var(--cream);
+  background-color: var(--color-neutral-light);
   text-align: center;
 }
 
@@ -344,28 +341,27 @@ body, .eethm-home-page {
 }
 
 .review-card {
-  background-color: var(--white);
-  border-left: 6px solid var(--navy-blue);
+  background-color: var(--color-white);
+  border-left: 6px solid var(--color-secondary);
   padding: 20px;
   max-width: 300px;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
   text-align: left;
 }
 
 .review-text {
   font-size: 1rem;
   margin-bottom: 10px;
-  color: var(--charcoal);
+  color: var(--color-neutral-dark);
 }
 
 .review-author {
   font-weight: bold;
-  color: var(--burgundy);
+  color: var(--color-primary);
   font-size: 0.9rem;
 }
-
 
 /* === Responsive === */
 @media (max-width: 768px) {

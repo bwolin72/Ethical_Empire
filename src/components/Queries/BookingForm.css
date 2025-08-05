@@ -1,5 +1,3 @@
-@import '../styles/variables.css';
-
 /* === Scoped Booking Styles === */
 .booking {
   --color-bg-light: var(--color-white);
