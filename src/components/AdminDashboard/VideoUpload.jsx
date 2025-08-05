@@ -20,7 +20,7 @@ const VideoUpload = () => {
     }
 
     const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo'];
-    if (!files.every(file => validTypes.includes(file.type))) {
+    if (!files.every((file) => validTypes.includes(file.type))) {
       alert('❌ Invalid file type. Only MP4, MOV, or AVI files are allowed.');
       return;
     }
@@ -28,16 +28,12 @@ const VideoUpload = () => {
     const formData = new FormData();
 
     files.forEach((file) => {
-      formData.append('media', file);
+      formData.append('file', file); // ✅ Must be 'file'
     });
 
     formData.append('label', label);
     formData.append('type', type);
-
-    endpoints.forEach((ep) => {
-      formData.append('endpoint', ep);
-    });
-
+    formData.append('endpoints', JSON.stringify(endpoints)); // ✅ Send as JSON string
     formData.append('is_active', isActive.toString());
     formData.append('is_featured', isFeatured.toString());
 
@@ -112,7 +108,9 @@ const VideoUpload = () => {
             multiple
             value={endpoints}
             onChange={(e) =>
-              setEndpoints(Array.from(e.target.selectedOptions, (opt) => opt.value))
+              setEndpoints(
+                Array.from(e.target.selectedOptions, (opt) => opt.value)
+              )
             }
           >
             <option value="EethmHome">EethmHome</option>
@@ -122,6 +120,8 @@ const VideoUpload = () => {
             <option value="LiveBandServicePage">Live Band</option>
             <option value="DecorPage">Decor</option>
             <option value="MediaHostingServicePage">Media Hosting</option>
+            <option value="VendorPage">Vendor Page</option>
+            <option value="PartnerPage">Partner Page</option>
           </select>
         </label>
 
