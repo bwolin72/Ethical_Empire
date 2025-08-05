@@ -1,29 +1,4 @@
-/* === Scoped Booking Styles === */
-.booking {
-  --color-bg-light: var(--color-white);
-  --color-bg-dark: var(--color-neutral-dark);
-  --color-text-light: var(--color-neutral-dark);
-  --color-text-dark: var(--color-white);
-
-  --color-primary: var(--color-primary);
-  --color-primary-dark: var(--color-primary-dark);
-
-  --color-muted: var(--color-neutral-light);
-  --color-muted-dark: #d1d5db;
-
-  --color-border-light: #e5e7eb;
-  --color-border-dark: var(--color-neutral);
-
-  --color-success: var(--color-success);
-  --color-error: var(--color-error);
-  --color-disabled: var(--color-disabled);
-
-  --color-calendar-icon: var(--color-muted);
-  --color-dropdown-icon: var(--color-secondary);
-
-  --color-service-bg-light: #f3f4f6;
-  --color-service-bg-dark: var(--color-neutral);
-}
+/*root var */
 
 .booking .booking-container {
   display: flex;
