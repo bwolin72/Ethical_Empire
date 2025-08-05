@@ -1,5 +1,3 @@
-// src/components/Auth/Login.jsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
@@ -29,6 +27,8 @@ const Login = () => {
       admin: '/admin',
       worker: '/worker',
       user: '/user',
+      vendor: '/vendor',
+      partner: '/partner',
     };
     navigate(routes[role] || '/user', { replace: true });
   }, [navigate]);
@@ -61,8 +61,8 @@ const Login = () => {
 
   const validateForm = () => {
     const errors = {};
-    if (!form.email.trim()) errors.email = 'Email is required';
-    if (!form.password.trim()) errors.password = 'Password is required';
+    if (!form.email.trim()) errors.email = 'Please enter your email address.';
+    if (!form.password.trim()) errors.password = 'Please enter your password.';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -79,17 +79,17 @@ const Login = () => {
         data.error?.email?.[0] ||
         data.error?.password?.[0] ||
         Object.values(data.error || {})[0] ||
-        'Login failed. Please try again.'
+        'Oops! Something went wrong. Please try again.'
       );
     }
-    return 'Login failed. Please try again.';
+    return 'Oops! Something went wrong. Please try again.';
   };
 
   const handleLoginSuccess = (data) => {
     const { access, refresh, user } = data;
 
     if (!access || !refresh || !user) {
-      setError('Login failed. Incomplete server response.');
+      setError('Login failed. Server returned incomplete data.');
       return;
     }
 
@@ -125,7 +125,7 @@ const Login = () => {
 
   const handleGoogleSuccess = async ({ credential }) => {
     if (!credential) {
-      setError('Google login failed: Missing credential');
+      setError('Google login failed. Missing credentials.');
       return;
     }
     setLoading(true);
@@ -143,18 +143,17 @@ const Login = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className="login-page">
-        {/* Left Section: Branding */}
         <div className="login-left">
           <div className="login-brand">
-            <img src={logo} alt="Logo" />
+            <img src={logo} alt="Ethical Multimedia Logo" />
             <h1>Eethm_GH</h1>
-            <p>Ethical Multimedia Ghana - Your Trusted Digital Hub</p>
+            <p>Your Trusted Digital Hub in Ghana</p>
           </div>
         </div>
 
-        {/* Right Section: Login Form */}
         <div className="login-right">
-          <h2>Welcome Back</h2>
+          <h2>Welcome Back 👋</h2>
+          <p className="login-subtext">Log in to continue exploring our services</p>
 
           <label className="dark-toggle">
             <input
@@ -163,16 +162,18 @@ const Login = () => {
               onChange={toggleDarkMode}
               aria-label="Toggle dark mode"
             />
-            Dark Mode
+            Enable Dark Mode
           </label>
 
           {error && <div className="error-message">{error}</div>}
 
           <form onSubmit={handleSubmit} className="login-form" noValidate>
+            <label htmlFor="email">Email Address</label>
             <input
+              id="email"
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder="you@example.com"
               value={form.email}
               onChange={handleChange}
               autoComplete="username"
@@ -182,11 +183,13 @@ const Login = () => {
             />
             {formErrors.email && <small>{formErrors.email}</small>}
 
+            <label htmlFor="password">Password</label>
             <div className="password-field">
               <input
+                id="password"
                 type={showPassword ? 'text' : 'password'}
                 name="password"
-                placeholder="Password"
+                placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
                 autoComplete="current-password"
@@ -194,30 +197,37 @@ const Login = () => {
                 disabled={loading}
                 required
               />
-              <span onClick={() => setShowPassword((prev) => !prev)}>
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label="Toggle password visibility"
+              >
                 {showPassword ? '🙈' : '👁️'}
-              </span>
+              </button>
             </div>
             {formErrors.password && <small>{formErrors.password}</small>}
 
-            <label className="remember-me">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-              />
-              Remember Me
-            </label>
+            <div className="login-options">
+              <label className="remember-me">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
+                />
+                Keep me signed in
+              </label>
 
-            <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
+              <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+            </div>
 
             <button type="submit" className="login-button" disabled={loading}>
-              {loading ? 'Logging in…' : 'Login'}
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
           <div className="google-signup">
-            <p>Or login with:</p>
+            <p>Or sign in using your Google account</p>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={() => setError('Google login failed')}
@@ -228,7 +238,8 @@ const Login = () => {
           </div>
 
           <p className="register-prompt">
-            Don’t have an account? <Link to="/register">Register here</Link>
+            Don’t have an account?{' '}
+            <Link to="/register">Create one now</Link>
           </p>
         </div>
       </div>
