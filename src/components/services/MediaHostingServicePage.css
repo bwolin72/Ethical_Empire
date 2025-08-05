@@ -275,6 +275,14 @@
   margin-bottom: 1rem;
 }
 
+.media-hosting-page.dark .booking-form input {
+  background: var(--color-input-bg-dark);
+  color: var(--color-text-dark);
+  border-color: var(--color-border-dark);
+}
+
+
+
 @media (min-width: 768px) {
   .card-grid {
     grid-template-columns: repeat(2, 1fr);

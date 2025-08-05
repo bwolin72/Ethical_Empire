@@ -118,6 +118,8 @@
 
   --color-muted: #6b7280;
   --color-calendar-icon: #9ca3af;
+  --color-overlay: rgba(88, 28, 28, 0.5);
+
 }
 
 .dark {
