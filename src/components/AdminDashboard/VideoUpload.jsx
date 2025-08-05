@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import './VideoUpload.css';
 
-const VideoUpload = () => {
+const VideoUpload = ({ videoId = null, existingData = null }) => {
   const [files, setFiles] = useState([]);
   const [label, setLabel] = useState('');
   const [type, setType] = useState('media');
@@ -10,17 +10,28 @@ const VideoUpload = () => {
   const [isActive, setIsActive] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
   const [status, setStatus] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(!!videoId);
+
+  useEffect(() => {
+    if (existingData) {
+      setLabel(existingData.label || '');
+      setType(existingData.type || 'media');
+      setEndpoints(existingData.endpoints || []);
+      setIsActive(existingData.is_active ?? true);
+      setIsFeatured(existingData.is_featured ?? false);
+    }
+  }, [existingData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!files.length) {
+    if (!files.length && !isUpdating) {
       alert('Please select at least one video file.');
       return;
     }
 
     const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo'];
-    if (!files.every((file) => validTypes.includes(file.type))) {
+    if (files.length && !files.every((file) => validTypes.includes(file.type))) {
       alert('❌ Invalid file type. Only MP4, MOV, or AVI files are allowed.');
       return;
     }
@@ -28,21 +39,30 @@ const VideoUpload = () => {
     const formData = new FormData();
 
     files.forEach((file) => {
-      formData.append('file', file); // ✅ Must be 'file'
+      formData.append('media', file); // Correct key
     });
 
     formData.append('label', label);
     formData.append('type', type);
-    formData.append('endpoints', JSON.stringify(endpoints)); // ✅ Send as JSON string
+    formData.append('endpoints', JSON.stringify(endpoints));
     formData.append('is_active', isActive.toString());
     formData.append('is_featured', isFeatured.toString());
 
     try {
-      const response = await axiosInstance.post('/media/upload/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      console.log('[Upload Success]', response.data);
-      setStatus('✅ Upload successful!');
+      let response;
+      if (isUpdating && videoId) {
+        response = await axiosInstance.patch(`/media/upload/${videoId}/`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        setStatus('✅ Update successful!');
+      } else {
+        response = await axiosInstance.post('/media/upload/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        setStatus('✅ Upload successful!');
+      }
+
+      console.log('[Success]', response.data);
 
       // Reset form
       setFiles([]);
@@ -52,18 +72,18 @@ const VideoUpload = () => {
       setIsActive(true);
       setIsFeatured(false);
     } catch (error) {
-      console.error('[Upload Error]', error?.response?.data || error.message);
+      console.error('[Error]', error?.response?.data || error.message);
       const detail =
         error?.response?.data?.error ||
         error?.response?.data?.detail ||
-        '❌ Upload failed.';
+        '❌ Request failed.';
       setStatus(detail);
     }
   };
 
   return (
     <div className="upload-form-container">
-      <h2>Upload Video</h2>
+      <h2>{isUpdating ? 'Update Video' : 'Upload Video'}</h2>
       <form onSubmit={handleSubmit}>
         <label>
           Label:
@@ -82,7 +102,8 @@ const VideoUpload = () => {
             accept="video/*"
             multiple
             onChange={(e) => setFiles([...e.target.files])}
-            required
+            // Not required for update
+            required={!isUpdating}
           />
         </label>
 
@@ -143,7 +164,7 @@ const VideoUpload = () => {
           Featured
         </label>
 
-        <button type="submit">Upload</button>
+        <button type="submit">{isUpdating ? 'Update' : 'Upload'}</button>
         {status && <p className="upload-status">{status}</p>}
       </form>
     </div>
