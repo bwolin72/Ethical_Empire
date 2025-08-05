@@ -1,182 +1,147 @@
-/*root var */
-
-.booking .booking-container {
+/* Root wrapper */
+.booking-wrapper {
+  background-color: var(--color-bg-light);
+  min-height: 100vh;
+  padding: 2rem 1rem;
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  align-items: center;
 }
 
-.booking .form-card {
-  background-color: var(--color-bg-light);
-  max-width: 1140px;
-  width: 100%;
+.booking-wrapper.dark {
+  background-color: var(--color-bg-dark);
+}
+
+/* Main container */
+.booking-container {
   display: flex;
   flex-wrap: wrap;
+  max-width: 1140px;
+  width: 100%;
+  background-color: var(--color-bg-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
   border: 1px solid var(--color-border-light);
 }
 
-.booking.dark .form-card {
+.booking-wrapper.dark .booking-container {
   background-color: var(--color-bg-dark);
   border-color: var(--color-border-dark);
 }
 
-.booking .form-left {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  padding: 2rem;
-  flex: 1 1 40%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  text-align: center;
-  gap: 1.5rem;
-}
-
-.booking .form-left .logo {
-  width: 80px;
-  margin: 0 auto 1rem;
-}
-
-.booking .form-left h2 {
-  font-size: 1.8rem;
-  margin-bottom: 0.25rem;
-  font-family: var(--font-accent);
-}
-
-.booking .form-left .subtitle {
-  font-size: 0.95rem;
-  font-weight: 300;
-}
-
-.booking .form-left .info-block {
-  text-align: left;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.booking .form-left .info-block h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.25rem;
-}
-
-.booking .form-left .contact-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.booking .form-left .contact-buttons a {
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  background-color: var(--color-white);
-  color: var(--color-primary);
-  transition: background-color var(--transition-fast);
-}
-
-.booking .form-left .contact-buttons a:hover {
-  background-color: var(--color-muted);
-}
-
-.booking .form-left .social-media-links {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.booking .form-left .social-media-links a {
-  font-size: 0.9rem;
-  color: var(--color-white);
-  text-decoration: underline;
-}
-
-.booking .form-content {
+/* Left panel: Form */
+.booking-form-panel {
   flex: 1 1 60%;
   padding: 2rem;
   background: var(--color-bg-light);
   color: var(--color-text-light);
 }
 
-.booking.dark .form-content {
+.booking-wrapper.dark .booking-form-panel {
   background: var(--color-bg-dark);
   color: var(--color-text-dark);
 }
 
-.booking .form-content h3 {
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--color-primary);
+/* Header section in form panel */
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-header .logo {
+  width: 80px;
+  margin: 0 auto 1rem;
+}
+
+.form-header h2 {
+  font-size: 1.8rem;
   font-family: var(--font-accent);
 }
 
-.booking .input-group {
-  margin-bottom: 1.2rem;
+.form-header .subtitle {
+  font-size: 0.95rem;
+  font-weight: 300;
+}
+
+/* Form structure */
+.form-content {
   display: flex;
   flex-direction: column;
 }
 
-.booking .input-group label {
-  margin-bottom: 0.5rem;
-  font-weight: 600;
+.form-content h3 {
+  font-size: 1.5rem;
+  font-family: var(--font-accent);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  font-weight: bold;
 }
 
-.booking .input-group input,
-.booking .input-group textarea,
-.booking .datepicker-wrapper input,
-.booking .react-tel-input .form-control {
+/* Input group */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.2rem;
+}
+
+.input-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.input-group input,
+.input-group textarea,
+.datepicker-wrapper input,
+.react-tel-input .form-control {
   padding: 0.7rem 0.9rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-light);
   font-size: 1rem;
   font-family: var(--font-main);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
   color: var(--color-text-light);
 }
 
-.booking.dark .input-group input,
-.booking.dark .input-group textarea,
-.booking.dark .datepicker-wrapper input,
-.booking.dark .react-tel-input .form-control {
+.booking-wrapper.dark .input-group input,
+.booking-wrapper.dark .input-group textarea,
+.booking-wrapper.dark .datepicker-wrapper input,
+.booking-wrapper.dark .react-tel-input .form-control {
   background-color: var(--color-service-bg-dark);
-  border: 1px solid var(--color-border-dark);
+  border-color: var(--color-border-dark);
   color: var(--color-text-dark);
 }
 
-.booking .react-tel-input {
+/* Phone input */
+.react-tel-input {
   width: 100%;
 }
 
-.booking .react-tel-input .form-control {
+.react-tel-input .form-control {
   padding-left: 48px;
   font-size: 1rem;
 }
 
-.booking .datepicker-wrapper {
+/* Date picker */
+.datepicker-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.booking .datepicker-wrapper .icon {
+.datepicker-wrapper .icon {
   position: absolute;
   left: 0.75rem;
   z-index: 2;
   color: var(--color-calendar-icon);
 }
 
-.booking .datepicker-wrapper input {
+.datepicker-wrapper input {
   width: 100%;
   padding-left: 2.5rem;
 }
 
-.booking .checkbox-group {
+/* Checkbox group */
+.checkbox-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -185,27 +150,28 @@
   border-radius: var(--radius-md);
 }
 
-.booking.dark .checkbox-group {
+.booking-wrapper.dark .checkbox-group {
   background: var(--color-service-bg-dark);
 }
 
-.booking .checkbox-option {
+.checkbox-option {
   display: flex;
   align-items: center;
   font-weight: 500;
   font-size: 0.95rem;
 }
 
-.booking .checkbox-option input {
+.checkbox-option input {
   margin-right: 0.5rem;
 }
 
-.booking textarea {
+textarea {
   resize: vertical;
   min-height: 100px;
 }
 
-.booking .submit-btn {
+/* Submit button */
+.submit-btn {
   background-color: var(--color-primary);
   color: var(--color-white);
   padding: 0.8rem;
@@ -217,16 +183,17 @@
   transition: background-color var(--transition-fast);
 }
 
-.booking .submit-btn:hover:not(:disabled) {
+.submit-btn:hover:not(:disabled) {
   background-color: var(--color-primary-dark);
 }
 
-.booking .submit-btn:disabled {
+.submit-btn:disabled {
   background-color: var(--color-disabled);
   cursor: not-allowed;
 }
 
-.booking .loading-spinner {
+/* Loading spinner */
+.loading-spinner {
   display: inline-block;
   width: 1rem;
   height: 1rem;
@@ -244,88 +211,111 @@
   }
 }
 
-.booking .no-services {
+.no-services {
   font-style: italic;
   color: var(--color-muted);
   font-size: 0.95rem;
   margin-bottom: 1rem;
 }
 
-/* === Responsive Styles === */
+/* Right panel: Brand/Manager info */
+.booking-brand-panel {
+  flex: 1 1 40%;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  gap: 1.5rem;
+}
+
+.booking-brand-panel h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.booking-brand-panel a {
+  color: var(--color-white);
+  text-decoration: underline;
+}
+
+.booking-brand-panel a:hover {
+  text-decoration: none;
+}
+
+/* Responsive styles */
 @media (max-width: 768px) {
-  .booking .form-card {
+  .booking-container {
     flex-direction: column;
   }
 
-  .booking .form-left,
-  .booking .form-content {
+  .booking-form-panel,
+  .booking-brand-panel {
     flex: 1 1 100%;
-  }
-
-  .booking .form-left,
-  .booking .form-content {
     padding: 1.5rem 1rem;
   }
 
-  .booking .logo {
+  .form-header .logo {
     width: 60px;
   }
 
-  .booking .form-content h3 {
+  .form-content h3 {
     font-size: 1.3rem;
   }
 }
 
 @media (max-width: 480px) {
-  .booking .form-left h2 {
+  .form-header h2 {
     font-size: 1.3rem;
   }
 
-  .booking .logo {
+  .form-header .logo {
     width: 50px;
   }
 
-  .booking .submit-btn {
+  .submit-btn {
     font-size: 0.9rem;
     padding: 0.7rem 1rem;
   }
 
-  .booking .checkbox-option {
+  .checkbox-option {
     font-size: 0.9rem;
   }
 }
 
 @media (max-width: 380px) {
-  .booking .logo {
+  .form-header .logo {
     width: 44px;
   }
 
-  .booking .form-left h2 {
+  .form-header h2 {
     font-size: 1.2rem;
   }
 
-  .booking .form-content h3 {
+  .form-content h3 {
     font-size: 1.2rem;
   }
 
-  .booking .submit-btn {
+  .submit-btn {
     font-size: 0.85rem;
   }
 
-  .booking .input-group input,
-  .booking .react-tel-input .form-control {
+  .input-group input,
+  .react-tel-input .form-control {
     font-size: 0.9rem;
   }
 
-  .booking .datepicker-wrapper .icon {
+  .datepicker-wrapper .icon {
     left: 0.5rem;
   }
 
-  .booking .datepicker-wrapper input {
+  .datepicker-wrapper input {
     padding-left: 2rem;
   }
 
-  .booking .checkbox-option {
+  .checkbox-option {
     font-size: 0.85rem;
   }
 }

@@ -10,36 +10,42 @@ const VideoUpload = ({ videoId = null, existingData = null }) => {
   const [isActive, setIsActive] = useState(true);
   const [isFeatured, setIsFeatured] = useState(false);
   const [status, setStatus] = useState(null);
-  const [isUpdating, setIsUpdating] = useState(!!videoId);
+  const isUpdating = !!videoId;
 
   useEffect(() => {
     if (existingData) {
       setLabel(existingData.label || '');
       setType(existingData.type || 'media');
-      setEndpoints(existingData.endpoints || []);
+      setEndpoints(existingData.endpoints || ['EethmHome']);
       setIsActive(existingData.is_active ?? true);
       setIsFeatured(existingData.is_featured ?? false);
     }
   }, [existingData]);
 
+  const handleFileChange = (e) => {
+    const selected = Array.from(e.target.files);
+    setFiles(selected);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setStatus(null); // Reset status
+
     if (!files.length && !isUpdating) {
-      alert('Please select at least one video file.');
+      setStatus('❌ Please select at least one video file.');
       return;
     }
 
     const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo'];
-    if (files.length && !files.every((file) => validTypes.includes(file.type))) {
-      alert('❌ Invalid file type. Only MP4, MOV, or AVI files are allowed.');
+    if (files.length && !files.every(file => validTypes.includes(file.type))) {
+      setStatus('❌ Invalid file type. Only MP4, MOV, or AVI files are allowed.');
       return;
     }
 
     const formData = new FormData();
-
     files.forEach((file) => {
-      formData.append('media', file); // Correct key
+      formData.append('media', file);
     });
 
     formData.append('label', label);
@@ -50,16 +56,16 @@ const VideoUpload = ({ videoId = null, existingData = null }) => {
 
     try {
       let response;
-      if (isUpdating && videoId) {
+      if (isUpdating) {
         response = await axiosInstance.patch(`/media/upload/${videoId}/`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        setStatus('✅ Update successful!');
+        setStatus('✅ Video updated successfully!');
       } else {
         response = await axiosInstance.post('/media/upload/', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        setStatus('✅ Upload successful!');
+        setStatus('✅ Video uploaded successfully!');
       }
 
       console.log('[Success]', response.data);
@@ -85,86 +91,81 @@ const VideoUpload = ({ videoId = null, existingData = null }) => {
     <div className="upload-form-container">
       <h2>{isUpdating ? 'Update Video' : 'Upload Video'}</h2>
       <form onSubmit={handleSubmit}>
-        <label>
-          Label:
-          <input
-            type="text"
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            required
-          />
-        </label>
+        <label htmlFor="label">Label:</label>
+        <input
+          id="label"
+          type="text"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          required
+        />
 
-        <label>
-          File(s):
-          <input
-            type="file"
-            accept="video/*"
-            multiple
-            onChange={(e) => setFiles([...e.target.files])}
-            // Not required for update
-            required={!isUpdating}
-          />
-        </label>
+        <label htmlFor="fileUpload">File(s):</label>
+        <input
+          id="fileUpload"
+          type="file"
+          accept="video/*"
+          multiple
+          onChange={handleFileChange}
+          required={!isUpdating}
+        />
 
         {files.length > 0 && (
-          <ul>
-            {files.map((file, idx) => (
-              <li key={idx}>{file.name}</li>
+          <ul className="file-preview-list">
+            {files.map((file, index) => (
+              <li key={index}>{file.name}</li>
             ))}
           </ul>
         )}
 
-        <label>
-          Type:
-          <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="media">Media</option>
-            <option value="banner">Banner</option>
-          </select>
-        </label>
+        <label htmlFor="type">Type:</label>
+        <select id="type" value={type} onChange={(e) => setType(e.target.value)}>
+          <option value="media">Media</option>
+          <option value="banner">Banner</option>
+        </select>
 
-        <label>
-          Endpoints:
-          <select
-            multiple
-            value={endpoints}
-            onChange={(e) =>
-              setEndpoints(
-                Array.from(e.target.selectedOptions, (opt) => opt.value)
-              )
-            }
-          >
-            <option value="EethmHome">EethmHome</option>
-            <option value="UserPage">UserPage</option>
-            <option value="About">About</option>
-            <option value="CateringPage">CateringPage</option>
-            <option value="LiveBandServicePage">Live Band</option>
-            <option value="DecorPage">Decor</option>
-            <option value="MediaHostingServicePage">Media Hosting</option>
-            <option value="VendorPage">Vendor Page</option>
-            <option value="PartnerPage">Partner Page</option>
-          </select>
-        </label>
+        <label htmlFor="endpoints">Endpoints:</label>
+        <select
+          id="endpoints"
+          multiple
+          value={endpoints}
+          onChange={(e) =>
+            setEndpoints(Array.from(e.target.selectedOptions, (opt) => opt.value))
+          }
+        >
+          <option value="EethmHome">EethmHome</option>
+          <option value="UserPage">UserPage</option>
+          <option value="About">About</option>
+          <option value="CateringPage">CateringPage</option>
+          <option value="LiveBandServicePage">Live Band</option>
+          <option value="DecorPage">Decor</option>
+          <option value="MediaHostingServicePage">Media Hosting</option>
+          <option value="VendorPage">Vendor Page</option>
+          <option value="PartnerPage">Partner Page</option>
+        </select>
 
-        <label>
-          <input
-            type="checkbox"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-          />
-          Active
-        </label>
+        <div className="checkbox-group">
+          <label>
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+            />
+            Active
+          </label>
 
-        <label>
-          <input
-            type="checkbox"
-            checked={isFeatured}
-            onChange={(e) => setIsFeatured(e.target.checked)}
-          />
-          Featured
-        </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={isFeatured}
+              onChange={(e) => setIsFeatured(e.target.checked)}
+            />
+            Featured
+          </label>
+        </div>
 
         <button type="submit">{isUpdating ? 'Update' : 'Upload'}</button>
+
         {status && <p className="upload-status">{status}</p>}
       </form>
     </div>
