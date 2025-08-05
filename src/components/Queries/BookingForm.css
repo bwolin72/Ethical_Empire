@@ -9,7 +9,7 @@
   --color-primary-dark: var(--color-primary-dark);
 
   --color-muted: var(--color-neutral-light);
-  --color-muted-dark: #d1d5db; /* You can add a variable for this if reused */
+  --color-muted-dark: #d1d5db;
 
   --color-border-light: #e5e7eb;
   --color-border-dark: var(--color-neutral);
@@ -33,17 +33,19 @@
 
 .booking .form-card {
   background-color: var(--color-bg-light);
-  max-width: 960px;
+  max-width: 1140px;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
+  border: 1px solid var(--color-border-light);
 }
 
 .booking.dark .form-card {
   background-color: var(--color-bg-dark);
+  border-color: var(--color-border-dark);
 }
 
 .booking .form-left {
@@ -53,37 +55,72 @@
   flex: 1 1 40%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   text-align: center;
+  gap: 1.5rem;
 }
 
-.booking .logo {
+.booking .form-left .logo {
   width: 80px;
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem;
 }
 
-.form-left h2 {
-  font-size: 24px;
-  margin: 10px 0;
-  color: #2a2a2a;
-  padding: 5px;
-  border-radius: 5px;
-  background-color: transparent; /* or remove entirely */
+.booking .form-left h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+  font-family: var(--font-accent);
 }
 
-.form-left .subtitle {
-  font-size: 14px;
-  color: #888;
-  padding: 2px;
-  border-radius: 5px;
-  background-color: transparent; /* or remove entirely */
-}
-.form-left {
-  text-align: center;
+.booking .form-left .subtitle {
+  font-size: 0.95rem;
+  font-weight: 300;
 }
 
+.booking .form-left .info-block {
+  text-align: left;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
 
+.booking .form-left .info-block h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.booking .form-left .contact-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.booking .form-left .contact-buttons a {
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  transition: background-color var(--transition-fast);
+}
+
+.booking .form-left .contact-buttons a:hover {
+  background-color: var(--color-muted);
+}
+
+.booking .form-left .social-media-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.booking .form-left .social-media-links a {
+  font-size: 0.9rem;
+  color: var(--color-white);
+  text-decoration: underline;
+}
 
 .booking .form-content {
   flex: 1 1 60%;
@@ -214,19 +251,6 @@
   cursor: not-allowed;
 }
 
-.booking .error-message {
-  color: var(--color-error);
-  font-size: 0.9rem;
-  margin-top: -0.8rem;
-  margin-bottom: 1rem;
-}
-
-.booking .success-message {
-  color: var(--color-success);
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-}
-
 .booking .loading-spinner {
   display: inline-block;
   width: 1rem;
@@ -263,10 +287,7 @@
     flex: 1 1 100%;
   }
 
-  .booking .form-left {
-    padding: 1.5rem;
-  }
-
+  .booking .form-left,
   .booking .form-content {
     padding: 1.5rem 1rem;
   }

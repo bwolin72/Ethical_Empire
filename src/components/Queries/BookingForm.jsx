@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import PhoneInput from 'react-phone-input-2';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import { toast, ToastContainer } from 'react-toastify';
-import { FaCalendarAlt } from 'react-icons/fa';
+import { FaCalendarAlt, FaWhatsapp, FaPhoneAlt, FaMapMarkerAlt, FaInstagram, FaLinkedin, FaTwitter, FaFacebookF } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -141,7 +141,7 @@ const BookingForm = () => {
       toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
       toast.info('📧 A confirmation email has been sent to you.', { autoClose: 4000 });
       resetForm();
-      fetchServices(); // Fetch again if services could have changed
+      fetchServices();
     } catch (err) {
       const response = err.response?.data;
       const extractedError = typeof response === 'object' && response !== null ? Object.values(response)[0] : response?.detail;
@@ -152,11 +152,13 @@ const BookingForm = () => {
   };
 
   return (
-    <div className={`booking ${darkMode ? 'dark' : 'light'}`}>
+    <div className={`booking-wrapper ${darkMode ? 'dark' : 'light'}`}>
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+
       <div className="booking-container">
-        <div className="form-card">
-          <div className="form-left">
+        {/* === Left Side === */}
+        <div className="booking-form-panel">
+          <div className="form-header">
             <img src={logo} alt="Ethical Multimedia Logo" className="logo" />
             <h2>Ethical Multimedia GH</h2>
             <p className="subtitle">Premium Event Experience</p>
@@ -165,47 +167,26 @@ const BookingForm = () => {
           <form onSubmit={handleSubmit} className="form-content" noValidate>
             <h3>Event Booking Form</h3>
 
-            {/* Input Fields */}
-            {[
-              { id: 'name', label: 'Full Name' },
-              { id: 'email', label: 'Email Address', type: 'email' },
-              { id: 'venue_name', label: 'Venue Name' },
-              { id: 'address', label: 'Full Address' },
-            ].map(({ id, label, type = 'text' }) => (
+            {/* Reusable Input Fields */}
+            {["name", "email", "venue_name", "address"].map((id) => (
               <div key={id} className="input-group">
-                <label htmlFor={id}>{label}</label>
-                <input
-                  id={id}
-                  name={id}
-                  type={type}
-                  value={formData[id]}
-                  onChange={handleChange}
-                  required
-                />
+                <label htmlFor={id}>{id.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</label>
+                <input id={id} name={id} type={id === 'email' ? 'email' : 'text'} value={formData[id]} onChange={handleChange} required />
               </div>
             ))}
 
-            {/* Country & Region */}
             <div className="input-group">
-              <label htmlFor="country">Country</label>
-              <CountryDropdown
-                value={formData.country}
-                onChange={(val) => setFormData((prev) => ({ ...prev, country: val, state_or_region: '' }))}
-              />
+              <label>Country</label>
+              <CountryDropdown value={formData.country} onChange={(val) => setFormData((prev) => ({ ...prev, country: val, state_or_region: '' }))} />
             </div>
 
             <div className="input-group">
-              <label htmlFor="state_or_region">State / Region</label>
-              <RegionDropdown
-                country={formData.country}
-                value={formData.state_or_region}
-                onChange={(val) => setFormData((prev) => ({ ...prev, state_or_region: val }))}
-              />
+              <label>State / Region</label>
+              <RegionDropdown country={formData.country} value={formData.state_or_region} onChange={(val) => setFormData((prev) => ({ ...prev, state_or_region: val }))} />
             </div>
 
-            {/* Phone Number */}
             <div className="input-group">
-              <label htmlFor="phone">Phone Number</label>
+              <label>Phone Number</label>
               <PhoneInput
                 country="gh"
                 value={formData.phone.replace(/^\+/, '')}
@@ -214,75 +195,73 @@ const BookingForm = () => {
                 enableSearch
                 enableAreaCodes
                 international
-                disableCountryCode={false}
                 disableDropdown={false}
                 preferredCountries={['gh', 'us', 'gb', 'ng', 'de']}
               />
             </div>
 
-            {/* Date Picker */}
             <div className="input-group">
-              <label htmlFor="event_date">Event Date</label>
+              <label>Event Date</label>
               <div className="datepicker-wrapper">
                 <FaCalendarAlt className="icon" />
-                <DatePicker
-                  id="event_date"
-                  selected={formData.event_date}
-                  onChange={handleDateChange}
-                  placeholderText="Select a date"
-                  dateFormat="yyyy-MM-dd"
-                  required
-                />
+                <DatePicker selected={formData.event_date} onChange={handleDateChange} placeholderText="Select a date" dateFormat="yyyy-MM-dd" required />
               </div>
             </div>
 
-            {/* Services */}
             <div className="input-group">
-              <label htmlFor="services">Services</label>
+              <label>Services</label>
               <div className="checkbox-group">
-                {availableServices.length > 0 ? (
-                  availableServices.map((service) => (
-                    <label key={service.id} className="checkbox-option">
-                      <input
-                        type="checkbox"
-                        name="services"
-                        value={service.id}
-                        checked={formData.services.includes(service.id)}
-                        onChange={handleChange}
-                      />
-                      {service.name}
-                    </label>
-                  ))
-                ) : (
-                  <p className="no-services">No services available</p>
-                )}
+                {availableServices.length > 0 ? availableServices.map((service) => (
+                  <label key={service.id} className="checkbox-option">
+                    <input type="checkbox" name="services" value={service.id} checked={formData.services.includes(service.id)} onChange={handleChange} />
+                    {service.name}
+                  </label>
+                )) : <p className="no-services">No services available</p>}
               </div>
             </div>
 
-            {/* Message */}
             <div className="input-group">
-              <label htmlFor="message">Additional Notes</label>
-              <textarea
-                id="message"
-                name="message"
-                rows="4"
-                value={formData.message}
-                onChange={handleChange}
-              />
+              <label>Additional Notes</label>
+              <textarea name="message" rows="4" value={formData.message} onChange={handleChange} />
             </div>
 
-            {/* Submit Button */}
             <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  Submitting...
-                  <span className="loading-spinner" />
-                </>
-              ) : (
-                'Submit Booking'
-              )}
+              {isSubmitting ? 'Submitting...' : 'Submit Booking'}
             </button>
           </form>
+        </div>
+
+        {/* === Right Side === */}
+        <div className="booking-brand-panel">
+          <div className="brand-content">
+            <h3>Manager</h3>
+            <p><strong>Name:</strong> Mr. Nhyirab Nana Joseph</p>
+            <p><strong>Email:</strong> <a href="mailto:asaasebandeethm@gmail.com">asaasebandeethm@gmail.com</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+233556036565">+233 55 603 6565</a></p>
+            <p><strong>WhatsApp:</strong> <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">+233 55 298 8735</a></p>
+
+            <div className="location-block">
+              <h3>Headquarters</h3>
+              <p><FaMapMarkerAlt className="icon" /> Gomoa Akotsi, Gomoa East</p>
+              <p>Central Region, Bicycle City</p>
+            </div>
+
+            <div className="contact-buttons">
+              <a href="https://wa.me/233556036565" className="whatsapp" target="_blank" rel="noopener noreferrer">
+                <FaWhatsapp /> WhatsApp
+              </a>
+              <a href="tel:+233556036565" className="phone">
+                <FaPhoneAlt /> Call Now
+              </a>
+            </div>
+
+            <div className="social-media-links">
+              <a href="https://www.instagram.com/ethicalmultimedia" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
+              <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noopener noreferrer"><FaLinkedin /></a>
+              <a href="https://x.com/EeTHm_Gh" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
+              <a href="https://www.facebook.com/share/16nQGbE7Zk/" target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
