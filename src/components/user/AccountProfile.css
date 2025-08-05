@@ -1,375 +1,399 @@
-:root {
-  --burgundy: #800020;
-  --navy: #001F54;
-  --muted-gold: #C9B037;
-  --forest-green: #228B22;
-  --charcoal: #2E2E2E;
-  --white: #ffffff;
-  --cream: #f9f6f2;
-
-  --status-pending: #facc15;
-  --status-approved: #22c55e;
-  --status-rejected: #ef4444;
+/* === Global Reset === */
+/*:root {
+  /* Variables are inherited from variables.css 
+}
+*/
+/* === Base Styles === */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
-/* === Main Container === */
-.account-profile {
-  background-color: var(--cream);
-  padding: 2rem;
-  max-width: 700px;
-  margin: 2rem auto;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+body, .eethm-home-page {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
+}
+
+/* === Hero Section === */
+.video-hero-section {
   position: relative;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--charcoal);
-  transition: all 0.3s ease-in-out;
-}
-
-.account-profile .close-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  color: var(--burgundy);
-  font-size: 1.5rem;
-  border: none;
-  cursor: pointer;
-}
-
-.account-profile .loading-text {
-  text-align: center;
-  font-size: 1.1rem;
-  color: var(--charcoal);
-}
-
-/* === Profile Header === */
-.account-profile .profile-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.account-profile .profile-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.account-profile .profile-pic,
-.account-profile .profile-initials {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid var(--navy);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  font-weight: bold;
-  background-color: var(--charcoal);
-  color: var(--white);
-  margin-bottom: 1rem;
+  background: var(--color-black);
 }
 
-.account-profile .upload-label {
-  font-size: 0.95rem;
-  font-weight: 500;
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.background-video[type="image"] {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.overlay-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: var(--color-white);
+  padding: 20px;
+}
+
+.overlay-content h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--color-accent-gold);
+}
+
+.overlay-content p {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-neutral-light);
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-buttons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  font-size: 1rem;
   cursor: pointer;
-  color: var(--navy);
-  margin-top: -0.5rem;
+  transition: background-color var(--transition-fast);
+}
+
+.hero-buttons button:first-child {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+}
+
+.hero-buttons button:first-child:hover {
+  background-color: var(--color-secondary-dark);
+}
+
+.newsletter-btn {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.newsletter-btn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.mute-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 3;
+  font-size: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--color-white);
+  cursor: pointer;
+}
+
+.video-fallback {
+  color: var(--color-white);
+  font-size: 1.5rem;
+  text-align: center;
+  padding: 50px;
+}
+
+/* === Fade-in Reveal Animation === */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all var(--transition-slow);
+}
+
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* === Services Section === */
+.services-page {
+  padding: 60px 30px;
+  background: var(--color-white);
+}
+
+.services-page h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: var(--color-secondary);
+}
+
+.service-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.service-item {
+  background: var(--color-white);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  max-width: 300px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  text-align: left;
+  border-left: 6px solid var(--color-accent-green);
+  transition: transform var(--transition-fast);
+}
+
+.service-item:hover {
+  transform: translateY(-5px);
+}
+
+.service-item h3 {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+  color: var(--color-primary);
+}
+
+.service-item p,
+.service-item li {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.service-item ul {
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+.service-item a {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+/* === Banners & Media Cards === */
+.banner-cards-container,
+.banners-section {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.banner-cards-title,
+.banners-section h2 {
+  font-size: 2.2rem;
+  color: var(--color-secondary);
+  margin-bottom: 30px;
+}
+
+.banner-cards-grid,
+.banners-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+}
+
+.banner-card,
+.banner-item,
+.media-card-wrapper {
+  background-color: var(--color-neutral-light);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.banner-card:hover,
+.banner-item:hover,
+.media-card-wrapper:hover {
+  transform: scale(1.02);
+}
+
+.banner-card img,
+.banner-item img,
+.banner-item video,
+.media-preview {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+
+.banner-card-caption,
+.banner-item h4 {
+  font-size: 1.1rem;
+  color: var(--color-accent-green);
+  margin-top: 5px;
+}
+
+.media-preview.fallback {
+  background-color: var(--color-neutral);
+  color: var(--color-white);
+  padding: 20px;
+  text-align: center;
+  border-radius: var(--radius-sm);
+}
+
+.media-preview.fallback a {
+  color: var(--color-accent-gold);
   text-decoration: underline;
 }
 
-.account-profile input[type="file"] {
-  font-size: 0.9rem;
-  cursor: pointer;
-  background-color: var(--white);
-}
-
-/* === User Info === */
-.account-profile .user-info {
+/* === Promotions Section === */
+.promotions-section {
+  padding: 60px 30px;
+  background-color: var(--color-white);
   text-align: center;
-  margin-bottom: 2rem;
 }
 
-.account-profile .user-info h3 {
-  color: var(--burgundy);
-  font-size: 1.4rem;
-  margin-bottom: 0.4rem;
+.promotions-section h2 {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  margin-bottom: 30px;
 }
 
-.account-profile .user-info p {
-  margin: 0.3rem 0;
-  font-size: 1rem;
-  color: var(--charcoal);
-}
-
-/* === Button Group === */
-.account-profile .button-group {
+.promos-container {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1rem;
+  justify-content: center;
+  gap: 30px;
 }
 
-.account-profile .button-group button {
-  background-color: var(--navy);
-  color: var(--white);
-  padding: 0.5rem 1.2rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-}
-
-.account-profile .button-group button:hover {
-  background-color: var(--muted-gold);
-  color: var(--charcoal);
-}
-
-/* === Booking Section === */
-.account-profile .booking-section {
+.promo-card {
+  background-color: var(--color-neutral-light);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  max-width: 300px;
   width: 100%;
-  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+  border-left: 6px solid var(--color-accent-gold);
+  text-align: left;
+  transition: transform var(--transition-fast);
 }
 
-.account-profile .booking-section h4 {
-  color: var(--navy);
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid var(--navy);
-  padding-bottom: 0.4rem;
+.promo-card:hover {
+  transform: translateY(-5px);
 }
 
-.account-profile .booking-card {
-  background-color: var(--white);
-  border-left: 4px solid var(--navy);
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.account-profile .booking-card p {
-  margin: 0.3rem 0;
-  font-size: 0.95rem;
-}
-
-.account-profile .booking-card span {
-  display: inline-block;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.8rem;
-  border-radius: 4px;
-  color: var(--white);
-}
-
-.status-pending {
-  background-color: var(--status-pending);
-}
-
-.status-approved {
-  background-color: var(--status-approved);
-}
-
-.status-rejected {
-  background-color: var(--status-rejected);
-}
-
-/* === Review Section === */
-.account-profile .review-section {
+.promo-card img {
   width: 100%;
-  margin-bottom: 2rem;
+  height: auto;
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+
+.promo-content h3 {
+  font-size: 1.25rem;
+  color: var(--color-secondary);
+  margin-bottom: 10px;
+}
+
+.promo-content p {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.discount {
+  color: var(--color-accent-green);
+  font-weight: bold;
+}
+
+.validity {
+  font-size: 0.9rem;
+  color: var(--color-neutral-dark);
+  font-style: italic;
+}
+
+/* === Reviews Section === */
+.reviews-section {
+  padding: 60px 30px;
+  background-color: var(--color-neutral-light);
   text-align: center;
 }
 
-.account-profile .review-section label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: var(--charcoal);
+.reviews-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.review-card {
+  background-color: var(--color-white);
+  border-left: 6px solid var(--color-secondary);
+  padding: 20px;
+  max-width: 300px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
   text-align: left;
 }
 
-.account-profile .review-section textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  resize: vertical;
-  font-size: 0.95rem;
-  font-family: inherit;
-  margin-bottom: 1rem;
-  box-sizing: border-box;
-}
-
-.account-profile .review-section select {
-  width: 100%;
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-  box-sizing: border-box;
-}
-
-/* === Buttons === */
-.account-profile .btn {
-  background-color: var(--forest-green);
-  color: var(--white);
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: 8px;
+.review-text {
   font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  min-width: 150px;
+  margin-bottom: 10px;
+  color: var(--color-neutral-dark);
 }
 
-.account-profile .btn:hover {
-  background-color: var(--muted-gold);
-  color: var(--charcoal);
-}
-
-.account-profile .btn.danger {
-  background-color: var(--burgundy);
-  margin-top: 1rem;
-}
-
-.account-profile .btn.danger:hover {
-  background-color: #a61c30;
+.review-author {
+  font-weight: bold;
+  color: var(--color-primary);
+  font-size: 0.9rem;
 }
 
 /* === Responsive Design === */
-@media screen and (max-width: 768px) {
-  .account-profile {
-    padding: 1.5rem;
-    margin: 1.2rem;
+@media (max-width: 768px) {
+  .overlay-content h1 {
+    font-size: 2rem;
   }
 
-  .account-profile .button-group {
+  .overlay-content p {
+    font-size: 1rem;
+  }
+
+  .hero-buttons button {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+  }
+
+  .services-page {
+    padding: 40px 15px;
+  }
+
+  .banners-container,
+  .banner-cards-grid {
     flex-direction: column;
     align-items: center;
   }
 
-  .account-profile .button-group button {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .account-profile {
-    padding: 1rem;
+  .banner-cards-title,
+  .banners-section h2,
+  .promotions-section h2 {
+    font-size: 1.8rem;
   }
 
-  .account-profile .profile-pic,
-  .account-profile .profile-initials {
-    width: 85px;
-    height: 85px;
-    font-size: 1.6rem;
-  }
-
-  .account-profile .user-info h3 {
-    font-size: 1.2rem;
-  }
-
-  .account-profile .user-info p {
-    font-size: 0.95rem;
-  }
-
-  .account-profile .btn,
-  .account-profile .button-group button {
-    font-size: 0.9rem;
-    padding: 0.5rem 1rem;
-  }
-
-  .account-profile .review-section textarea {
-    font-size: 0.9rem;
-  }
-
-  .account-profile .close-btn {
-    top: 0.5rem;
-    right: 0.5rem;
-    font-size: 1.2rem;
-  }
-}
-
-@media screen and (max-width: 380px) {
-  .account-profile {
-    padding: 0.75rem 1rem;
-    margin: 1rem;
-    border-radius: 8px;
-  }
-
-  .account-profile .profile-pic,
-  .account-profile .profile-initials {
-    width: 70px;
-    height: 70px;
-    font-size: 1.3rem;
-    border-width: 2px;
-    margin-bottom: 0.7rem;
-  }
-
-  .account-profile .upload-label {
-    font-size: 0.85rem;
-    margin-top: -0.3rem;
-  }
-
-  .account-profile .user-info h3 {
-    font-size: 1rem;
-    margin-bottom: 0.2rem;
-  }
-
-  .account-profile .user-info p {
-    font-size: 0.85rem;
-  }
-
-  .account-profile .button-group {
-    gap: 0.6rem;
-  }
-
-  .account-profile .button-group button {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.8rem;
-    min-width: auto;
-  }
-
-  .account-profile .booking-section h4 {
-    font-size: 1rem;
-  }
-
-  .account-profile .booking-card p {
-    font-size: 0.85rem;
-  }
-
-  .account-profile .review-section label {
-    font-size: 0.85rem;
-  }
-
-  .account-profile .review-section textarea,
-  .account-profile .review-section select {
-    font-size: 0.85rem;
-  }
-
-  .account-profile .btn {
-    font-size: 0.9rem;
-    padding: 0.5rem 1rem;
-    min-width: 120px;
-  }
-
-  .account-profile .btn.danger {
-    margin-top: 0.75rem;
-  }
-
-  .account-profile .close-btn {
-    top: 0.3rem;
-    right: 0.3rem;
-    font-size: 1rem;
+  .promo-card {
+    max-width: 90%;
   }
 }

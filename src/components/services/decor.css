@@ -1,42 +1,9 @@
-/* === Root Variables === */
-:root {
-  --color-primary: #800020;
-  --color-primary-dark: #5c0015;
-  --color-light: #ffffff;
-  --color-dark: #1e1e1e;
-  --color-gray: #333;
-  --color-muted: #444;
-  --color-accent: #25d366;
-
-  --font-main: 'Segoe UI', sans-serif;
-
-  --radius-md: 0.75rem;
-  --radius-full: 9999px;
-
-  --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.08);
-  --shadow-medium: 0 4px 14px rgba(0, 0, 0, 0.2);
-  --shadow-strong: 0 6px 20px rgba(0, 0, 0, 0.15);
-
-  --transition-fast: 0.3s ease;
-
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2rem;
-  --spacing-xl: 3rem;
-
-  --font-size-sm: 0.95rem;
-  --font-size-md: 1.1rem;
-  --font-size-lg: 1.5rem;
-  --font-size-xl: 2.2rem;
-  --font-size-xxl: 3rem;
-}
 
 /* === Base Styling === */
 .decor-page-container {
   font-family: var(--font-main);
-  background-color: var(--color-light);
-  color: var(--color-dark);
+  background-color: var(--color-white);
+  color: var(--color-black);
   overflow-x: hidden;
   padding-bottom: var(--spacing-xl);
   scroll-behavior: smooth;
@@ -76,7 +43,7 @@
 }
 
 .decor-page-container .hero-title {
-  color: var(--color-light);
+  color: var(--color-white);
   font-size: var(--font-size-xxl);
   font-weight: 800;
   z-index: 3;
@@ -93,14 +60,14 @@
 
 .decor-page-container .cta-button {
   background-color: var(--color-primary);
-  color: var(--color-light);
+  color: var(--color-white);
   padding: 0.8rem 2.2rem;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-lg);
   font-weight: bold;
   border: none;
   font-size: var(--font-size-md);
   cursor: pointer;
-  box-shadow: var(--shadow-medium);
+  box-shadow: var(--shadow-md);
   transition: var(--transition-fast);
 }
 
@@ -135,7 +102,7 @@
 
 .decor-page-container .section-description {
   font-size: var(--font-size-md);
-  color: var(--color-gray);
+  color: var(--color-neutral);
   line-height: 1.6;
   max-width: 768px;
   margin: 0 auto var(--spacing-lg);
@@ -155,22 +122,22 @@
 .decor-page-container .card,
 .decor-page-container .service-card,
 .decor-page-container .testimonial-card {
-  background-color: var(--color-light);
-  border: 1px solid #ddd;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-neutral-light);
   border-radius: var(--radius-md);
-  padding: 1.2rem;
+  padding: var(--spacing-md);
   text-align: center;
   font-weight: 600;
-  color: var(--color-dark);
-  box-shadow: var(--shadow-soft);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: var(--color-black);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .decor-page-container .card:hover,
 .decor-page-container .service-card:hover,
 .decor-page-container .testimonial-card:hover {
   transform: translateY(-3px);
-  box-shadow: var(--shadow-strong);
+  box-shadow: var(--shadow-lg);
 }
 
 .decor-page-container .card-content {
@@ -178,8 +145,8 @@
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: 1rem;
-  color: var(--color-gray);
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral);
 }
 
 .decor-page-container .card-content svg {
@@ -205,8 +172,8 @@
 }
 
 .decor-page-container .creative-text p {
-  font-size: 1rem;
-  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral);
   line-height: 1.6;
 }
 
@@ -220,8 +187,8 @@
 /* === Testimonials === */
 .decor-page-container .testimonial-text {
   font-style: italic;
-  font-size: 1rem;
-  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-light);
   margin-bottom: var(--spacing-xs);
 }
 
@@ -236,8 +203,8 @@
   position: fixed;
   bottom: var(--spacing-md);
   right: var(--spacing-md);
-  background-color: var(--color-accent);
-  color: var(--color-light);
+  background-color: var(--color-accent-green);
+  color: var(--color-white);
   padding: 0.85rem;
   border-radius: 50%;
   display: flex;
@@ -254,33 +221,7 @@
 .decor-page-container .whatsapp-button svg {
   width: 24px;
   height: 24px;
-  color: var(--color-light);
-}
-
-/* === Animations === */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideInDown {
-  from { opacity: 0; transform: translateY(-50px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInZoom {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes popIn {
-  from { transform: scale(0); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  color: var(--color-white);
 }
 
 /* === Responsive === */
@@ -288,25 +229,20 @@
   .decor-page-container .hero-title {
     font-size: 2.2rem;
   }
-
   .decor-page-container .section-title {
     font-size: 1.7rem;
   }
-
   .decor-page-container .section-subtitle {
     font-size: 1.3rem;
   }
-
   .decor-page-container .section-description {
     font-size: 1rem;
   }
-
   .decor-page-container .cta-button {
     font-size: 1rem;
     width: 90%;
     max-width: 300px;
   }
-
   .decor-page-container .creative-layout {
     grid-template-columns: 1fr;
   }
@@ -316,20 +252,16 @@
   .decor-page-container .hero-title {
     font-size: 1.8rem;
   }
-
   .decor-page-container .section-title {
     font-size: 1.5rem;
   }
-
   .decor-page-container .section-subtitle {
     font-size: 1.2rem;
   }
-
   .decor-page-container .section-description {
     font-size: 0.95rem;
     padding: 0 1rem;
   }
-
   .decor-page-container .media-grid,
   .decor-page-container .testimonial-grid,
   .decor-page-container .card-grid,

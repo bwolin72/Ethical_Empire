@@ -1,12 +1,7 @@
-:root {
-  --deep-burgundy: #4A001F;
-  --royal-navy-blue: #1B2A49;
-  --muted-gold: #C5A880;
-  --forest-green: #3E5F4B;
-  --charcoal-gray: #333333;
-  --text-light: #ffffff;
-  --text-dark: #111111;
-}
+/* ========================================================
+   🎨 Refactored LiveBand Styles — uses variables.css
+   Matches: E:/New folder/ethical_empire/frontend/src/components/styles/variables.css
+   ======================================================== */
 
 /* === Reset & Container === */
 .liveband-page * {
@@ -16,15 +11,15 @@
 }
 
 .liveband-page {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--text-dark);
-  background-color: #fff;
+  font-family: var(--font-main);
+  color: var(--color-black);
+  background-color: var(--color-white);
   animation: fadeInPage 0.8s ease-in-out;
 }
 
 .media-gallery-section {
   padding: 3rem 1rem;
-  background-color: #fefefe;
+  background-color: var(--color-white);
   text-align: center;
 }
 
@@ -32,7 +27,7 @@
   font-size: 1rem;
   max-width: 700px;
   margin: 0 auto 2rem;
-  color: var(--charcoal-gray);
+  color: var(--color-neutral);
   text-align: center;
   line-height: 1.6;
 }
@@ -41,7 +36,7 @@
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
-  color: var(--deep-burgundy);
+  color: var(--color-primary);
 }
 
 .shimmer {
@@ -62,13 +57,12 @@
 
 .creative-media img {
   max-width: 100%;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
 }
 
 .service-card:hover {
   transform: translateY(-5px);
 }
-
 
 @keyframes fadeInPage {
   from { opacity: 0; transform: translateY(20px); }
@@ -101,13 +95,13 @@
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  color: var(--text-light);
+  color: var(--color-white);
 }
 
 .hero-banner-placeholder {
-  background-color: #ccc;
+  background-color: var(--color-neutral-light);
   font-weight: bold;
-  color: #333;
+  color: var(--color-neutral);
 }
 
 .hero-overlay {
@@ -116,20 +110,20 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(74, 0, 31, 0.5);
+  background: rgba(88, 28, 28, 0.5);
   z-index: 1;
 }
 
 .hero-title {
   position: absolute;
   z-index: 2;
-  color: var(--text-light);
+  color: var(--color-white);
   font-size: 2.5rem;
   font-weight: bold;
   padding: 1rem 2rem;
   text-align: center;
   background: rgba(0, 0, 0, 0.4);
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   animation: fadeInSlide 1s ease-in-out;
 }
 
@@ -142,27 +136,26 @@
 .cta-button {
   margin: 2rem auto;
   display: block;
-  background-color: var(--deep-burgundy);
-  color: var(--text-light);
+  background-color: var(--color-primary);
+  color: var(--color-white);
   padding: 0.75rem 1.75rem;
   font-size: 1.1rem;
   border: none;
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .cta-button:hover {
-  background-color: #3c001a;
+  background-color: var(--color-primary-dark);
   transform: scale(1.08);
 }
 
-/* === Section Titles === */
 .section-title {
   text-align: center;
   font-size: 2rem;
   margin: 2.5rem 0 1.5rem;
-  color: var(--deep-burgundy);
+  color: var(--color-primary);
   animation: fadeInPage 1s ease-in-out;
 }
 
@@ -175,14 +168,14 @@
 }
 
 .card {
-  background-color: rgba(74, 0, 31, 0.6);
-  color: var(--text-light);
+  background-color: rgba(88, 28, 28, 0.6);
+  color: var(--color-white);
   padding: 1.25rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   font-weight: 500;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
   transform: scale(0.95);
-  transition: all 0.4s ease;
+  transition: all var(--transition-slow);
 }
 
 .card:hover {
@@ -220,13 +213,13 @@
 
 .creative-text {
   max-width: 600px;
-  color: var(--text-dark);
+  color: var(--color-black);
   text-align: center;
 }
 
 .creative-text h3 {
   font-size: 1.5rem;
-  color: var(--deep-burgundy);
+  color: var(--color-primary);
   margin-bottom: 1rem;
 }
 
@@ -236,7 +229,7 @@
 
 /* === Testimonials === */
 .testimonial-section {
-  background-color: #fff;
+  background-color: var(--color-white);
   padding: 3rem 1rem;
 }
 
@@ -247,10 +240,10 @@
 }
 
 .testimonial-card {
-  background-color: #f8f8f8;
+  background-color: var(--color-neutral-light);
   padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   font-style: italic;
   animation: fadeInPage 0.6s ease-in;
   transition: transform 0.3s ease;
@@ -264,7 +257,7 @@
   font-weight: bold;
   text-align: right;
   margin-top: 0.75rem;
-  color: var(--deep-burgundy);
+  color: var(--color-primary);
 }
 
 @media (min-width: 600px) {
@@ -284,17 +277,17 @@
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  background-color: var(--forest-green);
-  color: #fff;
+  background-color: var(--color-accent-green);
+  color: var(--color-white);
   padding: 1rem;
   border-radius: 50%;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
   z-index: 999;
   animation: bounceIn 1s ease;
 }
 
 .whatsapp-button:hover {
-  background-color: #2e4837;
+  background-color: var(--color-accent-green-dark);
   transform: scale(1.1);
 }
 
@@ -309,7 +302,6 @@
   100% { transform: scale(1); }
 }
 
-/* === Mobile Tweaks === */
 @media (max-width: 480px) {
   .hero-title {
     font-size: 1.5rem;
@@ -334,16 +326,14 @@
   }
 }
 
-/* === Smooth Scrolling === */
 html {
   scroll-behavior: smooth;
 }
 
-/* === Background Decorative Icons === */
 .section::before {
   content: '';
   position: absolute;
-  background-image: url('/public/assets/icons/music-notes.svg'); /* Replace with your icon path */
+  background-image: url('/public/assets/icons/music-notes.svg');
   background-repeat: no-repeat;
   background-size: 150px;
   opacity: 0.05;
@@ -364,7 +354,6 @@ html {
   transform: rotate(180deg);
 }
 
-/* ✅ Add to support JSX class usage */
 .banner-section {
   position: relative;
   width: 100%;
@@ -373,7 +362,7 @@ html {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-image: url('../../../src/assets/images/celebration.jpg'); /* optional */
+  background-image: url('../../../src/assets/images/celebration.jpg');
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -382,7 +371,7 @@ html {
 .hero-subtitle {
   position: relative;
   z-index: 2;
-  color: var(--text-light);
+  color: var(--color-white);
   font-size: 1.25rem;
   margin-top: 1rem;
   text-align: center;
@@ -400,29 +389,28 @@ html {
 }
 
 .services-section {
-  background-color: #fafafa;
+  background-color: var(--color-neutral-light);
 }
 
 .service-card {
-  background-color: var(--royal-navy-blue);
-  color: var(--text-light);
+  background-color: var(--color-secondary);
+  color: var(--color-white);
   padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 .card-content {
   font-size: 1rem;
   line-height: 1.5;
 }
-/* Floating animation */
+
 @keyframes float {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
 }
 
-/* === Layer Control for Decorative Icons === */
 .section,
 .hero-banner,
 .creative-section,
@@ -431,7 +419,6 @@ html {
   z-index: 1;
 }
 
-/* Ensure content is above background icons */
 .section > * {
   position: relative;
   z-index: 2;

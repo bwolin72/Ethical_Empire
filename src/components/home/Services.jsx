@@ -89,6 +89,9 @@ const Services = () => {
                 <div className="card-inner">
                   <div className="card-front">
                     <h3>{srv.name}</h3>
+                    <p className="short-description">
+                      {srv.description?.slice(0, 60) || 'Click to learn more...'}
+                    </p>
                   </div>
                   <div className="card-back">
                     <p>{srv.description || 'No description available.'}</p>
@@ -105,3 +108,4 @@ const Services = () => {
 };
 
 export default Services;
+// Company: Ethical Multimedia GH

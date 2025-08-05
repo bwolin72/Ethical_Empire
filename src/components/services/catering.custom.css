@@ -1,31 +1,8 @@
-:root {
-  --color-burgundy: #800020;
-  --color-navy: #1a237e;
-  --color-gold: #caa969;
-  --color-sand: #e4cfa4;
-  --color-green: #3b5e3b;
-  --color-olive: #708238;
-  --color-charcoal: #333333;
-  --color-cream: #fdf5e6;
-  --color-white: #ffffff;
-  --color-silver: #c0c0c0;
-
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 2rem;
-
-  --font-base: 1rem;
-  --font-md: 1.25rem;
-  --font-lg: 2rem;
-
-  --transition-default: all 0.3s ease-in-out;
-}
-
 /* === Global Container === */
 .catering-page-container {
   padding: var(--spacing-lg);
-  background-color: var(--color-cream);
-  color: var(--color-charcoal);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
   scroll-behavior: smooth;
 }
 
@@ -41,18 +18,18 @@
 }
 
 .cta-button {
-  background-color: var(--color-burgundy);
+  background-color: var(--color-primary);
   color: var(--color-white);
   padding: 0.75rem 1.5rem;
   font-size: var(--font-md);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: var(--transition-default);
 }
 
 .cta-button:hover {
-  background-color: #6a001a;
+  background-color: var(--color-primary-dark);
 }
 
 /* === Section Styles === */
@@ -63,7 +40,7 @@
 .section h2 {
   font-size: var(--font-lg);
   margin-bottom: var(--spacing-md);
-  color: var(--color-navy);
+  color: var(--color-secondary);
 }
 
 /* === Grid Layouts === */
@@ -75,14 +52,14 @@
 
 .card {
   background-color: var(--color-white);
-  border: 1px solid var(--color-silver);
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   transition: var(--transition-default);
 }
 
 .card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
 }
 
 .card-content {
@@ -106,7 +83,7 @@
 
 .creative-text {
   flex: 1 1 300px;
-  color: var(--color-burgundy);
+  color: var(--color-primary);
 }
 
 .creative-text h3 {
@@ -127,10 +104,10 @@
 }
 
 .dietary-card {
-  background-color: var(--color-gold);
-  color: var(--color-charcoal);
+  background-color: var(--color-accent-gold);
+  color: var(--color-neutral-dark);
   padding: var(--spacing-md);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   text-align: center;
   transition: var(--transition-default);
   display: flex;
@@ -139,7 +116,7 @@
 }
 
 .dietary-card:hover {
-  background-color: var(--color-sand);
+  background-color: var(--color-accent-gold-light);
 }
 
 .dietary-icon {
@@ -157,8 +134,8 @@
 .testimonial-card {
   background-color: var(--color-white);
   padding: var(--spacing-md);
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .testimonial-text {
@@ -169,24 +146,20 @@
 .testimonial-user {
   text-align: right;
   font-weight: bold;
-  color: var(--color-navy);
+  color: var(--color-secondary);
 }
 
-/* === Skeleton === */
+/* === Skeleton Loader === */
 .skeleton {
-  background: var(--color-silver);
+  background: var(--color-neutral-light);
   height: 120px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   animation: shimmer 1.2s infinite linear;
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
 }
 
 /* === WhatsApp Button === */
@@ -194,11 +167,11 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #25d366;
-  color: white;
+  background-color: var(--color-success);
+  color: var(--color-white);
   padding: 0.75rem;
   border-radius: 50%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,7 +180,7 @@
 }
 
 .whatsapp-button:hover {
-  background-color: #1ebea5;
+  background-color: #1ebea5; /* closest to success-light */
 }
 
 /* === Responsive (<= 768px) === */
