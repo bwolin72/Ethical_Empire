@@ -183,12 +183,12 @@ const About = () => {
         <div className="team-grid">
           <div className="team-member">
             <img src="/team/jane.jpg" alt="Jane" />
-            <h4>Jane Doe</h4>
-            <p>Creative Director</p>
+            <h4>Mrs. Eunice Chai</h4>
+            <p>Operation Manager</p>
           </div>
           <div className="team-member">
             <img src="/team/john.jpg" alt="John" />
-            <h4>John Smith</h4>
+            <h4>Mr. Nhyira Nana Joseph</h4>
             <p>Event Manager</p>
           </div>
         </div>

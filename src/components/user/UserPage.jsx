@@ -39,7 +39,6 @@ const UserPage = () => {
         const [
           profileRes,
           mediaRes,
-          featuredRes,
           reviewsRes,
           promoRes,
           videosRes,
@@ -49,7 +48,6 @@ const UserPage = () => {
             params: { type: "media", endpoint: "UserPage", is_active: true },
             signal,
           }),
-          axiosInstance.get("/media/featured/?endpoint=UserPage", { signal }),
           axiosInstance.get("/reviews/", { signal }),
           axiosInstance.get("/promotions/", { signal }),
           axiosInstance.get("/api/videos/?endpoint=UserPage", { signal }),

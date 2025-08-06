@@ -162,7 +162,7 @@ const ContactForm = () => {
           <div className="info-row">
             <div className="info-block">
               <h3>Manager</h3>
-              <p><strong>Name:</strong> Mr. Nhyirab Nana Joseph</p>
+              <p><strong>Name:</strong> Mr. Nhyira Nana Joseph</p>
               <p><strong>Email:</strong> asaasebandeethm@gmail.com</p>
               <p><strong>Phone:</strong> +233 55 603 6565</p>
               <p><strong>WhatsApp:</strong> +233 55 298 8735</p>
