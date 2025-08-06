@@ -42,7 +42,7 @@ const VideoManagerAdmin = () => {
 
   const fetchVideos = async () => {
     try {
-      const res = await axiosInstance.get('/api/videos/');
+      const res = await axiosInstance.get('/videos/');
       setVideos(res.data);
     } catch (err) {
       console.error('Failed to fetch videos:', err);
@@ -51,7 +51,7 @@ const VideoManagerAdmin = () => {
 
   const handleToggleActive = async (id) => {
     try {
-      await axiosInstance.patch(`/api/videos/${id}/toggle_active/`);
+      await axiosInstance.patch(`/videos/${id}/toggle_active/`);
       fetchVideos();
     } catch (err) {
       console.error('Toggle active failed:', err);
@@ -60,7 +60,7 @@ const VideoManagerAdmin = () => {
 
   const handleToggleFeatured = async (id) => {
     try {
-      await axiosInstance.patch(`/api/videos/${id}/toggle_featured/`);
+      await axiosInstance.patch(`/videos/${id}/toggle_featured/`);
       fetchVideos();
     } catch (err) {
       console.error('Toggle featured failed:', err);
@@ -76,7 +76,7 @@ const VideoManagerAdmin = () => {
       setVideos(reordered);
 
       try {
-        await axiosInstance.post('/api/videos/reorder/', {
+        await axiosInstance.post('/videos/reorder/', {
           order: reordered.map((v) => v.id),
         });
       } catch (err) {
