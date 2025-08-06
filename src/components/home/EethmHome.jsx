@@ -64,7 +64,7 @@ const EethmHome = () => {
   useEffect(() => {
     const controller = new AbortController();
 
-    axiosCommon.get('/api/videos/')
+    axiosCommon.get('/videos/')
       .then(res => {
         const all = Array.isArray(res.data) ? res.data : [];
         const filtered = all.filter(v => v.is_active && v.endpoints.includes('EethmHome'));

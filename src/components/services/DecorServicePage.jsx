@@ -46,7 +46,7 @@ const DecorPage = () => {
           },
         }),
         publicAxios.get('/reviews/'),
-        axiosCommon.get('/api/videos/?endpoint=DecorPage&is_active=true'),
+        axiosCommon.get('/videos/?endpoint=DecorPage&is_active=true'),
       ]);
 
       const media = Array.isArray(mediaRes.data?.results) ? mediaRes.data.results : [];

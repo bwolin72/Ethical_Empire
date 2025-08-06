@@ -42,7 +42,7 @@ const MediaHostingServicePage = () => {
   useEffect(() => {
     const fetchVideo = async () => {
       try {
-        const res = await axiosCommon.get('/api/videos/', {
+        const res = await axiosCommon.get('/videos/', {
           params: { endpoint: 'mediaHostingServicePage', is_active: true },
         });
         if (res.data.length > 0) setVideoUrl(res.data[0].video_url);
@@ -68,7 +68,7 @@ const MediaHostingServicePage = () => {
 
     try {
       // Example backend POST endpoint (replace with actual if needed)
-      await axiosCommon.post('/api/bookings/', {
+      await axiosCommon.post('/bookings/', {
         ...data,
         phone,
         service_type: 'Media Hosting',

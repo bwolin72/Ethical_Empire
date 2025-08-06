@@ -68,7 +68,7 @@ const CateringPage = () => {
     fetchData();
 
     axiosCommon
-      .get('/api/videos/?endpoint=CateringPage&is_active=true')
+      .get('/videos/?endpoint=CateringPage&is_active=true')
       .then(res => {
         if (Array.isArray(res.data) && res.data.length > 0) {
           setVideoUrl(res.data[0].video_url);

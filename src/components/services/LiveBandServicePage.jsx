@@ -30,7 +30,7 @@ const LiveBandServicePage = () => {
       try {
         const [reviewRes, videoRes] = await Promise.all([
           publicAxios.get('/reviews/'),
-          axiosCommon.get('/api/videos/?endpoint=LiveBandServicePage&is_active=true'),
+          axiosCommon.get('/videos/?endpoint=LiveBandServicePage&is_active=true'),
         ]);
         setTestimonials(Array.isArray(reviewRes.data) ? reviewRes.data : []);
 

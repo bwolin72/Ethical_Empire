@@ -50,7 +50,7 @@ const UserPage = () => {
           }),
           axiosInstance.get("/reviews/", { signal }),
           axiosInstance.get("/promotions/", { signal }),
-          axiosInstance.get("/api/videos/?endpoint=UserPage", { signal }),
+          axiosInstance.get("/videos/?endpoint=UserPage", { signal }),
         ]);
 
         setProfile(profileRes.data);

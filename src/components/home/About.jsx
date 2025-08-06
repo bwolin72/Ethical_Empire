@@ -72,7 +72,7 @@ const About = () => {
 
     const fetchVideoHero = async () => {
       try {
-        const res = await axiosCommon.get('/api/videos/?endpoint=About&is_active=true');
+        const res = await axiosCommon.get('/videos/?endpoint=About&is_active=true');
         const videoList = Array.isArray(res.data) ? res.data : [];
         const featured = videoList.find(v => v.is_featured) || videoList[0];
         if (featured?.video_url) setVideoHeroUrl(featured.video_url);

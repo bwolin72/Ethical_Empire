@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { logoutHelper } from '../../utils/logoutHelper';
 import './Navbar.css';
 import logo from '../../assets/logo.png';
@@ -10,18 +10,22 @@ function Navbar() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 960);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
+  // Update login state on route change
   useEffect(() => {
     const access = localStorage.getItem('access') || sessionStorage.getItem('access');
     const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
     setIsLoggedIn(!!(access && refresh));
   }, [location]);
 
+  // Close menu and dropdown on route change
   useEffect(() => {
     setMenuOpen(false);
     setDropdownOpen(false);
   }, [location]);
 
+  // Handle screen resize
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 960;
@@ -38,6 +42,15 @@ function Navbar() {
   const handleLogout = async () => {
     await logoutHelper();
     setIsLoggedIn(false);
+  };
+
+  // Handle click on Services label (navigate to /services)
+  const handleServicesClick = (e) => {
+    if (isMobile) {
+      toggleDropdown();
+    } else {
+      navigate('/services');
+    }
   };
 
   return (
@@ -61,7 +74,7 @@ function Navbar() {
           </li>
           <li
             className="nav-item dropdown"
-            onClick={() => isMobile && toggleDropdown()}
+            onClick={handleServicesClick}
             onMouseEnter={() => !isMobile && setDropdownOpen(true)}
             onMouseLeave={() => !isMobile && setDropdownOpen(false)}
           >
