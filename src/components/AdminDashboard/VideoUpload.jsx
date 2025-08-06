@@ -43,7 +43,9 @@ const VideoManagerAdmin = () => {
   const fetchVideos = async () => {
     try {
       const res = await axiosInstance.get('/videos/');
-      setVideos(res.data);
+      console.log('Fetched videos:', res.data); // Check if this is an array or object
+      // Adjust below if API returns { results: [...] }
+      setVideos(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Failed to fetch videos:', err);
     }
@@ -85,13 +87,20 @@ const VideoManagerAdmin = () => {
     }
   };
 
+  if (!Array.isArray(videos)) {
+    return <div>Error: Videos data is invalid.</div>;
+  }
+
   return (
     <div className="video-admin-panel">
       <h2>📽️ Video Manager</h2>
 
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={videos.map((v) => v.id)} strategy={verticalListSortingStrategy}>
-          {videos.map((video, index) => (
+        <SortableContext
+          items={Array.isArray(videos) ? videos.map((v) => v.id) : []}
+          strategy={verticalListSortingStrategy}
+        >
+          {Array.isArray(videos) && videos.map((video, index) => (
             <SortableItem
               key={video.id}
               video={video}

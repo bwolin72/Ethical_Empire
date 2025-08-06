@@ -42,7 +42,8 @@ const UserRoleManager = () => {
     setLoading(true);
     try {
       const res = await axiosInstance.get(`/accounts/admin/list-users/?role=${role}`);
-      setUsers(Array.isArray(res.data.results) ? res.data.results : []);
+      console.log('[UserRoleManager] Fetched:', res.data);
+      setUsers(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
       console.error('[UserRoleManager] Fetch error:', err);
       toast.error('Failed to fetch users');
