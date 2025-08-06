@@ -4,10 +4,10 @@ import axios from 'axios';
 import baseURL from './baseURL';
 import { applyCommonRequestHeaders, devLog as rawDevLog } from './axiosCommon';
 import { logoutHelper } from '../utils/authUtils';
-import { getCookie } from '../utils/csrf'; // ✅ Include CSRF util
 
 const MAX_RETRIES = 2;
 
+// Log only in development
 const devLog = (...args) => {
   if (process.env.NODE_ENV === 'development') {
     rawDevLog(...args);
@@ -16,8 +16,7 @@ const devLog = (...args) => {
 
 const axiosInstance = axios.create({
   baseURL,
-  timeout: 30000,
-  withCredentials: true, // ✅ Required for CSRF cookies to be sent
+  timeout: 30000, // 30 seconds timeout
 });
 
 // Request Interceptor
@@ -26,6 +25,7 @@ axiosInstance.interceptors.request.use(
     config = applyCommonRequestHeaders(config, true);
     devLog('[Request]', config.method?.toUpperCase(), config.url, config);
 
+    // Attach retry metadata
     if (!config.metadata) config.metadata = { retryCount: 0 };
 
     const rememberStored = localStorage.getItem('remember');
@@ -33,18 +33,10 @@ axiosInstance.interceptors.request.use(
     const storage = remember ? localStorage : sessionStorage;
 
     const token = storage.getItem('access');
+    devLog('[Auth] Using', remember ? 'localStorage' : 'sessionStorage', 'Access:', token?.slice(0, 20) + '...');
+
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
-      devLog('[Auth] Using', remember ? 'localStorage' : 'sessionStorage', 'Access:', token?.slice(0, 20) + '...');
-    }
-
-    // ✅ Attach CSRF token for unsafe methods
-    const method = config.method?.toUpperCase();
-    const csrfToken = getCookie('csrftoken');
-    const unsafeMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
-    if (unsafeMethods.includes(method) && csrfToken) {
-      config.headers['X-CSRFToken'] = csrfToken;
-      devLog('[CSRF] Attached token:', csrfToken.slice(0, 10) + '...');
     }
 
     return config;
@@ -75,16 +67,19 @@ axiosInstance.interceptors.response.use(
     devLog('[Error]', status, originalRequest?.url);
     devLog('[Access Expired?]', accessToken?.slice(0, 20) + '...');
 
+    // Handle network errors (CORS, DNS, etc.)
     if (!error.response) {
       devLog('[Network Error]', error.message);
       return Promise.reject(error);
     }
 
+    // Timeout error
     if (error.code === 'ECONNABORTED') {
       devLog('[Timeout Error]', error.message);
       return Promise.reject(error);
     }
 
+    // Attempt token refresh for 401s
     if (status === 401 && !originalRequest._retry) {
       devLog('[Token] Access expired, attempting refresh...');
       originalRequest._retry = true;
@@ -116,6 +111,7 @@ axiosInstance.interceptors.response.use(
       }
     }
 
+    // Retry server or network errors (5xx)
     const shouldRetry = (
       !originalRequest._retrying &&
       (!error.response || (status >= 500 && status < 600))
@@ -128,6 +124,7 @@ axiosInstance.interceptors.response.use(
       return axiosInstance(originalRequest);
     }
 
+    // Final fallback for persistent 401
     if (status === 401) {
       devLog('[Auth] Final 401. Logging out.');
       logoutHelper();
