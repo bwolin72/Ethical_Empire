@@ -24,7 +24,6 @@ const UserPage = () => {
   const [videos, setVideos] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [featured, setFeatured] = useState([]);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
   const [loading, setLoading] = useState(true);
   const [subscriberEmail, setSubscriberEmail] = useState("");
@@ -58,7 +57,6 @@ const UserPage = () => {
 
         setProfile(profileRes.data);
         setMedia(mediaRes.data?.results || []);
-        setFeatured(featuredRes.data?.results || []);
         setReviews(reviewsRes.data || []);
         setPromotions(promoRes.data || []);
         setVideos(videosRes.data?.results || []);
@@ -70,7 +68,6 @@ const UserPage = () => {
     };
 
     fetchData();
-
     return () => controller.abort();
   }, []);
 
@@ -229,7 +226,9 @@ const UserPage = () => {
               ) : (
                 <p className="empty-text">No reviews yet.</p>
               )}
-              <button className="review-btn" onClick={() => navigate("/account#reviews")}>Write a Review</button>
+              <button className="review-btn" onClick={() => navigate("/account#reviews")}>
+                Write a Review
+              </button>
             </div>
           </section>
 

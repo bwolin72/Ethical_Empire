@@ -40,7 +40,6 @@ const EethmHome = () => {
   const [reviews, setReviews] = useState([]);
   const [reviewError, setReviewError] = useState(null);
   const [videos, setVideos] = useState([]);
-  const [videoError, setVideoError] = useState(null);
 
   const {
     media: heroMediaArr,
@@ -72,8 +71,7 @@ const EethmHome = () => {
         setVideos(filtered);
       })
       .catch(err => {
-        console.error('Video fetch error:', err);
-        setVideoError('❌ Failed to load videos.');
+        console.error('❌ Failed to load videos.', err);
       });
 
     axiosCommon.get('/promotions/active/', { signal: controller.signal })

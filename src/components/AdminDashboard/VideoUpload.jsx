@@ -3,18 +3,12 @@ import axiosInstance from '../../api/axiosInstance';
 import './VideoUpload.css';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const ENDPOINT_OPTIONS = [
-  'EethmHome', 'UserPage', 'About', 'CateringServicePage',
-  'LiveBandServicePage', 'DecorServicePage', 'MediaHostingServicePage',
-  'VendorPage', 'PartnerPage', 'AgencyDashboard',
-];
-
 const SortableItem = ({ video, index, onToggleActive, onToggleFeatured, onPreview }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: video.id });
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -28,7 +22,9 @@ const SortableItem = ({ video, index, onToggleActive, onToggleFeatured, onPrevie
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <p><strong>{video.label}</strong></p>
-      <p>Type: {video.type} | Active: {video.is_active ? '✅' : '❌'} | Featured: {video.is_featured ? '⭐' : '—'}</p>
+      <p>
+        Type: {video.type} | Active: {video.is_active ? '✅' : '❌'} | Featured: {video.is_featured ? '⭐' : '—'}
+      </p>
       <button onClick={() => onToggleActive(video.id)}>Toggle Active</button>
       <button onClick={() => onToggleFeatured(video.id)}>Toggle Featured</button>
       <button onClick={() => onPreview(video)}>Preview</button>
@@ -79,7 +75,6 @@ const VideoManagerAdmin = () => {
       const reordered = arrayMove(videos, oldIndex, newIndex);
       setVideos(reordered);
 
-      // Optional: send new order to backend
       try {
         await axiosInstance.post('/api/videos/reorder/', {
           order: reordered.map((v) => v.id),
@@ -93,6 +88,7 @@ const VideoManagerAdmin = () => {
   return (
     <div className="video-admin-panel">
       <h2>📽️ Video Manager</h2>
+
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={videos.map((v) => v.id)} strategy={verticalListSortingStrategy}>
           {videos.map((video, index) => (
@@ -108,7 +104,6 @@ const VideoManagerAdmin = () => {
         </SortableContext>
       </DndContext>
 
-      {/* Preview Modal */}
       {previewVideo && (
         <div className="video-modal">
           <div className="video-modal-content">
