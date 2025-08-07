@@ -15,7 +15,7 @@ body, .eethm-home-page {
 }
 
 /* === Hero Section === */
-.video-hero-section {
+.eethm-home-page.video-hero-section {
   position: relative;
   height: 100vh;
   width: 100vw;
@@ -26,7 +26,7 @@ body, .eethm-home-page {
   background: var(--color-black);
 }
 
-.background-video {
+.eethm-home-page .background-video {
   position: absolute;
   top: 0;
   left: 0;
@@ -36,13 +36,13 @@ body, .eethm-home-page {
   z-index: 1;
 }
 
-.background-video[type="image"] {
+.eethm-home-page .background-video[type="image"] {
   object-fit: cover;
   width: 100%;
   height: 100%;
 }
 
-.overlay-content {
+.eethm-home-page .overlay-content {
   position: relative;
   z-index: 2;
   text-align: center;
@@ -50,26 +50,26 @@ body, .eethm-home-page {
   padding: 20px;
 }
 
-.overlay-content h1 {
+.eethm-home-page .overlay-content h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
   color: var(--color-accent-gold);
 }
 
-.overlay-content p {
+.eethm-home-page .overlay-content p {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
   color: var(--color-neutral-light);
 }
 
-.hero-buttons {
+.eethm-home-page .hero-buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.hero-buttons button {
+.eethm-home-page .hero-buttons button {
   padding: 12px 24px;
   border: none;
   border-radius: var(--radius-sm);
@@ -79,25 +79,25 @@ body, .eethm-home-page {
   transition: background-color var(--transition-fast);
 }
 
-.hero-buttons button:first-child {
+.eethm-home-page .hero-buttons button:first-child {
   background-color: var(--color-secondary);
   color: var(--color-white);
 }
 
-.hero-buttons button:first-child:hover {
+.eethm-home-page .hero-buttons button:first-child:hover {
   background-color: var(--color-secondary-dark);
 }
 
-.newsletter-btn {
+.eethm-home-page .newsletter-btn {
   background-color: var(--color-primary);
   color: var(--color-white);
 }
 
-.newsletter-btn:hover {
+.eethm-home-page .newsletter-btn:hover {
   background-color: var(--color-primary-dark);
 }
 
-.mute-button {
+.eethm-home-page .mute-button {
   position: absolute;
   top: 20px;
   right: 20px;
@@ -109,7 +109,7 @@ body, .eethm-home-page {
   cursor: pointer;
 }
 
-.video-fallback {
+.eethm-home-page .video-fallback {
   color: var(--color-white);
   font-size: 1.5rem;
   text-align: center;
@@ -117,38 +117,38 @@ body, .eethm-home-page {
 }
 
 /* === Fade-in Reveal Animation === */
-.fade-in-section {
+.eethm-home-page .fade-in-section {
   opacity: 0;
   transform: translateY(20px);
   transition: all var(--transition-slow);
 }
 
-.fade-in-section.is-visible {
+.eethm-home-page .fade-in-section.is-visible {
   opacity: 1;
   transform: none;
 }
 
 /* === Services Section === */
-.services-page {
+.eethm-home-page .services-page {
   padding: 60px 30px;
   background: var(--color-white);
 }
 
-.services-page h2 {
+.eethm-home-page .services-page h2 {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 40px;
   color: var(--color-secondary);
 }
 
-.service-list {
+.eethm-home-page .service-list {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 30px;
 }
 
-.service-item {
+.eethm-home-page .service-item {
   background: var(--color-white);
   padding: 20px;
   border-radius: var(--radius-md);
@@ -160,58 +160,58 @@ body, .eethm-home-page {
   transition: transform var(--transition-fast);
 }
 
-.service-item:hover {
+.eethm-home-page .service-item:hover {
   transform: translateY(-5px);
 }
 
-.service-item h3 {
+.eethm-home-page .service-item h3 {
   font-size: 1.25rem;
   margin-bottom: 10px;
   color: var(--color-primary);
 }
 
-.service-item p,
-.service-item li {
+.eethm-home-page .service-item p,
+.eethm-home-page .service-item li {
   font-size: 1rem;
   margin-bottom: 6px;
 }
 
-.service-item ul {
+.eethm-home-page .service-item ul {
   padding-left: 20px;
   margin-bottom: 10px;
 }
 
-.service-item a {
+.eethm-home-page .service-item a {
   color: var(--color-secondary);
   text-decoration: underline;
   font-weight: bold;
 }
 
 /* === Banners & Media Cards === */
-.banner-cards-container,
-.banners-section {
+.eethm-home-page .banner-cards-container,
+.eethm-home-page .banners-section {
   padding: 40px 20px;
   text-align: center;
 }
 
-.banner-cards-title,
-.banners-section h2 {
+.eethm-home-page .banner-cards-title,
+.eethm-home-page .banners-section h2 {
   font-size: 2.2rem;
   color: var(--color-secondary);
   margin-bottom: 30px;
 }
 
-.banner-cards-grid,
-.banners-container {
+.eethm-home-page .banner-cards-grid,
+.eethm-home-page .banners-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 25px;
 }
 
-.banner-card,
-.banner-item,
-.media-card-wrapper {
+.eethm-home-page .banner-card,
+.eethm-home-page .banner-item,
+.eethm-home-page .media-card-wrapper {
   background-color: var(--color-neutral-light);
   border-radius: var(--radius-md);
   padding: 10px;
@@ -221,30 +221,30 @@ body, .eethm-home-page {
   transition: transform var(--transition-fast);
 }
 
-.banner-card:hover,
-.banner-item:hover,
-.media-card-wrapper:hover {
+.eethm-home-page .banner-card:hover,
+.eethm-home-page .banner-item:hover,
+.eethm-home-page .media-card-wrapper:hover {
   transform: scale(1.02);
 }
 
-.banner-card img,
-.banner-item img,
-.banner-item video,
-.media-preview {
+.eethm-home-page .banner-card img,
+.eethm-home-page .banner-item img,
+.eethm-home-page .banner-item video,
+.eethm-home-page .media-preview {
   width: 100%;
   height: auto;
   border-radius: var(--radius-sm);
   margin-bottom: 10px;
 }
 
-.banner-card-caption,
-.banner-item h4 {
+.eethm-home-page .banner-card-caption,
+.eethm-home-page .banner-item h4 {
   font-size: 1.1rem;
   color: var(--color-accent-green);
   margin-top: 5px;
 }
 
-.media-preview.fallback {
+.eethm-home-page .media-preview.fallback {
   background-color: var(--color-neutral);
   color: var(--color-white);
   padding: 20px;
@@ -252,32 +252,32 @@ body, .eethm-home-page {
   border-radius: var(--radius-sm);
 }
 
-.media-preview.fallback a {
+.eethm-home-page .media-preview.fallback a {
   color: var(--color-accent-gold);
   text-decoration: underline;
 }
 
 /* === Promotions Section === */
-.promotions-section {
+.eethm-home-page .promotions-section {
   padding: 60px 30px;
   background-color: var(--color-white);
   text-align: center;
 }
 
-.promotions-section h2 {
+.eethm-home-page .promotions-section h2 {
   font-size: 2.5rem;
   color: var(--color-primary);
   margin-bottom: 30px;
 }
 
-.promos-container {
+.eethm-home-page .promos-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 30px;
 }
 
-.promo-card {
+.eethm-home-page .promo-card {
   background-color: var(--color-neutral-light);
   border-radius: var(--radius-md);
   padding: 20px;
@@ -289,54 +289,54 @@ body, .eethm-home-page {
   transition: transform var(--transition-fast);
 }
 
-.promo-card:hover {
+.eethm-home-page .promo-card:hover {
   transform: translateY(-5px);
 }
 
-.promo-card img {
+.eethm-home-page .promo-card img {
   width: 100%;
   height: auto;
   border-radius: var(--radius-md);
   margin-bottom: 12px;
 }
 
-.promo-content h3 {
+.eethm-home-page .promo-content h3 {
   font-size: 1.25rem;
   color: var(--color-secondary);
   margin-bottom: 10px;
 }
 
-.promo-content p {
+.eethm-home-page .promo-content p {
   font-size: 1rem;
   margin-bottom: 8px;
 }
 
-.discount {
+.eethm-home-page .discount {
   color: var(--color-accent-green);
   font-weight: bold;
 }
 
-.validity {
+.eethm-home-page .validity {
   font-size: 0.9rem;
   color: var(--color-neutral-dark);
   font-style: italic;
 }
 
 /* === Reviews Section === */
-.reviews-section {
+.eethm-home-page .reviews-section {
   padding: 60px 30px;
   background-color: var(--color-neutral-light);
   text-align: center;
 }
 
-.reviews-container {
+.eethm-home-page .reviews-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 30px;
 }
 
-.review-card {
+.eethm-home-page .review-card {
   background-color: var(--color-white);
   border-left: 6px solid var(--color-secondary);
   padding: 20px;
@@ -347,13 +347,13 @@ body, .eethm-home-page {
   text-align: left;
 }
 
-.review-text {
+.eethm-home-page .review-text {
   font-size: 1rem;
   margin-bottom: 10px;
   color: var(--color-neutral-dark);
 }
 
-.review-author {
+.eethm-home-page .review-author {
   font-weight: bold;
   color: var(--color-primary);
   font-size: 0.9rem;
@@ -361,39 +361,39 @@ body, .eethm-home-page {
 
 /* === Responsive === */
 @media (max-width: 768px) {
-  .overlay-content h1 {
+  .eethm-home-page .overlay-content h1 {
     font-size: 2rem;
   }
 
-  .overlay-content p {
+  .eethm-home-page .overlay-content p {
     font-size: 1rem;
   }
 
-  .hero-buttons button {
+  .eethm-home-page .hero-buttons button {
     font-size: 0.9rem;
     padding: 10px 20px;
   }
 
-  .services-page {
+  .eethm-home-page .services-page {
     padding: 40px 15px;
   }
 
-  .banners-container,
-  .banner-cards-grid {
+  .eethm-home-page .banners-container,
+  .eethm-home-page .banner-cards-grid {
     flex-direction: column;
     align-items: center;
   }
 
-  .banner-cards-title,
-  .banners-section h2 {
+  .eethm-home-page .banner-cards-title,
+  .eethm-home-page .banners-section h2 {
     font-size: 1.8rem;
   }
 
-  .promotions-section h2 {
+  .eethm-home-page .promotions-section h2 {
     font-size: 1.8rem;
   }
 
-  .promo-card {
+  .eethm-home-page .promo-card {
     max-width: 90%;
   }
 }

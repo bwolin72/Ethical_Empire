@@ -12,20 +12,20 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Update login state on route change
+  // Detect login status from storage
   useEffect(() => {
     const access = localStorage.getItem('access') || sessionStorage.getItem('access');
     const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
     setIsLoggedIn(!!(access && refresh));
   }, [location]);
 
-  // Close menu and dropdown on route change
+  // Close mobile menu and dropdown when route changes
   useEffect(() => {
     setMenuOpen(false);
     setDropdownOpen(false);
   }, [location]);
 
-  // Handle screen resize
+  // Detect screen width for mobile responsiveness
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 960;
@@ -42,15 +42,18 @@ function Navbar() {
   const handleLogout = async () => {
     await logoutHelper();
     setIsLoggedIn(false);
+    navigate('/login');
   };
 
-  // Handle click on Services label (navigate to /services)
-  const handleServicesClick = (e) => {
-    if (isMobile) {
-      toggleDropdown();
-    } else {
-      navigate('/services');
-    }
+  const handleServicesClick = () => {
+    navigate('/services');
+    if (isMobile) toggleDropdown();
+  };
+
+  const handleDropdownItemClick = (path) => {
+    navigate(path);
+    setMenuOpen(false);
+    setDropdownOpen(false);
   };
 
   return (
@@ -72,39 +75,41 @@ function Navbar() {
           <li className="nav-item">
             <Link to="/about" className="nav-links" onClick={() => setMenuOpen(false)}>About</Link>
           </li>
+
           <li
             className="nav-item dropdown"
-            onClick={handleServicesClick}
             onMouseEnter={() => !isMobile && setDropdownOpen(true)}
             onMouseLeave={() => !isMobile && setDropdownOpen(false)}
           >
-            <div className="nav-links dropdown-toggle">
+            <div className="nav-links dropdown-toggle" onClick={handleServicesClick}>
               Services <span className="caret">▼</span>
             </div>
 
             {dropdownOpen && (
               <ul className="dropdown-menu">
-                <li className="dropdown-item">
-                  <Link to="/services/live-band" className="dropdown-link" onClick={() => setMenuOpen(false)}>Live Band</Link>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/live-band')}>
+                  Live Band
                 </li>
-                <li className="dropdown-item">
-                  <Link to="/services/catering" className="dropdown-link" onClick={() => setMenuOpen(false)}>Catering</Link>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/catering')}>
+                  Catering
                 </li>
-                <li className="dropdown-item">
-                  <Link to="/services/decor" className="dropdown-link" onClick={() => setMenuOpen(false)}>Decor</Link>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/decor')}>
+                  Decor
                 </li>
-                <li className="dropdown-item">
-                  <Link to="/services/media-hosting" className="dropdown-link" onClick={() => setMenuOpen(false)}>Media & Event Hosting</Link>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/media-hosting')}>
+                  Media & Event Hosting
                 </li>
               </ul>
             )}
           </li>
+
           <li className="nav-item">
             <Link to="/contact" className="nav-links" onClick={() => setMenuOpen(false)}>Contact</Link>
           </li>
           <li className="nav-item">
             <Link to="/connect" className="nav-links" onClick={() => setMenuOpen(false)}>Connect With Us</Link>
           </li>
+
           <li className="nav-item">
             {isLoggedIn ? (
               <button onClick={handleLogout} className="nav-links logout-btn">Logout</button>

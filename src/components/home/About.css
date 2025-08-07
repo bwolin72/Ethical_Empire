@@ -25,7 +25,7 @@ html {
   transition: background-color 0.5s ease;
 }
 
-.hero-banner img {
+.about-container .hero-banner img {
   width: 100%;
   height: auto;
   border-radius: 1rem;
@@ -34,7 +34,7 @@ html {
 }
 
 /* Section Titles */
-.section-heading {
+.about-container .section-heading {
   font-size: 2.25rem;
   color: var(--deep-burgundy);
   font-weight: 700;
@@ -44,7 +44,7 @@ html {
   transition: color 0.3s ease;
 }
 
-.subtext {
+.about-container .subtext {
   color: var(--royal-navy);
   font-size: 1.15rem;
   max-width: 700px;
@@ -52,7 +52,7 @@ html {
 }
 
 /* Service Cards */
-.service-grid {
+.about-container .service-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 2rem;
@@ -60,7 +60,7 @@ html {
   max-width: 1100px;
 }
 
-.service-card {
+.about-container .service-card {
   background-color: var(--card-bg);
   border: 1px solid var(--muted-gold);
   border-radius: 1.25rem;
@@ -71,36 +71,36 @@ html {
   cursor: pointer;
 }
 
-.service-card:hover {
+.about-container .service-card:hover {
   transform: scale(1.03);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
-.service-icon {
+.about-container .service-icon {
   font-size: 2.25rem;
   color: var(--forest-green);
   margin-bottom: 1rem;
   transition: transform 0.3s ease;
 }
 
-.service-card:hover .service-icon {
+.about-container .service-card:hover .service-icon {
   transform: scale(1.2);
 }
 
-.service-title {
+.about-container .service-title {
   font-size: 1.25rem;
   font-weight: bold;
   color: var(--royal-navy);
 }
 
-.service-desc {
+.about-container .service-desc {
   font-size: 1rem;
   color: var(--charcoal);
   margin-top: 0.5rem;
 }
 
 /* About Text Sections */
-.about-text {
+.about-container .about-text {
   max-width: 800px;
   margin: 3rem auto;
   text-align: center;
@@ -116,7 +116,7 @@ html {
 }
 
 /* Why Choose Us */
-.why-section {
+.about-container .why-section {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -136,7 +136,7 @@ html {
   }
 }
 
-.why-section ul {
+.about-container .why-section ul {
   list-style: disc;
   padding-left: 1.5rem;
   color: var(--royal-navy);
@@ -149,13 +149,13 @@ html {
 }
 
 /* Testimonials */
-.testimonial-section {
+.about-container .testimonial-section {
   margin-top: 4rem;
   text-align: center;
   padding: 0 1rem;
 }
 
-.testimonial-grid {
+.about-container .testimonial-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 2rem;
@@ -163,7 +163,7 @@ html {
   margin: 2rem auto 0;
 }
 
-.testimonial-card {
+.about-container .testimonial-card {
   background-color: var(--testimonial-bg);
   padding: 1.5rem 1.25rem;
   border-left: 5px solid var(--muted-gold);
@@ -174,18 +174,18 @@ html {
   transition: transform 0.3s ease;
 }
 
-.testimonial-card:hover {
+.about-container .testimonial-card:hover {
   transform: translateY(-4px);
 }
 
-.testimonial-author {
+.about-container .testimonial-author {
   margin-top: 0.75rem;
   font-weight: bold;
   color: var(--deep-burgundy);
 }
 
 /* Call to Action */
-.cta-section {
+.about-container .cta-section {
   margin: 4rem auto 2rem;
   text-align: center;
   background-color: var(--deep-burgundy);
@@ -195,7 +195,7 @@ html {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.cta-button {
+.about-container .cta-button {
   display: inline-block;
   margin-top: 1.5rem;
   background-color: var(--muted-gold);
@@ -208,12 +208,12 @@ html {
   transition: all 0.3s ease-in-out;
 }
 
-.cta-button:hover {
+.about-container .cta-button:hover {
   background-color: var(--forest-green);
   color: var(--text-light);
   transform: scale(1.05);
 }
-.sticky-cta-bar {
+.about-container .sticky-cta-bar {
   position: sticky;
   top: 0;
   z-index: 999;
@@ -224,17 +224,17 @@ html {
   font-weight: bold;
 }
 
-.sticky-cta-bar a {
+.about-container .sticky-cta-bar a {
   color: var(--muted-gold);
   text-decoration: none;
   font-weight: 600;
 }
 
-.team-section {
+.about-container .team-section {
   margin-top: 4rem;
 }
 
-.team-grid {
+.about-container .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 2rem;
@@ -242,7 +242,7 @@ html {
   margin-top: 2rem;
 }
 
-.team-member img {
+.about-container .team-member img {
   width: 120px;
   height: 120px;
   border-radius: 50%;
@@ -250,17 +250,17 @@ html {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.team-member h4 {
+.about-container .team-member h4 {
   margin-top: 1rem;
   font-weight: 600;
 }
 
-.press-logos {
+.about-container .press-logos {
   margin-top: 3rem;
   text-align: center;
 }
 
-.logo-carousel {
+.about-container .logo-carousel {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -269,16 +269,16 @@ html {
   flex-wrap: wrap;
 }
 
-.logo-carousel img {
+.about-container .logo-carousel img {
   max-height: 60px;
   object-fit: contain;
 }
 
-.testimonial-carousel {
+.about-container .testimonial-carousel {
   margin-top: 3rem;
 }
 
-.carousel-wrapper {
+.about-container .carousel-wrapper {
   display: flex;
   gap: 2rem;
   flex-wrap: wrap;
@@ -286,7 +286,7 @@ html {
   margin-top: 2rem;
 }
 
-.testimonial-slide {
+.about-container .testimonial-slide {
   max-width: 300px;
   padding: 1.5rem;
   background-color: var(--testimonial-bg);
