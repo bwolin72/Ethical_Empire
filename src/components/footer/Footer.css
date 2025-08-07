@@ -64,13 +64,13 @@
 }
 
 /* === Newsletter Form === */
-.newsletter form {
+footer.newsletter form {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.newsletter-input {
+.footer.newsletter-input {
   padding: 10px 12px;
   font-size: 0.95rem;
   border: none;
@@ -81,18 +81,18 @@
   width: 100%;
 }
 
-.newsletter-input::placeholder {
+.footer.newsletter-input::placeholder {
   color: var(--light-gray);
 }
 
-.recaptcha-wrapper {
+.footer .recaptcha-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 5px;
 }
 
-.newsletter-button {
+.footer.newsletter-button {
   background-color: var(--muted-gold);
   color: var(--charcoal);
   border: none;
@@ -103,13 +103,13 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.newsletter-button:hover,
-.newsletter-button:focus {
+.footer.newsletter-button:hover,
+.footer.newsletter-button:focus {
   background-color: var(--cream);
   color: var(--charcoal);
 }
 
-.unsubscribe-text {
+.footer .unsubscribe-text {
   font-size: 0.8rem;
   margin-top: 5px;
   color: var(--light-gray);
@@ -127,7 +127,7 @@
 }
 
 /* === Branding Style === */
-.slogan {
+.footer .slogan {
   font-style: italic;
   font-size: 0.9rem;
   color: var(--forest-green);
@@ -140,17 +140,17 @@
     gap: 20px;
   }
 
-  .newsletter form {
+  .footer.newsletter form {
     flex-direction: column;
     gap: 10px;
   }
 
-  .recaptcha-wrapper {
+  .footer .recaptcha-wrapper {
     justify-content: flex-start;
     margin-top: 0;
   }
 
-  .newsletter-button {
+  .footer.newsletter-button {
     width: fit-content;
   }
 }

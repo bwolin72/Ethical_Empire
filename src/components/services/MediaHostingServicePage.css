@@ -80,8 +80,8 @@
   outline: none;
 }
 
-.booking-form input:focus,
-.PhoneInput input:focus {
+.media-hosting-page .booking-form input:focus,
+.media-hosting-page .PhoneInput input:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px rgba(88, 28, 28, 0.2);
 }
@@ -307,38 +307,38 @@
 
 
 @media (min-width: 768px) {
-  .card-grid {
+  .media-hosting-page .card-grid {
     grid-template-columns: repeat(2, 1fr);
     padding: 0 2rem;
   }
-  .creative-layout {
+  .media-hosting-page .creative-layout {
     flex-direction: row;
   }
-  .creative-media {
+  .media-hosting-page .creative-media {
     grid-template-columns: repeat(3, 1fr);
   }
-  .testimonial-grid {
+  .media-hosting-page .testimonial-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .testimonial-grid {
+  .media-hosting-page .testimonial-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 480px) {
-  .hero-title {
+  .media-hosting-page .hero-title {
     font-size: 1.8rem;
   }
-  .cta-button {
+  .media-hosting-page .cta-button {
     width: 90%;
     font-size: 1rem;
   }
-  .card-grid,
-  .testimonial-grid,
-  .creative-media {
+  .media-hosting-page .card-grid,
+  .media-hosting-page .testimonial-grid,
+  .media-hosting-page .creative-media {
     grid-template-columns: 1fr;
     padding: 0 0.5rem;
   }

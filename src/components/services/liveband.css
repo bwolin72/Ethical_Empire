@@ -17,13 +17,13 @@
   animation: fadeInPage 0.8s ease-in-out;
 }
 
-.media-gallery-section {
+.liveband-page .media-gallery-section {
   padding: 3rem 1rem;
   background-color: var(--color-white);
   text-align: center;
 }
 
-.section-description {
+.liveband-page .section-description {
   font-size: 1rem;
   max-width: 700px;
   margin: 0 auto 2rem;
@@ -32,14 +32,14 @@
   line-height: 1.6;
 }
 
-.section-subtitle {
+.liveband-page .section-subtitle {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
   color: var(--color-primary);
 }
 
-.shimmer {
+.liveband-page .shimmer {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
@@ -50,17 +50,17 @@
   100% { background-position: -200% 0; }
 }
 
-.section {
+.liveband-page .section {
   padding-top: 3rem;
   padding-bottom: 3rem;
 }
 
-.creative-media img {
+.liveband-page .creative-media img {
   max-width: 100%;
   border-radius: var(--radius-md);
 }
 
-.service-card:hover {
+.liveband-page .service-card:hover {
   transform: translateY(-5px);
 }
 
@@ -70,7 +70,7 @@
 }
 
 /* === Hero Banner === */
-.hero-banner {
+.liveband-page .hero-banner {
   position: relative;
   width: 100%;
   height: 60vh;
@@ -86,8 +86,8 @@
   to { transform: scale(1); opacity: 1; }
 }
 
-.hero-banner-image,
-.hero-banner-placeholder {
+.liveband-page .hero-banner-image,
+.liveband-page .hero-banner-placeholder {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -98,13 +98,13 @@
   color: var(--color-white);
 }
 
-.hero-banner-placeholder {
+.liveband-page .hero-banner-placeholder {
   background-color: var(--color-neutral-light);
   font-weight: bold;
   color: var(--color-neutral);
 }
 
-.hero-overlay {
+.liveband-page .hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -114,7 +114,7 @@
   z-index: 1;
 }
 
-.hero-title {
+.liveband-page .hero-title {
   position: absolute;
   z-index: 2;
   color: var(--color-white);
@@ -133,7 +133,7 @@
 }
 
 /* === CTA Button === */
-.cta-button {
+.liveband-page .cta-button {
   margin: 2rem auto;
   display: block;
   background-color: var(--color-primary);
@@ -146,12 +146,12 @@
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-.cta-button:hover {
+.liveband-page .cta-button:hover {
   background-color: var(--color-primary-dark);
   transform: scale(1.08);
 }
 
-.section-title {
+.liveband-page .section-title {
   text-align: center;
   font-size: 2rem;
   margin: 2.5rem 0 1.5rem;
@@ -160,14 +160,14 @@
 }
 
 /* === Services Section === */
-.card-grid {
+.liveband-page .card-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.25rem;
   padding: 0 1rem 3rem;
 }
 
-.card {
+.liveband-page .card {
   background-color: rgba(88, 28, 28, 0.6);
   color: var(--color-white);
   padding: 1.25rem;
@@ -178,25 +178,25 @@
   transition: all var(--transition-slow);
 }
 
-.card:hover {
+.liveband-page .card:hover {
   transform: scale(1.02);
 }
 
 @media (min-width: 600px) {
-  .card-grid {
+  .liveband-page .card-grid {
     grid-template-columns: repeat(2, 1fr);
     padding: 0 2rem 3rem;
   }
 }
 
 @media (min-width: 1024px) {
-  .card-grid {
+  .liveband-page .card-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 /* === Creative Section === */
-.creative-layout {
+.liveband-page .creative-layout {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -204,42 +204,42 @@
   align-items: center;
 }
 
-.creative-media {
+.liveband-page .creative-media {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
 }
 
-.creative-text {
+.liveband-page .creative-text {
   max-width: 600px;
   color: var(--color-black);
   text-align: center;
 }
 
-.creative-text h3 {
+.liveband-page .creative-text h3 {
   font-size: 1.5rem;
   color: var(--color-primary);
   margin-bottom: 1rem;
 }
 
-.creative-text p {
+.liveband-page .creative-text p {
   line-height: 1.6;
 }
 
 /* === Testimonials === */
-.testimonial-section {
+.liveband-page .testimonial-section {
   background-color: var(--color-white);
   padding: 3rem 1rem;
 }
 
-.testimonial-grid {
+.liveband-page .testimonial-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
-.testimonial-card {
+.liveband-page .testimonial-card {
   background-color: var(--color-neutral-light);
   padding: 1.5rem;
   border-radius: var(--radius-lg);
@@ -249,11 +249,11 @@
   transition: transform 0.3s ease;
 }
 
-.testimonial-card:hover {
+.liveband-page .testimonial-card:hover {
   transform: translateY(-5px);
 }
 
-.testimonial-user {
+.liveband-page .testimonial-user {
   font-weight: bold;
   text-align: right;
   margin-top: 0.75rem;
@@ -261,13 +261,13 @@
 }
 
 @media (min-width: 600px) {
-  .testimonial-grid {
+  .liveband-page .testimonial-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .testimonial-grid {
+  .liveband-page .testimonial-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -286,12 +286,12 @@
   animation: bounceIn 1s ease;
 }
 
-.whatsapp-button:hover {
+.liveband-page .whatsapp-button:hover {
   background-color: var(--color-accent-green-dark);
   transform: scale(1.1);
 }
 
-.whatsapp-button svg {
+.liveband-page .whatsapp-button svg {
   width: 1.5rem;
   height: 1.5rem;
 }
@@ -303,25 +303,25 @@
 }
 
 @media (max-width: 480px) {
-  .hero-title {
+ .liveband-page .hero-title {
     font-size: 1.5rem;
     padding: 0.5rem 1rem;
   }
 
-  .cta-button {
+  .liveband-page .cta-button {
     font-size: 1rem;
     padding: 0.5rem 1.25rem;
   }
 
-  .card {
+  .liveband-page .card {
     font-size: 0.95rem;
   }
 
-  .creative-text h3 {
+  .liveband-page .creative-text h3 {
     font-size: 1.2rem;
   }
 
-  .testimonial-card {
+  .liveband-page .testimonial-card {
     padding: 1rem;
   }
 }
@@ -330,7 +330,7 @@ html {
   scroll-behavior: smooth;
 }
 
-.section::before {
+.liveband-page .section::before {
   content: '';
   position: absolute;
   background-image: url('/public/assets/icons/music-notes.svg');
@@ -346,7 +346,7 @@ html {
   pointer-events: none;
 }
 
-.section.testimonial-section::before {
+.liveband-page .section.testimonial-section::before {
   top: unset;
   bottom: 2rem;
   right: 1rem;
@@ -354,7 +354,7 @@ html {
   transform: rotate(180deg);
 }
 
-.banner-section {
+.liveband-page .banner-section {
   position: relative;
   width: 100%;
   height: 60vh;
@@ -368,7 +368,7 @@ html {
   overflow: hidden;
 }
 
-.hero-subtitle {
+.liveband-page .hero-subtitle {
   position: relative;
   z-index: 2;
   color: var(--color-white);
@@ -377,22 +377,22 @@ html {
   text-align: center;
 }
 
-.hero-button {
+.liveband-page .hero-button {
   margin-top: 1rem;
 }
 
-.banner-cards-wrapper {
+.liveband-page .banner-cards-wrapper {
   position: relative;
   z-index: 2;
   margin-top: 2rem;
   width: 100%;
 }
 
-.services-section {
+.liveband-page .services-section {
   background-color: var(--color-neutral-light);
 }
 
-.service-card {
+.liveband-page .service-card {
   background-color: var(--color-secondary);
   color: var(--color-white);
   padding: 1.5rem;
@@ -400,7 +400,7 @@ html {
   box-shadow: var(--shadow-lg);
 }
 
-.card-content {
+.liveband-page .card-content {
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -411,15 +411,15 @@ html {
   100% { transform: translateY(0px); }
 }
 
-.section,
-.hero-banner,
-.creative-section,
-.media-gallery-section {
+.liveband-page .section,
+.liveband-page .hero-banner,
+.liveband-page .creative-section,
+.liveband-page .media-gallery-section {
   position: relative;
   z-index: 1;
 }
 
-.section > * {
+.liveband-page .section > * {
   position: relative;
   z-index: 2;
 }

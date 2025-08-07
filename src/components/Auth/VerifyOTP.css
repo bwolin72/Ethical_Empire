@@ -70,7 +70,7 @@ body.dark .otp-container {
 }
 
 /* Error Message */
-.error-message {
+.otp-container .error-message {
   color: #b00020; /* Muted danger red */
   font-size: 0.95rem;
   margin-bottom: 1rem;
@@ -81,24 +81,24 @@ body.dark .otp-container {
 }
 
 /* Optional: Toastify override */
-.Toastify__toast {
+.otp-container .Toastify__toast {
   border-radius: 8px;
 }
 
-.support-note {
+.otp-container .support-note {
   font-size: 0.85rem;
   color: #666;
   margin-top: 1rem;
 }
-body.dark .support-note {
+body.dark .otp-container .support-note {
   color: #aaa;
 }
 
-.resend-wrapper {
+.otp-container .resend-wrapper {
   margin-top: 1rem;
 }
 
-.resend-btn {
+.otp-container .resend-btn {
   background: transparent;
   color: #0b3c74;
   border: none;
@@ -109,18 +109,18 @@ body.dark .support-note {
   font-size: 0.95rem;
 }
 
-.resend-btn:hover {
+.otp-container .resend-btn:hover {
   color: #730c2e;
 }
 
-.resend-btn:disabled {
+.otp-container .resend-btn:disabled {
   color: #999;
   cursor: not-allowed;
 }
-body.dark .resend-btn {
+body.dark .otp-container .resend-btn {
   color: #9fcfff;
 }
-body.dark .resend-btn:hover {
+body.dark .otp-container .resend-btn:hover {
   color: #e3a6b5;
 }
 

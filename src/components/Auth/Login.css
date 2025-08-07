@@ -6,7 +6,7 @@
 }
 
 /* === BODY === */
-body {
+.login-page .body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f5f5f5;
   color: #333;
@@ -14,7 +14,7 @@ body {
 }
 
 /* === DARK MODE === */
-body.dark-mode {
+.login-page .body.dark-mode {
   background-color: #121212;
   color: #eee;
 }
@@ -141,15 +141,15 @@ body.dark-mode .login-form input {
 }
 
 /* === PASSWORD FIELD === */
-.password-field {
+.login-page .password-field {
   position: relative;
 }
 
-.password-field input {
+.login-page .password-field input {
   padding-right: 2.5rem;
 }
 
-.password-field span {
+.login-page .password-field span {
   position: absolute;
   right: 0.75rem;
   top: 50%;
@@ -164,7 +164,7 @@ body.dark-mode .password-field span {
 }
 
 /* === INPUT ERROR === */
-.input-error {
+.login-page .input-error {
   border-color: #e74c3c !important;
 }
 
@@ -176,20 +176,20 @@ body.dark-mode .password-field span {
 }
 
 /* === REMEMBER & FORGOT === */
-.remember-me {
+.login-page .remember-me {
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 0.9rem;
 }
 
-.forgot-link {
+.login-page .forgot-link {
   font-size: 0.9rem;
   color: #4a90e2;
   text-decoration: none;
 }
 
-.forgot-link:hover {
+.login-page .forgot-link:hover {
   text-decoration: underline;
 }
 
@@ -216,7 +216,7 @@ body.dark-mode .password-field span {
 }
 
 /* === ERROR MESSAGE === */
-.error-message {
+.login-page .error-message {
   background-color: #ffe6e6;
   color: #c0392b;
   padding: 0.75rem;
@@ -232,29 +232,29 @@ body.dark-mode .error-message {
 }
 
 /* === GOOGLE SIGN-IN === */
-.google-signup {
+.login-page .google-signup {
   margin-top: 1.5rem;
   text-align: center;
 }
 
-.google-signup p {
+.login-page .google-signup p {
   margin-bottom: 0.5rem;
 }
 
 /* === REGISTER PROMPT === */
-.register-prompt {
+.login-page .register-prompt {
   text-align: center;
   font-size: 0.9rem;
   margin-top: 1.5rem;
 }
 
-.register-prompt a {
+.login-page .register-prompt a {
   color: #4a90e2;
   text-decoration: none;
   font-weight: 500;
 }
 
-.register-prompt a:hover {
+.login-page .register-prompt a:hover {
   text-decoration: underline;
 }
 
@@ -329,16 +329,16 @@ body.dark-mode .error-message {
     padding: 0.6rem;
   }
 
-  .password-field span {
+  .login-page .password-field span {
     font-size: 1.1rem;
   }
 
-  .error-message {
+  .login-page .error-message {
     font-size: 0.85rem;
     padding: 0.6rem;
   }
 
-  .google-signup {
+  .login-page .google-signup {
     margin-top: 1rem;
   }
 }

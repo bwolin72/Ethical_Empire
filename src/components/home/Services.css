@@ -47,7 +47,7 @@
 }
 
 /* Back Link */
-.back-link {
+.services-page .back-link {
   display: inline-block;
   margin-top: 20px;
   color: #800020;
@@ -56,7 +56,7 @@
   transition: color 0.3s ease;
 }
 
-.back-link:hover {
+.services-page .back-link:hover {
   color: #cba135;
   text-decoration: underline;
 }
@@ -77,7 +77,7 @@
   border-radius: 12px;
 }
 
-.card-inner {
+.services-page .card-inner {
   position: relative;
   width: 100%;
   height: 100%;
@@ -92,8 +92,8 @@
 }
 
 /* Front and Back shared styles */
-.card-front,
-.card-back {
+.services-page .card-front,
+.services-page .card-back {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -108,19 +108,19 @@
   transition: box-shadow 0.3s ease;
 }
 
-.card-front h3 {
+.services-page .card-front h3 {
   color: #cba135;
   font-size: 1.4rem;
   margin-bottom: 0;
 }
 
-.card-back {
+.services-page .card-back {
   transform: rotateY(180deg);
   background-color: #fff7ef; /* lighter sand */
   color: #2e2e2e;
 }
 
-.card-back p {
+.services-page .card-back p {
   font-size: 1rem;
   line-height: 1.5;
   text-align: center;
@@ -153,8 +153,8 @@
     padding: 0 16px;
   }
 
-  .card-front,
-  .card-back {
+  .services-page .card-front,
+  .services-page .card-back {
     padding: 20px;
   }
 

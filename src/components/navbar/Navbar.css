@@ -36,7 +36,7 @@
   cursor: pointer;
 }
 
-.logo-img {
+.navbar .logo-img {
   height: 40px;
   margin-right: 10px;
   object-fit: contain;
@@ -97,7 +97,7 @@
   color: #CBA135 !important;
 }
 
-.caret {
+.navbar .caret {
   font-size: 0.7rem;
   margin-left: 6px;
 }
@@ -215,7 +215,7 @@
     color: #FFFFFF !important;
   }
 
-  .dropdown-link:hover {
+  .navbar .dropdown-link:hover {
     background-color: #800020;
   }
 }

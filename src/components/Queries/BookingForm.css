@@ -44,33 +44,33 @@
 }
 
 /* Form header */
-.form-header {
+.booking-wrapper .form-header {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.form-header .logo {
+.booking-wrapper .form-header .logo {
   width: 80px;
   margin: 0 auto 1rem;
 }
 
-.form-header h2 {
+.booking-wrapper .form-header h2 {
   font-size: 1.8rem;
   font-family: var(--font-accent);
 }
 
-.form-header .subtitle {
+.booking-wrapper .form-header .subtitle {
   font-size: 0.95rem;
   font-weight: 300;
 }
 
 /* Form content */
-.form-content {
+.booking-wrapper .form-content {
   display: flex;
   flex-direction: column;
 }
 
-.form-content h3 {
+.booking-wrapper .form-content h3 {
   font-size: 1.5rem;
   font-family: var(--font-accent);
   color: var(--color-primary);
@@ -79,22 +79,22 @@
 }
 
 /* Input group */
-.input-group {
+.booking-wrapper .input-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 1.2rem;
 }
 
-.input-group label {
+.booking-wrapper .input-group label {
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
-.input-group input,
-.input-group textarea,
-.datepicker-wrapper input,
-.react-tel-input .form-control,
-.input-group select {
+.booking-wrapper .input-group input,
+.booking-wrapper .input-group textarea,
+.booking-wrapper .datepicker-wrapper input,
+.booking-wrapper .react-tel-input .form-control,
+.booking-wrapper .input-group select {
   padding: 0.7rem 0.9rem;
   font-size: 1rem;
   font-family: var(--font-main);
@@ -115,41 +115,41 @@
 }
 
 /* Country & Region Dropdowns */
-.input-group select {
+.booking-wrapper .input-group select {
   width: 100%;
 }
 
 /* Phone Input */
-.react-tel-input {
+.booking-wrapper .react-tel-input {
   width: 100%;
 }
 
-.react-tel-input .form-control {
+.booking-wrapper .react-tel-input .form-control {
   padding-left: 48px;
   font-size: 1rem;
 }
 
 /* Date Picker */
-.datepicker-wrapper {
+.booking-wrapper .datepicker-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.datepicker-wrapper .icon {
+.booking-wrapper.datepicker-wrapper .icon {
   position: absolute;
   left: 0.75rem;
   z-index: 2;
   color: var(--color-calendar-icon);
 }
 
-.datepicker-wrapper input {
+.booking-wrapper .datepicker-wrapper input {
   width: 100%;
   padding-left: 2.5rem;
 }
 
 /* Checkboxes */
-.checkbox-group {
+.booking-wrapper .checkbox-group {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -162,18 +162,18 @@
   background-color: var(--color-service-bg-dark);
 }
 
-.checkbox-option {
+.booking-wrapper .checkbox-option {
   display: flex;
   align-items: center;
   font-weight: 500;
   font-size: 0.95rem;
 }
 
-.checkbox-option input {
+.booking-wrapper .checkbox-option input {
   margin-right: 0.5rem;
 }
 
-.no-services {
+.booking-wrapper .no-services {
   font-style: italic;
   color: var(--color-muted);
   font-size: 0.95rem;
@@ -181,7 +181,7 @@
 }
 
 /* Submit Button */
-.submit-btn {
+.booking-wrapper .submit-btn {
   background-color: var(--color-primary);
   color: var(--color-white);
   padding: 0.8rem;
@@ -193,11 +193,11 @@
   transition: background-color var(--transition-fast);
 }
 
-.submit-btn:hover:not(:disabled) {
+.booking-wrapper .submit-btn:hover:not(:disabled) {
   background-color: var(--color-primary-dark);
 }
 
-.submit-btn:disabled {
+.booking-wrapper .submit-btn:disabled {
   background-color: var(--color-disabled);
   cursor: not-allowed;
 }
@@ -215,37 +215,37 @@
 }
 
 /* Brand Content */
-.brand-content h3 {
+.booking-brand-panel .brand-content h3 {
   margin-bottom: 0.5rem;
   font-size: 1.2rem;
 }
 
-.brand-content p {
+.booking-brand-panel .brand-content p {
   margin: 0.3rem 0;
 }
 
-.brand-content a {
+.booking-brand-panel .brand-content a {
   color: var(--color-white);
   text-decoration: underline;
 }
 
-.brand-content .icon {
+.booking-brand-panel .brand-content .icon {
   margin-right: 0.4rem;
 }
 
 /* Location Block */
-.location-block {
+.booking-brand-panel .location-block {
   margin-top: 1rem;
 }
 
 /* Contact Buttons */
-.contact-buttons {
+.booking-brand-panel .contact-buttons {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.contact-buttons a {
+.booking-brand-panel .contact-buttons a {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -258,39 +258,39 @@
   transition: background-color var(--transition-fast);
 }
 
-.contact-buttons a.phone {
+.booking-brand-panel .contact-buttons a.phone {
   background-color: var(--color-accent-alt);
 }
 
-.contact-buttons a:hover {
+.booking-brand-panel .contact-buttons a:hover {
   opacity: 0.9;
 }
 
 /* Social Media Links */
-.social-media-links {
+.booking-brand-panel .social-media-links {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.social-media-links a {
+.booking-brand-panel .social-media-links a {
   font-size: 1.25rem;
   color: var(--color-white);
   transition: transform 0.2s ease;
 }
 
-.social-media-links a:hover {
+.booking-brand-panel .social-media-links a:hover {
   transform: scale(1.15);
 }
 
 /* Textarea Resizing */
-textarea {
+.booking-wrapper .textarea {
   resize: vertical;
   min-height: 100px;
 }
 
 /* Spinner */
-.loading-spinner {
+.booking-wrapper .loading-spinner {
   display: inline-block;
   width: 1rem;
   height: 1rem;

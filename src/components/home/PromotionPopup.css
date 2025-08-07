@@ -41,7 +41,7 @@
 }
 
 /* Close button */
-.close-button {
+.promotion-popup-overlay .close-button {
   position: absolute;
   top: 0.75rem;
   right: 1rem;
@@ -53,7 +53,7 @@
   transition: transform 0.2s ease, color 0.3s ease;
 }
 
-.close-button:hover {
+.promotion-popup-overlay .close-button:hover {
   color: #ffd700;
   transform: scale(1.2);
 }
@@ -138,7 +138,7 @@
     font-size: 1.3rem;
   }
 
-  .close-button {
+  .promotion-popup-overlay .close-button {
     font-size: 1.3rem;
   }
 }
@@ -157,7 +157,7 @@
     font-size: 1.1rem;
   }
 
-  .close-button {
+  .promotion-popup-overlay .close-button {
     font-size: 1.2rem;
   }
 }

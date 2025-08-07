@@ -23,7 +23,7 @@
   margin-bottom: 10px;
 }
 
-.profile-image {
+.account-profile-container .profile-image {
   width: 150px;
   height: 150px;
   border-radius: 50%;
@@ -33,27 +33,27 @@
   box-shadow: var(--shadow-sm);
 }
 
-.profile-info {
+.account-profile-container .profile-info {
   font-size: 1rem;
   color: var(--color-neutral);
   margin-bottom: 20px;
   text-align: center;
 }
 
-.profile-info p {
+.account-profile-container .profile-info p {
   margin: 8px 0;
 }
 
-.profile-info strong {
+.account-profile-container .profile-info strong {
   color: var(--color-primary);
 }
 
-.upload-section {
+.account-profile-container .upload-section {
   text-align: center;
   margin-top: 20px;
 }
 
-.upload-button {
+.account-profile-container .upload-button {
   padding: 10px 20px;
   background-color: var(--color-primary);
   color: var(--color-white);
@@ -64,23 +64,23 @@
   transition: background-color var(--transition-fast);
 }
 
-.upload-button:hover {
+.account-profile-container .upload-button:hover {
   background-color: var(--color-primary-dark);
 }
 
-.file-input {
+.account-profile-container .file-input {
   margin-top: 10px;
   font-size: 0.9rem;
   color: var(--color-neutral-dark);
 }
 
-.success-message {
+.account-profile-container .success-message {
   margin-top: 15px;
   color: var(--color-success);
   font-weight: bold;
 }
 
-.error-message {
+.account-profile-container .error-message {
   margin-top: 15px;
   color: var(--color-error);
   font-weight: bold;
@@ -95,11 +95,11 @@
     font-size: 1.5rem;
   }
 
-  .profile-info {
+  .account-profile-container .profile-info {
     font-size: 0.95rem;
   }
 
-  .profile-image {
+  .account-profile-container .profile-image {
     width: 120px;
     height: 120px;
   }

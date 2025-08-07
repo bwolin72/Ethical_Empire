@@ -116,16 +116,16 @@ body.dark .register-form select {
 }
 
 /* === Password Field with Toggle === */
-.password-field {
+.register-page .password-field {
   position: relative;
 }
 
-.password-field input {
+.register-page .password-field input {
   width: 100%;
   padding-right: 2.5rem;
 }
 
-.password-field span {
+.register-page .password-field span {
   position: absolute;
   right: 1rem;
   top: 50%;
@@ -140,20 +140,20 @@ body.dark .password-field span {
 }
 
 /* === Password Strength === */
-.password-strength {
+.register-page .password-strength {
   font-size: 0.85rem;
   font-weight: 500;
   margin-top: -0.5rem;
   margin-bottom: 0.5rem;
 }
 
-.password-strength.weak {
+.register-page .password-strength.weak {
   color: red;
 }
-.password-strength.medium {
+.register-page .password-strength.medium {
   color: orange;
 }
-.password-strength.strong {
+.register-page .password-strength.strong {
   color: green;
 }
 
@@ -180,24 +180,24 @@ body.dark .password-field span {
 }
 
 /* === Google Signup Section === */
-.google-signup {
+.register-page .google-signup {
   margin-top: 2rem;
   text-align: center;
 }
 
-.google-signup p {
+.register-page .google-signup p {
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
 }
 
 /* === Login Prompt === */
-.login-prompt {
+.register-page .login-prompt {
   margin-top: 1.5rem;
   font-size: 0.9rem;
   text-align: center;
 }
 
-.login-prompt span {
+.register-page .login-prompt span {
   color: #1a2c5a;
   font-weight: 500;
   cursor: pointer;
@@ -209,21 +209,21 @@ body.dark .login-prompt span {
 }
 
 /* === Error / Success Messages === */
-.error-message {
+.register-page .error-message {
   color: red;
   font-size: 0.85rem;
   text-align: center;
 }
 
-.success-message {
+.register-page .success-message {
   color: green;
   font-size: 0.85rem;
   text-align: center;
 }
 
 /* === Phone Input Override === */
-.phone-input input,
-.react-phone-number-input__input {
+.register-page .phone-input input,
+.register-page .react-phone-number-input__input {
   padding: 0.75rem;
   border-radius: 8px;
   border: 1px solid #ccc;
@@ -233,12 +233,12 @@ body.dark .login-prompt span {
   color: #000;
 }
 
-.react-phone-number-input__input:focus {
+.register-page .react-phone-number-input__input:focus {
   border-color: #1a2c5a;
   outline: none;
 }
 
-body.dark .react-phone-number-input__input {
+body.dark .register-page .react-phone-number-input__input {
   background-color: #2a2a2a;
   border-color: #555;
   color: #e0e0e0;
@@ -303,17 +303,17 @@ body.dark .react-phone-number-input__input {
     padding: 0.65rem;
   }
 
-  .password-field span {
+  .register-page .password-field span {
     font-size: 1rem;
     right: 0.75rem;
   }
 
-  .login-prompt,
-  .google-signup p {
+  .register-page .login-prompt,
+  .register-page .google-signup p {
     font-size: 0.85rem;
   }
 
-  .password-strength {
+  .register-page .password-strength {
     font-size: 0.75rem;
   }
 }

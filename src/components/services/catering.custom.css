@@ -7,17 +7,17 @@
 }
 
 /* === Banners Section === */
-.catering-banners {
+.catering-page-container .catering-banners {
   margin-bottom: var(--spacing-lg);
 }
 
 /* === CTA Section === */
-.cta-section {
+.catering-page-container .cta-section {
   text-align: center;
   margin: var(--spacing-lg) 0;
 }
 
-.cta-button {
+.catering-page-container .cta-button {
   background-color: var(--color-primary);
   color: var(--color-white);
   padding: 0.75rem 1.5rem;
@@ -28,29 +28,29 @@
   transition: var(--transition-default);
 }
 
-.cta-button:hover {
+.catering-page-container .cta-button:hover {
   background-color: var(--color-primary-dark);
 }
 
 /* === Section Styles === */
-.section {
+.catering-page-container .section {
   margin-bottom: var(--spacing-lg);
 }
 
-.section h2 {
+.catering-page-container .section h2 {
   font-size: var(--font-lg);
   margin-bottom: var(--spacing-md);
   color: var(--color-secondary);
 }
 
 /* === Grid Layouts === */
-.card-grid {
+.catering-page-container .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--spacing-md);
 }
 
-.card {
+.catering-page-container .card {
   background-color: var(--color-white);
   border: 1px solid var(--color-neutral-light);
   border-radius: var(--radius-lg);
@@ -58,52 +58,52 @@
   transition: var(--transition-default);
 }
 
-.card:hover {
+.catering-page-container .card:hover {
   box-shadow: var(--shadow-lg);
 }
 
-.card-content {
+.catering-page-container .card-content {
   padding: var(--spacing-md);
   font-size: var(--font-base);
   text-align: center;
 }
 
 /* === Creative Catering Section === */
-.creative-layout {
+.catering-page-container .creative-layout {
   display: flex;
   gap: var(--spacing-lg);
   align-items: center;
   flex-wrap: wrap;
 }
 
-.creative-media {
+.catering-page-container .creative-media {
   flex: 1 1 300px;
   max-width: 500px;
 }
 
-.creative-text {
+.catering-page-container .creative-text {
   flex: 1 1 300px;
   color: var(--color-primary);
 }
 
-.creative-text h3 {
+.catering-page-container .creative-text h3 {
   font-size: var(--font-lg);
   margin-bottom: var(--spacing-sm);
 }
 
-.creative-text p {
+.catering-page-container .creative-text p {
   font-size: var(--font-base);
   line-height: 1.6;
 }
 
 /* === Dietary Grid === */
-.dietary-grid {
+.catering-page-container .dietary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: var(--spacing-md);
 }
 
-.dietary-card {
+.catering-page-container .dietary-card {
   background-color: var(--color-accent-gold);
   color: var(--color-neutral-dark);
   padding: var(--spacing-md);
@@ -115,42 +115,42 @@
   align-items: center;
 }
 
-.dietary-card:hover {
+.catering-page-container .dietary-card:hover {
   background-color: var(--color-accent-gold-light);
 }
 
-.dietary-icon {
+.catering-page-container .dietary-icon {
   font-size: 1.5rem;
   margin-bottom: var(--spacing-sm);
 }
 
 /* === Testimonials === */
-.testimonial-grid {
+.catering-page-container .testimonial-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--spacing-md);
 }
 
-.testimonial-card {
+.catering-page-container .testimonial-card {
   background-color: var(--color-white);
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
 }
 
-.testimonial-text {
+.catering-page-container .testimonial-text {
   font-style: italic;
   margin-bottom: var(--spacing-sm);
 }
 
-.testimonial-user {
+.catering-page-container .testimonial-user {
   text-align: right;
   font-weight: bold;
   color: var(--color-secondary);
 }
 
 /* === Skeleton Loader === */
-.skeleton {
+.catering-page-container .skeleton {
   background: var(--color-neutral-light);
   height: 120px;
   border-radius: var(--radius-sm);
@@ -163,7 +163,7 @@
 }
 
 /* === WhatsApp Button === */
-.whatsapp-button {
+.catering-page-container .whatsapp-button {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -179,53 +179,53 @@
   transition: var(--transition-default);
 }
 
-.whatsapp-button:hover {
+.catering-page-container .whatsapp-button:hover {
   background-color: #1ebea5; /* closest to success-light */
 }
 
 /* === Responsive (<= 768px) === */
 @media (max-width: 768px) {
-  .creative-layout {
+  .catering-page-container .creative-layout {
     flex-direction: column;
   }
 
-  .cta-button {
+  .catering-page-container .cta-button {
     width: 100%;
   }
 
-  .section h2 {
+  .catering-page-container .section h2 {
     font-size: 1.5rem;
   }
 }
 
 /* === Responsive (<= 480px) === */
 @media (max-width: 480px) {
-  .dietary-card {
+  .catering-page-container .dietary-card {
     font-size: 0.85rem;
   }
 
-  .testimonial-text,
-  .creative-text p {
+  .catering-page-container .testimonial-text,
+  .catering-page-container .creative-text p {
     font-size: 0.9rem;
   }
 }
 
 /* === Responsive (<= 380px) === */
 @media (max-width: 380px) {
-  .cta-button {
+  .catering-page-container .cta-button {
     font-size: 1rem;
     padding: 0.6rem 1rem;
   }
 
-  .section h2 {
+  .catering-page-container .section h2 {
     font-size: 1.25rem;
   }
 
-  .card-content {
+  .catering-page-container .card-content {
     font-size: 0.95rem;
   }
 
-  .dietary-card {
+  .catering-page-container .dietary-card {
     padding: 0.75rem;
   }
 }
