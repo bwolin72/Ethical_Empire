@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import {
-  FaGuitar,
-  FaCamera,
-  FaUtensils,
-  FaMicrophone,
-  FaUsers,
-  FaStar,
-} from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-
+import { FaStar } from 'react-icons/fa';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import MediaCards from '../context/MediaCards';
 import MediaCard from '../context/MediaCard';
@@ -16,34 +8,6 @@ import BannerCards from '../context/BannerCards';
 import publicAxios from '../../api/publicAxios';
 import axiosCommon from '../../api/axiosCommon';
 import './About.css';
-
-const services = [
-  {
-    icon: <FaCamera />,
-    title: 'Photography & Videography',
-    desc: 'Capturing your story with cinematic quality and artistic flair.',
-  },
-  {
-    icon: <FaGuitar />,
-    title: 'Live Band & DJ',
-    desc: 'Soulful live music and high-energy DJ performances to energize your event.',
-  },
-  {
-    icon: <FaUtensils />,
-    title: 'Catering',
-    desc: 'Customized culinary experiences crafted to suit every palate and occasion.',
-  },
-  {
-    icon: <FaMicrophone />,
-    title: 'Hosting & MC',
-    desc: 'Charismatic, engaging hosts that keep your event seamless and vibrant.',
-  },
-  {
-    icon: <FaUsers />,
-    title: 'Event Coordination',
-    desc: 'From concept to cleanup, we manage every detail so you don’t have to.',
-  },
-];
 
 const About = () => {
   const { media: bannerList } = useMediaFetcher({
@@ -53,11 +17,23 @@ const About = () => {
     pageSize: 1,
   });
 
+  const [services, setServices] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [videoHeroUrl, setVideoHeroUrl] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
+
+    const fetchServices = async () => {
+      try {
+        const res = await publicAxios.get('/services/');
+        if (isMounted) {
+          setServices(res.data || []);
+        }
+      } catch (error) {
+        console.error('Services fetch error:', error);
+      }
+    };
 
     const fetchTestimonials = async () => {
       try {
@@ -81,6 +57,7 @@ const About = () => {
       }
     };
 
+    fetchServices();
     fetchTestimonials();
     fetchVideoHero();
 
@@ -122,15 +99,18 @@ const About = () => {
 
       <BannerCards endpoint="About" title="Explore Our Visual Stories" />
 
-      <section className="service-grid px-4">
-        {services.map(({ icon, title, desc }, idx) => (
-          <div key={idx} className="service-card">
-            <div className="service-icon">{icon}</div>
-            <h3 className="service-title">{title}</h3>
-            <p className="service-desc">{desc}</p>
-          </div>
-        ))}
-      </section>
+      {/* === Services Grid (Dynamic) === */}
+      {services.length > 0 && (
+        <section className="service-grid px-4">
+          {services.map(({ id, icon_url, title, description }) => (
+            <div key={id} className="service-card">
+              {icon_url && <img src={icon_url} alt={title} className="service-icon-img" />}
+              <h3 className="service-title">{title}</h3>
+              <p className="service-desc">{description}</p>
+            </div>
+          ))}
+        </section>
+      )}
 
       <section className="about-text px-4 mt-12">
         <h2 className="section-heading">Who We Are</h2>
@@ -150,8 +130,7 @@ const About = () => {
         <h2 className="section-heading">Our Commitment</h2>
         <p>
           We value integrity, artistry, and a deep understanding of your goals.
-          Every event is approached with care, strategy, and passion —
-          ensuring it's not just successful, but unforgettable.
+          Every event is approached with care, strategy, and passion — ensuring it's not just successful, but unforgettable.
         </p>
       </section>
 
@@ -210,8 +189,7 @@ const About = () => {
             {testimonials.map((review, idx) => (
               <div key={idx} className="testimonial-slide">
                 <p>“{review.message}”</p>
-                <p className="testimonial-author">— {review.reviewer_name || 'Anonymous'}
-                </p>
+                <p className="testimonial-author">— {review.reviewer_name || 'Anonymous'}</p>
               </div>
             ))}
           </div>

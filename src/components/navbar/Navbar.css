@@ -14,6 +14,7 @@
   box-shadow: var(--shadow-md);
   animation: fade-in-up 0.6s var(--transition-fast) both;
   font-family: var(--font-main);
+  backdrop-filter: blur(6px);
 }
 
 /* === Container === */
@@ -49,7 +50,7 @@
   outline: none;
 }
 
-.navbar .logo-img {
+.logo-img {
   height: 40px;
   margin-right: 12px;
   object-fit: contain;
@@ -61,16 +62,15 @@
   transform: scale(1.05);
 }
 
-.navbar .logo-text {
+.logo-text {
   font-family: var(--font-accent);
   color: var(--color-white);
   font-size: 1.8rem;
   font-weight: 700;
-  display: inline-block;
 }
 
 /* === Menu Icon (Mobile) === */
-.navbar .menu-icon {
+.menu-icon {
   display: none;
   font-size: 2rem;
   color: var(--color-white);
@@ -83,20 +83,18 @@
   transition: color var(--transition-fast);
 }
 
-.navbar .menu-icon:hover,
-.navbar .menu-icon:focus {
+.menu-icon:hover,
+.menu-icon:focus {
   color: var(--color-accent-gold-light);
-  outline: none;
 }
 
 /* === Navigation Menu === */
-.navbar .nav-menu {
+.nav-menu {
   display: flex;
   align-items: center;
   list-style: none;
   margin: 0;
   padding-left: 0;
-  position: relative;
 }
 
 .nav-menu.active {
@@ -125,7 +123,6 @@
   cursor: pointer;
 }
 
-/* Underline on hover using :after */
 .nav-links::after {
   content: '';
   position: absolute;
@@ -141,7 +138,6 @@
 .nav-links:hover,
 .nav-links:focus {
   color: var(--color-accent-gold-light);
-  outline: none;
 }
 
 .nav-links:hover::after,
@@ -151,84 +147,59 @@
 }
 
 /* Dropdown Caret */
-.navbar .caret {
+.caret {
   font-size: 0.7rem;
   margin-left: 6px;
-  user-select: none;
   color: var(--color-accent-gold-light);
   transition: transform var(--transition-fast);
-  display: inline-block;
-  vertical-align: middle;
 }
 
-/* Caret rotation controlled by JS class */
 .caret.rotated {
   transform: rotate(180deg);
 }
 
-/* Dropdown open on desktop hover/focus */
-.nav-item.dropdown:hover > .nav-links .caret,
-.nav-item.dropdown:focus-within > .nav-links .caret {
-  transform: rotate(180deg);
-}
-
 /* === Dropdown Menu === */
-.navbar .dropdown-menu {
+.dropdown-menu {
   position: absolute;
   top: 80px;
   left: 0;
   background-color: var(--color-neutral-dark);
   width: 220px;
-  padding: 0;
-  list-style: none;
-  margin: 0;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  z-index: 99;
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
   transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
-  user-select: none;
 }
 
-/* Show dropdown on hover, focus-within, or JS active */
 .nav-item.dropdown:hover > .dropdown-menu,
 .nav-item.dropdown:focus-within > .dropdown-menu,
-.nav-item.dropdown .dropdown-menu.active,
-.nav-item.dropdown .dropdown-menu[style] {
-  /* the inline style in React overrides, so keep !important */
+.dropdown-menu.active {
   opacity: 1 !important;
   visibility: visible !important;
   transform: translateY(0) !important;
 }
 
-/* Dropdown items */
-.navbar .dropdown-item {
-  width: 100%;
+.dropdown-item {
   padding: 14px 20px;
   color: var(--color-white);
   font-weight: 600;
-  font-family: var(--font-main);
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
-  user-select: none;
-  border-radius: var(--radius-sm);
 }
 
-.navbar .dropdown-item:hover,
-.navbar .dropdown-item:focus {
+.dropdown-item:hover,
+.dropdown-item:focus {
   background-color: var(--color-primary-light);
   color: var(--color-accent-gold-light);
-  outline: none;
 }
 
-/* === Logout Button Styling === */
-.navbar .logout-btn {
+/* Logout Button */
+.logout-btn {
   background: none;
   border: none;
   color: var(--color-white);
-  font: inherit;
   cursor: pointer;
   padding: 0 1.5rem;
   height: 100%;
@@ -236,13 +207,11 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-family: var(--font-main);
   transition: color var(--transition-fast);
   position: relative;
 }
 
-/* Underline effect for logout button */
-.navbar .logout-btn::after {
+.logout-btn::after {
   content: '';
   position: absolute;
   bottom: 14px;
@@ -254,14 +223,13 @@
   border-radius: var(--radius-sm);
 }
 
-.navbar .logout-btn:hover,
-.navbar .logout-btn:focus {
+.logout-btn:hover,
+.logout-btn:focus {
   color: var(--color-accent-gold-light);
-  outline: none;
 }
 
-.navbar .logout-btn:hover::after,
-.navbar .logout-btn:focus::after {
+.logout-btn:hover::after,
+.logout-btn:focus::after {
   width: 60%;
   left: 20%;
 }
@@ -272,7 +240,7 @@
     padding: 0 20px;
   }
 
-  .navbar .menu-icon {
+  .menu-icon {
     display: block;
   }
 
@@ -289,7 +257,6 @@
     transition: left 0.4s ease, opacity 0.3s ease;
     z-index: 998;
     opacity: 0;
-    overflow-y: auto;
   }
 
   .nav-menu.active {
@@ -297,19 +264,13 @@
     opacity: 1;
   }
 
-  .nav-item {
-    width: 100%;
-  }
-
   .nav-links {
     padding: 1.5rem 0;
     width: 100%;
     text-align: center;
-    color: var(--color-white);
   }
 
-  /* Mobile dropdown menu - always visible and full width */
-  .navbar .dropdown-menu {
+  .dropdown-menu {
     position: relative;
     top: 0;
     left: 0;
@@ -322,19 +283,9 @@
     visibility: visible !important;
   }
 
-  .navbar .dropdown-item {
+  .dropdown-item {
     padding: 1.25rem 0;
     text-align: center;
-    width: 100%;
-    display: block;
-    background-color: var(--color-neutral-dark);
-    color: var(--color-white);
-    border-radius: 0;
-  }
-
-  .navbar .dropdown-item:hover,
-  .navbar .dropdown-item:focus {
-    background-color: var(--color-primary-light);
   }
 }
 
@@ -344,7 +295,7 @@
     font-size: 1.4rem;
   }
 
-  .navbar .logo-img {
+  .logo-img {
     height: 32px;
   }
 
@@ -352,7 +303,7 @@
     font-size: 1rem;
   }
 
-  .navbar .dropdown-item {
+  .dropdown-item {
     font-size: 0.95rem;
   }
 }

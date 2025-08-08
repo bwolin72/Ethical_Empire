@@ -37,7 +37,6 @@ function Navbar() {
   }, []);
 
   const toggleMenu = () => setMenuOpen(prev => !prev);
-  const toggleDropdown = () => setDropdownOpen(prev => !prev);
 
   const handleLogout = async () => {
     await logoutHelper();
@@ -45,18 +44,18 @@ function Navbar() {
     navigate('/login');
   };
 
-  // Clicking "Services" navigates to /services (desktop and mobile)
+  // Clicking "Services"
   const handleServicesClick = (e) => {
-    e.preventDefault(); // prevent any default link behavior
-    navigate('/services');
+    e.preventDefault();
     if (isMobile) {
-      // On mobile, optionally toggle dropdown as well to let user expand submenu after arriving
-      toggleDropdown();
+      // Mobile: toggle submenu
+      setDropdownOpen(prev => !prev);
+    } else {
+      // Desktop: navigate
+      navigate('/services');
     }
-    setMenuOpen(false); // close mobile menu after navigation
   };
 
-  // Clicking dropdown item navigates and closes menus
   const handleDropdownItemClick = (path) => {
     navigate(path);
     setMenuOpen(false);
@@ -71,7 +70,14 @@ function Navbar() {
           <span className="logo-text">EETHM_GH</span>
         </Link>
 
-        <div className="menu-icon" onClick={toggleMenu} aria-label={menuOpen ? 'Close menu' : 'Open menu'} role="button" tabIndex={0} onKeyPress={(e) => { if(e.key==='Enter') toggleMenu(); }}>
+        <div
+          className="menu-icon"
+          onClick={toggleMenu}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          role="button"
+          tabIndex={0}
+          onKeyPress={(e) => { if (e.key === 'Enter') toggleMenu(); }}
+        >
           {menuOpen ? '✖' : '☰'}
         </div>
 
@@ -88,7 +94,6 @@ function Navbar() {
             onMouseEnter={() => !isMobile && setDropdownOpen(true)}
             onMouseLeave={() => !isMobile && setDropdownOpen(false)}
           >
-            {/* Services text navigates on click */}
             <div
               className="nav-links dropdown-toggle"
               onClick={handleServicesClick}
@@ -102,17 +107,17 @@ function Navbar() {
             </div>
 
             {dropdownOpen && (
-              <ul className="dropdown-menu">
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/live-band')} tabIndex={0} role="link" onKeyPress={(e) => { if(e.key==='Enter') handleDropdownItemClick('/services/live-band'); }}>
+              <ul className="dropdown-menu mobile-visible">
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/live-band')} tabIndex={0}>
                   Live Band
                 </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/catering')} tabIndex={0} role="link" onKeyPress={(e) => { if(e.key==='Enter') handleDropdownItemClick('/services/catering'); }}>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/catering')} tabIndex={0}>
                   Catering
                 </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/decor')} tabIndex={0} role="link" onKeyPress={(e) => { if(e.key==='Enter') handleDropdownItemClick('/services/decor'); }}>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/decor')} tabIndex={0}>
                   Decor
                 </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/media-hosting')} tabIndex={0} role="link" onKeyPress={(e) => { if(e.key==='Enter') handleDropdownItemClick('/services/media-hosting'); }}>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/media-hosting')} tabIndex={0}>
                   Media & Event Hosting
                 </li>
               </ul>

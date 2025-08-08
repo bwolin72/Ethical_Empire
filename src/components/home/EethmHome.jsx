@@ -7,24 +7,6 @@ import MediaCards from '../context/MediaCards';
 import FadeInSection from '../FadeInSection';
 import './EethmHome.css';
 
-const serviceDetails = {
-  'live-band': {
-    title: 'Live Band Performance',
-    description: 'Our talented musicians deliver unforgettable performances for weddings, corporate events, and private parties.',
-    details: ['Customizable song lists', 'Professional sound equipment', 'Multiple band size options'],
-  },
-  catering: {
-    title: 'Catering Services',
-    description: 'Gourmet catering for all event types with customizable menus.',
-    details: ['Local and international cuisine', 'Dietary restriction accommodations', 'Full-service staff available'],
-  },
-  decor: {
-    title: 'Event Decor',
-    description: 'Transform any venue into a magical space with our decor services.',
-    details: ['Theme development', 'Custom installations', 'Full setup and teardown'],
-  },
-};
-
 const getMediaUrl = (media) => {
   if (!media) return '';
   return media.url?.full || media.file_url || '';
@@ -40,6 +22,8 @@ const EethmHome = () => {
   const [reviews, setReviews] = useState([]);
   const [reviewError, setReviewError] = useState(null);
   const [videos, setVideos] = useState([]);
+  const [services, setServices] = useState([]);
+  const [servicesError, setServicesError] = useState(null);
 
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSuccess, setNewsletterSuccess] = useState('');
@@ -59,6 +43,7 @@ const EethmHome = () => {
   const featuredVideo = videos.find(v => v.is_featured) || videos[0];
   const featuredVideoUrl = featuredVideo?.file || featuredVideo?.url || '';
 
+  // Toggle video mute/unmute and sync video element muted property
   const toggleMute = () => {
     setIsMuted(prev => !prev);
     if (videoRef.current) {
@@ -69,6 +54,7 @@ const EethmHome = () => {
   useEffect(() => {
     const controller = new AbortController();
 
+    // Fetch videos
     axiosCommon.get('/videos/', { signal: controller.signal })
       .then(res => {
         const all = Array.isArray(res.data) ? res.data : [];
@@ -81,6 +67,7 @@ const EethmHome = () => {
         }
       });
 
+    // Fetch promotions
     axiosCommon.get('/promotions/active/', { signal: controller.signal })
       .then(res => {
         setPromotions(Array.isArray(res.data) ? res.data : []);
@@ -91,6 +78,7 @@ const EethmHome = () => {
         }
       });
 
+    // Fetch reviews
     axiosCommon.get('/reviews/', { signal: controller.signal })
       .then(res => {
         setReviews(Array.isArray(res.data) ? res.data : []);
@@ -101,10 +89,21 @@ const EethmHome = () => {
         }
       });
 
+    // Fetch services dynamically from /services
+    axiosCommon.get('/services', { signal: controller.signal })
+      .then(res => {
+        // Expecting array of { id, slug, title/name, description, details: [] }
+        setServices(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch(err => {
+        if (err.name !== 'CanceledError') {
+          setServicesError('Failed to load services.');
+        }
+      });
+
     return () => controller.abort();
   }, []);
 
-  // Updated handleSubscribe using response variable properly
   const handleSubscribe = async (e) => {
     e.preventDefault();
     setNewsletterError('');
@@ -120,7 +119,6 @@ const EethmHome = () => {
         email: newsletterEmail,
       });
 
-      // Use response.status and optionally response.data.message
       if (response.status === 200 || response.status === 201) {
         const msg = response.data?.message || 'Thank you for subscribing!';
         setNewsletterSuccess(msg);
@@ -144,7 +142,7 @@ const EethmHome = () => {
           <>
             <video
               ref={videoRef}
-              className="background-media"
+              className="background-video"
               autoPlay
               loop
               muted={isMuted}
@@ -179,7 +177,7 @@ const EethmHome = () => {
           </>
         ) : isImageHero ? (
           <>
-            <img src={heroURL} alt="Hero" className="background-media" loading="lazy" />
+            <img src={heroURL} alt="Hero" className="background-video" loading="lazy" />
             <div className="overlay-content">
               <h1>Ethical Multimedia GH Services</h1>
               <p>Live Band • Catering • Multimedia • Decor Services</p>
@@ -219,20 +217,27 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="services-page">
           <h2>Our Services</h2>
-          <div className="service-list">
-            {Object.entries(serviceDetails).map(([key, service]) => (
-              <div key={key} className="service-item">
-                <h3>{service.title}</h3>
-                <p>{service.description}</p>
-                <ul>
-                  {service.details.map((detail, idx) => (
-                    <li key={idx}>{detail}</li>
-                  ))}
-                </ul>
-                <a href={`/services/${key}`}>Learn more</a>
-              </div>
-            ))}
-          </div>
+          {servicesError && <p style={{ color: 'var(--color-error)' }}>{servicesError}</p>}
+          {services.length > 0 ? (
+            <div className="service-list">
+              {services.map(service => (
+                <div key={service.id || service.slug} className="service-item">
+                  <h3>{service.title || service.name}</h3>
+                  <p>{service.description}</p>
+                  {service.details && service.details.length > 0 && (
+                    <ul>
+                      {service.details.map((detail, idx) => (
+                        <li key={idx}>{detail}</li>
+                      ))}
+                    </ul>
+                  )}
+                  <a href={`/services/${service.slug || service.id}`}>Learn more</a>
+                </div>
+              ))}
+            </div>
+          ) : (
+            !servicesError && <p>Loading services...</p>
+          )}
         </section>
       </FadeInSection>
 
