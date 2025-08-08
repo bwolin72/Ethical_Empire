@@ -66,11 +66,9 @@ const EethmHome = () => {
     }
   };
 
-  // Fetch videos, promotions, reviews on mount
   useEffect(() => {
     const controller = new AbortController();
 
-    // Videos - updated to match backend `/videos/` (GET) returns array
     axiosCommon.get('/videos/', { signal: controller.signal })
       .then(res => {
         const all = Array.isArray(res.data) ? res.data : [];
@@ -83,7 +81,6 @@ const EethmHome = () => {
         }
       });
 
-    // Promotions - /promotions/active/
     axiosCommon.get('/promotions/active/', { signal: controller.signal })
       .then(res => {
         setPromotions(Array.isArray(res.data) ? res.data : []);
@@ -94,7 +91,6 @@ const EethmHome = () => {
         }
       });
 
-    // Reviews - /reviews/
     axiosCommon.get('/reviews/', { signal: controller.signal })
       .then(res => {
         setReviews(Array.isArray(res.data) ? res.data : []);
@@ -108,7 +104,7 @@ const EethmHome = () => {
     return () => controller.abort();
   }, []);
 
-  // Handle newsletter subscription
+  // Updated handleSubscribe using response variable properly
   const handleSubscribe = async (e) => {
     e.preventDefault();
     setNewsletterError('');
@@ -123,8 +119,15 @@ const EethmHome = () => {
       const response = await axiosCommon.post('/newsletter/subscribe/', {
         email: newsletterEmail,
       });
-      setNewsletterSuccess('Thank you for subscribing!');
-      setNewsletterEmail('');
+
+      // Use response.status and optionally response.data.message
+      if (response.status === 200 || response.status === 201) {
+        const msg = response.data?.message || 'Thank you for subscribing!';
+        setNewsletterSuccess(msg);
+        setNewsletterEmail('');
+      } else {
+        setNewsletterError('Subscription failed. Please try again later.');
+      }
     } catch (err) {
       setNewsletterError(err.response?.data?.error || 'Subscription failed. Please try again later.');
     }
@@ -190,7 +193,6 @@ const EethmHome = () => {
         )}
       </section>
 
-      {/* Newsletter subscription modal */}
       {showNewsletterForm && (
         <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
           <div className="newsletter-modal" onClick={e => e.stopPropagation()}>
