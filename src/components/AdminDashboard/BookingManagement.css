@@ -1,356 +1,411 @@
-:root {
-  /* Brand Colors */
-  --deep-burgundy: #6e1414;
-  --royal-navy: #1a2a6c;
-  --muted-gold: #d4af37;
-  --forest-green: #228B22;
+/* ======================================================
+   🎨 Combined Booking Styles — Form + Management
+   Theme-aligned with variables.css
+   ====================================================== */
 
-  /* Neutral Palette */
-  --charcoal-gray: #2e2e2e;
-  --medium-gray: #cccccc;
-  --light-gray: #f8f8f8;
-  --off-white: #fafafa;
-  --white: #ffffff;
-
-  /* Status Colors */
-  --error-red: #cc0000;
-  --warning-orange: #ffa500;
-  --success-green: #4CAF50;
-
-  /* Shadow Styles */
-  --box-shadow-light: 0 2px 6px rgba(0, 0, 0, 0.05);
-  --box-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --box-shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.2);
+/* === Root & Animations (if needed) === */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Page Container */
+/* === Booking Container === */
+.booking, .booking-management {
+  font-family: var(--font-main);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
+  min-height: 100vh;
+  animation: fade-in-up var(--transition-slow) both;
+  box-sizing: border-box;
+}
+
+/* === Booking Form Container === */
+.booking {
+  display: flex;
+  flex-direction: row;
+}
+
+/* === Left Panel: Booking Form === */
+.booking-form-panel {
+  flex: 1;
+  padding: 2rem;
+  background-color: var(--color-bg, var(--color-white));
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.booking-form-panel h2 {
+  font-family: var(--font-accent);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.booking-form input,
+.booking-form select,
+.booking-form textarea {
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
+  font-size: 1rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.booking-form input:focus,
+.booking-form select:focus,
+.booking-form textarea:focus {
+  outline: none;
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.booking-form button {
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.booking-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* === Right Panel: Booking Info / Brand === */
+.booking-info-panel {
+  flex: 1;
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.booking-info-panel h3 {
+  font-family: var(--font-accent);
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.booking-info-panel p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.booking-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.booking-contact a {
+  color: var(--color-accent-gold-light);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.booking-contact a:hover {
+  color: var(--color-accent-gold);
+}
+
+.booking-social {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.booking-social a {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.booking-social a:hover {
+  background-color: var(--color-accent-gold);
+  transform: scale(1.05);
+}
+
+/* === Booking Management Section === */
 .booking-management {
   padding: 2rem;
-  background-color: var(--light-gray);
-  min-height: 100vh;
-  box-sizing: border-box;
-  animation: fadeIn 0.5s ease;
 }
 
 /* Header */
 .booking-management h2 {
-  color: var(--deep-burgundy);
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 2rem;
+  font-family: var(--font-accent);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
 }
 
-/* Controls */
+/* Controls (Search + Sort) */
 .controls {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1.5rem;
-  justify-content: space-between;
 }
 
 .controls input,
 .controls select {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border: 1px solid var(--medium-gray);
-  border-radius: 8px;
-  flex: 1;
-  min-width: 200px;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.controls input:focus,
+.controls select:focus {
+  outline: none;
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
 /* Table Styling */
+.table-responsive {
+  overflow-x: auto;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+}
+
 .booking-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--white);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: var(--box-shadow-light);
 }
 
-.booking-table thead {
-  background-color: var(--royal-navy);
-  color: var(--white);
-}
-
-.booking-table th,
-.booking-table td {
-  padding: 0.75rem;
+.booking-table th {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-weight: bold;
+  padding: 0.8rem;
   text-align: left;
-  border-bottom: 1px solid #eee;
-  font-size: 0.95rem;
 }
 
-.booking-table tr:hover {
-  background-color: var(--off-white);
+.booking-table td {
+  padding: 0.8rem;
+  border-bottom: 1px solid var(--color-neutral-light);
 }
 
-.completed-row {
-  background-color: #e6f9e6;
-  font-style: italic;
+.booking-table tr:nth-child(even) {
+  background-color: var(--color-neutral-light);
 }
 
-/* Button Styling */
-.mark-complete-btn,
-.delete-btn {
-  padding: 0.4rem 0.75rem;
-  margin: 0.2rem;
+.booking-table tr.completed-row {
+  background-color: var(--color-success);
+  color: var(--color-white);
+}
+
+/* Action Buttons */
+.booking-table button {
+  background-color: var(--color-accent-gold);
+  color: var(--color-black);
   border: none;
-  border-radius: 6px;
-  font-weight: 500;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.6rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
-.mark-complete-btn {
-  background-color: var(--forest-green);
-  color: var(--white);
-}
-
-.mark-complete-btn:hover {
-  background-color: #1a6a1a;
+.booking-table button:hover {
+  background-color: var(--color-accent-gold-dark);
   transform: scale(1.05);
 }
 
-.delete-btn {
-  background-color: var(--deep-burgundy);
-  color: var(--white);
+.booking-table .delete-btn {
+  background-color: var(--color-error);
+  color: var(--color-white);
 }
 
-.delete-btn:hover {
-  background-color: #4c0f0f;
-  transform: scale(1.05);
+.booking-table .delete-btn:hover {
+  background-color: var(--color-error);
+  opacity: 0.85;
 }
 
 /* Pagination */
 .pagination {
-  margin-top: 2rem;
-  text-align: center;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .pagination button {
-  margin: 0 0.25rem;
-  padding: 0.5rem 0.9rem;
-  font-size: 1rem;
-  background-color: var(--royal-navy);
-  color: var(--white);
+  background-color: var(--color-secondary);
+  color: var(--color-white);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.8rem;
   cursor: pointer;
-  transition: 0.3s ease-in-out;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
-.pagination button.active,
+.pagination button.active {
+  background-color: var(--color-accent-gold);
+  color: var(--color-black);
+}
+
 .pagination button:hover {
-  background-color: var(--muted-gold);
-  color: var(--charcoal-gray);
-  font-weight: bold;
-  transform: scale(1.05);
+  background-color: var(--color-secondary-light);
 }
 
-.status-approved { color: var(--success-green); font-weight: bold; }
-.status-rejected { color: var(--error-red); font-weight: bold; }
-.status-pending  { color: var(--warning-orange); font-style: italic; }
-
-
-/* Modal Overlay */
+/* Modal Styling */
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(46, 46, 46, 0.6);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  animation: fade-in var(--transition-slow) both;
   z-index: 1000;
 }
 
-/* Modal Content */
 .modal-content {
-  background-color: var(--white);
+  background-color: var(--color-white);
   padding: 2rem;
-  border-radius: 12px;
-  max-width: 600px;
-  width: 95%;
-  box-shadow: var(--box-shadow-heavy);
-  animation: fadeIn 0.3s ease;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 700px;
 }
 
 .modal-content h3 {
-  color: var(--royal-navy);
+  font-family: var(--font-accent);
+  color: var(--color-primary);
   margin-bottom: 1rem;
-  font-size: 1.5rem;
-  text-align: center;
 }
 
-/* Modal Form Elements */
-.modal-content input,
-.modal-content textarea,
-.modal-content select {
-  width: 100%;
-  margin-bottom: 1rem;
+/* Form Grid in Modal */
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
   padding: 0.6rem 1rem;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
   font-size: 1rem;
-  border: 1px solid var(--medium-gray);
-  border-radius: 8px;
-  background-color: var(--light-gray);
-  box-sizing: border-box;
-  transition: border 0.2s ease-in-out;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.modal-content input:focus,
-.modal-content textarea:focus,
-.modal-content select:focus {
-  border-color: var(--royal-navy);
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
   outline: none;
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
-/* Services List */
+/* Service Checkbox List */
 .services-list {
-  margin-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .services-list label {
-  font-weight: bold;
-  color: var(--charcoal-gray);
+  font-weight: 600;
+  color: var(--color-neutral-dark);
   margin-bottom: 0.5rem;
   display: block;
 }
 
-.services-list div {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.3rem;
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 0.5rem;
 }
 
-.services-list input[type="checkbox"] {
-  margin-right: 0.5rem;
-}
-
-/* Modal Buttons */
+/* Modal Actions */
 .modal-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .modal-actions button {
-  flex: 1;
-  padding: 0.6rem;
-  font-size: 1rem;
-  font-weight: 600;
+  background-color: var(--color-primary);
+  color: var(--color-white);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
-.modal-actions button:first-child {
-  background-color: var(--forest-green);
-  color: var(--white);
-}
-
-.modal-actions button:first-child:hover {
-  background-color: #1a6a1a;
+.modal-actions button:hover {
+  background-color: var(--color-primary-dark);
   transform: scale(1.05);
 }
 
-.modal-actions button:last-child {
-  background-color: var(--deep-burgundy);
-  color: var(--white);
-}
-
-.modal-actions button:last-child:hover {
-  background-color: #4c0f0f;
-  transform: scale(1.05);
-}
-
-/* Responsive Modal */
-@media (max-width: 500px) {
-  .modal-content {
-    padding: 1.2rem;
-  }
-
-  .modal-actions {
+/* === Responsive Design === */
+@media (max-width: 768px) {
+  /* Booking container stacks vertically */
+  .booking {
     flex-direction: column;
   }
 
-  .modal-actions button {
-    width: 100%;
+  .booking-info-panel {
+    order: -1;
+    padding: 2rem;
   }
-}
 
-/* Responsive Table */
-@media (max-width: 1024px) {
-  .booking-table th,
-  .booking-table td {
-    font-size: 0.85rem;
-    padding: 0.6rem;
-  }
-}
-
-@media (max-width: 768px) {
+  /* Controls stack vertically */
   .controls {
     flex-direction: column;
-    align-items: stretch;
   }
 
-  .booking-table thead {
-    display: none;
-  }
-
-  .booking-table,
-  .booking-table tbody,
-  .booking-table tr,
-  .booking-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .booking-table tr {
-    margin-bottom: 1.5rem;
-    background-color: var(--white);
-    border-radius: 8px;
-    box-shadow: var(--box-shadow-light);
-    padding: 1rem;
-    overflow: hidden;
-  }
-
-  .booking-table td {
-    padding: 0.6rem;
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #eee;
-  }
-
-  .booking-table td:last-child {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.4rem;
-    border-bottom: none;
-  }
-
-  .booking-table td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    color: var(--charcoal-gray);
-    flex-basis: 40%;
+  /* Modal form grid becomes single column */
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }
 
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
+@media (max-width: 480px) {
+  .booking-info-panel {
+    padding: 1.5rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .booking-form-panel {
+    padding: 1.5rem;
   }
 }

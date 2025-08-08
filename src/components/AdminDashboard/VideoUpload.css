@@ -1,21 +1,23 @@
-/* === Admin Video Upload & Management Styles === */
+/* === Admin Video Upload & Management Styles (Theme-Based) === */
 
 .upload-form-container {
   max-width: 600px;
   width: 90%;
   margin: 2rem auto;
-  background-color: #fefefe;
+  background-color: var(--color-white);
   padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
   box-sizing: border-box;
+  font-family: var(--font-main);
 }
 
 .upload-form-container h2 {
   margin-bottom: 1.5rem;
   text-align: center;
   font-size: 1.8rem;
-  color: #1a1a2e;
+  color: var(--color-neutral-dark);
+  font-family: var(--font-accent);
 }
 
 form {
@@ -27,7 +29,7 @@ form label {
   margin-bottom: 1rem;
   font-weight: 500;
   font-size: 1rem;
-  color: #333;
+  color: var(--color-neutral);
   display: flex;
   flex-direction: column;
 }
@@ -37,19 +39,19 @@ form input[type="file"],
 form select {
   width: 100%;
   padding: 0.6rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   margin-top: 0.5rem;
-  background-color: #fff;
-  color: #222;
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
   box-sizing: border-box;
 }
 
 form input[type="checkbox"] {
   width: auto;
   margin-right: 0.5rem;
-  accent-color: #1a1a2e;
+  accent-color: var(--color-primary);
 }
 
 form label input[type="checkbox"] + span {
@@ -58,26 +60,26 @@ form label input[type="checkbox"] + span {
 }
 
 button {
-  background-color: #1a1a2e;
-  color: #fff;
+  background-color: var(--color-primary);
+  color: var(--color-white);
   border: none;
   padding: 0.6rem 1.5rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: bold;
   font-size: 1rem;
   margin-top: 1rem;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-slow);
 }
 
 button:hover {
-  background-color: #6e1414;
+  background-color: var(--color-primary-dark);
 }
 
 .upload-status {
   margin-top: 1rem;
   font-weight: 600;
-  color: #444;
+  color: var(--color-neutral-dark);
   text-align: center;
 }
 
@@ -86,7 +88,7 @@ button:hover {
   padding-left: 1.2rem;
   margin: 0.5rem 0 1rem;
   font-size: 0.95rem;
-  color: #333;
+  color: var(--color-neutral);
 }
 
 .video-table {
@@ -99,14 +101,14 @@ button:hover {
 
 .video-table th,
 .video-table td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-neutral-light);
   padding: 0.75rem;
   text-align: center;
 }
 
 .video-table th {
-  background-color: #1a1a2e;
-  color: white;
+  background-color: var(--color-primary);
+  color: var(--color-white);
   font-weight: 600;
 }
 
@@ -114,15 +116,16 @@ button:hover {
   padding: 0.3rem 0.7rem;
   font-size: 0.8rem;
   margin: 0 0.25rem;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   border: none;
-  color: white;
-  background-color: #1a1a2e;
+  color: var(--color-white);
+  background-color: var(--color-primary);
+  transition: background-color var(--transition-fast);
 }
 
 .video-table td button:hover {
-  background-color: #6e1414;
+  background-color: var(--color-primary-dark);
 }
 
 .video-preview-modal {
@@ -138,8 +141,8 @@ button:hover {
 .video-preview-modal video {
   width: 90%;
   max-width: 800px;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .video-preview-modal .close-btn {
@@ -147,7 +150,7 @@ button:hover {
   top: 20px;
   right: 30px;
   font-size: 2rem;
-  color: white;
+  color: var(--color-white);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -156,10 +159,10 @@ button:hover {
 .drag-handle {
   cursor: grab;
   font-size: 1.2rem;
-  color: #888;
+  color: var(--color-neutral-light);
 }
 
-/* Responsive Styles */
+/* === Responsive Styles === */
 @media (max-width: 768px) {
   .upload-form-container {
     padding: 1.5rem;

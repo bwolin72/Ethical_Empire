@@ -91,7 +91,8 @@ const AdminPanel = () => {
       </aside>
 
       <section className="admin-content">
-        {activeTab === 'dashboard' && <AdminDashboard />}
+        {/* Pass setActiveTab into AdminDashboard so "Learn More" can switch tabs directly */}
+        {activeTab === 'dashboard' && <AdminDashboard setActiveTab={setActiveTab} />}
         {activeTab === 'booking' && <BookingManagement />}
         {activeTab === 'invoice' && <InvoiceGeneration />}
         {activeTab === 'media' && <MediaManagement />}
