@@ -43,6 +43,7 @@ const EethmHome = () => {
   const featuredVideo = videos.find(v => v.is_featured) || videos[0];
   const featuredVideoUrl = featuredVideo?.file || featuredVideo?.url || '';
 
+  // Toggle video mute/unmute and sync video element muted property
   const toggleMute = () => {
     setIsMuted(prev => !prev);
     if (videoRef.current) {
@@ -53,6 +54,7 @@ const EethmHome = () => {
   useEffect(() => {
     const controller = new AbortController();
 
+    // Fetch videos
     axiosCommon.get('/videos/', { signal: controller.signal })
       .then(res => {
         const all = Array.isArray(res.data) ? res.data : [];
@@ -65,6 +67,7 @@ const EethmHome = () => {
         }
       });
 
+    // Fetch promotions
     axiosCommon.get('/promotions/active/', { signal: controller.signal })
       .then(res => {
         setPromotions(Array.isArray(res.data) ? res.data : []);
@@ -75,6 +78,7 @@ const EethmHome = () => {
         }
       });
 
+    // Fetch reviews
     axiosCommon.get('/reviews/', { signal: controller.signal })
       .then(res => {
         setReviews(Array.isArray(res.data) ? res.data : []);
@@ -85,8 +89,10 @@ const EethmHome = () => {
         }
       });
 
+    // Fetch services dynamically from /services
     axiosCommon.get('/services', { signal: controller.signal })
       .then(res => {
+        // Expecting array of { id, slug, title/name, description, details: [] }
         setServices(Array.isArray(res.data) ? res.data : []);
       })
       .catch(err => {
@@ -113,9 +119,6 @@ const EethmHome = () => {
         email: newsletterEmail,
       });
 
-      // Log for debugging / maintain usage of variable
-      console.debug('Newsletter subscribe response:', response);
-
       if (response.status === 200 || response.status === 201) {
         const msg = response.data?.message || 'Thank you for subscribing!';
         setNewsletterSuccess(msg);
@@ -124,7 +127,6 @@ const EethmHome = () => {
         setNewsletterError('Subscription failed. Please try again later.');
       }
     } catch (err) {
-      console.error('Newsletter subscription error:', err);
       setNewsletterError(err.response?.data?.error || 'Subscription failed. Please try again later.');
     }
   };
@@ -157,6 +159,7 @@ const EethmHome = () => {
 
               <div className="hero-buttons">
                 <button onClick={() => navigate('/bookings')} className="btn-primary">Book Now</button>
+
                 <button onClick={() => setShowNewsletterForm(true)} className="btn-secondary newsletter-btn">
                   📩 Subscribe to Newsletter
                 </button>
