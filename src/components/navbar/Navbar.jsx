@@ -19,13 +19,13 @@ function Navbar() {
     setIsLoggedIn(!!(access && refresh));
   }, [location]);
 
-  // Close mobile menu and dropdown when route changes
+  // Close menus on route change
   useEffect(() => {
     setMenuOpen(false);
     setDropdownOpen(false);
   }, [location]);
 
-  // Detect screen width for mobile responsiveness
+  // Handle screen resize for responsive dropdown behavior
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 960;
@@ -45,11 +45,18 @@ function Navbar() {
     navigate('/login');
   };
 
-  const handleServicesClick = () => {
+  // Clicking "Services" navigates to /services (desktop and mobile)
+  const handleServicesClick = (e) => {
+    e.preventDefault(); // prevent any default link behavior
     navigate('/services');
-    if (isMobile) toggleDropdown();
+    if (isMobile) {
+      // On mobile, optionally toggle dropdown as well to let user expand submenu after arriving
+      toggleDropdown();
+    }
+    setMenuOpen(false); // close mobile menu after navigation
   };
 
+  // Clicking dropdown item navigates and closes menus
   const handleDropdownItemClick = (path) => {
     navigate(path);
     setMenuOpen(false);
@@ -64,7 +71,7 @@ function Navbar() {
           <span className="logo-text">EETHM_GH</span>
         </Link>
 
-        <div className="menu-icon" onClick={toggleMenu}>
+        <div className="menu-icon" onClick={toggleMenu} aria-label={menuOpen ? 'Close menu' : 'Open menu'} role="button" tabIndex={0} onKeyPress={(e) => { if(e.key==='Enter') toggleMenu(); }}>
           {menuOpen ? '✖' : '☰'}
         </div>
 
@@ -81,22 +88,31 @@ function Navbar() {
             onMouseEnter={() => !isMobile && setDropdownOpen(true)}
             onMouseLeave={() => !isMobile && setDropdownOpen(false)}
           >
-            <div className="nav-links dropdown-toggle" onClick={handleServicesClick}>
-              Services <span className="caret">▼</span>
+            {/* Services text navigates on click */}
+            <div
+              className="nav-links dropdown-toggle"
+              onClick={handleServicesClick}
+              role="link"
+              tabIndex={0}
+              onKeyPress={(e) => { if (e.key === 'Enter') handleServicesClick(e); }}
+              aria-haspopup="true"
+              aria-expanded={dropdownOpen}
+            >
+              Services <span className={`caret ${dropdownOpen ? 'rotated' : ''}`}>▼</span>
             </div>
 
             {dropdownOpen && (
               <ul className="dropdown-menu">
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/live-band')}>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/live-band')} tabIndex={0} role="link" onKeyPress={(e) => { if(e.key==='Enter') handleDropdownItemClick('/services/live-band'); }}>
                   Live Band
                 </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/catering')}>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/catering')} tabIndex={0} role="link" onKeyPress={(e) => { if(e.key==='Enter') handleDropdownItemClick('/services/catering'); }}>
                   Catering
                 </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/decor')}>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/decor')} tabIndex={0} role="link" onKeyPress={(e) => { if(e.key==='Enter') handleDropdownItemClick('/services/decor'); }}>
                   Decor
                 </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/media-hosting')}>
+                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/media-hosting')} tabIndex={0} role="link" onKeyPress={(e) => { if(e.key==='Enter') handleDropdownItemClick('/services/media-hosting'); }}>
                   Media & Event Hosting
                 </li>
               </ul>

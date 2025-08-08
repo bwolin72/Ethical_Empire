@@ -1,12 +1,16 @@
-/* :root variables are defined in variables.css */
+/* ======================================================
+   🎨 Global Theme Variables — variables.css
+   (Provided separately, assumed imported or globally applied)
+   ====================================================== */
 
-/* === Base === */
+/* === Base Styles === */
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
 
-body, .eethm-home-page {
+body,
+.eethm-home-page {
   margin: 0;
   padding: 0;
   font-family: var(--font-main);
@@ -15,7 +19,7 @@ body, .eethm-home-page {
 }
 
 /* === Hero Section === */
-.eethm-home-page.video-hero-section {
+.eethm-home-page .video-hero-section {
   position: relative;
   height: 100vh;
   width: 100vw;
@@ -23,7 +27,7 @@ body, .eethm-home-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-black);
+  background-color: var(--color-black);
 }
 
 .eethm-home-page .background-video {
@@ -36,10 +40,14 @@ body, .eethm-home-page {
   z-index: 1;
 }
 
-.eethm-home-page .background-video[type="image"] {
-  object-fit: cover;
+.eethm-home-page img.background-video {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
 
 .eethm-home-page .overlay-content {
@@ -47,36 +55,44 @@ body, .eethm-home-page {
   z-index: 2;
   text-align: center;
   color: var(--color-white);
-  padding: 20px;
+  padding: 20px 30px;
+  max-width: 90vw;
+  margin: 0 auto;
+  user-select: none;
 }
 
 .eethm-home-page .overlay-content h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-family: var(--font-accent);
+  font-size: 3.2rem;
+  margin-bottom: 0.5rem;
   color: var(--color-accent-gold);
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.7);
 }
 
 .eethm-home-page .overlay-content p {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   margin-bottom: 1.5rem;
   color: var(--color-neutral-light);
+  letter-spacing: 1px;
 }
 
 .eethm-home-page .hero-buttons {
   display: flex;
-  gap: 1rem;
   justify-content: center;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
 .eethm-home-page .hero-buttons button {
-  padding: 12px 24px;
+  padding: 12px 28px;
   border: none;
   border-radius: var(--radius-sm);
-  font-weight: bold;
-  font-size: 1rem;
+  font-weight: 700;
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  user-select: none;
 }
 
 .eethm-home-page .hero-buttons button:first-child {
@@ -102,43 +118,53 @@ body, .eethm-home-page {
   top: 20px;
   right: 20px;
   z-index: 3;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   background: transparent;
   border: none;
   color: var(--color-white);
   cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.eethm-home-page .mute-button:hover {
+  transform: scale(1.1);
 }
 
 .eethm-home-page .video-fallback {
   color: var(--color-white);
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   text-align: center;
-  padding: 50px;
+  padding: 60px 20px;
+  user-select: none;
 }
 
-/* === Fade-in Reveal Animation === */
+/* === FadeInSection wrapper classes === */
 .eethm-home-page .fade-in-section {
   opacity: 0;
   transform: translateY(20px);
-  transition: all var(--transition-slow);
+  transition: opacity var(--transition-slow), transform var(--transition-slow);
 }
 
 .eethm-home-page .fade-in-section.is-visible {
   opacity: 1;
-  transform: none;
+  transform: translateY(0);
 }
 
 /* === Services Section === */
 .eethm-home-page .services-page {
   padding: 60px 30px;
-  background: var(--color-white);
+  background-color: var(--color-white);
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .eethm-home-page .services-page h2 {
   text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 40px;
+  font-size: 2.8rem;
+  margin-bottom: 50px;
   color: var(--color-secondary);
+  font-family: var(--font-accent);
+  letter-spacing: 1px;
 }
 
 .eethm-home-page .service-list {
@@ -149,58 +175,205 @@ body, .eethm-home-page {
 }
 
 .eethm-home-page .service-item {
-  background: var(--color-white);
-  padding: 20px;
+  background-color: var(--color-white);
+  padding: 25px 20px;
   border-radius: var(--radius-md);
-  max-width: 300px;
+  max-width: 320px;
   width: 100%;
   box-shadow: var(--shadow-md);
-  text-align: left;
   border-left: 6px solid var(--color-accent-green);
-  transition: transform var(--transition-fast);
+  text-align: left;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  user-select: none;
 }
 
 .eethm-home-page .service-item:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
 }
 
 .eethm-home-page .service-item h3 {
-  font-size: 1.25rem;
-  margin-bottom: 10px;
+  font-size: 1.5rem;
+  margin-bottom: 12px;
   color: var(--color-primary);
 }
 
-.eethm-home-page .service-item p,
-.eethm-home-page .service-item li {
-  font-size: 1rem;
-  margin-bottom: 6px;
+.eethm-home-page .service-item p {
+  font-size: 1.05rem;
+  margin-bottom: 12px;
+  color: var(--color-neutral-dark);
 }
 
 .eethm-home-page .service-item ul {
   padding-left: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  color: var(--color-neutral);
+  font-size: 1rem;
+  list-style-type: disc;
+}
+
+.eethm-home-page .service-item li {
+  margin-bottom: 6px;
 }
 
 .eethm-home-page .service-item a {
   color: var(--color-secondary);
   text-decoration: underline;
-  font-weight: bold;
+  font-weight: 700;
+  transition: color var(--transition-fast);
 }
 
-/* === Banners & Media Cards === */
-.eethm-home-page .banner-cards-container,
-.eethm-home-page .banners-section {
-  padding: 40px 20px;
+.eethm-home-page .service-item a:hover {
+  color: var(--color-secondary-dark);
+}
+
+/* === Promotions Section === */
+.eethm-home-page .promotions-section {
+  padding: 60px 30px;
+  background-color: var(--color-white);
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
 }
 
-.eethm-home-page .banner-cards-title,
-.eethm-home-page .banners-section h2 {
-  font-size: 2.2rem;
-  color: var(--color-secondary);
-  margin-bottom: 30px;
+.eethm-home-page .promotions-section h2 {
+  font-size: 2.8rem;
+  color: var(--color-primary);
+  margin-bottom: 40px;
+  font-family: var(--font-accent);
 }
 
+.eethm-home-page .promos-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.eethm-home-page .promo-card {
+  background-color: var(--color-neutral-light);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  border-left: 6px solid var(--color-accent-gold);
+  text-align: left;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  user-select: none;
+}
+
+.eethm-home-page .promo-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.eethm-home-page .promo-card img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  margin-bottom: 15px;
+  object-fit: cover;
+}
+
+.eethm-home-page .promo-content h3 {
+  font-size: 1.4rem;
+  color: var(--color-secondary);
+  margin-bottom: 12px;
+}
+
+.eethm-home-page .promo-content p {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: var(--color-neutral-dark);
+}
+
+.eethm-home-page .discount {
+  color: var(--color-accent-green);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.eethm-home-page .validity {
+  font-size: 0.9rem;
+  color: var(--color-neutral-dark);
+  font-style: italic;
+}
+
+/* === Reviews Section === */
+.eethm-home-page .reviews-section {
+  padding: 60px 30px;
+  background-color: var(--color-neutral-light);
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  border-radius: var(--radius-md);
+}
+
+.eethm-home-page .reviews-section h2 {
+  font-size: 2.8rem;
+  color: var(--color-primary);
+  margin-bottom: 40px;
+  font-family: var(--font-accent);
+}
+
+.eethm-home-page .reviews-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.eethm-home-page .review-card {
+  background-color: var(--color-white);
+  border-left: 6px solid var(--color-secondary);
+  padding: 20px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  text-align: left;
+  user-select: none;
+  transition: transform var(--transition-fast);
+}
+
+.eethm-home-page .review-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.eethm-home-page .review-text {
+  font-size: 1rem;
+  margin-bottom: 15px;
+  color: var(--color-neutral-dark);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.eethm-home-page .review-author {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 1rem;
+  text-align: right;
+  user-select: text;
+}
+
+/* === Banners & Media Cards === */
+.eethm-home-page .banners-section {
+  padding: 50px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.eethm-home-page .banners-section h2 {
+  font-size: 2.6rem;
+  color: var(--color-secondary);
+  margin-bottom: 30px;
+  font-family: var(--font-accent);
+}
+
+.eethm-home-page .banner-cards-container,
 .eethm-home-page .banner-cards-grid,
 .eethm-home-page .banners-container {
   display: flex;
@@ -218,13 +391,16 @@ body, .eethm-home-page {
   max-width: 320px;
   width: 100%;
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  cursor: pointer;
+  user-select: none;
 }
 
 .eethm-home-page .banner-card:hover,
 .eethm-home-page .banner-item:hover,
 .eethm-home-page .media-card-wrapper:hover {
-  transform: scale(1.02);
+  transform: scale(1.03);
+  box-shadow: var(--shadow-md);
 }
 
 .eethm-home-page .banner-card img,
@@ -235,165 +411,61 @@ body, .eethm-home-page {
   height: auto;
   border-radius: var(--radius-sm);
   margin-bottom: 10px;
+  object-fit: cover;
 }
 
 .eethm-home-page .banner-card-caption,
 .eethm-home-page .banner-item h4 {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--color-accent-green);
-  margin-top: 5px;
-}
-
-.eethm-home-page .media-preview.fallback {
-  background-color: var(--color-neutral);
-  color: var(--color-white);
-  padding: 20px;
-  text-align: center;
-  border-radius: var(--radius-sm);
-}
-
-.eethm-home-page .media-preview.fallback a {
-  color: var(--color-accent-gold);
-  text-decoration: underline;
-}
-
-/* === Promotions Section === */
-.eethm-home-page .promotions-section {
-  padding: 60px 30px;
-  background-color: var(--color-white);
-  text-align: center;
-}
-
-.eethm-home-page .promotions-section h2 {
-  font-size: 2.5rem;
-  color: var(--color-primary);
-  margin-bottom: 30px;
-}
-
-.eethm-home-page .promos-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-.eethm-home-page .promo-card {
-  background-color: var(--color-neutral-light);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  max-width: 300px;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-  border-left: 6px solid var(--color-accent-gold);
-  text-align: left;
-  transition: transform var(--transition-fast);
-}
-
-.eethm-home-page .promo-card:hover {
-  transform: translateY(-5px);
-}
-
-.eethm-home-page .promo-card img {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-md);
-  margin-bottom: 12px;
-}
-
-.eethm-home-page .promo-content h3 {
-  font-size: 1.25rem;
-  color: var(--color-secondary);
-  margin-bottom: 10px;
-}
-
-.eethm-home-page .promo-content p {
-  font-size: 1rem;
-  margin-bottom: 8px;
-}
-
-.eethm-home-page .discount {
-  color: var(--color-accent-green);
-  font-weight: bold;
-}
-
-.eethm-home-page .validity {
-  font-size: 0.9rem;
-  color: var(--color-neutral-dark);
-  font-style: italic;
-}
-
-/* === Reviews Section === */
-.eethm-home-page .reviews-section {
-  padding: 60px 30px;
-  background-color: var(--color-neutral-light);
-  text-align: center;
-}
-
-.eethm-home-page .reviews-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-.eethm-home-page .review-card {
-  background-color: var(--color-white);
-  border-left: 6px solid var(--color-secondary);
-  padding: 20px;
-  max-width: 300px;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-  border-radius: var(--radius-md);
-  text-align: left;
-}
-
-.eethm-home-page .review-text {
-  font-size: 1rem;
-  margin-bottom: 10px;
-  color: var(--color-neutral-dark);
-}
-
-.eethm-home-page .review-author {
-  font-weight: bold;
-  color: var(--color-primary);
-  font-size: 0.9rem;
+  margin-top: 6px;
+  font-weight: 700;
 }
 
 /* === Responsive === */
 @media (max-width: 768px) {
   .eethm-home-page .overlay-content h1 {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .eethm-home-page .overlay-content p {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 
   .eethm-home-page .hero-buttons button {
-    font-size: 0.9rem;
-    padding: 10px 20px;
+    font-size: 1rem;
+    padding: 10px 22px;
   }
 
-  .eethm-home-page .services-page {
-    padding: 40px 15px;
+  .eethm-home-page .services-page,
+  .eethm-home-page .promotions-section,
+  .eethm-home-page .reviews-section,
+  .eethm-home-page .banners-section {
+    padding: 40px 20px;
   }
 
-  .eethm-home-page .banners-container,
-  .eethm-home-page .banner-cards-grid {
+  .eethm-home-page .service-list,
+  .eethm-home-page .promos-container,
+  .eethm-home-page .reviews-container,
+  .eethm-home-page .banner-cards-grid,
+  .eethm-home-page .banners-container {
     flex-direction: column;
     align-items: center;
   }
 
-  .eethm-home-page .banner-cards-title,
-  .eethm-home-page .banners-section h2 {
-    font-size: 1.8rem;
-  }
-
-  .eethm-home-page .promotions-section h2 {
-    font-size: 1.8rem;
-  }
-
-  .eethm-home-page .promo-card {
+  .eethm-home-page .service-item,
+  .eethm-home-page .promo-card,
+  .eethm-home-page .review-card,
+  .eethm-home-page .banner-card,
+  .eethm-home-page .banner-item,
+  .eethm-home-page .media-card-wrapper {
     max-width: 90%;
+  }
+
+  .eethm-home-page .banners-section h2,
+  .eethm-home-page .services-page h2,
+  .eethm-home-page .promotions-section h2,
+  .eethm-home-page .reviews-section h2 {
+    font-size: 2rem;
   }
 }

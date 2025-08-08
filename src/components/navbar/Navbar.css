@@ -157,8 +157,16 @@
   user-select: none;
   color: var(--color-accent-gold-light);
   transition: transform var(--transition-fast);
+  display: inline-block;
+  vertical-align: middle;
 }
 
+/* Caret rotation controlled by JS class */
+.caret.rotated {
+  transform: rotate(180deg);
+}
+
+/* Dropdown open on desktop hover/focus */
 .nav-item.dropdown:hover > .nav-links .caret,
 .nav-item.dropdown:focus-within > .nav-links .caret {
   transform: rotate(180deg);
@@ -181,35 +189,35 @@
   visibility: hidden;
   transform: translateY(10px);
   transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+  user-select: none;
 }
 
+/* Show dropdown on hover, focus-within, or JS active */
 .nav-item.dropdown:hover > .dropdown-menu,
 .nav-item.dropdown:focus-within > .dropdown-menu,
-.nav-item.dropdown .dropdown-menu.active {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+.nav-item.dropdown .dropdown-menu.active,
+.nav-item.dropdown .dropdown-menu[style] {
+  /* the inline style in React overrides, so keep !important */
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
 }
 
+/* Dropdown items */
 .navbar .dropdown-item {
   width: 100%;
-}
-
-.navbar .dropdown-link {
-  display: block;
-  width: 100%;
   padding: 14px 20px;
-  text-decoration: none;
   color: var(--color-white);
-  background-color: var(--color-neutral-dark);
   font-weight: 600;
   font-family: var(--font-main);
-  border-radius: var(--radius-sm);
+  cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+  border-radius: var(--radius-sm);
 }
 
-.navbar .dropdown-link:hover,
-.navbar .dropdown-link:focus {
+.navbar .dropdown-item:hover,
+.navbar .dropdown-item:focus {
   background-color: var(--color-primary-light);
   color: var(--color-accent-gold-light);
   outline: none;
@@ -300,6 +308,7 @@
     color: var(--color-white);
   }
 
+  /* Mobile dropdown menu - always visible and full width */
   .navbar .dropdown-menu {
     position: relative;
     top: 0;
@@ -313,7 +322,7 @@
     visibility: visible !important;
   }
 
-  .navbar .dropdown-link {
+  .navbar .dropdown-item {
     padding: 1.25rem 0;
     text-align: center;
     width: 100%;
@@ -323,7 +332,8 @@
     border-radius: 0;
   }
 
-  .navbar .dropdown-link:hover {
+  .navbar .dropdown-item:hover,
+  .navbar .dropdown-item:focus {
     background-color: var(--color-primary-light);
   }
 }
@@ -342,7 +352,7 @@
     font-size: 1rem;
   }
 
-  .navbar .dropdown-link {
+  .navbar .dropdown-item {
     font-size: 0.95rem;
   }
 }

@@ -41,6 +41,11 @@ const EethmHome = () => {
   const [reviewError, setReviewError] = useState(null);
   const [videos, setVideos] = useState([]);
 
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterSuccess, setNewsletterSuccess] = useState('');
+  const [newsletterError, setNewsletterError] = useState('');
+  const [showNewsletterForm, setShowNewsletterForm] = useState(false);
+
   const {
     media: heroMediaArr,
     loading: heroLoading,
@@ -52,7 +57,7 @@ const EethmHome = () => {
   const isImageHero = heroURL && !heroURL.endsWith('.mp4');
 
   const featuredVideo = videos.find(v => v.is_featured) || videos[0];
-  const featuredVideoUrl = featuredVideo?.url;
+  const featuredVideoUrl = featuredVideo?.file || featuredVideo?.url || '';
 
   const toggleMute = () => {
     setIsMuted(prev => !prev);
@@ -61,19 +66,24 @@ const EethmHome = () => {
     }
   };
 
+  // Fetch videos, promotions, reviews on mount
   useEffect(() => {
     const controller = new AbortController();
 
-    axiosCommon.get('/videos/')
+    // Videos - updated to match backend `/videos/` (GET) returns array
+    axiosCommon.get('/videos/', { signal: controller.signal })
       .then(res => {
         const all = Array.isArray(res.data) ? res.data : [];
-        const filtered = all.filter(v => v.is_active && v.endpoints.includes('EethmHome'));
+        const filtered = all.filter(v => v.is_active && v.endpoints?.includes('EethmHome'));
         setVideos(filtered);
       })
       .catch(err => {
-        console.error('❌ Failed to load videos.', err);
+        if (err.name !== 'CanceledError') {
+          console.error('❌ Failed to load videos.', err);
+        }
       });
 
+    // Promotions - /promotions/active/
     axiosCommon.get('/promotions/active/', { signal: controller.signal })
       .then(res => {
         setPromotions(Array.isArray(res.data) ? res.data : []);
@@ -84,6 +94,7 @@ const EethmHome = () => {
         }
       });
 
+    // Reviews - /reviews/
     axiosCommon.get('/reviews/', { signal: controller.signal })
       .then(res => {
         setReviews(Array.isArray(res.data) ? res.data : []);
@@ -97,52 +108,111 @@ const EethmHome = () => {
     return () => controller.abort();
   }, []);
 
+  // Handle newsletter subscription
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    setNewsletterError('');
+    setNewsletterSuccess('');
+
+    if (!newsletterEmail || !newsletterEmail.includes('@')) {
+      setNewsletterError('Please enter a valid email address.');
+      return;
+    }
+
+    try {
+      const response = await axiosCommon.post('/newsletter/subscribe/', {
+        email: newsletterEmail,
+      });
+      setNewsletterSuccess('Thank you for subscribing!');
+      setNewsletterEmail('');
+    } catch (err) {
+      setNewsletterError(err.response?.data?.error || 'Subscription failed. Please try again later.');
+    }
+  };
+
   return (
     <div className="eethm-home-page">
       <section className="video-hero-section">
         {heroLoading ? (
           <p className="video-fallback">Loading hero...</p>
         ) : heroError ? (
-          <p className="video-fallback" style={{ color: 'red' }}>{heroError}</p>
+          <p className="video-fallback" style={{ color: 'var(--color-error)' }}>{heroError}</p>
         ) : featuredVideoUrl ? (
           <>
             <video
               ref={videoRef}
-              className="background-video"
+              className="background-media"
               autoPlay
               loop
               muted={isMuted}
               playsInline
+              preload="auto"
             >
               <source src={featuredVideoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
+
             <div className="overlay-content">
               <h1>Ethical Multimedia GH Services</h1>
               <p>Live Band • Catering • Multimedia • Decor Services</p>
+
               <div className="hero-buttons">
-                <button onClick={() => navigate('/bookings')}>Book Now</button>
-                <button onClick={() => navigate('/newsletter')} className="newsletter-btn">
+                <button onClick={() => navigate('/bookings')} className="btn-primary">Book Now</button>
+
+                <button onClick={() => setShowNewsletterForm(true)} className="btn-secondary newsletter-btn">
                   📩 Subscribe to Newsletter
                 </button>
               </div>
             </div>
-            <button className="mute-button" onClick={toggleMute}>
+
+            <button
+              aria-label={isMuted ? 'Unmute video' : 'Mute video'}
+              className="mute-button"
+              onClick={toggleMute}
+              type="button"
+            >
               {isMuted ? '🔇' : '🔊'}
             </button>
           </>
         ) : isImageHero ? (
           <>
-            <img src={heroURL} alt="Hero" className="background-video" loading="lazy" />
+            <img src={heroURL} alt="Hero" className="background-media" loading="lazy" />
             <div className="overlay-content">
               <h1>Ethical Multimedia GH Services</h1>
               <p>Live Band • Catering • Multimedia • Decor Services</p>
+              <button onClick={() => setShowNewsletterForm(true)} className="btn-secondary newsletter-btn hero-image-subscribe">
+                📩 Subscribe to Newsletter
+              </button>
             </div>
           </>
         ) : (
           <p className="video-fallback">No hero media or video available.</p>
         )}
       </section>
+
+      {/* Newsletter subscription modal */}
+      {showNewsletterForm && (
+        <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
+          <div className="newsletter-modal" onClick={e => e.stopPropagation()}>
+            <button className="close-btn" onClick={() => setShowNewsletterForm(false)} aria-label="Close newsletter form">&times;</button>
+            <h2>Subscribe to Our Newsletter</h2>
+            <form onSubmit={handleSubscribe} className="newsletter-form">
+              <input
+                type="email"
+                placeholder="Your email address"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                required
+                aria-label="Email address"
+                autoFocus
+              />
+              <button type="submit" className="btn-primary">Subscribe</button>
+            </form>
+            {newsletterSuccess && <p className="success-message">{newsletterSuccess}</p>}
+            {newsletterError && <p className="error-message">{newsletterError}</p>}
+          </div>
+        </div>
+      )}
 
       <FadeInSection>
         <section className="services-page">
@@ -193,7 +263,7 @@ const EethmHome = () => {
               ))}
             </div>
           ) : promoError ? (
-            <p style={{ color: 'red' }}>{promoError}</p>
+            <p style={{ color: 'var(--color-error)' }}>{promoError}</p>
           ) : (
             <p>No current promotions.</p>
           )}
@@ -213,7 +283,7 @@ const EethmHome = () => {
               ))}
             </div>
           ) : reviewError ? (
-            <p style={{ color: 'red' }}>{reviewError}</p>
+            <p style={{ color: 'var(--color-error)' }}>{reviewError}</p>
           ) : (
             <p>No client reviews available.</p>
           )}
