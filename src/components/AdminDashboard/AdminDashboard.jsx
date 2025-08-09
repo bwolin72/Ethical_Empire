@@ -9,15 +9,24 @@ const AdminDashboard = ({ setActiveTab }) => {
   const [newsletterStats, setNewsletterStats] = useState({ posts: 0, subscribers: 0 });
   const [analytics, setAnalytics] = useState({ visits: 0, users: 0 });
 
+  // Fetch Media Stats (using mediaItems endpoint)
   const fetchMediaStats = async () => {
     try {
-      const res = await axiosInstance.get(api.media.stats);
-      setMediaStats(typeof res.data === 'object' ? res.data : {});
+      const res = await axiosInstance.get(api.media.mediaItems);
+      // Assuming res.data is array or object, adjust as needed
+      // Example: group by endpoint or count items (depends on your backend)
+      // Here just count total media items as an example:
+      if (Array.isArray(res.data)) {
+        setMediaStats({ totalMediaItems: res.data.length });
+      } else {
+        setMediaStats(res.data || {});
+      }
     } catch (err) {
       console.error('Failed to fetch media stats:', err);
     }
   };
 
+  // Fetch Review Count
   const fetchReviewCount = async () => {
     try {
       const res = await axiosInstance.get(api.reviews.list);
@@ -27,22 +36,30 @@ const AdminDashboard = ({ setActiveTab }) => {
     }
   };
 
+  // Fetch Newsletter Stats
   const fetchNewsletterStats = async () => {
     try {
       const logsRes = await axiosInstance.get(api.newsletter.logs);
-      const subsRes = await axiosInstance.get(api.newsletter.count);
+      // No `api.newsletter.count` in your api.js, so assuming subscriber count is part of logs or remove that
+      // For example, let's say subscriber count is included in logsRes.data.subscriber_count or similar
+      // Otherwise, you need a separate endpoint for subscriber count
+
+      // Example fallback:
+      const subscriberCount = logsRes.data?.subscriber_count || 0;
+
       setNewsletterStats({
-        posts: Array.isArray(logsRes.data) ? logsRes.data.length : 0,
-        subscribers: subsRes.data?.count || 0,
+        posts: Array.isArray(logsRes.data?.posts) ? logsRes.data.posts.length : (Array.isArray(logsRes.data) ? logsRes.data.length : 0),
+        subscribers: subscriberCount,
       });
     } catch (err) {
       console.error('Failed to fetch newsletter stats:', err);
     }
   };
 
+  // Fetch Analytics Data
   const fetchAnalytics = async () => {
     try {
-      const res = await axiosInstance.get(api.analytics.stats);
+      const res = await axiosInstance.get(api.analytics.site);
       setAnalytics({
         visits: res.data?.total || 0,
         users: res.data?.unique_users || 0,
@@ -92,21 +109,20 @@ const AdminDashboard = ({ setActiveTab }) => {
 
         <div className="overview-card">
           <h2>Media Management</h2>
-          {Object.keys(mediaStats).length > 0 ? (
+          {mediaStats && Object.keys(mediaStats).length > 0 ? (
+            // Adjust rendering depending on your mediaStats shape
             <table className="media-table">
               <thead>
                 <tr>
-                  <th>Endpoint</th>
-                  <th>Media</th>
-                  <th>Banner</th>
+                  <th>Metric</th>
+                  <th>Count</th>
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(mediaStats).map(([endpoint, data]) => (
-                  <tr key={endpoint}>
-                    <td>{endpoint}</td>
-                    <td>{data.media || 0}</td>
-                    <td>{data.banner || 0}</td>
+                {Object.entries(mediaStats).map(([key, value]) => (
+                  <tr key={key}>
+                    <td>{key}</td>
+                    <td>{value}</td>
                   </tr>
                 ))}
               </tbody>

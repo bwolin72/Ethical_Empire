@@ -81,12 +81,18 @@ const API = {
 
   // ===== BOOKINGS =====
   bookings: {
-    list: `${baseURL}/api/bookings/`,
-    create: `${baseURL}/api/bookings/create/`,
-    detail: (id) => `${baseURL}/api/bookings/${id}/`,
-    adminList: `${baseURL}/api/bookings/admin/list/`,
-    adminDetail: (id) => `${baseURL}/api/bookings/admin/${id}/`,
-  },
+   list: `${baseURL}/api/bookings/`,
+   create: `${baseURL}/api/bookings/create/`,
+   detail: (id) => `${baseURL}/api/bookings/${id}/`,
+
+   adminList: `${baseURL}/api/bookings/admin/list/`,
+   adminDetail: (id) => `${baseURL}/api/bookings/admin/${id}/`,
+   adminUpdate: (id) => `${baseURL}/api/bookings/admin/${id}/update/`,
+   adminUpdateStatus: (id) => `${baseURL}/api/bookings/admin/${id}/update-status/`,
+   adminSendConfirmation: (id) => `${baseURL}/api/bookings/admin/${id}/send-confirmation/`,
+   adminDelete: (id) => `${baseURL}/api/bookings/admin/${id}/delete/`,
+ },
+
 
   // ===== ANALYTICS =====
   analytics: {
