@@ -1,7 +1,5 @@
 // src/api/api.js
 import baseURL from './baseURL';
-import publicAxios from './publicAxios';
-import axiosInstance from './axiosInstance';
 
 /**
  * Grouped API endpoint paths
@@ -102,16 +100,16 @@ const API = {
   },
 };
 
-
-
 export default API;
 
 /**
  * Example usage:
  * 
  * // Public request
- * const res = await publicAxios.get(API.promotions.active);
+ * // import publicAxios from './publicAxios';
+ * // const res = await publicAxios.get(API.promotions.active);
  * 
  * // Authenticated request
- * const res = await axiosInstance.post(API.newsletter.send, payload);
+ * // import axiosInstance from './axiosInstance';
+ * // const res = await axiosInstance.post(API.newsletter.send, payload);
  */
