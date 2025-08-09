@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api';
 import './AdminPromotions.css';
 
 const AdminPromotions = () => {
@@ -17,10 +18,11 @@ const AdminPromotions = () => {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const res = await axiosInstance.get('/promotions/');
-        setPromotions(res.data.results || res.data); // depends on pagination
+        const res = await axiosInstance.get(api.promotions.list);
+        const data = res.data?.results || res.data; // handle pagination or direct list
+        setPromotions(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error('Error fetching promotions:', err);
+        console.error('[AdminPromotions] Fetch error:', err);
       }
     };
     fetchPromotions();
@@ -38,14 +40,14 @@ const AdminPromotions = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axiosInstance.put(`/promotions/${editId}/`, formData);
+        await axiosInstance.put(api.promotions.update(editId), formData);
       } else {
-        await axiosInstance.post('/promotions/', formData);
+        await axiosInstance.post(api.promotions.create, formData);
       }
       resetForm();
       setRefresh((r) => !r);
     } catch (err) {
-      console.error('Error submitting form:', err);
+      console.error('[AdminPromotions] Submit error:', err);
     }
   };
 
@@ -63,10 +65,10 @@ const AdminPromotions = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this promotion?')) return;
     try {
-      await axiosInstance.delete(`/promotions/${id}/`);
+      await axiosInstance.delete(api.promotions.delete(id));
       setRefresh((r) => !r);
     } catch (err) {
-      console.error('Error deleting:', err);
+      console.error('[AdminPromotions] Delete error:', err);
     }
   };
 
@@ -147,8 +149,8 @@ const AdminPromotions = () => {
             />
             <div className="promo-meta">
               <span>{promo.dismissible ? 'Dismissible' : 'Fixed'}</span>
-              <span className={`status ${promo.status.toLowerCase()}`}>
-                {promo.status}
+              <span className={`status ${promo.status?.toLowerCase() || ''}`}>
+                {promo.status || 'Unknown'}
               </span>
             </div>
             <div className="promo-actions">

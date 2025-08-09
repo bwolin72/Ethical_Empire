@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api';
 import './BookingManagement.css';
 
 const BookingManagement = () => {
@@ -20,7 +21,7 @@ const BookingManagement = () => {
   const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get('/bookings/admin/bookings/', { headers });
+      const res = await axiosInstance.get(api.bookings.admin.list, { headers });
       let data = res.data.results || res.data;
 
       if (search) {
@@ -46,7 +47,7 @@ const BookingManagement = () => {
 
   const fetchServices = useCallback(async () => {
     try {
-      const res = await axiosInstance.get('/services/', { headers });
+      const res = await axiosInstance.get(api.services.list, { headers });
       const data = res.data.results || res.data;
       setServices(data);
     } catch (err) {
@@ -86,7 +87,7 @@ const BookingManagement = () => {
   const saveEdit = async () => {
     try {
       await axiosInstance.patch(
-        `/bookings/admin/bookings/${editBooking.id}/update/`,
+        api.bookings.admin.update(editBooking.id),
         {
           name: editBooking.name,
           email: editBooking.email,
@@ -100,15 +101,14 @@ const BookingManagement = () => {
       );
 
       await axiosInstance.patch(
-        `/bookings/admin/bookings/${editBooking.id}/status/`,
+        api.bookings.admin.updateStatus(editBooking.id),
         { status: editBooking.status },
         { headers }
       );
 
-      // ⬇️ Send confirmation email if approved or rejected
       if (['approved', 'rejected'].includes(editBooking.status)) {
         await axiosInstance.post(
-          `/bookings/admin/bookings/${editBooking.id}/send-confirmation/`,
+          api.bookings.admin.sendConfirmation(editBooking.id),
           {},
           { headers }
         );
@@ -125,7 +125,7 @@ const BookingManagement = () => {
 
   const deleteBooking = async (id) => {
     try {
-      await axiosInstance.delete(`/bookings/admin/bookings/${id}/delete/`, { headers });
+      await axiosInstance.delete(api.bookings.admin.delete(id), { headers });
       fetchBookings();
     } catch (err) {
       console.error('Failed to delete booking:', err.response?.data || err.message);

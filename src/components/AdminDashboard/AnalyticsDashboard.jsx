@@ -1,5 +1,4 @@
 // src/components/AdminDashboard/AnalyticsDashboard.jsx
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '../ui/Card';
 import {
@@ -12,6 +11,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api';
 import './AnalyticsDashboard.css';
 
 const AnalyticsDashboard = () => {
@@ -22,8 +22,9 @@ const AnalyticsDashboard = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await axiosInstance.get('/analytics/stats/');
-        setData(response.data);
+        const res = await axiosInstance.get(api.analytics.stats);
+        // Ensure the data structure is valid
+        setData(res.data || {});
       } catch (err) {
         console.error('[AnalyticsDashboard] Fetch error:', err);
         if (err.response?.status === 401) {
@@ -68,7 +69,6 @@ const AnalyticsDashboard = () => {
     { name: 'Page Views', value: total_visits },
   ];
 
-  // Validate and clean chart_data
   const validChartData = Array.isArray(chart_data)
     ? chart_data.filter((entry) => entry.date && typeof entry.visits === 'number')
     : [];

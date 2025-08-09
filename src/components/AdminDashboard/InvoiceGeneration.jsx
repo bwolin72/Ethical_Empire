@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api';
 import './InvoiceGeneration.css';
 
 const InvoiceGeneration = () => {
@@ -19,13 +20,13 @@ const InvoiceGeneration = () => {
       setLoading(true);
       try {
         const [bookingsRes, servicesRes] = await Promise.all([
-          axiosInstance.get('/bookings/'),
-          axiosInstance.get('/services/')
+          axiosInstance.get(api.bookings.list),
+          axiosInstance.get(api.services.list),
         ]);
-        setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : []);
-        setServices(Array.isArray(servicesRes.data) ? servicesRes.data : []);
+        setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : bookingsRes.data?.results || []);
+        setServices(Array.isArray(servicesRes.data) ? servicesRes.data : servicesRes.data?.results || []);
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('[InvoiceGeneration] Fetch error:', err);
         setMessage('❌ Failed to load bookings or services.');
       } finally {
         setLoading(false);
@@ -34,7 +35,8 @@ const InvoiceGeneration = () => {
     fetchData();
   }, []);
 
-  const booking = bookings.find(b => b.id === selectedId);
+  const booking = bookings.find((b) => b.id === selectedId);
+
   const serviceList = Array.isArray(booking?.service_type)
     ? booking.service_type
     : booking?.service_type
@@ -42,12 +44,10 @@ const InvoiceGeneration = () => {
     : [];
 
   const total =
-    Array.isArray(serviceList) && Array.isArray(services)
-      ? serviceList.reduce((sum, s) => {
-          const match = services.find(item => item.name === s);
-          return sum + (match ? parseFloat(match.price) : 0);
-        }, 0)
-      : 0;
+    serviceList.reduce((sum, s) => {
+      const match = services.find((item) => item.name === s);
+      return sum + (match ? parseFloat(match.price) : 0);
+    }, 0);
 
   const paid = paymentStatus === 'full' ? total : paymentStatus === 'half' ? total / 2 : 0;
   const remaining = total - paid;
@@ -65,15 +65,15 @@ const InvoiceGeneration = () => {
     setPdfPreviewUrl(null);
 
     try {
-      const res = await axiosInstance.post('/invoices/', {
+      const res = await axiosInstance.post(api.invoices.create, {
         booking_id: booking.id,
-        payment_status: paymentStatus
+        payment_status: paymentStatus,
       });
       setCreatedInvoiceId(res.data.id);
       setMessage('✅ Invoice created successfully.');
       fetchInvoicePDF(res.data.id);
     } catch (error) {
-      console.error(error);
+      console.error('[InvoiceGeneration] Create error:', error);
       setMessage('❌ Error creating invoice.');
     } finally {
       setCreating(false);
@@ -82,14 +82,13 @@ const InvoiceGeneration = () => {
 
   const fetchInvoicePDF = async (invoiceId) => {
     try {
-      const res = await axiosInstance.get(`/invoices/${invoiceId}/download_pdf/`, {
-        responseType: 'blob'
+      const res = await axiosInstance.get(api.invoices.downloadPDF(invoiceId), {
+        responseType: 'blob',
       });
       const blob = new Blob([res.data], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      setPdfPreviewUrl(url);
+      setPdfPreviewUrl(URL.createObjectURL(blob));
     } catch (error) {
-      console.error('Failed to fetch PDF:', error);
+      console.error('[InvoiceGeneration] PDF fetch error:', error);
       setMessage('❌ Could not load PDF preview.');
     }
   };
@@ -97,16 +96,16 @@ const InvoiceGeneration = () => {
   const downloadInvoice = async () => {
     if (!createdInvoiceId) return;
     try {
-      const res = await axiosInstance.get(`/invoices/${createdInvoiceId}/download_pdf/`, {
-        responseType: 'blob'
+      const res = await axiosInstance.get(api.invoices.downloadPDF(createdInvoiceId), {
+        responseType: 'blob',
       });
       const blob = new Blob([res.data], { type: 'application/pdf' });
       const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = `invoice_${booking.name}_${createdInvoiceId}.pdf`;
+      link.href = URL.createObjectURL(blob);
+      link.download = `invoice_${booking?.name || 'booking'}_${createdInvoiceId}.pdf`;
       link.click();
     } catch (error) {
-      console.error('Error downloading invoice:', error);
+      console.error('[InvoiceGeneration] Download error:', error);
       setMessage('❌ Failed to download PDF.');
     }
   };
@@ -114,10 +113,10 @@ const InvoiceGeneration = () => {
   const sendInvoiceEmail = async () => {
     if (!createdInvoiceId) return;
     try {
-      await axiosInstance.post(`/invoices/${createdInvoiceId}/send_email/`);
+      await axiosInstance.post(api.invoices.sendEmail(createdInvoiceId));
       setMessage('📧 Invoice sent via email.');
     } catch (error) {
-      console.error('Error sending invoice email:', error);
+      console.error('[InvoiceGeneration] Email error:', error);
       setMessage('❌ Failed to send invoice email.');
     }
   };
@@ -150,7 +149,7 @@ const InvoiceGeneration = () => {
             <p><strong>Total:</strong> GHS {total.toFixed(2)}</p>
 
             <div className="payment-options">
-              {['none', 'half', 'full'].map(option => (
+              {['none', 'half', 'full'].map((option) => (
                 <label key={option}>
                   <input
                     type="radio"
@@ -171,11 +170,9 @@ const InvoiceGeneration = () => {
               <button onClick={createInvoice} disabled={creating}>
                 {creating ? 'Creating...' : 'Create Invoice'}
               </button>
-
               <button onClick={downloadInvoice} disabled={!createdInvoiceId}>
                 Download PDF
               </button>
-
               <button onClick={sendInvoiceEmail} disabled={!createdInvoiceId}>
                 Send Invoice Email
               </button>
@@ -208,7 +205,7 @@ const InvoiceGeneration = () => {
         transition={{ duration: 0.5 }}
       >
         <h2>Bookings</h2>
-        {bookings.map(b => (
+        {bookings.map((b) => (
           <div
             key={b.id}
             onClick={() => {

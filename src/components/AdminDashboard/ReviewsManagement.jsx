@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api';
 import './ReviewsManagement.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,7 +18,7 @@ const ReviewsManagement = () => {
     const toastId = toast.loading('Loading reviews...');
     setLoading(true);
     try {
-      const res = await axiosInstance.get('/reviews/admin/');
+      const res = await axiosInstance.get(api.reviews.admin.list);
       const data = Array.isArray(res.data) ? res.data : [];
       setReviews(data);
       toast.update(toastId, {
@@ -41,7 +42,7 @@ const ReviewsManagement = () => {
   const handleDelete = async (id) => {
     const toastId = toast.loading('Deleting review...');
     try {
-      await axiosInstance.delete(`/reviews/${id}/delete/`);
+      await axiosInstance.delete(api.reviews.delete(id));
       toast.update(toastId, {
         render: '🗑️ Review deleted.',
         type: 'success',
@@ -68,7 +69,7 @@ const ReviewsManagement = () => {
 
     const toastId = toast.loading('Sending reply...');
     try {
-      await axiosInstance.patch(`/reviews/${id}/reply/`, { reply });
+      await axiosInstance.patch(api.reviews.reply(id), { reply });
       toast.update(toastId, {
         render: '✅ Reply sent.',
         type: 'success',
@@ -90,7 +91,7 @@ const ReviewsManagement = () => {
   const handleApprove = async (id) => {
     const toastId = toast.loading('Approving review...');
     try {
-      await axiosInstance.patch(`/reviews/${id}/approve/`);
+      await axiosInstance.patch(api.reviews.approve(id));
       toast.update(toastId, {
         render: '✅ Review approved.',
         type: 'success',

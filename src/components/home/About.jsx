@@ -26,10 +26,8 @@ const About = () => {
 
     const fetchServices = async () => {
       try {
-        const res = await publicAxios.get('/services/');
-        if (isMounted) {
-          setServices(res.data || []);
-        }
+        const { data } = await publicAxios.get('/services/');
+        if (isMounted) setServices(data || []);
       } catch (error) {
         console.error('Services fetch error:', error);
       }
@@ -37,10 +35,8 @@ const About = () => {
 
     const fetchTestimonials = async () => {
       try {
-        const res = await publicAxios.get('/reviews/');
-        if (isMounted) {
-          setTestimonials(res.data || []);
-        }
+        const { data } = await publicAxios.get('/reviews/');
+        if (isMounted) setTestimonials(data || []);
       } catch (error) {
         console.error('Testimonials fetch error:', error);
       }
@@ -48,10 +44,19 @@ const About = () => {
 
     const fetchVideoHero = async () => {
       try {
-        const res = await axiosCommon.get('/videos/?endpoint=About&is_active=true');
-        const videoList = Array.isArray(res.data) ? res.data : [];
+        // Match backend query params exactly
+        const { data } = await axiosCommon.get(
+          '/videos/',
+          { params: { endpoint: 'About', is_active: true } }
+        );
+
+        const videoList = Array.isArray(data) ? data : [];
         const featured = videoList.find(v => v.is_featured) || videoList[0];
-        if (featured?.video_url) setVideoHeroUrl(featured.video_url);
+
+        // The backend serializer gives CloudinaryField as "video_file" not "video_url"
+        if (featured?.video_file) {
+          setVideoHeroUrl(featured.video_file);
+        }
       } catch (error) {
         console.error('Hero video fetch error:', error);
       }
@@ -99,7 +104,7 @@ const About = () => {
 
       <BannerCards endpoint="About" title="Explore Our Visual Stories" />
 
-      {/* === Services Grid (Dynamic) === */}
+      {/* === Services Grid === */}
       {services.length > 0 && (
         <section className="service-grid px-4">
           {services.map(({ id, icon_url, title, description }) => (

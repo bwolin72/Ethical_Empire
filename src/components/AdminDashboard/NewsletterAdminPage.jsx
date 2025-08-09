@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api';
 import { toast } from 'react-toastify';
 import { FaTrash, FaEnvelope, FaEye, FaPaperPlane } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
@@ -19,9 +20,9 @@ const NewsletterManagement = () => {
     const fetchAllData = async () => {
       try {
         const [logsRes, countRes, subsRes] = await Promise.all([
-          axiosInstance.get('/newsletter/logs/'),
-          axiosInstance.get('/newsletter/count/'),
-          axiosInstance.get('/newsletter/list/'),
+          axiosInstance.get(api.newsletter.logs),
+          axiosInstance.get(api.newsletter.count),
+          axiosInstance.get(api.newsletter.list),
         ]);
 
         setNewsletterLog(logsRes.data);
@@ -39,7 +40,7 @@ const NewsletterManagement = () => {
 
   const refreshLogs = async () => {
     try {
-      const { data } = await axiosInstance.get('/newsletter/logs/');
+      const { data } = await axiosInstance.get(api.newsletter.logs);
       setNewsletterLog(data);
     } catch {
       toast.error('❌ Failed to refresh logs');
@@ -49,8 +50,8 @@ const NewsletterManagement = () => {
   const refreshSubscribers = async () => {
     try {
       const [subsRes, countRes] = await Promise.all([
-        axiosInstance.get('/newsletter/list/'),
-        axiosInstance.get('/newsletter/count/'),
+        axiosInstance.get(api.newsletter.list),
+        axiosInstance.get(api.newsletter.count),
       ]);
       setSubscribers(subsRes.data);
       setRecipientsCount(countRes.data.count);
@@ -67,7 +68,7 @@ const NewsletterManagement = () => {
 
     setSending(true);
     try {
-      const { data } = await axiosInstance.post('/newsletter/send/', {
+      const { data } = await axiosInstance.post(api.newsletter.send, {
         subject,
         html: content,
         test,
@@ -83,7 +84,7 @@ const NewsletterManagement = () => {
 
   const handleResendConfirmation = async (email) => {
     try {
-      await axiosInstance.post('/newsletter/resend-confirmation/', { email });
+      await axiosInstance.post(api.newsletter.resendConfirmation, { email });
       toast.success(`✅ Confirmation email resent to ${email}`);
     } catch {
       toast.error(`❌ Failed to resend confirmation to ${email}`);
@@ -93,7 +94,7 @@ const NewsletterManagement = () => {
   const handleDeleteSubscriber = async (id) => {
     if (!window.confirm('Are you sure you want to delete this subscriber?')) return;
     try {
-      await axiosInstance.delete(`/newsletter/delete/${id}/`);
+      await axiosInstance.delete(api.newsletter.delete(id));
       toast.success('✅ Subscriber deleted');
       await refreshSubscribers();
     } catch {

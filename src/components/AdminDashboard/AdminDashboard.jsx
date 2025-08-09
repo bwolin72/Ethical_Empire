@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api'; // ✅ new central API map
 import './AdminDashboard.css';
 
 const AdminDashboard = ({ setActiveTab }) => {
@@ -10,7 +11,7 @@ const AdminDashboard = ({ setActiveTab }) => {
 
   const fetchMediaStats = async () => {
     try {
-      const res = await axiosInstance.get('/media/stats/');
+      const res = await axiosInstance.get(api.media.stats);
       setMediaStats(typeof res.data === 'object' ? res.data : {});
     } catch (err) {
       console.error('Failed to fetch media stats:', err);
@@ -19,7 +20,7 @@ const AdminDashboard = ({ setActiveTab }) => {
 
   const fetchReviewCount = async () => {
     try {
-      const res = await axiosInstance.get('/reviews/');
+      const res = await axiosInstance.get(api.reviews.list);
       setReviewCount(Array.isArray(res.data) ? res.data.length : 0);
     } catch (err) {
       console.error('Failed to fetch reviews:', err);
@@ -28,8 +29,8 @@ const AdminDashboard = ({ setActiveTab }) => {
 
   const fetchNewsletterStats = async () => {
     try {
-      const logsRes = await axiosInstance.get('/newsletter/logs/');
-      const subsRes = await axiosInstance.get('/newsletter/count/');
+      const logsRes = await axiosInstance.get(api.newsletter.logs);
+      const subsRes = await axiosInstance.get(api.newsletter.count);
       setNewsletterStats({
         posts: Array.isArray(logsRes.data) ? logsRes.data.length : 0,
         subscribers: subsRes.data?.count || 0,
@@ -41,7 +42,7 @@ const AdminDashboard = ({ setActiveTab }) => {
 
   const fetchAnalytics = async () => {
     try {
-      const res = await axiosInstance.get('/analytics/stats/');
+      const res = await axiosInstance.get(api.analytics.stats);
       setAnalytics({
         visits: res.data?.total || 0,
         users: res.data?.unique_users || 0,
@@ -70,7 +71,6 @@ const AdminDashboard = ({ setActiveTab }) => {
         <div className="overview-card">
           <h2>Bookings</h2>
           <p>23 active bookings</p>
-          {/* switch panel directly */}
           <button onClick={() => setActiveTab && setActiveTab('booking')}>Learn More</button>
         </div>
 

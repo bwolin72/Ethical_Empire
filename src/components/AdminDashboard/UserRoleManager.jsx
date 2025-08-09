@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api';
 import { Button } from '../ui/Button';
 import { Card, CardContent } from '../ui/Card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/Tabs';
@@ -41,8 +42,7 @@ const UserRoleManager = () => {
   const fetchUsers = async (role) => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get(`/accounts/admin/list-users/?role=${role}`);
-      console.log('[UserRoleManager] Fetched:', res.data);
+      const res = await axiosInstance.get(api.accounts.admin.listUsers(role));
       setUsers(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
       console.error('[UserRoleManager] Fetch error:', err);
@@ -65,7 +65,7 @@ const UserRoleManager = () => {
     try {
       await Promise.all(
         selected.map((id) =>
-          axiosInstance.delete(`/accounts/delete-by-email/`, { data: { id } })
+          axiosInstance.delete(api.accounts.deleteByEmail, { data: { id } })
         )
       );
       toast.success('Users deleted');
@@ -82,7 +82,7 @@ const UserRoleManager = () => {
     if (!selected.length || !message.trim()) return;
     setSubmitting(true);
     try {
-      await axiosInstance.post('/accounts/profiles/send-message/', {
+      await axiosInstance.post(api.accounts.profiles.sendMessage, {
         ids: selected,
         message,
       });
@@ -99,7 +99,7 @@ const UserRoleManager = () => {
     if (!selected.length || !message.trim()) return;
     setSubmitting(true);
     try {
-      await axiosInstance.post('/accounts/profiles/special-offer/', {
+      await axiosInstance.post(api.accounts.profiles.specialOffer, {
         ids: selected,
         message,
       });
@@ -116,7 +116,7 @@ const UserRoleManager = () => {
     if (!inviteEmail.trim()) return;
     setSubmitting(true);
     try {
-      const res = await axiosInstance.post('/accounts/admin/invite-worker/', {
+      const res = await axiosInstance.post(api.accounts.admin.inviteWorker, {
         email: inviteEmail,
       });
       toast.success(`Worker invited. Access code: ${res.data.access_code}`);
@@ -131,7 +131,7 @@ const UserRoleManager = () => {
   const handleToggleActive = async (userId) => {
     setSubmitting(true);
     try {
-      await axiosInstance.post(`/accounts/profiles/toggle-active/${userId}/`);
+      await axiosInstance.post(api.accounts.profiles.toggleActive(userId));
       toast.success('Status updated');
       fetchUsers(activeTab);
     } catch (err) {

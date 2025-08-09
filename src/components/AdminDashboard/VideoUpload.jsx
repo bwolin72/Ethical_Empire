@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api';
 import './VideoUpload.css';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -41,12 +42,21 @@ const VideoManagerAdmin = () => {
   const [videos, setVideos] = useState([]);
   const [previewVideo, setPreviewVideo] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  // Upload form state
+  const [label, setLabel] = useState('');
+  const [type, setType] = useState('');
+  const [file, setFile] = useState(null);
+
+  const CLOUDINARY_UPLOAD_PRESET = 'your_unsigned_preset';
+  const CLOUDINARY_CLOUD_NAME = 'your_cloud_name';
 
   /* Fetch videos from API */
   const fetchVideos = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get('/videos/');
+      const res = await axiosInstance.get(api.videos.list);
       const data = Array.isArray(res.data) ? res.data : res.data?.results || [];
       setVideos(data);
     } catch (err) {
@@ -60,10 +70,54 @@ const VideoManagerAdmin = () => {
     fetchVideos();
   }, []);
 
+  /* Upload to Cloudinary then register in backend */
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    if (!file || !label.trim() || !type.trim()) {
+      alert('Please fill in all fields and select a file.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+      const cloudinaryRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`,
+        { method: 'POST', body: formData }
+      );
+      const cloudinaryData = await cloudinaryRes.json();
+
+      if (!cloudinaryData.secure_url) {
+        throw new Error('Cloudinary upload failed');
+      }
+
+      // Send to backend
+      await axiosInstance.post(api.videos.create, {
+        label,
+        type,
+        video_url: cloudinaryData.secure_url,
+      });
+
+      setLabel('');
+      setType('');
+      setFile(null);
+      fetchVideos();
+    } catch (err) {
+      console.error('Video upload failed:', err);
+      alert('Video upload failed.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   /* Toggle Active Status */
   const handleToggleActive = async (id) => {
     try {
-      await axiosInstance.patch(`/videos/${id}/toggle_active/`);
+      await axiosInstance.patch(api.videos.toggleActive(id));
       fetchVideos();
     } catch (err) {
       console.error('Toggle active failed:', err);
@@ -73,7 +127,7 @@ const VideoManagerAdmin = () => {
   /* Toggle Featured Status */
   const handleToggleFeatured = async (id) => {
     try {
-      await axiosInstance.patch(`/videos/${id}/toggle_featured/`);
+      await axiosInstance.patch(api.videos.toggleFeatured(id));
       fetchVideos();
     } catch (err) {
       console.error('Toggle featured failed:', err);
@@ -91,7 +145,7 @@ const VideoManagerAdmin = () => {
     setVideos(reordered);
 
     try {
-      await axiosInstance.post('/videos/reorder/', {
+      await axiosInstance.post(api.videos.reorder, {
         order: reordered.map((v) => v.id),
       });
     } catch (err) {
@@ -99,13 +153,33 @@ const VideoManagerAdmin = () => {
     }
   };
 
-  if (!Array.isArray(videos)) {
-    return <div className="error-message">⚠️ Invalid video data format.</div>;
-  }
-
   return (
     <div className="video-admin-panel">
       <h2>📽️ Video Manager</h2>
+
+      {/* Upload Form */}
+      <form onSubmit={handleUpload} className="video-upload-form">
+        <input
+          type="text"
+          placeholder="Video Label"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Video Type"
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+        />
+        <input
+          type="file"
+          accept="video/*"
+          onChange={(e) => setFile(e.target.files[0])}
+        />
+        <button type="submit" disabled={uploading}>
+          {uploading ? 'Uploading...' : 'Upload Video'}
+        </button>
+      </form>
 
       {loading && <p>Loading videos...</p>}
 
