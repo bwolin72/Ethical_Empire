@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api'; // ✅ new central API map
+import api from '../../api/api'; // Central API endpoints map
 import './AdminDashboard.css';
 
 const AdminDashboard = ({ setActiveTab }) => {
@@ -9,13 +9,10 @@ const AdminDashboard = ({ setActiveTab }) => {
   const [newsletterStats, setNewsletterStats] = useState({ posts: 0, subscribers: 0 });
   const [analytics, setAnalytics] = useState({ visits: 0, users: 0 });
 
-  // Fetch Media Stats (using mediaItems endpoint)
+  // Fetch Media Stats (mediaItems endpoint returns array of media items)
   const fetchMediaStats = async () => {
     try {
       const res = await axiosInstance.get(api.media.mediaItems);
-      // Assuming res.data is array or object, adjust as needed
-      // Example: group by endpoint or count items (depends on your backend)
-      // Here just count total media items as an example:
       if (Array.isArray(res.data)) {
         setMediaStats({ totalMediaItems: res.data.length });
       } else {
@@ -23,40 +20,35 @@ const AdminDashboard = ({ setActiveTab }) => {
       }
     } catch (err) {
       console.error('Failed to fetch media stats:', err);
+      setMediaStats({});
     }
   };
 
-  // Fetch Review Count
+  // Fetch Review Count (reviews.list returns an array of reviews)
   const fetchReviewCount = async () => {
     try {
       const res = await axiosInstance.get(api.reviews.list);
       setReviewCount(Array.isArray(res.data) ? res.data.length : 0);
     } catch (err) {
       console.error('Failed to fetch reviews:', err);
+      setReviewCount(0);
     }
   };
 
-  // Fetch Newsletter Stats
+  // Fetch Newsletter Stats (logs endpoint assumed to return an array of posts and subscriber_count)
   const fetchNewsletterStats = async () => {
     try {
-      const logsRes = await axiosInstance.get(api.newsletter.logs);
-      // No `api.newsletter.count` in your api.js, so assuming subscriber count is part of logs or remove that
-      // For example, let's say subscriber count is included in logsRes.data.subscriber_count or similar
-      // Otherwise, you need a separate endpoint for subscriber count
-
-      // Example fallback:
-      const subscriberCount = logsRes.data?.subscriber_count || 0;
-
-      setNewsletterStats({
-        posts: Array.isArray(logsRes.data?.posts) ? logsRes.data.posts.length : (Array.isArray(logsRes.data) ? logsRes.data.length : 0),
-        subscribers: subscriberCount,
-      });
+      const res = await axiosInstance.get(api.newsletter.logs);
+      const postsCount = Array.isArray(res.data.posts) ? res.data.posts.length : (Array.isArray(res.data) ? res.data.length : 0);
+      const subscriberCount = res.data.subscriber_count || 0;
+      setNewsletterStats({ posts: postsCount, subscribers: subscriberCount });
     } catch (err) {
       console.error('Failed to fetch newsletter stats:', err);
+      setNewsletterStats({ posts: 0, subscribers: 0 });
     }
   };
 
-  // Fetch Analytics Data
+  // Fetch Analytics Data (analytics.site returns { total, unique_users } ideally)
   const fetchAnalytics = async () => {
     try {
       const res = await axiosInstance.get(api.analytics.site);
@@ -66,6 +58,7 @@ const AdminDashboard = ({ setActiveTab }) => {
       });
     } catch (err) {
       console.error('Failed to fetch analytics:', err);
+      setAnalytics({ visits: 0, users: 0 });
     }
   };
 
@@ -110,7 +103,6 @@ const AdminDashboard = ({ setActiveTab }) => {
         <div className="overview-card">
           <h2>Media Management</h2>
           {mediaStats && Object.keys(mediaStats).length > 0 ? (
-            // Adjust rendering depending on your mediaStats shape
             <table className="media-table">
               <thead>
                 <tr>
