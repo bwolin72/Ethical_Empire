@@ -4,7 +4,7 @@ if (!baseURL) {
   baseURL =
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:8000/api/'
-      : 'https://api.eethmghmultimedia.com';
+      : 'https://api.eethmghmultimedia.com/';
 }
 
 if (!baseURL.endsWith('/')) baseURL += '/';
