@@ -1,10 +1,6 @@
 // src/api/api.js
 import baseURL from './baseURL';
 
-/**
- * Grouped API endpoint paths
- * Call with publicAxios (no auth) or axiosInstance (requires auth/admin)
- */
 const API = {
   // ===== AUTH & ACCOUNTS =====
   auth: {
@@ -14,23 +10,20 @@ const API = {
     internalRegister: `${baseURL}/api/accounts/internal-register/`,
 
     profile: `${baseURL}/api/accounts/profile/`,
-    updateProfile: `${baseURL}/api/accounts/profile/`, // use PATCH/PUT for updates
+    updateProfile: `${baseURL}/api/accounts/profile/`,
     changePassword: `${baseURL}/api/accounts/profile/change-password/`,
 
     resetPassword: `${baseURL}/api/accounts/reset-password/`,
     resetPasswordConfirm: (uid, token) =>
       `${baseURL}/api/accounts/reset-password-confirm/${uid}/${token}/`,
 
-    // Google OAuth
     googleLogin: `${baseURL}/api/accounts/google-login/`,
     googleRegister: `${baseURL}/api/accounts/google-register/`,
 
-    // JWT token endpoints
     token: `${baseURL}/api/accounts/token/`,
     tokenRefresh: `${baseURL}/api/accounts/token/refresh/`,
     tokenVerify: `${baseURL}/api/accounts/token/verify/`,
 
-    // Additional account utilities
     profileByEmail: `${baseURL}/api/accounts/profile-by-email/`,
     partnerProfile: `${baseURL}/api/accounts/profile/partner/`,
     vendorProfile: `${baseURL}/api/accounts/profile/vendor/`,
@@ -45,21 +38,30 @@ const API = {
     resendWelcomeEmail: `${baseURL}/api/accounts/resend-welcome-email/`,
     deleteByEmail: `${baseURL}/api/accounts/delete-by-email/`,
 
-    // Admin-only account management
     adminListUsers: `${baseURL}/api/accounts/admin/list-users/`,
     adminResetPassword: `${baseURL}/api/accounts/admin-reset-password/`,
     adminInviteWorker: `${baseURL}/api/accounts/admin/invite-worker/`,
 
-    // Invite workflow
     workerValidateInvite: (uid, token) =>
       `${baseURL}/api/accounts/worker/validate-invite/${uid}/${token}/`,
     workerCompleteInvite: `${baseURL}/api/accounts/worker/complete-invite/`,
+
+    // Missing in original
+    profilesList: `${baseURL}/api/accounts/profiles/list/`,
+    profilesProfile: `${baseURL}/api/accounts/profiles/profile/`,
+    toggleUserActive: (userId) =>
+      `${baseURL}/api/accounts/profiles/toggle-active/${userId}/`,
+    workerCategories: `${baseURL}/api/accounts/worker-categories/`,
   },
 
   // ===== MESSAGING =====
   messaging: {
     sendMessage: `${baseURL}/api/accounts/profiles/send-message/`,
     specialOffer: `${baseURL}/api/accounts/profiles/special-offer/`,
+
+    // Added direct messaging endpoints
+    list: `${baseURL}/api/messaging/messages/`,
+    detail: (id) => `${baseURL}/api/messaging/messages/${id}/`,
   },
 
   // ===== MEDIA =====
@@ -80,6 +82,15 @@ const API = {
     reorder: `${baseURL}/api/media/reorder/`,
     upload: `${baseURL}/api/media/upload/`,
     userMedia: `${baseURL}/api/media/user/`,
+
+    // Missing media endpoints
+    defaultList: `${baseURL}/api/media/`,
+    delete: (id) => `${baseURL}/api/media/${id}/delete/`,
+    restore: (id) => `${baseURL}/api/media/${id}/restore/`,
+    toggle: (id) => `${baseURL}/api/media/${id}/toggle/`,
+    toggleFeatured: (id) => `${baseURL}/api/media/${id}/toggle/featured/`,
+    update: (id) => `${baseURL}/api/media/${id}/update/`,
+    debugProto: `${baseURL}/api/media/debug/proto/`,
   },
 
   // ===== VIDEOS =====
@@ -96,6 +107,7 @@ const API = {
   services: {
     list: `${baseURL}/api/services/`,
     detail: (slug) => `${baseURL}/api/services/${slug}/`,
+    detailSlug: (slug) => `${baseURL}/api/services/${slug}/`, // covers <slug:slug>
   },
 
   // ===== PROMOTIONS =====
@@ -132,8 +144,8 @@ const API = {
   // ===== BOOKINGS =====
   bookings: {
     list: `${baseURL}/api/bookings/`,
-    create: `${baseURL}/api/bookings/submit/`,
     detail: (id) => `${baseURL}/api/bookings/${id}/`,
+    create: `${baseURL}/api/bookings/submit/`,
     userBookings: `${baseURL}/api/bookings/user/`,
 
     adminList: `${baseURL}/api/bookings/bookings-admin/bookings/`,
@@ -146,7 +158,24 @@ const API = {
     adminDelete: (id) =>
       `${baseURL}/api/bookings/bookings-admin/bookings/${id}/delete/`,
 
+    // Added alternative admin paths
+    adminSimpleList: `${baseURL}/api/bookings/admin/bookings/`,
+    adminSimpleDelete: (id) =>
+      `${baseURL}/api/bookings/admin/bookings/${id}/delete/`,
+    adminSimpleStatus: (id) =>
+      `${baseURL}/api/bookings/admin/bookings/${id}/status/`,
+
     invoice: (id) => `${baseURL}/api/bookings/invoice/${id}/`,
+  },
+
+  // ===== INVOICES =====
+  invoices: {
+    list: `${baseURL}/api/invoices/invoices/`,
+    detail: (id) => `${baseURL}/api/invoices/invoices/${id}/`,
+    downloadPdf: (id) =>
+      `${baseURL}/api/invoices/invoices/${id}/download_pdf/`,
+    sendEmail: (id) =>
+      `${baseURL}/api/invoices/invoices/${id}/send_email/`,
   },
 
   // ===== CONTACT =====
