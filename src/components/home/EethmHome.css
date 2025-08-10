@@ -1,24 +1,13 @@
+/* ===========================================
+   🌟 Base Global Styles (from variables.css)
+   =========================================== */
+
+/* Keep your existing theme variables + layout exactly as provided */
+@import url("../variables.css");
+
 /* ======================================================
-   🎨 Global Theme Variables — variables.css
-   (Provided separately, assumed imported or globally applied)
+   🖼 Hero Section (same as your provided styles)
    ====================================================== */
-
-/* === Base Styles === */
-html {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
-}
-
-body,
-.eethm-home-page {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-main);
-  background-color: var(--color-white);
-  color: var(--color-neutral-dark);
-}
-
-/* === Hero Section === */
 .eethm-home-page .video-hero-section {
   position: relative;
   height: 100vh;
@@ -138,334 +127,124 @@ body,
   user-select: none;
 }
 
-/* === FadeInSection wrapper classes === */
-.eethm-home-page .fade-in-section {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity var(--transition-slow), transform var(--transition-slow);
-}
-
-.eethm-home-page .fade-in-section.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* === Services Section === */
-.eethm-home-page .services-page {
-  padding: 60px 30px;
-  background-color: var(--color-white);
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.eethm-home-page .services-page h2 {
-  text-align: center;
-  font-size: 2.8rem;
-  margin-bottom: 50px;
-  color: var(--color-secondary);
-  font-family: var(--font-accent);
-  letter-spacing: 1px;
-}
-
-.eethm-home-page .service-list {
+/* ======================================================
+   🎭 Services Flip Card Section
+   ====================================================== */
+.eethm-home-page .service-card-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 30px;
 }
 
-.eethm-home-page .service-item {
-  background-color: var(--color-white);
-  padding: 25px 20px;
-  border-radius: var(--radius-md);
-  max-width: 320px;
+.eethm-home-page .service-flip-card {
+  background: transparent;
+  width: 320px;
+  height: 380px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.eethm-home-page .service-flip-card-inner {
+  position: relative;
   width: 100%;
-  box-shadow: var(--shadow-md);
-  border-left: 6px solid var(--color-accent-green);
-  text-align: left;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  user-select: none;
+  height: 100%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
 }
 
-.eethm-home-page .service-item:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
+.eethm-home-page .service-flip-card:hover .service-flip-card-inner {
+  transform: rotateY(180deg);
 }
 
-.eethm-home-page .service-item h3 {
-  font-size: 1.5rem;
-  margin-bottom: 12px;
-  color: var(--color-primary);
-}
-
-.eethm-home-page .service-item p {
-  font-size: 1.05rem;
-  margin-bottom: 12px;
-  color: var(--color-neutral-dark);
-}
-
-.eethm-home-page .service-item ul {
-  padding-left: 20px;
-  margin-bottom: 15px;
-  color: var(--color-neutral);
-  font-size: 1rem;
-  list-style-type: disc;
-}
-
-.eethm-home-page .service-item li {
-  margin-bottom: 6px;
-}
-
-.eethm-home-page .service-item a {
-  color: var(--color-secondary);
-  text-decoration: underline;
-  font-weight: 700;
-  transition: color var(--transition-fast);
-}
-
-.eethm-home-page .service-item a:hover {
-  color: var(--color-secondary-dark);
-}
-
-/* === Promotions Section === */
-.eethm-home-page .promotions-section {
-  padding: 60px 30px;
-  background-color: var(--color-white);
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.eethm-home-page .promotions-section h2 {
-  font-size: 2.8rem;
-  color: var(--color-primary);
-  margin-bottom: 40px;
-  font-family: var(--font-accent);
-}
-
-.eethm-home-page .promos-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-.eethm-home-page .promo-card {
-  background-color: var(--color-neutral-light);
+.eethm-home-page .service-flip-card-front,
+.eethm-home-page .service-flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.eethm-home-page .service-flip-card-front {
+  background-color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
-  max-width: 320px;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-  border-left: 6px solid var(--color-accent-gold);
-  text-align: left;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  user-select: none;
+  border-left: 6px solid var(--color-accent-green);
 }
 
-.eethm-home-page .promo-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
-}
-
-.eethm-home-page .promo-card img {
+.eethm-home-page .service-flip-card-front img {
   width: 100%;
-  height: auto;
-  border-radius: var(--radius-md);
-  margin-bottom: 15px;
+  height: 180px;
   object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-bottom: 15px;
 }
 
-.eethm-home-page .promo-content h3 {
+.eethm-home-page .service-flip-card-front h3 {
   font-size: 1.4rem;
-  color: var(--color-secondary);
-  margin-bottom: 12px;
+  color: var(--color-primary);
+  text-align: center;
 }
 
-.eethm-home-page .promo-content p {
+.eethm-home-page .service-flip-card-back {
+  background-color: var(--color-neutral-light);
+  color: var(--color-neutral-dark);
+  transform: rotateY(180deg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.eethm-home-page .service-flip-card-back p {
   font-size: 1rem;
   margin-bottom: 10px;
-  color: var(--color-neutral-dark);
-}
-
-.eethm-home-page .discount {
-  color: var(--color-accent-green);
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.eethm-home-page .validity {
-  font-size: 0.9rem;
-  color: var(--color-neutral-dark);
-  font-style: italic;
-}
-
-/* === Reviews Section === */
-.eethm-home-page .reviews-section {
-  padding: 60px 30px;
-  background-color: var(--color-neutral-light);
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
-  border-radius: var(--radius-md);
-}
-
-.eethm-home-page .reviews-section h2 {
-  font-size: 2.8rem;
-  color: var(--color-primary);
-  margin-bottom: 40px;
-  font-family: var(--font-accent);
-}
-
-.eethm-home-page .reviews-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-.eethm-home-page .review-card {
-  background-color: var(--color-white);
-  border-left: 6px solid var(--color-secondary);
-  padding: 20px;
-  max-width: 320px;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-  border-radius: var(--radius-md);
-  text-align: left;
-  user-select: none;
-  transition: transform var(--transition-fast);
-}
-
-.eethm-home-page .review-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-}
-
-.eethm-home-page .review-text {
-  font-size: 1rem;
-  margin-bottom: 15px;
-  color: var(--color-neutral-dark);
-  font-style: italic;
   line-height: 1.4;
 }
 
-.eethm-home-page .review-author {
-  font-weight: 700;
-  color: var(--color-primary);
-  font-size: 1rem;
-  text-align: right;
-  user-select: text;
+.eethm-home-page .service-flip-card-back ul {
+  padding-left: 20px;
+  margin-bottom: 10px;
+  list-style-type: disc;
+  font-size: 0.95rem;
 }
 
-/* === Banners & Media Cards === */
-.eethm-home-page .banners-section {
-  padding: 50px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+.eethm-home-page .click-hint {
+  margin-top: auto;
+  font-size: 0.85rem;
+  color: var(--color-secondary);
   text-align: center;
 }
 
-.eethm-home-page .banners-section h2 {
-  font-size: 2.6rem;
-  color: var(--color-secondary);
-  margin-bottom: 30px;
-  font-family: var(--font-accent);
-}
-
-.eethm-home-page .banner-cards-container,
-.eethm-home-page .banner-cards-grid,
-.eethm-home-page .banners-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 25px;
-}
-
-.eethm-home-page .banner-card,
-.eethm-home-page .banner-item,
-.eethm-home-page .media-card-wrapper {
-  background-color: var(--color-neutral-light);
-  border-radius: var(--radius-md);
-  padding: 10px;
-  max-width: 320px;
-  width: 100%;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  cursor: pointer;
-  user-select: none;
-}
-
-.eethm-home-page .banner-card:hover,
-.eethm-home-page .banner-item:hover,
-.eethm-home-page .media-card-wrapper:hover {
-  transform: scale(1.03);
-  box-shadow: var(--shadow-md);
-}
-
-.eethm-home-page .banner-card img,
-.eethm-home-page .banner-item img,
-.eethm-home-page .banner-item video,
-.eethm-home-page .media-preview {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-sm);
-  margin-bottom: 10px;
-  object-fit: cover;
-}
-
-.eethm-home-page .banner-card-caption,
-.eethm-home-page .banner-item h4 {
-  font-size: 1.15rem;
-  color: var(--color-accent-green);
-  margin-top: 6px;
-  font-weight: 700;
-}
-
-/* === Responsive === */
+/* ======================================================
+   📱 Responsive Adjustments
+   ====================================================== */
 @media (max-width: 768px) {
-  .eethm-home-page .overlay-content h1 {
-    font-size: 2.2rem;
-  }
-
-  .eethm-home-page .overlay-content p {
-    font-size: 1.1rem;
-  }
-
-  .eethm-home-page .hero-buttons button {
-    font-size: 1rem;
-    padding: 10px 22px;
-  }
-
-  .eethm-home-page .services-page,
-  .eethm-home-page .promotions-section,
-  .eethm-home-page .reviews-section,
-  .eethm-home-page .banners-section {
-    padding: 40px 20px;
-  }
-
-  .eethm-home-page .service-list,
-  .eethm-home-page .promos-container,
-  .eethm-home-page .reviews-container,
-  .eethm-home-page .banner-cards-grid,
-  .eethm-home-page .banners-container {
+  .eethm-home-page .service-card-grid {
     flex-direction: column;
     align-items: center;
   }
-
-  .eethm-home-page .service-item,
-  .eethm-home-page .promo-card,
-  .eethm-home-page .review-card,
-  .eethm-home-page .banner-card,
-  .eethm-home-page .banner-item,
-  .eethm-home-page .media-card-wrapper {
-    max-width: 90%;
+  .eethm-home-page .service-flip-card {
+    width: 90%;
+    height: auto;
   }
+}
 
-  .eethm-home-page .banners-section h2,
-  .eethm-home-page .services-page h2,
-  .eethm-home-page .promotions-section h2,
-  .eethm-home-page .reviews-section h2 {
-    font-size: 2rem;
+@media (max-width: 380px) {
+  .eethm-home-page .overlay-content h1 {
+    font-size: 1.8rem;
+  }
+  .eethm-home-page .overlay-content p {
+    font-size: 1rem;
+  }
+  .eethm-home-page .service-flip-card {
+    width: 100%;
+    height: auto;
   }
 }

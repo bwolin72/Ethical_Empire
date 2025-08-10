@@ -5,8 +5,7 @@ import useMediaFetcher from '../../hooks/useMediaFetcher';
 import MediaCards from '../context/MediaCards';
 import MediaCard from '../context/MediaCard';
 import BannerCards from '../context/BannerCards';
-import publicAxios from '../../api/publicAxios';
-import axiosCommon from '../../api/axiosCommon';
+import apiService from '../../api/apiService';
 import './About.css';
 
 const About = () => {
@@ -26,7 +25,7 @@ const About = () => {
 
     const fetchServices = async () => {
       try {
-        const { data } = await publicAxios.get('/services/');
+        const { data } = await apiService.getServices();
         if (isMounted) setServices(data || []);
       } catch (error) {
         console.error('Services fetch error:', error);
@@ -35,7 +34,7 @@ const About = () => {
 
     const fetchTestimonials = async () => {
       try {
-        const { data } = await publicAxios.get('/reviews/');
+        const { data } = await apiService.getReviews();
         if (isMounted) setTestimonials(data || []);
       } catch (error) {
         console.error('Testimonials fetch error:', error);
@@ -44,16 +43,14 @@ const About = () => {
 
     const fetchVideoHero = async () => {
       try {
-        // Match backend query params exactly
-        const { data } = await axiosCommon.get(
-          '/videos/',
-          { params: { endpoint: 'About', is_active: true } }
-        );
+        const { data } = await apiService.getVideos({
+          endpoint: 'About',
+          is_active: true,
+        });
 
         const videoList = Array.isArray(data) ? data : [];
         const featured = videoList.find(v => v.is_featured) || videoList[0];
 
-        // The backend serializer gives CloudinaryField as "video_file" not "video_url"
         if (featured?.video_file) {
           setVideoHeroUrl(featured.video_file);
         }
@@ -109,7 +106,9 @@ const About = () => {
         <section className="service-grid px-4">
           {services.map(({ id, icon_url, title, description }) => (
             <div key={id} className="service-card">
-              {icon_url && <img src={icon_url} alt={title} className="service-icon-img" />}
+              {icon_url && (
+                <img src={icon_url} alt={title} className="service-icon-img" />
+              )}
               <h3 className="service-title">{title}</h3>
               <p className="service-desc">{description}</p>
             </div>
@@ -123,13 +122,20 @@ const About = () => {
           At <strong>Ethical Multimedia GH</strong>, we merge artistic passion with event precision.
           From vibrant performances and stunning visuals to coordinated event execution,
           we bring your vision to life with professionalism and creativity.
-          <br /><br />
+          <br />
+          <br />
           With over a decade of experience across weddings, concerts, and corporate events,
           our diverse team brings the tools and talent to turn ideas into unforgettable experiences.
         </p>
       </section>
 
-      <MediaCards endpoint="About" type="media" title="Our Work in Action" fullWidth isFeatured={true} />
+      <MediaCards
+        endpoint="About"
+        type="media"
+        title="Our Work in Action"
+        fullWidth
+        isFeatured={true}
+      />
 
       <section className="about-text px-4 mt-12">
         <h2 className="section-heading">Our Commitment</h2>

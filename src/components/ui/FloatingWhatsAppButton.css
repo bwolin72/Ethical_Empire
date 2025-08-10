@@ -1,0 +1,61 @@
+/* FloatingWhatsAppButton.css */
+
+.floating-whatsapp-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--color-accent-green);
+  color: var(--color-white);
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  z-index: 1000;
+  font-size: 28px;
+  /* Use brand font */
+  font-family: var(--font-main);
+}
+
+.floating-whatsapp-btn:hover {
+  background: var(--color-accent-green-dark);
+  transform: scale(1.1);
+}
+
+.floating-whatsapp-btn:active {
+  transform: scale(0.95);
+  background: var(--color-accent-green-dark);
+}
+
+.floating-whatsapp-btn svg {
+  fill: var(--color-white);
+  width: 28px;
+  height: 28px;
+}
+
+/* Optional tooltip */
+.floating-whatsapp-tooltip {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  background: var(--color-neutral-dark);
+  color: var(--color-white);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+  font-family: var(--font-main);
+}
+
+.floating-whatsapp-btn:hover .floating-whatsapp-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}

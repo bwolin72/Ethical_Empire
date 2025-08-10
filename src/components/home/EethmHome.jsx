@@ -57,8 +57,6 @@ const EethmHome = () => {
 
   // Fetch data from apiService
   useEffect(() => {
-    const controller = new AbortController();
-
     const fetchData = async () => {
       try {
         // Videos
@@ -93,7 +91,6 @@ const EethmHome = () => {
     };
 
     fetchData();
-    return () => controller.abort();
   }, []);
 
   // Handle newsletter subscription
@@ -242,7 +239,7 @@ const EethmHome = () => {
         </div>
       )}
 
-      {/* Services */}
+      {/* Services with Flip Cards */}
       <FadeInSection>
         <section className="services-page">
           <h2>Our Services</h2>
@@ -250,24 +247,39 @@ const EethmHome = () => {
             <p style={{ color: "var(--color-error)" }}>{servicesError}</p>
           )}
           {services.length > 0 ? (
-            <div className="service-list">
+            <div className="service-card-grid">
               {services.map((service) => (
                 <div
                   key={service.id || service.slug}
-                  className="service-item"
+                  className="service-flip-card"
+                  onClick={() =>
+                    navigate(`/services/${service.slug || service.id}`)
+                  }
                 >
-                  <h3>{service.title || service.name}</h3>
-                  <p>{service.description}</p>
-                  {service.details?.length > 0 && (
-                    <ul>
-                      {service.details.map((detail, idx) => (
-                        <li key={idx}>{detail}</li>
-                      ))}
-                    </ul>
-                  )}
-                  <a href={`/services/${service.slug || service.id}`}>
-                    Learn more
-                  </a>
+                  <div className="service-flip-card-inner">
+                    <div className="service-flip-card-front">
+                      {service.image && (
+                        <img
+                          src={service.image}
+                          alt={service.title || service.name}
+                          className="service-image"
+                          loading="lazy"
+                        />
+                      )}
+                      <h3>{service.title || service.name}</h3>
+                    </div>
+                    <div className="service-flip-card-back">
+                      <p>{service.description}</p>
+                      {service.details?.length > 0 && (
+                        <ul>
+                          {service.details.map((detail, idx) => (
+                            <li key={idx}>{detail}</li>
+                          ))}
+                        </ul>
+                      )}
+                      <span className="click-hint">Click to view more</span>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

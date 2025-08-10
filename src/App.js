@@ -15,6 +15,7 @@ import Navbar from './components/navbar/Navbar';
 import Footer from './components/footer/Footer';
 import SplashScreen from './components/ui/SplashScreen';
 import PromotionPopup from './components/home/PromotionPopup';
+import FloatingWhatsAppButton from './components/ui/FloatingWhatsAppButton';
 
 // Pages - Home & Static
 import EethmHome from './components/home/EethmHome';
@@ -223,6 +224,7 @@ const AppWithAuth = () => {
       </main>
       <Footer />
       <PromotionPopup />
+      <FloatingWhatsAppButton />
     </div>
   );
 };
