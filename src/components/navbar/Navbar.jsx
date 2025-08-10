@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { logoutHelper } from '../../utils/logoutHelper';
 import './Navbar.css';
@@ -7,12 +7,22 @@ import logo from '../../assets/logo.png';
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 960);
+  const [isMobile, setIsMobile] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
+  const navRef = useRef(null);
 
-  // Detect login status from storage
+  // Initialize mobile state and add resize listener
+  useEffect(() => {
+    const determineMobile = () => setIsMobile(window.innerWidth <= 960);
+    determineMobile();
+    window.addEventListener('resize', determineMobile);
+    return () => window.removeEventListener('resize', determineMobile);
+  }, []);
+
+  // Detect login status from storage (runs when location changes)
   useEffect(() => {
     const access = localStorage.getItem('access') || sessionStorage.getItem('access');
     const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
@@ -25,18 +35,20 @@ function Navbar() {
     setDropdownOpen(false);
   }, [location]);
 
-  // Handle screen resize for responsive dropdown behavior
+  // Close menus if click outside
   useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth <= 960;
-      setIsMobile(mobile);
-      if (!mobile) setDropdownOpen(false);
+    const handleClickOutside = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setMenuOpen(false);
+        setDropdownOpen(false);
+      }
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleMenu = () => setMenuOpen(prev => !prev);
+  const toggleMenu = useCallback(() => setMenuOpen(prev => !prev), []);
+  const toggleDropdown = useCallback(() => setDropdownOpen(prev => !prev), []);
 
   const handleLogout = async () => {
     await logoutHelper();
@@ -44,14 +56,12 @@ function Navbar() {
     navigate('/login');
   };
 
-  // Clicking "Services"
+  // Services click: mobile toggles submenu; desktop navigates
   const handleServicesClick = (e) => {
-    e.preventDefault();
+    // prevent default only if element is a link; here it's a button-like element
     if (isMobile) {
-      // Mobile: toggle submenu
-      setDropdownOpen(prev => !prev);
+      toggleDropdown();
     } else {
-      // Desktop: navigate
       navigate('/services');
     }
   };
@@ -62,29 +72,35 @@ function Navbar() {
     setDropdownOpen(false);
   };
 
+  const handleDropdownItemKeyDown = (e, path) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleDropdownItemClick(path);
+    }
+  };
+
   return (
-    <nav className="navbar">
+    <nav className="navbar" ref={navRef}>
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo" onClick={() => setMenuOpen(false)}>
+        <Link to="/" className="navbar-logo" onClick={() => { setMenuOpen(false); setDropdownOpen(false); }}>
           <img src={logo} alt="EETHM Logo" className="logo-img" />
           <span className="logo-text">EETHM_GH</span>
         </Link>
 
-        <div
+        <button
           className="menu-icon"
           onClick={toggleMenu}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          role="button"
-          tabIndex={0}
-          onKeyPress={(e) => { if (e.key === 'Enter') toggleMenu(); }}
+          aria-expanded={menuOpen}
         >
           {menuOpen ? '✖' : '☰'}
-        </div>
+        </button>
 
         <ul className={menuOpen ? 'nav-menu active' : 'nav-menu'}>
           <li className="nav-item">
             <Link to="/bookings" className="nav-links" onClick={() => setMenuOpen(false)}>Bookings</Link>
           </li>
+
           <li className="nav-item">
             <Link to="/about" className="nav-links" onClick={() => setMenuOpen(false)}>About</Link>
           </li>
@@ -94,39 +110,67 @@ function Navbar() {
             onMouseEnter={() => !isMobile && setDropdownOpen(true)}
             onMouseLeave={() => !isMobile && setDropdownOpen(false)}
           >
-            <div
+            {/* Use a button for accessibility */}
+            <button
+              type="button"
               className="nav-links dropdown-toggle"
               onClick={handleServicesClick}
-              role="link"
-              tabIndex={0}
-              onKeyPress={(e) => { if (e.key === 'Enter') handleServicesClick(e); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleServicesClick(e); }}
               aria-haspopup="true"
               aria-expanded={dropdownOpen}
             >
               Services <span className={`caret ${dropdownOpen ? 'rotated' : ''}`}>▼</span>
-            </div>
+            </button>
 
-            {dropdownOpen && (
-              <ul className="dropdown-menu mobile-visible">
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/live-band')} tabIndex={0}>
-                  Live Band
-                </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/catering')} tabIndex={0}>
-                  Catering
-                </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/decor')} tabIndex={0}>
-                  Decor
-                </li>
-                <li className="dropdown-item" onClick={() => handleDropdownItemClick('/services/media-hosting')} tabIndex={0}>
-                  Media & Event Hosting
-                </li>
-              </ul>
-            )}
+            {/* Always render the dropdown so CSS can animate. Toggle classes for mobile and programmatic show */}
+            <ul
+              className={`dropdown-menu ${isMobile ? 'mobile' : 'desktop'} ${dropdownOpen ? 'mobile-visible active' : ''}`}
+              role="menu"
+              aria-label="Services submenu"
+            >
+              <li
+                className="dropdown-item"
+                role="menuitem"
+                tabIndex={0}
+                onClick={() => handleDropdownItemClick('/services/live-band')}
+                onKeyDown={(e) => handleDropdownItemKeyDown(e, '/services/live-band')}
+              >
+                Live Band
+              </li>
+              <li
+                className="dropdown-item"
+                role="menuitem"
+                tabIndex={0}
+                onClick={() => handleDropdownItemClick('/services/catering')}
+                onKeyDown={(e) => handleDropdownItemKeyDown(e, '/services/catering')}
+              >
+                Catering
+              </li>
+              <li
+                className="dropdown-item"
+                role="menuitem"
+                tabIndex={0}
+                onClick={() => handleDropdownItemClick('/services/decor')}
+                onKeyDown={(e) => handleDropdownItemKeyDown(e, '/services/decor')}
+              >
+                Decor
+              </li>
+              <li
+                className="dropdown-item"
+                role="menuitem"
+                tabIndex={0}
+                onClick={() => handleDropdownItemClick('/services/media-hosting')}
+                onKeyDown={(e) => handleDropdownItemKeyDown(e, '/services/media-hosting')}
+              >
+                Media & Event Hosting
+              </li>
+            </ul>
           </li>
 
           <li className="nav-item">
             <Link to="/contact" className="nav-links" onClick={() => setMenuOpen(false)}>Contact</Link>
           </li>
+
           <li className="nav-item">
             <Link to="/connect" className="nav-links" onClick={() => setMenuOpen(false)}>Connect With Us</Link>
           </li>
