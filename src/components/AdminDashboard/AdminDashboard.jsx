@@ -8,8 +8,59 @@ const AdminDashboard = ({ setActiveTab }) => {
   const [reviewCount, setReviewCount] = useState(0);
   const [newsletterStats, setNewsletterStats] = useState({ posts: 0, subscribers: 0 });
   const [analytics, setAnalytics] = useState({ visits: 0, users: 0 });
+  const [bookings, setBookings] = useState({ active: 0 });
+  const [videos, setVideos] = useState([]);
+  const [invoices, setInvoices] = useState({ pending: 0 });
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
-  // Fetch Media Stats (mediaItems endpoint returns array of media items)
+  // Fetch Bookings (active bookings)
+  const fetchBookings = async () => {
+    try {
+      const res = await axiosInstance.get(api.bookings.list);
+      if (Array.isArray(res.data)) {
+        const activeCount = res.data.filter(b => b.status?.toLowerCase() === 'active').length;
+        setBookings({ active: activeCount });
+      } else {
+        setBookings({ active: 0 });
+      }
+    } catch (err) {
+      console.error('Failed to fetch bookings:', err);
+      setBookings({ active: 0 });
+    }
+  };
+
+  // Fetch Videos
+  const fetchVideos = async () => {
+    try {
+      const res = await axiosInstance.get(api.videos.list);
+      if (Array.isArray(res.data)) {
+        setVideos(res.data);
+      } else {
+        setVideos([]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch videos:', err);
+      setVideos([]);
+    }
+  };
+
+  // Fetch Invoices (pending invoices)
+  const fetchInvoices = async () => {
+    try {
+      const res = await axiosInstance.get(api.invoices.list);
+      if (Array.isArray(res.data)) {
+        const pendingCount = res.data.filter(inv => inv.status?.toLowerCase() === 'pending').length;
+        setInvoices({ pending: pendingCount });
+      } else {
+        setInvoices({ pending: 0 });
+      }
+    } catch (err) {
+      console.error('Failed to fetch invoices:', err);
+      setInvoices({ pending: 0 });
+    }
+  };
+
+  // Fetch Media Stats
   const fetchMediaStats = async () => {
     try {
       const res = await axiosInstance.get(api.media.mediaItems);
@@ -24,7 +75,7 @@ const AdminDashboard = ({ setActiveTab }) => {
     }
   };
 
-  // Fetch Review Count (reviews.list returns an array of reviews)
+  // Fetch Review Count
   const fetchReviewCount = async () => {
     try {
       const res = await axiosInstance.get(api.reviews.list);
@@ -35,11 +86,13 @@ const AdminDashboard = ({ setActiveTab }) => {
     }
   };
 
-  // Fetch Newsletter Stats (logs endpoint assumed to return an array of posts and subscriber_count)
+  // Fetch Newsletter Stats
   const fetchNewsletterStats = async () => {
     try {
       const res = await axiosInstance.get(api.newsletter.logs);
-      const postsCount = Array.isArray(res.data.posts) ? res.data.posts.length : (Array.isArray(res.data) ? res.data.length : 0);
+      const postsCount = Array.isArray(res.data.posts)
+        ? res.data.posts.length
+        : (Array.isArray(res.data) ? res.data.length : 0);
       const subscriberCount = res.data.subscriber_count || 0;
       setNewsletterStats({ posts: postsCount, subscribers: subscriberCount });
     } catch (err) {
@@ -48,7 +101,7 @@ const AdminDashboard = ({ setActiveTab }) => {
     }
   };
 
-  // Fetch Analytics Data (analytics.site returns { total, unique_users } ideally)
+  // Fetch Analytics Data
   const fetchAnalytics = async () => {
     try {
       const res = await axiosInstance.get(api.analytics.site);
@@ -63,6 +116,9 @@ const AdminDashboard = ({ setActiveTab }) => {
   };
 
   const fetchAllDashboardData = useCallback(() => {
+    fetchBookings();
+    fetchVideos();
+    fetchInvoices();
     fetchMediaStats();
     fetchReviewCount();
     fetchNewsletterStats();
@@ -73,6 +129,14 @@ const AdminDashboard = ({ setActiveTab }) => {
     fetchAllDashboardData();
   }, [fetchAllDashboardData]);
 
+  const handlePrevVideo = () => {
+    setCurrentVideoIndex(prev => (prev - 1 + videos.length) % videos.length);
+  };
+
+  const handleNextVideo = () => {
+    setCurrentVideoIndex(prev => (prev + 1) % videos.length);
+  };
+
   return (
     <div className="admin-dashboard-preview">
       <h1 className="dashboard-heading">Admin Dashboard</h1>
@@ -80,23 +144,29 @@ const AdminDashboard = ({ setActiveTab }) => {
 
         <div className="overview-card">
           <h2>Bookings</h2>
-          <p>23 active bookings</p>
+          <p>{bookings.active} active bookings</p>
           <button onClick={() => setActiveTab && setActiveTab('booking')}>Learn More</button>
         </div>
 
         <div className="overview-card">
           <h2>Videos</h2>
-          <p>Currently showing: Promo Video 1</p>
-          <div className="video-nav">
-            <button>Prev</button>
-            <button>Next</button>
-          </div>
+          {videos.length > 0 ? (
+            <>
+              <p>Currently showing: {videos[currentVideoIndex]?.title || 'Untitled Video'}</p>
+              <div className="video-nav">
+                <button onClick={handlePrevVideo}>Prev</button>
+                <button onClick={handleNextVideo}>Next</button>
+              </div>
+            </>
+          ) : (
+            <p>No videos available</p>
+          )}
           <button onClick={() => setActiveTab && setActiveTab('video')}>Learn More</button>
         </div>
 
         <div className="overview-card">
           <h2>Invoices</h2>
-          <p>5 invoices pending</p>
+          <p>{invoices.pending} invoices pending</p>
           <button onClick={() => setActiveTab && setActiveTab('invoice')}>Learn More</button>
         </div>
 
