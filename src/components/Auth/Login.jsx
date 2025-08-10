@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
+import API from '../../api/api';
 import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Login.css';
@@ -110,7 +111,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post('/accounts/login/', form);
+      const { data } = await axiosInstance.post(API.auth.login, form);
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
@@ -130,7 +131,7 @@ const Login = () => {
     }
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post('/accounts/google-login/', { credential });
+      const { data } = await axiosInstance.post(API.auth.googleLogin, { credential });
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
