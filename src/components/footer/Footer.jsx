@@ -19,7 +19,7 @@ function Footer() {
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email) {
+    if (!email.trim()) {
       toast.error('Please enter an email address.');
       return;
     }
@@ -31,7 +31,7 @@ function Footer() {
 
     setLoading(true);
     try {
-      await axiosCommon.post('newsletter/subscribe/', {
+      await axiosCommon.post('/newsletter/subscribe/', {
         email,
         token: captchaToken,
       });
@@ -41,7 +41,9 @@ function Footer() {
       setCaptchaToken('');
     } catch (error) {
       toast.error(
-        error.response?.data?.error || '❌ Subscription failed. Please try again.'
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        '❌ Subscription failed. Please try again.'
       );
     } finally {
       setLoading(false);

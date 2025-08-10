@@ -1,6 +1,8 @@
+// src/pages/auth/ResetPassword.jsx
 import React, { useState } from 'react';
 import './ForgotResetPassword.css';
 import axiosInstance from '../../api/axiosInstance';
+import API from '../../api/api';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const ResetPassword = () => {
@@ -38,7 +40,7 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      await axiosInstance.post(`/user-account/auth/reset-password-confirm/${uid}/${token}/`, {
+      await axiosInstance.post(`${API.auth.resetPasswordConfirm}${uid}/${token}/`, {
         password: newPassword,
       });
 

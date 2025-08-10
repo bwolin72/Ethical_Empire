@@ -1,49 +1,35 @@
 // frontend/src/components/Services.jsx
 
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import publicAxios from '../../api/publicAxios';
-import './Services.css';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import apiService from "../../api/apiService";
+import "./Services.css";
 
-const fallbackDescriptions = {
-  general: 'We offer high-quality, personalized services tailored to your unique needs. Our experienced professionals ensure top-notch service delivery and customer satisfaction.',
-  consulting: 'Get expert advice to grow your business, optimize operations, and reach your goals faster. Our consultants bring years of industry experience and strategic insight.',
-  development: 'From websites to full-scale platforms, our development team builds fast, secure, and scalable digital solutions.',
-  design: 'Beautiful, modern, and user-focused design solutions to make your brand stand out and engage your audience.',
-  marketing: 'Effective digital marketing strategies including SEO, social media, and paid campaigns to increase your visibility and conversions.',
-};
-
-const fallbackDetails = {
-  general: [
-    'Tailored support for individuals and teams',
-    'Flexible pricing based on your needs',
-    'Ongoing customer support and satisfaction monitoring',
-  ],
-  consulting: [
-    'One-on-one business strategy sessions',
-    'Detailed reports and roadmap planning',
-    'Competitive market research and benchmarking',
-  ],
-  development: [
-    'Frontend and backend development',
-    'Mobile-responsive and cross-browser compatibility',
-    'Custom CMS and integrations',
-  ],
-  design: [
-    'Logo and branding packages',
-    'Website and app UI/UX design',
-    'Print and digital design assets',
-  ],
-  marketing: [
-    'SEO optimization and audits',
-    'Social media growth strategies',
-    'Email marketing and automation',
-  ],
+const serviceDescriptions = {
+  "Live Band":
+    "Experience the soulful rhythms of Eethm_GH’s Live Band. From highlife to contemporary hits, we create unforgettable moments for weddings, parties, and corporate events.",
+  DJ:
+    "Our professional DJs keep the energy high and the dance floor alive, blending Ghanaian beats with global favorites for non-stop vibes.",
+  Photography:
+    "Capture timeless memories with Eethm_GH’s expert photographers. We turn fleeting moments into lasting treasures.",
+  Videography:
+    "Relive your event in stunning clarity. Our cinematic videography preserves every smile, laugh, and joyful tear.",
+  Catering:
+    "Taste Ghana’s finest flavors with our catering service. From authentic local dishes to gourmet creations, we serve with excellence.",
+  "Event Planning":
+    "From concept to completion, Eethm_GH designs seamless, stylish events so you can relax and enjoy the celebration.",
+  Lighting:
+    "Transform any venue with our dynamic lighting solutions, setting the perfect mood from elegant ambience to vibrant energy.",
+  "MC/Host":
+    "Keep your guests entertained with our charismatic MCs and hosts, delivering personality, flow, and professionalism.",
+  "Sound Setup":
+    "Clear, powerful, and perfectly tuned — our sound setup ensures every word and note is heard just right.",
 };
 
 const Services = () => {
   const { service } = useParams();
+  const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -59,36 +45,28 @@ const Services = () => {
 
   const fetchAllServices = async () => {
     try {
-      const res = await publicAxios.get('/services/');
-      if (Array.isArray(res.data.results) && res.data.results.length > 0) {
-        const enriched = res.data.results.map((srv) => ({
-          ...srv,
-          description: srv.description || fallbackDescriptions[srv.slug] || fallbackDescriptions.general,
-        }));
-        setServices(enriched);
+      const res = await apiService.getServices();
+      const serviceList = res.data.results || res.data;
+      if (Array.isArray(serviceList) && serviceList.length > 0) {
+        setServices(serviceList);
       } else {
-        toast.warn('No services available at the moment.');
+        toast.warn("No services available at the moment.");
       }
     } catch (error) {
-      console.error('Failed to load services:', error);
-      toast.error('Could not fetch services.');
+      console.error("❌ Failed to load services:", error);
+      toast.error("Could not fetch services.");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchServiceDetail = async (slug) => {
+  const fetchServiceDetail = async (idOrSlug) => {
     try {
-      const res = await publicAxios.get(`/services/${slug}/`);
-      const serviceData = res.data;
-      setSelectedService({
-        ...serviceData,
-        description: serviceData.description || fallbackDescriptions[slug] || fallbackDescriptions.general,
-        details: serviceData.details?.length ? serviceData.details : fallbackDetails[slug] || fallbackDetails.general,
-      });
+      const res = await apiService.getServiceDetail(idOrSlug);
+      setSelectedService(res.data);
     } catch (error) {
-      console.error('Failed to load service detail:', error);
-      toast.error('Could not load service detail.');
+      console.error("❌ Failed to load service detail:", error);
+      toast.error("Could not load service detail.");
     } finally {
       setLoading(false);
     }
@@ -111,15 +89,13 @@ const Services = () => {
       {selectedService ? (
         <section className="service-detail">
           <h2>{selectedService.name}</h2>
-          <p>{selectedService.description}</p>
-          {selectedService.details?.length > 0 && (
-            <ul>
-              {selectedService.details.map((detail, index) => (
-                <li key={index}>{detail}</li>
-              ))}
-            </ul>
-          )}
-          <Link to="/services" className="back-link">← Back to All Services</Link>
+          <p>
+            {serviceDescriptions[selectedService.name] ||
+              "Premium service tailored to your unique event needs."}
+          </p>
+          <Link to="/services" className="back-link">
+            ← Back to All Services
+          </Link>
         </section>
       ) : (
         <>
@@ -127,20 +103,32 @@ const Services = () => {
           <section className="service-list">
             {services.map((srv, index) => (
               <div
-                key={srv.id}
-                className={`service-card ${flippedIndex === index ? 'flipped' : ''}`}
+                key={srv.id || srv.name}
+                className={`service-card ${
+                  flippedIndex === index ? "flipped" : ""
+                }`}
                 onClick={() => handleCardClick(index)}
               >
                 <div className="card-inner">
+                  {/* FRONT */}
                   <div className="card-front">
                     <h3>{srv.name}</h3>
-                    <p className="short-description">
-                      {srv.description?.slice(0, 60)}...
-                    </p>
+                    <button
+                      className="book-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/services/${srv.id}`);
+                      }}
+                    >
+                      Learn More →
+                    </button>
                   </div>
+                  {/* BACK */}
                   <div className="card-back">
-                    <p>{srv.description}</p>
-                    <Link to="/bookings" className="book-btn">Book Now</Link>
+                    <p>
+                      {serviceDescriptions[srv.name] ||
+                        "Premium service tailored to your unique event needs."}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -153,4 +141,3 @@ const Services = () => {
 };
 
 export default Services;
-// Company: Ethical Multimedia GH

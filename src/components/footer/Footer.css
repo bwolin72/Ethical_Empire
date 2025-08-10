@@ -1,20 +1,13 @@
-:root {
-  --deep-burgundy: #58181C;
-  --royal-navy: #1E2A45;
-  --muted-gold: #CBA135;
-  --forest-green: #3A5A40;
-  --charcoal: #2E2E2E;
-  --cream: #FAFAF8;
-  --soft-gray: #ddd;
-  --light-gray: #aaa;
-  --border-color: #444;
-}
+/* ================================
+   Footer Styles — matches Footer.jsx
+   Uses variables.css branding
+   ================================ */
 
 .footer {
-  background-color: var(--charcoal);
-  color: var(--cream);
+  background-color: var(--color-neutral-dark);
+  color: var(--color-white);
   padding: 40px 0 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--font-main);
 }
 
 .footer-container {
@@ -33,14 +26,15 @@
 .footer-section h3,
 .footer-section h4 {
   margin-bottom: 15px;
-  color: var(--muted-gold);
+  color: var(--color-accent-gold);
   font-size: 1.2rem;
+  font-weight: 600;
 }
 
 .footer-section p,
 .footer-section li {
   margin-bottom: 10px;
-  color: var(--soft-gray);
+  color: var(--color-neutral-light);
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -52,67 +46,67 @@
 }
 
 .footer-section a {
-  color: var(--muted-gold);
+  color: var(--color-accent-gold);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: color var(--transition-slow);
 }
 
 .footer-section a:hover,
 .footer-section a:focus {
-  color: var(--cream);
+  color: var(--color-white);
   text-decoration: underline;
 }
 
 /* === Newsletter Form === */
-footer.newsletter form {
+.footer-section.newsletter form {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.footer.newsletter-input {
+.newsletter-input {
   padding: 10px 12px;
   font-size: 0.95rem;
   border: none;
-  border-radius: 4px;
-  background-color: #444;
-  color: var(--cream);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-neutral);
+  color: var(--color-white);
   outline: none;
   width: 100%;
 }
 
-.footer.newsletter-input::placeholder {
-  color: var(--light-gray);
+.newsletter-input::placeholder {
+  color: var(--color-disabled);
 }
 
-.footer .recaptcha-wrapper {
+.recaptcha-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-top: 5px;
 }
 
-.footer.newsletter-button {
-  background-color: var(--muted-gold);
-  color: var(--charcoal);
+.newsletter-button {
+  background-color: var(--color-accent-gold);
+  color: var(--color-neutral-dark);
   border: none;
   padding: 10px 15px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
-.footer.newsletter-button:hover,
-.footer.newsletter-button:focus {
-  background-color: var(--cream);
-  color: var(--charcoal);
+.newsletter-button:hover,
+.newsletter-button:focus {
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
 }
 
-.footer .unsubscribe-text {
+.unsubscribe-text {
   font-size: 0.8rem;
   margin-top: 5px;
-  color: var(--light-gray);
+  color: var(--color-disabled);
   text-align: left;
 }
 
@@ -120,9 +114,9 @@ footer.newsletter form {
 .footer-bottom {
   text-align: center;
   padding-top: 20px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-neutral);
   margin-top: 20px;
-  color: var(--light-gray);
+  color: var(--color-disabled);
   font-size: 0.9rem;
 }
 
@@ -130,7 +124,7 @@ footer.newsletter form {
 .footer .slogan {
   font-style: italic;
   font-size: 0.9rem;
-  color: var(--forest-green);
+  color: var(--color-accent-green-light);
 }
 
 /* === Responsive === */
@@ -140,17 +134,17 @@ footer.newsletter form {
     gap: 20px;
   }
 
-  .footer.newsletter form {
+  .footer-section.newsletter form {
     flex-direction: column;
     gap: 10px;
   }
 
-  .footer .recaptcha-wrapper {
+  .recaptcha-wrapper {
     justify-content: flex-start;
     margin-top: 0;
   }
 
-  .footer.newsletter-button {
+  .newsletter-button {
     width: fit-content;
   }
 }

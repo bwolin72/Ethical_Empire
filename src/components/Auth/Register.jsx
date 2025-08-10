@@ -1,5 +1,4 @@
 // src/pages/auth/Register.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DOMPurify from 'dompurify';
@@ -11,6 +10,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import axiosInstance from '../../api/axiosInstance';
+import API from '../../api/api';
 import logo from '../../assets/logo.png';
 import './Register.css';
 
@@ -116,21 +116,21 @@ const Register = () => {
       name: full_name, email, phone, dob, gender, password, password2,
     };
 
-    let endpoint = '/accounts/register/';
+    let endpoint = API.auth.register; // default
     if (role === 'WORKER') {
       if (!access_code.trim()) return toast.error('Access code is required.');
       if (!worker_category_id) return toast.error('Worker category ID is required.');
       payload.access_code = access_code;
       payload.worker_category_id = worker_category_id;
-      endpoint = '/accounts/internal-register/';
+      endpoint = API.auth.internalRegister;
     } else if (role === 'VENDOR') {
       if (!company_name.trim()) return toast.error('Company name is required.');
       payload.company_name = company_name;
-      endpoint = '/accounts/register/vendor/';
+      endpoint = `${API.auth.register}vendor/`;
     } else if (role === 'PARTNER') {
       if (!agency_name.trim()) return toast.error('Agency name is required.');
       payload.agency_name = agency_name;
-      endpoint = '/accounts/register/partner/';
+      endpoint = `${API.auth.register}partner/`;
     }
 
     setLoading(true);
@@ -150,7 +150,7 @@ const Register = () => {
     if (!credential) return toast.error('Google login failed: Missing credential');
     setLoading(true);
     try {
-      await axiosInstance.post('/accounts/google-register/', { credential });
+      await axiosInstance.post(API.auth.googleRegister, { credential });
       toast.success('Google registration successful! Redirecting...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
@@ -163,17 +163,7 @@ const Register = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`register-page ${darkMode ? 'dark' : ''}`}>
-        <ToastContainer
-          position="top-right"
-          autoClose={4000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
+        <ToastContainer position="top-right" autoClose={4000} />
 
         <div className="register-left">
           <div className="register-brand">
@@ -239,13 +229,7 @@ const Register = () => {
 
             <div className="form-group">
               <label htmlFor="phone">Phone Number</label>
-              <PhoneInput
-                id="phone"
-                defaultCountry="GH"
-                value={form.phone}
-                onChange={handlePhoneChange}
-                placeholder="Phone number"
-              />
+              <PhoneInput id="phone" defaultCountry="GH" value={form.phone} onChange={handlePhoneChange} placeholder="Phone number" />
             </div>
 
             <div className="form-group">

@@ -1,11 +1,11 @@
 // src/pages/auth/VerifyOTP.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import axiosInstance from '../../api/axiosInstance';
+import API from '../../api/api';
 import { useAuth } from '../context/AuthContext';
 import './VerifyOTP.css';
 
@@ -40,7 +40,7 @@ export default function VerifyOTP() {
 
     setLoading(true);
     try {
-      const response = await axiosInstance.post('/accounts/verify-otp/', {
+      const response = await axiosInstance.post(API.auth.verifyOtp, {
         otp: trimmedOtp,
         email: email || undefined,
         phone: phone || undefined,
@@ -86,7 +86,7 @@ export default function VerifyOTP() {
 
     setResending(true);
     try {
-      await axiosInstance.post('/accounts/resend-otp/', {
+      await axiosInstance.post(API.auth.resendOtp, {
         email: email || undefined,
         phone: phone || undefined,
       });

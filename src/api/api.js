@@ -9,13 +9,41 @@ const API = {
   // ===== AUTH & ACCOUNTS =====
   auth: {
     login: `${baseURL}/api/accounts/login/`,
-    logout: `${baseURL}/api/accounts/profile/logout/`, // note: update if different in backend
+    logout: `${baseURL}/api/accounts/profile/logout/`,
     register: `${baseURL}/api/accounts/register/`,
+    internalRegister: `${baseURL}/api/accounts/internal-register/`,
+
     profile: `${baseURL}/api/accounts/profile/`,
-    updateProfile: `${baseURL}/api/accounts/profile/update/`, // check backend path for update profile
-    changePassword: `${baseURL}/api/accounts/change-password/`,
+    updateProfile: `${baseURL}/api/accounts/profile/`, // use PATCH/PUT for updates
+    changePassword: `${baseURL}/api/accounts/profile/change-password/`,
+
     resetPassword: `${baseURL}/api/accounts/reset-password/`,
-    resetPasswordConfirm: `${baseURL}/api/accounts/reset-password-confirm/`,
+    resetPasswordConfirm: (uid, token) =>
+      `${baseURL}/api/accounts/reset-password-confirm/${uid}/${token}/`,
+
+    // Google OAuth
+    googleLogin: `${baseURL}/api/accounts/google-login/`,
+    googleRegister: `${baseURL}/api/accounts/google-register/`,
+
+    // JWT token endpoints
+    token: `${baseURL}/api/accounts/token/`,
+    tokenRefresh: `${baseURL}/api/accounts/token/refresh/`,
+    tokenVerify: `${baseURL}/api/accounts/token/verify/`,
+
+    // Additional account utilities
+    profileByEmail: `${baseURL}/api/accounts/profile-by-email/`,
+    partnerProfile: `${baseURL}/api/accounts/profile/partner/`,
+    vendorProfile: `${baseURL}/api/accounts/profile/vendor/`,
+    currentUserRole: `${baseURL}/api/accounts/profile/role/`,
+    roleChoices: `${baseURL}/api/accounts/role-choices/`,
+    verifyEmail: (uid, token) =>
+      `${baseURL}/api/accounts/verify-email/${uid}/${token}/`,
+    resendOtp: `${baseURL}/api/accounts/resend-otp/`,
+    resendOtpEmail: `${baseURL}/api/accounts/resend-otp/email/`,
+    verifyOtp: `${baseURL}/api/accounts/verify-otp/`,
+    verifyOtpEmail: `${baseURL}/api/accounts/verify-otp/email/`,
+    resendWelcomeEmail: `${baseURL}/api/accounts/resend-welcome-email/`,
+    deleteByEmail: `${baseURL}/api/accounts/delete-by-email/`,
 
     // Admin-only account management
     adminListUsers: `${baseURL}/api/accounts/admin/list-users/`,
@@ -43,20 +71,31 @@ const API = {
     catering: `${baseURL}/api/media/catering/`,
     decor: `${baseURL}/api/media/decor/`,
     mediaHosting: `${baseURL}/api/media/media-hosting/`,
+    home: `${baseURL}/api/media/home/`,
+    featured: `${baseURL}/api/media/featured/`,
+    archived: `${baseURL}/api/media/archived/`,
+    partner: `${baseURL}/api/media/partner/`,
+    vendor: `${baseURL}/api/media/vendor/`,
+    stats: `${baseURL}/api/media/stats/`,
+    reorder: `${baseURL}/api/media/reorder/`,
+    upload: `${baseURL}/api/media/upload/`,
+    userMedia: `${baseURL}/api/media/user/`,
   },
 
   // ===== VIDEOS =====
   videos: {
-    list: `${baseURL}/api/videos/`,
-    detail: (id) => `${baseURL}/api/videos/${id}/`,
-    toggleActive: (id) => `${baseURL}/api/videos/${id}/toggle_active/`,
-    toggleFeatured: (id) => `${baseURL}/api/videos/${id}/toggle_featured/`,
+    list: `${baseURL}/api/videos/videos/`,
+    detail: (id) => `${baseURL}/api/videos/videos/${id}/`,
+    toggleActive: (id) =>
+      `${baseURL}/api/videos/videos/${id}/toggle_active/`,
+    toggleFeatured: (id) =>
+      `${baseURL}/api/videos/videos/${id}/toggle_featured/`,
   },
 
   // ===== SERVICES =====
   services: {
     list: `${baseURL}/api/services/`,
-    detail: (id) => `${baseURL}/api/services/${id}/`,
+    detail: (slug) => `${baseURL}/api/services/${slug}/`,
   },
 
   // ===== PROMOTIONS =====
@@ -72,13 +111,22 @@ const API = {
     unsubscribe: `${baseURL}/api/newsletter/unsubscribe/`,
     send: `${baseURL}/api/newsletter/send/`,
     logs: `${baseURL}/api/newsletter/logs/`,
-    count: `${baseURL}/api/newsletter/count/`, // if backend supports subscriber count
+    count: `${baseURL}/api/newsletter/count/`,
+    confirm: `${baseURL}/api/newsletter/confirm/`,
+    resendConfirmation: `${baseURL}/api/newsletter/resend-confirmation/`,
+    resubscribe: `${baseURL}/api/newsletter/resubscribe/`,
+    list: `${baseURL}/api/newsletter/list/`,
+    delete: (id) => `${baseURL}/api/newsletter/delete/${id}/`,
   },
 
   // ===== REVIEWS =====
   reviews: {
     list: `${baseURL}/api/reviews/`,
-    create: `${baseURL}/api/reviews/create/`,
+    create: `${baseURL}/api/reviews/`,
+    approve: (id) => `${baseURL}/api/reviews/${id}/approve/`,
+    delete: (id) => `${baseURL}/api/reviews/${id}/delete/`,
+    reply: (id) => `${baseURL}/api/reviews/${id}/reply/`,
+    adminList: `${baseURL}/api/reviews/admin/`,
   },
 
   // ===== BOOKINGS =====
@@ -86,12 +134,24 @@ const API = {
     list: `${baseURL}/api/bookings/`,
     create: `${baseURL}/api/bookings/submit/`,
     detail: (id) => `${baseURL}/api/bookings/${id}/`,
+    userBookings: `${baseURL}/api/bookings/user/`,
 
     adminList: `${baseURL}/api/bookings/bookings-admin/bookings/`,
-    adminDetail: (id) => `${baseURL}/api/bookings/bookings-admin/bookings/${id}/`,
-    adminUpdate: (id) => `${baseURL}/api/bookings/admin/bookings/${id}/update/`, // from admin alias path
-    adminUpdateStatus: (id) => `${baseURL}/api/bookings/bookings-admin/bookings/${id}/status/`,
-    adminDelete: (id) => `${baseURL}/api/bookings/bookings-admin/bookings/${id}/delete/`,
+    adminDetail: (id) =>
+      `${baseURL}/api/bookings/bookings-admin/bookings/${id}/`,
+    adminUpdate: (id) =>
+      `${baseURL}/api/bookings/bookings-admin/admin/bookings/${id}/update/`,
+    adminUpdateStatus: (id) =>
+      `${baseURL}/api/bookings/bookings-admin/bookings/${id}/status/`,
+    adminDelete: (id) =>
+      `${baseURL}/api/bookings/bookings-admin/bookings/${id}/delete/`,
+
+    invoice: (id) => `${baseURL}/api/bookings/invoice/${id}/`,
+  },
+
+  // ===== CONTACT =====
+  contact: {
+    send: `${baseURL}/api/contact/send/`,
   },
 
   // ===== ANALYTICS =====
@@ -108,15 +168,3 @@ const API = {
 };
 
 export default API;
-
-/**
- * Example usage:
- * 
- * // Public request
- * // import publicAxios from './publicAxios';
- * // const res = await publicAxios.get(API.promotions.active);
- * 
- * // Authenticated request
- * // import axiosInstance from './axiosInstance';
- * // const res = await axiosInstance.post(API.newsletter.send, payload);
- */

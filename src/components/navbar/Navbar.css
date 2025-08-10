@@ -158,7 +158,7 @@
   transform: rotate(180deg);
 }
 
-/* === Dropdown Menu === */
+/* === Dropdown Menu (Desktop) === */
 .dropdown-menu {
   position: absolute;
   top: 80px;
@@ -195,45 +195,6 @@
   color: var(--color-accent-gold-light);
 }
 
-/* Logout Button */
-.logout-btn {
-  background: none;
-  border: none;
-  color: var(--color-white);
-  cursor: pointer;
-  padding: 0 1.5rem;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  transition: color var(--transition-fast);
-  position: relative;
-}
-
-.logout-btn::after {
-  content: '';
-  position: absolute;
-  bottom: 14px;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background: var(--color-accent-gold);
-  transition: width var(--transition-fast), left var(--transition-fast);
-  border-radius: var(--radius-sm);
-}
-
-.logout-btn:hover,
-.logout-btn:focus {
-  color: var(--color-accent-gold-light);
-}
-
-.logout-btn:hover::after,
-.logout-btn:focus::after {
-  width: 60%;
-  left: 20%;
-}
-
 /* === Mobile Responsive === */
 @media screen and (max-width: 960px) {
   .navbar-container {
@@ -257,6 +218,7 @@
     transition: left 0.4s ease, opacity 0.3s ease;
     z-index: 998;
     opacity: 0;
+    overflow-y: auto;
   }
 
   .nav-menu.active {
@@ -270,6 +232,7 @@
     text-align: center;
   }
 
+  /* === Mobile Dropdown Animation === */
   .dropdown-menu {
     position: relative;
     top: 0;
@@ -278,14 +241,22 @@
     background-color: var(--color-neutral-dark);
     box-shadow: none;
     border-radius: 0;
-    transform: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+  }
+
+  .dropdown-menu.mobile-visible {
+    max-height: 500px; /* enough to fit items */
   }
 
   .dropdown-item {
     padding: 1.25rem 0;
     text-align: center;
+    border-top: 1px solid var(--color-neutral-light);
   }
 }
 
@@ -305,5 +276,31 @@
 
   .dropdown-item {
     font-size: 0.95rem;
+  }
+}
+
+/* === 380px and below === */
+@media screen and (max-width: 380px) {
+  .navbar-container {
+    padding: 0 10px;
+  }
+
+  .logo-img {
+    height: 28px;
+    margin-right: 8px;
+  }
+
+  .logo-text {
+    font-size: 1.2rem;
+  }
+
+  .nav-links {
+    font-size: 0.9rem;
+    padding: 1.2rem 0;
+  }
+
+  .dropdown-item {
+    font-size: 0.85rem;
+    padding: 1rem 0;
   }
 }

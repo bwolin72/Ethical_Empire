@@ -1,7 +1,8 @@
+// src/pages/home/EethmHome.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import useMediaFetcher from "../../hooks/useMediaFetcher";
-import axiosCommon from "../../api/axiosCommon";
+import apiService from "../../api/apiService";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
@@ -54,16 +55,14 @@ const EethmHome = () => {
     }
   };
 
-  // Fetch data
+  // Fetch data from apiService
   useEffect(() => {
     const controller = new AbortController();
 
     const fetchData = async () => {
       try {
         // Videos
-        const videoRes = await axiosCommon.get("/videos/", {
-          signal: controller.signal,
-        });
+        const videoRes = await apiService.getVideos();
         const allVideos = Array.isArray(videoRes.data) ? videoRes.data : [];
         setVideos(
           allVideos.filter(
@@ -72,29 +71,24 @@ const EethmHome = () => {
         );
 
         // Promotions
-        const promoRes = await axiosCommon.get("/promotions/active/", {
-          signal: controller.signal,
-        });
+        const promoRes = await apiService.getActivePromotions();
         setPromotions(Array.isArray(promoRes.data) ? promoRes.data : []);
 
         // Reviews
-        const reviewRes = await axiosCommon.get("/reviews/", {
-          signal: controller.signal,
-        });
+        const reviewRes = await apiService.getReviews();
         setReviews(Array.isArray(reviewRes.data) ? reviewRes.data : []);
 
         // Services
-        const serviceRes = await axiosCommon.get("/services/", {
-          signal: controller.signal,
-        });
+        const serviceRes = await apiService.getServices();
         setServices(Array.isArray(serviceRes.data) ? serviceRes.data : []);
       } catch (err) {
-        if (err.name !== "CanceledError") {
-          console.error("❌ API fetch failed:", err);
-          if (err.config?.url.includes("promotions")) setPromoError("Failed to load promotions.");
-          if (err.config?.url.includes("reviews")) setReviewError("Failed to load reviews.");
-          if (err.config?.url.includes("services")) setServicesError("Failed to load services.");
-        }
+        console.error("❌ API fetch failed:", err);
+        if (err.config?.url.includes("promotions"))
+          setPromoError("Failed to load promotions.");
+        if (err.config?.url.includes("reviews"))
+          setReviewError("Failed to load reviews.");
+        if (err.config?.url.includes("services"))
+          setServicesError("Failed to load services.");
       }
     };
 
@@ -114,10 +108,7 @@ const EethmHome = () => {
     }
 
     try {
-      const response = await axiosCommon.post("/newsletter/subscribe/", {
-        email: newsletterEmail,
-      });
-
+      const response = await apiService.subscribeNewsletter(newsletterEmail);
       if ([200, 201].includes(response.status)) {
         setNewsletterSuccess(
           response.data?.message || "Thank you for subscribing!"
