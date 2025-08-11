@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "/",
-  "proxy": "http://localhost:8000",
   "scripts": {
     "start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
     "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
