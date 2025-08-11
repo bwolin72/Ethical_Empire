@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api'; // Central API endpoints map
+import api from '../../api/api';
 import './AdminDashboard.css';
 
 const AdminDashboard = ({ setActiveTab }) => {
@@ -13,16 +13,14 @@ const AdminDashboard = ({ setActiveTab }) => {
   const [invoices, setInvoices] = useState({ pending: 0 });
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
-  // Fetch Bookings (active bookings)
+  // Fetch Bookings
   const fetchBookings = async () => {
     try {
       const res = await axiosInstance.get(api.bookings.list);
-      if (Array.isArray(res.data)) {
-        const activeCount = res.data.filter(b => b.status?.toLowerCase() === 'active').length;
-        setBookings({ active: activeCount });
-      } else {
-        setBookings({ active: 0 });
-      }
+      const activeCount = Array.isArray(res.data)
+        ? res.data.filter(b => b.status?.toLowerCase() === 'active').length
+        : 0;
+      setBookings({ active: activeCount });
     } catch (err) {
       console.error('Failed to fetch bookings:', err);
       setBookings({ active: 0 });
@@ -33,41 +31,44 @@ const AdminDashboard = ({ setActiveTab }) => {
   const fetchVideos = async () => {
     try {
       const res = await axiosInstance.get(api.videos.list);
-      if (Array.isArray(res.data)) {
-        setVideos(res.data);
-      } else {
-        setVideos([]);
-      }
+      setVideos(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Failed to fetch videos:', err);
       setVideos([]);
     }
   };
 
-  // Fetch Invoices (pending invoices)
+  // Fetch Invoices
   const fetchInvoices = async () => {
     try {
       const res = await axiosInstance.get(api.invoices.list);
-      if (Array.isArray(res.data)) {
-        const pendingCount = res.data.filter(inv => inv.status?.toLowerCase() === 'pending').length;
-        setInvoices({ pending: pendingCount });
-      } else {
-        setInvoices({ pending: 0 });
-      }
+      const pendingCount = Array.isArray(res.data)
+        ? res.data.filter(inv => inv.status?.toLowerCase() === 'pending').length
+        : 0;
+      setInvoices({ pending: pendingCount });
     } catch (err) {
       console.error('Failed to fetch invoices:', err);
       setInvoices({ pending: 0 });
     }
   };
 
-  // Fetch Media Stats
+  // Fetch Media Stats (safe)
   const fetchMediaStats = async () => {
     try {
       const res = await axiosInstance.get(api.media.mediaItems);
       if (Array.isArray(res.data)) {
+        // Just store total count if it's a list
         setMediaStats({ totalMediaItems: res.data.length });
+      } else if (res.data && typeof res.data === 'object') {
+        // Flatten or stringify any non-primitive values
+        const safeStats = {};
+        for (const [key, value] of Object.entries(res.data)) {
+          safeStats[key] =
+            typeof value === 'object' ? JSON.stringify(value) : value;
+        }
+        setMediaStats(safeStats);
       } else {
-        setMediaStats(res.data || {});
+        setMediaStats({});
       }
     } catch (err) {
       console.error('Failed to fetch media stats:', err);
@@ -90,10 +91,12 @@ const AdminDashboard = ({ setActiveTab }) => {
   const fetchNewsletterStats = async () => {
     try {
       const res = await axiosInstance.get(api.newsletter.logs);
-      const postsCount = Array.isArray(res.data.posts)
+      const postsCount = Array.isArray(res.data?.posts)
         ? res.data.posts.length
-        : (Array.isArray(res.data) ? res.data.length : 0);
-      const subscriberCount = res.data.subscriber_count || 0;
+        : Array.isArray(res.data)
+        ? res.data.length
+        : 0;
+      const subscriberCount = res.data?.subscriber_count || 0;
       setNewsletterStats({ posts: postsCount, subscribers: subscriberCount });
     } catch (err) {
       console.error('Failed to fetch newsletter stats:', err);
@@ -142,12 +145,14 @@ const AdminDashboard = ({ setActiveTab }) => {
       <h1 className="dashboard-heading">Admin Dashboard</h1>
       <div className="overview-grid">
 
+        {/* Bookings */}
         <div className="overview-card">
           <h2>Bookings</h2>
           <p>{bookings.active} active bookings</p>
-          <button onClick={() => setActiveTab && setActiveTab('booking')}>Learn More</button>
+          <button onClick={() => setActiveTab?.('booking')}>Learn More</button>
         </div>
 
+        {/* Videos */}
         <div className="overview-card">
           <h2>Videos</h2>
           {videos.length > 0 ? (
@@ -161,15 +166,17 @@ const AdminDashboard = ({ setActiveTab }) => {
           ) : (
             <p>No videos available</p>
           )}
-          <button onClick={() => setActiveTab && setActiveTab('video')}>Learn More</button>
+          <button onClick={() => setActiveTab?.('video')}>Learn More</button>
         </div>
 
+        {/* Invoices */}
         <div className="overview-card">
           <h2>Invoices</h2>
           <p>{invoices.pending} invoices pending</p>
-          <button onClick={() => setActiveTab && setActiveTab('invoice')}>Learn More</button>
+          <button onClick={() => setActiveTab?.('invoice')}>Learn More</button>
         </div>
 
+        {/* Media Management */}
         <div className="overview-card">
           <h2>Media Management</h2>
           {mediaStats && Object.keys(mediaStats).length > 0 ? (
@@ -192,25 +199,28 @@ const AdminDashboard = ({ setActiveTab }) => {
           ) : (
             <p>Loading media data...</p>
           )}
-          <button onClick={() => setActiveTab && setActiveTab('media')}>Learn More</button>
+          <button onClick={() => setActiveTab?.('media')}>Learn More</button>
         </div>
 
+        {/* Reviews */}
         <div className="overview-card">
           <h2>Reviews</h2>
           <p>{reviewCount} reviews submitted</p>
-          <button onClick={() => setActiveTab && setActiveTab('reviews')}>Learn More</button>
+          <button onClick={() => setActiveTab?.('reviews')}>Learn More</button>
         </div>
 
+        {/* Newsletter */}
         <div className="overview-card">
           <h2>Newsletter</h2>
           <p>{newsletterStats.posts} posts • {newsletterStats.subscribers} subscribers</p>
-          <button onClick={() => setActiveTab && setActiveTab('newsletter')}>Learn More</button>
+          <button onClick={() => setActiveTab?.('newsletter')}>Learn More</button>
         </div>
 
+        {/* Analytics */}
         <div className="overview-card">
           <h2>Analytics</h2>
           <p>{analytics.visits} visits • {analytics.users} users</p>
-          <button onClick={() => setActiveTab && setActiveTab('analytics')}>View Analytics</button>
+          <button onClick={() => setActiveTab?.('analytics')}>View Analytics</button>
         </div>
 
       </div>
