@@ -1,11 +1,10 @@
 /* ===========================================
    🌟 Base Global Styles (from variables.css)
    =========================================== */
-
 /* Keep your existing theme variables + layout exactly as provided */
 
 /* ======================================================
-   🖼 Hero Section (same as your provided styles)
+   🖼 Hero Section
    ====================================================== */
 .eethm-home-page .video-hero-section {
   position: relative;
@@ -78,9 +77,13 @@
   font-weight: 700;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
   box-shadow: var(--shadow-sm);
   user-select: none;
+}
+
+.eethm-home-page .hero-buttons button:hover {
+  transform: translateY(-3px);
 }
 
 .eethm-home-page .hero-buttons button:first-child {
@@ -219,6 +222,218 @@
   font-size: 0.85rem;
   color: var(--color-secondary);
   text-align: center;
+}
+
+/* ======================================================
+   📩 Newsletter Modal
+   ====================================================== */
+.eethm-home-page .newsletter-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.eethm-home-page .newsletter-modal {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  width: min(90%, 500px);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: slideUp 0.4s ease-out;
+}
+
+.eethm-home-page .newsletter-modal h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: var(--color-primary);
+}
+
+.eethm-home-page .newsletter-modal p {
+  color: var(--color-neutral-dark);
+  margin-bottom: 1.5rem;
+}
+
+.eethm-home-page .newsletter-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.eethm-home-page .newsletter-modal input {
+  padding: 12px;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+}
+
+.eethm-home-page .newsletter-modal button {
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.eethm-home-page .newsletter-modal button:hover {
+  background: var(--color-primary-dark);
+}
+
+.eethm-home-page .newsletter-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--color-neutral-dark);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.eethm-home-page .newsletter-close-btn:hover {
+  transform: scale(1.2);
+}
+
+/* ======================================================
+   🎉 Promotions Section
+   ====================================================== */
+.eethm-home-page .promotions-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.eethm-home-page .promotion-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.eethm-home-page .promotion-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.eethm-home-page .promotion-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.eethm-home-page .promotion-card-content {
+  padding: 1rem;
+}
+
+.eethm-home-page .promotion-card-content h3 {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.eethm-home-page .promotion-card-content p {
+  color: var(--color-neutral-dark);
+  font-size: 0.95rem;
+}
+
+/* ======================================================
+   ⭐ Reviews/Testimonials
+   ====================================================== */
+.eethm-home-page .reviews-section {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.eethm-home-page .review-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.eethm-home-page .review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.eethm-home-page .review-author {
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.eethm-home-page .review-text {
+  font-style: italic;
+  color: var(--color-neutral-dark);
+}
+
+/* ======================================================
+   🖼 Banner & Media Cards
+   ====================================================== */
+.eethm-home-page .banner-cards,
+.eethm-home-page .media-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.eethm-home-page .banner-card,
+.eethm-home-page .media-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.eethm-home-page .banner-card:hover,
+.eethm-home-page .media-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.eethm-home-page .banner-card img,
+.eethm-home-page .media-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.eethm-home-page .banner-card-content,
+.eethm-home-page .media-card-content {
+  padding: 1rem;
+}
+
+.eethm-home-page .banner-card-content h3,
+.eethm-home-page .media-card-content h3 {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+/* ======================================================
+   🎬 Animations
+   ====================================================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* ======================================================

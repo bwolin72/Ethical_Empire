@@ -14,7 +14,7 @@ function Navbar() {
   const navigate = useNavigate();
   const navRef = useRef(null);
 
-  // Initialize mobile state and add resize listener
+  // Detect mobile view
   useEffect(() => {
     const determineMobile = () => setIsMobile(window.innerWidth <= 960);
     determineMobile();
@@ -22,7 +22,7 @@ function Navbar() {
     return () => window.removeEventListener('resize', determineMobile);
   }, []);
 
-  // Detect login status from storage (runs when location changes)
+  // Detect login status
   useEffect(() => {
     const access = localStorage.getItem('access') || sessionStorage.getItem('access');
     const refresh = localStorage.getItem('refresh') || sessionStorage.getItem('refresh');
@@ -47,8 +47,20 @@ function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleMenu = useCallback(() => setMenuOpen(prev => !prev), []);
-  const toggleDropdown = useCallback(() => setDropdownOpen(prev => !prev), []);
+  // Close menus on Escape
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
+  const toggleMenu = useCallback(() => setMenuOpen((prev) => !prev), []);
+  const toggleDropdown = useCallback(() => setDropdownOpen((prev) => !prev), []);
 
   const handleLogout = async () => {
     await logoutHelper();
@@ -56,9 +68,7 @@ function Navbar() {
     navigate('/login');
   };
 
-  // Services click: mobile toggles submenu; desktop navigates
-  const handleServicesClick = (e) => {
-    // prevent default only if element is a link; here it's a button-like element
+  const handleServicesClick = () => {
     if (isMobile) {
       toggleDropdown();
     } else {
@@ -80,51 +90,70 @@ function Navbar() {
   };
 
   return (
-    <nav className="navbar" ref={navRef}>
+    <nav className="navbar" aria-label="Main navigation" ref={navRef}>
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo" onClick={() => { setMenuOpen(false); setDropdownOpen(false); }}>
+        {/* Logo */}
+        <Link
+          to="/"
+          className="navbar-logo"
+          onClick={() => {
+            setMenuOpen(false);
+            setDropdownOpen(false);
+          }}
+        >
           <img src={logo} alt="EETHM Logo" className="logo-img" />
           <span className="logo-text">EETHM_GH</span>
         </Link>
 
+        {/* Mobile menu button */}
         <button
+          type="button"
           className="menu-icon"
           onClick={toggleMenu}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
+          aria-controls="primary-navigation"
         >
           {menuOpen ? '✖' : '☰'}
         </button>
 
-        <ul className={menuOpen ? 'nav-menu active' : 'nav-menu'}>
+        {/* Main nav links */}
+        <ul
+          id="primary-navigation"
+          className={menuOpen ? 'nav-menu active' : 'nav-menu'}
+        >
           <li className="nav-item">
-            <Link to="/bookings" className="nav-links" onClick={() => setMenuOpen(false)}>Bookings</Link>
+            <Link to="/bookings" className="nav-links" onClick={() => setMenuOpen(false)}>
+              Bookings
+            </Link>
           </li>
 
           <li className="nav-item">
-            <Link to="/about" className="nav-links" onClick={() => setMenuOpen(false)}>About</Link>
+            <Link to="/about" className="nav-links" onClick={() => setMenuOpen(false)}>
+              About
+            </Link>
           </li>
 
+          {/* Services dropdown */}
           <li
             className="nav-item dropdown"
             onMouseEnter={() => !isMobile && setDropdownOpen(true)}
             onMouseLeave={() => !isMobile && setDropdownOpen(false)}
           >
-            {/* Use a button for accessibility */}
             <button
               type="button"
               className="nav-links dropdown-toggle"
               onClick={handleServicesClick}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleServicesClick(e); }}
               aria-haspopup="true"
               aria-expanded={dropdownOpen}
             >
               Services <span className={`caret ${dropdownOpen ? 'rotated' : ''}`}>▼</span>
             </button>
 
-            {/* Always render the dropdown so CSS can animate. Toggle classes for mobile and programmatic show */}
             <ul
-              className={`dropdown-menu ${isMobile ? 'mobile' : 'desktop'} ${dropdownOpen ? 'mobile-visible active' : ''}`}
+              className={`dropdown-menu ${isMobile ? 'mobile' : 'desktop'} ${
+                dropdownOpen ? (isMobile ? 'mobile-visible active' : 'active') : ''
+              }`}
               role="menu"
               aria-label="Services submenu"
             >
@@ -168,18 +197,30 @@ function Navbar() {
           </li>
 
           <li className="nav-item">
-            <Link to="/contact" className="nav-links" onClick={() => setMenuOpen(false)}>Contact</Link>
+            <Link to="/contact" className="nav-links" onClick={() => setMenuOpen(false)}>
+              Contact
+            </Link>
           </li>
 
           <li className="nav-item">
-            <Link to="/connect" className="nav-links" onClick={() => setMenuOpen(false)}>Connect With Us</Link>
+            <Link to="/connect" className="nav-links" onClick={() => setMenuOpen(false)}>
+              Connect With Us
+            </Link>
           </li>
 
           <li className="nav-item">
             {isLoggedIn ? (
-              <button onClick={handleLogout} className="nav-links logout-btn">Logout</button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="nav-links logout-btn"
+              >
+                Logout
+              </button>
             ) : (
-              <Link to="/login" className="nav-links" onClick={() => setMenuOpen(false)}>Login</Link>
+              <Link to="/login" className="nav-links" onClick={() => setMenuOpen(false)}>
+                Login
+              </Link>
             )}
           </li>
         </ul>
