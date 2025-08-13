@@ -1,7 +1,7 @@
 // src/components/contact/ContactForm.jsx
 
 import React, { useState } from 'react';
-import apiService from '../../api/serviceapi'; // ✅ use centralized API service
+import apiService from '../../api/apiService'; // ✅ use centralized API service
 import API from '../../api/api'; // ✅ where contact.send lives
 import './ContactForm.css';
 import logo from '../../assets/logo.png';
