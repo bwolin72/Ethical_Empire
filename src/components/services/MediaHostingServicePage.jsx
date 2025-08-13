@@ -6,7 +6,6 @@ import { Card, CardContent } from "../ui/Card";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../api/apiService";
-import API from "../../api/api";
 
 const services = [
   {
@@ -51,7 +50,6 @@ const MediaHostingServicePage = () => {
   useEffect(() => {
     const fetchHeroVideo = async () => {
       try {
-        // Use apiService with API mapping
         const res = await apiService.getMedia("mediaHostingServicePage", {
           is_active: true,
           file_type: "video/",
@@ -64,9 +62,13 @@ const MediaHostingServicePage = () => {
 
         if (results.length > 0 && results[0].url?.full) {
           setVideoUrl(results[0].url.full);
+        } else {
+          // fallback if no API video
+          setVideoUrl("/mock/hero-video.mp4");
         }
       } catch (error) {
         console.error("Failed to load hero video:", error);
+        setVideoUrl("/mock/hero-video.mp4"); // fallback on error
       }
     };
 

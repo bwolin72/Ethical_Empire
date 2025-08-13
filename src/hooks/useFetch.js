@@ -1,30 +1,32 @@
 // src/hooks/useFetch.js
-import { useState, useEffect, useCallback } from 'react';
-import apiService from '../api/apiService';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export default function useFetch(apiMethod, params = {}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Store params in a ref to avoid triggering fetchData if params object is recreated but content unchanged
+  const paramsRef = useRef(params);
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Call the API method from apiService
-      const response = await apiMethod(params);
+      const response = await apiMethod(paramsRef.current);
       setData(response.data || response);
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
-  }, [apiMethod, params]);
+  }, [apiMethod]);
 
   useEffect(() => {
+    paramsRef.current = params;
     fetchData();
-  }, [fetchData]);
+  }, [params, fetchData]);
 
   return { data, loading, error, refetch: fetchData };
 }

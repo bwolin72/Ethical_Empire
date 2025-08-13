@@ -26,8 +26,6 @@ const DecorPage = () => {
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
 
   const [videoUrl, setVideoUrl] = useState('');
-  const [loadingVideo, setLoadingVideo] = useState(true);
-
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
@@ -64,24 +62,20 @@ const DecorPage = () => {
 
   // Fetch video with fallback
   const fetchVideo = useCallback(async () => {
-    setLoadingVideo(true);
     try {
       const res = await apiService.getVideos({
         endpoint: 'decor',
         is_active: true,
       });
 
-      if (Array.isArray(res.data) && res.data.length > 0) {
+      if (Array.isArray(res.data) && res.data.length > 0 && res.data[0].video_url) {
         setVideoUrl(res.data[0].video_url);
       } else {
-        // Use fallback video from public folder
         setVideoUrl('/mock/hero-video.mp4');
       }
     } catch (err) {
       console.error('Error loading video:', err);
-      setVideoUrl('/mock/hero-video.mp4'); // fallback on error
-    } finally {
-      setLoadingVideo(false);
+      setVideoUrl('/mock/hero-video.mp4');
     }
   }, []);
 
