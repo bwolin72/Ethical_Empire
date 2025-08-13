@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import DatePicker from 'react-datepicker';
 import PhoneInput from 'react-phone-input-2';
@@ -7,6 +7,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { FaCalendarAlt, FaWhatsapp, FaPhoneAlt, FaMapMarkerAlt, FaInstagram, FaLinkedin, FaTwitter, FaFacebookF } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import useFetch from '../../hooks/useFetch'; // ✅ Added
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -30,8 +31,10 @@ const BookingForm = () => {
     services: [],
   });
 
-  const [availableServices, setAvailableServices] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ✅ Fetch services using hook
+  const { data: servicesData, loading: servicesLoading, error: servicesError, refetch } = useFetch('/services/');
 
   useEffect(() => {
     if (user) {
@@ -43,25 +46,22 @@ const BookingForm = () => {
     }
   }, [user]);
 
-  const fetchServices = useCallback(() => {
-    axiosInstance.get('/services/')
-      .then((res) => {
-        const data = Array.isArray(res.data.results) ? res.data.results : res.data;
-        if (Array.isArray(data) && data.length > 0) {
-          setAvailableServices(data);
-        } else {
-          toast.warning('No services available at the moment.', { autoClose: 3000 });
-        }
-      })
-      .catch((err) => {
-        console.error('Failed to fetch services:', err);
-        toast.error('Failed to fetch services.', { autoClose: 3000 });
-      });
-  }, []);
+  useEffect(() => {
+    if (servicesData) {
+      const data = Array.isArray(servicesData.results) ? servicesData.results : servicesData;
+      if (Array.isArray(data) && data.length > 0) {
+        // No state needed, just use `servicesData` directly in render
+      } else {
+        toast.warning('No services available at the moment.', { autoClose: 3000 });
+      }
+    }
+  }, [servicesData]);
 
   useEffect(() => {
-    fetchServices();
-  }, [fetchServices]);
+    if (servicesError) {
+      toast.error('Failed to fetch services.', { autoClose: 3000 });
+    }
+  }, [servicesError]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -114,10 +114,7 @@ const BookingForm = () => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    const {
-      name, email, phone, country, state_or_region,
-      venue_name, address, event_date, services
-    } = formData;
+    const { name, email, phone, country, state_or_region, venue_name, address, event_date, services } = formData;
 
     if (!isAuthenticated || !name || !email || !phone || !country || !state_or_region || !venue_name || !address || !event_date || services.length === 0) {
       toast.error('Please complete all required fields and select at least one service.', { autoClose: 3000 });
@@ -141,7 +138,7 @@ const BookingForm = () => {
       toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
       toast.info('📧 A confirmation email has been sent to you.', { autoClose: 4000 });
       resetForm();
-      fetchServices();
+      refetch(); // ✅ Refresh services after booking
     } catch (err) {
       const response = err.response?.data;
       const extractedError = typeof response === 'object' && response !== null ? Object.values(response)[0] : response?.detail;
@@ -167,7 +164,6 @@ const BookingForm = () => {
           <form onSubmit={handleSubmit} className="form-content" noValidate>
             <h3>Event Booking Form</h3>
 
-            {/* Reusable Input Fields */}
             {["name", "email", "venue_name", "address"].map((id) => (
               <div key={id} className="input-group">
                 <label htmlFor={id}>{id.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}</label>
@@ -211,12 +207,18 @@ const BookingForm = () => {
             <div className="input-group">
               <label>Services</label>
               <div className="checkbox-group">
-                {availableServices.length > 0 ? availableServices.map((service) => (
-                  <label key={service.id} className="checkbox-option">
-                    <input type="checkbox" name="services" value={service.id} checked={formData.services.includes(service.id)} onChange={handleChange} />
-                    {service.name}
-                  </label>
-                )) : <p className="no-services">No services available</p>}
+                {servicesLoading ? (
+                  <p>Loading services...</p>
+                ) : servicesData && Array.isArray((servicesData.results || servicesData)) && (servicesData.results || servicesData).length > 0 ? (
+                  (servicesData.results || servicesData).map((service) => (
+                    <label key={service.id} className="checkbox-option">
+                      <input type="checkbox" name="services" value={service.id} checked={formData.services.includes(service.id)} onChange={handleChange} />
+                      {service.name}
+                    </label>
+                  ))
+                ) : (
+                  <p className="no-services">No services available</p>
+                )}
               </div>
             </div>
 
