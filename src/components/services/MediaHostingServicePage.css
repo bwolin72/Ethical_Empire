@@ -279,31 +279,6 @@
   cursor: pointer;
 }
 
-/* ---------- WhatsApp Button ---------- */
-.media-hosting-page .whatsapp-button {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background: var(--color-accent-green);
-  color: var(--color-white);
-  padding: 0.8rem;
-  border-radius: 50%;
-  box-shadow: var(--shadow-lg);
-  cursor: pointer;
-  animation: bounce 2s infinite;
-  z-index: 999;
-  transition: background var(--transition-fast);
-}
-
-.media-hosting-page .whatsapp-button:hover {
-  background: var(--color-accent-green-dark);
-}
-
-.media-hosting-page .whatsapp-button svg {
-  width: 1.5rem;
-  height: 1.5rem;
-}
-
 /* ---------- Loading & Skeleton ---------- */
 .media-hosting-page .shimmer {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);

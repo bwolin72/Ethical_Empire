@@ -6,7 +6,7 @@ import API from '../api/api';
  * Hook to fetch media (or banners) from specific endpoints with pagination, filtering, and search.
  *
  * @param {Object} options
- * @param {string} options.endpoint - Key from API mapping in api.js (e.g., 'about', 'banners', 'vendors')
+ * @param {string} options.endpoint - Key from API.media mapping in api.js (e.g., 'about', 'banners', 'vendors', 'partners')
  * @param {boolean|null} options.isActive - Filter by active status
  * @param {boolean|null} options.isFeatured - Filter by featured flag
  * @param {boolean} options.autoFetch - Whether to auto-fetch on mount
@@ -15,7 +15,7 @@ import API from '../api/api';
  * @param {string} options.fileType - Optional MIME file type (e.g., 'image/', 'video/')
  */
 const useMediaFetcher = ({
-  endpoint = 'media',
+  endpoint = 'about',
   isActive = true,
   isFeatured = null,
   autoFetch = true,
@@ -33,17 +33,16 @@ const useMediaFetcher = ({
 
   const [debouncedQuery, setDebouncedQuery] = useState(labelQuery);
 
-  // Debounce for search query
+  // Debounce search
   useEffect(() => {
-    const delay = setTimeout(() => {
-      setDebouncedQuery(labelQuery);
-    }, 400);
+    const delay = setTimeout(() => setDebouncedQuery(labelQuery), 400);
     return () => clearTimeout(delay);
   }, [labelQuery]);
 
   const fetchMedia = useCallback(async () => {
-    if (!API[endpoint]) {
-      console.warn(`[useMediaFetcher] Unknown endpoint key: ${endpoint}`);
+    // ✅ Ensure we are checking inside API.media
+    if (!API.media || !API.media[endpoint]) {
+      console.warn(`[useMediaFetcher] Unknown media endpoint key: ${endpoint}`);
       setError('Invalid media endpoint');
       setMedia([]);
       return;
@@ -57,7 +56,7 @@ const useMediaFetcher = ({
       if (debouncedQuery) params.search = debouncedQuery;
       if (fileType) params.file_type = fileType;
 
-      const res = await apiService.getMedia(endpoint, params);
+      const res = await apiService.get(API.media[endpoint], { params });
       const results = Array.isArray(res.data?.results) ? res.data.results : res.data;
 
       setMedia(results);

@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import publicAxios from '../../api/publicAxios';
-import axiosCommon from '../../api/axiosCommon';
 import './decor.css';
 import MediaCard from '../context/MediaCards';
 import MediaSkeleton from '../context/MediaSkeleton';
 import BannerCards from '../context/BannerCards';
+import useMediaFetcher from '../../hooks/useMediaFetcher';
+import apiService from '../../api/apiService';
 import {
   FaCrown,
   FaPalette,
@@ -18,10 +18,20 @@ import {
 
 const DecorPage = () => {
   const navigate = useNavigate();
-  const [mediaCards, setMediaCards] = useState([]);
+
+  // === Media fetching via custom hook ===
+  const {
+    media: mediaCards,
+    loading: mediaLoading,
+    fetchMedia
+  } = useMediaFetcher();
+
   const [testimonials, setTestimonials] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+
   const [videoUrl, setVideoUrl] = useState('');
+  const [loadingVideo, setLoadingVideo] = useState(true);
+
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
@@ -34,40 +44,50 @@ const DecorPage = () => {
     { icon: <FaCameraRetro />, label: 'Backdrop & Photo Booths' },
   ];
 
-  const fetchContent = useCallback(async () => {
-    setLoading(true);
+  // Fetch media on mount
+  useEffect(() => {
+    fetchMedia({
+      endpoint: 'decor', // backend slug/endpoint for decor media
+      type: 'featured',
+      is_active: true
+    });
+  }, [fetchMedia]);
+
+  // Fetch testimonials
+  const fetchTestimonials = useCallback(async () => {
+    setLoadingTestimonials(true);
     try {
-      const [mediaRes, reviewsRes, videoRes] = await Promise.all([
-        publicAxios.get('/media/', {
-          params: {
-            endpoint: 'DecorPage',
-            type: 'featured',
-            is_active: true,
-          },
-        }),
-        publicAxios.get('/reviews/'),
-        axiosCommon.get('/videos/?endpoint=DecorPage&is_active=true'),
-      ]);
-
-      const media = Array.isArray(mediaRes.data?.results) ? mediaRes.data.results : [];
-      const reviews = Array.isArray(reviewsRes.data) ? reviewsRes.data : [];
-
-      setMediaCards(media);
-      setTestimonials(reviews);
-
-      if (Array.isArray(videoRes.data) && videoRes.data.length > 0) {
-        setVideoUrl(videoRes.data[0].video_url);
-      }
-    } catch (error) {
-      console.error('Error loading decor content:', error);
+      const res = await apiService.getReviews({ category: 'decor' });
+      setTestimonials(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Error loading reviews:', err);
     } finally {
-      setLoading(false);
+      setLoadingTestimonials(false);
+    }
+  }, []);
+
+  // Fetch video
+  const fetchVideo = useCallback(async () => {
+    setLoadingVideo(true);
+    try {
+      const res = await apiService.getVideos({
+        endpoint: 'decor',
+        is_active: true
+      });
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        setVideoUrl(res.data[0].video_url);
+      }
+    } catch (err) {
+      console.error('Error loading video:', err);
+    } finally {
+      setLoadingVideo(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchContent();
-  }, [fetchContent]);
+    fetchTestimonials();
+    fetchVideo();
+  }, [fetchTestimonials, fetchVideo]);
 
   const toggleMute = () => {
     setIsMuted((prev) => !prev);
@@ -96,7 +116,7 @@ const DecorPage = () => {
             </button>
           </div>
         ) : (
-          <BannerCards endpoint="DecorPage" title="Decor Showcases" />
+          <BannerCards endpoint="decor" title="Decor Showcases" />
         )}
       </section>
 
@@ -132,12 +152,11 @@ const DecorPage = () => {
           <h3>Transform Your Venue</h3>
           <p>
             Ethical Multimedia creates immersive, elegant decor tailored to your theme.
-            From romantic weddings to vibrant cultural events, we handle every detail—
-            so your space becomes unforgettable.
+            From romantic weddings to vibrant cultural events, we handle every detail—so your space becomes unforgettable.
           </p>
         </div>
         <div className="creative-media">
-          {loading ? (
+          {mediaLoading ? (
             Array.from({ length: 2 }).map((_, i) => <MediaSkeleton key={i} />)
           ) : mediaCards.length > 0 ? (
             mediaCards.slice(0, 2).map((media) => (
@@ -157,14 +176,16 @@ const DecorPage = () => {
           Discover the beauty of our decor setups in the gallery below.
         </p>
         <div className="card-grid">
-          {loading ? (
+          {mediaLoading ? (
             Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
           ) : mediaCards.length > 0 ? (
             mediaCards.slice(0, 6).map((media) => (
               <MediaCard key={media.id || media.url} media={media} />
             ))
           ) : (
-            <p className="text-center text-gray-500">No decor media available at the moment.</p>
+            <p className="text-center text-gray-500">
+              No decor media available at the moment.
+            </p>
           )}
         </div>
       </section>
@@ -173,7 +194,7 @@ const DecorPage = () => {
       <section className="section">
         <h2 className="section-title">Client Impressions</h2>
         <div className="testimonial-grid">
-          {loading ? (
+          {loadingTestimonials ? (
             Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="testimonial-card shimmer">
                 <div className="testimonial-text">Loading review...</div>
@@ -194,19 +215,6 @@ const DecorPage = () => {
           )}
         </div>
       </section>
-
-      {/* === WhatsApp CTA === */}
-      <a
-        href="https://wa.me/233552988735"
-        className="whatsapp-button"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat on WhatsApp"
-      >
-        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M20.52 3.48a11.7 11.7 0 00-16.5 0A11.6 11.6 0 003 12.08a11.5 11.5 0 001.68 6.07L3 24l6-1.6a11.6 11.6 0 0012.1-2.42 11.6 11.6 0 000-16.5zm-5.9 12.6c-.25.7-1.4 1.3-2 1.3-.53 0-1.3-.1-3.8-1.8a8.4 8.4 0 01-2.7-3.4c-.3-.5-.3-.9 0-1.2.3-.3.8-.5 1.1-.5h.3c.2 0 .4.1.6.3l.9 1c.2.2.2.3.1.5-.2.5-.4.7-.6 1-.2.3-.4.5-.2.8.6 1 2.2 2.4 3.4 2.7.3.1.5 0 .7-.2l.5-.6c.1-.1.2-.2.4-.3.2-.1.4 0 .6.1l1.2.6c.2.1.4.3.4.5 0 .2-.2.5-.3.7z" />
-        </svg>
-      </a>
     </div>
   );
 };

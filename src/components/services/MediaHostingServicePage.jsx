@@ -4,8 +4,9 @@ import MediaCards from "../context/MediaCards";
 import "./MediaHostingServicePage.css";
 import { Card, CardContent } from "../ui/Card";
 import { motion } from "framer-motion";
-import axiosCommon from "../../api/axiosCommon";
 import { useNavigate } from "react-router-dom";
+import apiService from "../../api/apiService";
+import API from "../../api/api";
 
 const services = [
   {
@@ -48,21 +49,32 @@ const MediaHostingServicePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchVideo = async () => {
+    const fetchHeroVideo = async () => {
       try {
-        const res = await axiosCommon.get("/videos/", {
-          params: { endpoint: "mediaHostingServicePage", is_active: true }
+        // Use apiService with API mapping
+        const res = await apiService.getMedia("mediaHostingServicePage", {
+          is_active: true,
+          file_type: "video/",
+          page_size: 1
         });
-        if (res.data.length > 0) setVideoUrl(res.data[0].video_url);
+
+        const results = Array.isArray(res.data?.results)
+          ? res.data.results
+          : res.data;
+
+        if (results.length > 0 && results[0].url?.full) {
+          setVideoUrl(results[0].url.full);
+        }
       } catch (error) {
-        console.error("Video load failed:", error);
+        console.error("Failed to load hero video:", error);
       }
     };
-    fetchVideo();
+
+    fetchHeroVideo();
   }, []);
 
   const toggleMute = () => {
-    setIsMuted(!isMuted);
+    setIsMuted((prev) => !prev);
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
     }

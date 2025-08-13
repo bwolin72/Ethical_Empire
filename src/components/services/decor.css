@@ -198,31 +198,6 @@
   color: var(--color-primary);
 }
 
-/* === WhatsApp Floating Button === */
-.decor-page-container .whatsapp-button {
-  position: fixed;
-  bottom: var(--spacing-md);
-  right: var(--spacing-md);
-  background-color: var(--color-accent-green);
-  color: var(--color-white);
-  padding: 0.85rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  transition: transform var(--transition-fast);
-}
-
-.decor-page-container .whatsapp-button:hover {
-  transform: scale(1.1);
-}
-
-.decor-page-container .whatsapp-button svg {
-  width: 24px;
-  height: 24px;
-  color: var(--color-white);
-}
 
 /* === Responsive === */
 @media (max-width: 768px) {

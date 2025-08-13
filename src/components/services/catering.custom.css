@@ -162,27 +162,6 @@
   100% { background-position: 1000px 0; }
 }
 
-/* === WhatsApp Button === */
-.catering-page-container .whatsapp-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: var(--color-success);
-  color: var(--color-white);
-  padding: 0.75rem;
-  border-radius: 50%;
-  box-shadow: var(--shadow-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  transition: var(--transition-default);
-}
-
-.catering-page-container .whatsapp-button:hover {
-  background-color: #1ebea5; /* closest to success-light */
-}
-
 /* === Responsive (<= 768px) === */
 @media (max-width: 768px) {
   .catering-page-container .creative-layout {

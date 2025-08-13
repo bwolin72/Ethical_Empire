@@ -272,29 +272,6 @@
   }
 }
 
-/* === WhatsApp Floating Button === */
-.liveband-page .whatsapp-button {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background-color: var(--color-accent-green);
-  color: var(--color-white);
-  padding: 1rem;
-  border-radius: 50%;
-  box-shadow: var(--shadow-lg);
-  z-index: 999;
-  animation: bounceIn 1s ease;
-}
-
-.liveband-page .whatsapp-button:hover {
-  background-color: var(--color-accent-green-dark);
-  transform: scale(1.1);
-}
-
-.liveband-page .whatsapp-button svg {
-  width: 1.5rem;
-  height: 1.5rem;
-}
 
 @keyframes bounceIn {
   0% { transform: scale(0.7); opacity: 0; }

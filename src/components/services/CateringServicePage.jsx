@@ -64,20 +64,21 @@ const CateringPage = () => {
     }
   }, []);
 
+  const fetchVideo = useCallback(async () => {
+    try {
+      const { data } = await axiosCommon.get('/videos/?endpoint=CateringPage&is_active=true');
+      if (Array.isArray(data) && data.length > 0) {
+        setVideoUrl(data[0].video_url);
+      }
+    } catch (error) {
+      console.error('Video fetch error:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchData();
-
-    axiosCommon
-      .get('/videos/?endpoint=CateringPage&is_active=true')
-      .then(res => {
-        if (Array.isArray(res.data) && res.data.length > 0) {
-          setVideoUrl(res.data[0].video_url);
-        }
-      })
-      .catch(err => {
-        console.error('Video fetch error:', err);
-      });
-  }, [fetchData]);
+    fetchVideo();
+  }, [fetchData, fetchVideo]);
 
   const toggleMute = () => {
     setIsMuted(prev => !prev);
@@ -210,25 +211,8 @@ const CateringPage = () => {
               ))}
         </div>
       </section>
-
-      {/* === WhatsApp CTA === */}
-      <WhatsAppButton />
     </div>
   );
 };
-
-const WhatsAppButton = () => (
-  <a
-    href="https://wa.me/233552988735"
-    className="whatsapp-button"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Chat on WhatsApp"
-  >
-    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M20.52 3.48a11.7 11.7 0 00-16.5 0A11.6 11.6 0 003 12.08a11.5 11.5 0 001.68 6.07L3 24l6-1.6a11.6 11.6 0 0012.1-2.42 11.6 11.6 0 000-16.5zm-5.9 12.6c-.25.7-1.4 1.3-2 1.3-.53 0-1.3-.1-3.8-1.8a8.4 8.4 0 01-2.7-3.4c-.3-.5-.3-.9 0-1.2.3-.3.8-.5 1.1-.5h.3c.2 0 .4.1.6.3l.9 1c.2.2.2.3.1.5-.2.5-.4.7-.6 1-.2.3-.4.5-.2.8.6 1 2.2 2.4 3.4 2.7.3.1.5 0 .7-.2l.5-.6c.1-.1.2-.2.4-.3.2-.1.4 0 .6.1l1.2.6c.2.1.4.3.4.5 0 .2-.2.5-.3.7z" />
-    </svg>
-  </a>
-);
 
 export default CateringPage;
