@@ -1,3 +1,4 @@
+// src/components/services/DecorServicePage.jsx
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -19,12 +20,7 @@ import {
 const DecorPage = () => {
   const navigate = useNavigate();
 
-  // === Media fetching via custom hook ===
-  const {
-    media: mediaCards,
-    loading: mediaLoading,
-    fetchMedia
-  } = useMediaFetcher();
+  const { media: mediaCards, loading: mediaLoading, fetchMedia } = useMediaFetcher();
 
   const [testimonials, setTestimonials] = useState([]);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
@@ -47,9 +43,9 @@ const DecorPage = () => {
   // Fetch media on mount
   useEffect(() => {
     fetchMedia({
-      endpoint: 'decor', // backend slug/endpoint for decor media
+      endpoint: 'decor',
       type: 'featured',
-      is_active: true
+      is_active: true,
     });
   }, [fetchMedia]);
 
@@ -66,19 +62,24 @@ const DecorPage = () => {
     }
   }, []);
 
-  // Fetch video
+  // Fetch video with fallback
   const fetchVideo = useCallback(async () => {
     setLoadingVideo(true);
     try {
       const res = await apiService.getVideos({
         endpoint: 'decor',
-        is_active: true
+        is_active: true,
       });
+
       if (Array.isArray(res.data) && res.data.length > 0) {
         setVideoUrl(res.data[0].video_url);
+      } else {
+        // Use fallback video from public folder
+        setVideoUrl('/mock/hero-video.mp4');
       }
     } catch (err) {
       console.error('Error loading video:', err);
+      setVideoUrl('/mock/hero-video.mp4'); // fallback on error
     } finally {
       setLoadingVideo(false);
     }
