@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import publicAxios from "../../api/publicAxios";
+import apiService from "../../api/apiService"; // Use apiService here
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -16,7 +16,8 @@ export default function ResubscribePage() {
 
     setLoading(true);
     try {
-      const { data } = await publicAxios.post(`/newsletter/resubscribe/`, {
+      // Use apiService's resubscribeNewsletter method
+      const { data } = await apiService.resubscribeNewsletter({
         email: decodeURIComponent(email),
       });
       toast.success(data?.message || "✅ You have successfully resubscribed.");

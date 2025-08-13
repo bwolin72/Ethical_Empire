@@ -5,8 +5,8 @@ import MediaSkeleton from './MediaSkeleton';
 import './MediaCard.css';
 
 const MediaCards = ({
-  endpoint,
-  type = 'media',
+  endpoint,        // e.g., 'media', 'banners', 'vendors', 'partners'
+  type = 'media',  // keeps compatibility with useMediaFetcher
   title,
   fullWidth = false,
   isActive = true,
@@ -16,13 +16,27 @@ const MediaCards = ({
 }) => {
   const [previewMedia, setPreviewMedia] = useState(null);
 
+  // Automatically resolve endpoint for specific types
+  const resolvedEndpoint = (() => {
+    switch (type) {
+      case 'banner':
+        return endpoint || '/api/banners/';
+      case 'vendor':
+        return endpoint || '/api/vendors/';
+      case 'partner':
+        return endpoint || '/api/partners/';
+      default:
+        return endpoint || '/api/media/';
+    }
+  })();
+
   const {
     media: mediaItems,
     loading,
     error,
   } = useMediaFetcher({
     type,
-    endpoint,
+    endpoint: resolvedEndpoint,
     isActive,
     isFeatured,
     autoFetch: true,
@@ -42,7 +56,7 @@ const MediaCards = ({
           <p className="media-error">{error}</p>
         ) : mediaItems.length === 0 ? (
           <p className="media-card-empty">
-            📭 No media uploaded{endpoint ? ` for ${endpoint}` : ''}.
+            📭 No {type} uploaded.
           </p>
         ) : (
           mediaItems.map((media) => (
@@ -62,8 +76,16 @@ const MediaCards = ({
 
       {previewMedia && (
         <div className="media-modal" onClick={() => setPreviewMedia(null)}>
-          <div className="media-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setPreviewMedia(null)}>✖</button>
+          <div
+            className="media-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="close-button"
+              onClick={() => setPreviewMedia(null)}
+            >
+              ✖
+            </button>
             {previewMedia.file_type?.includes('video') ? (
               <video
                 src={previewMedia.url?.full}

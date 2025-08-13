@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import axiosInstance from "../../api/axiosInstance";
+import api from "../../api/api"; // centralized api methods
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./ConfirmPasswordChange.css"; // Ensure this file exists
+import "./ConfirmPasswordChange.css";
 
 const ConfirmPasswordChange = () => {
   const [params] = useSearchParams();
@@ -26,8 +26,8 @@ const ConfirmPasswordChange = () => {
       return;
     }
 
-    axiosInstance
-      .post("/accounts/profiles/password-update/confirm/", { email, token })
+    api
+      .confirmPasswordChange({ email, token })
       .then(() => {
         toast.success("✅ Password updated. Please log in.");
         setStatus("success");

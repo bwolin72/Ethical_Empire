@@ -1,5 +1,8 @@
+// src/components/contact/ContactForm.jsx
+
 import React, { useState } from 'react';
-import axiosCommon from '../../api/axiosCommon';
+import apiService from '../../api/serviceapi'; // ✅ use centralized API service
+import API from '../../api/api'; // ✅ where contact.send lives
 import './ContactForm.css';
 import logo from '../../assets/logo.png';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
@@ -28,7 +31,7 @@ const ContactForm = () => {
     e.preventDefault();
     setStatusMessage('');
     try {
-      await axiosCommon.post('/contact/send/', {
+      await apiService.public.post(API.contact.send, {
         ...formData,
         service_type: formData.service_type || null,
         event_date: formData.event_date || null,
@@ -73,14 +76,18 @@ const ContactForm = () => {
                   required
                   placeholder=" "
                 />
-                <label htmlFor={field}>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                <label htmlFor={field}>
+                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                </label>
               </div>
             ))}
 
             <div className="form-group">
               <CountryDropdown
                 value={formData.country}
-                onChange={(val) => setFormData(prev => ({ ...prev, country: val, region: '' }))}
+                onChange={(val) =>
+                  setFormData(prev => ({ ...prev, country: val, region: '' }))
+                }
                 classes="country-dropdown"
               />
               <label>Country *</label>
@@ -90,7 +97,9 @@ const ContactForm = () => {
               <RegionDropdown
                 country={formData.country}
                 value={formData.region}
-                onChange={(val) => setFormData(prev => ({ ...prev, region: val }))}
+                onChange={(val) =>
+                  setFormData(prev => ({ ...prev, region: val }))
+                }
                 classes="region-dropdown"
               />
               <label>Region / State *</label>
@@ -155,7 +164,9 @@ const ContactForm = () => {
             <button className="submit-btn" type="submit">Submit</button>
           </form>
 
-          {statusMessage && <div className="toast-notification">{statusMessage}</div>}
+          {statusMessage && (
+            <div className="toast-notification">{statusMessage}</div>
+          )}
         </section>
 
         <aside className="company-details-section">
@@ -177,15 +188,46 @@ const ContactForm = () => {
           </div>
 
           <div className="contact-buttons">
-            <a href="https://wa.me/233556036565" className="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            <a
+              href="https://wa.me/233556036565"
+              className="whatsapp"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp
+            </a>
             <a href="tel:+233556036565" className="phone">Call</a>
           </div>
 
           <div className="social-media-links">
-            <a href="https://www.instagram.com/ethicalmultimedia?igsh=NmVmdXV2dHhkdW4w" target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href="https://x.com/EeTHm_Gh?t=DE32RjXhsgO6A_rgeGIFmA&s=09" target="_blank" rel="noopener noreferrer">Twitter</a>
-            <a href="https://www.facebook.com/share/16nQGbE7Zk/" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a
+              href="https://www.instagram.com/ethicalmultimedia?igsh=NmVmdXV2dHhkdW4w"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Instagram
+            </a>
+            <a
+              href="https://www.linkedin.com/in/ethical-empire/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://x.com/EeTHm_Gh?t=DE32RjXhsgO6A_rgeGIFmA&s=09"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Twitter
+            </a>
+            <a
+              href="https://www.facebook.com/share/16nQGbE7Zk/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Facebook
+            </a>
           </div>
         </aside>
       </main>

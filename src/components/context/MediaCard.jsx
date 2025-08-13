@@ -1,18 +1,47 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import './MediaCard.css';
 
 const SingleMediaCard = ({ media, fullWidth = false, onClick = null }) => {
-  const thumbnail = media?.url?.thumbnail || media?.url?.full || '';
-  const isVideo = media?.file_type?.includes('video');
-  const label = media?.label || 'Media';
+  // Ensure we always have a media object
+  const safeMedia = media || {};
 
+  // Extract URLs
+  const thumbnail =
+    safeMedia?.url?.thumbnail ||
+    safeMedia?.url?.medium ||
+    safeMedia?.url?.full ||
+    '/placeholder.jpg';
+
+  const fullUrl = safeMedia?.url?.full || thumbnail;
+
+  // Determine type
+  const isVideo = safeMedia?.file_type?.includes('video');
+
+  // Label fallback
+  const label =
+    safeMedia?.label ||
+    safeMedia?.title ||
+    safeMedia?.category ||
+    'Media Item';
+
+  // Category (used for grouping banners/home/about/etc.)
+  const category = safeMedia?.category || 'general';
+
+  // Handle video load errors
   const handleVideoError = (e) => {
     e.target.poster = '/placeholder.jpg';
+  };
+
+  // Handle image load errors
+  const handleImageError = (e) => {
+    e.target.src = '/placeholder.jpg';
   };
 
   return (
     <div
       className={`media-card ${fullWidth ? 'full' : ''}`}
+      data-category={category}
       role="button"
       tabIndex={0}
       aria-label={label}
@@ -28,7 +57,7 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick = null }) => {
               preload="metadata"
               onError={handleVideoError}
             >
-              <source src={media.url?.full} type={media.file_type} />
+              <source src={fullUrl} type={safeMedia.file_type} />
               Your browser does not support the video tag.
             </video>
             <span className="video-icon">📹</span>
@@ -38,7 +67,7 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick = null }) => {
             src={thumbnail}
             alt={label}
             className="media-thumb"
-            onError={(e) => (e.target.src = '/placeholder.jpg')}
+            onError={handleImageError}
             loading="lazy"
           />
         )}
@@ -46,6 +75,23 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick = null }) => {
       <div className="media-label">{label}</div>
     </div>
   );
+};
+
+// PropTypes for better maintainability
+SingleMediaCard.propTypes = {
+  media: PropTypes.shape({
+    url: PropTypes.shape({
+      thumbnail: PropTypes.string,
+      medium: PropTypes.string,
+      full: PropTypes.string,
+    }),
+    file_type: PropTypes.string,
+    label: PropTypes.string,
+    title: PropTypes.string,
+    category: PropTypes.string,
+  }),
+  fullWidth: PropTypes.bool,
+  onClick: PropTypes.func,
 };
 
 export default SingleMediaCard;

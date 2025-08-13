@@ -71,12 +71,15 @@ const apiService = {
   getActivePromotions: () => publicAxios.get(API.promotions.active),
   getPromotionDetail: (id) => publicAxios.get(API.promotions.detail(id)),
 
-  /** ================= NEWSLETTER ================= */
+ /** ================= NEWSLETTER ================= */
   subscribeNewsletter: (email) => publicAxios.post(API.newsletter.subscribe, { email }),
   unsubscribeNewsletter: (email) => publicAxios.post(API.newsletter.unsubscribe, { email }),
   sendNewsletter: (data) => axiosInstance.post(API.newsletter.send, data),
   getNewsletterLogs: () => axiosInstance.get(API.newsletter.logs),
-  confirmNewsletter: (data) => publicAxios.post(API.newsletter.confirm, data),
+
+  // Confirm expects GET with token in query string, not POST
+  confirmNewsletter: (token) => publicAxios.get(API.newsletter.confirm(token)),
+
   resendNewsletterConfirmation: (data) => publicAxios.post(API.newsletter.resendConfirmation, data),
   resubscribeNewsletter: (data) => publicAxios.post(API.newsletter.resubscribe, data),
   listNewsletterSubscribers: () => axiosInstance.get(API.newsletter.list),
@@ -90,18 +93,16 @@ const apiService = {
   replyReview: (id, data) => axiosInstance.post(API.reviews.reply(id), data),
 
   /** ================= BOOKINGS ================= */
-  getBookings: () => axiosInstance.get(API.bookings.list),
-  createBooking: (data) => publicAxios.post(API.bookings.create, data),
-  getBookingDetail: (id) => axiosInstance.get(API.bookings.detail(id)),
-  getUserBookings: () => axiosInstance.get(API.bookings.userBookings),
+  getBookings: () => publicAxios.get(`${API.bookings}/`),
+  createBooking: (data) => publicAxios.post(`${API.bookings}/submit/`, data),
+  getUserBookings: () => axiosInstance.get(`${API.bookings}/user/`),
 
-  adminListBookings: () => axiosInstance.get(API.bookings.adminList),
-  adminBookingDetail: (id) => axiosInstance.get(API.bookings.adminDetail(id)),
-  adminUpdateBooking: (id, data) => axiosInstance.put(API.bookings.adminUpdate(id), data),
-  adminUpdateBookingStatus: (id, data) => axiosInstance.post(API.bookings.adminUpdateStatus(id), data),
-  adminDeleteBooking: (id) => axiosInstance.delete(API.bookings.adminDelete(id)),
+  adminListBookings: () => axiosInstance.get(`${API.bookings}/admin/bookings/`),
+  adminUpdateBooking: (id, data) => axiosInstance.put(`${API.bookings}/admin/bookings/${id}/update/`, data),
+  adminUpdateBookingStatus: (id, data) => axiosInstance.post(`${API.bookings}/admin/bookings/${id}/status/`, data),
+  adminDeleteBooking: (id) => axiosInstance.delete(`${API.bookings}/admin/bookings/${id}/delete/`),
 
-  getBookingInvoice: (id) => axiosInstance.get(API.bookings.invoice(id)),
+  getBookingInvoice: (id) => axiosInstance.get(`${API.bookings}/invoice/${id}/`),
 
   /** ================= CONTACT ================= */
   sendContactMessage: (data) => publicAxios.post(API.contact.send, data),

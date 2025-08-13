@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axiosInstance from "../../api/axiosInstance";
+import api from "../../api/api"; // centralized API methods
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,8 +16,8 @@ const EditProfile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axiosInstance
-      .get("/accounts/profiles/profile/")
+    api
+      .getProfile()
       .then((res) => {
         const { first_name, last_name, email, phone_number } = res.data;
         setForm({
@@ -36,13 +36,13 @@ const EditProfile = () => {
   };
 
   const handleSubmit = async () => {
-    // Remove empty or whitespace-only fields before sending
+    // Filter out empty or whitespace-only fields before sending
     const filteredForm = Object.fromEntries(
       Object.entries(form).filter(([_, value]) => value?.trim())
     );
 
     try {
-      await axiosInstance.patch("/accounts/profiles/profile/", filteredForm);
+      await api.updateProfile(filteredForm);
       toast.success("✅ Profile updated successfully!");
       setTimeout(() => navigate(-1), 1500);
     } catch (err) {
@@ -91,8 +91,12 @@ const EditProfile = () => {
       />
 
       <div className="button-group">
-        <button className="btn" onClick={handleSubmit}>Save Changes</button>
-        <button className="btn danger" onClick={() => navigate(-1)}>Cancel</button>
+        <button className="btn" onClick={handleSubmit}>
+          Save Changes
+        </button>
+        <button className="btn danger" onClick={() => navigate(-1)}>
+          Cancel
+        </button>
       </div>
     </div>
   );

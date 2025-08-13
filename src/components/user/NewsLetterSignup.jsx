@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import publicAxios from '../../api/publicAxios';
+import apiService from '../../api/apiService';  // <-- import apiService
 import ReCAPTCHA from 'react-google-recaptcha';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,6 +28,7 @@ export default function NewsletterSignup() {
     e.preventDefault();
 
     const captchaToken = recaptchaRef.current?.getValue();
+
     if (!captchaToken) {
       toast.error('❌ Please complete the reCAPTCHA.');
       return;
@@ -43,7 +44,8 @@ export default function NewsletterSignup() {
     setSubmitting(true);
 
     try {
-      const { data } = await publicAxios.post('/newsletter/subscribe/', {
+      // Use apiService method, passing email, name, and token
+      const { data } = await apiService.subscribeNewsletter({
         email: email.trim(),
         name: name.trim(),
         token: captchaToken,
@@ -59,7 +61,7 @@ export default function NewsletterSignup() {
         '❌ Subscription failed. Please try again later.';
 
       if (errorMsg.toLowerCase().includes('already')) {
-        toast.info('📬 You are already subscribed or confirmed.');
+        toast.info('📬 You are already subscribed or confirmation is pending.');
       } else {
         toast.error(errorMsg);
       }

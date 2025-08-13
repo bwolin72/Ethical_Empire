@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axiosInstance from "../../api/axiosInstance";
+import apiService from "../../api/apiService";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./UpdatePassword.css";
@@ -29,7 +29,8 @@ const UpdatePassword = () => {
 
     setLoading(true);
     try {
-      await axiosInstance.post("/accounts/profiles/password-update/request/", {
+      // Use the apiService for the password change endpoint
+      await apiService.changePassword({
         current_password: currentPassword,
         new_password: newPassword,
       });
@@ -68,6 +69,7 @@ const UpdatePassword = () => {
           type="button"
           className="toggle-btn"
           onClick={() => setShowCurrent((prev) => !prev)}
+          aria-label={showCurrent ? "Hide current password" : "Show current password"}
         >
           {showCurrent ? "🙈" : "👁️"}
         </button>
@@ -87,6 +89,7 @@ const UpdatePassword = () => {
           type="button"
           className="toggle-btn"
           onClick={() => setShowNew((prev) => !prev)}
+          aria-label={showNew ? "Hide new password" : "Show new password"}
         >
           {showNew ? "🙈" : "👁️"}
         </button>
@@ -106,6 +109,7 @@ const UpdatePassword = () => {
           type="button"
           className="toggle-btn"
           onClick={() => setShowConfirm((prev) => !prev)}
+          aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
         >
           {showConfirm ? "🙈" : "👁️"}
         </button>

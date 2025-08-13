@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api'; // your centralized api service
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './PartnerProfilePage.css';
@@ -19,40 +19,43 @@ const PartnerProfilePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axiosInstance.get('/partners/profile/')
-      .then(res => setProfile(res.data))
-      .catch(() => toast.error('Failed to fetch profile'));
+    const fetchProfile = async () => {
+      try {
+        const res = await api.getPartnerProfile();
+        setProfile(res.data);
+      } catch (error) {
+        toast.error('Failed to fetch profile');
+      }
+    };
+    fetchProfile();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProfile(prev => ({ ...prev, image: file }));
+      setProfile((prev) => ({ ...prev, image: file }));
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const formData = new FormData();
-    for (let key in profile) {
-      if (profile[key]) formData.append(key, profile[key]);
-    }
+    Object.entries(profile).forEach(([key, value]) => {
+      if (value) formData.append(key, value);
+    });
 
     try {
-      await axiosInstance.put('/partners/profile/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await api.updatePartnerProfile(formData);
       toast.success('Profile updated successfully');
-
-      // Navigate to dashboard after success
-      navigate('/agency-dashboard');
-    } catch (err) {
+      navigate('/partner-dashboard'); // or '/agency-dashboard', adjust if needed
+    } catch (error) {
       toast.error('Failed to update profile');
     }
   };
@@ -84,7 +87,13 @@ const PartnerProfilePage = () => {
         </label>
         <label>
           Message / Equipment Needed
-          <textarea name="message" value={profile.message} onChange={handleChange} rows="4" required />
+          <textarea
+            name="message"
+            value={profile.message}
+            onChange={handleChange}
+            rows="4"
+            required
+          />
         </label>
         <label>
           Upload Image (optional)

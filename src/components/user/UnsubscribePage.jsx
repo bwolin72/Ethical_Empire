@@ -1,8 +1,9 @@
-// src/components/user/UnsubscribePage.jsx
-
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import publicAxios from '../../api/publicAxios';
+import apiService from '../../api/apiService';  // use apiService
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './UnsubscribePage.css'; // Assuming you have some styles for this component
 
 export default function UnsubscribePage() {
   const { email } = useParams();
@@ -13,11 +14,17 @@ export default function UnsubscribePage() {
     setLoading(true);
     setStatus('');
     try {
-      await publicAxios.get(`/newsletter/unsubscribe/${email}/`);
-      setStatus('✅ You have been unsubscribed.');
+      // The unsubscribe endpoint expects POST with email in body
+      const { data } = await apiService.unsubscribeNewsletter({
+        email: decodeURIComponent(email),
+      });
+      setStatus(data?.message || '✅ You have been unsubscribed.');
+      toast.success(data?.message || '✅ You have been unsubscribed.');
     } catch (err) {
       console.error('Unsubscribe error:', err);
-      setStatus('❌ Unsubscribe failed. Please try again later.');
+      const errorMsg = err?.response?.data?.error || '❌ Unsubscribe failed. Please try again later.';
+      setStatus(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }

@@ -1,15 +1,16 @@
 /* ===============================
    Navbar Base Styles
+   (uses src/components/styles/variables.css)
 ================================== */
 .navbar {
   position: sticky;
   top: 0;
   width: 100%;
   z-index: 1000;
-  background: rgba(15, 15, 15, 0.85); /* Semi-transparent for blur */
+  background: rgba(31, 41, 55, 0.85); /* var(--color-neutral-dark) with alpha */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  animation: fade-in-up 0.6s ease-out forwards;
+  animation: fade-in-up 0.6s var(--transition-fast) both;
 }
 
 .navbar-container {
@@ -29,7 +30,7 @@
   align-items: center;
   text-decoration: none;
   gap: 0.5rem;
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-fast);
 }
 
 .navbar-logo:hover {
@@ -44,7 +45,7 @@
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-white);
   letter-spacing: 1px;
 }
 
@@ -55,14 +56,20 @@
   font-size: 2rem;
   background: none;
   border: none;
-  color: #fff;
+  color: var(--color-white);
   cursor: pointer;
   display: none;
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-fast);
 }
 
 .menu-icon:hover {
   transform: rotate(90deg);
+}
+
+.menu-icon:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
 }
 
 /* ===============================
@@ -73,7 +80,7 @@
   list-style: none;
   gap: 1.5rem;
   align-items: center;
-  transition: all 0.4s ease;
+  transition: all var(--transition-slow);
 }
 
 .nav-menu.active {
@@ -81,20 +88,31 @@
   opacity: 1;
 }
 
+/* Each list item wrapper */
+.nav-item {
+  position: relative;
+}
+
 /* ===============================
    Nav Links
 ================================== */
 .nav-links {
-  color: #fff;
+  color: var(--color-white);
   text-decoration: none;
   font-weight: 500;
   padding: 0.5rem;
   position: relative;
-  transition: color 0.3s ease;
+  transition: color var(--transition-fast);
 }
 
 .nav-links:hover {
-  color: #f8d849;
+  color: var(--color-accent-gold);
+}
+
+.nav-links:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
 }
 
 /* Underline grow effect */
@@ -105,8 +123,8 @@
   bottom: 0;
   width: 0%;
   height: 2px;
-  background: #f8d849;
-  transition: all 0.3s ease;
+  background: var(--color-accent-gold);
+  transition: all var(--transition-fast);
   transform: translateX(-50%);
 }
 
@@ -133,8 +151,14 @@
   gap: 0.3rem;
 }
 
+.dropdown-toggle:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
 .caret {
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-fast);
 }
 
 .caret.rotated {
@@ -146,27 +170,35 @@
   position: absolute;
   top: 100%;
   left: 0;
-  min-width: 180px;
+  min-width: 200px;
   background: rgba(30, 30, 30, 0.95);
   backdrop-filter: blur(8px);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-lg);
   opacity: 0;
   transform: translateY(-10px);
   visibility: hidden;
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
   z-index: 999;
+  padding: 0.25rem 0;
 }
 
-/* Desktop Hover Show */
+/* Show via state (JSX adds .active) */
+.dropdown-menu.active {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+/* Desktop Hover Show (extra safety) */
 .dropdown:hover .dropdown-menu.desktop {
   opacity: 1;
   transform: translateY(0);
   visibility: visible;
 }
 
-/* Mobile Slide Show */
+/* Mobile variant (JSX adds .mobile and .mobile-visible) */
 .dropdown-menu.mobile {
   position: static;
   background: transparent;
@@ -175,9 +207,15 @@
   backdrop-filter: none;
   transform: none;
   padding-left: 1rem;
+  opacity: 1;
+  visibility: visible;
 }
 
-.dropdown-menu.mobile-visible {
+.dropdown-menu.mobile:not(.mobile-visible) {
+  display: none;
+}
+
+.dropdown-menu.mobile.mobile-visible.active {
   display: block;
 }
 
@@ -185,44 +223,45 @@
 .dropdown-item {
   padding: 0.75rem 1rem;
   cursor: pointer;
-  color: #fff;
-  transition: background 0.3s ease, padding-left 0.3s ease;
+  color: var(--color-white);
+  transition: background var(--transition-fast), padding-left var(--transition-fast);
 }
 
-.dropdown-item:hover {
+.dropdown-item:hover,
+.dropdown-item:focus-visible {
   background: rgba(255, 255, 255, 0.1);
   padding-left: 1.25rem;
+  outline: none;
 }
 
 /* ===============================
-   Logout Button
+   Logout Button (combines with .nav-links)
 ================================== */
 .logout-btn {
-  border: 1px solid #f8d849;
+  border: 1px solid var(--color-accent-gold);
   padding: 0.4rem 0.8rem;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: #f8d849;
-  transition: all 0.3s ease;
+  color: var(--color-accent-gold);
+  transition: all var(--transition-fast);
 }
 
 .logout-btn:hover {
-  background: #f8d849;
-  color: #000;
+  background: var(--color-accent-gold);
+  color: var(--color-black);
+}
+
+.logout-btn:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 3px;
 }
 
 /* ===============================
    Animations
 ================================== */
 @keyframes fade-in-up {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* ===============================
@@ -235,14 +274,14 @@
 
   .nav-menu {
     position: absolute;
-    top: 70px;
+    top: 70px; /* approximate header height */
     right: -100%;
     width: 100%;
     height: calc(100vh - 70px);
     background: rgba(20, 20, 20, 0.98);
     flex-direction: column;
     align-items: flex-start;
-    padding: 2rem;
+    padding: 2rem 1.5rem;
     gap: 1.5rem;
     opacity: 0;
   }
@@ -252,7 +291,23 @@
     opacity: 1;
   }
 
+  /* Hide desktop hover behavior on mobile */
   .dropdown-menu.desktop {
     display: none;
+  }
+}
+
+/* Motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .navbar-logo,
+  .menu-icon,
+  .nav-menu,
+  .nav-links::after,
+  .dropdown-menu,
+  .dropdown-item,
+  .caret {
+    transition: none !important;
+    animation: none !important;
   }
 }

@@ -46,7 +46,6 @@ const API = {
       `${baseURL}/accounts/worker/validate-invite/${uid}/${token}/`,
     workerCompleteInvite: `${baseURL}/accounts/worker/complete-invite/`,
 
-    // Missing in original
     profilesList: `${baseURL}/accounts/profiles/list/`,
     profilesProfile: `${baseURL}/accounts/profiles/profile/`,
     toggleUserActive: (userId) =>
@@ -58,8 +57,6 @@ const API = {
   messaging: {
     sendMessage: `${baseURL}/accounts/profiles/send-message/`,
     specialOffer: `${baseURL}/accounts/profiles/special-offer/`,
-
-    // Added direct messaging endpoints
     list: `${baseURL}/messaging/messages/`,
     detail: (id) => `${baseURL}/messaging/messages/${id}/`,
   },
@@ -82,8 +79,6 @@ const API = {
     reorder: `${baseURL}/media/reorder/`,
     upload: `${baseURL}/media/upload/`,
     userMedia: `${baseURL}/media/user/`,
-
-    // Missing media endpoints
     defaultList: `${baseURL}/media/`,
     delete: (id) => `${baseURL}/media/${id}/delete/`,
     restore: (id) => `${baseURL}/media/${id}/restore/`,
@@ -105,66 +100,31 @@ const API = {
 
   // ===== SERVICES =====
   services: {
-    list: `${baseURL}/services/`,
-    detail: (slug) => `${baseURL}/services/${slug}/`,
-    detailSlug: (slug) => `${baseURL}/services/${slug}/`, // covers <slug:slug>
-  },
-
-  // ===== PROMOTIONS =====
-  promotions: {
-    list: `${baseURL}/promotions/`,
-    active: `${baseURL}/promotions/active/`,
-    detail: (id) => `${baseURL}/promotions/${id}/`,
-  },
-
-  // ===== NEWSLETTER =====
-  newsletter: {
-    subscribe: `${baseURL}/newsletter/subscribe/`,
-    unsubscribe: `${baseURL}/newsletter/unsubscribe/`,
-    send: `${baseURL}/newsletter/send/`,
-    logs: `${baseURL}/newsletter/logs/`,
-    count: `${baseURL}/newsletter/count/`,
-    confirm: `${baseURL}/newsletter/confirm/`,
-    resendConfirmation: `${baseURL}/newsletter/resend-confirmation/`,
-    resubscribe: `${baseURL}/newsletter/resubscribe/`,
-    list: `${baseURL}/newsletter/list/`,
-    delete: (id) => `${baseURL}/newsletter/delete/${id}/`,
-  },
-
-  // ===== REVIEWS =====
-  reviews: {
-    list: `${baseURL}/reviews/`,
-    create: `${baseURL}/reviews/`,
-    approve: (id) => `${baseURL}/reviews/${id}/approve/`,
-    delete: (id) => `${baseURL}/reviews/${id}/delete/`,
-    reply: (id) => `${baseURL}/reviews/${id}/reply/`,
-    adminList: `${baseURL}/reviews/admin/`,
+    list: `${baseURL}/services/`,                // GET all services
+    detail: (slug) => `${baseURL}/services/${slug}/`, // GET single service by slug
   },
 
   // ===== BOOKINGS =====
   bookings: {
-    list: `${baseURL}/bookings/`,
-    detail: (id) => `${baseURL}/bookings/${id}/`,
-    create: `${baseURL}/bookings/submit/`,
-    userBookings: `${baseURL}/bookings/user/`,
+    // Public
+    create: `${baseURL}/bookings/submit/`, // BookingCreateView
+    list: `${baseURL}/bookings/`,          // PublicBookingListView
 
-    adminList: `${baseURL}/bookings/bookings-admin/bookings/`,
-    adminDetail: (id) =>
-      `${baseURL}/bookings/bookings-admin/bookings/${id}/`,
-    adminUpdate: (id) =>
-      `${baseURL}/bookings/bookings-admin/admin/bookings/${id}/update/`,
-    adminUpdateStatus: (id) =>
-      `${baseURL}/bookings/bookings-admin/bookings/${id}/status/`,
-    adminDelete: (id) =>
-      `${baseURL}/bookings/bookings-admin/bookings/${id}/delete/`,
+    // Authenticated User
+    userBookings: `${baseURL}/bookings/user/`, // UserBookingsView
+    userBookingHistory: `${baseURL}/bookings/history/`, // UserBookingHistoryView
+    userBookingDetail: (id) => `${baseURL}/bookings/user/${id}/`, // Retrieve
+    userBookingUpdate: (id) => `${baseURL}/bookings/user/${id}/`, // PATCH
+    userBookingDelete: (id) => `${baseURL}/bookings/user/${id}/`, // DELETE
 
-    // Added alternative admin paths
-    adminSimpleList: `${baseURL}/bookings/admin/bookings/`,
-    adminSimpleDelete: (id) =>
-      `${baseURL}/bookings/admin/bookings/${id}/delete/`,
-    adminSimpleStatus: (id) =>
-      `${baseURL}/bookings/admin/bookings/${id}/status/`,
+    // Admin
+    adminList: `${baseURL}/bookings/admin/bookings/`, // AdminBookingsView
+    adminDetail: (id) => `${baseURL}/bookings/admin/bookings/${id}/`, // Retrieve
+    adminUpdate: (id) => `${baseURL}/bookings/admin/bookings/${id}/update/`, // AdminBookingUpdateView
+    adminUpdateStatus: (id) => `${baseURL}/bookings/admin/bookings/${id}/status/`, // AdminBookingUpdateStatus
+    adminDelete: (id) => `${baseURL}/bookings/admin/bookings/${id}/delete/`, // AdminBookingDelete
 
+    // Invoice for a booking
     invoice: (id) => `${baseURL}/bookings/invoice/${id}/`,
   },
 
@@ -176,6 +136,18 @@ const API = {
       `${baseURL}/invoices/invoices/${id}/download_pdf/`,
     sendEmail: (id) =>
       `${baseURL}/invoices/invoices/${id}/send_email/`,
+  },
+
+  newsletter: {
+    subscribe: `${baseURL}/newsletter/subscribe/`,
+    unsubscribe: `${baseURL}/newsletter/unsubscribe/`,
+    send: `${baseURL}/newsletter/send/`,
+    logs: `${baseURL}/newsletter/logs/`,
+    confirm: (token) => `${baseURL}/newsletter/confirm/?token=${token}`, // GET with query param
+    resendConfirmation: `${baseURL}/newsletter/resend-confirmation/`,
+    resubscribe: `${baseURL}/newsletter/resubscribe/`,
+    list: `${baseURL}/newsletter/subscribers/`,
+    delete: (id) => `${baseURL}/newsletter/subscribers/${id}/`,
   },
 
   // ===== CONTACT =====

@@ -6,7 +6,7 @@ import placeholderImg from '../../assets/placeholder.jpg';
 import BannerSkeleton from './BannerSkeleton';
 import './BannerCards.css';
 
-const BannerCards = ({ endpoint, title }) => {
+const BannerCards = ({ endpoint, title, type = 'banner' }) => {
   const [previewBanner, setPreviewBanner] = useState(null);
   const scrollRef = useRef(null);
 
@@ -15,7 +15,7 @@ const BannerCards = ({ endpoint, title }) => {
     loading,
     error,
   } = useMediaFetcher({
-    type: 'banner',
+    type, // can be 'banner', 'media', 'vendor', 'partner'
     endpoint,
     isActive: true,
     autoFetch: true,
@@ -61,7 +61,7 @@ const BannerCards = ({ endpoint, title }) => {
           <div className="banner-error">{error}</div>
         ) : banners.length === 0 ? (
           <p className="banner-card-empty">
-            📭 No banners available for <strong>{endpoint}</strong>.
+            📭 No {type}s available for <strong>{endpoint}</strong>.
           </p>
         ) : (
           banners.map((banner) => (
@@ -76,7 +76,7 @@ const BannerCards = ({ endpoint, title }) => {
               <div className="banner-img-wrapper">
                 <img
                   src={banner.url?.thumb || banner.url?.full || placeholderImg}
-                  alt={banner.label || 'Banner Image'}
+                  alt={banner.label || `${type} Image`}
                   loading="lazy"
                   className="banner-card-image"
                   onError={(e) => (e.target.src = placeholderImg)}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../api/axiosInstance';
+import api from '../../api/api'; // centralized api calls
 import { Card, CardContent } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
@@ -29,7 +29,7 @@ const VendorProfilePage = () => {
   useEffect(() => {
     const fetchVendorProfile = async () => {
       try {
-        const res = await axiosInstance.get('/accounts/vendor-profile/');
+        const res = await api.getVendorProfile();
         setForm((prev) => ({ ...prev, ...res.data }));
       } catch (err) {
         toast.error('Failed to load vendor profile');
@@ -53,19 +53,14 @@ const VendorProfilePage = () => {
 
     try {
       const data = new FormData();
-      for (const [key, value] of Object.entries(form)) {
+      Object.entries(form).forEach(([key, value]) => {
         if (value) data.append(key, value);
-      }
-
-      await axiosInstance.put('/accounts/vendor-profile/', data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
+      await api.updateVendorProfile(data);
+
       toast.success('Vendor profile updated successfully');
-
-      // Redirect to AgencyDashboard
       navigate('/agency-dashboard');
-
     } catch (err) {
       console.error(err);
       toast.error('Failed to update vendor profile');

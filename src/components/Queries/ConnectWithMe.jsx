@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // adjust path if needed
-import axiosInstance from '../../api/axiosInstance';
+import { useAuth } from '../context/AuthContext';
+import apiService from '../../api/apiService';  // Import the apiService
 import './ConnectWithMe.css';
 
 const ConnectWithMe = () => {
@@ -17,8 +17,8 @@ const ConnectWithMe = () => {
 
     setLoading(true);
     try {
-      const response = await axiosInstance.get('/user-account/role/');
-      const role = (response.data.role || '').toLowerCase().trim();
+      const response = await apiService.getUserRole();
+      const role = (response.data?.role || '').toLowerCase().trim();
 
       switch (role) {
         case 'admin':

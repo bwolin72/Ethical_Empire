@@ -1,6 +1,5 @@
-// AccountProfile.jsx
 import React, { useEffect, useState, useCallback } from "react";
-import axiosInstance from "../../api/axiosInstance";
+import api from "../../api/api"; // centralized api methods
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { logoutHelper } from "../../utils/logoutHelper";
@@ -50,12 +49,13 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
 
     const controller = new AbortController();
+
     const fetchData = async () => {
       try {
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
-          axiosInstance.get("/accounts/profiles/profile/", { signal: controller.signal }),
-          axiosInstance.get("/bookings/user/", { signal: controller.signal }),
-          axiosInstance.get("/accounts/profile/role/", { signal: controller.signal }),
+          api.getProfile({ signal: controller.signal }),
+          api.getUserBookings({ signal: controller.signal }),
+          api.getRoleInfo({ signal: controller.signal }),
         ]);
 
         setProfile(profileRes.data);
@@ -74,6 +74,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     };
 
     fetchData();
+
     return () => controller.abort();
   }, [externalProfile]);
 
@@ -112,17 +113,15 @@ const AccountProfile = ({ profile: externalProfile }) => {
         { method: "POST", body: formData }
       );
       const uploadData = await uploadRes.json();
+
       if (!uploadData.secure_url) throw new Error("Upload failed");
 
-      const patchRes = await axiosInstance.patch("/accounts/profiles/profile/", {
-        profile_image_url: uploadData.secure_url,
-      });
+      await api.patchProfileImage(uploadData.secure_url);
 
       setProfileImage(uploadData.secure_url);
       setProfile((prev) => ({
         ...prev,
         profile_image_url: uploadData.secure_url,
-        ...(patchRes.data || {}),
       }));
 
       toast.success("Profile picture updated!");
@@ -139,7 +138,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
 
     try {
-      await axiosInstance.post("/reviews/", {
+      await api.postReview({
         comment: review,
         service: reviewService,
         rating: reviewRating,
@@ -197,7 +196,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
   return (
     <div className="account-profile-container" role="main" aria-label="Account Profile">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
-      <button className="close-btn" onClick={handleClose} aria-label="Close profile">✖</button>
+      <button className="close-btn" onClick={handleClose} aria-label="Close profile">
+        ✖
+      </button>
 
       <div className="account-profile">
         <div className="account-header">
@@ -220,10 +221,20 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
         <section className="user-info">
           <h3>@{profile?.name}</h3>
-          <p><strong>Name:</strong> {profile?.name}</p>
-          <p><strong>Email:</strong> {profile?.email}</p>
-          <p><strong>Phone:</strong> {profile?.phone || "N/A"}</p>
-          {roleInfo?.role && <p><strong>Role:</strong> {roleInfo.role}</p>}
+          <p>
+            <strong>Name:</strong> {profile?.name}
+          </p>
+          <p>
+            <strong>Email:</strong> {profile?.email}
+          </p>
+          <p>
+            <strong>Phone:</strong> {profile?.phone || "N/A"}
+          </p>
+          {roleInfo?.role && (
+            <p>
+              <strong>Role:</strong> {roleInfo.role}
+            </p>
+          )}
           <div className="button-group">
             <button onClick={() => navigate("/edit-profile")}>Edit Profile</button>
             <button onClick={() => navigate("/update-password")}>Change Password</button>
@@ -235,9 +246,15 @@ const AccountProfile = ({ profile: externalProfile }) => {
           {bookings.length > 0 ? (
             bookings.map((bk) => (
               <article key={bk.id} className="booking-card">
-                <p><strong>Service:</strong> {bk.service_type}</p>
-                <p><strong>Date:</strong> {new Date(bk.event_date).toLocaleDateString()}</p>
-                <p><strong>Status:</strong> {renderBookingStatus(bk.status)}</p>
+                <p>
+                  <strong>Service:</strong> {bk.service_type}
+                </p>
+                <p>
+                  <strong>Date:</strong> {new Date(bk.event_date).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Status:</strong> {renderBookingStatus(bk.status)}
+                </p>
               </article>
             ))
           ) : (
@@ -275,12 +292,16 @@ const AccountProfile = ({ profile: externalProfile }) => {
               "MC/Host",
               "Sound Setup",
             ].map((service) => (
-              <option key={service} value={service}>{service}</option>
+              <option key={service} value={service}>
+                {service}
+              </option>
             ))}
           </select>
           <label>Rating</label>
           <StarRating rating={reviewRating} setRating={setReviewRating} />
-          <button className="btn" onClick={handleReviewSubmit}>Submit Review</button>
+          <button className="btn" onClick={handleReviewSubmit}>
+            Submit Review
+          </button>
         </section>
 
         <button

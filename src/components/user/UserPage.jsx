@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../../api/axiosInstance";
-import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import apiService from "../../api/apiService";
+import API from "../../api/api";
+import { ToastContainer, toast } from "react-toastify";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
@@ -36,6 +37,7 @@ const UserPage = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Use apiService and API constants instead of axiosInstance directly
         const [
           profileRes,
           mediaRes,
@@ -43,14 +45,14 @@ const UserPage = () => {
           promoRes,
           videosRes,
         ] = await Promise.all([
-          axiosInstance.get("/accounts/profile/", { signal }),
-          axiosInstance.get("/media/", {
+          apiService.get(API.PROFILE, { signal }),
+          apiService.get(API.MEDIA, {
             params: { type: "media", endpoint: "UserPage", is_active: true },
             signal,
           }),
-          axiosInstance.get("/reviews/", { signal }),
-          axiosInstance.get("/promotions/", { signal }),
-          axiosInstance.get("/videos/?endpoint=UserPage", { signal }),
+          apiService.get(API.REVIEWS, { signal }),
+          apiService.get(API.PROMOTIONS, { signal }),
+          apiService.get(API.VIDEOS, { params: { endpoint: "UserPage" }, signal }),
         ]);
 
         setProfile(profileRes.data);
@@ -80,7 +82,7 @@ const UserPage = () => {
     if (!subscriberEmail) return toast.warn("Enter your email to subscribe.");
 
     try {
-      await axiosInstance.post("/newsletter/subscribe/", { email: subscriberEmail });
+      await apiService.subscribeNewsletter({ email: subscriberEmail });
       toast.success("Subscribed! Please check your email to confirm.");
       setSubscriberEmail("");
     } catch {
@@ -99,7 +101,7 @@ const UserPage = () => {
       <header className="userpage-header">
         <h2>Welcome {profile?.name || "Ethical Empire"}</h2>
         <div className="header-right">
-          <button onClick={toggleDarkMode} className="dark-toggle">
+          <button onClick={toggleDarkMode} className="dark-toggle" aria-label="Toggle dark mode">
             {darkMode ? "☀️ Light" : "🌙 Dark"}
           </button>
         </div>
@@ -110,6 +112,10 @@ const UserPage = () => {
           className="avatar-section"
           onClick={() => navigate("/account")}
           style={{ cursor: "pointer", textAlign: "center" }}
+          role="button"
+          tabIndex={0}
+          onKeyPress={(e) => (e.key === "Enter" ? navigate("/account") : null)}
+          aria-label="Go to account profile"
         >
           <ProfileAvatar profile={profile} />
           <p className="open-profile-link">
@@ -239,6 +245,7 @@ const UserPage = () => {
                 value={subscriberEmail}
                 onChange={(e) => setSubscriberEmail(e.target.value)}
                 required
+                aria-label="Email for newsletter subscription"
               />
               <button type="submit">Subscribe</button>
             </form>
