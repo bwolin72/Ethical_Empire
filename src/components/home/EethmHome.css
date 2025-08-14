@@ -422,6 +422,113 @@
   color: var(--color-primary);
   margin-bottom: 0.5rem;
 }
+/* -----------------------------
+   Patches & improvements for EethmHome
+   ----------------------------- */
+
+/* 1) Avoid 100vw horizontal scroll issues */
+.eethm-home-page .video-hero-section {
+  /* keep the other properties, but use 100% width */
+  width: 100%;
+  left: 0;
+}
+
+/* 2) Promotions: use an inner grid so the <h2> is not a grid item */
+.eethm-home-page .promotions-section {
+  display: block; /* allow heading to stay above grid */
+}
+.eethm-home-page .promotions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* 3) Reviews: place grid on the inner container (your JSX uses .reviews-container) */
+.eethm-home-page .reviews-section {
+  display: block; /* heading not a grid item */
+  margin-bottom: 1rem;
+}
+.eethm-home-page .reviews-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+/* 4) Newsletter feedback messages (success + error) */
+.eethm-home-page .success-message {
+  color: var(--color-success, #2e7d32);
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+.eethm-home-page .error-message {
+  color: var(--color-error, #c62828);
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+/* 5) Promotion extras */
+.eethm-home-page .promotion-card-content .discount {
+  font-weight: 700;
+  color: var(--color-accent-green);
+  margin-top: 0.5rem;
+}
+.eethm-home-page .promotion-card-content .validity {
+  font-size: 0.9rem;
+  color: var(--color-neutral-dark);
+  margin-top: 0.25rem;
+}
+
+/* 6) Explicit primary button style (avoid relying on :first-child) */
+.eethm-home-page .btn-primary {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  border: none;
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+}
+.eethm-home-page .btn-primary:hover {
+  background-color: var(--color-secondary-dark);
+}
+
+/* 7) Make flip accessible via keyboard (focus + focus-within) */
+.eethm-home-page .service-flip-card:focus .service-flip-card-inner,
+.eethm-home-page .service-flip-card:focus-within .service-flip-card-inner {
+  transform: rotateY(180deg);
+  outline: none;
+}
+
+/* 8) Ensure flip cards don't collapse on small screens */
+@media (max-width: 768px) {
+  .eethm-home-page .service-flip-card {
+    width: 90%;
+    height: auto;
+  }
+
+  /* add a sensible min-height for the inner element when parent is auto */
+  .eethm-home-page .service-flip-card .service-flip-card-inner {
+    min-height: 360px; /* keeps flip area consistent; tweak as needed */
+  }
+}
+
+/* 9) Improve hero copy sizing for tablets */
+@media (max-width: 768px) {
+  .eethm-home-page .overlay-content h1 {
+    font-size: 2.4rem;
+  }
+  .eethm-home-page .overlay-content p {
+    font-size: 1.15rem;
+  }
+}
+
+/* 10) Small-device adjustments already present (keep them) */
+/* (your existing max-width:380px rules remain valid and will override above) */
+
+/* 11) NOTE: ensure banner & media components render expected classes:
+   .banner-cards > .banner-card  and  .media-cards > .media-card
+   If not, update BannerCards.jsx and MediaCards.jsx to emit those classes. */
+
 
 /* ======================================================
    🎬 Animations

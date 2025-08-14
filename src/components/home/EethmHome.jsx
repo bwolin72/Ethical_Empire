@@ -18,11 +18,12 @@ const EethmHome = () => {
   const videoRef = useRef(null);
 
   // ===== Hero Media =====
+  // use the 'home' key to match mediaAPI.endpoints.home
   const {
     media: heroMediaArr,
     loading: heroLoading,
     error: heroError,
-  } = useMediaFetcher({ type: "media", endpoint: "EethmHome", isActive: true });
+  } = useMediaFetcher({ type: "media", endpoint: "home", isActive: true });
 
   const heroMedia = heroMediaArr?.[0] || null;
   const heroURL = getMediaUrl(heroMedia);
@@ -80,9 +81,10 @@ const EethmHome = () => {
         // Videos
         const videoRes = await apiService.getVideos();
         const allVideos = Array.isArray(videoRes.data) ? videoRes.data : [];
+        // match pages/endpoints with 'home' key from mediaAPI
         setVideos(
           allVideos.filter(
-            (v) => v.is_active && v.endpoints?.includes("EethmHome")
+            (v) => v.is_active && (Array.isArray(v.endpoints) ? v.endpoints.includes("home") : false)
           )
         );
 
@@ -289,7 +291,7 @@ const EethmHome = () => {
                           className="service-image"
                           loading="lazy"
                           decoding="async"
-                          onError={(e) => (e.currentTarget.style.visibility = "hidden")}
+                          onError={(e) => (e.currentTarget.style.display = "none")}
                         />
                       )}
                       <h3>{service.title || service.name}</h3>
@@ -321,32 +323,33 @@ const EethmHome = () => {
         <section className="promotions-section">
           <h2>Current Offers</h2>
           {promotions.length > 0 ? (
-            // NOTE: the grid is applied directly by .promotions-section via your CSS
-            promotions.map((promo) => (
-              <article key={promo.id} className="promotion-card">
-                {promo.image_url && (
-                  <img
-                    src={promo.image_url}
-                    alt={promo.title}
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => (e.currentTarget.style.display = "none")}
-                  />
-                )}
-                <div className="promotion-card-content">
-                  <h3>{promo.title}</h3>
-                  {promo.description && <p>{promo.description}</p>}
-                  {promo.discount_percentage && (
-                    <p className="discount">Save {promo.discount_percentage}%</p>
+            <div className="promotions-grid">
+              {promotions.map((promo) => (
+                <article key={promo.id} className="promotion-card">
+                  {promo.image_url && (
+                    <img
+                      src={promo.image_url}
+                      alt={promo.title}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => (e.currentTarget.style.display = "none")}
+                    />
                   )}
-                  {(promo.valid_from || promo.valid_to) && (
-                    <p className="validity">
-                      Valid: {promo.valid_from || "—"} – {promo.valid_to || "—"}
-                    </p>
-                  )}
-                </div>
-              </article>
-            ))
+                  <div className="promotion-card-content">
+                    <h3>{promo.title}</h3>
+                    {promo.description && <p>{promo.description}</p>}
+                    {promo.discount_percentage && (
+                      <p className="discount">Save {promo.discount_percentage}%</p>
+                    )}
+                    {(promo.valid_from || promo.valid_to) && (
+                      <p className="validity">
+                        Valid: {promo.valid_from || "—"} – {promo.valid_to || "—"}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
           ) : promoError ? (
             <p style={{ color: "var(--color-error)" }}>{promoError}</p>
           ) : (
@@ -381,7 +384,7 @@ const EethmHome = () => {
         <section className="banners-section">
           <h2>Highlights from Our Services</h2>
           {/* BannerCards should render .banner-cards / .banner-card internally to match CSS */}
-          <BannerCards endpoint="EethmHome" />
+          <BannerCards endpoint="home" />
         </section>
       </FadeInSection>
 
@@ -389,7 +392,7 @@ const EethmHome = () => {
         <section className="banners-section">
           <h2>Featured Media</h2>
           {/* MediaCards should render .media-cards / .media-card internally to match CSS */}
-          <MediaCards endpoint="EethmHome" type="media" />
+          <MediaCards endpoint="home" type="media" />
         </section>
       </FadeInSection>
     </div>
