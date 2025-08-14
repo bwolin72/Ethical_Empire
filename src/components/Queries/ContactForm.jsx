@@ -1,8 +1,6 @@
 // src/components/contact/ContactForm.jsx
-
 import React, { useState } from 'react';
-import apiService from '../../api/apiService'; // ✅ use centralized API service
-import API from '../../api/api'; // ✅ where contact.send lives
+import apiService from '../../api/apiService';
 import './ContactForm.css';
 import logo from '../../assets/logo.png';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
@@ -13,41 +11,132 @@ const serviceOptions = [
   'Event Planning', 'Lighting', 'MC/Host', 'Sound Setup'
 ];
 
+const phoneRegex = /^\+?\d{9,15}$/; // matches +233XXXXXXXXX or 0XXXXXXXXX etc (9-15 digits)
+
 const ContactForm = () => {
   const [darkMode, setDarkMode] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '', email: '', phone: '',
-    country: '', region: '',
-    enquiry_type: '', service_type: '',
-    event_date: '', description: ''
-  });
+  const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    country: '',
+    region: '',
+    enquiry_type: '',
+    service_type: '',
+    event_date: '',
+    description: ''
+  });
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // clear field-level error while editing
+    setErrors(prev => ({ ...prev, [name]: undefined }));
+    setStatusMessage('');
+  };
+
+  const validateClient = () => {
+    const newErrors = {};
+    // required fields
+    if (!formData.name.trim()) newErrors.name = 'Name is required.';
+    if (!formData.email.trim()) newErrors.email = 'Email is required.';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required.';
+    if (!formData.enquiry_type) newErrors.enquiry_type = 'Enquiry type is required.';
+
+    // phone format
+    if (formData.phone && !phoneRegex.test(formData.phone.trim())) {
+      newErrors.phone = 'Enter a valid phone number (e.g. +233XXXXXXXXX or 055XXXXXXX).';
+    }
+
+    // service_type required if enquiry_type === 'Services'
+    if (formData.enquiry_type === 'Services' && !formData.service_type) {
+      newErrors.service_type = "Service type is required when enquiry type is 'Services'.";
+    }
+
+    // event_date cannot be in the past (compare dates only)
+    if (formData.event_date) {
+      const today = new Date();
+      // zero out time part of today
+      today.setHours(0, 0, 0, 0);
+      const evDate = new Date(formData.event_date);
+      if (evDate < today) {
+        newErrors.event_date = 'Event date cannot be in the past.';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const parseServerErrors = (data) => {
+    // data may be object mapping field -> [errors] or non-field errors
+    const parsed = {};
+    if (!data) return parsed;
+    if (typeof data === 'string') {
+      parsed._global = data;
+      return parsed;
+    }
+    if (Array.isArray(data)) {
+      parsed._global = data.join(' ');
+      return parsed;
+    }
+    Object.entries(data).forEach(([k, v]) => {
+      if (Array.isArray(v)) parsed[k] = v.join(' ');
+      else if (typeof v === 'object') parsed[k] = JSON.stringify(v);
+      else parsed[k] = String(v);
+    });
+    return parsed;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage('');
-    try {
-      await apiService.public.post(API.contact.send, {
-        ...formData,
-        service_type: formData.service_type || null,
-        event_date: formData.event_date || null,
-        description: formData.description || null,
-      });
+    setErrors({});
 
-      setStatusMessage('✅ Message sent successfully!');
+    if (!validateClient()) {
+      setStatusMessage('Please fix the errors and try again.');
+      return;
+    }
+
+    // Build payload — omit empty string fields to avoid sending blanks
+    const payload = {};
+    Object.entries(formData).forEach(([k, v]) => {
+      if (v !== '' && v !== null && v !== undefined) {
+        payload[k] = v;
+      }
+    });
+
+    setLoading(true);
+    try {
+      // use centralized apiService
+      await apiService.sendContactMessage(payload);
+
+      setStatusMessage('✅ Message sent successfully! We will be in touch.');
       setFormData({
-        name: '', email: '', phone: '',
-        country: '', region: '',
-        enquiry_type: '', service_type: '',
-        event_date: '', description: ''
+        name: '',
+        email: '',
+        phone: '',
+        country: '',
+        region: '',
+        enquiry_type: '',
+        service_type: '',
+        event_date: '',
+        description: ''
       });
-    } catch (error) {
-      const errMsg = error.response?.data || '❌ Network error. Try again.';
-      setStatusMessage(typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg));
+      setErrors({});
+    } catch (err) {
+      // If backend validation errors exist, they should be in err.response.data
+      const serverData = err?.response?.data;
+      const parsed = parseServerErrors(serverData);
+      setErrors(parsed);
+      if (parsed._global) setStatusMessage(parsed._global);
+      else setStatusMessage('❌ Failed to send message. Please correct any errors and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +146,12 @@ const ContactForm = () => {
         <img src={logo} alt="Ethical Multimedia GH Logo" className="logo" />
         <h2>Ethical Multimedia GH</h2>
         <p className="slogan">Empowering Events – EETHM_GH</p>
-        <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
+        <button
+          className="theme-toggle"
+          type="button"
+          onClick={() => setDarkMode(!darkMode)}
+          aria-pressed={darkMode}
+        >
           {darkMode ? 'Light Mode' : 'Dark Mode'}
         </button>
       </header>
@@ -75,10 +169,12 @@ const ContactForm = () => {
                   onChange={handleChange}
                   required
                   placeholder=" "
+                  aria-invalid={!!errors[field]}
                 />
                 <label htmlFor={field}>
                   {field.charAt(0).toUpperCase() + field.slice(1)}
                 </label>
+                {errors[field] && <small className="error">{errors[field]}</small>}
               </div>
             ))}
 
@@ -88,9 +184,11 @@ const ContactForm = () => {
                 onChange={(val) =>
                   setFormData(prev => ({ ...prev, country: val, region: '' }))
                 }
-                classes="country-dropdown"
+                className="country-dropdown"
+                aria-label="Country"
               />
-              <label>Country *</label>
+              <label>Country</label>
+              {errors.country && <small className="error">{errors.country}</small>}
             </div>
 
             <div className="form-group">
@@ -100,9 +198,11 @@ const ContactForm = () => {
                 onChange={(val) =>
                   setFormData(prev => ({ ...prev, region: val }))
                 }
-                classes="region-dropdown"
+                className="region-dropdown"
+                aria-label="Region / State"
               />
-              <label>Region / State *</label>
+              <label>Region / State</label>
+              {errors.region && <small className="error">{errors.region}</small>}
             </div>
 
             <div className="form-group">
@@ -112,6 +212,7 @@ const ContactForm = () => {
                 value={formData.enquiry_type}
                 onChange={handleChange}
                 required
+                aria-invalid={!!errors.enquiry_type}
               >
                 {enquiryOptions.map(option => (
                   <option key={option} value={option}>
@@ -120,6 +221,7 @@ const ContactForm = () => {
                 ))}
               </select>
               <label htmlFor="enquiry_type">Enquiry Type *</label>
+              {errors.enquiry_type && <small className="error">{errors.enquiry_type}</small>}
             </div>
 
             <div className="form-group">
@@ -128,6 +230,7 @@ const ContactForm = () => {
                 name="service_type"
                 value={formData.service_type}
                 onChange={handleChange}
+                aria-invalid={!!errors.service_type}
               >
                 {serviceOptions.map(option => (
                   <option key={option} value={option}>
@@ -135,7 +238,8 @@ const ContactForm = () => {
                   </option>
                 ))}
               </select>
-              <label htmlFor="service_type">Service Type (optional)</label>
+              <label htmlFor="service_type">Service Type {formData.enquiry_type === 'Services' ? '*' : '(optional)'}</label>
+              {errors.service_type && <small className="error">{errors.service_type}</small>}
             </div>
 
             <div className="form-group">
@@ -145,8 +249,10 @@ const ContactForm = () => {
                 name="event_date"
                 value={formData.event_date}
                 onChange={handleChange}
+                aria-invalid={!!errors.event_date}
               />
               <label htmlFor="event_date">Event Date (optional)</label>
+              {errors.event_date && <small className="error">{errors.event_date}</small>}
             </div>
 
             <div className="form-group full-width">
@@ -157,15 +263,23 @@ const ContactForm = () => {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder=" "
-              ></textarea>
+                aria-invalid={!!errors.description}
+              />
               <label htmlFor="description">Message (optional)</label>
+              {errors.description && <small className="error">{errors.description}</small>}
             </div>
 
-            <button className="submit-btn" type="submit">Submit</button>
+            {errors._global && <div className="form-error global-error">{errors._global}</div>}
+
+            <button className="submit-btn" type="submit" disabled={loading}>
+              {loading ? 'Sending…' : 'Submit'}
+            </button>
           </form>
 
           {statusMessage && (
-            <div className="toast-notification">{statusMessage}</div>
+            <div className="toast-notification" role="status" aria-live="polite">
+              {statusMessage}
+            </div>
           )}
         </section>
 
