@@ -1,7 +1,5 @@
 // src/api/api.js
 import baseURL from './baseURL';
-import axiosInstance from './axiosInstance';
-import publicAxios from './publicAxios';
 
 const API = {
   // ===== PROMOTIONS =====
