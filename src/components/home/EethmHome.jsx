@@ -18,7 +18,6 @@ const EethmHome = () => {
   const videoRef = useRef(null);
 
   // ===== Hero Media =====
-  // use the 'home' key to match mediaAPI.endpoints.home
   const {
     media: heroMediaArr,
     loading: heroLoading,
@@ -70,9 +69,7 @@ const EethmHome = () => {
   }, []);
 
   // Toggle mute/unmute video
-  const toggleMute = () => {
-    setIsMuted((prev) => !prev);
-  };
+  const toggleMute = () => setIsMuted((prev) => !prev);
 
   // Fetch data from apiService
   useEffect(() => {
@@ -81,10 +78,11 @@ const EethmHome = () => {
         // Videos
         const videoRes = await apiService.getVideos();
         const allVideos = Array.isArray(videoRes.data) ? videoRes.data : [];
-        // match pages/endpoints with 'home' key from mediaAPI
         setVideos(
           allVideos.filter(
-            (v) => v.is_active && (Array.isArray(v.endpoints) ? v.endpoints.includes("home") : false)
+            (v) =>
+              v.is_active &&
+              (Array.isArray(v.endpoints) ? v.endpoints.includes("home") : false)
           )
         );
 
@@ -278,6 +276,7 @@ const EethmHome = () => {
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
                       navigate(`/services/${service.slug || service.id}`);
                     }
                   }}
@@ -383,7 +382,6 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="banners-section">
           <h2>Highlights from Our Services</h2>
-          {/* BannerCards should render .banner-cards / .banner-card internally to match CSS */}
           <BannerCards endpoint="home" />
         </section>
       </FadeInSection>
@@ -391,7 +389,6 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="banners-section">
           <h2>Featured Media</h2>
-          {/* MediaCards should render .media-cards / .media-card internally to match CSS */}
           <MediaCards endpoint="home" type="media" />
         </section>
       </FadeInSection>

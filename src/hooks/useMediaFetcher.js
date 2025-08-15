@@ -1,97 +1,61 @@
-import { useEffect, useState, useCallback } from 'react';
-import apiService from '../api/apiService';
-import API from '../api/api';
+// src/hooks/useMediaFetcher.js
+import { useState, useEffect } from 'react';
+import API from '../api/api';           // Your API file that has videos
+import mediaAPI from '../api/mediaAPI'; // Your media API
 
-/**
- * Hook to fetch media (or banners) from specific endpoints with pagination, filtering, and search.
- *
- * @param {Object} options
- * @param {string} options.endpoint - Key from API.media mapping in api.js (e.g., 'about', 'banners', 'vendors', 'partners')
- * @param {boolean|null} options.isActive - Filter by active status
- * @param {boolean|null} options.isFeatured - Filter by featured flag
- * @param {boolean} options.autoFetch - Whether to auto-fetch on mount
- * @param {number} options.pageSize - Items per page
- * @param {string} options.labelQuery - Optional search query for label
- * @param {string} options.fileType - Optional MIME file type (e.g., 'image/', 'video/')
- */
-const useMediaFetcher = ({
-  endpoint = 'about',
-  isActive = true,
-  isFeatured = null,
-  autoFetch = true,
-  pageSize = 10,
-  labelQuery = '',
-  fileType = '',
-}) => {
-  const [media, setMedia] = useState([]);
-  const [loading, setLoading] = useState(autoFetch);
+export default function useMediaFetcher(endpointKey) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [totalCount, setTotalCount] = useState(0);
-
-  const [debouncedQuery, setDebouncedQuery] = useState(labelQuery);
-
-  // Debounce search
   useEffect(() => {
-    const delay = setTimeout(() => setDebouncedQuery(labelQuery), 400);
-    return () => clearTimeout(delay);
-  }, [labelQuery]);
-
-  const fetchMedia = useCallback(async () => {
-    // ✅ Ensure we are checking inside API.media
-    if (!API.media || !API.media[endpoint]) {
-      console.warn(`[useMediaFetcher] Unknown media endpoint key: ${endpoint}`);
-      setError('Invalid media endpoint');
-      setMedia([]);
+    if (!endpointKey) {
+      console.warn('[useMediaFetcher] No endpoint key provided.');
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    try {
-      const params = { page, page_size: pageSize };
-      if (isActive !== null) params.is_active = isActive;
-      if (isFeatured !== null) params.is_featured = isFeatured;
-      if (debouncedQuery) params.search = debouncedQuery;
-      if (fileType) params.file_type = fileType;
+    let fetcher = null;
 
-      const res = await apiService.get(API.media[endpoint], { params });
-      const results = Array.isArray(res.data?.results) ? res.data.results : res.data;
-
-      setMedia(results);
-      setTotalCount(res.data?.count || results.length);
-      setHasMore(Boolean(res.data?.next));
-      setError(null);
-    } catch (err) {
-      console.error(`Error fetching media from ${endpoint}:`, err);
-      setError('Failed to fetch media');
-      setMedia([]);
-    } finally {
-      setLoading(false);
+    // 1️⃣ First, try to find in mediaAPI
+    const mediaMethodName = `get${capitalize(endpointKey)}`;
+    if (typeof mediaAPI[mediaMethodName] === 'function') {
+      fetcher = mediaAPI[mediaMethodName];
     }
-  }, [endpoint, isActive, isFeatured, page, pageSize, debouncedQuery, fileType]);
 
-  useEffect(() => {
-    if (autoFetch) fetchMedia();
-  }, [fetchMedia, autoFetch]);
+    // 2️⃣ If not found, try in API.videos
+    else if (API?.videos && typeof API.videos[endpointKey] === 'function') {
+      fetcher = API.videos[endpointKey];
+    }
 
-  const nextPage = () => setPage((prev) => prev + 1);
-  const prevPage = () => setPage((prev) => Math.max(prev - 1, 1));
+    // 3️⃣ If still not found, throw error
+    else {
+      console.error(`[useMediaFetcher] Unknown endpoint key: ${endpointKey}`);
+      setError(`Unknown endpoint: ${endpointKey}`);
+      setLoading(false);
+      return;
+    }
 
-  return {
-    media,
-    loading,
-    error,
-    page,
-    pageSize,
-    totalCount,
-    hasMore,
-    setPage,
-    nextPage,
-    prevPage,
-    refetch: fetchMedia,
-  };
-};
+    // Fetch data
+    setLoading(true);
+    fetcher()
+      .then(res => {
+        setData(res.data || []);
+      })
+      .catch(err => {
+        console.error(`❌ API fetch failed for ${endpointKey}:`, err);
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
 
-export default useMediaFetcher;
+  }, [endpointKey]);
+
+  return { data, loading, error };
+}
+
+// Helper: Capitalize the first letter
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
