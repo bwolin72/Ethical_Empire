@@ -26,28 +26,31 @@ const EethmHome = () => {
   const videoRef = useRef(null);
 
   // ===== Hero media (useMediaFetcher) =====
-  // Use the 'home' key (string) — newer hook versions expect the key string.
-  // This code also tolerates hook implementations that return { media } or { data }.
+  // hook in your repo expects a string key like "home"
   const heroFetch = useMediaFetcher("home");
+  // compatibility: some hook variants return { media } others { data }
   const heroArray = heroFetch?.media ?? heroFetch?.data ?? [];
   const heroLoading = Boolean(heroFetch?.loading);
   const heroError = heroFetch?.error ?? null;
 
   const heroMedia = Array.isArray(heroArray) ? heroArray[0] ?? null : heroArray ?? null;
   const heroURL = getMediaUrl(heroMedia);
-  const isImageHero = heroURL !== "" && typeof heroURL === "string" && !heroURL.toLowerCase().endsWith(".mp4");
-  const isHeroVideoUrl = heroURL !== "" && typeof heroURL === "string" && heroURL.toLowerCase().endsWith(".mp4");
+  const isImageHero =
+    heroURL !== "" && typeof heroURL === "string" && !heroURL.toLowerCase().endsWith(".mp4");
+  const isHeroVideoUrl =
+    heroURL !== "" && typeof heroURL === "string" && heroURL.toLowerCase().endsWith(".mp4");
 
   // ===== Videos from backend (apiService) =====
   const [videos, setVideos] = useState([]);
   const [videosError, setVideosError] = useState(null);
 
-  // featuredVideo selection (defensive)
-  const featuredVideo = Array.isArray(videos) ? videos.find((v) => v?.is_featured) || videos[0] : null;
+  // pick featured or first
+  const featuredVideo =
+    Array.isArray(videos) && videos.length > 0 ? videos.find((v) => v?.is_featured) || videos[0] : null;
   const rawFeaturedUrl = featuredVideo?.file ?? featuredVideo?.url ?? featuredVideo?.video_url ?? "";
   const featuredVideoUrl = typeof rawFeaturedUrl === "string" ? rawFeaturedUrl : String(rawFeaturedUrl ?? "");
 
-  // final chosen video source: prefer featuredVideoUrl -> hero media video -> local fallback
+  // final chosen video: featured -> hero video media -> local fallback
   const resolvedVideoSrc = featuredVideoUrl || (isHeroVideoUrl ? heroURL : "") || LOCAL_FALLBACK_VIDEO;
 
   const [isMuted, setIsMuted] = useState(true);
@@ -89,7 +92,7 @@ const EethmHome = () => {
         } catch (_) {}
       }
     } catch (_) {
-      // ignore on older browsers
+      // older browsers: ignore
     }
   }, []);
 
@@ -110,12 +113,10 @@ const EethmHome = () => {
 
         if (!mounted) return;
 
-        // Videos: defensive parsing
+        // defensive parsing
         const allVideos = Array.isArray(videoRes?.data) ? videoRes.data : Array.isArray(videoRes) ? videoRes : [];
         setVideos(
-          allVideos.filter(
-            (v) => v?.is_active && Array.isArray(v?.endpoints) && v.endpoints.includes("home")
-          )
+          allVideos.filter((v) => v?.is_active && Array.isArray(v?.endpoints) && v.endpoints.includes("home"))
         );
 
         setPromotions(Array.isArray(promoRes?.data) ? promoRes.data : []);
@@ -127,16 +128,14 @@ const EethmHome = () => {
         const status = err?.response?.status;
         const url = err?.config?.url ?? "";
 
-        // set specific errors where applicable
         if (status === 401) {
-          // unauthorized — backend protected; we still keep local fallback video
-          setVideos([]); // will result in local fallback later
+          // unauthorized — show fallback video
+          setVideos([]);
           setVideosError("Unauthorized (login required) — showing fallback video.");
         } else {
           if (url.includes("promotions")) setPromoError("Failed to load promotions.");
           if (url.includes("reviews")) setReviewError("Failed to load reviews.");
           if (url.includes("services")) setServicesError("Failed to load services.");
-          // generic videos error
           setVideosError("Failed to load videos — using fallback video.");
         }
       }
@@ -185,9 +184,8 @@ const EethmHome = () => {
             {typeof heroError === "string" ? heroError : "Failed to load hero media."}
           </p>
         ) : (
-          // Prefer video (backend featured -> hero media video -> fallback)
           <>
-            {/* If resolvedVideoSrc is truthy we render a background video */}
+            {/* Render video (featured -> hero video -> fallback) */}
             {resolvedVideoSrc ? (
               <>
                 <video
@@ -201,6 +199,7 @@ const EethmHome = () => {
                   poster={isImageHero ? heroURL : undefined}
                   aria-hidden="true"
                 >
+                  {/* resolvedVideoSrc assumed mp4; browser ignores if invalid */}
                   <source src={resolvedVideoSrc} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
@@ -226,6 +225,9 @@ const EethmHome = () => {
                 >
                   {isMuted ? "🔇" : "🔊"}
                 </button>
+
+                {/* Surface video errors (keeps ESLint happy) */}
+                {videosError && <div className="video-error" role="status">{videosError}</div>}
               </>
             ) : isImageHero ? (
               <>
@@ -301,7 +303,7 @@ const EethmHome = () => {
 
           {Array.isArray(services) && services.length > 0 ? (
             <div className="service-card-grid">
-              {services.map((service) => {
+              {services.map((service, idx) => {
                 const slugOrId = service?.slug ?? service?.id ?? "";
                 const handleNavigate = () => {
                   if (slugOrId !== "") navigate(`/services/${slugOrId}`);
@@ -309,7 +311,7 @@ const EethmHome = () => {
 
                 return (
                   <div
-                    key={service.id ?? service.slug ?? Math.random()}
+                    key={service.id ?? service.slug ?? idx}
                     className="service-flip-card"
                     role="button"
                     tabIndex={0}
@@ -366,8 +368,8 @@ const EethmHome = () => {
           <h2>Current Offers</h2>
           {Array.isArray(promotions) && promotions.length > 0 ? (
             <div className="promotions-grid">
-              {promotions.map((promo) => (
-                <article key={promo.id ?? JSON.stringify(promo)} className="promotion-card">
+              {promotions.map((promo, idx) => (
+                <article key={promo.id ?? idx} className="promotion-card">
                   {promo.image_url && (
                     <img
                       src={promo.image_url}
@@ -404,8 +406,8 @@ const EethmHome = () => {
           <h2>What Our Clients Say</h2>
           {Array.isArray(reviews) && reviews.length > 0 ? (
             <div className="reviews-container">
-              {reviews.map((review) => (
-                <div key={review.id ?? JSON.stringify(review)} className="review-card">
+              {reviews.map((review, idx) => (
+                <div key={review.id ?? idx} className="review-card">
                   {review.name && <p className="review-author">— {review.name}</p>}
                   {review.comment && <p className="review-text">"{review.comment}"</p>}
                 </div>
