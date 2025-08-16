@@ -1,8 +1,10 @@
+// src/components/auth/Login.jsx
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
-import API from '../../api/api';
+import authAPI from '../../api/authAPI';   // ✅ Correct import path
 import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Login.css';
@@ -23,6 +25,7 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
+  // ===== Redirect by role =====
   const redirectByRole = useCallback((role) => {
     const routes = {
       admin: '/admin',
@@ -34,18 +37,21 @@ const Login = () => {
     navigate(routes[role] || '/user', { replace: true });
   }, [navigate]);
 
+  // ===== Dark mode init =====
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
     document.body.classList.toggle('dark', savedDark);
   }, []);
 
+  // ===== Redirect if already logged in =====
   useEffect(() => {
     if (!ready || hasRedirected || !user) return;
     setHasRedirected(true);
     redirectByRole(user.role);
   }, [ready, user, hasRedirected, redirectByRole]);
 
+  // ===== Toggle dark mode =====
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
@@ -53,6 +59,7 @@ const Login = () => {
     localStorage.setItem('darkMode', updated);
   };
 
+  // ===== Handle input change =====
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -60,6 +67,7 @@ const Login = () => {
     setError('');
   };
 
+  // ===== Validate form =====
   const validateForm = () => {
     const errors = {};
     if (!form.email.trim()) errors.email = 'Please enter your email address.';
@@ -68,6 +76,7 @@ const Login = () => {
     return Object.keys(errors).length === 0;
   };
 
+  // ===== Extract error message from backend =====
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (typeof data === 'string') return data;
@@ -86,6 +95,7 @@ const Login = () => {
     return 'Oops! Something went wrong. Please try again.';
   };
 
+  // ===== Handle login success =====
   const handleLoginSuccess = (data) => {
     const { access, refresh, user } = data;
 
@@ -105,13 +115,14 @@ const Login = () => {
     login({ access, refresh, user: userPayload, remember: rememberMe });
   };
 
+  // ===== Handle form submit (email/password login) =====
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(API.auth.login, form);
+      const { data } = await authAPI.login(form);   // ✅ Using authAPI
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
@@ -124,6 +135,7 @@ const Login = () => {
     }
   };
 
+  // ===== Handle Google OAuth login =====
   const handleGoogleSuccess = async ({ credential }) => {
     if (!credential) {
       setError('Google login failed. Missing credentials.');
@@ -131,7 +143,7 @@ const Login = () => {
     }
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(API.auth.googleLogin, { credential });
+      const { data } = await axiosInstance.post(authAPI.endpoints.googleLogin, { credential });  
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
@@ -144,6 +156,7 @@ const Login = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className="login-page">
+        {/* ==== Left Side Branding ==== */}
         <div className="login-left">
           <div className="login-brand">
             <img src={logo} alt="Ethical Multimedia Logo" />
@@ -152,6 +165,7 @@ const Login = () => {
           </div>
         </div>
 
+        {/* ==== Right Side Form ==== */}
         <div className="login-right">
           <h2>Welcome Back 👋</h2>
           <p className="login-subtext">Log in to continue exploring our services</p>
@@ -227,6 +241,7 @@ const Login = () => {
             </button>
           </form>
 
+          {/* ==== Google Login ==== */}
           <div className="google-signup">
             <p>Or sign in using your Google account</p>
             <GoogleLogin

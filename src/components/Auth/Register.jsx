@@ -9,8 +9,7 @@ import 'react-phone-number-input/style.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import axiosInstance from '../../api/axiosInstance';
-import API from '../../api/api';
+import authAPI from '../../api/authAPI';
 import logo from '../../assets/logo.png';
 import './Register.css';
 
@@ -116,26 +115,29 @@ const Register = () => {
       name: full_name, email, phone, dob, gender, password, password2,
     };
 
-    let endpoint = API.auth.register; // default
+    let requestFn = authAPI.register; // default
     if (role === 'WORKER') {
       if (!access_code.trim()) return toast.error('Access code is required.');
       if (!worker_category_id) return toast.error('Worker category ID is required.');
       payload.access_code = access_code;
       payload.worker_category_id = worker_category_id;
-      endpoint = API.auth.internalRegister;
+      requestFn = authAPI.internalRegister;
     } else if (role === 'VENDOR') {
       if (!company_name.trim()) return toast.error('Company name is required.');
       payload.company_name = company_name;
-      endpoint = `${API.auth.register}vendor/`;
+      // directly hit vendor register endpoint
+      requestFn = (data) =>
+        authAPI.register({ ...data, role: 'VENDOR' });
     } else if (role === 'PARTNER') {
       if (!agency_name.trim()) return toast.error('Agency name is required.');
       payload.agency_name = agency_name;
-      endpoint = `${API.auth.register}partner/`;
+      requestFn = (data) =>
+        authAPI.register({ ...data, role: 'PARTNER' });
     }
 
     setLoading(true);
     try {
-      const res = await axiosInstance.post(endpoint, payload);
+      const res = await requestFn(payload);
       const { email, phone } = res.data;
       toast.success('✅ Verification code sent. Check your email and SMS.');
       navigate(`/verify-otp?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`);
@@ -150,7 +152,7 @@ const Register = () => {
     if (!credential) return toast.error('Google login failed: Missing credential');
     setLoading(true);
     try {
-      await axiosInstance.post(API.auth.googleRegister, { credential });
+      await authAPI.googleRegister({ credential });
       toast.success('Google registration successful! Redirecting...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {

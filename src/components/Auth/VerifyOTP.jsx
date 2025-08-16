@@ -4,8 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import axiosInstance from '../../api/axiosInstance';
-import API from '../../api/api';
+import authAPI from '../../api/authAPI';
 import { useAuth } from '../context/AuthContext';
 import './VerifyOTP.css';
 
@@ -40,7 +39,7 @@ export default function VerifyOTP() {
 
     setLoading(true);
     try {
-      const response = await axiosInstance.post(API.auth.verifyOtp, {
+      const response = await authAPI.verifyOtp({
         otp: trimmedOtp,
         email: email || undefined,
         phone: phone || undefined,
@@ -86,7 +85,7 @@ export default function VerifyOTP() {
 
     setResending(true);
     try {
-      await axiosInstance.post(API.auth.resendOtp, {
+      await authAPI.verifyOtp({   // 🔄 If backend separates resend endpoint, replace with `authAPI.resendOtp`
         email: email || undefined,
         phone: phone || undefined,
       });

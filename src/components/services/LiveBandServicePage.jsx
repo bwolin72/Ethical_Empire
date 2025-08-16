@@ -8,7 +8,17 @@ import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
 import apiService from '../../api/apiService';
 
-// Robust media URL resolver (mirrors your Home helper)
+// === Animation Variants (shared) ===
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08 },
+  }),
+};
+
+// === Robust media URL resolver ===
 const getMediaUrl = (media) => {
   if (!media) return '';
   const val =
@@ -26,20 +36,23 @@ const LiveBandServicePage = () => {
 
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [videoUrl, setVideoUrl] = useState('');
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
+  // === Services Offered ===
   const liveBandServices = [
-    '🎤 Wedding Performances',
-    '🏢 Corporate Event Entertainment',
-    '🎂 Birthday Live Music',
-    '🎷 Jazz & Acoustic Sets',
-    '🪘 Cultural & Traditional Shows',
-    '🎼 Custom Music Experiences',
+    { icon: '🎤', label: 'Wedding Performances' },
+    { icon: '🏢', label: 'Corporate Event Entertainment' },
+    { icon: '🎂', label: 'Birthday Live Music' },
+    { icon: '🎷', label: 'Jazz & Acoustic Sets' },
+    { icon: '🪘', label: 'Cultural & Traditional Shows' },
+    { icon: '🎼', label: 'Custom Music Experiences' },
   ];
 
+  // === Fetch Content (Reviews + Video) ===
   useEffect(() => {
     let mounted = true;
 
@@ -50,7 +63,7 @@ const LiveBandServicePage = () => {
           apiService.getVideos({ endpoint: 'LiveBandServicePage', is_active: true }),
         ]);
 
-        // Normalize testimonials to consistent fields
+        // Normalize testimonials
         const rawReviews = Array.isArray(reviewRes?.data) ? reviewRes.data : [];
         const normReviews = rawReviews.map((r) => ({
           id: r.id ?? r._id ?? undefined,
@@ -64,13 +77,14 @@ const LiveBandServicePage = () => {
         }));
         if (mounted) setTestimonials(normReviews);
 
-        // Choose featured video (fallback to first) & robust URL extraction
+        // Pick featured video
         const rawVideos = Array.isArray(videoRes?.data) ? videoRes.data : [];
         const featured = rawVideos.find((v) => v?.is_featured) ?? rawVideos[0];
         const src = getMediaUrl(featured);
         if (mounted) setVideoUrl(src || '');
       } catch (error) {
         console.error('Failed to load content:', error);
+        if (mounted) setErrorMsg('Failed to load reviews or video.');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -82,7 +96,7 @@ const LiveBandServicePage = () => {
     };
   }, []);
 
-  // keep ref muted in sync
+  // === Sync video mute state ===
   useEffect(() => {
     if (videoRef.current) {
       try {
@@ -108,7 +122,7 @@ const LiveBandServicePage = () => {
               muted={isMuted}
               playsInline
               preload="auto"
-              onError={() => setVideoUrl('')} // fallback to banner if video fails
+              onError={() => setVideoUrl('/fallback-banner.jpg')}
             />
             <button
               className="mute-button"
@@ -121,7 +135,9 @@ const LiveBandServicePage = () => {
 
             <div className="hero-overlay" />
             <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
-            <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
+            <p className="hero-subtitle">
+              Professional Live Bands for Unforgettable Events
+            </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="cta-button hero-button"
@@ -135,7 +151,9 @@ const LiveBandServicePage = () => {
           <>
             <div className="hero-overlay" />
             <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
-            <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
+            <p className="hero-subtitle">
+              Professional Live Bands for Unforgettable Events
+            </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="cta-button hero-button"
@@ -145,7 +163,6 @@ const LiveBandServicePage = () => {
               Book a Live Band
             </motion.button>
 
-            {/* Only show banner cards when no video */}
             <div className="banner-cards-wrapper">
               <BannerCards endpoint="LiveBandServicePage" title="Live Band Highlights" />
             </div>
@@ -162,14 +179,17 @@ const LiveBandServicePage = () => {
         <div className="card-grid">
           {liveBandServices.map((service, index) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.06 }}
+              key={service.label}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              custom={index}
               viewport={{ once: true }}
             >
               <Card className="service-card">
-                <CardContent className="card-content">{service}</CardContent>
+                <CardContent className="card-content">
+                  <span className="service-icon">{service.icon}</span> {service.label}
+                </CardContent>
               </Card>
             </motion.div>
           ))}
@@ -194,41 +214,43 @@ const LiveBandServicePage = () => {
       </section>
 
       {/* === Testimonials === */}
-      <section className="section testimonial-section">
+      <section className="section testimonial-section" aria-live="polite">
         <h2 className="section-title">Client Reviews</h2>
         <p className="section-description">
           Hear what our clients say about their elevated musical experiences.
         </p>
         <div className="testimonial-grid">
-          {loading
-            ? Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="testimonial-card shimmer">
-                  <div className="testimonial-text">Loading...</div>
-                  <div className="testimonial-user">Loading...</div>
-                </div>
-              ))
-            : testimonials.length > 0
-            ? testimonials.slice(0, 6).map((review, index) => (
-                <motion.div
-                  key={review.id ?? index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.06 }}
-                  viewport={{ once: true }}
-                >
-                  <Card className="testimonial-card">
-                    <CardContent className="card-content">
-                      <p className="testimonial-text">"{review.text}"</p>
-                      <p className="testimonial-user">— {review.author}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))
-            : (
-              <p className="section-description" style={{ textAlign: 'center', opacity: 0.7 }}>
-                No client reviews available yet.
-              </p>
-            )}
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="testimonial-card shimmer" />
+            ))
+          ) : errorMsg ? (
+            <p className="section-description" style={{ textAlign: 'center', opacity: 0.7 }}>
+              {errorMsg}
+            </p>
+          ) : testimonials.length > 0 ? (
+            testimonials.slice(0, 6).map((review, index) => (
+              <motion.div
+                key={review.id ?? index}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                custom={index}
+                viewport={{ once: true }}
+              >
+                <Card className="testimonial-card">
+                  <CardContent className="card-content">
+                    <p className="testimonial-text">"{review.text}"</p>
+                    <p className="testimonial-user">— {review.author}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))
+          ) : (
+            <p className="section-description" style={{ textAlign: 'center', opacity: 0.7 }}>
+              No client reviews available yet.
+            </p>
+          )}
         </div>
       </section>
 

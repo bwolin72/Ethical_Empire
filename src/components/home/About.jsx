@@ -187,12 +187,12 @@ const About = () => {
         </p>
         <div className="team-grid">
           <div className="team-member">
-            <img src="/team/jane.jpg" alt="Jane" />
+            <img src="../../../src/team/eunice.jpg" alt="Eunice" />
             <h4>Mrs. Eunice Chai</h4>
             <p>Operation Manager</p>
           </div>
           <div className="team-member">
-            <img src="/team/john.jpg" alt="John" />
+            <img src="../../../src/team/joseph.jpg" alt="Joseph" />
             <h4>Mr. Nhyira Nana Joseph</h4>
             <p>Event Manager</p>
           </div>

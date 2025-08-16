@@ -1,9 +1,11 @@
 // src/pages/auth/ResetPassword.jsx
 import React, { useState } from 'react';
-import './ForgotResetPassword.css';
-import axiosInstance from '../../api/axiosInstance';
-import API from '../../api/api';
 import { useParams, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import './ForgotResetPassword.css';
+
+import authAPI from '../../api/authAPI';
 
 const ResetPassword = () => {
   const { uid, token } = useParams();
@@ -12,10 +14,10 @@ const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState('');
   const [reNewPassword, setReNewPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState('');
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState('');
 
   const getPasswordStrength = (password) => {
     if (password.length < 6) return 'Weak';
@@ -23,9 +25,33 @@ const ResetPassword = () => {
     return 'Medium';
   };
 
+  const extractErrorMessage = (err) => {
+    const data = err?.response?.data;
+    if (!data) return 'Unexpected error. Please try again.';
+
+    if (data.errors && typeof data.errors === 'object') {
+      return Object.entries(data.errors)
+        .map(([field, messages]) => `${field}: ${messages.join(' ')}`)
+        .join('\n');
+    }
+
+    if (typeof data === 'object') {
+      return Object.entries(data)
+        .map(([field, messages]) =>
+          `${field}: ${Array.isArray(messages) ? messages.join(' ') : messages}`
+        )
+        .join('\n');
+    }
+
+    if (typeof data === 'string') return data;
+
+    return 'An error occurred. Please try again.';
+  };
+
   const handlePasswordChange = (value) => {
-    setNewPassword(value);
-    setPasswordStrength(getPasswordStrength(value));
+    const cleanValue = DOMPurify.sanitize(value);
+    setNewPassword(cleanValue);
+    setPasswordStrength(getPasswordStrength(cleanValue));
   };
 
   const handleSubmit = async (e) => {
@@ -40,18 +66,12 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      await axiosInstance.post(`${API.auth.resetPasswordConfirm}${uid}/${token}/`, {
-        password: newPassword,
-      });
+      await authAPI.resetPasswordConfirm(uid, token, { password: newPassword });
 
-      setMessage('Password has been reset successfully. Redirecting to login...');
+      setMessage('✅ Password has been reset successfully. Redirecting to login...');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
-      const res = err.response?.data;
-      const errorMsg = Array.isArray(res?.error)
-        ? res.error.join(', ')
-        : res?.error || res?.detail || 'An error occurred. Please try again.';
-      setError(errorMsg);
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -65,7 +85,7 @@ const ResetPassword = () => {
         {message && <p className="form-message success">{message}</p>}
         {error && <p className="form-message error">{error}</p>}
 
-        <div className="password-field">
+        <div className="form-group password-field">
           <input
             type={passwordVisible ? 'text' : 'password'}
             placeholder="New password"
@@ -73,13 +93,9 @@ const ResetPassword = () => {
             onChange={(e) => handlePasswordChange(e.target.value)}
             required
           />
-          <button
-            type="button"
-            className="toggle-password"
-            onClick={() => setPasswordVisible((v) => !v)}
-          >
-            {passwordVisible ? '🙈' : '👁️'}
-          </button>
+          <span onClick={() => setPasswordVisible((v) => !v)}>
+            {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+          </span>
         </div>
 
         {newPassword && (
@@ -88,14 +104,17 @@ const ResetPassword = () => {
           </div>
         )}
 
-        <div className="password-field">
+        <div className="form-group password-field">
           <input
             type={passwordVisible ? 'text' : 'password'}
             placeholder="Confirm new password"
             value={reNewPassword}
-            onChange={(e) => setReNewPassword(e.target.value)}
+            onChange={(e) => setReNewPassword(DOMPurify.sanitize(e.target.value))}
             required
           />
+          <span onClick={() => setPasswordVisible((v) => !v)}>
+            {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+          </span>
         </div>
 
         <button type="submit" disabled={loading}>

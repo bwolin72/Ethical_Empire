@@ -1,6 +1,7 @@
+// src/pages/auth/ForgotPassword.jsx
 import React, { useState } from 'react';
 import './ForgotResetPassword.css';
-import axiosInstance from '../../api/axiosInstance';
+import authAPI from '../../api/authAPI';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -15,21 +16,19 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post('/api/user-account/auth/reset-password/', {
-        email,
-      });
+      const response = await authAPI.resetPassword({ email });
 
       setMessage(
         response?.data?.detail ||
-        'Password reset email sent. Please check your inbox.'
+          'Password reset email sent. Please check your inbox.'
       );
       setEmail('');
     } catch (err) {
       console.error('Password reset error:', err);
       setError(
         err.response?.data?.detail ||
-        err.response?.data?.error ||
-        'An error occurred. Please try again.'
+          err.response?.data?.error ||
+          'An error occurred. Please try again.'
       );
     } finally {
       setLoading(false);
