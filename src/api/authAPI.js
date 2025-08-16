@@ -1,7 +1,6 @@
 // src/api/authAPI.js
 import baseURL from './baseURL';
 import axiosInstance from './axiosInstance';
-import publicAxios from './publicAxios';
 
 const authAPI = {
   // ===== AUTH & ACCOUNTS =====
