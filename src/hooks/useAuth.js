@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_BASE = "https://ethical-backend-production.up.railway.app";
+const API_BASE = "https://api.eethmghmultimedia.com";
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
