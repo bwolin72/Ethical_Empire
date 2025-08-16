@@ -1,3 +1,4 @@
+// src/components/services/LiveBandServicePage.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import './liveband.css';
 import { Card, CardContent } from '../ui/Card';
@@ -7,10 +8,25 @@ import BannerCards from '../context/BannerCards';
 import MediaCards from '../context/MediaCards';
 import apiService from '../../api/apiService';
 
+// Robust media URL resolver (mirrors your Home helper)
+const getMediaUrl = (media) => {
+  if (!media) return '';
+  const val =
+    (media?.url && (media.url.full ?? media.url)) ??
+    media?.video_url ??
+    media?.video_file ??
+    media?.file_url ??
+    media?.file ??
+    '';
+  return typeof val === 'string' ? val : String(val ?? '');
+};
+
 const LiveBandServicePage = () => {
   const navigate = useNavigate();
+
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [videoUrl, setVideoUrl] = useState('');
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
@@ -25,80 +41,115 @@ const LiveBandServicePage = () => {
   ];
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchContent = async () => {
       try {
         const [reviewRes, videoRes] = await Promise.all([
-          apiService.getReviews(), // from apiService.js
+          apiService.getReviews(),
           apiService.getVideos({ endpoint: 'LiveBandServicePage', is_active: true }),
         ]);
 
-        setTestimonials(Array.isArray(reviewRes.data) ? reviewRes.data : []);
+        // Normalize testimonials to consistent fields
+        const rawReviews = Array.isArray(reviewRes?.data) ? reviewRes.data : [];
+        const normReviews = rawReviews.map((r) => ({
+          id: r.id ?? r._id ?? undefined,
+          text: r.message ?? r.comment ?? r.text ?? r.content ?? '',
+          author:
+            r.user?.username ??
+            r.reviewer_name ??
+            r.name ??
+            r.user_name ??
+            'Anonymous',
+        }));
+        if (mounted) setTestimonials(normReviews);
 
-        if (Array.isArray(videoRes.data) && videoRes.data.length > 0) {
-          setVideoUrl(videoRes.data[0].video_url);
-        }
+        // Choose featured video (fallback to first) & robust URL extraction
+        const rawVideos = Array.isArray(videoRes?.data) ? videoRes.data : [];
+        const featured = rawVideos.find((v) => v?.is_featured) ?? rawVideos[0];
+        const src = getMediaUrl(featured);
+        if (mounted) setVideoUrl(src || '');
       } catch (error) {
         console.error('Failed to load content:', error);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     fetchContent();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const toggleMute = () => {
-    setIsMuted((prev) => !prev);
+  // keep ref muted in sync
+  useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
+      try {
+        videoRef.current.muted = isMuted;
+      } catch {}
     }
-  };
+  }, [isMuted]);
+
+  const toggleMute = () => setIsMuted((prev) => !prev);
 
   return (
     <div className="liveband-page">
       {/* === Hero Banner or Video === */}
       <section className="banner-section">
         {videoUrl ? (
-          <div className="video-wrapper">
+          <>
             <video
               ref={videoRef}
+              className="hero-banner-image"
               src={videoUrl}
-              className="hero-video"
               autoPlay
               loop
               muted={isMuted}
               playsInline
+              preload="auto"
+              onError={() => setVideoUrl('')} // fallback to banner if video fails
             />
-            <button className="mute-button" onClick={toggleMute}>
+            <button
+              className="mute-button"
+              onClick={toggleMute}
+              aria-label={isMuted ? 'Unmute background video' : 'Mute background video'}
+              type="button"
+            >
               {isMuted ? '🔇' : '🔊'}
             </button>
-            <div className="hero-overlay">
-              <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
-              <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                className="cta-button hero-button"
-                onClick={() => navigate('/bookings')}
-              >
-                Book a Live Band
-              </motion.button>
-            </div>
-          </div>
-        ) : (
-          <div className="hero-overlay">
+
+            <div className="hero-overlay" />
             <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
             <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="cta-button hero-button"
               onClick={() => navigate('/bookings')}
+              type="button"
             >
               Book a Live Band
             </motion.button>
+          </>
+        ) : (
+          <>
+            <div className="hero-overlay" />
+            <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
+            <p className="hero-subtitle">Professional Live Bands for Unforgettable Events</p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              className="cta-button hero-button"
+              onClick={() => navigate('/bookings')}
+              type="button"
+            >
+              Book a Live Band
+            </motion.button>
+
+            {/* Only show banner cards when no video */}
             <div className="banner-cards-wrapper">
               <BannerCards endpoint="LiveBandServicePage" title="Live Band Highlights" />
             </div>
-          </div>
+          </>
         )}
       </section>
 
@@ -114,7 +165,7 @@ const LiveBandServicePage = () => {
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.06 }}
               viewport={{ once: true }}
             >
               <Card className="service-card">
@@ -156,28 +207,28 @@ const LiveBandServicePage = () => {
                   <div className="testimonial-user">Loading...</div>
                 </div>
               ))
-            : testimonials.length > 0 ? (
-                testimonials.slice(0, 6).map((review, index) => (
-                  <motion.div
-                    key={review.id || index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <Card className="testimonial-card">
-                      <CardContent className="card-content">
-                        <p className="testimonial-text">"{review.message}"</p>
-                        <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))
-              ) : (
-                <p className="section-description text-center text-gray-500">
-                  No client reviews available yet.
-                </p>
-              )}
+            : testimonials.length > 0
+            ? testimonials.slice(0, 6).map((review, index) => (
+                <motion.div
+                  key={review.id ?? index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.06 }}
+                  viewport={{ once: true }}
+                >
+                  <Card className="testimonial-card">
+                    <CardContent className="card-content">
+                      <p className="testimonial-text">"{review.text}"</p>
+                      <p className="testimonial-user">— {review.author}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            : (
+              <p className="section-description" style={{ textAlign: 'center', opacity: 0.7 }}>
+                No client reviews available yet.
+              </p>
+            )}
         </div>
       </section>
 

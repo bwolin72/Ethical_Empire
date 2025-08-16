@@ -309,7 +309,7 @@ const EethmHome = () => {
               {services.map((service, idx) => {
                 const slugOrId = service?.slug ?? service?.id ?? "";
                 const handleNavigate = () => {
-                  if (slugOrId !== "") navigate(`/services/${slugOrId}`);
+                  if (slugOrId !== "") navigate(`/Services/${slugOrId}`);
                 };
                 return (
                   <div
@@ -334,7 +334,7 @@ const EethmHome = () => {
                             className="service-image"
                           />
                         )}
-                        <h3>{service.title || service.name || "Service"}</h3>
+                        <h3>{service.title || service.name || "service"}</h3>
                       </div>
                       <div className="service-flip-card-back">
                         {service.description && <p>{service.description}</p>}

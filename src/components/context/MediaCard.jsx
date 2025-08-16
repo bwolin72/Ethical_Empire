@@ -4,38 +4,46 @@ import PropTypes from 'prop-types';
 import './MediaCard.css';
 
 const SingleMediaCard = ({ media, fullWidth = false, onClick }) => {
-  // Always guard against null/undefined media
+  // ✅ Guard against null/undefined
   const safeMedia = media || {};
 
-  // ✅ Auto-resolve image sources with fallbacks
+  // ✅ Resolve image/video sources with fallbacks
   const thumbnail =
     safeMedia?.url?.thumbnail ||
     safeMedia?.url?.medium ||
     safeMedia?.url?.full ||
-    '/placeholder.jpg';
+    '/mock/banner-1.png'; // fallback image
 
-  const fullUrl = safeMedia?.url?.full || thumbnail;
+  const fullUrl =
+    safeMedia?.url?.full ||
+    (safeMedia?.file_type?.toLowerCase().includes('video')
+      ? '/mock/hero-video.mp4' // fallback video
+      : thumbnail);
 
-  // ✅ Detect file type
+  // ✅ Detect type safely
   const isVideo = safeMedia?.file_type?.toLowerCase().includes('video');
 
-  // ✅ Auto-generate label fallback
+  // ✅ Label fallback
   const label =
     safeMedia?.label ||
     safeMedia?.title ||
     safeMedia?.category ||
     'Media Item';
 
-  // ✅ Categorization for styling/grouping
+  // ✅ Category (for grouping/styling)
   const category = safeMedia?.category || 'general';
 
-  // Error handlers
+  // Error handlers with correct fallback assets
   const handleVideoError = (e) => {
-    e.target.poster = '/placeholder.jpg';
+    e.target.poster = '/mock/banner-1.png';
+    if (e.target.querySelector('source')) {
+      e.target.querySelector('source').src = '/mock/hero-video.mp4';
+      e.target.load();
+    }
   };
 
   const handleImageError = (e) => {
-    e.target.src = '/placeholder.jpg';
+    e.target.src = '/mock/banner-1.png';
   };
 
   return (
@@ -55,7 +63,7 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick }) => {
               className="media-thumb"
               muted
               preload="metadata"
-              poster={thumbnail}  // ✅ fallback thumbnail
+              poster={thumbnail} // ✅ fallback poster
               onError={handleVideoError}
             >
               <source src={fullUrl} type={safeMedia.file_type || 'video/mp4'} />

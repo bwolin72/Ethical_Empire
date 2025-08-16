@@ -1,6 +1,9 @@
+// src/components/pages/About.jsx
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaStar } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import MediaCards from '../context/MediaCards';
 import MediaCard from '../context/MediaCard';
@@ -9,7 +12,7 @@ import apiService from '../../api/apiService';
 import './About.css';
 
 const About = () => {
-  const { media: bannerList } = useMediaFetcher({
+  const { media: bannerList = [] } = useMediaFetcher({
     type: 'banner',
     endpoint: 'About',
     isActive: true,
@@ -23,10 +26,15 @@ const About = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchServices = async () => {
+    const fetchAllServices = async () => {
       try {
-        const { data } = await apiService.getServices();
-        if (isMounted) setServices(data || []);
+        const res = await apiService.getServices();
+        const serviceList = res.data?.results || res.data || [];
+        if (Array.isArray(serviceList) && serviceList.length > 0) {
+          if (isMounted) setServices(serviceList);
+        } else {
+          toast.warn('No services available at the moment.');
+        }
       } catch (error) {
         console.error('Services fetch error:', error);
       }
@@ -49,9 +57,9 @@ const About = () => {
         });
 
         const videoList = Array.isArray(data) ? data : [];
-        const featured = videoList.find(v => v.is_featured) || videoList[0];
+        const featured = videoList.find((v) => v.is_featured) || videoList[0];
 
-        if (featured?.video_file) {
+        if (featured?.video_file && isMounted) {
           setVideoHeroUrl(featured.video_file);
         }
       } catch (error) {
@@ -59,7 +67,8 @@ const About = () => {
       }
     };
 
-    fetchServices();
+    // ✅ call correct functions
+    fetchAllServices();
     fetchTestimonials();
     fetchVideoHero();
 
@@ -119,13 +128,15 @@ const About = () => {
       <section className="about-text px-4 mt-12">
         <h2 className="section-heading">Who We Are</h2>
         <p>
-          At <strong>Ethical Multimedia GH</strong>, we merge artistic passion with event precision.
-          From vibrant performances and stunning visuals to coordinated event execution,
-          we bring your vision to life with professionalism and creativity.
+          At <strong>Ethical Multimedia GH</strong>, we merge artistic passion
+          with event precision. From vibrant performances and stunning visuals
+          to coordinated event execution, we bring your vision to life with
+          professionalism and creativity.
           <br />
           <br />
-          With over a decade of experience across weddings, concerts, and corporate events,
-          our diverse team brings the tools and talent to turn ideas into unforgettable experiences.
+          With over a decade of experience across weddings, concerts, and
+          corporate events, our diverse team brings the tools and talent to turn
+          ideas into unforgettable experiences.
         </p>
       </section>
 
@@ -141,13 +152,16 @@ const About = () => {
         <h2 className="section-heading">Our Commitment</h2>
         <p>
           We value integrity, artistry, and a deep understanding of your goals.
-          Every event is approached with care, strategy, and passion — ensuring it's not just successful, but unforgettable.
+          Every event is approached with care, strategy, and passion — ensuring
+          it's not just successful, but unforgettable.
         </p>
       </section>
 
       <section className="why-section max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center mt-16 px-4">
         <div>
-          <h3 className="text-xl font-bold text-[#c9a356] mb-4">Why Clients Trust Us</h3>
+          <h3 className="text-xl font-bold text-[#c9a356] mb-4">
+            Why Clients Trust Us
+          </h3>
           <ul className="list-disc pl-6 space-y-2">
             {[
               'Over a decade of multimedia and event expertise.',
@@ -168,7 +182,8 @@ const About = () => {
       <section className="team-section px-4 mt-16 text-center">
         <h2 className="section-heading">Meet the Team</h2>
         <p className="mb-6">
-          Behind every successful event is a passionate team of visionaries, creators, and coordinators.
+          Behind every successful event is a passionate team of visionaries,
+          creators, and coordinators.
         </p>
         <div className="team-grid">
           <div className="team-member">
@@ -200,7 +215,9 @@ const About = () => {
             {testimonials.map((review, idx) => (
               <div key={idx} className="testimonial-slide">
                 <p>“{review.message}”</p>
-                <p className="testimonial-author">— {review.reviewer_name || 'Anonymous'}</p>
+                <p className="testimonial-author">
+                  — {review.reviewer_name || 'Anonymous'}
+                </p>
               </div>
             ))}
           </div>
