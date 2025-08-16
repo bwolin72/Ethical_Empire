@@ -262,13 +262,13 @@
 
 /* --- Fix invalid asset paths to work with CRA/Vite public folder --- */
 .liveband-page .section::before {
-  background-image: url('/assets/icons/music-notes.svg'); /* was /public/... */
+  background-image: url('/public/assets/icons/music-notes.svg'); /* was /public/... */
 }
 
 /* Use a public path for the banner fallback image instead of src-relative */
 .liveband-page .banner-section {
   /* was ../../../src/assets/images/celebration.jpg (won't resolve in CSS) */
-  background-image: url('/assets/images/celebration.jpg');
+  background-image: url('../../../src/assets/images/celebration.jpg');
 }
 
 /* --- Elements used by the component --- */
