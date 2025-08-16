@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_BASE = "https://api.eethmghmultimedia.com";
+const API_BASE = "https://api.eethmghmultimedia.com/api";
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
@@ -20,7 +20,7 @@ const useAuth = () => {
     // Fetch user profile with valid access token
     if (accessToken) {
       axios
-        .get(`${API_BASE}/api/accounts/profile/`, {
+        .get(`${API_BASE}/accounts/profile/`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },

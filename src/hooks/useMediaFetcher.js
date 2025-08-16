@@ -12,7 +12,6 @@ export default function useMediaFetcher(endpointKey) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // ✅ Guard: no key provided
     if (!endpointKey || typeof endpointKey !== "string") {
       console.warn("[useMediaFetcher] No valid endpoint key provided.");
       setLoading(false);
@@ -21,16 +20,16 @@ export default function useMediaFetcher(endpointKey) {
 
     let fetcher = null;
 
-    // 1️⃣ Check mediaAPI first
+    // 1️⃣ Try mediaAPI (images/banners/media)
     const mediaMethodName = `get${capitalize(endpointKey)}`;
     if (typeof mediaAPI[mediaMethodName] === "function") {
       fetcher = mediaAPI[mediaMethodName];
     }
-    // 2️⃣ Then fallback to API.videos
+    // 2️⃣ Try API.videos (your VideoViewSet endpoints)
     else if (API?.videos && typeof API.videos[endpointKey] === "function") {
       fetcher = API.videos[endpointKey];
     }
-    // 3️⃣ No matching fetcher
+    // 3️⃣ Unknown endpoint
     else {
       console.error(`[useMediaFetcher] Unknown endpoint key: ${endpointKey}`);
       setError(`Unknown endpoint: ${endpointKey}`);
@@ -38,7 +37,7 @@ export default function useMediaFetcher(endpointKey) {
       return;
     }
 
-    // 🚀 Fetch data
+    // 🚀 Run fetch
     setLoading(true);
     fetcher()
       .then((res) => {
@@ -48,7 +47,7 @@ export default function useMediaFetcher(endpointKey) {
           ? res.data.results
           : [];
 
-        // 🛡 Handle video fallback
+        // 🛡 Fallback: if this is a video key and nothing is fetched → use local hero-video
         if (isVideoKey(endpointKey) && items.length === 0) {
           console.warn(
             `[useMediaFetcher] No videos found for "${endpointKey}", using fallback.`
@@ -62,7 +61,6 @@ export default function useMediaFetcher(endpointKey) {
         console.error(`❌ API fetch failed for ${endpointKey}:`, err);
 
         if (err?.response?.status === 401) {
-          // 🔑 Unauthorized → force login again
           setError("Unauthorized – please log in again.");
           setData([]);
         } else if (isVideoKey(endpointKey)) {
@@ -70,7 +68,7 @@ export default function useMediaFetcher(endpointKey) {
             `[useMediaFetcher] API error, using fallback video for "${endpointKey}"`
           );
           setData([fallbackVideoObject()]);
-          setError(null); // ✅ don’t block UI if fallback works
+          setError(null); // don’t block UI if fallback works
         } else {
           setData([]);
           setError(err);
@@ -86,23 +84,26 @@ export default function useMediaFetcher(endpointKey) {
    🔧 Helpers
 ---------------------------- */
 
-// Capitalize safely
+// Capitalize safely for mediaAPI methods
 function capitalize(str) {
   if (!str || typeof str !== "string") return "";
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Check if key is related to video endpoints
+// Detect if the endpointKey is video-related
 function isVideoKey(key) {
   return typeof key === "string" && key.toLowerCase().includes("video");
 }
 
-// Fallback video object factory
+// Local fallback video object
 function fallbackVideoObject() {
   return {
     id: "fallback-video",
     type: "video",
     title: "Fallback Hero Video",
     src: FALLBACK_VIDEO_PATH,
+    thumbnail: null,
+    is_active: true,
+    is_featured: true,
   };
 }
