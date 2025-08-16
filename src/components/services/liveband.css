@@ -262,7 +262,7 @@
 
 /* --- Fix invalid asset paths to work with CRA/Vite public folder --- */
 .liveband-page .section::before {
-  background-image: url('../../../assets/icons/music-notes.svg'); /* was /public/... */
+  background-image: url('/assets/icons/music-notes.svg'); /* was /public/... */
 }
 
 /* Use a public path for the banner fallback image instead of src-relative */
