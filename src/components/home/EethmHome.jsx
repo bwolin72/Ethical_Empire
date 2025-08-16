@@ -9,28 +9,28 @@ import FadeInSection from "../FadeInSection";
 import "./EethmHome.css";
 
 /**
- * Safe URL extractor
+ * Safely extract a media URL string from a media object.
+ * Always returns a string (possibly empty).
  */
 const getMediaUrl = (media) => {
   if (!media) return "";
   const val =
-    media?.url?.full ??
+    (media?.url && (media.url.full ?? media.url)) ??
     media?.file_url ??
     media?.file ??
-    media?.url ??
     media?.video_url ??
     "";
-  return typeof val === "string" ? val : String(val);
+  return typeof val === "string" ? val : String(val ?? "");
 };
 
-// Fallback video from public folder
 const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
 
 const EethmHome = () => {
   const navigate = useNavigate();
   const videoRef = useRef(null);
 
-  // ===== Hero (mediaAPI via useMediaFetcher) =====
+  // ===== Hero media (useMediaFetcher "home") =====
+  // Hook might return { media } or { data } depending on your implementation.
   const heroFetch = useMediaFetcher("home");
   const heroArray = heroFetch?.media ?? heroFetch?.data ?? [];
   const heroLoading = Boolean(heroFetch?.loading);
@@ -39,28 +39,29 @@ const EethmHome = () => {
   const heroMedia = Array.isArray(heroArray) ? heroArray[0] ?? null : heroArray ?? null;
   const heroURL = getMediaUrl(heroMedia);
 
-  const isHeroImage = heroURL && !heroURL.toLowerCase().endsWith(".mp4");
   const isHeroVideo = heroURL && heroURL.toLowerCase().endsWith(".mp4");
+  const isHeroImage = heroURL && !isHeroVideo;
 
-  // ===== Videos (apiService) =====
+  // ===== Backend videos (apiService) =====
   const [videos, setVideos] = useState([]);
   const [videosError, setVideosError] = useState(null);
 
   const featuredVideo =
-    Array.isArray(videos) && videos.length > 0
-      ? videos.find((v) => v?.is_featured) || videos[0]
-      : null;
+    Array.isArray(videos) && videos.length > 0 ? videos.find((v) => v?.is_featured) || videos[0] : null;
   const featuredVideoUrl = getMediaUrl(featuredVideo);
 
-  // final video → featured > hero video > local fallback
+  // Resolved source preference: backend featured video -> hero video -> local fallback
   const resolvedVideoSrc =
     (featuredVideoUrl && featuredVideoUrl.toLowerCase().endsWith(".mp4") && featuredVideoUrl) ||
     (isHeroVideo && heroURL) ||
     LOCAL_FALLBACK_VIDEO;
 
+  // If resolved video source fails to load, attempt fallback image or local fallback
+  const [videoLoadFailed, setVideoLoadFailed] = useState(false);
+
   const [isMuted, setIsMuted] = useState(true);
 
-  // ===== Other API state =====
+  // ===== Other API data =====
   const [services, setServices] = useState([]);
   const [servicesError, setServicesError] = useState(null);
 
@@ -76,28 +77,34 @@ const EethmHome = () => {
   const [newsletterError, setNewsletterError] = useState("");
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // Sync mute state
+  // Sync DOM video muted state
   useEffect(() => {
     if (videoRef.current) {
       try {
         videoRef.current.muted = isMuted;
-      } catch (_) {}
+      } catch (_) {
+        // ignore if DOM not yet ready
+      }
     }
   }, [isMuted]);
 
-  // Reduce motion
+  // Respect prefers-reduced-motion
   useEffect(() => {
     try {
       const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
       if (mq.matches && videoRef.current) {
-        videoRef.current.pause();
+        try {
+          videoRef.current.pause();
+        } catch (_) {}
       }
-    } catch (_) {}
+    } catch (_) {
+      // ignore on older browsers
+    }
   }, []);
 
   const toggleMute = () => setIsMuted((p) => !p);
 
-  // Fetch backend data
+  // Fetch videos, promotions, reviews, services from apiService
   useEffect(() => {
     let mounted = true;
 
@@ -112,15 +119,10 @@ const EethmHome = () => {
 
         if (!mounted) return;
 
-        const allVideos = Array.isArray(videoRes?.data)
-          ? videoRes.data
-          : Array.isArray(videoRes)
-          ? videoRes
-          : [];
+        // Videos: accept formats like { data: [..] } or raw array
+        const allVideos = Array.isArray(videoRes?.data) ? videoRes.data : Array.isArray(videoRes) ? videoRes : [];
         setVideos(
-          allVideos.filter(
-            (v) => v?.is_active && Array.isArray(v?.endpoints) && v.endpoints.includes("home")
-          )
+          allVideos.filter((v) => v?.is_active && Array.isArray(v?.endpoints) && v.endpoints.includes("home"))
         );
 
         setPromotions(Array.isArray(promoRes?.data) ? promoRes.data : []);
@@ -133,7 +135,7 @@ const EethmHome = () => {
         const url = err?.config?.url ?? "";
 
         if (status === 401) {
-          setVideos([]);
+          setVideos([]); // fallback to local video
           setVideosError("Unauthorized — showing fallback video.");
         } else {
           if (url.includes("promotions")) setPromoError("Failed to load promotions.");
@@ -145,12 +147,13 @@ const EethmHome = () => {
     };
 
     fetchAll();
+
     return () => {
       mounted = false;
     };
   }, []);
 
-  // Newsletter handler
+  // Handle newsletter subscribe
   const handleSubscribe = async (e) => {
     e.preventDefault();
     setNewsletterError("");
@@ -171,15 +174,17 @@ const EethmHome = () => {
         setNewsletterError("Subscription failed. Please try again later.");
       }
     } catch (err) {
-      setNewsletterError(
-        err?.response?.data?.error ?? "Subscription failed. Please try again later."
-      );
+      setNewsletterError(err?.response?.data?.error ?? "Subscription failed. Please try again later.");
     }
   };
 
+  // compute the effective video source to render (if a video should be shown)
+  // If video load failed, prefer hero image (if exists) else local fallback
+  const effectiveVideoSrc = !videoLoadFailed ? resolvedVideoSrc : LOCAL_FALLBACK_VIDEO;
+
   return (
     <div className="eethm-home-page">
-      {/* ===================== Hero Section ===================== */}
+      {/* Hero */}
       <section className="video-hero-section">
         {heroLoading ? (
           <p className="video-fallback">Loading hero...</p>
@@ -187,69 +192,91 @@ const EethmHome = () => {
           <p className="video-fallback" style={{ color: "var(--color-error)" }}>
             {typeof heroError === "string" ? heroError : "Failed to load hero media."}
           </p>
-        ) : resolvedVideoSrc ? (
-          <>
-            <video
-              ref={videoRef}
-              className="background-video"
-              autoPlay
-              loop
-              muted={isMuted}
-              playsInline
-              preload="auto"
-              poster={isHeroImage ? heroURL : undefined}
-            >
-              <source src={resolvedVideoSrc} />
-              Your browser does not support the video tag.
-            </video>
-
-            <div className="overlay-content">
-              <h1>Ethical Multimedia GH Services</h1>
-              <p>Live Band • Catering • Multimedia • Decor Services</p>
-              <div className="hero-buttons">
-                <button onClick={() => navigate("/bookings")} className="btn-primary">
-                  Book Now
-                </button>
-                <button onClick={() => setShowNewsletterForm(true)} className="newsletter-btn">
-                  📩 Subscribe to Newsletter
-                </button>
-              </div>
-            </div>
-
-            <button
-              aria-label={isMuted ? "Unmute video" : "Mute video"}
-              className="mute-button"
-              onClick={toggleMute}
-            >
-              {isMuted ? "🔇" : "🔊"}
-            </button>
-
-            {videosError && <div className="video-error">{videosError}</div>}
-          </>
-        ) : isHeroImage ? (
-          <>
-            <img
-              src={heroURL}
-              alt="Hero"
-              className="background-video"
-              loading="eager"
-              decoding="async"
-              fetchpriority="high"
-            />
-            <div className="overlay-content">
-              <h1>Ethical Multimedia GH Services</h1>
-              <p>Live Band • Catering • Multimedia • Decor Services</p>
-              <button onClick={() => setShowNewsletterForm(true)} className="newsletter-btn">
-                📩 Subscribe to Newsletter
-              </button>
-            </div>
-          </>
         ) : (
-          <p className="video-fallback">No hero media available.</p>
+          <>
+            {/* Render a background video (always prefer a video; falls back to hero image or local file) */}
+            {effectiveVideoSrc ? (
+              <>
+                <video
+                  ref={videoRef}
+                  className="background-video"
+                  autoPlay
+                  loop
+                  muted={isMuted}
+                  playsInline
+                  preload="auto"
+                  poster={isHeroImage ? heroURL : undefined}
+                  onError={() => {
+                    // mark that the chosen video failed to load (helps fallback)
+                    setVideoLoadFailed(true);
+                  }}
+                >
+                  <source src={effectiveVideoSrc} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+
+                <div className="overlay-content">
+                  <h1>Ethical Multimedia GH Services</h1>
+                  <p>Live Band • Catering • Multimedia • Decor Services</p>
+                  <div className="hero-buttons">
+                    <button
+                      onClick={() => navigate("/bookings")}
+                      className="btn-primary"
+                      type="button"
+                    >
+                      Book Now
+                    </button>
+                    <button
+                      onClick={() => setShowNewsletterForm(true)}
+                      className="newsletter-btn"
+                      type="button"
+                    >
+                      📩 Subscribe to Newsletter
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  aria-label={isMuted ? "Unmute video" : "Mute video"}
+                  className="mute-button"
+                  onClick={toggleMute}
+                  type="button"
+                >
+                  {isMuted ? "🔇" : "🔊"}
+                </button>
+
+                {videosError && <div className="video-error" role="status">{videosError}</div>}
+              </>
+            ) : isHeroImage ? (
+              <>
+                <img
+                  src={heroURL}
+                  alt="Hero"
+                  className="background-video"
+                  loading="eager"
+                  decoding="async"
+                  fetchpriority="high"
+                />
+                <div className="overlay-content">
+                  <h1>Ethical Multimedia GH Services</h1>
+                  <p>Live Band • Catering • Multimedia • Decor Services</p>
+                  <button
+                    onClick={() => setShowNewsletterForm(true)}
+                    className="newsletter-btn"
+                    type="button"
+                  >
+                    📩 Subscribe to Newsletter
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className="video-fallback">No hero media available.</p>
+            )}
+          </>
         )}
       </section>
 
-      {/* ===================== Newsletter Modal ===================== */}
+      {/* Newsletter modal */}
       {showNewsletterForm && (
         <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
           <div
@@ -257,15 +284,19 @@ const EethmHome = () => {
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="newsletter-title"
           >
             <button
               className="newsletter-close-btn"
               onClick={() => setShowNewsletterForm(false)}
               aria-label="Close newsletter form"
+              type="button"
             >
               &times;
             </button>
+
             <h2 id="newsletter-title">Subscribe to Our Newsletter</h2>
+
             <form onSubmit={handleSubscribe} className="newsletter-form">
               <input
                 type="email"
@@ -273,16 +304,18 @@ const EethmHome = () => {
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 required
+                aria-label="Email address"
               />
               <button type="submit">Subscribe</button>
             </form>
+
             {newsletterSuccess && <p className="success-message">{newsletterSuccess}</p>}
             {newsletterError && <p className="error-message">{newsletterError}</p>}
           </div>
         </div>
       )}
 
-      {/* ===================== Services ===================== */}
+      {/* Services */}
       <FadeInSection>
         <section className="services-page">
           <h2>Our Services</h2>
@@ -298,7 +331,15 @@ const EethmHome = () => {
                   <div
                     key={service.id ?? service.slug ?? idx}
                     className="service-flip-card"
+                    role="button"
+                    tabIndex={0}
                     onClick={handleNavigate}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleNavigate();
+                      }
+                    }}
                   >
                     <div className="service-flip-card-inner">
                       <div className="service-flip-card-front">
@@ -313,6 +354,14 @@ const EethmHome = () => {
                       </div>
                       <div className="service-flip-card-back">
                         {service.description && <p>{service.description}</p>}
+                        {Array.isArray(service.details) && service.details.length > 0 && (
+                          <ul>
+                            {service.details.map((d, i) => (
+                              <li key={i}>{d}</li>
+                            ))}
+                          </ul>
+                        )}
+                        <span className="click-hint">Click to view more</span>
                       </div>
                     </div>
                   </div>
@@ -325,7 +374,7 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* ===================== Promotions ===================== */}
+      {/* Promotions */}
       <FadeInSection>
         <section className="promotions-section">
           <h2>Current Offers</h2>
@@ -337,6 +386,10 @@ const EethmHome = () => {
                   <div className="promotion-card-content">
                     <h3>{promo.title}</h3>
                     {promo.description && <p>{promo.description}</p>}
+                    {promo.discount_percentage && <p className="discount">Save {promo.discount_percentage}%</p>}
+                    {(promo.valid_from || promo.valid_to) && (
+                      <p className="validity">Valid: {promo.valid_from ?? "—"} – {promo.valid_to ?? "—"}</p>
+                    )}
                   </div>
                 </article>
               ))}
@@ -349,7 +402,7 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* ===================== Reviews ===================== */}
+      {/* Reviews */}
       <FadeInSection>
         <section className="reviews-section">
           <h2>What Our Clients Say</h2>
@@ -370,13 +423,14 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* ===================== Highlights & Media ===================== */}
+      {/* Highlights & Media */}
       <FadeInSection>
         <section className="banners-section">
           <h2>Highlights from Our Services</h2>
           <BannerCards endpoint="home" />
         </section>
       </FadeInSection>
+
       <FadeInSection>
         <section className="banners-section">
           <h2>Featured Media</h2>
