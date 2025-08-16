@@ -42,11 +42,17 @@ export default function useMediaFetcher(endpointKey) {
     setLoading(true);
     fetcher()
       .then((res) => {
-        const items = res?.data || [];
+        const items = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.results)
+          ? res.data.results
+          : [];
 
         // 🛡 Handle video fallback
         if (isVideoKey(endpointKey) && items.length === 0) {
-          console.warn(`[useMediaFetcher] No videos found for "${endpointKey}", using fallback.`);
+          console.warn(
+            `[useMediaFetcher] No videos found for "${endpointKey}", using fallback.`
+          );
           setData([fallbackVideoObject()]);
         } else {
           setData(items);
@@ -55,12 +61,18 @@ export default function useMediaFetcher(endpointKey) {
       .catch((err) => {
         console.error(`❌ API fetch failed for ${endpointKey}:`, err);
 
-        // 🛡 On error → use fallback if it’s video
-        if (isVideoKey(endpointKey)) {
-          console.warn(`[useMediaFetcher] API error, using fallback video for "${endpointKey}"`);
+        if (err?.response?.status === 401) {
+          // 🔑 Unauthorized → force login again
+          setError("Unauthorized – please log in again.");
+          setData([]);
+        } else if (isVideoKey(endpointKey)) {
+          console.warn(
+            `[useMediaFetcher] API error, using fallback video for "${endpointKey}"`
+          );
           setData([fallbackVideoObject()]);
           setError(null); // ✅ don’t block UI if fallback works
         } else {
+          setData([]);
           setError(err);
         }
       })
