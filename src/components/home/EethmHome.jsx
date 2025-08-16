@@ -8,10 +8,7 @@ import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
 import "./EethmHome.css";
 
-/**
- * Safely extract a media URL string from a media object.
- * Always returns a string (possibly empty).
- */
+// --- Helpers ---
 const getMediaUrl = (media) => {
   if (!media) return "";
   const val =
@@ -24,13 +21,13 @@ const getMediaUrl = (media) => {
 };
 
 const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
+const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
 const EethmHome = () => {
   const navigate = useNavigate();
   const videoRef = useRef(null);
 
-  // ===== Hero media (useMediaFetcher "home") =====
-  // Hook might return { media } or { data } depending on your implementation.
+  // Hero fetch
   const heroFetch = useMediaFetcher("home");
   const heroArray = heroFetch?.media ?? heroFetch?.data ?? [];
   const heroLoading = Boolean(heroFetch?.loading);
@@ -42,7 +39,7 @@ const EethmHome = () => {
   const isHeroVideo = heroURL && heroURL.toLowerCase().endsWith(".mp4");
   const isHeroImage = heroURL && !isHeroVideo;
 
-  // ===== Backend videos (apiService) =====
+  // Backend videos
   const [videos, setVideos] = useState([]);
   const [videosError, setVideosError] = useState(null);
 
@@ -50,18 +47,15 @@ const EethmHome = () => {
     Array.isArray(videos) && videos.length > 0 ? videos.find((v) => v?.is_featured) || videos[0] : null;
   const featuredVideoUrl = getMediaUrl(featuredVideo);
 
-  // Resolved source preference: backend featured video -> hero video -> local fallback
   const resolvedVideoSrc =
     (featuredVideoUrl && featuredVideoUrl.toLowerCase().endsWith(".mp4") && featuredVideoUrl) ||
     (isHeroVideo && heroURL) ||
     LOCAL_FALLBACK_VIDEO;
 
-  // If resolved video source fails to load, attempt fallback image or local fallback
   const [videoLoadFailed, setVideoLoadFailed] = useState(false);
-
   const [isMuted, setIsMuted] = useState(true);
 
-  // ===== Other API data =====
+  // Other API data
   const [services, setServices] = useState([]);
   const [servicesError, setServicesError] = useState(null);
 
@@ -77,34 +71,28 @@ const EethmHome = () => {
   const [newsletterError, setNewsletterError] = useState("");
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // Sync DOM video muted state
+  // Keep muted in sync
   useEffect(() => {
     if (videoRef.current) {
       try {
         videoRef.current.muted = isMuted;
-      } catch (_) {
-        // ignore if DOM not yet ready
-      }
+      } catch (_) {}
     }
   }, [isMuted]);
 
-  // Respect prefers-reduced-motion
+  // Reduced motion preference
   useEffect(() => {
     try {
       const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
       if (mq.matches && videoRef.current) {
-        try {
-          videoRef.current.pause();
-        } catch (_) {}
+        videoRef.current.pause();
       }
-    } catch (_) {
-      // ignore on older browsers
-    }
+    } catch (_) {}
   }, []);
 
   const toggleMute = () => setIsMuted((p) => !p);
 
-  // Fetch videos, promotions, reviews, services from apiService
+  // Fetch from backend
   useEffect(() => {
     let mounted = true;
 
@@ -119,8 +107,12 @@ const EethmHome = () => {
 
         if (!mounted) return;
 
-        // Videos: accept formats like { data: [..] } or raw array
-        const allVideos = Array.isArray(videoRes?.data) ? videoRes.data : Array.isArray(videoRes) ? videoRes : [];
+        const allVideos = Array.isArray(videoRes?.data)
+          ? videoRes.data
+          : Array.isArray(videoRes)
+          ? videoRes
+          : [];
+
         setVideos(
           allVideos.filter((v) => v?.is_active && Array.isArray(v?.endpoints) && v.endpoints.includes("home"))
         );
@@ -131,11 +123,12 @@ const EethmHome = () => {
       } catch (err) {
         if (!mounted) return;
         console.error("❌ API fetch failed:", err);
+
         const status = err?.response?.status;
         const url = err?.config?.url ?? "";
 
         if (status === 401) {
-          setVideos([]); // fallback to local video
+          setVideos([]);
           setVideosError("Unauthorized — showing fallback video.");
         } else {
           if (url.includes("promotions")) setPromoError("Failed to load promotions.");
@@ -147,13 +140,12 @@ const EethmHome = () => {
     };
 
     fetchAll();
-
     return () => {
       mounted = false;
     };
   }, []);
 
-  // Handle newsletter subscribe
+  // Newsletter subscribe
   const handleSubscribe = async (e) => {
     e.preventDefault();
     setNewsletterError("");
@@ -178,9 +170,9 @@ const EethmHome = () => {
     }
   };
 
-  // compute the effective video source to render (if a video should be shown)
-  // If video load failed, prefer hero image (if exists) else local fallback
-  const effectiveVideoSrc = !videoLoadFailed ? resolvedVideoSrc : LOCAL_FALLBACK_VIDEO;
+  // Effective src
+  const effectiveVideoSrc = String(!videoLoadFailed ? resolvedVideoSrc : LOCAL_FALLBACK_VIDEO || "");
+  const effectivePoster = String(isHeroImage ? heroURL : LOCAL_FALLBACK_IMAGE || "");
 
   return (
     <div className="eethm-home-page">
@@ -194,7 +186,6 @@ const EethmHome = () => {
           </p>
         ) : (
           <>
-            {/* Render a background video (always prefer a video; falls back to hero image or local file) */}
             {effectiveVideoSrc ? (
               <>
                 <video
@@ -205,11 +196,8 @@ const EethmHome = () => {
                   muted={isMuted}
                   playsInline
                   preload="auto"
-                  poster={isHeroImage ? heroURL : undefined}
-                  onError={() => {
-                    // mark that the chosen video failed to load (helps fallback)
-                    setVideoLoadFailed(true);
-                  }}
+                  poster={effectivePoster}
+                  onError={() => setVideoLoadFailed(true)}
                 >
                   <source src={effectiveVideoSrc} type="video/mp4" />
                   Your browser does not support the video tag.
@@ -219,11 +207,7 @@ const EethmHome = () => {
                   <h1>Ethical Multimedia GH Services</h1>
                   <p>Live Band • Catering • Multimedia • Decor Services</p>
                   <div className="hero-buttons">
-                    <button
-                      onClick={() => navigate("/bookings")}
-                      className="btn-primary"
-                      type="button"
-                    >
+                    <button onClick={() => navigate("/bookings")} className="btn-primary" type="button">
                       Book Now
                     </button>
                     <button
@@ -250,7 +234,7 @@ const EethmHome = () => {
             ) : isHeroImage ? (
               <>
                 <img
-                  src={heroURL}
+                  src={heroURL || LOCAL_FALLBACK_IMAGE}
                   alt="Hero"
                   className="background-video"
                   loading="eager"
@@ -276,7 +260,7 @@ const EethmHome = () => {
         )}
       </section>
 
-      {/* Newsletter modal */}
+      {/* Newsletter Modal */}
       {showNewsletterForm && (
         <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
           <div
