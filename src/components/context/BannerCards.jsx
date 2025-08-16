@@ -1,69 +1,65 @@
 // src/components/context/BannerCards.jsx
+import React, { useState, useRef, useEffect } from "react";
+import useMediaFetcher from "../../hooks/useMediaFetcher";
+import placeholderImg from "../../assets/placeholder.jpg";
+import BannerSkeleton from "./BannerSkeleton";
+import "./BannerCards.css";
 
-import React, { useState, useRef, useEffect } from 'react';
-import useMediaFetcher from '../../hooks/useMediaFetcher';
-import placeholderImg from '../../assets/placeholder.jpg';
-import BannerSkeleton from './BannerSkeleton';
-import './BannerCards.css';
-
-const BannerCards = ({ endpoint, title, type = 'banner' }) => {
+const BannerCards = ({ endpoint, title, type = "banner" }) => {
   const [previewBanner, setPreviewBanner] = useState(null);
   const scrollRef = useRef(null);
 
-  const {
-    media: banners,
-    loading,
-    error,
-  } = useMediaFetcher({
-    type, // can be 'banner', 'media', 'vendor', 'partner'
-    endpoint,
-    isActive: true,
-    autoFetch: true,
-    pageSize: 20,
-  });
+  // ✅ Fetch banners from API using new hook
+  const { data: banners, loading, error } = useMediaFetcher(endpoint);
 
-  const scrollLeft = () => {
-    scrollRef.current?.scrollBy({ left: -300, behavior: 'smooth' });
-  };
+  // === Scroll controls ===
+  const scrollLeft = () =>
+    scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" });
 
-  const scrollRight = () => {
-    scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
-  };
+  const scrollRight = () =>
+    scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" });
 
-  // Close modal on Escape
+  // === Close modal on Escape ===
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setPreviewBanner(null);
-      }
+      if (e.key === "Escape") setPreviewBanner(null);
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
     <section className="banner-cards-container">
+      {/* Optional Title */}
       {title && <h2 className="banner-cards-title">{title}</h2>}
 
+      {/* Scroll Buttons */}
       <div className="scroll-controls">
-        <button onClick={scrollLeft} className="scroll-btn left">◀</button>
-        <button onClick={scrollRight} className="scroll-btn right">▶</button>
+        <button onClick={scrollLeft} className="scroll-btn left">
+          ◀
+        </button>
+        <button onClick={scrollRight} className="scroll-btn right">
+          ▶
+        </button>
       </div>
 
+      {/* Cards Wrapper */}
       <div className="banner-cards-scroll-wrapper" ref={scrollRef}>
         {loading ? (
+          // Skeleton placeholders
           Array.from({ length: 3 }).map((_, idx) => (
             <div key={idx} className="banner-card">
               <BannerSkeleton />
             </div>
           ))
         ) : error ? (
-          <div className="banner-error">{error}</div>
+          <div className="banner-error">❌ {String(error)}</div>
         ) : banners.length === 0 ? (
           <p className="banner-card-empty">
             📭 No {type}s available for <strong>{endpoint}</strong>.
           </p>
         ) : (
+          // Actual banners
           banners.map((banner) => (
             <div
               key={banner.id || banner.url?.full || banner.label}
@@ -71,7 +67,7 @@ const BannerCards = ({ endpoint, title, type = 'banner' }) => {
               onClick={() => setPreviewBanner(banner)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && setPreviewBanner(banner)}
+              onKeyDown={(e) => e.key === "Enter" && setPreviewBanner(banner)}
             >
               <div className="banner-img-wrapper">
                 <img
@@ -93,16 +89,29 @@ const BannerCards = ({ endpoint, title, type = 'banner' }) => {
 
       {/* === Modal Preview === */}
       {previewBanner && (
-        <div className="banner-modal" onClick={() => setPreviewBanner(null)}>
-          <div className="banner-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setPreviewBanner(null)}>✖</button>
+        <div
+          className="banner-modal"
+          onClick={() => setPreviewBanner(null)}
+        >
+          <div
+            className="banner-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="close-button"
+              onClick={() => setPreviewBanner(null)}
+            >
+              ✖
+            </button>
             <img
               src={previewBanner.url?.full || placeholderImg}
-              alt={previewBanner.label || 'Preview'}
+              alt={previewBanner.label || "Preview"}
               className="modal-banner-image"
               onError={(e) => (e.target.src = placeholderImg)}
             />
-            <p className="modal-banner-caption">{previewBanner.label}</p>
+            {previewBanner.label && (
+              <p className="modal-banner-caption">{previewBanner.label}</p>
+            )}
           </div>
         </div>
       )}

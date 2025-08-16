@@ -1,9 +1,9 @@
 // src/hooks/useMediaFetcher.js
 import { useState, useEffect } from "react";
-import API from "../api/api";           // Your API file with videos
-import mediaAPI from "../api/mediaAPI"; // Your media API
+import API from "../api/api";           // ✅ Your API file with videos
+import mediaAPI from "../api/mediaAPI"; // ✅ Your media API
 
-// ✅ Path to fallback hero video (must exist in /public/mock/)
+// 🔒 Path to fallback hero video (ensure it exists in /public/mock/)
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
 
 export default function useMediaFetcher(endpointKey) {
@@ -12,6 +12,7 @@ export default function useMediaFetcher(endpointKey) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // ✅ Guard: no key provided
     if (!endpointKey || typeof endpointKey !== "string") {
       console.warn("[useMediaFetcher] No valid endpoint key provided.");
       setLoading(false);
@@ -20,16 +21,16 @@ export default function useMediaFetcher(endpointKey) {
 
     let fetcher = null;
 
-    // 1️⃣ Try in mediaAPI first
+    // 1️⃣ Check mediaAPI first
     const mediaMethodName = `get${capitalize(endpointKey)}`;
     if (typeof mediaAPI[mediaMethodName] === "function") {
       fetcher = mediaAPI[mediaMethodName];
     }
-    // 2️⃣ Then try API.videos
+    // 2️⃣ Then fallback to API.videos
     else if (API?.videos && typeof API.videos[endpointKey] === "function") {
       fetcher = API.videos[endpointKey];
     }
-    // 3️⃣ If nothing found
+    // 3️⃣ No matching fetcher
     else {
       console.error(`[useMediaFetcher] Unknown endpoint key: ${endpointKey}`);
       setError(`Unknown endpoint: ${endpointKey}`);
@@ -43,11 +44,9 @@ export default function useMediaFetcher(endpointKey) {
       .then((res) => {
         const items = res?.data || [];
 
-        // 🛡 Fallback if no videos returned
+        // 🛡 Handle video fallback
         if (isVideoKey(endpointKey) && items.length === 0) {
-          console.warn(
-            `[useMediaFetcher] No videos found for "${endpointKey}", using fallback.`
-          );
+          console.warn(`[useMediaFetcher] No videos found for "${endpointKey}", using fallback.`);
           setData([fallbackVideoObject()]);
         } else {
           setData(items);
@@ -56,20 +55,16 @@ export default function useMediaFetcher(endpointKey) {
       .catch((err) => {
         console.error(`❌ API fetch failed for ${endpointKey}:`, err);
 
-        // 🛡 Use fallback on error for videos
+        // 🛡 On error → use fallback if it’s video
         if (isVideoKey(endpointKey)) {
-          console.warn(
-            `[useMediaFetcher] API error, using fallback video for "${endpointKey}"`
-          );
+          console.warn(`[useMediaFetcher] API error, using fallback video for "${endpointKey}"`);
           setData([fallbackVideoObject()]);
-          setError(null); // ✅ don’t break UI when falling back
+          setError(null); // ✅ don’t block UI if fallback works
         } else {
           setError(err);
         }
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, [endpointKey]);
 
   return { data, loading, error };
@@ -85,7 +80,7 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Check if endpoint relates to videos
+// Check if key is related to video endpoints
 function isVideoKey(key) {
   return typeof key === "string" && key.toLowerCase().includes("video");
 }

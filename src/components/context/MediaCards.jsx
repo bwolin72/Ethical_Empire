@@ -1,12 +1,15 @@
+// src/components/context/MediaCards.jsx
+
 import React, { useState } from 'react';
 import useMediaFetcher from '../../hooks/useMediaFetcher';
 import SingleMediaCard from './MediaCard';
 import MediaSkeleton from './MediaSkeleton';
+import placeholderImg from '../../assets/placeholder.jpg';
 import './MediaCard.css';
 
 const MediaCards = ({
-  endpoint,        // e.g., 'media', 'banners', 'vendors', 'partners'
-  type = 'media',  // keeps compatibility with useMediaFetcher
+  endpoint,        // API endpoint override
+  type = 'media',  // 'media', 'banner', 'vendor', 'partner'
   title,
   fullWidth = false,
   isActive = true,
@@ -16,17 +19,13 @@ const MediaCards = ({
 }) => {
   const [previewMedia, setPreviewMedia] = useState(null);
 
-  // Automatically resolve endpoint for specific types
+  // Resolve API endpoint dynamically
   const resolvedEndpoint = (() => {
     switch (type) {
-      case 'banner':
-        return endpoint || '/api/banners/';
-      case 'vendor':
-        return endpoint || '/api/vendors/';
-      case 'partner':
-        return endpoint || '/api/partners/';
-      default:
-        return endpoint || '/api/media/';
+      case 'banner': return endpoint || '/api/banners/';
+      case 'vendor': return endpoint || '/api/vendors/';
+      case 'partner': return endpoint || '/api/partners/';
+      default:       return endpoint || '/api/media/';
     }
   })();
 
@@ -53,11 +52,9 @@ const MediaCards = ({
         {loading ? (
           <MediaSkeleton count={3} />
         ) : error ? (
-          <p className="media-error">{error}</p>
+          <p className="media-error">⚠️ {error}</p>
         ) : mediaItems.length === 0 ? (
-          <p className="media-card-empty">
-            📭 No {type} uploaded.
-          </p>
+          <p className="media-card-empty">📭 No {type} uploaded.</p>
         ) : (
           mediaItems.map((media) => (
             <div
@@ -74,6 +71,7 @@ const MediaCards = ({
         )}
       </div>
 
+      {/* === Modal Preview === */}
       {previewMedia && (
         <div className="media-modal" onClick={() => setPreviewMedia(null)}>
           <div
@@ -86,6 +84,7 @@ const MediaCards = ({
             >
               ✖
             </button>
+
             {previewMedia.file_type?.includes('video') ? (
               <video
                 src={previewMedia.url?.full}
@@ -94,13 +93,16 @@ const MediaCards = ({
               />
             ) : (
               <img
-                src={previewMedia.url?.full}
+                src={previewMedia.url?.full || placeholderImg}
                 alt={previewMedia.label || 'Preview'}
                 className="modal-media-content"
-                onError={(e) => (e.target.src = '/placeholder.jpg')}
+                onError={(e) => (e.target.src = placeholderImg)}
               />
             )}
-            <p className="modal-media-caption">{previewMedia.label}</p>
+
+            {previewMedia.label && (
+              <p className="modal-media-caption">{previewMedia.label}</p>
+            )}
           </div>
         </div>
       )}

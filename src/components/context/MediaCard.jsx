@@ -1,12 +1,13 @@
+// src/components/context/MediaCard.jsx
 import React from 'react';
 import PropTypes from 'prop-types';
 import './MediaCard.css';
 
-const SingleMediaCard = ({ media, fullWidth = false, onClick = null }) => {
-  // Ensure we always have a media object
+const SingleMediaCard = ({ media, fullWidth = false, onClick }) => {
+  // Always guard against null/undefined media
   const safeMedia = media || {};
 
-  // Extract URLs
+  // ✅ Auto-resolve image sources with fallbacks
   const thumbnail =
     safeMedia?.url?.thumbnail ||
     safeMedia?.url?.medium ||
@@ -15,25 +16,24 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick = null }) => {
 
   const fullUrl = safeMedia?.url?.full || thumbnail;
 
-  // Determine type
-  const isVideo = safeMedia?.file_type?.includes('video');
+  // ✅ Detect file type
+  const isVideo = safeMedia?.file_type?.toLowerCase().includes('video');
 
-  // Label fallback
+  // ✅ Auto-generate label fallback
   const label =
     safeMedia?.label ||
     safeMedia?.title ||
     safeMedia?.category ||
     'Media Item';
 
-  // Category (used for grouping banners/home/about/etc.)
+  // ✅ Categorization for styling/grouping
   const category = safeMedia?.category || 'general';
 
-  // Handle video load errors
+  // Error handlers
   const handleVideoError = (e) => {
     e.target.poster = '/placeholder.jpg';
   };
 
-  // Handle image load errors
   const handleImageError = (e) => {
     e.target.src = '/placeholder.jpg';
   };
@@ -55,9 +55,10 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick = null }) => {
               className="media-thumb"
               muted
               preload="metadata"
+              poster={thumbnail}  // ✅ fallback thumbnail
               onError={handleVideoError}
             >
-              <source src={fullUrl} type={safeMedia.file_type} />
+              <source src={fullUrl} type={safeMedia.file_type || 'video/mp4'} />
               Your browser does not support the video tag.
             </video>
             <span className="video-icon">📹</span>
@@ -77,7 +78,7 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick = null }) => {
   );
 };
 
-// PropTypes for better maintainability
+// ✅ PropTypes for maintainability
 SingleMediaCard.propTypes = {
   media: PropTypes.shape({
     url: PropTypes.shape({
