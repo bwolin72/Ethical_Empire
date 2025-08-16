@@ -30,7 +30,7 @@ const MediaCards = ({
   })();
 
   const {
-    media: mediaItems,
+    media: rawMedia,
     loading,
     error,
   } = useMediaFetcher({
@@ -43,6 +43,9 @@ const MediaCards = ({
     fileType,
     labelQuery,
   });
+
+  // ✅ Always normalize mediaItems to an array
+  const mediaItems = Array.isArray(rawMedia) ? rawMedia : [];
 
   return (
     <section className="media-cards-container">
