@@ -16,17 +16,6 @@ const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
  *  - optimistic CRUD: post, put, patch, remove (uses axiosInstance)
  *  - auto re-sync (refetch) after mutations
  *  - graceful fallback for video endpoints (local fallback video object)
- *
- * Signature:
- *   useMediaFetcher(endpointKey, params = null, options = {})
- *
- * options:
- *   notify?: (type, message) => void
- *   successMessages?: { post, put, patch, delete }
- *   errorMessages?: { post, put, patch, delete }
- *   transform?: (items) => items
- *   resource?: "videos" | "media"
- *   mutation?: { create, update, patch, remove } // custom endpoints (string or fn)
  */
 export default function useMediaFetcher(endpointKey, params = null, options = {}) {
   const {
@@ -59,7 +48,6 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
 
   /* -------------------------
      Resolve GET fetcher for endpointKey
-     returns: () => Promise<Response>
      ------------------------- */
   const getFetcher = useCallback(() => {
     if (!endpointKey || typeof endpointKey !== "string") return null;
@@ -94,56 +82,53 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
   }, [endpointKey, params]);
 
   /* -------------------------
-     fetchData: core GET with fallback for video endpoints
+     fetchData: core GET with fallback
      ------------------------- */
-  const fetchData = useCallback(
-    async (opts = {}) => {
-      const fetcher = getFetcher();
-      if (!fetcher) {
-        if (mountedRef.current) {
-          setError(`Unknown endpoint: ${endpointKey}`);
-          setLoading(false);
-        }
-        console.error(`[useMediaFetcher] Unknown endpoint key: ${endpointKey}`);
+  const fetchData = useCallback(async () => {
+    const fetcher = getFetcher();
+    if (!fetcher) {
+      if (mountedRef.current) {
+        setError(`Unknown endpoint: ${endpointKey}`);
+        setLoading(false);
+      }
+      console.error(`[useMediaFetcher] Unknown endpoint key: ${endpointKey}`);
+      return;
+    }
+
+    if (mountedRef.current) {
+      setLoading(true);
+      setError(null);
+    }
+
+    try {
+      const res = await fetcher();
+      const items = extractItems(res);
+
+      // Fallback for empty video lists
+      if (isVideoKey(endpointKey) && Array.isArray(items) && items.length === 0) {
+        if (mountedRef.current) setData([fallbackVideoObject()]);
         return;
       }
 
-      if (mountedRef.current) {
-        setLoading(true);
-        setError(null);
-      }
-
-      try {
-        const res = await fetcher(opts);
-        const items = extractItems(res);
-
-        // Fallback for empty video lists
-        if (isVideoKey(endpointKey) && Array.isArray(items) && items.length === 0) {
-          if (mountedRef.current) setData([fallbackVideoObject()]);
-          return;
+      const finalItems = typeof transform === "function" ? transform(items) : items;
+      if (mountedRef.current) setData(finalItems);
+    } catch (err) {
+      console.error(`❌ API fetch failed for ${endpointKey}:`, err);
+      if (isVideoKey(endpointKey)) {
+        if (mountedRef.current) {
+          setData([fallbackVideoObject()]);
+          setError(null);
         }
-
-        const finalItems = typeof transform === "function" ? transform(items) : items;
-        if (mountedRef.current) setData(finalItems);
-      } catch (err) {
-        console.error(`❌ API fetch failed for ${endpointKey}:`, err);
-        if (isVideoKey(endpointKey)) {
-          if (mountedRef.current) {
-            setData([fallbackVideoObject()]);
-            setError(null);
-          }
-        } else {
-          if (mountedRef.current) {
-            setData([]);
-            setError(err);
-          }
+      } else {
+        if (mountedRef.current) {
+          setData([]);
+          setError(err);
         }
-      } finally {
-        if (mountedRef.current) setLoading(false);
       }
-    },
-    [getFetcher, endpointKey, transform]
-  );
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [getFetcher, endpointKey, transform]);
 
   /* -------------------------
      Build mutation endpoints
