@@ -9,6 +9,7 @@ import MediaCards from "../context/MediaCards";
 import MediaCard from "../context/MediaCard";
 import BannerCards from "../context/BannerCards";
 import apiService from "../../api/apiService";
+import videoService from "../../api/videoService"; // ✅ video API
 
 import euniceImg from "../../assets/team/eunice.png";
 import josephImg from "../../assets/team/joseph.jpg";
@@ -33,84 +34,50 @@ const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
 const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
 const About = () => {
-  // useMediaFetcher('about') — will fetch media items for the About page (images/videos/banners)
+  // fetch banners/images for About page
   const aboutFetch = useMediaFetcher("about");
   const mediaItems =
     (Array.isArray(aboutFetch?.media) && aboutFetch.media) ||
     (Array.isArray(aboutFetch?.data) && aboutFetch.data) ||
     [];
 
-  // hero candidate selection
+  // hero video state
   const [heroVideoUrl, setHeroVideoUrl] = useState(null);
   const [videoLoadFailed, setVideoLoadFailed] = useState(false);
 
-  // backend data lists
+  // backend lists
   const [services, setServices] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
 
-  // derive simple banner list for fallback to image/banner
   const bannerList = Array.isArray(mediaItems) ? mediaItems : [];
 
-  /* ---------- pick hero video from about media (or fallback) ---------- */
+  /* ---------- fetch About videos for hero ---------- */
   useEffect(() => {
-    // prefer server-provided about media video (featured if available)
-    try {
-      if (Array.isArray(mediaItems) && mediaItems.length > 0) {
-        // find featured video first
-        const featuredVideo =
-          mediaItems.find((m) => m?.is_featured && getMediaUrl(m).toLowerCase().endsWith(".mp4")) ||
-          mediaItems.find((m) => getMediaUrl(m).toLowerCase().endsWith(".mp4"));
+    const fetchVideos = async () => {
+      try {
+        const res = await videoService.about();
+        const list = Array.isArray(res?.data) ? res.data : [];
 
-        if (featuredVideo) {
-          const url = getMediaUrl(featuredVideo);
-          if (url) {
-            setHeroVideoUrl(url);
-            setVideoLoadFailed(false);
-            return;
-          }
-        }
+        const featured = list.find(
+          (v) => v?.is_featured && getMediaUrl(v).toLowerCase().endsWith(".mp4")
+        );
+        const anyVideo = list.find((v) =>
+          getMediaUrl(v).toLowerCase().endsWith(".mp4")
+        );
+
+        if (featured) setHeroVideoUrl(getMediaUrl(featured));
+        else if (anyVideo) setHeroVideoUrl(getMediaUrl(anyVideo));
+        else setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
+
+        setVideoLoadFailed(false);
+      } catch (err) {
+        console.error("About videos fetch error:", err);
+        setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
       }
+    };
 
-      // no video in about media -> attempt to find any server-side video via videos API
-      // NOTE: api_endpoints.txt lists /api/videos/videos/ for videos; apiService likely exposes a method for this.
-      // We'll try to get video list as a fallback and pick a featured video.
-      (async () => {
-        try {
-          const res = await apiService.getVideos?.(); // safe optional call
-          const list = Array.isArray(res?.data?.results)
-            ? res.data.results
-            : Array.isArray(res?.data)
-            ? res.data
-            : Array.isArray(res)
-            ? res
-            : [];
-
-          const featuredFromVideos =
-            list.find((v) => v?.is_featured && getMediaUrl(v).toLowerCase().endsWith(".mp4")) ||
-            list.find((v) => getMediaUrl(v).toLowerCase().endsWith(".mp4"));
-
-          if (featuredFromVideos) {
-            setHeroVideoUrl(getMediaUrl(featuredFromVideos));
-            setVideoLoadFailed(false);
-            return;
-          }
-
-          // no server video found — use local fallback video
-          setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
-          setVideoLoadFailed(false);
-        } catch (e) {
-          // if fetching videos fails, use local fallback video
-          console.warn("Failed to fetch videos fallback:", e);
-          setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
-          setVideoLoadFailed(false);
-        }
-      })();
-    } catch (e) {
-      console.error("Hero selection error:", e);
-      setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aboutFetch?.data, aboutFetch?.media]);
+    fetchVideos();
+  }, []);
 
   /* ---------- fetch services & testimonials ---------- */
   useEffect(() => {
@@ -150,7 +117,6 @@ const About = () => {
 
     fetchServices();
     fetchReviews();
-
     return () => {
       mounted = false;
     };
@@ -158,20 +124,19 @@ const About = () => {
 
   /* ---------- handlers ---------- */
   const onHeroVideoError = () => {
-    // video couldn't load — show fallback poster/video or banner
     setVideoLoadFailed(true);
-    // if we weren't already using local fallback, ensure heroVideoUrl points to local fallback
     if (heroVideoUrl !== LOCAL_FALLBACK_VIDEO) {
       setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
     }
   };
 
-  // choose what to render for hero:
-  // priority: server about video -> server videos featured -> local fallback video -> banner image -> fallback image
+  /* ---------- hero display ---------- */
   const effectiveHeroVideo = videoLoadFailed ? LOCAL_FALLBACK_VIDEO : heroVideoUrl;
-  const heroBanner = bannerList && bannerList.length > 0 ? bannerList[0] : null;
+  const heroBanner = bannerList.length > 0 ? bannerList[0] : null;
   const heroBannerImage = getMediaUrl(heroBanner) || null;
-  const heroHasVideo = typeof effectiveHeroVideo === "string" && effectiveHeroVideo.toLowerCase().endsWith(".mp4");
+  const heroHasVideo =
+    typeof effectiveHeroVideo === "string" &&
+    effectiveHeroVideo.toLowerCase().endsWith(".mp4");
 
   return (
     <div className="about-container">
@@ -285,7 +250,7 @@ const About = () => {
         </p>
       </section>
 
-      {/* Featured Media Carousel (horizontal / featured) */}
+      {/* Featured Media Carousel */}
       <section className="featured-media-section">
         <h2 className="section-heading">Our Work in Action</h2>
         <div className="featured-carousel">
@@ -353,7 +318,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Testimonials / Reviews */}
+      {/* Testimonials */}
       {testimonials.length > 0 && (
         <section className="testimonial-carousel">
           <h2 className="section-heading">What Our Clients Say</h2>

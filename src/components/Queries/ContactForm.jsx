@@ -1,6 +1,6 @@
 // src/components/contact/ContactForm.jsx
 import React, { useState } from 'react';
-import apiService from '../../api/apiService';
+import contactService from '../../api/services/contactService'; // ✅ use correct service
 import './ContactForm.css';
 import logo from '../../assets/logo.png';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
@@ -60,7 +60,6 @@ const ContactForm = () => {
     // event_date cannot be in the past (compare dates only)
     if (formData.event_date) {
       const today = new Date();
-      // zero out time part of today
       today.setHours(0, 0, 0, 0);
       const evDate = new Date(formData.event_date);
       if (evDate < today) {
@@ -73,7 +72,6 @@ const ContactForm = () => {
   };
 
   const parseServerErrors = (data) => {
-    // data may be object mapping field -> [errors] or non-field errors
     const parsed = {};
     if (!data) return parsed;
     if (typeof data === 'string') {
@@ -102,9 +100,10 @@ const ContactForm = () => {
       return;
     }
 
-    // Build payload — omit empty string fields to avoid sending blanks
+    // ✅ Build payload — omit frontend-only fields and blanks
     const payload = {};
     Object.entries(formData).forEach(([k, v]) => {
+      if (['country', 'region'].includes(k)) return; // skip unsupported
       if (v !== '' && v !== null && v !== undefined) {
         payload[k] = v;
       }
@@ -112,24 +111,23 @@ const ContactForm = () => {
 
     setLoading(true);
     try {
-      // use centralized apiService
-      await apiService.sendContactMessage(payload);
-
-      setStatusMessage('✅ Message sent successfully! We will be in touch.');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        country: '',
-        region: '',
-        enquiry_type: '',
-        service_type: '',
-        event_date: '',
-        description: ''
-      });
-      setErrors({});
+      const res = await contactService.send(payload);
+      if (res.status === 201) {
+        setStatusMessage('✅ Message sent successfully! We will be in touch.');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          country: '',
+          region: '',
+          enquiry_type: '',
+          service_type: '',
+          event_date: '',
+          description: ''
+        });
+        setErrors({});
+      }
     } catch (err) {
-      // If backend validation errors exist, they should be in err.response.data
       const serverData = err?.response?.data;
       const parsed = parseServerErrors(serverData);
       setErrors(parsed);
@@ -289,15 +287,15 @@ const ContactForm = () => {
               <h3>Co-Founder</h3>
               <p><strong>Name:</strong> Mr. Nhyira Nana Joseph</p>
               <p><strong>Email:</strong> info@eethmghmultimedia.com</p>
-              <p><strong>Phone:</strong> +233 55 603 6565</p>
-              <p><strong>WhatsApp:</strong> +233 55 298 8735</p>
+              <p><strong>Phone:</strong> +233 55 342 4865</p>
+              <p><strong>WhatsApp:</strong> +233 55 924 1828</p>
             </div>
             <div className="info-block">
               <h3>Headquarters</h3>
               <p><strong>City:</strong> Gomoa Akotsi</p>
               <p><strong>District:</strong> Gomoa East</p>
               <p><strong>Region:</strong> Central Region</p>
-              <p><strong>Location:</strong> Bicycle City</p>
+              <p><strong>Location:</strong> Bicycle City, Ojobi</p>
             </div>
           </div>
 

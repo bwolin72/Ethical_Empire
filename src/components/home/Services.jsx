@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import apiService from "../../api/apiService";
+import serviceService from "../api/serviceService"; // ✅ updated import
 import "./Services.css";
 
 const serviceDescriptions = {
@@ -28,7 +28,7 @@ const serviceDescriptions = {
 };
 
 const Services = () => {
-  const { service } = useParams();
+  const { service: slug } = useParams();
   const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
@@ -36,19 +36,18 @@ const Services = () => {
   const [flippedIndex, setFlippedIndex] = useState(null);
 
   useEffect(() => {
-    if (service) {
-      fetchServiceDetail(service);
+    if (slug) {
+      fetchServiceDetail(slug);
     } else {
       fetchAllServices();
     }
-  }, [service]);
+  }, [slug]);
 
   const fetchAllServices = async () => {
     try {
-      const res = await apiService.getServices();
-      const serviceList = res.data.results || res.data;
-      if (Array.isArray(serviceList) && serviceList.length > 0) {
-        setServices(serviceList);
+      const res = await serviceService.getServices();
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        setServices(res.data);
       } else {
         toast.warn("No services available at the moment.");
       }
@@ -60,9 +59,9 @@ const Services = () => {
     }
   };
 
-  const fetchServiceDetail = async (idOrSlug) => {
+  const fetchServiceDetail = async (slug) => {
     try {
-      const res = await apiService.getServiceDetail(idOrSlug);
+      const res = await serviceService.getServiceDetail(slug);
       setSelectedService(res.data);
     } catch (error) {
       console.error("❌ Failed to load service detail:", error);
@@ -107,6 +106,7 @@ const Services = () => {
               {serviceDescriptions[selectedService.name] ||
                 "Premium service tailored to your unique event needs."}
             </p>
+            {/* Price intentionally hidden from public */}
             <Link to="/services" className="back-link">
               ← Back to All Services
             </Link>
@@ -122,7 +122,7 @@ const Services = () => {
             <section className="service-list">
               {services.map((srv, index) => (
                 <motion.div
-                  key={srv.id || srv.name}
+                  key={srv.slug}
                   className={`service-card ${
                     flippedIndex === index ? "flipped" : ""
                   }`}
@@ -139,7 +139,7 @@ const Services = () => {
                         className="book-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/services/${srv.slug || srv.id}`);
+                          navigate(`/services/${srv.slug}`);
                         }}
                       >
                         Learn More →

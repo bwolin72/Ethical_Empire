@@ -7,10 +7,11 @@ import FadeInSection from "../FadeInSection";
 import ReCAPTCHA from "react-google-recaptcha";
 import "./EethmHome.css";
 
+// --- Local fallbacks ---
 const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
 const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
-// --- Helpers ---
+// --- Helper ---
 const getMediaUrl = (media) => {
   if (!media) return "";
   return (
@@ -25,6 +26,8 @@ const getMediaUrl = (media) => {
 const EethmHome = () => {
   const navigate = useNavigate();
   const videoRef = useRef(null);
+
+  // Video state
   const [isMuted, setIsMuted] = useState(true);
   const [videoLoadFailed, setVideoLoadFailed] = useState(false);
 
@@ -42,21 +45,21 @@ const EethmHome = () => {
   const [promoError, setPromoError] = useState(null);
   const [reviewError, setReviewError] = useState(null);
 
-  // Newsletter
+  // Newsletter states
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterSuccess, setNewsletterSuccess] = useState("");
   const [newsletterError, setNewsletterError] = useState("");
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
 
-  // Fetch all backend data
+  // --- Fetch all data ---
   useEffect(() => {
     let mounted = true;
 
     const fetchAll = async () => {
       try {
         const [videoRes, promoRes, reviewRes, serviceRes, bannerRes, mediaRes] =
-          await Promise.all([
+          await Promise.allSettled([
             apiService.getVideos(),
             apiService.getPromotions(),
             apiService.getReviews(),
@@ -67,18 +70,39 @@ const EethmHome = () => {
 
         if (!mounted) return;
 
-        setVideos(videoRes?.data || []);
-        setPromotions(promoRes?.data || []);
-        setReviews(reviewRes?.data || []);
-        setServices(serviceRes?.data || []);
-        setBanners(bannerRes?.data || []);
-        setMedia(mediaRes?.data || []);
+        if (videoRes.status === "fulfilled") {
+          setVideos(videoRes.value?.data || []);
+        } else {
+          setVideosError("Failed to load videos");
+        }
+
+        if (promoRes.status === "fulfilled") {
+          setPromotions(promoRes.value?.data || []);
+        } else {
+          setPromoError("Failed to load promotions");
+        }
+
+        if (reviewRes.status === "fulfilled") {
+          setReviews(reviewRes.value?.data || []);
+        } else {
+          setReviewError("Failed to load reviews");
+        }
+
+        if (serviceRes.status === "fulfilled") {
+          setServices(serviceRes.value?.data || []);
+        } else {
+          setServicesError("Failed to load services");
+        }
+
+        if (bannerRes.status === "fulfilled") {
+          setBanners(bannerRes.value?.data || []);
+        }
+
+        if (mediaRes.status === "fulfilled") {
+          setMedia(mediaRes.value?.data || []);
+        }
       } catch (err) {
-        console.error("❌ API fetch failed:", err);
-        if (err?.config?.url?.includes("videos")) setVideosError("Failed to load videos");
-        if (err?.config?.url?.includes("services")) setServicesError("Failed to load services");
-        if (err?.config?.url?.includes("promotions")) setPromoError("Failed to load promotions");
-        if (err?.config?.url?.includes("reviews")) setReviewError("Failed to load reviews");
+        console.error("❌ Unexpected API fetch error:", err);
       }
     };
 
@@ -88,22 +112,23 @@ const EethmHome = () => {
     };
   }, []);
 
-  // Pick hero video
+  // --- Hero video ---
   const featuredVideo =
     videos.find((v) => v.is_featured) || videos.find((v) => v.is_active);
   const heroVideoUrl = getMediaUrl(featuredVideo) || LOCAL_FALLBACK_VIDEO;
 
-  // Mixed gallery
+  // --- Mixed media ---
   const mixedMedia = [...videos, ...media].filter((m) => m?.is_active);
   const featuredMedia = mixedMedia.filter((m) => m?.is_featured);
 
+  // --- Sync mute state ---
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = isMuted;
   }, [isMuted]);
 
   const toggleMute = () => setIsMuted((p) => !p);
 
-  // Newsletter subscribe
+  // --- Newsletter subscribe ---
   const handleSubscribe = async (e) => {
     e.preventDefault();
     setNewsletterError("");
@@ -119,7 +144,10 @@ const EethmHome = () => {
     }
 
     try {
-      const res = await apiService.subscribeNewsletter(newsletterEmail, recaptchaToken);
+      const res = await apiService.subscribeNewsletter(
+        newsletterEmail,
+        recaptchaToken
+      );
       if ([200, 201].includes(res?.status)) {
         setNewsletterSuccess("Thank you for subscribing!");
         setNewsletterEmail("");
@@ -128,6 +156,7 @@ const EethmHome = () => {
         setNewsletterError("Subscription failed.");
       }
     } catch (err) {
+      console.error("❌ Newsletter subscription failed:", err);
       setNewsletterError("Subscription failed.");
     }
   };
@@ -163,7 +192,10 @@ const EethmHome = () => {
             <button onClick={() => navigate("/bookings")} className="btn-primary">
               Book Now
             </button>
-            <button onClick={() => setShowNewsletterForm(true)} className="btn-secondary">
+            <button
+              onClick={() => setShowNewsletterForm(true)}
+              className="btn-secondary"
+            >
               📩 Subscribe
             </button>
           </div>
@@ -181,13 +213,19 @@ const EethmHome = () => {
 
       {/* === Newsletter Modal === */}
       {showNewsletterForm && (
-        <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
+        <div
+          className="newsletter-modal-backdrop"
+          onClick={() => setShowNewsletterForm(false)}
+        >
           <div
             className="newsletter-modal"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
           >
-            <button className="newsletter-close-btn" onClick={() => setShowNewsletterForm(false)}>
+            <button
+              className="newsletter-close-btn"
+              onClick={() => setShowNewsletterForm(false)}
+            >
               &times;
             </button>
             <h2>Subscribe to Our Newsletter</h2>
@@ -202,10 +240,16 @@ const EethmHome = () => {
                 sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
                 onChange={(token) => setRecaptchaToken(token)}
               />
-              <button type="submit" className="btn-primary">Subscribe</button>
+              <button type="submit" className="btn-primary">
+                Subscribe
+              </button>
             </form>
-            {newsletterSuccess && <p className="success-message">{newsletterSuccess}</p>}
-            {newsletterError && <p className="error-message">{newsletterError}</p>}
+            {newsletterSuccess && (
+              <p className="success-message">{newsletterSuccess}</p>
+            )}
+            {newsletterError && (
+              <p className="error-message">{newsletterError}</p>
+            )}
           </div>
         </div>
       )}
@@ -235,7 +279,9 @@ const EethmHome = () => {
                 </div>
               ))}
             </div>
-          ) : <p>Loading services...</p>}
+          ) : (
+            <p>Loading services...</p>
+          )}
         </section>
       </FadeInSection>
 
@@ -251,12 +297,18 @@ const EethmHome = () => {
                   <div>
                     <h3>{p.title}</h3>
                     <p>{p.description}</p>
-                    {p.discount_percentage && <p>Save {p.discount_percentage}%</p>}
+                    {p.discount_percentage && (
+                      <p>Save {p.discount_percentage}%</p>
+                    )}
                   </div>
                 </article>
               ))}
             </div>
-          ) : promoError ? <p>{promoError}</p> : <p>No promotions.</p>}
+          ) : promoError ? (
+            <p>{promoError}</p>
+          ) : (
+            <p>No promotions.</p>
+          )}
         </section>
       </FadeInSection>
 
@@ -273,7 +325,11 @@ const EethmHome = () => {
                 </div>
               ))}
             </div>
-          ) : reviewError ? <p>{reviewError}</p> : <p>No reviews.</p>}
+          ) : reviewError ? (
+            <p>{reviewError}</p>
+          ) : (
+            <p>No reviews.</p>
+          )}
         </section>
       </FadeInSection>
 
@@ -312,11 +368,13 @@ const EethmHome = () => {
                 );
               })}
             </div>
-          ) : <p>No media available.</p>}
+          ) : (
+            <p>No media available.</p>
+          )}
         </section>
       </FadeInSection>
 
-      {/* === Featured Media Horizontal Carousel === */}
+      {/* === Featured Media Carousel === */}
       <FadeInSection>
         <section className="featured-media-section">
           <h2>Featured Media</h2>
@@ -331,7 +389,9 @@ const EethmHome = () => {
                 );
               })}
             </div>
-          ) : <p>No featured media.</p>}
+          ) : (
+            <p>No featured media.</p>
+          )}
         </section>
       </FadeInSection>
     </div>

@@ -9,7 +9,8 @@ import NewsletterAdminPage from './NewsletterAdminPage';
 import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
-import VideoUpload from './VideoUpload'; // ✅ NEW
+import VideoUpload from './VideoUpload';
+import ServicesAdmin from './ServicesAdmin'; // ✅ NEW
 
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../../api/axiosInstance';
@@ -70,7 +71,10 @@ const AdminPanel = () => {
             Media Management
           </li>
           <li className={activeTab === 'video' ? 'active' : ''} onClick={() => setActiveTab('video')}>
-            Video Upload {/* ✅ NEW tab */}
+            Video Upload
+          </li>
+          <li className={activeTab === 'services' ? 'active' : ''} onClick={() => setActiveTab('services')}>
+            Services Manager {/* ✅ NEW tab */}
           </li>
           <li className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>
             Reviews
@@ -91,12 +95,12 @@ const AdminPanel = () => {
       </aside>
 
       <section className="admin-content">
-        {/* Pass setActiveTab into AdminDashboard so "Learn More" can switch tabs directly */}
         {activeTab === 'dashboard' && <AdminDashboard setActiveTab={setActiveTab} />}
         {activeTab === 'booking' && <BookingManagement />}
         {activeTab === 'invoice' && <InvoiceGeneration />}
         {activeTab === 'media' && <MediaManagement />}
-        {activeTab === 'video' && <VideoUpload />} {/* ✅ Render VideoUpload */}
+        {activeTab === 'video' && <VideoUpload />}
+        {activeTab === 'services' && <ServicesAdmin />} {/* ✅ Render ServicesAdmin */}
         {activeTab === 'reviews' && <ReviewsManagement />}
         {activeTab === 'newsletter' && <NewsletterAdminPage />}
         {activeTab === 'promotions' && <AdminPromotions />}

@@ -19,7 +19,7 @@
   overflow: hidden;
   box-shadow: var(--shadow-lg);
   margin-bottom: 1.75rem;
-  min-height: clamp(40vh, 55vh, 72vh);
+  min-height: clamp(28vh, 38vh, 45vh); /* ✅ reduced from 40–72vh */
   background: #000;
 }
 .about-container .hero-banner img,
@@ -45,21 +45,21 @@
   display: grid;
   place-items: center;
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
   color: var(--color-white);
 }
 .about-hero .hero-title {
   font-family: var(--font-accent);
   color: var(--color-accent-gold);
-  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
   margin: 0 0 .5rem;
   text-shadow: 0 6px 20px rgba(0,0,0,0.45);
 }
 .about-hero .hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-size: clamp(.95rem, 1.6vw, 1.1rem);
   color: var(--color-neutral-light);
   margin-bottom: 1rem;
-  max-width: 70ch;
+  max-width: 65ch;
 }
 
 /* hero actions */
@@ -167,7 +167,6 @@
   background: linear-gradient(180deg, rgba(255,255,255,0.98), var(--color-white));
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
   display: grid;
   gap: 1.25rem;
 }
@@ -199,9 +198,7 @@
   font-style: italic;
   color: var(--color-neutral-dark);
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
 }
-.about-container .testimonial-card:hover { transform: translateY(-4px); }
 .about-container .testimonial-author {
   margin-top: .75rem;
   font-weight: 700;
@@ -327,7 +324,7 @@
   display: grid;
   place-items: center;
   background: var(--color-neutral-dark);
-  min-height: 45vh;
+  min-height: 35vh; /* ✅ match banner size */
   border-radius: var(--radius-lg);
   overflow: hidden;
   position: relative;
@@ -346,15 +343,15 @@
   place-items: center;
   text-align: center;
   color: var(--color-white);
-  padding: 2rem;
+  padding: 1.5rem;
 }
 .about-container .hero-banner.fallback .hero-title {
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
   color: var(--color-accent-gold);
   margin-bottom: .5rem;
 }
 .about-container .hero-banner.fallback .hero-subtitle {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--color-neutral-light);
 }
 
