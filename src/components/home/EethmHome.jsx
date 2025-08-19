@@ -36,6 +36,7 @@ const EethmHome = () => {
   const [banners, setBanners] = useState([]);
   const [media, setMedia] = useState([]);
 
+  // Error states
   const [videosError, setVideosError] = useState(null);
   const [servicesError, setServicesError] = useState(null);
   const [promoError, setPromoError] = useState(null);
@@ -82,7 +83,9 @@ const EethmHome = () => {
     };
 
     fetchAll();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Pick hero video
@@ -278,7 +281,18 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="banners-section">
           <h2>Highlights from Our Services</h2>
-          <BannerCards endpoint="banners" />
+          {banners?.length > 0 ? (
+            <div className="banners-grid">
+              {banners.map((b) => (
+                <div key={b.id} className="banner-card">
+                  {b.image_url && <img src={b.image_url} alt={b.title} />}
+                  <h4>{b.title}</h4>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <BannerCards endpoint="banners" />
+          )}
         </section>
       </FadeInSection>
 
@@ -286,6 +300,7 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="mixed-media-section">
           <h2>Gallery</h2>
+          {videosError && <p className="error-text">{videosError}</p>}
           {mixedMedia.length > 0 ? (
             <div className="mixed-media-grid">
               {mixedMedia.map((m) => {
