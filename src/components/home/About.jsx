@@ -9,7 +9,7 @@ import MediaCards from "../context/MediaCards";
 import MediaCard from "../context/MediaCard";
 import BannerCards from "../context/BannerCards";
 import apiService from "../../api/apiService";
-import videoService from "../../api/videoService"; // ✅ video API
+import videoService from "../../api/services/videoService"; // ✅ video API
 
 import euniceImg from "../../assets/team/eunice.png";
 import josephImg from "../../assets/team/joseph.jpg";
