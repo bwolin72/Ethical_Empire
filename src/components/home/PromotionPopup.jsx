@@ -14,13 +14,13 @@ const PromotionPopup = () => {
     if (Array.isArray(promotions) && promotions.length > 0) {
       const promo = { ...promotions[0] };
 
-      if (promo.image && !promo.image.startsWith("http")) {
+      if (promo.image && !promo.image.startsWith("https://")) {
         promo.image = `${BACKEND_BASE_URL}${
           promo.image.startsWith("/") ? "" : "/"
         }${promo.image}`;
       }
 
-      if (promo.video && !promo.video.startsWith("http")) {
+      if (promo.video && !promo.video.startsWith("https://")) {
         promo.video = `${BACKEND_BASE_URL}${
           promo.video.startsWith("/") ? "" : "/"
         }${promo.video}`;

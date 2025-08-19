@@ -18,93 +18,60 @@ const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
  *  - graceful fallback for video endpoints (local fallback video object)
  */
 export default function useMediaFetcher(endpointKey, params = null, options = {}) {
-  const {
-    notify,
-    successMessages = {},
-    errorMessages = {},
-    transform,
-    resource,
-    mutation,
-  } = options;
+  const { notify, successMessages = {}, errorMessages = {}, transform, resource, mutation } = options;
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // keep latest data in a ref for rollback (optimistic updates)
   const dataRef = useRef(data);
-  useEffect(() => {
-    dataRef.current = data;
-  }, [data]);
+  useEffect(() => { dataRef.current = data; }, [data]);
 
-  // mounted guard to avoid setting state after unmount
   const mountedRef = useRef(false);
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
 
   /* -------------------------
      Resolve GET fetcher for endpointKey
-     ------------------------- */
+  ------------------------- */
   const getFetcher = useCallback(() => {
     if (!endpointKey || typeof endpointKey !== "string") return null;
 
-    // 1) mediaAPI methods like getHome, getAbout, getBanners
     const mediaMethodName = `get${capitalize(endpointKey)}`;
     if (typeof mediaAPI[mediaMethodName] === "function") {
       return () => mediaAPI[mediaMethodName](params);
     }
 
-    // 2) API.videos.* entries
     if (API?.videos && Object.prototype.hasOwnProperty.call(API.videos, endpointKey)) {
       const val = API.videos[endpointKey];
-      if (typeof val === "function") {
-        const url = callWithParams(val, params);
-        return () => publicAxios.get(url);
-      }
-      if (typeof val === "string") {
-        return () => publicAxios.get(val, params ? { params } : undefined);
-      }
+      if (typeof val === "function") return () => publicAxios.get(callWithParams(val, params));
+      if (typeof val === "string") return () => publicAxios.get(val, params ? { params } : undefined);
     }
 
-    // 3) API.media.* entries (string endpoints)
     if (API?.media && Object.prototype.hasOwnProperty.call(API.media, endpointKey)) {
       const val = API.media[endpointKey];
-      if (typeof val === "string") {
-        return () => publicAxios.get(val, params ? { params } : undefined);
-      }
+      if (typeof val === "string") return () => publicAxios.get(val, params ? { params } : undefined);
     }
 
     return null;
   }, [endpointKey, params]);
 
   /* -------------------------
-     fetchData: core GET with fallback
-     ------------------------- */
+     Core fetch with fallback
+  ------------------------- */
   const fetchData = useCallback(async () => {
     const fetcher = getFetcher();
     if (!fetcher) {
-      if (mountedRef.current) {
-        setError(`Unknown endpoint: ${endpointKey}`);
-        setLoading(false);
-      }
+      if (mountedRef.current) { setError(`Unknown endpoint: ${endpointKey}`); setLoading(false); }
       console.error(`[useMediaFetcher] Unknown endpoint key: ${endpointKey}`);
       return;
     }
 
-    if (mountedRef.current) {
-      setLoading(true);
-      setError(null);
-    }
+    if (mountedRef.current) { setLoading(true); setError(null); }
 
     try {
       const res = await fetcher();
       const items = extractItems(res);
 
-      // Fallback for empty video lists
       if (isVideoKey(endpointKey) && Array.isArray(items) && items.length === 0) {
         if (mountedRef.current) setData([fallbackVideoObject()]);
         return;
@@ -115,15 +82,9 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
     } catch (err) {
       console.error(`❌ API fetch failed for ${endpointKey}:`, err);
       if (isVideoKey(endpointKey)) {
-        if (mountedRef.current) {
-          setData([fallbackVideoObject()]);
-          setError(null);
-        }
+        if (mountedRef.current) { setData([fallbackVideoObject()]); setError(null); }
       } else {
-        if (mountedRef.current) {
-          setData([]);
-          setError(err);
-        }
+        if (mountedRef.current) { setData([]); setError(err); }
       }
     } finally {
       if (mountedRef.current) setLoading(false);
@@ -132,139 +93,102 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
 
   /* -------------------------
      Build mutation endpoints
-     ------------------------- */
-  const endpoints = useMemo(
-    () =>
-      buildMutationEndpoints({
-        endpointKey,
-        resourceOverride: resource,
-        custom: mutation,
-      }),
+  ------------------------- */
+  const endpoints = useMemo(() =>
+    buildMutationEndpoints({ endpointKey, resourceOverride: resource, custom: mutation }),
     [endpointKey, resource, mutation]
   );
 
   const resolveCreateUrl = (eps) => (typeof eps.create === "function" ? eps.create() : eps.create);
-  const resolveUpdateUrl = (eps, id) =>
-    typeof eps.update === "function" ? eps.update(id) : eps.update;
-  const resolvePatchUrl = (eps, id) =>
-    typeof eps.patch === "function" ? eps.patch(id) : eps.patch;
-  const resolveRemoveUrl = (eps, id) =>
-    typeof eps.remove === "function" ? eps.remove(id) : eps.remove;
+  const resolveUpdateUrl = (eps, id) => (typeof eps.update === "function" ? eps.update(id) : eps.update);
+  const resolvePatchUrl = (eps, id) => (typeof eps.patch === "function" ? eps.patch(id) : eps.patch);
+  const resolveRemoveUrl = (eps, id) => (typeof eps.remove === "function" ? eps.remove(id) : eps.remove);
 
   /* -------------------------
      Optimistic CRUD operations
-     ------------------------- */
-  const post = useCallback(
-    async (payload, { optimisticItem } = {}) => {
-      const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
-      const tmpId = `tmp-${Date.now()}`;
-      const optimistic = { id: tmpId, ...(optimisticItem || payload) };
+  ------------------------- */
+  const post = useCallback(async (payload, { optimisticItem } = {}) => {
+    const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
+    const tmpId = `tmp-${Date.now()}`;
+    const optimistic = { id: tmpId, ...(optimisticItem || payload) };
+    if (mountedRef.current) setData(prev => [optimistic, ...prev]);
 
-      if (mountedRef.current) setData((prevArr) => [optimistic, ...prevArr]);
+    try {
+      const url = resolveCreateUrl(endpoints);
+      const res = await axiosInstance.post(url, payload);
+      safeNotify(notify, "success", successMessages.post || "Created successfully.");
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setData(previous);
+      safeNotify(notify, "error", errorMessages.post || "Create failed. Changes reverted.");
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData, notify, successMessages, errorMessages]);
 
-      try {
-        const url = resolveCreateUrl(endpoints);
-        const res = await axiosInstance.post(url, payload);
-        safeNotify(notify, "success", successMessages.post || "Created successfully.");
-        await fetchData();
-        return res;
-      } catch (err) {
-        if (mountedRef.current) setData(previous);
-        safeNotify(notify, "error", errorMessages.post || "Create failed. Changes reverted.");
-        if (mountedRef.current) setError(err);
-        throw err;
-      }
-    },
-    [endpoints, fetchData, notify, successMessages, errorMessages]
-  );
+  const put = useCallback(async (id, payload) => {
+    const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
+    if (mountedRef.current) setData(prev => prev.map(it => it.id === id ? { ...it, ...payload } : it));
 
-  const put = useCallback(
-    async (id, payload) => {
-      const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
-      if (mountedRef.current) {
-        setData((prevArr) => prevArr.map((it) => (it.id === id ? { ...it, ...payload } : it)));
-      }
+    try {
+      const url = resolveUpdateUrl(endpoints, id);
+      const res = await axiosInstance.put(url, payload);
+      safeNotify(notify, "success", successMessages.put || "Updated successfully.");
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setData(previous);
+      safeNotify(notify, "error", errorMessages.put || "Update failed. Changes reverted.");
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData, notify, successMessages, errorMessages]);
 
-      try {
-        const url = resolveUpdateUrl(endpoints, id);
-        const res = await axiosInstance.put(url, payload);
-        safeNotify(notify, "success", successMessages.put || "Updated successfully.");
-        await fetchData();
-        return res;
-      } catch (err) {
-        if (mountedRef.current) setData(previous);
-        safeNotify(notify, "error", errorMessages.put || "Update failed. Changes reverted.");
-        if (mountedRef.current) setError(err);
-        throw err;
-      }
-    },
-    [endpoints, fetchData, notify, successMessages, errorMessages]
-  );
+  const patch = useCallback(async (id, payload) => {
+    const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
+    if (mountedRef.current) setData(prev => prev.map(it => it.id === id ? { ...it, ...payload } : it));
 
-  const patch = useCallback(
-    async (id, payload) => {
-      const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
-      if (mountedRef.current) {
-        setData((prevArr) => prevArr.map((it) => (it.id === id ? { ...it, ...payload } : it)));
-      }
+    try {
+      const url = resolvePatchUrl(endpoints, id);
+      const res = await axiosInstance.patch(url, payload);
+      safeNotify(notify, "success", successMessages.patch || "Saved successfully.");
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setData(previous);
+      safeNotify(notify, "error", errorMessages.patch || "Save failed. Changes reverted.");
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData, notify, successMessages, errorMessages]);
 
-      try {
-        const url = resolvePatchUrl(endpoints, id);
-        const res = await axiosInstance.patch(url, payload);
-        safeNotify(notify, "success", successMessages.patch || "Saved successfully.");
-        await fetchData();
-        return res;
-      } catch (err) {
-        if (mountedRef.current) setData(previous);
-        safeNotify(notify, "error", errorMessages.patch || "Save failed. Changes reverted.");
-        if (mountedRef.current) setError(err);
-        throw err;
-      }
-    },
-    [endpoints, fetchData, notify, successMessages, errorMessages]
-  );
+  const remove = useCallback(async (id) => {
+    const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
+    if (mountedRef.current) setData(prev => prev.filter(it => it.id !== id));
 
-  const remove = useCallback(
-    async (id) => {
-      const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
-      if (mountedRef.current) setData((prevArr) => prevArr.filter((it) => it.id !== id));
+    try {
+      const url = resolveRemoveUrl(endpoints, id);
+      const res = await axiosInstance.delete(url);
+      safeNotify(notify, "success", successMessages.delete || "Deleted successfully.");
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setData(previous);
+      safeNotify(notify, "error", errorMessages.delete || "Delete failed. Item restored.");
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData, notify, successMessages, errorMessages]);
 
-      try {
-        const url = resolveRemoveUrl(endpoints, id);
-        const res = await axiosInstance.delete(url);
-        safeNotify(notify, "success", successMessages.delete || "Deleted successfully.");
-        await fetchData();
-        return res;
-      } catch (err) {
-        if (mountedRef.current) setData(previous);
-        safeNotify(notify, "error", errorMessages.delete || "Delete failed. Item restored.");
-        if (mountedRef.current) setError(err);
-        throw err;
-      }
-    },
-    [endpoints, fetchData, notify, successMessages, errorMessages]
-  );
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  // initial fetch
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return {
-    data,
-    loading,
-    error,
-    refetch: fetchData,
-    post,
-    put,
-    patch,
-    remove,
-  };
+  return { data, loading, error, refetch: fetchData, post, put, patch, remove };
 }
 
 /* ---------------------------
    Helpers
-   --------------------------- */
+--------------------------- */
 function extractItems(res) {
   if (!res) return [];
   if (Array.isArray(res?.data)) return res.data;
@@ -274,9 +198,7 @@ function extractItems(res) {
 }
 
 function capitalize(str) {
-  return typeof str === "string" && str.length > 0
-    ? str.charAt(0).toUpperCase() + str.slice(1)
-    : "";
+  return typeof str === "string" && str.length > 0 ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 }
 
 function isVideoKey(key) {
@@ -303,11 +225,7 @@ function callWithParams(fn, params) {
 
 function safeNotify(notify, type, message) {
   if (typeof notify === "function" && message) {
-    try {
-      notify(type, message);
-    } catch (e) {
-      console.warn("[useMediaFetcher] notify failed:", e);
-    }
+    try { notify(type, message); } catch (e) { console.warn("[useMediaFetcher] notify failed:", e); }
   }
 }
 
@@ -340,7 +258,8 @@ function buildMutationEndpoints({ endpointKey, resourceOverride, custom }) {
 }
 
 function inferResource(endpointKey) {
-  const key = (endpointKey || "").toLowerCase();
+  if (!endpointKey || typeof endpointKey !== "string") return null;
+  const key = endpointKey.toLowerCase();
   if (key.includes("video")) return "videos";
   if (key.includes("media") || ["home", "featured", "banners"].includes(key)) return "media";
   return null;
