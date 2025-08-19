@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
-import serviceService from "../../api/serviceService";
+import serviceService from "../../api/services/serviceService";
 import "./ServicesAdmin.css";
 
 const ServicesAdmin = () => {
