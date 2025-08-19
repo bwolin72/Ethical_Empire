@@ -1,3 +1,4 @@
+// src/components/home/About.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaStar, FaCheckCircle, FaClock, FaCogs, FaCheck } from "react-icons/fa";
@@ -32,115 +33,192 @@ const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
 const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
 const About = () => {
+  // useMediaFetcher('about') — will fetch media items for the About page (images/videos/banners)
   const aboutFetch = useMediaFetcher("about");
-  const bannerList =
+  const mediaItems =
     (Array.isArray(aboutFetch?.media) && aboutFetch.media) ||
     (Array.isArray(aboutFetch?.data) && aboutFetch.data) ||
     [];
 
+  // hero candidate selection
+  const [heroVideoUrl, setHeroVideoUrl] = useState(null);
+  const [videoLoadFailed, setVideoLoadFailed] = useState(false);
+
+  // backend data lists
   const [services, setServices] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
-  const [videoHeroUrl, setVideoHeroUrl] = useState(null);
 
+  // derive simple banner list for fallback to image/banner
+  const bannerList = Array.isArray(mediaItems) ? mediaItems : [];
+
+  /* ---------- pick hero video from about media (or fallback) ---------- */
   useEffect(() => {
-    let isMounted = true;
+    // prefer server-provided about media video (featured if available)
+    try {
+      if (Array.isArray(mediaItems) && mediaItems.length > 0) {
+        // find featured video first
+        const featuredVideo =
+          mediaItems.find((m) => m?.is_featured && getMediaUrl(m).toLowerCase().endsWith(".mp4")) ||
+          mediaItems.find((m) => getMediaUrl(m).toLowerCase().endsWith(".mp4"));
 
-    const fetchAllServices = async () => {
+        if (featuredVideo) {
+          const url = getMediaUrl(featuredVideo);
+          if (url) {
+            setHeroVideoUrl(url);
+            setVideoLoadFailed(false);
+            return;
+          }
+        }
+      }
+
+      // no video in about media -> attempt to find any server-side video via videos API
+      // NOTE: api_endpoints.txt lists /api/videos/videos/ for videos; apiService likely exposes a method for this.
+      // We'll try to get video list as a fallback and pick a featured video.
+      (async () => {
+        try {
+          const res = await apiService.getVideos?.(); // safe optional call
+          const list = Array.isArray(res?.data?.results)
+            ? res.data.results
+            : Array.isArray(res?.data)
+            ? res.data
+            : Array.isArray(res)
+            ? res
+            : [];
+
+          const featuredFromVideos =
+            list.find((v) => v?.is_featured && getMediaUrl(v).toLowerCase().endsWith(".mp4")) ||
+            list.find((v) => getMediaUrl(v).toLowerCase().endsWith(".mp4"));
+
+          if (featuredFromVideos) {
+            setHeroVideoUrl(getMediaUrl(featuredFromVideos));
+            setVideoLoadFailed(false);
+            return;
+          }
+
+          // no server video found — use local fallback video
+          setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
+          setVideoLoadFailed(false);
+        } catch (e) {
+          // if fetching videos fails, use local fallback video
+          console.warn("Failed to fetch videos fallback:", e);
+          setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
+          setVideoLoadFailed(false);
+        }
+      })();
+    } catch (e) {
+      console.error("Hero selection error:", e);
+      setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aboutFetch?.data, aboutFetch?.media]);
+
+  /* ---------- fetch services & testimonials ---------- */
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchServices = async () => {
       try {
-        const res = await apiService.getServices(); // GET /api/services/
+        const res = await apiService.getServices?.();
         const serviceList = Array.isArray(res?.data?.results)
           ? res.data.results
           : Array.isArray(res?.data)
           ? res.data
           : [];
-        if (isMounted) setServices(serviceList);
-        if (!serviceList?.length) toast.warn("No services available at the moment.");
-      } catch (error) {
-        console.error("Services fetch error:", error);
-      }
-    };
-
-    const fetchTestimonials = async () => {
-      try {
-        const res = await apiService.getReviews(); // GET /api/reviews/
-        const list = Array.isArray(res?.data) ? res.data : [];
-        if (isMounted) setTestimonials(list);
-      } catch (error) {
-        console.error("Testimonials fetch error:", error);
-      }
-    };
-
-    const fetchVideoHero = async () => {
-      try {
-        const res = await apiService.getAboutVideos(); // GET /api/videos/about/
-        const list = Array.isArray(res?.data?.results)
-          ? res.data.results
-          : Array.isArray(res?.data)
-          ? res.data
-          : [];
-        const featured = list.find((v) => v?.is_featured) || list[0];
-        const url = getMediaUrl(featured);
-        if (isMounted && url?.toLowerCase().endsWith(".mp4")) {
-          setVideoHeroUrl(url);
+        if (mounted) {
+          setServices(serviceList);
+          if (!serviceList.length) toast.warn("No services available at the moment.");
         }
-      } catch (error) {
-        console.error("Hero video fetch error:", error);
+      } catch (err) {
+        console.error("Services fetch error:", err);
+        if (mounted) toast.error("Failed to load services.");
       }
     };
 
-    fetchAllServices();
-    fetchTestimonials();
-    fetchVideoHero();
+    const fetchReviews = async () => {
+      try {
+        const res = await apiService.getReviews?.();
+        const reviewList = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.results)
+          ? res.data.results
+          : [];
+        if (mounted) setTestimonials(reviewList);
+      } catch (err) {
+        console.error("Reviews fetch error:", err);
+      }
+    };
+
+    fetchServices();
+    fetchReviews();
 
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, []);
+
+  /* ---------- handlers ---------- */
+  const onHeroVideoError = () => {
+    // video couldn't load — show fallback poster/video or banner
+    setVideoLoadFailed(true);
+    // if we weren't already using local fallback, ensure heroVideoUrl points to local fallback
+    if (heroVideoUrl !== LOCAL_FALLBACK_VIDEO) {
+      setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
+    }
+  };
+
+  // choose what to render for hero:
+  // priority: server about video -> server videos featured -> local fallback video -> banner image -> fallback image
+  const effectiveHeroVideo = videoLoadFailed ? LOCAL_FALLBACK_VIDEO : heroVideoUrl;
+  const heroBanner = bannerList && bannerList.length > 0 ? bannerList[0] : null;
+  const heroBannerImage = getMediaUrl(heroBanner) || null;
+  const heroHasVideo = typeof effectiveHeroVideo === "string" && effectiveHeroVideo.toLowerCase().endsWith(".mp4");
 
   return (
     <div className="about-container">
       {/* Sticky CTA */}
       <div className="sticky-cta-bar">
-        <Link to="/bookings" className="sticky-cta-link">Let’s Talk</Link>
+        <Link to="/bookings" className="sticky-cta-link">
+          Let’s Talk
+        </Link>
       </div>
 
       {/* === Hero Section === */}
       <section className="about-hero">
-        {videoHeroUrl ? (
+        {heroHasVideo ? (
           <div className="hero-banner video">
             <video
-              src={videoHeroUrl}
+              src={effectiveHeroVideo}
               autoPlay
               loop
               muted
               playsInline
-              poster={LOCAL_FALLBACK_IMAGE}
+              poster={heroBannerImage || LOCAL_FALLBACK_IMAGE}
               className="hero-video"
-              onError={() => setVideoHeroUrl(null)}
+              onError={onHeroVideoError}
             />
-            <div className="hero-overlay"></div>
+            <div className="hero-overlay" />
             <div className="hero-copy">
               <h1 className="hero-title">Ethical Multimedia GH</h1>
               <p className="hero-subtitle">
                 Crafting unforgettable experiences across music, visuals, and events.
               </p>
               <div className="hero-actions">
-                <Link to="/bookings" className="btn btn-primary">Book a Service</Link>
-                <a href="#why-us" className="btn btn-ghost">Why Choose Us</a>
+                <Link to="/bookings" className="btn btn-primary">
+                  Book a Service
+                </Link>
+                <a href="#why-us" className="btn btn-ghost">
+                  Why Choose Us
+                </a>
               </div>
             </div>
           </div>
-        ) : bannerList.length > 0 ? (
+        ) : heroBannerImage ? (
           <div className="hero-banner mb-10">
-            <MediaCard media={bannerList[0]} fullWidth />
+            <MediaCard media={heroBanner} fullWidth />
           </div>
         ) : (
           <div className="hero-banner fallback">
-            <img
-              src={LOCAL_FALLBACK_IMAGE}
-              alt="Fallback hero"
-              className="hero-fallback-img"
-            />
+            <img src={LOCAL_FALLBACK_IMAGE} alt="Fallback hero" className="hero-fallback-img" />
             <div className="hero-copy">
               <h1 className="hero-title">Ethical Multimedia GH</h1>
               <p className="hero-subtitle">Creative production, seamless execution.</p>
@@ -152,24 +230,22 @@ const About = () => {
       {/* Intro */}
       <section className="intro text-center">
         <h2 className="section-heading">Who We Are</h2>
-        <p className="subtext">
-          We don’t just offer services — we deliver lasting impressions.
-        </p>
+        <p className="subtext">We don’t just offer services — we deliver lasting impressions.</p>
       </section>
 
-      {/* Visual Stories */}
+      {/* Visual Stories (banner cards) */}
       <BannerCards endpoint="about" title="Explore Our Visual Stories" />
 
       {/* === Services Grid === */}
       {services.length > 0 && (
         <section className="service-grid" aria-labelledby="services-heading">
-          <h2 id="services-heading" className="section-heading">What We Do</h2>
+          <h2 id="services-heading" className="section-heading">
+            What We Do
+          </h2>
           <div className="service-grid-inner">
             {services.map(({ id, icon_url, title, name, description }) => (
-              <article key={id} className="service-card">
-                {icon_url && (
-                  <img src={icon_url} alt={title || name} className="service-icon-img" />
-                )}
+              <article key={id} className="service-card" tabIndex={0}>
+                {icon_url && <img src={icon_url} alt={title || name} className="service-icon-img" />}
                 <h3 className="service-title">{title || name}</h3>
                 {description && <p className="service-desc">{description}</p>}
               </article>
@@ -209,11 +285,11 @@ const About = () => {
         </p>
       </section>
 
-      {/* Featured Media Carousel */}
+      {/* Featured Media Carousel (horizontal / featured) */}
       <section className="featured-media-section">
         <h2 className="section-heading">Our Work in Action</h2>
         <div className="featured-carousel">
-          <MediaCards endpoint="about" type="media" isFeatured={true} />
+          <MediaCards endpoint="about" type="media" isFeatured={true} fullWidth />
         </div>
       </section>
 
@@ -238,7 +314,9 @@ const About = () => {
               "Flexible packages and transparent pricing.",
               "A track record of flawless delivery across Ghana and beyond.",
             ].map((item, idx) => (
-              <li key={idx}><FaCheck aria-hidden="true" /> {item}</li>
+              <li key={idx}>
+                <FaCheck aria-hidden="true" /> {item}
+              </li>
             ))}
           </ul>
         </div>
@@ -275,7 +353,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials / Reviews */}
       {testimonials.length > 0 && (
         <section className="testimonial-carousel">
           <h2 className="section-heading">What Our Clients Say</h2>
@@ -293,7 +371,9 @@ const About = () => {
       {/* CTA */}
       <section className="cta-section">
         <h3 className="cta-title">Let’s create something remarkable together.</h3>
-        <Link to="/bookings" className="cta-button">Book a Service</Link>
+        <Link to="/bookings" className="cta-button">
+          Book a Service
+        </Link>
       </section>
     </div>
   );
