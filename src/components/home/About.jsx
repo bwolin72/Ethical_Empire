@@ -27,8 +27,11 @@ const getMediaUrl = (media) => {
   return typeof val === "string" ? val : String(val ?? "");
 };
 
+/* ------------ local fallbacks ------------ */
+const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
+const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
+
 const About = () => {
-  /* ✅ Banners for hero fallback (uses your useMediaFetcher endpointKey = 'about') */
   const aboutFetch = useMediaFetcher("about");
   const bannerList =
     (Array.isArray(aboutFetch?.media) && aboutFetch.media) ||
@@ -69,7 +72,6 @@ const About = () => {
 
     const fetchVideoHero = async () => {
       try {
-        // ✅ Match API: use dedicated “about” videos endpoint
         const res = await apiService.getAboutVideos(); // GET /api/videos/about/
         const list = Array.isArray(res?.data?.results)
           ? res.data.results
@@ -102,7 +104,7 @@ const About = () => {
         <Link to="/bookings" className="sticky-cta-link">Let’s Talk</Link>
       </div>
 
-      {/* === Hero Video or Banner === */}
+      {/* === Hero Section === */}
       <section className="about-hero">
         {videoHeroUrl ? (
           <div className="hero-banner video">
@@ -112,7 +114,9 @@ const About = () => {
               loop
               muted
               playsInline
+              poster={LOCAL_FALLBACK_IMAGE}
               className="hero-video"
+              onError={() => setVideoHeroUrl(null)}
             />
             <div className="hero-overlay"></div>
             <div className="hero-copy">
@@ -131,9 +135,16 @@ const About = () => {
             <MediaCard media={bannerList[0]} fullWidth />
           </div>
         ) : (
-          <div className="hero-fallback">
-            <h1 className="hero-title">Ethical Multimedia GH</h1>
-            <p className="hero-subtitle">Creative production, seamless execution.</p>
+          <div className="hero-banner fallback">
+            <img
+              src={LOCAL_FALLBACK_IMAGE}
+              alt="Fallback hero"
+              className="hero-fallback-img"
+            />
+            <div className="hero-copy">
+              <h1 className="hero-title">Ethical Multimedia GH</h1>
+              <p className="hero-subtitle">Creative production, seamless execution.</p>
+            </div>
           </div>
         )}
       </section>
@@ -198,14 +209,13 @@ const About = () => {
         </p>
       </section>
 
-      {/* Featured Media */}
-      <MediaCards
-        endpoint="about"
-        type="media"
-        title="Our Work in Action"
-        fullWidth
-        isFeatured={true}
-      />
+      {/* Featured Media Carousel */}
+      <section className="featured-media-section">
+        <h2 className="section-heading">Our Work in Action</h2>
+        <div className="featured-carousel">
+          <MediaCards endpoint="about" type="media" isFeatured={true} />
+        </div>
+      </section>
 
       {/* Commitments */}
       <section className="about-text">
@@ -265,7 +275,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Testimonials (align to backend fields: name/comment) */}
+      {/* Testimonials */}
       {testimonials.length > 0 && (
         <section className="testimonial-carousel">
           <h2 className="section-heading">What Our Clients Say</h2>

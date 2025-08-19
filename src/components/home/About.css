@@ -321,3 +321,86 @@
   outline: 3px solid rgba(212,175,55,0.18);
   outline-offset: 3px;
 }
+
+/* HERO FALLBACK */
+.about-container .hero-banner.fallback {
+  display: grid;
+  place-items: center;
+  background: var(--color-neutral-dark);
+  min-height: 45vh;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+.about-container .hero-banner.fallback .hero-fallback-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.6);
+}
+.about-container .hero-banner.fallback .hero-copy {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--color-white);
+  padding: 2rem;
+}
+.about-container .hero-banner.fallback .hero-title {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  color: var(--color-accent-gold);
+  margin-bottom: .5rem;
+}
+.about-container .hero-banner.fallback .hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--color-neutral-light);
+}
+
+/* FEATURED MEDIA CAROUSEL */
+.about-container .featured-media-section {
+  margin: 4rem auto;
+  padding: 0 1rem;
+  max-width: 1200px;
+}
+.about-container .featured-media-section .section-heading {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.about-container .featured-carousel {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+}
+.about-container .featured-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+.about-container .featured-carousel::-webkit-scrollbar-thumb {
+  background: var(--color-accent-gold);
+  border-radius: 4px;
+}
+.about-container .featured-carousel > * {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* CTA alignment with home */
+.about-container .cta-section {
+  margin-top: 5rem;
+  text-align: center;
+  border-radius: var(--radius-xl);
+  background: var(--gradient-gold-burgundy);
+}
+.about-container .cta-button {
+  background: var(--color-white);
+  color: var(--color-primary);
+}
+.about-container .cta-button:hover {
+  background: var(--color-accent-green);
+  color: var(--color-white);
+}

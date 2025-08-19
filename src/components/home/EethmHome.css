@@ -577,6 +577,66 @@
 .eethm-home-page .media-card-empty { opacity: .7; }
 
 /* ======================================================
+   🎠 Featured Media Horizontal Carousel
+   ====================================================== */
+.eethm-home-page .featured-media-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+}
+
+.eethm-home-page .featured-media-section h2 {
+  font-family: var(--font-accent);
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.eethm-home-page .featured-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.eethm-home-page .featured-carousel > img,
+.eethm-home-page .featured-carousel > video {
+  flex: 0 0 auto;
+  width: 280px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  scroll-snap-align: start;
+  background: var(--color-neutral-light);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.eethm-home-page .featured-carousel > img:hover,
+.eethm-home-page .featured-carousel > video:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* optional arrows (place absolutely in section if you want) */
+.eethm-home-page .featured-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  z-index: 5;
+}
+.eethm-home-page .featured-carousel-arrow.left { left: 10px; }
+.eethm-home-page .featured-carousel-arrow.right { right: 10px; }
+.eethm-home-page .featured-carousel-arrow:hover { background: rgba(0,0,0,0.7); }
+
+/* ======================================================
    🎬 Animations
    ====================================================== */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
