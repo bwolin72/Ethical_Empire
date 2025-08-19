@@ -54,7 +54,7 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
 
   // stable key for params (used in deps)
   const paramsKey = useMemo(() => safeStableKey(params), [params]);
-  // computedParams is memoized to satisfy ESLint (use computedParams inside callbacks)
+  // computedParams is memoized for callbacks
   const computedParams = useMemo(() => params, [params]);
 
   /* ----------------------------
@@ -69,7 +69,7 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
       return () => mediaAPI[mediaMethodName](computedParams);
     }
 
-    // 2) Try API.videos[endpointKey] (either string URL or function returning URL)
+    // 2) Try API.videos[endpointKey] (string or function returning URL)
     if (API?.videos && Object.prototype.hasOwnProperty.call(API.videos, endpointKey)) {
       const val = API.videos[endpointKey];
       if (typeof val === "function") {
@@ -83,12 +83,15 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
     }
 
     // 3) Try API.media if present
-    if (API?.media && Object.prototype.hasOwnProperty.call(API.media, endpointKey) && typeof API.media[endpointKey] === "string") {
-      return () =>
-        publicAxios.get(
-          API.media[endpointKey],
-          computedParams ? { params: computedParams } : undefined
-        );
+    if (API?.media && Object.prototype.hasOwnProperty.call(API.media, endpointKey)) {
+      const val = API.media[endpointKey];
+      if (typeof val === "string") {
+        return () =>
+          publicAxios.get(
+            val,
+            computedParams ? { params: computedParams } : undefined
+          );
+      }
     }
 
     return null;
@@ -129,7 +132,6 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
       } catch (err) {
         console.error(`❌ API fetch failed for ${endpointKey}:`, err);
         if (isVideoKey(endpointKey)) {
-          // degrade gracefully for hero video endpoints
           if (mountedRef.current) {
             setData([fallbackVideoObject()]);
             setError(null);
@@ -150,8 +152,8 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
   /* ----------------------------
      Build mutation endpoints (memoized)
   -----------------------------*/
-  // include mutation in deps to satisfy ESLint
-  const mutationKey = useMemo(() => safeStableKey(mutation), [mutation]);
+  // stable key for mutation config
+  const mutationKey = useMemo(() => safeStableKey(mutation), []);
   const endpoints = useMemo(
     () =>
       buildMutationEndpoints({
@@ -159,7 +161,7 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
         resourceOverride: resource,
         custom: mutation,
       }),
-    [endpointKey, resource, mutation, mutationKey]
+    [endpointKey, resource, mutationKey]
   );
 
   /* ----------------------------
@@ -329,14 +331,12 @@ function fallbackVideoObject() {
   };
 }
 
-// call a function that may accept different kinds of params
 function callWithParams(fn, params) {
   if (Array.isArray(params)) return fn(...params);
   if (params && typeof params === "object") return fn(...Object.values(params));
   return fn(params);
 }
 
-// stable serializer for deps
 function safeStableKey(value) {
   try {
     return JSON.stringify(value ?? null);
@@ -354,16 +354,11 @@ function safeNotify(notify, type, message) {
     try {
       notify(type, message);
     } catch (e) {
-      // don't let notify errors crash hook
-      // eslint-disable-next-line no-console
       console.warn("[useMediaFetcher] notify failed:", e);
     }
   }
 }
 
-/**
- * Build default mutation endpoints using API config and allow custom overrides.
- */
 function buildMutationEndpoints({ endpointKey, resourceOverride, custom }) {
   const res = resourceOverride || inferResource(endpointKey);
 
@@ -395,6 +390,6 @@ function buildMutationEndpoints({ endpointKey, resourceOverride, custom }) {
 function inferResource(endpointKey) {
   const key = (endpointKey || "").toLowerCase();
   if (key.includes("video")) return "videos";
-  if (key.includes("media") || key === "home" || key === "featured" || key === "banners") return "media";
+  if (key.includes("media") || ["home", "featured", "banners"].includes(key)) return "media";
   return null;
 }
