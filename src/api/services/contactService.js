@@ -1,12 +1,14 @@
+// src/api/services/contactService.js
 import publicAxios from '../publicAxios';
-import axiosInstance from '../axiosInstance';
-import API from '../api';
+import API from '../api'; // endpoint constants aggregator (../api -> src/api/api.js)
 
 const contactService = {
-  sendContactForm: (data) => publicAxios.post(API.contact.send, data),
-  listContacts: () => axiosInstance.get(API.contact.list),
-  getContactDetail: (id) => axiosInstance.get(API.contact.detail(id)),
-  deleteContact: (id) => axiosInstance.delete(API.contact.delete(id)),
+  /**
+   * Send contact/enquiry message.
+   * Uses publicAxios because contact form is typically anonymous.
+   * Accepts optional axios config as second argument (e.g. { signal }).
+   */
+  send: (data, config) => publicAxios.post(API.contact.send, data, config),
 };
 
 export default contactService;

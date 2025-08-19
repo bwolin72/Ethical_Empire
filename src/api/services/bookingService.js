@@ -1,20 +1,26 @@
+// src/api/services/bookingService.js
 import publicAxios from '../publicAxios';
 import axiosInstance from '../axiosInstance';
-import API from '../api';
+import bookingAPI from '../bookingAPI';
 
 const bookingService = {
-  createBooking: (data) => publicAxios.post(API.bookings.create, data),
-  getUserBookings: () => axiosInstance.get(API.bookings.userBookings),
-  getAdminBookings: () => axiosInstance.get(API.bookings.adminBookings),
-  getBookingDetail: (id) => axiosInstance.get(API.bookings.detail(id)),
-  updateBooking: (id, data) => axiosInstance.patch(API.bookings.update(id), data),
-  deleteBooking: (id) => axiosInstance.delete(API.bookings.delete(id)),
+  // Client-facing
+  create: (data) => publicAxios.post(bookingAPI.create, data),
+  list: () => axiosInstance.get(bookingAPI.list),
+  userBookings: () => axiosInstance.get(bookingAPI.userBookings),
+  userBookingHistory: () => axiosInstance.get(bookingAPI.userBookingHistory),
+  detail: (id) => axiosInstance.get(bookingAPI.detail(id)),
+  update: (id, data) => axiosInstance.patch(bookingAPI.detail(id), data),
+  delete: (id) => axiosInstance.delete(bookingAPI.detail(id)),
 
-  sendConfirmationEmail: (id) => axiosInstance.post(API.bookings.sendConfirmation(id)),
-  sendAdminNotification: (id) => axiosInstance.post(API.bookings.sendAdminNotification(id)),
+  // Admin
+  adminList: () => axiosInstance.get(bookingAPI.adminList),
+  adminDetail: (id) => axiosInstance.get(bookingAPI.adminDetail(id)),
+  adminUpdateStatus: (id, data) =>
+    axiosInstance.post(bookingAPI.adminUpdateStatus(id), data),
 
-  updateStatus: (id, status) =>
-    axiosInstance.patch(API.bookings.updateStatus(id), { status }),
+  // Invoice
+  invoice: (id) => axiosInstance.get(bookingAPI.invoice(id)),
 };
 
 export default bookingService;

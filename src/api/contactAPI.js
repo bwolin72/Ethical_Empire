@@ -1,7 +1,9 @@
+// src/api/contactAPI.js
 import baseURL from './baseURL';
 
 const contactAPI = {
-  sendMessage: `${baseURL}/contact/send/`,
+  // backend exposes POST /api/contact/send/
+  send: `${baseURL}/contact/send/`,
 };
 
 export default contactAPI;
