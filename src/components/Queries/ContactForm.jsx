@@ -286,9 +286,9 @@ const ContactForm = () => {
         <aside className="company-details-section">
           <div className="info-row">
             <div className="info-block">
-              <h3>Manager</h3>
+              <h3>Co-Founder</h3>
               <p><strong>Name:</strong> Mr. Nhyira Nana Joseph</p>
-              <p><strong>Email:</strong> asaasebandeethm@gmail.com</p>
+              <p><strong>Email:</strong> info@eethmghmultimedia.com</p>
               <p><strong>Phone:</strong> +233 55 603 6565</p>
               <p><strong>WhatsApp:</strong> +233 55 298 8735</p>
             </div>
@@ -303,14 +303,14 @@ const ContactForm = () => {
 
           <div className="contact-buttons">
             <a
-              href="https://wa.me/233556036565"
+              href="https://wa.me/233553424865"
               className="whatsapp"
               target="_blank"
               rel="noopener noreferrer"
             >
               WhatsApp
             </a>
-            <a href="tel:+233556036565" className="phone">Call</a>
+            <a href="tel:+233553424865" className="phone">Call</a>
           </div>
 
           <div className="social-media-links">
@@ -336,7 +336,7 @@ const ContactForm = () => {
               Twitter
             </a>
             <a
-              href="https://www.facebook.com/share/16nQGbE7Zk/"
+              href="https://facebook.com/16nQGbE7Zk/"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -350,7 +350,7 @@ const ContactForm = () => {
         <h4>Our Location</h4>
         <iframe
           title="Ethical Multimedia GH Location"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3971.4429128830157!2d-0.5363832260168868!3d5.501059994478851!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdfb390c81a1003%3A0x3a7e5b20542ee1e3!2sAKOTSI%20JUNCTION!5e0!3m2!1sen!2sin!4v1749910221020!5m2!1sen!2sin&output=embed"
+          src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3971.428661923482!2d-0.5330301294382339!3d5.503194382269809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2s!5e0!3m2!1sen!2sin!4v1755619633455!5m2!1sen!2sin"
           allowFullScreen
           loading="lazy"
         ></iframe>
