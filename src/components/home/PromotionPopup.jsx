@@ -1,4 +1,3 @@
-// src/components/promotions/PromotionPopup.jsx
 import React, { useEffect, useState } from "react";
 import useMediaFetcher from "../../hooks/useMediaFetcher";
 import "./PromotionPopup.css";
@@ -6,31 +5,34 @@ import "./PromotionPopup.css";
 const BACKEND_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const PromotionPopup = () => {
-  const { data: promotions, error, loading } = useMediaFetcher("promotions");
+  const { data: promotions } = useMediaFetcher("promotions"); // ✅ streamlined
   const [promotion, setPromotion] = useState(null);
   const [visible, setVisible] = useState(false);
 
+  // ✅ Normalize media URLs
   useEffect(() => {
     if (Array.isArray(promotions) && promotions.length > 0) {
       const promo = { ...promotions[0] };
 
-      // 🔗 Normalize image URL
       if (promo.image && !promo.image.startsWith("http")) {
-        promo.image = `${BACKEND_BASE_URL}${promo.image.startsWith("/") ? "" : "/"}${promo.image}`;
+        promo.image = `${BACKEND_BASE_URL}${
+          promo.image.startsWith("/") ? "" : "/"
+        }${promo.image}`;
       }
 
-      // 🔗 Normalize video URL
       if (promo.video && !promo.video.startsWith("http")) {
-        promo.video = `${BACKEND_BASE_URL}${promo.video.startsWith("/") ? "" : "/"}${promo.video}`;
+        promo.video = `${BACKEND_BASE_URL}${
+          promo.video.startsWith("/") ? "" : "/"
+        }${promo.video}`;
       }
 
       setPromotion(promo);
     }
   }, [promotions]);
 
+  // ✅ Delay popup appearance
   useEffect(() => {
     if (promotion) {
-      // Show popup after 5s delay
       const timer = setTimeout(() => setVisible(true), 5000);
       return () => clearTimeout(timer);
     }
@@ -47,8 +49,10 @@ const PromotionPopup = () => {
           <button className="close-button" onClick={handleClose}>
             ×
           </button>
+
           <h3>{promotion.title}</h3>
 
+          {/* ✅ Image */}
           {promotion.image && (
             <img
               src={promotion.image}
@@ -56,6 +60,8 @@ const PromotionPopup = () => {
               className="promo-image"
             />
           )}
+
+          {/* ✅ Video */}
           {promotion.video && (
             <video controls className="promo-video">
               <source src={promotion.video} type="video/mp4" />
@@ -63,6 +69,7 @@ const PromotionPopup = () => {
             </video>
           )}
 
+          {/* ✅ Rendered HTML */}
           {promotion.html_content && (
             <div
               className="promo-html"
