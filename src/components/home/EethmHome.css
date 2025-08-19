@@ -4,8 +4,9 @@
    🌟 Base wrapper
    =========================================== */
 .eethm-home-page {
-  /* optional page bg so sections are readable over imagery */
   background: var(--color-page, #f7f7f7);
+  font-family: var(--font-main);
+  color: var(--color-neutral-dark);
 }
 
 /* ======================================================
@@ -23,13 +24,28 @@
   left: 0;
 }
 
-/* subtle gradient for readability */
+/* subtle gradient for readability (kept) */
 .eethm-home-page .video-hero-section::after {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(0,0,0,.45));
   z-index: 1;
+  pointer-events: none;
+}
+
+/* explicit overlay element used in JSX */
+.eethm-home-page .overlay-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+      180deg,
+      rgba(0,0,0,0.20) 0%,
+      rgba(0,0,0,0.35) 40%,
+      rgba(0,0,0,0.55) 100%
+    ), var(--gradient-navy-gold);
+  mix-blend-mode: multiply;
   pointer-events: none;
 }
 
@@ -50,7 +66,7 @@
   background: var(--color-black);
 }
 
-/* overlay content sits above the media */
+/* overlay content sits above media & gradients */
 .eethm-home-page .overlay-content {
   position: relative;
   z-index: 2;
@@ -60,18 +76,18 @@
   max-width: 90vw;
   margin: 0 auto;
   user-select: none;
+  animation: fade-in-up var(--transition-slow) both;
 }
 
-/* hero copy */
-.eethm-home-page .overlay-content h1 {
+/* hero copy (class-based to match JSX) */
+.eethm-home-page .hero-title {
   font-family: var(--font-accent);
   font-size: 3.2rem;
   margin-bottom: 0.5rem;
   color: var(--color-accent-gold);
   text-shadow: 0 0 8px rgba(212, 175, 55, 0.7);
 }
-
-.eethm-home-page .overlay-content p {
+.eethm-home-page .hero-subtitle {
   font-size: 1.6rem;
   margin-bottom: 1.5rem;
   color: var(--color-neutral-light);
@@ -102,9 +118,9 @@
   transform: translateY(-3px);
 }
 
-/* Explicit button styles */
+/* Buttons */
 .eethm-home-page .btn-primary {
-  background-color: var(--color-secondary);
+  background: var(--gradient-navy-gold);
   color: var(--color-white);
   border: none;
   padding: 12px 28px;
@@ -112,9 +128,23 @@
   font-weight: 700;
 }
 .eethm-home-page .btn-primary:hover {
-  background-color: var(--color-secondary-dark);
+  filter: brightness(0.95);
 }
 
+/* Secondary button used in JSX */
+.eethm-home-page .btn-secondary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.15);
+  font-weight: 700;
+}
+.eethm-home-page .btn-secondary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Legacy alias (kept if used elsewhere) */
 .eethm-home-page .newsletter-btn {
   background-color: var(--color-primary);
   color: var(--color-white);
@@ -162,6 +192,12 @@
   font-size: .9rem;
 }
 
+/* generic error text used in JSX */
+.eethm-home-page .error-text {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
 /* ======================================================
    📄 Section Wrappers
    ====================================================== */
@@ -170,6 +206,16 @@
   max-width: 1200px;
   margin: 3rem auto;
   padding: 0 1rem;
+}
+
+.eethm-home-page .services-page > h2,
+.eethm-home-page .banners-section > h2,
+.eethm-home-page .promotions-section > h2,
+.eethm-home-page .reviews-section > h2 {
+  font-family: var(--font-accent);
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  letter-spacing: .5px;
 }
 
 /* ======================================================
@@ -307,6 +353,7 @@
   font-size: 1.8rem;
   margin-bottom: 1rem;
   color: var(--color-primary);
+  font-family: var(--font-accent);
 }
 
 .eethm-home-page .newsletter-modal p {
@@ -364,14 +411,20 @@
   outline-offset: 4px;
 }
 
+/* reCAPTCHA spacing (class used in JSX) */
+.eethm-home-page .newsletter-recaptcha {
+  display: flex;
+  justify-content: center;
+}
+
 /* Feedback messages */
 .eethm-home-page .success-message {
-  color: var(--color-success, #2e7d32);
+  color: var(--color-success);
   font-weight: 600;
   margin-top: 0.75rem;
 }
 .eethm-home-page .error-message {
-  color: var(--color-error, #c62828);
+  color: var(--color-error);
   font-weight: 600;
   margin-top: 0.75rem;
 }
@@ -417,8 +470,12 @@
   font-size: 1.2rem;
   color: var(--color-primary);
   margin-bottom: 0.5rem;
+  font-family: var(--font-accent);
 }
-.eethm-home-page .promotion-card-content p { color: var(--color-neutral-dark); font-size: 0.95rem; }
+.eethm-home-page .promotion-card-content p {
+  color: var(--color-neutral-dark);
+  font-size: 0.95rem;
+}
 .eethm-home-page .promotion-card-content .discount {
   font-weight: 700; color: var(--color-accent-green); margin-top: 0.5rem;
 }
@@ -456,7 +513,6 @@
 /* ======================================================
    🖼 Banner & Media Cards (rendered by sub-components)
    ====================================================== */
-/* ✅ your MediaCards component uses these wrapper classes */
 .eethm-home-page .media-cards-container {
   max-width: 1200px;
   margin: 3rem auto;
@@ -466,6 +522,7 @@
   font-size: 1.6rem;
   margin: 0 0 1rem;
   color: var(--color-primary);
+  font-family: var(--font-accent);
 }
 
 /* desktop: grid; small screens: horizontal scroll */
@@ -485,7 +542,7 @@
   .eethm-home-page .media-card-wrapper { scroll-snap-align: start; min-width: 72%; }
 }
 
-/* keep older classes for banner/media grids if subcomponents use them */
+/* legacy grid classes */
 .eethm-home-page .banner-cards,
 .eethm-home-page .media-cards {
   display: grid;
@@ -508,10 +565,15 @@
 .eethm-home-page .banner-card-content,
 .eethm-home-page .media-card-content { padding: 1rem; }
 .eethm-home-page .banner-card-content h3,
-.eethm-home-page .media-card-content h3 { font-size: 1.1rem; color: var(--color-primary); margin-bottom: 0.5rem; }
+.eethm-home-page .media-card-content h3 {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-accent);
+}
 
 /* simple messaging styles used by MediaCards */
-.eethm-home-page .media-error { color: var(--color-error, #c62828); margin: .25rem 0 0; }
+.eethm-home-page .media-error { color: var(--color-error); margin: .25rem 0 0; }
 .eethm-home-page .media-card-empty { opacity: .7; }
 
 /* ======================================================
@@ -523,9 +585,14 @@
 /* ======================================================
    📱 Responsive Adjustments
    ====================================================== */
+@media (max-width: 1024px) {
+  .eethm-home-page .hero-title { font-size: 2.8rem; }
+  .eethm-home-page .hero-subtitle { font-size: 1.3rem; }
+}
+
 @media (max-width: 768px) {
-  .eethm-home-page .overlay-content h1 { font-size: 2.4rem; }
-  .eethm-home-page .overlay-content p { font-size: 1.15rem; }
+  .eethm-home-page .hero-title { font-size: 2.4rem; }
+  .eethm-home-page .hero-subtitle { font-size: 1.15rem; }
 
   .eethm-home-page .service-card-grid {
     flex-direction: column;
@@ -535,13 +602,13 @@
   .eethm-home-page .service-flip-card .service-flip-card-inner { min-height: 360px; }
 
   .eethm-home-page .video-hero-section {
-    height: calc(100vh - 56px); /* mobile chrome headroom */
+    height: calc(100vh - 56px);
     min-height: 50vh;
   }
 }
 
 @media (max-width: 380px) {
-  .eethm-home-page .overlay-content h1 { font-size: 1.8rem; }
-  .eethm-home-page .overlay-content p { font-size: 1rem; }
+  .eethm-home-page .hero-title { font-size: 1.9rem; }
+  .eethm-home-page .hero-subtitle { font-size: 1rem; }
   .eethm-home-page .service-flip-card { width: 100%; height: auto; }
 }

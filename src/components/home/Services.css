@@ -4,8 +4,8 @@
   max-width: 1200px;
   margin: 40px auto;
   padding: 0 20px;
-  background-color: #f5ebdd; /* Soft Sand Background */
-  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--color-accent-gold-light); /* Soft Sand using theme */
+  font-family: var(--font-main);
 }
 
 /* Section Heading */
@@ -13,23 +13,24 @@
 .service-detail h2 {
   text-align: center;
   margin-bottom: 30px;
-  color: #800020; /* Burgundy */
+  color: var(--color-primary); /* Burgundy */
   font-size: 2rem;
   font-weight: 700;
+  font-family: var(--font-accent);
 }
 
 /* Service Detail View */
 .service-detail {
-  background-color: #ffffff;
+  background-color: var(--color-white);
   padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(46, 46, 46, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   max-width: 800px;
   margin: 0 auto;
 }
 
 .service-detail p {
-  color: #2e2e2e;
+  color: var(--color-neutral);
   font-size: 1.1rem;
   line-height: 1.7;
   margin-bottom: 24px;
@@ -43,21 +44,21 @@
 .service-detail li {
   margin-bottom: 10px;
   font-size: 1rem;
-  color: #2e2e2e;
+  color: var(--color-neutral);
 }
 
 /* Back Link */
 .services-page .back-link {
   display: inline-block;
   margin-top: 20px;
-  color: #800020;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s ease;
+  transition: color var(--transition-fast);
 }
 
 .services-page .back-link:hover {
-  color: #cba135;
+  color: var(--color-accent-gold);
   text-decoration: underline;
 }
 
@@ -74,17 +75,17 @@
   perspective: 1000px;
   cursor: pointer;
   height: 220px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 
 .services-page .card-inner {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s ease;
+  transition: transform var(--transition-slow);
   transform-style: preserve-3d;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(46, 46, 46, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .service-card.flipped .card-inner {
@@ -97,27 +98,27 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 25px;
-  background-color: #ffffff;
+  background-color: var(--color-white);
   backface-visibility: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow var(--transition-fast);
 }
 
 .services-page .card-front h3 {
-  color: #cba135;
+  color: var(--color-accent-gold);
   font-size: 1.4rem;
   margin-bottom: 0;
 }
 
 .services-page .card-back {
   transform: rotateY(180deg);
-  background-color: #fff7ef; /* lighter sand */
-  color: #2e2e2e;
+  background-color: var(--color-accent-gold-light); /* lighter sand */
+  color: var(--color-neutral);
 }
 
 .services-page .card-back p {
@@ -126,24 +127,24 @@
   text-align: center;
 }
 
-.service-card.book-btn {
+.service-card .book-btn {
   margin-top: 1rem;
-  background-color: #800020;
-  color: #ffffff;
+  background-color: var(--color-primary);
+  color: var(--color-white);
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   text-decoration: none;
   font-weight: 600;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-fast);
 }
 
-.service-card.book-btn:hover {
-  background-color: #5a0018;
+.service-card .book-btn:hover {
+  background-color: var(--color-primary-dark);
 }
 
 /* Hover effect for elevated card */
 .service-card:hover .card-inner {
-  box-shadow: 0 6px 16px rgba(46, 46, 46, 0.25);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Responsive Tweaks */
@@ -169,11 +170,11 @@
     font-size: 1.5rem;
   }
 
-  .service-card.card-front h3 {
+  .services-page .card-front h3 {
     font-size: 1.2rem;
   }
 
-  .service-card.card-back p,
+  .services-page .card-back p,
   .service-detail p,
   .service-detail li {
     font-size: 0.95rem;

@@ -1,57 +1,42 @@
 // src/components/promotions/PromotionPopup.jsx
 import React, { useEffect, useState } from "react";
-import apiService from "../../api/apiService";
+import useMediaFetcher from "../../hooks/useMediaFetcher";
 import "./PromotionPopup.css";
 
 const BACKEND_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const PromotionPopup = () => {
+  const { data: promotions, error, loading } = useMediaFetcher("promotions");
   const [promotion, setPromotion] = useState(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const fetchPromotions = async () => {
-      try {
-        const response = await apiService.getActivePromotions();
-        const promotions = response.data.results || response.data;
+    if (Array.isArray(promotions) && promotions.length > 0) {
+      const promo = { ...promotions[0] };
 
-        if (Array.isArray(promotions) && promotions.length > 0) {
-          const promo = { ...promotions[0] };
-
-          // Fix relative image URL
-          if (promo.image && !promo.image.startsWith("http")) {
-            promo.image = `${BACKEND_BASE_URL}${
-              promo.image.startsWith("/") ? "" : "/"
-            }${promo.image}`;
-          }
-
-          // Fix relative video URL
-          if (promo.video && !promo.video.startsWith("http")) {
-            promo.video = `${BACKEND_BASE_URL}${
-              promo.video.startsWith("/") ? "" : "/"
-            }${promo.video}`;
-          }
-
-          setPromotion(promo);
-        }
-      } catch (err) {
-        console.error("❌ Failed to load promotion:", err);
+      // 🔗 Normalize image URL
+      if (promo.image && !promo.image.startsWith("http")) {
+        promo.image = `${BACKEND_BASE_URL}${promo.image.startsWith("/") ? "" : "/"}${promo.image}`;
       }
-    };
 
-    fetchPromotions();
+      // 🔗 Normalize video URL
+      if (promo.video && !promo.video.startsWith("http")) {
+        promo.video = `${BACKEND_BASE_URL}${promo.video.startsWith("/") ? "" : "/"}${promo.video}`;
+      }
 
-    // Show popup after 5 seconds
-    const timer = setTimeout(() => {
-      setVisible(true);
-    }, 5000);
+      setPromotion(promo);
+    }
+  }, [promotions]);
 
-    return () => clearTimeout(timer);
-  }, []);
+  useEffect(() => {
+    if (promotion) {
+      // Show popup after 5s delay
+      const timer = setTimeout(() => setVisible(true), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [promotion]);
 
-  const handleClose = () => {
-    setVisible(false);
-  };
+  const handleClose = () => setVisible(false);
 
   if (!promotion || !visible) return null;
 

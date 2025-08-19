@@ -6,6 +6,7 @@ import apiService from "../../api/apiService";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
+import ReCAPTCHA from "react-google-recaptcha"; // ✅ reCAPTCHA
 import "./EethmHome.css";
 
 // --- Helpers ---
@@ -32,7 +33,6 @@ const EethmHome = () => {
   const heroArray = heroFetch?.media ?? heroFetch?.data ?? [];
   const heroLoading = Boolean(heroFetch?.loading);
   const heroError = heroFetch?.error ?? null;
-
   const heroMedia = Array.isArray(heroArray) ? heroArray[0] ?? null : heroArray ?? null;
   const heroURL = getMediaUrl(heroMedia);
 
@@ -42,9 +42,10 @@ const EethmHome = () => {
   // Backend videos
   const [videos, setVideos] = useState([]);
   const [videosError, setVideosError] = useState(null);
-
   const featuredVideo =
-    Array.isArray(videos) && videos.length > 0 ? videos.find((v) => v?.is_featured) || videos[0] : null;
+    Array.isArray(videos) && videos.length > 0
+      ? videos.find((v) => v?.is_featured) || videos[0]
+      : null;
   const featuredVideoUrl = getMediaUrl(featuredVideo);
 
   const resolvedVideoSrc =
@@ -70,6 +71,7 @@ const EethmHome = () => {
   const [newsletterSuccess, setNewsletterSuccess] = useState("");
   const [newsletterError, setNewsletterError] = useState("");
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
 
   // Keep muted in sync
   useEffect(() => {
@@ -80,7 +82,6 @@ const EethmHome = () => {
     }
   }, [isMuted]);
 
-  // Reduced motion preference
   useEffect(() => {
     try {
       const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -100,7 +101,7 @@ const EethmHome = () => {
       try {
         const [videoRes, promoRes, reviewRes, serviceRes] = await Promise.all([
           apiService.getVideos(),
-          apiService.getActivePromotions(),
+          apiService.getPromotions(),
           apiService.getReviews(),
           apiService.getServices(),
         ]);
@@ -114,7 +115,9 @@ const EethmHome = () => {
           : [];
 
         setVideos(
-          allVideos.filter((v) => v?.is_active && Array.isArray(v?.endpoints) && v.endpoints.includes("home"))
+          allVideos.filter(
+            (v) => v?.is_active && Array.isArray(v?.endpoints) && v.endpoints.includes("home")
+          )
         );
 
         setPromotions(Array.isArray(promoRes?.data) ? promoRes.data : []);
@@ -156,17 +159,24 @@ const EethmHome = () => {
       setNewsletterError("Please enter a valid email address.");
       return;
     }
+    if (!recaptchaToken) {
+      setNewsletterError("Please complete the reCAPTCHA.");
+      return;
+    }
 
     try {
-      const res = await apiService.subscribeNewsletter(email);
+      const res = await apiService.subscribeNewsletter(email, recaptchaToken);
       if ([200, 201].includes(res?.status)) {
         setNewsletterSuccess(res?.data?.message ?? "Thank you for subscribing!");
         setNewsletterEmail("");
+        setRecaptchaToken(null);
       } else {
         setNewsletterError("Subscription failed. Please try again later.");
       }
     } catch (err) {
-      setNewsletterError(err?.response?.data?.error ?? "Subscription failed. Please try again later.");
+      setNewsletterError(
+        err?.response?.data?.error ?? "Subscription failed. Please try again later."
+      );
     }
   };
 
@@ -181,7 +191,7 @@ const EethmHome = () => {
         {heroLoading ? (
           <p className="video-fallback">Loading hero...</p>
         ) : heroError ? (
-          <p className="video-fallback" style={{ color: "var(--color-error)" }}>
+          <p className="video-fallback error-text">
             {typeof heroError === "string" ? heroError : "Failed to load hero media."}
           </p>
         ) : (
@@ -200,22 +210,28 @@ const EethmHome = () => {
                   onError={() => setVideoLoadFailed(true)}
                 >
                   <source src={effectiveVideoSrc} type="video/mp4" />
-                  Your browser does not support the video tag.
                 </video>
 
+                <div className="overlay-gradient"></div>
                 <div className="overlay-content">
-                  <h1>Ethical Multimedia GH Services</h1>
-                  <p>Live Band • Catering • Multimedia • Decor Services</p>
+                  <h1 className="hero-title">Ethical Multimedia GH</h1>
+                  <p className="hero-subtitle">
+                    Live Band • Catering • Multimedia • Decor Services
+                  </p>
                   <div className="hero-buttons">
-                    <button onClick={() => navigate("/bookings")} className="btn-primary" type="button">
+                    <button
+                      onClick={() => navigate("/bookings")}
+                      className="btn-primary"
+                      type="button"
+                    >
                       Book Now
                     </button>
                     <button
                       onClick={() => setShowNewsletterForm(true)}
-                      className="newsletter-btn"
+                      className="btn-secondary"
                       type="button"
                     >
-                      📩 Subscribe to Newsletter
+                      📩 Subscribe
                     </button>
                   </div>
                 </div>
@@ -229,30 +245,14 @@ const EethmHome = () => {
                   {isMuted ? "🔇" : "🔊"}
                 </button>
 
-                {videosError && <div className="video-error" role="status">{videosError}</div>}
+                {videosError && <div className="video-error">{videosError}</div>}
               </>
             ) : isHeroImage ? (
-              <>
-                <img
-                  src={heroURL || LOCAL_FALLBACK_IMAGE}
-                  alt="Hero"
-                  className="background-video"
-                  loading="eager"
-                  decoding="async"
-                  fetchpriority="high"
-                />
-                <div className="overlay-content">
-                  <h1>Ethical Multimedia GH Services</h1>
-                  <p>Live Band • Catering • Multimedia • Decor Services</p>
-                  <button
-                    onClick={() => setShowNewsletterForm(true)}
-                    className="newsletter-btn"
-                    type="button"
-                  >
-                    📩 Subscribe to Newsletter
-                  </button>
-                </div>
-              </>
+              <img
+                src={heroURL || LOCAL_FALLBACK_IMAGE}
+                alt="Hero"
+                className="background-video"
+              />
             ) : (
               <p className="video-fallback">No hero media available.</p>
             )}
@@ -262,7 +262,10 @@ const EethmHome = () => {
 
       {/* Newsletter Modal */}
       {showNewsletterForm && (
-        <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
+        <div
+          className="newsletter-modal-backdrop"
+          onClick={() => setShowNewsletterForm(false)}
+        >
           <div
             className="newsletter-modal"
             onClick={(e) => e.stopPropagation()}
@@ -273,7 +276,6 @@ const EethmHome = () => {
             <button
               className="newsletter-close-btn"
               onClick={() => setShowNewsletterForm(false)}
-              aria-label="Close newsletter form"
               type="button"
             >
               &times;
@@ -288,13 +290,23 @@ const EethmHome = () => {
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 required
-                aria-label="Email address"
               />
-              <button type="submit">Subscribe</button>
+              <ReCAPTCHA
+                sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+                onChange={(token) => setRecaptchaToken(token)}
+                className="newsletter-recaptcha"
+              />
+              <button type="submit" className="btn-primary">
+                Subscribe
+              </button>
             </form>
 
-            {newsletterSuccess && <p className="success-message">{newsletterSuccess}</p>}
-            {newsletterError && <p className="error-message">{newsletterError}</p>}
+            {newsletterSuccess && (
+              <p className="success-message">{newsletterSuccess}</p>
+            )}
+            {newsletterError && (
+              <p className="error-message">{newsletterError}</p>
+            )}
           </div>
         </div>
       )}
@@ -303,48 +315,30 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="services-page">
           <h2>Our Services</h2>
-          {servicesError && <p style={{ color: "var(--color-error)" }}>{servicesError}</p>}
+          {servicesError && <p className="error-text">{servicesError}</p>}
           {Array.isArray(services) && services.length > 0 ? (
             <div className="service-card-grid">
               {services.map((service, idx) => {
                 const slugOrId = service?.slug ?? service?.id ?? "";
-                const handleNavigate = () => {
-                  if (slugOrId !== "") navigate(`/Services/${slugOrId}`);
-                };
                 return (
                   <div
                     key={service.id ?? service.slug ?? idx}
                     className="service-flip-card"
-                    role="button"
-                    tabIndex={0}
-                    onClick={handleNavigate}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleNavigate();
-                      }
-                    }}
+                    onClick={() => navigate(`/Services/${slugOrId}`)}
                   >
                     <div className="service-flip-card-inner">
                       <div className="service-flip-card-front">
                         {service.image && (
                           <img
                             src={service.image}
-                            alt={service.title || service.name || "Service"}
+                            alt={service.title}
                             className="service-image"
                           />
                         )}
-                        <h3>{service.title || service.name || "service"}</h3>
+                        <h3>{service.title}</h3>
                       </div>
                       <div className="service-flip-card-back">
-                        {service.description && <p>{service.description}</p>}
-                        {Array.isArray(service.details) && service.details.length > 0 && (
-                          <ul>
-                            {service.details.map((d, i) => (
-                              <li key={i}>{d}</li>
-                            ))}
-                          </ul>
-                        )}
+                        <p>{service.description}</p>
                         <span className="click-hint">Click to view more</span>
                       </div>
                     </div>
@@ -362,24 +356,27 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="promotions-section">
           <h2>Current Offers</h2>
-          {Array.isArray(promotions) && promotions.length > 0 ? (
+          {promotions?.length > 0 ? (
             <div className="promotions-grid">
               {promotions.map((promo, idx) => (
                 <article key={promo.id ?? idx} className="promotion-card">
-                  {promo.image_url && <img src={promo.image_url} alt={promo.title ?? "Promotion"} />}
+                  {promo.image_url && (
+                    <img src={promo.image_url} alt={promo.title} />
+                  )}
                   <div className="promotion-card-content">
                     <h3>{promo.title}</h3>
-                    {promo.description && <p>{promo.description}</p>}
-                    {promo.discount_percentage && <p className="discount">Save {promo.discount_percentage}%</p>}
-                    {(promo.valid_from || promo.valid_to) && (
-                      <p className="validity">Valid: {promo.valid_from ?? "—"} – {promo.valid_to ?? "—"}</p>
+                    <p>{promo.description}</p>
+                    {promo.discount_percentage && (
+                      <p className="discount">
+                        Save {promo.discount_percentage}%
+                      </p>
                     )}
                   </div>
                 </article>
               ))}
             </div>
           ) : promoError ? (
-            <p style={{ color: "var(--color-error)" }}>{promoError}</p>
+            <p className="error-text">{promoError}</p>
           ) : (
             <p>No current promotions.</p>
           )}
@@ -390,17 +387,17 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="reviews-section">
           <h2>What Our Clients Say</h2>
-          {Array.isArray(reviews) && reviews.length > 0 ? (
+          {reviews?.length > 0 ? (
             <div className="reviews-container">
               {reviews.map((review, idx) => (
                 <div key={review.id ?? idx} className="review-card">
-                  {review.name && <p className="review-author">— {review.name}</p>}
-                  {review.comment && <p className="review-text">"{review.comment}"</p>}
+                  <p className="review-text">"{review.comment}"</p>
+                  <p className="review-author">— {review.name}</p>
                 </div>
               ))}
             </div>
           ) : reviewError ? (
-            <p style={{ color: "var(--color-error)" }}>{reviewError}</p>
+            <p className="error-text">{reviewError}</p>
           ) : (
             <p>No client reviews available.</p>
           )}

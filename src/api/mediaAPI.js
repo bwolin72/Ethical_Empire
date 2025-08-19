@@ -2,10 +2,6 @@
 import baseURL from './baseURL';
 import axiosInstance from './axiosInstance';
 import publicAxios from './publicAxios';
-import API from './api'; // so we can use videos endpoints
-
-// Local fallback video (relative to public folder)
-const FALLBACK_VIDEO_URL = '/mock/hero-video.mp4';
 
 const mediaAPI = {
   endpoints: {
@@ -34,19 +30,6 @@ const mediaAPI = {
     reorder: `${baseURL}/media/reorder/`,
     stats: `${baseURL}/media/stats/`,
     debugProto: `${baseURL}/media/debug/proto/`,
-
-    // ===== VIDEOS ===== (from api.js for consistency)
-    videos: API.videos.list,
-    videosHome: API.videos.home,
-    videosAbout: API.videos.about,
-    videosDecor: API.videos.decor,
-    videosLiveBand: API.videos.liveBand,
-    videosCatering: API.videos.catering,
-    videosMediaHosting: API.videos.mediaHosting,
-    videosVendor: API.videos.vendor,
-    videosPartner: API.videos.partner,
-    videosUser: API.videos.user,
-    videoDetail: (id) => API.videos.detail(id),
   },
 
   // ===== PUBLIC METHODS (MEDIA) =====
@@ -62,33 +45,6 @@ const mediaAPI = {
   getLiveBand: () => publicAxios.get(mediaAPI.endpoints.liveBand),
   getCatering: () => publicAxios.get(mediaAPI.endpoints.catering),
   getMediaHosting: () => publicAxios.get(mediaAPI.endpoints.mediaHosting),
-
-  // ===== PUBLIC METHODS (VIDEOS) =====
-  getVideos: () => publicAxios.get(mediaAPI.endpoints.videos),
-  getVideosHome: () => publicAxios.get(mediaAPI.endpoints.videosHome),
-  getVideosAbout: () => publicAxios.get(mediaAPI.endpoints.videosAbout),
-  getVideosDecor: () => publicAxios.get(mediaAPI.endpoints.videosDecor),
-  getVideosLiveBand: () => publicAxios.get(mediaAPI.endpoints.videosLiveBand),
-  getVideosCatering: () => publicAxios.get(mediaAPI.endpoints.videosCatering),
-  getVideosMediaHosting: () => publicAxios.get(mediaAPI.endpoints.videosMediaHosting),
-  getVideosVendor: () => publicAxios.get(mediaAPI.endpoints.videosVendor),
-  getVideosPartner: () => publicAxios.get(mediaAPI.endpoints.videosPartner),
-  getVideosUser: () => publicAxios.get(mediaAPI.endpoints.videosUser),
-  getVideoDetail: (id) => publicAxios.get(mediaAPI.endpoints.videoDetail(id)),
-
-  // ===== VIDEO FETCH WITH FALLBACK =====
-  async getHeroVideo() {
-    try {
-      const res = await publicAxios.get(mediaAPI.endpoints.videosHome);
-      if (res?.data?.length > 0 && res.data[0]?.file) {
-        return res.data[0].file; // assuming "file" contains the video URL
-      }
-      return FALLBACK_VIDEO_URL;
-    } catch (error) {
-      console.error('Error fetching hero video, using fallback:', error);
-      return FALLBACK_VIDEO_URL;
-    }
-  },
 
   // ===== ADMIN METHODS (MEDIA) =====
   upload: (data) => axiosInstance.post(mediaAPI.endpoints.upload, data),
