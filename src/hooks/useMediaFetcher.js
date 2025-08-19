@@ -57,11 +57,6 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
     };
   }, []);
 
-  // stable key for params (useful for deps)
-  const paramsKey = useMemo(() => safeStableKey(params), [params]);
-  // We'll still reference params directly in fetcher but include it in deps
-  const computedParams = params;
-
   /* -------------------------
      Resolve GET fetcher for endpointKey
      returns: () => Promise<Response>
@@ -72,19 +67,18 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
     // 1) mediaAPI methods like getHome, getAbout, getBanners
     const mediaMethodName = `get${capitalize(endpointKey)}`;
     if (typeof mediaAPI[mediaMethodName] === "function") {
-      return () => mediaAPI[mediaMethodName](computedParams);
+      return () => mediaAPI[mediaMethodName](params);
     }
 
     // 2) API.videos.* entries
     if (API?.videos && Object.prototype.hasOwnProperty.call(API.videos, endpointKey)) {
       const val = API.videos[endpointKey];
       if (typeof val === "function") {
-        // some API.videos methods might be functions that return a URL
-        const url = callWithParams(val, computedParams);
+        const url = callWithParams(val, params);
         return () => publicAxios.get(url);
       }
       if (typeof val === "string") {
-        return () => publicAxios.get(val, computedParams ? { params: computedParams } : undefined);
+        return () => publicAxios.get(val, params ? { params } : undefined);
       }
     }
 
@@ -92,13 +86,12 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
     if (API?.media && Object.prototype.hasOwnProperty.call(API.media, endpointKey)) {
       const val = API.media[endpointKey];
       if (typeof val === "string") {
-        return () =>
-          publicAxios.get(val, computedParams ? { params: computedParams } : undefined);
+        return () => publicAxios.get(val, params ? { params } : undefined);
       }
     }
 
     return null;
-  }, [endpointKey, paramsKey, computedParams]);
+  }, [endpointKey, params]);
 
   /* -------------------------
      fetchData: core GET with fallback for video endpoints
@@ -107,13 +100,10 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
     async (opts = {}) => {
       const fetcher = getFetcher();
       if (!fetcher) {
-        // invalid endpointKey -> set error and stop
-        // (don't throw; allow consumers to handle UI gracefully)
         if (mountedRef.current) {
           setError(`Unknown endpoint: ${endpointKey}`);
           setLoading(false);
         }
-        // eslint-disable-next-line no-console
         console.error(`[useMediaFetcher] Unknown endpoint key: ${endpointKey}`);
         return;
       }
@@ -127,7 +117,7 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
         const res = await fetcher(opts);
         const items = extractItems(res);
 
-        // Video endpoints: if backend returns empty list -> provide a local fallback video
+        // Fallback for empty video lists
         if (isVideoKey(endpointKey) && Array.isArray(items) && items.length === 0) {
           if (mountedRef.current) setData([fallbackVideoObject()]);
           return;
@@ -136,9 +126,6 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
         const finalItems = typeof transform === "function" ? transform(items) : items;
         if (mountedRef.current) setData(finalItems);
       } catch (err) {
-        // if video endpoint, degrade gracefully with fallback video
-        // otherwise surface error and set empty list
-        // eslint-disable-next-line no-console
         console.error(`❌ API fetch failed for ${endpointKey}:`, err);
         if (isVideoKey(endpointKey)) {
           if (mountedRef.current) {
@@ -159,8 +146,7 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
   );
 
   /* -------------------------
-     Build mutation endpoints (create/update/patch/remove)
-     Accept custom overrides via options.mutation
+     Build mutation endpoints
      ------------------------- */
   const endpoints = useMemo(
     () =>
@@ -169,40 +155,22 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
         resourceOverride: resource,
         custom: mutation,
       }),
-    // include raw mutation in deps to satisfy ESLint (and endpointKey/resource)
     [endpointKey, resource, mutation]
   );
 
-  // helpers to resolve URLs (or functions)
-  const resolveCreateUrl = (eps) => {
-    if (!eps?.create) throw new Error("[useMediaFetcher] No create endpoint configured.");
-    return typeof eps.create === "function" ? eps.create() : eps.create;
-  };
-  const resolveUpdateUrl = (eps, id) => {
-    if (!eps?.update) throw new Error("[useMediaFetcher] No update endpoint configured.");
-    return typeof eps.update === "function" ? eps.update(id) : eps.update;
-  };
-  const resolvePatchUrl = (eps, id) => {
-    if (!eps?.patch) throw new Error("[useMediaFetcher] No patch endpoint configured.");
-    return typeof eps.patch === "function" ? eps.patch(id) : eps.patch;
-  };
-  const resolveRemoveUrl = (eps, id) => {
-    if (!eps?.remove) throw new Error("[useMediaFetcher] No remove endpoint configured.");
-    return typeof eps.remove === "function" ? eps.remove(id) : eps.remove;
-  };
+  const resolveCreateUrl = (eps) => (typeof eps.create === "function" ? eps.create() : eps.create);
+  const resolveUpdateUrl = (eps, id) =>
+    typeof eps.update === "function" ? eps.update(id) : eps.update;
+  const resolvePatchUrl = (eps, id) =>
+    typeof eps.patch === "function" ? eps.patch(id) : eps.patch;
+  const resolveRemoveUrl = (eps, id) =>
+    typeof eps.remove === "function" ? eps.remove(id) : eps.remove;
 
   /* -------------------------
      Optimistic CRUD operations
-     - post(payload, { optimisticItem })
-     - put(id, payload)
-     - patch(id, payload)
-     - remove(id)
-     Each mutation triggers a re-fetch on success, and rollbacks + notify on error.
      ------------------------- */
-
   const post = useCallback(
     async (payload, { optimisticItem } = {}) => {
-      // snapshot previous list
       const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
       const tmpId = `tmp-${Date.now()}`;
       const optimistic = { id: tmpId, ...(optimisticItem || payload) };
@@ -212,12 +180,10 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
       try {
         const url = resolveCreateUrl(endpoints);
         const res = await axiosInstance.post(url, payload);
-
         safeNotify(notify, "success", successMessages.post || "Created successfully.");
         await fetchData();
         return res;
       } catch (err) {
-        // rollback
         if (mountedRef.current) setData(previous);
         safeNotify(notify, "error", errorMessages.post || "Create failed. Changes reverted.");
         if (mountedRef.current) setError(err);
@@ -237,7 +203,6 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
       try {
         const url = resolveUpdateUrl(endpoints, id);
         const res = await axiosInstance.put(url, payload);
-
         safeNotify(notify, "success", successMessages.put || "Updated successfully.");
         await fetchData();
         return res;
@@ -261,7 +226,6 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
       try {
         const url = resolvePatchUrl(endpoints, id);
         const res = await axiosInstance.patch(url, payload);
-
         safeNotify(notify, "success", successMessages.patch || "Saved successfully.");
         await fetchData();
         return res;
@@ -283,7 +247,6 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
       try {
         const url = resolveRemoveUrl(endpoints, id);
         const res = await axiosInstance.delete(url);
-
         safeNotify(notify, "success", successMessages.delete || "Deleted successfully.");
         await fetchData();
         return res;
@@ -297,7 +260,7 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
     [endpoints, fetchData, notify, successMessages, errorMessages]
   );
 
-  // initial fetch & reactive to fetchData changes (fetchData includes dependencies)
+  // initial fetch
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -315,9 +278,8 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
 }
 
 /* ---------------------------
-   Helper utilities
+   Helpers
    --------------------------- */
-
 function extractItems(res) {
   if (!res) return [];
   if (Array.isArray(res?.data)) return res.data;
@@ -327,8 +289,9 @@ function extractItems(res) {
 }
 
 function capitalize(str) {
-  if (!str || typeof str !== "string") return "";
-  return str.charAt(0).toUpperCase() + str.slice(1);
+  return typeof str === "string" && str.length > 0
+    ? str.charAt(0).toUpperCase() + str.slice(1)
+    : "";
 }
 
 function isVideoKey(key) {
@@ -347,46 +310,26 @@ function fallbackVideoObject() {
   };
 }
 
-/** Call functions that might accept different param shapes */
 function callWithParams(fn, params) {
   if (Array.isArray(params)) return fn(...params);
   if (params && typeof params === "object") return fn(...Object.values(params));
   return fn(params);
 }
 
-/** Stable JSON serializer for deps – tolerates circular by falling back */
-function safeStableKey(value) {
-  try {
-    return JSON.stringify(value ?? null);
-  } catch {
-    try {
-      return String(value);
-    } catch {
-      return "unstable";
-    }
-  }
-}
-
-/** Notify safely (swallow errors in notify function) */
 function safeNotify(notify, type, message) {
   if (typeof notify === "function" && message) {
     try {
       notify(type, message);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.warn("[useMediaFetcher] notify failed:", e);
     }
   }
 }
 
-/**
- * Build default mutation endpoints using API config and allow custom overrides.
- * Returns object { create, update, patch, remove } where each entry is string or function.
- */
 function buildMutationEndpoints({ endpointKey, resourceOverride, custom }) {
   const res = resourceOverride || inferResource(endpointKey);
-
   let defaults = {};
+
   if (res === "videos") {
     defaults = {
       create: API?.videos?.list,
