@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import serviceService from "../api/serviceService"; // ✅ updated import
+import serviceService from "../../api/services/serviceService"; // ✅ updated import
 import "./Services.css";
 
 const serviceDescriptions = {
