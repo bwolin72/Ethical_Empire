@@ -1,41 +1,65 @@
+// src/api/services/authService.js
 import publicAxios from '../publicAxios';
 import axiosInstance from '../axiosInstance';
 import API from '../api';
 
 const authService = {
-  login: (data) => publicAxios.post(API.auth.login, data),
-  register: (data) => publicAxios.post(API.auth.register, data),
-  googleLogin: (data) => publicAxios.post(API.auth.googleLogin, data),
-  googleRegister: (data) => publicAxios.post(API.auth.googleRegister, data),
-  logout: () => axiosInstance.post(API.auth.logout),
+  // ===== AUTH / REGISTER =====
+  login: (data) => publicAxios.post(API.auth.endpoints.login, data),
+  register: (data) => publicAxios.post(API.auth.endpoints.register, data),
+  registerPartner: (data) => publicAxios.post(API.auth.endpoints.registerPartner, data),
+  registerVendor: (data) => publicAxios.post(API.auth.endpoints.registerVendor, data),
+  internalRegister: (data) => publicAxios.post(API.auth.endpoints.internalRegister, data),
+  logout: () => axiosInstance.post(API.auth.endpoints.logout),
 
-  getProfile: () => axiosInstance.get(API.auth.profile),
-  updateProfile: (data) => axiosInstance.patch(API.auth.updateProfile, data),
-  changePassword: (data) => axiosInstance.post(API.auth.changePassword, data),
+  // ===== PROFILE =====
+  getProfile: () => axiosInstance.get(API.auth.endpoints.profile),
+  updateProfile: (data) => axiosInstance.patch(API.auth.endpoints.updateProfile, data),
+  changePassword: (data) => axiosInstance.post(API.auth.endpoints.changePassword, data),
 
-  resetPassword: (data) => publicAxios.post(API.auth.resetPassword, data),
-  resetPasswordConfirm: (uid, token, data) =>
-    publicAxios.post(API.auth.resetPasswordConfirm(uid, token), data),
+  // ===== PASSWORD RESET =====
+  resetPassword: (data) => publicAxios.post(API.auth.endpoints.resetPassword, data),
+  resetPasswordConfirm: (uidb64, token, data) =>
+    publicAxios.post(API.auth.endpoints.resetPasswordConfirm(uidb64, token), data),
 
-  getToken: (data) => publicAxios.post(API.auth.token, data),
-  refreshToken: (data) => publicAxios.post(API.auth.tokenRefresh, data),
-  verifyToken: (data) => publicAxios.post(API.auth.tokenVerify, data),
+  // ===== TOKENS =====
+  getToken: (data) => publicAxios.post(API.auth.endpoints.token, data),
+  refreshToken: (data) => publicAxios.post(API.auth.endpoints.tokenRefresh, data),
+  verifyToken: (data) => publicAxios.post(API.auth.endpoints.tokenVerify, data),
 
-  verifyEmail: (uid, token) => publicAxios.get(API.auth.verifyEmail(uid, token)),
-  resendOtp: () => publicAxios.post(API.auth.resendOtp),
-  resendOtpEmail: () => publicAxios.post(API.auth.resendOtpEmail),
-  verifyOtp: (data) => publicAxios.post(API.auth.verifyOtp, data),
-  verifyOtpEmail: (data) => publicAxios.post(API.auth.verifyOtpEmail, data),
-  resendWelcomeEmail: () => publicAxios.post(API.auth.resendWelcomeEmail),
+  // ===== EMAIL & OTP =====
+  verifyEmail: (uid, token) => publicAxios.get(API.auth.endpoints.verifyEmail(uid, token)),
+  resendOtp: (data) => publicAxios.post(API.auth.endpoints.resendOtp, data),
+  resendOtpEmail: (data) => publicAxios.post(API.auth.endpoints.resendOtpEmail, data),
+  verifyOtp: (data) => publicAxios.post(API.auth.endpoints.verifyOtp, data),
+  verifyOtpEmail: (data) => publicAxios.post(API.auth.endpoints.verifyOtpEmail, data),
+  resendWelcomeEmail: (data) => publicAxios.post(API.auth.endpoints.resendWelcomeEmail, data),
 
-  listUsers: () => axiosInstance.get(API.auth.adminListUsers),
-  adminResetPassword: (data) => axiosInstance.post(API.auth.adminResetPassword, data),
-  inviteWorker: (data) => axiosInstance.post(API.auth.adminInviteWorker, data),
+  // ===== ADMIN =====
+  listUsers: () => axiosInstance.get(API.auth.endpoints.adminListUsers),
+  adminResetPassword: (data) => axiosInstance.post(API.auth.endpoints.adminResetPassword, data),
+  inviteWorker: (data) => axiosInstance.post(API.auth.endpoints.adminInviteWorker, data),
 
+  // ===== WORKER INVITES =====
   validateWorkerInvite: (uid, token) =>
-    publicAxios.get(API.auth.workerValidateInvite(uid, token)),
+    publicAxios.get(API.auth.endpoints.workerValidateInvite(uid, token)),
   completeWorkerInvite: (data) =>
-    publicAxios.post(API.auth.workerCompleteInvite, data),
+    publicAxios.post(API.auth.endpoints.workerCompleteInvite, data),
+
+  // ===== PROFILES (BULK OPS) =====
+  profilesList: () => axiosInstance.get(API.auth.endpoints.profilesList),
+  profilesProfile: () => axiosInstance.get(API.auth.endpoints.profilesProfile),
+  sendMessageToUsers: (data) =>
+    axiosInstance.post(API.auth.endpoints.sendMessageToUsers, data),
+  specialOffer: (data) => axiosInstance.post(API.auth.endpoints.specialOffer, data),
+  toggleUserActive: (userId) =>
+    axiosInstance.post(API.auth.endpoints.toggleUserActive(userId)),
+
+  // ===== WORKER CATEGORIES =====
+  workerCategories: () => axiosInstance.get(API.auth.endpoints.workerCategories),
+
+  // ===== MISC =====
+  deleteByEmail: (data) => axiosInstance.post(API.auth.endpoints.deleteByEmail, data),
 };
 
 export default authService;

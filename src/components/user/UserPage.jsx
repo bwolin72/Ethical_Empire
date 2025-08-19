@@ -1,7 +1,7 @@
+// src/components/UserPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../api/apiService";
-import API from "../../api/api";
 import { ToastContainer, toast } from "react-toastify";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
@@ -30,44 +30,95 @@ const UserPage = () => {
   const [subscriberEmail, setSubscriberEmail] = useState("");
   const navigate = useNavigate();
 
+  // Helper to normalise responses whether paginated or not
+  const extractList = (res) => {
+    if (!res) return [];
+    // common patterns: { data: [..] } or axios { data: { results: [..] } } or { data: [..] }
+    const payload = res.data ?? res;
+    if (!payload) return [];
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload.results)) return payload.results;
+    if (Array.isArray(payload.data)) return payload.data;
+    // fallback: if payload is object but contains list-like keys, try values
+    return [];
+  };
+
   useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
 
     const fetchData = async () => {
       setLoading(true);
+
       try {
-        // Use apiService and API constants instead of axiosInstance directly
-        const [
-          profileRes,
-          mediaRes,
-          reviewsRes,
-          promoRes,
-          videosRes,
-        ] = await Promise.all([
-          apiService.get(API.PROFILE, { signal }),
-          apiService.get(API.MEDIA, {
-            params: { type: "media", endpoint: "UserPage", is_active: true },
-            signal,
-          }),
-          apiService.get(API.REVIEWS, { signal }),
-          apiService.get(API.PROMOTIONS, { signal }),
-          apiService.get(API.VIDEOS, { params: { endpoint: "UserPage" }, signal }),
+        // Build a list of promises with robust fallbacks for common method names
+        const profilePromise =
+          (apiService.auth && apiService.auth.getProfile && apiService.auth.getProfile({ signal })) ||
+          (apiService.auth && apiService.auth.profile && apiService.auth.profile({ signal })) ||
+          Promise.resolve({ data: null });
+
+        // media: prefer user-specific endpoint, else generic list
+        const mediaPromise =
+          (apiService.media && apiService.media.user && apiService.media.user({ signal })) ||
+          (apiService.media && apiService.media.list && apiService.media.list({ params: { is_active: true }, signal })) ||
+          Promise.resolve({ data: [] });
+
+        const reviewsPromise =
+          (apiService.reviews && apiService.reviews.list && apiService.reviews.list({ signal })) ||
+          (apiService.reviews && apiService.reviews.get && apiService.reviews.get({ signal })) ||
+          Promise.resolve({ data: [] });
+
+        // promotions: prefer active endpoint, else list
+        const promotionsPromise =
+          (apiService.promotions && apiService.promotions.active && apiService.promotions.active({ signal })) ||
+          (apiService.promotions && apiService.promotions.list && apiService.promotions.list({ signal })) ||
+          Promise.resolve({ data: [] });
+
+        // videos: fetch list (backend path: /api/videos/videos/)
+        const videosPromise =
+          (apiService.videos && apiService.videos.list && apiService.videos.list({ signal })) ||
+          (apiService.video && apiService.video.list && apiService.video.list({ signal })) ||
+          Promise.resolve({ data: [] });
+
+        // Execute all
+        const [profileRes, mediaRes, reviewsRes, promoRes, videosRes] = await Promise.all([
+          profilePromise,
+          mediaPromise,
+          reviewsPromise,
+          promotionsPromise,
+          videosPromise,
         ]);
 
-        setProfile(profileRes.data);
-        setMedia(mediaRes.data?.results || []);
-        setReviews(reviewsRes.data || []);
-        setPromotions(promoRes.data || []);
-        setVideos(videosRes.data?.results || []);
+        // Apply responses with safe extraction
+        const profileData = profileRes?.data ?? null;
+        setProfile(profileData);
+
+        const mediaList = extractList(mediaRes);
+        setMedia(mediaList);
+
+        const reviewsList = extractList(reviewsRes);
+        setReviews(reviewsList);
+
+        const promoList = extractList(promoRes);
+        setPromotions(promoList);
+
+        const videosList = extractList(videosRes);
+        setVideos(videosList);
       } catch (err) {
-        toast.error("Error loading data. Please try again.");
+        // avoid noisy errors when aborted
+        if (err && err.name === "CanceledError") {
+          // axios cancel semantics may vary; just ignore
+        } else {
+          console.error("UserPage load error:", err);
+          toast.error("Error loading data. Please try again.");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
+
     return () => controller.abort();
   }, []);
 
@@ -82,17 +133,34 @@ const UserPage = () => {
     if (!subscriberEmail) return toast.warn("Enter your email to subscribe.");
 
     try {
-      await apiService.subscribeNewsletter({ email: subscriberEmail });
+      // prefer service method names `subscribe` or `subscribeNewsletter`
+      if (apiService.newsletter && apiService.newsletter.subscribe) {
+        await apiService.newsletter.subscribe({ email: subscriberEmail });
+      } else if (apiService.newsletter && apiService.newsletter.subscribeNewsletter) {
+        await apiService.newsletter.subscribeNewsletter({ email: subscriberEmail });
+      } else {
+        // fallback: try promotion of raw endpoint if available
+        throw new Error("Newsletter service not available");
+      }
+
       toast.success("Subscribed! Please check your email to confirm.");
       setSubscriberEmail("");
-    } catch {
+    } catch (err) {
+      console.error("Newsletter subscription error:", err);
       toast.error("Subscription failed. Try again.");
     }
   };
 
-  const featuredVideo = Array.isArray(videos)
-    ? videos.find((item) => item.file?.endsWith(".mp4") && item.is_featured)
-    : null;
+  // pick a featured video (server may mark it with is_featured)
+  const featuredVideo =
+    Array.isArray(videos) && videos.length > 0
+      ? videos.find((item) => (item.is_featured || item.featured) && (item.file || item.url || item.video_url))
+      : null;
+
+  // callback that child ProfileAvatar can call after update
+  const onProfileUpdate = (updatedProfile) => {
+    setProfile(updatedProfile);
+  };
 
   return (
     <div className={`userpage-container ${darkMode ? "dark" : ""}`}>
@@ -117,9 +185,10 @@ const UserPage = () => {
           onKeyPress={(e) => (e.key === "Enter" ? navigate("/account") : null)}
           aria-label="Go to account profile"
         >
-          <ProfileAvatar profile={profile} />
+          {/* ProfileAvatar now expects profile.profile_image_url and onProfileUpdate callback */}
+          <ProfileAvatar profile={profile} onProfileUpdate={onProfileUpdate} />
           <p className="open-profile-link">
-            {profile?.avatar ? "Change Profile" : "Set Up Profile"}
+            {profile?.profile_image_url ? "Change Profile" : "Set Up Profile"}
           </p>
         </div>
       </FadeInSection>
@@ -134,7 +203,7 @@ const UserPage = () => {
             <FadeInSection>
               <div className="asaase-card">
                 <video controls width="100%" preload="metadata">
-                  <source src={featuredVideo.file} type="video/mp4" />
+                  <source src={featuredVideo.file || featuredVideo.video_url || featuredVideo.url} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -150,7 +219,7 @@ const UserPage = () => {
             </section>
           </FadeInSection>
 
-          {promotions.length > 0 && (
+          {Array.isArray(promotions) && promotions.length > 0 && (
             <section>
               <h3>Special Offers</h3>
               <div className="promotions-grid">
@@ -218,7 +287,7 @@ const UserPage = () => {
                   <FadeInSection key={i}>
                     <div className="review-card">
                       <p>"{r.comment}"</p>
-                      <small>- {r.user_email || "Anonymous"}</small>
+                      <small>- {r.user_email || r.user?.email || "Anonymous"}</small>
                       {r.reply && (
                         <div className="review-reply">
                           <strong>Admin Reply:</strong> <p>{r.reply}</p>

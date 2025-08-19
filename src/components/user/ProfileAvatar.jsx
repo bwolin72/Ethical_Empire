@@ -1,9 +1,11 @@
+// src/components/ProfileAvatar.jsx
 import React, { useRef } from "react";
+import apiService from "../../api/apiService"; // centralized services
 import "./ProfileAvatar.css";
 
-const ProfileAvatar = ({ profile }) => {
+const ProfileAvatar = ({ profile, onProfileUpdate }) => {
   const fileInputRef = useRef();
-  const imageUrl = profile?.avatar || "";
+  const imageUrl = profile?.profile_image_url || "";
   const name = profile?.name || "Guest";
   const email = profile?.email || "";
 
@@ -23,10 +25,7 @@ const ProfileAvatar = ({ profile }) => {
     const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
     try {
-      const res = await fetch(uploadUrl, {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(uploadUrl, { method: "POST", body: formData });
       const data = await res.json();
 
       if (data.secure_url) {
@@ -39,18 +38,8 @@ const ProfileAvatar = ({ profile }) => {
 
   const updateProfileImage = async (url) => {
     try {
-      const token = localStorage.getItem("authToken");
-      const res = await fetch("/api/accounts/profile/", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ avatar: url }),
-      });
-
-      if (!res.ok) throw new Error("Failed to update profile image.");
-      window.location.reload(); // Force update after success
+      await apiService.auth.updateProfile({ profile_image_url: url });
+      if (onProfileUpdate) onProfileUpdate({ ...profile, profile_image_url: url });
     } catch (err) {
       console.error("Profile update failed", err);
     }
@@ -58,18 +47,8 @@ const ProfileAvatar = ({ profile }) => {
 
   const handleRemove = async () => {
     try {
-      const token = localStorage.getItem("authToken");
-      const res = await fetch("/api/accounts/profile/", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ avatar: null }),
-      });
-
-      if (!res.ok) throw new Error("Failed to remove image.");
-      window.location.reload();
+      await apiService.auth.updateProfile({ profile_image_url: null });
+      if (onProfileUpdate) onProfileUpdate({ ...profile, profile_image_url: null });
     } catch (err) {
       console.error("Failed to remove image", err);
     }

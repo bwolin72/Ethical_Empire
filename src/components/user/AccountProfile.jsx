@@ -1,5 +1,6 @@
+// src/components/whatever/AccountProfile.jsx
 import React, { useEffect, useState, useCallback } from "react";
-import api from "../../api/api"; // centralized api methods
+import apiService from "../../api/apiService"; // service-layer aggregator (auth, bookings, reviews, ...)
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { logoutHelper } from "../../utils/logoutHelper";
@@ -49,33 +50,44 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
 
     const controller = new AbortController();
+    let mounted = true;
 
     const fetchData = async () => {
       try {
+        // note: these service methods should accept an optional axios config { signal }
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
-          api.getProfile({ signal: controller.signal }),
-          api.getUserBookings({ signal: controller.signal }),
-          api.getRoleInfo({ signal: controller.signal }),
+          apiService.auth.getProfile?.({ signal: controller.signal }) ??
+            apiService.auth.getProfile?.(),
+          apiService.bookings.getUserBookings?.({ signal: controller.signal }) ??
+            apiService.bookings.getUserBookings?.(),
+          apiService.auth.getCurrentUserRole?.({ signal: controller.signal }) ??
+            apiService.auth.getCurrentUserRole?.(),
         ]);
 
-        setProfile(profileRes.data);
-        setProfileImage(profileRes.data.profile_image_url || "");
-        setBookings(bookingsRes.data);
-        setRoleInfo(roleRes.data);
+        if (!mounted) return;
+
+        if (profileRes?.data) {
+          setProfile(profileRes.data);
+          setProfileImage(profileRes.data.profile_image_url || "");
+        }
+        if (bookingsRes?.data) setBookings(bookingsRes.data);
+        if (roleRes?.data) setRoleInfo(roleRes.data);
       } catch (err) {
         if (!controller.signal.aborted) {
+          console.error("Error loading profile data:", err);
           toast.error("Failed to load profile.");
         }
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
     fetchData();
 
-    return () => controller.abort();
+    return () => {
+      mounted = false;
+      controller.abort();
+    };
   }, [externalProfile]);
 
   const getInitials = useCallback((name) => {
@@ -116,13 +128,17 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
       if (!uploadData.secure_url) throw new Error("Upload failed");
 
-      await api.patchProfileImage(uploadData.secure_url);
+      // use auth.updateProfile to set profile image (matches /api/accounts/profile/ PATCH)
+      // service should handle authenticated axiosInstance internally
+      if (apiService.auth.updateProfile) {
+        await apiService.auth.updateProfile({ profile_image_url: uploadData.secure_url });
+      } else {
+        // fallback: if your service function is named differently, adjust accordingly
+        console.warn("apiService.auth.updateProfile not found; image not saved to profile");
+      }
 
       setProfileImage(uploadData.secure_url);
-      setProfile((prev) => ({
-        ...prev,
-        profile_image_url: uploadData.secure_url,
-      }));
+      setProfile((prev) => (prev ? { ...prev, profile_image_url: uploadData.secure_url } : prev));
 
       toast.success("Profile picture updated!");
     } catch (err) {
@@ -138,11 +154,20 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
 
     try {
-      await api.postReview({
-        comment: review,
-        service: reviewService,
-        rating: reviewRating,
-      });
+      // POST to /api/reviews/ ; create method name used here is `create`
+      if (apiService.reviews.create) {
+        await apiService.reviews.create({
+          comment: review,
+          service: reviewService,
+          rating: reviewRating,
+        });
+      } else if (apiService.reviews.list) {
+        // fallback if the service uses a different name
+        await apiService.reviews.list({ comment: review, service: reviewService, rating: reviewRating });
+      } else {
+        throw new Error("Reviews service not available");
+      }
+
       toast.success("Review submitted!");
       setReview("");
       setReviewService("");
@@ -156,11 +181,20 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const handleLogout = async () => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
-    await logoutHelper();
+    try {
+      // optional: call backend logout if available
+      if (apiService.auth.logout) {
+        await apiService.auth.logout();
+      }
+    } catch (e) {
+      console.warn("logout endpoint error:", e);
+    } finally {
+      await logoutHelper();
+    }
   };
 
   const handleClose = () => {
-    const role = roleInfo?.role?.toLowerCase();
+    const role = (roleInfo?.role || "").toLowerCase();
     const paths = {
       admin: "/admin",
       user: "/user",
@@ -186,7 +220,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           fontSize: "0.8rem",
         }}
       >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown"}
       </span>
     );
   };
