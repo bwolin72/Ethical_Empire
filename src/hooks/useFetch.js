@@ -1,32 +1,38 @@
 // src/hooks/useFetch.js
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import axiosInstance from '../api/axiosInstance';
 
-export default function useFetch(apiMethod, params = {}) {
+/**
+ * useFetch - React hook for GET requests with axiosInstance.
+ *
+ * @param {string} url - The API endpoint (relative to baseURL in axiosInstance).
+ * @param {object} params - Query parameters for the request.
+ * @returns {{ data: any, loading: boolean, error: any, refetch: Function }}
+ */
+export default function useFetch(url, params = {}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Store params in a ref to avoid triggering fetchData if params object is recreated but content unchanged
-  const paramsRef = useRef(params);
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const response = await apiMethod(paramsRef.current);
-      setData(response.data || response);
+      const response = await axiosInstance.get(url, { params });
+      setData(response.data);
     } catch (err) {
       setError(err);
     } finally {
       setLoading(false);
     }
-  }, [apiMethod]);
+  }, [url, JSON.stringify(params)]); 
+  // ⚠️ JSON.stringify is safe for shallow params objects.
+  // If params can be big/complex, consider useMemo outside.
 
   useEffect(() => {
-    paramsRef.current = params;
     fetchData();
-  }, [params, fetchData]);
+  }, [fetchData]);
 
   return { data, loading, error, refetch: fetchData };
 }

@@ -1,5 +1,5 @@
 // src/components/booking/BookingForm.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import DatePicker from 'react-datepicker';
 import PhoneInput from 'react-phone-input-2';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
@@ -16,7 +16,7 @@ import {
 } from 'react-icons/fa';
 
 import { useTheme } from '../../context/ThemeContext';
-import { useAuth } from '../context/AuthContext'; // <-- fixed path (components/context/AuthContext.js)
+import { useAuth } from '../context/AuthContext';
 import useFetch from '../../hooks/useFetch';
 import bookingService from '../../api/services/bookingService';
 
@@ -45,15 +45,11 @@ const BookingForm = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // fetch services (useFetch should use axiosInstance/baseURL configured to your API base)
-  const {
-    data: servicesData,
-    loading: servicesLoading,
-    error: servicesError,
-    refetch,
-  } = useFetch('/services/');
+  // Fetch services
+  const { data: servicesData, loading: servicesLoading, error: servicesError, refetch } =
+    useFetch('/services/');
 
-  // prefill from logged in user
+  // Prefill user details
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({
@@ -64,20 +60,14 @@ const BookingForm = () => {
     }
   }, [user]);
 
-  // convenience: normalize whichever shape servicesData has to an array
-  const servicesList = (() => {
+  // Normalize services
+  const servicesList = useMemo(() => {
     if (!servicesData) return [];
     if (Array.isArray(servicesData)) return servicesData;
     if (Array.isArray(servicesData.results)) return servicesData.results;
     if (Array.isArray(servicesData.data)) return servicesData.data;
     return [];
-  })();
-
-  useEffect(() => {
-    if (servicesData && servicesList.length === 0) {
-      toast.warning('No services available at the moment.', { autoClose: 3000 });
-    }
-  }, [servicesData]); // eslint-disable-line
+  }, [servicesData]);
 
   useEffect(() => {
     if (servicesError) {
@@ -100,12 +90,10 @@ const BookingForm = () => {
     }
   };
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date) =>
     setFormData((prev) => ({ ...prev, event_date: date }));
-  };
 
   const handlePhoneChange = (value) => {
-    // value from react-phone-input-2 is numeric string without leading +
     const normalized = value ? `+${value}` : '';
     setFormData((prev) => ({ ...prev, phone: normalized }));
   };
@@ -141,7 +129,6 @@ const BookingForm = () => {
       services,
     } = formData;
 
-    // simple validations that match backend expectations
     if (
       !isAuthenticated ||
       !name ||
@@ -161,7 +148,6 @@ const BookingForm = () => {
       return;
     }
 
-    // international phone format check: + followed by 8-15 digits
     if (!/^\+\d{8,15}$/.test(phone)) {
       toast.error('Please enter a valid international phone number.', { autoClose: 3000 });
       return;
@@ -169,7 +155,6 @@ const BookingForm = () => {
 
     setIsSubmitting(true);
 
-    // Prepare payload matching backend fields — backend expects event_date as YYYY-MM-DD
     const payload = {
       name,
       email,
@@ -180,30 +165,22 @@ const BookingForm = () => {
       address,
       event_date: event_date ? event_date.toISOString().split('T')[0] : null,
       message: formData.message || '',
-      services, // array of service ids
+      services,
     };
 
     try {
-      // bookingService.create -> hits /api/bookings/submit/ (publicAxios) per your bookingAPI
-      const res = await bookingService.create(payload);
-
-      // success feedback
+      await bookingService.create(payload);
       toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
       toast.info('📧 A confirmation email will be sent to you shortly.', { autoClose: 4000 });
-
-      // clear & refetch
       resetForm();
       if (typeof refetch === 'function') refetch();
-      return res;
     } catch (err) {
-      // map backend validation errors to a human message
       const response = err?.response?.data;
       let msg = 'Error occurred submitting form.';
       if (response) {
         if (typeof response === 'string') msg = response;
         else if (Array.isArray(response)) msg = response.join(' ');
         else if (typeof response === 'object') {
-          // prefer the first error value we can find
           const first = Object.values(response)[0];
           msg = Array.isArray(first) ? first[0] : first?.toString() || msg;
         }
@@ -220,7 +197,7 @@ const BookingForm = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
 
       <div className="booking-container">
-        {/* === Left Side === */}
+        {/* === Left Form === */}
         <div className="booking-form-panel">
           <div className="form-header">
             <img src={logo} alt="Ethical Multimedia Logo" className="logo" />
@@ -233,9 +210,7 @@ const BookingForm = () => {
 
             {['name', 'email', 'venue_name', 'address'].map((id) => (
               <div key={id} className="input-group">
-                <label htmlFor={id}>
-                  {id.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                </label>
+                <label htmlFor={id}>{id.replace('_', ' ')}</label>
                 <input
                   id={id}
                   name={id}
@@ -274,9 +249,7 @@ const BookingForm = () => {
                 onChange={handlePhoneChange}
                 inputProps={{ name: 'phone', required: true, autoComplete: 'tel' }}
                 enableSearch
-                enableAreaCodes
                 international
-                disableDropdown={false}
                 preferredCountries={['gh', 'us', 'gb', 'ng', 'de']}
               />
             </div>
@@ -300,7 +273,7 @@ const BookingForm = () => {
               <div className="checkbox-group">
                 {servicesLoading ? (
                   <p>Loading services...</p>
-                ) : servicesList && servicesList.length > 0 ? (
+                ) : servicesList.length > 0 ? (
                   servicesList.map((service) => (
                     <label key={service.id} className="checkbox-option">
                       <input
@@ -310,7 +283,7 @@ const BookingForm = () => {
                         checked={formData.services.includes(service.id)}
                         onChange={handleChange}
                       />
-                      {service.name || service.title || service.slug || `Service ${service.id}`}
+                      {service.name || service.title || `Service ${service.id}`}
                     </label>
                   ))
                 ) : (
@@ -321,7 +294,12 @@ const BookingForm = () => {
 
             <div className="input-group">
               <label>Additional Notes</label>
-              <textarea name="message" rows="4" value={formData.message} onChange={handleChange} />
+              <textarea
+                name="message"
+                rows="4"
+                value={formData.message}
+                onChange={handleChange}
+              />
             </div>
 
             <button type="submit" className="submit-btn" disabled={isSubmitting}>
@@ -330,42 +308,23 @@ const BookingForm = () => {
           </form>
         </div>
 
-        {/* === Right Side === */}
+        {/* === Right Info === */}
         <div className="booking-brand-panel">
           <div className="brand-content">
             <h3>Operation Manager</h3>
-            <p>
-              <strong>Name:</strong> Mrs. Eunice Chai
-            </p>
-            <p>
-              <strong>Email:</strong>{' '}
-              <a href="mailto:info@eethmghmultimedia.com">info@eethmghmultimedia.com</a>
-            </p>
-            <p>
-              <strong>Phone:</strong> <a href="tel:+233559241828">+233 55 924 1828</a>
-            </p>
-            <p>
-              <strong>WhatsApp:</strong>{' '}
-              <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">
-                +233 55 298 8735
-              </a>
-            </p>
+            <p><strong>Name:</strong> Mrs. Eunice Chai</p>
+            <p><strong>Email:</strong> <a href="mailto:info@eethmghmultimedia.com">info@eethmghmultimedia.com</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+233559241828">+233 55 924 1828</a></p>
+            <p><strong>WhatsApp:</strong> <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">+233 55 298 8735</a></p>
 
             <div className="location-block">
               <h3>Headquarters</h3>
-              <p>
-                <FaMapMarkerAlt className="icon" /> Bicycle City, Ojobi, Gomoa Akotsi
-              </p>
+              <p><FaMapMarkerAlt className="icon" /> Bicycle City, Ojobi, Gomoa Akotsi</p>
               <p>Central Region, Ghana</p>
             </div>
 
             <div className="contact-buttons">
-              <a
-                href="https://wa.me/233553424865"
-                className="whatsapp"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://wa.me/233553424865" className="whatsapp" target="_blank" rel="noopener noreferrer">
                 <FaWhatsapp /> WhatsApp
               </a>
               <a href="tel:+233559241828" className="phone">
@@ -374,18 +333,10 @@ const BookingForm = () => {
             </div>
 
             <div className="social-media-links">
-              <a href="https://www.instagram.com/ethicalmultimedia" target="_blank" rel="noopener noreferrer">
-                <FaInstagram />
-              </a>
-              <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noopener noreferrer">
-                <FaLinkedin />
-              </a>
-              <a href="https://x.com/EeTHm_Gh" target="_blank" rel="noopener noreferrer">
-                <FaTwitter />
-              </a>
-              <a href="https://www.facebook.com/16nQGbE7Zk/" target="_blank" rel="noopener noreferrer">
-                <FaFacebookF />
-              </a>
+              <a href="https://www.instagram.com/ethicalmultimedia" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
+              <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noopener noreferrer"><FaLinkedin /></a>
+              <a href="https://x.com/EeTHm_Gh" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
+              <a href="https://www.facebook.com/16nQGbE7Zk/" target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>
             </div>
           </div>
         </div>
