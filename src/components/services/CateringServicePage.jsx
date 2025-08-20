@@ -1,64 +1,74 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import './catering.custom.css';
-import { Card, CardContent } from '../ui/Card';
-import { motion } from 'framer-motion';
-import publicAxios from '../../api/publicAxios';
-import axiosCommon from '../../api/axiosCommon';
-import MediaCards from '../context/MediaCards';
-import BannerCards from '../context/BannerCards';
-import { useNavigate } from 'react-router-dom';
+// frontend/src/components/pages/CateringPage.jsx
+
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import "./catering.custom.css";
+import { Card, CardContent } from "../ui/Card";
+import { motion } from "framer-motion";
+import publicAxios from "../../api/publicAxios";
+import axiosCommon from "../../api/axiosCommon";
+import MediaCards from "../context/MediaCards";
+import BannerCards from "../context/BannerCards";
+import { useNavigate } from "react-router-dom";
 import {
-  FaLeaf, FaPepperHot, FaCarrot, FaFish,
-  FaDrumstickBite, FaAppleAlt, FaSeedling,
-} from 'react-icons/fa';
+  FaLeaf,
+  FaPepperHot,
+  FaCarrot,
+  FaFish,
+  FaDrumstickBite,
+  FaAppleAlt,
+  FaSeedling,
+} from "react-icons/fa";
+
+// ✅ import your Services component
+import Services from "../home/Services";
 
 const CateringPage = () => {
   const navigate = useNavigate();
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [videoUrl, setVideoUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState("");
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
   const cateringServices = [
-    'Traditional Ghanaian Buffet',
-    'Continental Plated Meals',
-    'Chop Bar Style (Local Experience)',
-    'Western Canapés & Cocktails',
-    'Live Grill Station (Kebab, Suya, Chicken)',
-    'Luxury Wedding Banquet Service',
+    "Traditional Ghanaian Buffet",
+    "Continental Plated Meals",
+    "Chop Bar Style (Local Experience)",
+    "Western Canapés & Cocktails",
+    "Live Grill Station (Kebab, Suya, Chicken)",
+    "Luxury Wedding Banquet Service",
   ];
 
   const dietarySuggestions = [
-    { label: 'Vegan Waakye', icon: <FaLeaf /> },
-    { label: 'Keto Banku', icon: <FaPepperHot /> },
-    { label: 'Gluten-Free Fufu', icon: <FaCarrot /> },
-    { label: 'Low Carb Jollof', icon: <FaSeedling /> },
-    { label: 'Dairy-Free Stew', icon: <FaAppleAlt /> },
-    { label: 'Nut-Free Soup', icon: <FaFish /> },
-    { label: 'Halal Grill', icon: <FaDrumstickBite /> },
-    { label: 'Kosher Platter', icon: <FaFish /> },
-    { label: 'Vegetarian Jollof', icon: <FaLeaf /> },
-    { label: 'Paleo Plantain Mix', icon: <FaCarrot /> },
-    { label: 'Organic Yam Chips', icon: <FaAppleAlt /> },
-    { label: 'Diabetic-Friendly Tilapia', icon: <FaFish /> },
+    { label: "Vegan Waakye", icon: <FaLeaf /> },
+    { label: "Keto Banku", icon: <FaPepperHot /> },
+    { label: "Gluten-Free Fufu", icon: <FaCarrot /> },
+    { label: "Low Carb Jollof", icon: <FaSeedling /> },
+    { label: "Dairy-Free Stew", icon: <FaAppleAlt /> },
+    { label: "Nut-Free Soup", icon: <FaFish /> },
+    { label: "Halal Grill", icon: <FaDrumstickBite /> },
+    { label: "Kosher Platter", icon: <FaFish /> },
+    { label: "Vegetarian Jollof", icon: <FaLeaf /> },
+    { label: "Paleo Plantain Mix", icon: <FaCarrot /> },
+    { label: "Organic Yam Chips", icon: <FaAppleAlt /> },
+    { label: "Diabetic-Friendly Tilapia", icon: <FaFish /> },
   ];
 
   const eventTypes = [
-    'Weddings',
-    'Corporate Galas',
-    'Private Dinners',
-    'Product Launches',
-    'Birthday Soirées',
-    'Cocktail Receptions',
+    "Weddings",
+    "Corporate Galas",
+    "Private Dinners",
+    "Product Launches",
+    "Birthday Soirées",
+    "Cocktail Receptions",
   ];
 
   const fetchData = useCallback(async () => {
     try {
-      const { data } = await publicAxios.get('/reviews/');
+      const { data } = await publicAxios.get("/reviews/");
       setTestimonials(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Error loading testimonials:', error);
+      console.error("Error loading testimonials:", error);
     } finally {
       setLoading(false);
     }
@@ -66,12 +76,14 @@ const CateringPage = () => {
 
   const fetchVideo = useCallback(async () => {
     try {
-      const { data } = await axiosCommon.get('/videos/?endpoint=CateringPage&is_active=true');
+      const { data } = await axiosCommon.get(
+        "/videos/?endpoint=CateringPage&is_active=true"
+      );
       if (Array.isArray(data) && data.length > 0) {
         setVideoUrl(data[0].video_url);
       }
     } catch (error) {
-      console.error('Video fetch error:', error);
+      console.error("Video fetch error:", error);
     }
   }, []);
 
@@ -81,7 +93,7 @@ const CateringPage = () => {
   }, [fetchData, fetchVideo]);
 
   const toggleMute = () => {
-    setIsMuted(prev => !prev);
+    setIsMuted((prev) => !prev);
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
     }
@@ -105,7 +117,7 @@ const CateringPage = () => {
               Your browser does not support the video tag.
             </video>
             <button className="mute-button" onClick={toggleMute}>
-              {isMuted ? '🔇' : '🔊'}
+              {isMuted ? "🔇" : "🔊"}
             </button>
           </div>
         ) : (
@@ -118,7 +130,7 @@ const CateringPage = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           className="cta-button"
-          onClick={() => navigate('/bookings')}
+          onClick={() => navigate("/bookings")}
         >
           Request a Custom Quote
         </motion.button>
@@ -167,9 +179,11 @@ const CateringPage = () => {
           <div className="creative-text">
             <h3>Creative Catering Ideas</h3>
             <p>
-              We blend Ghanaian heritage with Western flair to deliver diverse, mouthwatering
-              culinary experiences. From live jollof bars and suya grills to cocktail canapé platters,
-              our fusion offerings are tailored to elevate your event and wow every guest—local or international.
+              We blend Ghanaian heritage with Western flair to deliver diverse,
+              mouthwatering culinary experiences. From live jollof bars and suya
+              grills to cocktail canapé platters, our fusion offerings are
+              tailored to elevate your event and wow every guest—local or
+              international.
             </p>
           </div>
         </div>
@@ -180,7 +194,11 @@ const CateringPage = () => {
         <h2>Dietary Options</h2>
         <div className="dietary-grid">
           {dietarySuggestions.map(({ label, icon }, i) => (
-            <motion.div key={i} className="dietary-card" whileHover={{ scale: 1.08 }}>
+            <motion.div
+              key={i}
+              className="dietary-card"
+              whileHover={{ scale: 1.08 }}
+            >
               <span className="dietary-icon">{icon}</span>
               {label}
             </motion.div>
@@ -203,13 +221,23 @@ const CateringPage = () => {
                 <motion.div key={review?.id || i} whileHover={{ scale: 1.02 }}>
                   <Card className="testimonial-card">
                     <CardContent>
-                      <p className="testimonial-text">"{review.message || 'No message provided.'}"</p>
-                      <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                      <p className="testimonial-text">
+                        "{review.message || "No message provided."}"
+                      </p>
+                      <p className="testimonial-user">
+                        — {review.user?.username || "Anonymous"}
+                      </p>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
         </div>
+      </section>
+
+      {/* === Embed Global Services Section === */}
+      <section className="section other-services-section">
+        <h2>Explore More of Our Services</h2>
+        <Services /> {/* ✅ Reuse your Services component here */}
       </section>
     </div>
   );

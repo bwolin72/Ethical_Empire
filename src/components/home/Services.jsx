@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import serviceService from "../../api/services/serviceService"; // ✅ updated import
+import serviceService from "../../api/services/serviceService";
 import "./Services.css";
 
 const serviceDescriptions = {
@@ -28,43 +28,59 @@ const serviceDescriptions = {
 };
 
 const Services = () => {
-  const { service: slug } = useParams();
+  const { slug } = useParams(); // must match your Route: /services/:slug
   const navigate = useNavigate();
+
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [flippedIndex, setFlippedIndex] = useState(null);
 
   useEffect(() => {
+    // reset UI state whenever the route param changes
+    setLoading(true);
+    setFlippedIndex(null);
+    setSelectedService(null);
+
     if (slug) {
       fetchServiceDetail(slug);
     } else {
       fetchAllServices();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const fetchAllServices = async () => {
     try {
       const res = await serviceService.getServices();
-      if (Array.isArray(res.data) && res.data.length > 0) {
-        setServices(res.data);
-      } else {
+      const data = res?.data;
+
+      // Accept both paginated and plain array responses
+      const items = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.results)
+        ? data.results
+        : [];
+
+      setServices(items);
+
+      if (items.length === 0) {
         toast.warn("No services available at the moment.");
       }
     } catch (error) {
-      console.error("❌ Failed to load services:", error);
+      console.error("❌ Failed to load services:", error?.response || error?.message);
       toast.error("Could not fetch services.");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchServiceDetail = async (slug) => {
+  const fetchServiceDetail = async (slugValue) => {
     try {
-      const res = await serviceService.getServiceDetail(slug);
+      const res = await serviceService.getServiceDetail(slugValue);
       setSelectedService(res.data);
     } catch (error) {
-      console.error("❌ Failed to load service detail:", error);
+      console.error("❌ Failed to load service detail:", error?.response || error?.message);
       toast.error("Could not load service detail.");
     } finally {
       setLoading(false);
@@ -106,7 +122,6 @@ const Services = () => {
               {serviceDescriptions[selectedService.name] ||
                 "Premium service tailored to your unique event needs."}
             </p>
-            {/* Price intentionally hidden from public */}
             <Link to="/services" className="back-link">
               ← Back to All Services
             </Link>
@@ -122,10 +137,8 @@ const Services = () => {
             <section className="service-list">
               {services.map((srv, index) => (
                 <motion.div
-                  key={srv.slug}
-                  className={`service-card ${
-                    flippedIndex === index ? "flipped" : ""
-                  }`}
+                  key={srv.slug || srv.id}
+                  className={`service-card ${flippedIndex === index ? "flipped" : ""}`}
                   onClick={() => handleCardClick(index)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
@@ -139,7 +152,7 @@ const Services = () => {
                         className="book-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/services/${srv.slug}`);
+                          navigate(`/services/${srv.slug || srv.id}`);
                         }}
                       >
                         Learn More →

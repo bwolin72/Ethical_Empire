@@ -89,7 +89,10 @@ const EethmHome = () => {
         }
 
         if (serviceRes.status === "fulfilled") {
-          setServices(serviceRes.value?.data || []);
+          // Some APIs return {results: []}, some return []
+          const serviceData =
+            serviceRes.value?.data?.results || serviceRes.value?.data || [];
+          setServices(serviceData);
         } else {
           setServicesError("Failed to load services");
         }
@@ -127,6 +130,11 @@ const EethmHome = () => {
   }, [isMuted]);
 
   const toggleMute = () => setIsMuted((p) => !p);
+
+  // --- Captcha handler ---
+  const handleCaptchaChange = (token) => {
+    setRecaptchaToken(token);
+  };
 
   // --- Newsletter subscribe ---
   const handleSubscribe = async (e) => {
@@ -236,10 +244,12 @@ const EethmHome = () => {
                 placeholder="Your email"
                 onChange={(e) => setNewsletterEmail(e.target.value)}
               />
-              <ReCAPTCHA
-                sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-                onChange={(token) => setRecaptchaToken(token)}
-              />
+              <div className="recaptcha-wrapper">
+                <ReCAPTCHA
+                  sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+                  onChange={handleCaptchaChange}
+                />
+              </div>
               <button type="submit" className="btn-primary">
                 Subscribe
               </button>
@@ -265,15 +275,25 @@ const EethmHome = () => {
                 <div
                   key={s.id}
                   className="service-flip-card"
-                  onClick={() => navigate(`/Services/${s.slug || s.id}`)}
+                  onClick={() => navigate(`/services/${s.slug || s.id}`)}
                 >
                   <div className="service-flip-card-inner">
                     <div className="service-flip-card-front">
-                      {s.image && <img src={s.image} alt={s.title} />}
-                      <h3>{s.title}</h3>
+                      {s.image ? (
+                        <img src={s.image} alt={s.name} />
+                      ) : (
+                        <div className="service-placeholder">🎶</div>
+                      )}
+                      <h3>{s.name}</h3>
+                      {s.price && (
+                        <p className="service-price">GH₵ {s.price}</p>
+                      )}
                     </div>
                     <div className="service-flip-card-back">
-                      <p>{s.description}</p>
+                      <p>
+                        {s.description ||
+                          "Click to learn more about this service."}
+                      </p>
                     </div>
                   </div>
                 </div>
