@@ -1,49 +1,16 @@
+// src/components/services/MediaHostingServicePage.jsx
 import React, { useEffect, useRef, useState } from "react";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import "./MediaHostingServicePage.css";
-import { Card, CardContent } from "../ui/Card";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../api/apiService";
-
-const services = [
-  {
-    title: "📹 Videography Coverage",
-    description:
-      "From grand entrances to final goodbyes, we capture your event in vivid motion, preserving every emotion and detail with cinematic storytelling."
-  },
-  {
-    title: "📸 Photography Sessions",
-    description:
-      "Professional, high-quality photos that freeze your best moments in time — from candid smiles to perfectly posed shots."
-  },
-  {
-    title: "🚁 Drone Footage & Aerial Views",
-    description:
-      "Add a breathtaking perspective to your event with sweeping aerial shots that showcase the full beauty of your venue and moments."
-  },
-  {
-    title: "📡 Live Streaming & Event Recording",
-    description:
-      "Bring your event to audiences anywhere with smooth, high-definition live streaming and reliable full-event recording."
-  },
-  {
-    title: "🖼 Portrait & Studio Shoots",
-    description:
-      "Timeless portraits and creative studio photography that highlight personality, style, and unforgettable moments."
-  },
-  {
-    title: "🎤 On-site Event Hosting",
-    description:
-      "Energetic, engaging, and professional hosting that keeps your audience entertained, informed, and connected throughout the event."
-  }
-];
+import Services from "../home/Services"; // ✅ shared Services component
 
 const MediaHostingServicePage = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [isMuted, setIsMuted] = useState(true);
-  const [flippedCard, setFlippedCard] = useState(null);
   const videoRef = useRef(null);
   const navigate = useNavigate();
 
@@ -53,7 +20,7 @@ const MediaHostingServicePage = () => {
         const res = await apiService.getMedia("mediaHostingServicePage", {
           is_active: true,
           file_type: "video/",
-          page_size: 1
+          page_size: 1,
         });
 
         const results = Array.isArray(res.data?.results)
@@ -63,8 +30,7 @@ const MediaHostingServicePage = () => {
         if (results.length > 0 && results[0].url?.full) {
           setVideoUrl(results[0].url.full);
         } else {
-          // fallback if no API video
-          setVideoUrl("/mock/hero-video.mp4");
+          setVideoUrl("/mock/hero-video.mp4"); // fallback if no API video
         }
       } catch (error) {
         console.error("Failed to load hero video:", error);
@@ -80,10 +46,6 @@ const MediaHostingServicePage = () => {
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
     }
-  };
-
-  const handleCardClick = (index) => {
-    setFlippedCard(flippedCard === index ? null : index);
   };
 
   return (
@@ -113,45 +75,14 @@ const MediaHostingServicePage = () => {
         )}
       </section>
 
-      {/* === Services Grid === */}
+      {/* === Shared Services Section === */}
       <section className="section services-section">
         <h2 className="section-title">Our Multimedia & Hosting Services</h2>
-        <div className="card-grid">
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
-              className={`service-card-container ${
-                flippedCard === index ? "flipped" : ""
-              }`}
-              onClick={() => handleCardClick(index)}
-            >
-              <motion.div className="service-card-inner">
-                {/* Front Side */}
-                <Card className="service-card-front">
-                  <CardContent className="card-content">
-                    <h3>{service.title}</h3>
-                  </CardContent>
-                </Card>
-
-                {/* Back Side */}
-                <Card className="service-card-back">
-                  <CardContent className="card-content">
-                    <p>{service.description}</p>
-                    <button
-                      className="cta-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate("/bookings");
-                      }}
-                    >
-                      Book Now
-                    </button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </motion.div>
-          ))}
-        </div>
+        <p className="section-description">
+          From professional photography to full-scale event hosting, explore all
+          our multimedia services designed to capture and share your moments.
+        </p>
+        <Services /> {/* ✅ shared component */}
       </section>
 
       {/* === Creative Media Preview === */}
@@ -165,7 +96,7 @@ const MediaHostingServicePage = () => {
               Whether it’s a corporate launch, private shoot, or public concert,
               Ethical Multimedia ensures every moment is captured in stunning
               clarity. From cinematic videography to detailed photography and
-              reliable hosting— your memories and messages are in expert hands.
+              reliable hosting — your memories and messages are in expert hands.
             </p>
           </div>
           <div className="creative-media">
@@ -186,9 +117,16 @@ const MediaHostingServicePage = () => {
         <p className="section-description">
           Need a location for your next shoot, seminar, or celebration? We offer
           fully equipped event spaces with lighting, seating, sound, and
-          ambiance—ready for recording, streaming, or staging your unforgettable
-          moment. Let us be your venue partner.
+          ambiance — ready for recording, streaming, or staging your
+          unforgettable moment.
         </p>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          className="cta-button"
+          onClick={() => navigate("/bookings")}
+        >
+          Book a Venue
+        </motion.button>
       </section>
 
       {/* === Full Gallery === */}

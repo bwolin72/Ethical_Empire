@@ -1,12 +1,13 @@
 // src/components/services/LiveBandServicePage.jsx
-import React, { useEffect, useState, useRef } from 'react';
-import './liveband.css';
-import { Card, CardContent } from '../ui/Card';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import BannerCards from '../context/BannerCards';
-import MediaCards from '../context/MediaCards';
-import apiService from '../../api/apiService';
+import React, { useEffect, useState, useRef } from "react";
+import "./liveband.css";
+import { Card, CardContent } from "../ui/Card";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import BannerCards from "../context/BannerCards";
+import MediaCards from "../context/MediaCards";
+import apiService from "../../api/apiService";
+import Services from "../home/Services"; // ✅ import shared Services component
 
 // === Animation Variants (shared) ===
 const fadeUp = {
@@ -20,15 +21,15 @@ const fadeUp = {
 
 // === Robust media URL resolver ===
 const getMediaUrl = (media) => {
-  if (!media) return '';
+  if (!media) return "";
   const val =
     (media?.url && (media.url.full ?? media.url)) ??
     media?.video_url ??
     media?.video_file ??
     media?.file_url ??
     media?.file ??
-    '';
-  return typeof val === 'string' ? val : String(val ?? '');
+    "";
+  return typeof val === "string" ? val : String(val ?? "");
 };
 
 const LiveBandServicePage = () => {
@@ -36,21 +37,11 @@ const LiveBandServicePage = () => {
 
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const [videoUrl, setVideoUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState("");
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
-
-  // === Services Offered ===
-  const liveBandServices = [
-    { icon: '🎤', label: 'Wedding Performances' },
-    { icon: '🏢', label: 'Corporate Event Entertainment' },
-    { icon: '🎂', label: 'Birthday Live Music' },
-    { icon: '🎷', label: 'Jazz & Acoustic Sets' },
-    { icon: '🪘', label: 'Cultural & Traditional Shows' },
-    { icon: '🎼', label: 'Custom Music Experiences' },
-  ];
 
   // === Fetch Content (Reviews + Video) ===
   useEffect(() => {
@@ -60,20 +51,23 @@ const LiveBandServicePage = () => {
       try {
         const [reviewRes, videoRes] = await Promise.all([
           apiService.getReviews(),
-          apiService.getVideos({ endpoint: 'LiveBandServicePage', is_active: true }),
+          apiService.getVideos({
+            endpoint: "LiveBandServicePage",
+            is_active: true,
+          }),
         ]);
 
         // Normalize testimonials
         const rawReviews = Array.isArray(reviewRes?.data) ? reviewRes.data : [];
         const normReviews = rawReviews.map((r) => ({
           id: r.id ?? r._id ?? undefined,
-          text: r.message ?? r.comment ?? r.text ?? r.content ?? '',
+          text: r.message ?? r.comment ?? r.text ?? r.content ?? "",
           author:
             r.user?.username ??
             r.reviewer_name ??
             r.name ??
             r.user_name ??
-            'Anonymous',
+            "Anonymous",
         }));
         if (mounted) setTestimonials(normReviews);
 
@@ -81,10 +75,10 @@ const LiveBandServicePage = () => {
         const rawVideos = Array.isArray(videoRes?.data) ? videoRes.data : [];
         const featured = rawVideos.find((v) => v?.is_featured) ?? rawVideos[0];
         const src = getMediaUrl(featured);
-        if (mounted) setVideoUrl(src || '');
+        if (mounted) setVideoUrl(src || "");
       } catch (error) {
-        console.error('Failed to load content:', error);
-        if (mounted) setErrorMsg('Failed to load reviews or video.');
+        console.error("Failed to load content:", error);
+        if (mounted) setErrorMsg("Failed to load reviews or video.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -122,15 +116,15 @@ const LiveBandServicePage = () => {
               muted={isMuted}
               playsInline
               preload="auto"
-              onError={() => setVideoUrl('/fallback-banner.jpg')}
+              onError={() => setVideoUrl("/fallback-banner.jpg")}
             />
             <button
               className="mute-button"
               onClick={toggleMute}
-              aria-label={isMuted ? 'Unmute background video' : 'Mute background video'}
+              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
               type="button"
             >
-              {isMuted ? '🔇' : '🔊'}
+              {isMuted ? "🔇" : "🔊"}
             </button>
 
             <div className="hero-overlay" />
@@ -141,7 +135,7 @@ const LiveBandServicePage = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="cta-button hero-button"
-              onClick={() => navigate('/bookings')}
+              onClick={() => navigate("/bookings")}
               type="button"
             >
               Book a Live Band
@@ -157,43 +151,31 @@ const LiveBandServicePage = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               className="cta-button hero-button"
-              onClick={() => navigate('/bookings')}
+              onClick={() => navigate("/bookings")}
               type="button"
             >
               Book a Live Band
             </motion.button>
 
             <div className="banner-cards-wrapper">
-              <BannerCards endpoint="LiveBandServicePage" title="Live Band Highlights" />
+              <BannerCards
+                endpoint="LiveBandServicePage"
+                title="Live Band Highlights"
+              />
             </div>
           </>
         )}
       </section>
 
-      {/* === Services Offered === */}
+      {/* === Services Offered (reusing global Services) === */}
       <section className="section services-section">
         <h2 className="section-title">Live Band Services</h2>
         <p className="section-description">
           From intimate acoustic duos to full orchestras — choose your sound.
         </p>
-        <div className="card-grid">
-          {liveBandServices.map((service, index) => (
-            <motion.div
-              key={service.label}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              custom={index}
-              viewport={{ once: true }}
-            >
-              <Card className="service-card">
-                <CardContent className="card-content">
-                  <span className="service-icon">{service.icon}</span> {service.label}
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+
+        {/* ✅ Shared services component */}
+        <Services />
       </section>
 
       {/* === Immersive Preview === */}
@@ -208,7 +190,11 @@ const LiveBandServicePage = () => {
             </p>
           </div>
           <div className="creative-media">
-            <MediaCards endpoint="LiveBandServicePage" fullWidth={false} title="" />
+            <MediaCards
+              endpoint="LiveBandServicePage"
+              fullWidth={false}
+              title=""
+            />
           </div>
         </div>
       </section>
@@ -225,7 +211,10 @@ const LiveBandServicePage = () => {
               <div key={i} className="testimonial-card shimmer" />
             ))
           ) : errorMsg ? (
-            <p className="section-description" style={{ textAlign: 'center', opacity: 0.7 }}>
+            <p
+              className="section-description"
+              style={{ textAlign: "center", opacity: 0.7 }}
+            >
               {errorMsg}
             </p>
           ) : testimonials.length > 0 ? (
@@ -247,7 +236,10 @@ const LiveBandServicePage = () => {
               </motion.div>
             ))
           ) : (
-            <p className="section-description" style={{ textAlign: 'center', opacity: 0.7 }}>
+            <p
+              className="section-description"
+              style={{ textAlign: "center", opacity: 0.7 }}
+            >
               No client reviews available yet.
             </p>
           )}

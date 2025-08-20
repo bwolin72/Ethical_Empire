@@ -1,81 +1,70 @@
 // src/components/services/DecorServicePage.jsx
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import './decor.css';
-import MediaCard from '../context/MediaCards';
-import MediaSkeleton from '../context/MediaSkeleton';
-import BannerCards from '../context/BannerCards';
-import useMediaFetcher from '../../hooks/useMediaFetcher';
-import apiService from '../../api/apiService';
-import {
-  FaCrown,
-  FaPalette,
-  FaLightbulb,
-  FaTable,
-  FaCameraRetro,
-  FaTree,
-} from 'react-icons/fa';
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import "./decor.css";
+import MediaCard from "../context/MediaCards";
+import MediaSkeleton from "../context/MediaSkeleton";
+import BannerCards from "../context/BannerCards";
+import useMediaFetcher from "../../hooks/useMediaFetcher";
+import apiService from "../../api/apiService";
+import Services from "../home/Services"; // ✅ shared Services component
 
-const DecorPage = () => {
+const DecorServicePage = () => {
   const navigate = useNavigate();
 
-  const { media: mediaCards, loading: mediaLoading, fetchMedia } = useMediaFetcher();
+  const { media: mediaCards, loading: mediaLoading, fetchMedia } =
+    useMediaFetcher();
 
   const [testimonials, setTestimonials] = useState([]);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
 
-  const [videoUrl, setVideoUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState("");
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
-  const decorServices = [
-    { icon: <FaCrown />, label: 'Wedding & Event Decor' },
-    { icon: <FaTree />, label: 'Stage Design' },
-    { icon: <FaPalette />, label: 'Theme Styling' },
-    { icon: <FaLightbulb />, label: 'Lighting & Ambience' },
-    { icon: <FaTable />, label: 'Table & Floral Arrangements' },
-    { icon: <FaCameraRetro />, label: 'Backdrop & Photo Booths' },
-  ];
-
-  // Fetch media on mount
+  // === Fetch media ===
   useEffect(() => {
     fetchMedia({
-      endpoint: 'decor',
-      type: 'featured',
+      endpoint: "decor",
+      type: "featured",
       is_active: true,
     });
   }, [fetchMedia]);
 
-  // Fetch testimonials
+  // === Fetch testimonials ===
   const fetchTestimonials = useCallback(async () => {
     setLoadingTestimonials(true);
     try {
-      const res = await apiService.getReviews({ category: 'decor' });
+      const res = await apiService.getReviews({ category: "decor" });
       setTestimonials(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error('Error loading reviews:', err);
+      console.error("Error loading reviews:", err);
     } finally {
       setLoadingTestimonials(false);
     }
   }, []);
 
-  // Fetch video with fallback
+  // === Fetch video ===
   const fetchVideo = useCallback(async () => {
     try {
       const res = await apiService.getVideos({
-        endpoint: 'decor',
+        endpoint: "decor",
         is_active: true,
       });
 
-      if (Array.isArray(res.data) && res.data.length > 0 && res.data[0].video_url) {
+      if (
+        Array.isArray(res.data) &&
+        res.data.length > 0 &&
+        res.data[0].video_url
+      ) {
         setVideoUrl(res.data[0].video_url);
       } else {
-        setVideoUrl('/mock/hero-video.mp4');
+        setVideoUrl("/mock/hero-video.mp4");
       }
     } catch (err) {
-      console.error('Error loading video:', err);
-      setVideoUrl('/mock/hero-video.mp4');
+      console.error("Error loading video:", err);
+      setVideoUrl("/mock/hero-video.mp4");
     }
   }, []);
 
@@ -107,7 +96,7 @@ const DecorPage = () => {
               playsInline
             />
             <button className="mute-button" onClick={toggleMute}>
-              {isMuted ? '🔇' : '🔊'}
+              {isMuted ? "🔇" : "🔊"}
             </button>
           </div>
         ) : (
@@ -120,25 +109,20 @@ const DecorPage = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           className="cta-button"
-          onClick={() => navigate('/bookings')}
+          onClick={() => navigate("/bookings")}
         >
           Book Decor Service
         </motion.button>
       </section>
 
-      {/* === Decor Services === */}
+      {/* === Shared Decor Services === */}
       <section className="section">
         <h2 className="section-title">Our Decor Services</h2>
-        <div className="card-grid">
-          {decorServices.map(({ icon, label }, index) => (
-            <div key={index} className="card">
-              <div className="card-content">
-                <span className="icon">{icon}</span>
-                <p>{label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="section-description">
+          From elegant floral arrangements to immersive lighting, explore the
+          services that bring your event to life.
+        </p>
+        <Services /> {/* ✅ reuse shared component */}
       </section>
 
       {/* === Venue Transformation Preview === */}
@@ -146,8 +130,9 @@ const DecorPage = () => {
         <div className="creative-text">
           <h3>Transform Your Venue</h3>
           <p>
-            Ethical Multimedia creates immersive, elegant decor tailored to your theme.
-            From romantic weddings to vibrant cultural events, we handle every detail—so your space becomes unforgettable.
+            Ethical Multimedia creates immersive, elegant decor tailored to your
+            theme. From romantic weddings to vibrant cultural events, we handle
+            every detail—so your space becomes unforgettable.
           </p>
         </div>
         <div className="creative-media">
@@ -167,8 +152,8 @@ const DecorPage = () => {
       <section className="section">
         <h2 className="section-title">Decor Highlights</h2>
         <p className="section-description">
-          Every event is a canvas—we decorate with purpose, elegance, and emotion.
-          Discover the beauty of our decor setups in the gallery below.
+          Every event is a canvas—we decorate with purpose, elegance, and
+          emotion. Discover the beauty of our decor setups in the gallery below.
         </p>
         <div className="card-grid">
           {mediaLoading ? (
@@ -200,9 +185,13 @@ const DecorPage = () => {
             testimonials.slice(0, 6).map((review) => (
               <div key={review.id || review.message} className="testimonial-card">
                 <p className="testimonial-text">
-                  {review.message ? `"${review.message}"` : '"No comment provided."'}
+                  {review.message
+                    ? `"${review.message}"`
+                    : '"No comment provided."'}
                 </p>
-                <p className="testimonial-user">— {review.user?.username || 'Anonymous'}</p>
+                <p className="testimonial-user">
+                  — {review.user?.username || "Anonymous"}
+                </p>
               </div>
             ))
           ) : (
@@ -214,4 +203,4 @@ const DecorPage = () => {
   );
 };
 
-export default DecorPage;
+export default DecorServicePage;

@@ -5,6 +5,7 @@ import apiService from "../../api/apiService";
 import BannerCards from "../context/BannerCards";
 import FadeInSection from "../FadeInSection";
 import ReCAPTCHA from "react-google-recaptcha";
+import Services from "./Services"; // ✅ shared Services component
 import "./EethmHome.css";
 
 // --- Local fallbacks ---
@@ -33,7 +34,6 @@ const EethmHome = () => {
 
   // API data
   const [videos, setVideos] = useState([]);
-  const [services, setServices] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [banners, setBanners] = useState([]);
@@ -41,7 +41,6 @@ const EethmHome = () => {
 
   // Error states
   const [videosError, setVideosError] = useState(null);
-  const [servicesError, setServicesError] = useState(null);
   const [promoError, setPromoError] = useState(null);
   const [reviewError, setReviewError] = useState(null);
 
@@ -52,18 +51,17 @@ const EethmHome = () => {
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
 
-  // --- Fetch all data ---
+  // --- Fetch all data (except services, handled by <Services />) ---
   useEffect(() => {
     let mounted = true;
 
     const fetchAll = async () => {
       try {
-        const [videoRes, promoRes, reviewRes, serviceRes, bannerRes, mediaRes] =
+        const [videoRes, promoRes, reviewRes, bannerRes, mediaRes] =
           await Promise.allSettled([
             apiService.getVideos(),
             apiService.getPromotions(),
             apiService.getReviews(),
-            apiService.getServices(),
             apiService.getBanners(),
             apiService.getMedia(),
           ]);
@@ -86,15 +84,6 @@ const EethmHome = () => {
           setReviews(reviewRes.value?.data || []);
         } else {
           setReviewError("Failed to load reviews");
-        }
-
-        if (serviceRes.status === "fulfilled") {
-          // Some APIs return {results: []}, some return []
-          const serviceData =
-            serviceRes.value?.data?.results || serviceRes.value?.data || [];
-          setServices(serviceData);
-        } else {
-          setServicesError("Failed to load services");
         }
 
         if (bannerRes.status === "fulfilled") {
@@ -197,7 +186,10 @@ const EethmHome = () => {
             Live Band • Catering • Multimedia • Decor Services
           </p>
           <div className="hero-buttons">
-            <button onClick={() => navigate("/bookings")} className="btn-primary">
+            <button
+              onClick={() => navigate("/bookings")}
+              className="btn-primary"
+            >
               Book Now
             </button>
             <button
@@ -264,44 +256,11 @@ const EethmHome = () => {
         </div>
       )}
 
-      {/* === Services === */}
+      {/* === Services (✅ shared component instead of inline fetch/render) === */}
       <FadeInSection>
         <section className="services-page">
           <h2>Our Services</h2>
-          {servicesError && <p className="error-text">{servicesError}</p>}
-          {services?.length > 0 ? (
-            <div className="service-card-grid">
-              {services.map((s) => (
-                <div
-                  key={s.id}
-                  className="service-flip-card"
-                  onClick={() => navigate(`/services/${s.slug || s.id}`)}
-                >
-                  <div className="service-flip-card-inner">
-                    <div className="service-flip-card-front">
-                      {s.image ? (
-                        <img src={s.image} alt={s.name} />
-                      ) : (
-                        <div className="service-placeholder">🎶</div>
-                      )}
-                      <h3>{s.name}</h3>
-                      {s.price && (
-                        <p className="service-price">GH₵ {s.price}</p>
-                      )}
-                    </div>
-                    <div className="service-flip-card-back">
-                      <p>
-                        {s.description ||
-                          "Click to learn more about this service."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>Loading services...</p>
-          )}
+          <Services /> {/* ✅ Reuses the shared Services component */}
         </section>
       </FadeInSection>
 
