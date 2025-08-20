@@ -46,7 +46,7 @@ const BookingForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch services
-  const { data: servicesData, loading: servicesLoading, error: servicesError, refetch } =
+  const { data: servicesData, loading: servicesLoading, error: servicesError } =
     useFetch('/services/');
 
   // Prefill user details
@@ -173,7 +173,6 @@ const BookingForm = () => {
       toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
       toast.info('📧 A confirmation email will be sent to you shortly.', { autoClose: 4000 });
       resetForm();
-      if (typeof refetch === 'function') refetch();
     } catch (err) {
       const response = err?.response?.data;
       let msg = 'Error occurred submitting form.';
@@ -263,6 +262,7 @@ const BookingForm = () => {
                   onChange={handleDateChange}
                   placeholderText="Select a date"
                   dateFormat="yyyy-MM-dd"
+                  minDate={new Date()}   {/* ✅ prevent past dates */}
                   required
                 />
               </div>
@@ -283,7 +283,12 @@ const BookingForm = () => {
                         checked={formData.services.includes(service.id)}
                         onChange={handleChange}
                       />
-                      {service.name || service.title || `Service ${service.id}`}
+                      {service.name}
+                      {service.price && (
+                        <span className="service-price">
+                          {' '}– ${parseFloat(service.price).toLocaleString()}
+                        </span>
+                      )}
                     </label>
                   ))
                 ) : (
