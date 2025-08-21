@@ -1,4 +1,4 @@
-import workerApi from "./workerapi";
+import workerApi from "../workerapi";
 
 // --- Services ---
 export const WorkersService = {
