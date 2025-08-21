@@ -17,8 +17,8 @@ import {
 
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import useFetch from '../../hooks/useFetch';
 import bookingService from '../../api/services/bookingService';
+import serviceService from '../../api/services/serviceService';   // ✅ correct import
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
@@ -44,10 +44,31 @@ const BookingForm = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [servicesList, setServicesList] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
 
-  // Fetch services
-  const { data: servicesData, loading: servicesLoading, error: servicesError } =
-    useFetch('/services/');
+  // === Fetch services via serviceService ===
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await serviceService.getServices();
+        const data = res?.data;
+        let normalized = [];
+
+        if (Array.isArray(data)) normalized = data;
+        else if (Array.isArray(data?.results)) normalized = data.results;
+        else if (Array.isArray(data?.data)) normalized = data.data;
+
+        setServicesList(normalized);
+      } catch (err) {
+        toast.error('Failed to fetch services.', { autoClose: 3000 });
+        console.error('Service fetch error:', err);
+      } finally {
+        setServicesLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
 
   // Prefill user details
   useEffect(() => {
@@ -59,21 +80,6 @@ const BookingForm = () => {
       }));
     }
   }, [user]);
-
-  // Normalize services
-  const servicesList = useMemo(() => {
-    if (!servicesData) return [];
-    if (Array.isArray(servicesData)) return servicesData;
-    if (Array.isArray(servicesData.results)) return servicesData.results;
-    if (Array.isArray(servicesData.data)) return servicesData.data;
-    return [];
-  }, [servicesData]);
-
-  useEffect(() => {
-    if (servicesError) {
-      toast.error('Failed to fetch services.', { autoClose: 3000 });
-    }
-  }, [servicesError]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -262,7 +268,7 @@ const BookingForm = () => {
                   onChange={handleDateChange}
                   placeholderText="Select a date"
                   dateFormat="yyyy-MM-dd"
-                  minDate={new Date()}   
+                  minDate={new Date()}
                   required
                 />
               </div>

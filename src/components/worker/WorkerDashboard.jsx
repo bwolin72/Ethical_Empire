@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 
-import { WorkersService } from "../api/workerservice";
+import { WorkersService } from "../../api/services/workerservice";
 import WorkerProfile from "./WorkerProfile";
 
 // -----------------------
