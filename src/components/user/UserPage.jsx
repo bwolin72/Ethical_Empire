@@ -188,7 +188,7 @@ const UserPage = () => {
           {/* ProfileAvatar now expects profile.profile_image_url and onProfileUpdate callback */}
           <ProfileAvatar profile={profile} onProfileUpdate={onProfileUpdate} />
           <p className="open-profile-link">
-            {profile?.profile_image_url ? "Change Profile" : "Set Up Profile"}
+            {profile?.profile_image_url ? "Change Profile" : "Open Profile"}
           </p>
         </div>
       </FadeInSection>
