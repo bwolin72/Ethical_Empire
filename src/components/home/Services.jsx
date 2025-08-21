@@ -4,9 +4,21 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  Utensils,
+  Music,
+  Camera,
+  Video,
+  Calendar,
+  Lightbulb,
+  Mic,
+  Speaker,
+  Users,
+} from "lucide-react"; // brand polish icons
 import serviceService from "../../api/services/serviceService";
 import "./Services.css";
 
+// Map services to descriptions
 const serviceDescriptions = {
   "Live Band":
     "Experience the soulful rhythms of Eethm_GH’s Live Band. From highlife to contemporary hits, we create unforgettable moments for weddings, parties, and corporate events.",
@@ -27,8 +39,21 @@ const serviceDescriptions = {
     "Clear, powerful, and perfectly tuned — our sound setup ensures every word and note is heard just right.",
 };
 
+// Map services to icons
+const serviceIcons = {
+  Catering: Utensils,
+  DJ: Music,
+  Photography: Camera,
+  Videography: Video,
+  "Event Planning": Calendar,
+  Lighting: Lightbulb,
+  "MC/Host": Mic,
+  "Sound Setup": Speaker,
+  "Live Band": Users,
+};
+
 const Services = () => {
-  const { slug } = useParams(); // must match your Route: /services/:slug
+  const { slug } = useParams();
   const navigate = useNavigate();
 
   const [services, setServices] = useState([]);
@@ -37,7 +62,6 @@ const Services = () => {
   const [flippedIndex, setFlippedIndex] = useState(null);
 
   useEffect(() => {
-    // reset UI state whenever the route param changes
     setLoading(true);
     setFlippedIndex(null);
     setSelectedService(null);
@@ -55,7 +79,6 @@ const Services = () => {
       const res = await serviceService.getServices();
       const data = res?.data;
 
-      // Accept both paginated and plain array responses
       const items = Array.isArray(data)
         ? data
         : Array.isArray(data?.results)
@@ -135,39 +158,59 @@ const Services = () => {
           >
             <h2 className="gradient-text">Our Services</h2>
             <section className="service-list">
-              {services.map((srv, index) => (
-                <motion.div
-                  key={srv.slug || srv.id}
-                  className={`service-card ${flippedIndex === index ? "flipped" : ""}`}
-                  onClick={() => handleCardClick(index)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  layout
-                >
-                  <div className="card-inner">
-                    {/* FRONT */}
-                    <div className="card-front">
-                      <h3>{srv.name}</h3>
-                      <button
-                        className="book-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/services/${srv.slug || srv.id}`);
-                        }}
-                      >
-                        Learn More →
-                      </button>
+              {services.map((srv, index) => {
+                const Icon = serviceIcons[srv.name] || Users;
+                return (
+                  <motion.div
+                    key={srv.slug || srv.id}
+                    className={`service-card ${flippedIndex === index ? "flipped" : ""}`}
+                    onClick={() => handleCardClick(index)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                    layout
+                  >
+                    <div className="card-inner">
+                      {/* FRONT */}
+                      <div className="card-front">
+                        <Icon size={40} className="service-icon" />
+                        <h3>{srv.name}</h3>
+                        <button
+                          className="book-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/services/${srv.slug || srv.id}`);
+                          }}
+                        >
+                          Learn More →
+                        </button>
+                      </div>
+                      {/* BACK */}
+                      <div className="card-back">
+                        <p>
+                          {serviceDescriptions[srv.name] ||
+                            "Premium service tailored to your unique event needs."}
+                        </p>
+                        <div className="card-actions">
+                          <Link
+                            to="/bookings"
+                            className="book-btn"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Book Now
+                          </Link>
+                          <Link
+                            to="/contact"
+                            className="contact-btn"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Contact Us
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                    {/* BACK */}
-                    <div className="card-back">
-                      <p>
-                        {serviceDescriptions[srv.name] ||
-                          "Premium service tailored to your unique event needs."}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </section>
           </motion.div>
         )}

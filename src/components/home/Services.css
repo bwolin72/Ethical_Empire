@@ -74,7 +74,7 @@
 .service-card {
   perspective: 1000px;
   cursor: pointer;
-  height: 220px;
+  height: 240px;
   border-radius: var(--radius-lg);
 }
 
@@ -107,6 +107,13 @@
   justify-content: center;
   align-items: center;
   transition: box-shadow var(--transition-fast);
+}
+
+/* Service Icon */
+.service-card .service-icon {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  margin-bottom: 12px;
 }
 
 .services-page .card-front h3 {
@@ -147,6 +154,41 @@
   box-shadow: var(--shadow-lg);
 }
 
+/* Service Detail Action Buttons */
+.service-detail .action-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.service-detail .action-buttons .btn {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color var(--transition-fast),
+              transform var(--transition-fast);
+}
+
+.service-detail .action-buttons .btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+/* Contact button variant */
+.service-detail .action-buttons .btn.contact-btn {
+  background-color: var(--color-accent-gold);
+  color: var(--color-primary);
+}
+
+.service-detail .action-buttons .btn.contact-btn:hover {
+  background-color: var(--color-accent-gold-dark);
+  color: var(--color-white);
+}
+
 /* Responsive Tweaks */
 @media (max-width: 768px) {
   .services-page {
@@ -161,6 +203,10 @@
 
   .service-detail {
     padding: 24px;
+  }
+
+  .service-detail .action-buttons {
+    flex-direction: column;
   }
 }
 

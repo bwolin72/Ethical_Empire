@@ -262,7 +262,7 @@ const BookingForm = () => {
                   onChange={handleDateChange}
                   placeholderText="Select a date"
                   dateFormat="yyyy-MM-dd"
-                  minDate={new Date()}   {/* ✅ prevent past dates */}
+                  minDate={new Date()}   
                   required
                 />
               </div>

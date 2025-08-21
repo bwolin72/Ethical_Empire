@@ -35,7 +35,6 @@ import ConfirmPasswordChange from './components/user/ConfirmPasswordChange';
 import AccountProfile from './components/user/AccountProfile';
 import AgencyDashboard from './components/agency/AgencyDashboard';
 
-
 // Pages - Dashboard & Forms
 import AdminPanel from './components/AdminDashboard/AdminPanel';
 import UserPage from './components/user/UserPage';
@@ -44,7 +43,7 @@ import NewsletterSignup from './components/user/NewsLetterSignup';
 import Unsubscribe from './components/user/UnsubscribePage';
 import VendorProfile from './components/agency/VendorProfile';
 import PartnerProfilePage from './components/agency/PartnerProfilePage';
-
+import WorkerDashboard from './components/worker/WorkerDashboard'; // ✅ added
 
 // Pages - Services
 import LiveBandServicePage from './components/services/LiveBandServicePage';
@@ -54,13 +53,13 @@ import MediaHostingServicePage from './components/services/MediaHostingServicePa
 
 // Context & Auth
 import { AuthProvider, useAuth } from './components/context/AuthContext';
-import axiosCommon from './api/axiosCommon';
-
-// Route Guard
 import ProtectedRoute from './components/context/ProtectedRoute';
 
 // Google OAuth
 import { GoogleOAuthProvider } from '@react-oauth/google';
+
+// Auth Service
+import authService from './api/services/authService';
 
 // ==============================
 // Homepage with Booking Button
@@ -97,7 +96,7 @@ const ConnectRedirect = () => {
 
     const checkUserRole = async () => {
       try {
-        const res = await axiosCommon.get('/accounts/profile/role/');
+        const res = await authService.getProfile();
         if (!isMounted) return;
 
         const role = res?.data?.role?.trim()?.toLowerCase();
@@ -115,6 +114,9 @@ const ConnectRedirect = () => {
             break;
           case 'partner':
             navigate('/partner-profile', { replace: true });
+            break;
+          case 'worker': // ✅ added
+            navigate('/worker-dashboard', { replace: true });
             break;
           default:
             console.warn('[ConnectRedirect] Unknown role:', role);
@@ -171,7 +173,6 @@ const AppRoutes = () => (
       <Route path="/update-password" element={<UpdatePassword />} />
       <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
       <Route path="/agency-dashboard" element={<AgencyDashboard />} />
-
     </Route>
 
     {/* Protected Vendor Routes */}
@@ -182,6 +183,11 @@ const AppRoutes = () => (
     {/* Protected Partner Routes */}
     <Route element={<ProtectedRoute roles={['partner']} />}>
       <Route path="/partner-profile" element={<PartnerProfilePage />} />
+    </Route>
+
+    {/* Protected Worker Routes ✅ */}
+    <Route element={<ProtectedRoute roles={['worker']} />}>
+      <Route path="/worker-dashboard" element={<WorkerDashboard />} />
     </Route>
 
     {/* Protected Admin Route */}

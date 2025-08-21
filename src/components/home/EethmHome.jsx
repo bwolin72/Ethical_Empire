@@ -259,7 +259,7 @@ const EethmHome = () => {
       {/* === Services (✅ shared component instead of inline fetch/render) === */}
       <FadeInSection>
         <section className="services-page">
-          <h2>Our Services</h2>
+          <h2>Explore Eethm_GH Ministrations</h2>
           <Services /> {/* ✅ Reuses the shared Services component */}
         </section>
       </FadeInSection>
@@ -267,7 +267,7 @@ const EethmHome = () => {
       {/* === Promotions === */}
       <FadeInSection>
         <section className="promotions-section">
-          <h2>Current Offers</h2>
+          <h2>Special Offers</h2>
           {promotions?.length > 0 ? (
             <div className="promotions-grid">
               {promotions.map((p) => (

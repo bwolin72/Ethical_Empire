@@ -3,30 +3,33 @@ import publicAxios from '../publicAxios';
 import axiosInstance from '../axiosInstance';
 import API from '../api';
 
+const base = `${API.videos.base}/videos`;
+
 const videoService = {
   // ---- Core CRUD ----
-  list: () => publicAxios.get(`${API.videos.base}/`),
-  detail: (id) => publicAxios.get(`${API.videos.base}/${id}/`),
-  create: (data) => axiosInstance.post(`${API.videos.base}/`, data),
-  update: (id, data) => axiosInstance.patch(`${API.videos.base}/${id}/`, data),
-  delete: (id) => axiosInstance.delete(`${API.videos.base}/${id}/`),
+  list: () => publicAxios.get(`${base}/`),
+  detail: (id) => publicAxios.get(`${base}/${id}/`),
+  create: (data) => axiosInstance.post(`${base}/`, data),
+  update: (id, data) => axiosInstance.patch(`${base}/${id}/`, data),
+  delete: (id) => axiosInstance.delete(`${base}/${id}/`),
 
   // ---- Toggles ----
-  toggleActive: (id) =>
-    axiosInstance.post(`${API.videos.base}/${id}/toggle_active/`),
-  toggleFeatured: (id) =>
-    axiosInstance.post(`${API.videos.base}/${id}/toggle_featured/`),
+  toggleActive: (id) => axiosInstance.post(`${base}/${id}/toggle_active/`),
+  toggleFeatured: (id) => axiosInstance.post(`${base}/${id}/toggle_featured/`),
 
-  // ---- Endpoint-specific fetches ----
-  home: () => publicAxios.get(`${API.videos.base}/home/`),
-  about: () => publicAxios.get(`${API.videos.base}/about/`),
-  decor: () => publicAxios.get(`${API.videos.base}/decor/`),
-  liveBand: () => publicAxios.get(`${API.videos.base}/live_band/`),
-  catering: () => publicAxios.get(`${API.videos.base}/catering/`),
-  mediaHosting: () => publicAxios.get(`${API.videos.base}/media_hosting/`),
-  vendor: () => publicAxios.get(`${API.videos.base}/vendor/`),
-  partner: () => publicAxios.get(`${API.videos.base}/partner/`),
-  user: () => publicAxios.get(`${API.videos.base}/user/`),
+  // ---- Endpoint-specific ----
+  home: () => publicAxios.get(`${base}/home/`),
+  about: () => publicAxios.get(`${base}/about/`),
+  decor: () => publicAxios.get(`${base}/decor/`),
+  liveBand: () => publicAxios.get(`${base}/live_band/`),
+  catering: () => publicAxios.get(`${base}/catering/`),
+  mediaHosting: () => publicAxios.get(`${base}/media_hosting/`),
+  vendor: () => publicAxios.get(`${base}/vendor/`),
+  partner: () => publicAxios.get(`${base}/partner/`),
+  user: () => publicAxios.get(`${base}/user/`),
+
+  // ---- Alias for compatibility ----
+  getVideos: () => publicAxios.get(`${base}/`),
 };
 
 export default videoService;
