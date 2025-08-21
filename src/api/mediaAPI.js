@@ -5,22 +5,23 @@ import publicAxios from './publicAxios';
 
 const mediaAPI = {
   endpoints: {
-    // ===== MEDIA =====
-    defaultList: `${baseURL}/media/`,
-    banners: `${baseURL}/media/banners/`,
-    featured: `${baseURL}/media/featured/`,
-    vendor: `${baseURL}/media/vendor/`,
-    partner: `${baseURL}/media/partner/`,
-    userMedia: `${baseURL}/media/user/`,
-    home: `${baseURL}/media/home/`,
-    about: `${baseURL}/media/about/`,
-    decor: `${baseURL}/media/decor/`,
-    liveBand: `${baseURL}/media/live-band/`,
-    catering: `${baseURL}/media/catering/`,
-    mediaHosting: `${baseURL}/media/media-hosting/`,
+    // ===== MEDIA (public-facing) =====
+    defaultList: `${baseURL}/media/`,           // ''
+    banners: `${baseURL}/media/banners/`,       // 'banners/'
+    featured: `${baseURL}/media/featured/`,     // 'featured/'
+    vendor: `${baseURL}/media/vendor/`,         // 'vendor/'
+    partner: `${baseURL}/media/partner/`,       // 'partner/'
+    user: `${baseURL}/media/user/`,             // 'user/'
+    home: `${baseURL}/media/home/`,             // 'home/'
+    about: `${baseURL}/media/about/`,           // 'about/'
+    decor: `${baseURL}/media/decor/`,           // 'decor/'
+    liveBand: `${baseURL}/media/live-band/`,    // 'live-band/'
+    catering: `${baseURL}/media/catering/`,     // 'catering/'
+    mediaHosting: `${baseURL}/media/media-hosting/`, // 'media-hosting/'
 
-    upload: `${baseURL}/media/upload/`,
-    mediaItems: `${baseURL}/media/all/`,
+    // ===== ADMIN (media management) =====
+    upload: `${baseURL}/media/upload/`,         // 'upload/'
+    all: `${baseURL}/media/all/`,               // 'all/'
     update: (id) => `${baseURL}/media/${id}/update/`,
     toggle: (id) => `${baseURL}/media/${id}/toggle/`,
     toggleFeatured: (id) => `${baseURL}/media/${id}/toggle/featured/`,
@@ -38,7 +39,7 @@ const mediaAPI = {
   getFeatured: () => publicAxios.get(mediaAPI.endpoints.featured),
   getVendor: () => publicAxios.get(mediaAPI.endpoints.vendor),
   getPartner: () => publicAxios.get(mediaAPI.endpoints.partner),
-  getUser: () => publicAxios.get(mediaAPI.endpoints.userMedia),
+  getUser: () => publicAxios.get(mediaAPI.endpoints.user),
   getHome: () => publicAxios.get(mediaAPI.endpoints.home),
   getAbout: () => publicAxios.get(mediaAPI.endpoints.about),
   getDecor: () => publicAxios.get(mediaAPI.endpoints.decor),
@@ -48,7 +49,7 @@ const mediaAPI = {
 
   // ===== ADMIN METHODS (MEDIA) =====
   upload: (data) => axiosInstance.post(mediaAPI.endpoints.upload, data),
-  getAll: () => axiosInstance.get(mediaAPI.endpoints.mediaItems),
+  getAll: () => axiosInstance.get(mediaAPI.endpoints.all),
   update: (id, data) => axiosInstance.patch(mediaAPI.endpoints.update(id), data),
   toggle: (id) => axiosInstance.post(mediaAPI.endpoints.toggle(id)),
   toggleFeatured: (id) => axiosInstance.post(mediaAPI.endpoints.toggleFeatured(id)),

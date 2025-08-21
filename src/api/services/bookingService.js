@@ -4,7 +4,7 @@ import axiosInstance from '../axiosInstance';
 import bookingAPI from '../bookingAPI';
 
 const bookingService = {
-  // Client-facing
+  // ===== Client-facing =====
   create: (data) => publicAxios.post(bookingAPI.create, data),
   list: () => axiosInstance.get(bookingAPI.list),
   userBookings: () => axiosInstance.get(bookingAPI.userBookings),
@@ -13,13 +13,15 @@ const bookingService = {
   update: (id, data) => axiosInstance.patch(bookingAPI.detail(id), data),
   delete: (id) => axiosInstance.delete(bookingAPI.detail(id)),
 
-  // Admin
+  // ===== Admin =====
   adminList: () => axiosInstance.get(bookingAPI.adminList),
   adminDetail: (id) => axiosInstance.get(bookingAPI.adminDetail(id)),
+  adminUpdate: (id, data) => axiosInstance.patch(bookingAPI.adminUpdate(id), data),
   adminUpdateStatus: (id, data) =>
     axiosInstance.post(bookingAPI.adminUpdateStatus(id), data),
+  adminDelete: (id) => axiosInstance.delete(bookingAPI.adminDelete(id)),
 
-  // Invoice
+  // ===== Invoice =====
   invoice: (id) => axiosInstance.get(bookingAPI.invoice(id)),
 };
 

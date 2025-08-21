@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import publicAxios from "../api/publicAxios";
 import axiosInstance from "../api/axiosInstance";
-import API from "../api/api";
 import mediaAPI from "../api/mediaAPI";
 
 // Local fallback hero video path (served from public/)
@@ -12,7 +11,7 @@ const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
  * useMediaFetcher
  *
  * Provides:
- *  - GET fetch for a flexible "endpointKey" (mediaAPI, API.videos, API.media)
+ *  - GET fetch for a flexible "endpointKey" (via mediaAPI methods or mediaAPI.endpoints)
  *  - optimistic CRUD: post, put, patch, remove (uses axiosInstance)
  *  - auto re-sync (refetch) after mutations
  *  - graceful fallback for video endpoints (local fallback video object)
@@ -36,20 +35,26 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
   const getFetcher = useCallback(() => {
     if (!endpointKey || typeof endpointKey !== "string") return null;
 
-    const mediaMethodName = `get${capitalize(endpointKey)}`;
+    // 1) Try mediaAPI getter method: getHome, getFeatured, getUser, getLiveBand, getMediaHosting, etc.
+    const methodSuffix = toMethodSuffix(endpointKey); // PascalCase
+    const mediaMethodName = `get${methodSuffix}`;
     if (typeof mediaAPI[mediaMethodName] === "function") {
       return () => mediaAPI[mediaMethodName](params);
     }
 
-    if (API?.videos && Object.prototype.hasOwnProperty.call(API.videos, endpointKey)) {
-      const val = API.videos[endpointKey];
-      if (typeof val === "function") return () => publicAxios.get(callWithParams(val, params));
-      if (typeof val === "string") return () => publicAxios.get(val, params ? { params } : undefined);
-    }
+    // 2) Try mediaAPI.endpoints by key, supporting aliases and kebab_case -> camelCase
+    const keyCandidates = uniqueNonEmpty([
+      endpointKey,
+      applyAliases(endpointKey),              // userMedia -> user, mediaItems -> all
+      toCamelCase(endpointKey),               // live-band -> liveBand
+      applyAliases(toCamelCase(endpointKey)), // safety with aliases after camelizing
+    ]);
 
-    if (API?.media && Object.prototype.hasOwnProperty.call(API.media, endpointKey)) {
-      const val = API.media[endpointKey];
-      if (typeof val === "string") return () => publicAxios.get(val, params ? { params } : undefined);
+    for (const k of keyCandidates) {
+      const val = mediaAPI?.endpoints?.[k];
+      if (typeof val === "string") {
+        return () => publicAxios.get(val, params ? { params } : undefined);
+      }
     }
 
     return null;
@@ -94,8 +99,8 @@ export default function useMediaFetcher(endpointKey, params = null, options = {}
   /* -------------------------
      Build mutation endpoints
   ------------------------- */
-  const endpoints = useMemo(() =>
-    buildMutationEndpoints({ endpointKey, resourceOverride: resource, custom: mutation }),
+  const endpoints = useMemo(
+    () => buildMutationEndpoints({ endpointKey, resourceOverride: resource, custom: mutation }),
     [endpointKey, resource, mutation]
   );
 
@@ -197,10 +202,6 @@ function extractItems(res) {
   return [];
 }
 
-function capitalize(str) {
-  return typeof str === "string" && str.length > 0 ? str.charAt(0).toUpperCase() + str.slice(1) : "";
-}
-
 function isVideoKey(key) {
   return typeof key === "string" && key.toLowerCase().includes("video");
 }
@@ -229,30 +230,30 @@ function safeNotify(notify, type, message) {
   }
 }
 
+/**
+ * Build CRUD endpoints map for axiosInstance mutations
+ * Uses mediaAPI.endpoints (aligned with Django urls.py)
+ */
 function buildMutationEndpoints({ endpointKey, resourceOverride, custom }) {
   const res = resourceOverride || inferResource(endpointKey);
   let defaults = {};
 
   if (res === "videos") {
-    defaults = {
-      create: API?.videos?.list,
-      update: (id) => API?.videos?.detail?.(id),
-      patch: (id) => API?.videos?.detail?.(id),
-      remove: (id) => API?.videos?.detail?.(id),
-    };
+    // keep placeholder in case you later add videos resource
+    defaults = {};
   } else if (res === "media") {
     defaults = {
-      create: API?.media?.upload,
-      update: (id) => API?.media?.update?.(id),
-      patch: (id) => API?.media?.update?.(id),
-      remove: (id) => API?.media?.delete?.(id),
+      create: mediaAPI?.endpoints?.upload,
+      update: (id) => mediaAPI?.endpoints?.update?.(id),
+      patch:  (id) => mediaAPI?.endpoints?.update?.(id),
+      remove: (id) => mediaAPI?.endpoints?.delete?.(id),
     };
   }
 
   return {
     create: custom?.create || defaults.create,
     update: custom?.update || defaults.update,
-    patch: custom?.patch || defaults.patch,
+    patch:  custom?.patch  || defaults.patch,
     remove: custom?.remove || defaults.remove,
   };
 }
@@ -260,7 +261,53 @@ function buildMutationEndpoints({ endpointKey, resourceOverride, custom }) {
 function inferResource(endpointKey) {
   if (!endpointKey || typeof endpointKey !== "string") return null;
   const key = endpointKey.toLowerCase();
+
+  // anything media-related
+  const mediaKeys = [
+    "media", "home", "featured", "banners",
+    "vendor", "partner", "user", "about", "decor",
+    "liveband", "live-band", "catering", "mediahosting", "media-hosting",
+    "defaultlist", "all", "archived", "stats",
+  ];
+  if (mediaKeys.some(k => key.includes(k))) return "media";
   if (key.includes("video")) return "videos";
-  if (key.includes("media") || ["home", "featured", "banners"].includes(key)) return "media";
   return null;
+}
+
+/* ---------- key normalization utils ---------- */
+function toCamelCase(str) {
+  if (typeof str !== "string") return "";
+  return str.replace(/[-_\s]+([a-zA-Z0-9])/g, (_, c) => c.toUpperCase());
+}
+
+function toMethodSuffix(str) {
+  if (typeof str !== "string") return "";
+  // turn "live-band" -> "LiveBand", "mediaHosting" -> "MediaHosting", "defaultList" -> "DefaultList"
+  const hasDelim = /[-_\s]/.test(str);
+  if (hasDelim) {
+    return str
+      .split(/[-_\s]+/)
+      .filter(Boolean)
+      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .join("");
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function uniqueNonEmpty(arr) {
+  const seen = new Set();
+  return arr.filter(v => {
+    const ok = typeof v === "string" && v.length > 0 && !seen.has(v);
+    if (ok) seen.add(v);
+    return ok;
+  });
+}
+
+/** map legacy keys to the new ones */
+function applyAliases(key) {
+  const aliases = {
+    userMedia: "user",     // old -> new
+    mediaItems: "all",     // old -> new
+  };
+  return aliases[key] || key;
 }

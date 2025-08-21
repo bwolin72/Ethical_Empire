@@ -13,8 +13,8 @@ import Services from "../home/Services"; // ✅ shared Services component
 const DecorServicePage = () => {
   const navigate = useNavigate();
 
-  const { media: mediaCards, loading: mediaLoading, fetchMedia } =
-    useMediaFetcher();
+  const { media: mediaCards = [], loading: mediaLoading, fetchMedia } =
+    useMediaFetcher(); // ✅ default empty array
 
   const [testimonials, setTestimonials] = useState([]);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
@@ -37,9 +37,11 @@ const DecorServicePage = () => {
     setLoadingTestimonials(true);
     try {
       const res = await apiService.getReviews({ category: "decor" });
-      setTestimonials(Array.isArray(res.data) ? res.data : []);
+      const reviews = Array.isArray(res?.data) ? res.data : []; // ✅ guard
+      setTestimonials(reviews);
     } catch (err) {
       console.error("Error loading reviews:", err);
+      setTestimonials([]);
     } finally {
       setLoadingTestimonials(false);
     }
@@ -53,11 +55,7 @@ const DecorServicePage = () => {
         is_active: true,
       });
 
-      if (
-        Array.isArray(res.data) &&
-        res.data.length > 0 &&
-        res.data[0].video_url
-      ) {
+      if (Array.isArray(res?.data) && res.data[0]?.video_url) {
         setVideoUrl(res.data[0].video_url);
       } else {
         setVideoUrl("/mock/hero-video.mp4");
@@ -138,7 +136,7 @@ const DecorServicePage = () => {
         <div className="creative-media">
           {mediaLoading ? (
             Array.from({ length: 2 }).map((_, i) => <MediaSkeleton key={i} />)
-          ) : mediaCards.length > 0 ? (
+          ) : mediaCards?.length > 0 ? (
             mediaCards.slice(0, 2).map((media) => (
               <MediaCard key={media.id || media.url} media={media} />
             ))
@@ -158,7 +156,7 @@ const DecorServicePage = () => {
         <div className="card-grid">
           {mediaLoading ? (
             Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-          ) : mediaCards.length > 0 ? (
+          ) : mediaCards?.length > 0 ? (
             mediaCards.slice(0, 6).map((media) => (
               <MediaCard key={media.id || media.url} media={media} />
             ))
@@ -181,9 +179,12 @@ const DecorServicePage = () => {
                 <div className="testimonial-user">Loading...</div>
               </div>
             ))
-          ) : testimonials.length > 0 ? (
+          ) : testimonials?.length > 0 ? (
             testimonials.slice(0, 6).map((review) => (
-              <div key={review.id || review.message} className="testimonial-card">
+              <div
+                key={review.id || review.message}
+                className="testimonial-card"
+              >
                 <p className="testimonial-text">
                   {review.message
                     ? `"${review.message}"`

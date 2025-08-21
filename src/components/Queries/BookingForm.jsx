@@ -1,5 +1,5 @@
 // src/components/booking/BookingForm.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import PhoneInput from 'react-phone-input-2';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
@@ -18,7 +18,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import bookingService from '../../api/services/bookingService';
-import serviceService from '../../api/services/serviceService';   // ✅ correct import
+import serviceService from '../../api/services/serviceService';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
@@ -47,7 +47,7 @@ const BookingForm = () => {
   const [servicesList, setServicesList] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(true);
 
-  // === Fetch services via serviceService ===
+  // Fetch services
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -161,6 +161,11 @@ const BookingForm = () => {
 
     setIsSubmitting(true);
 
+    // Map selected services to include price internally
+    const selectedServices = servicesList
+      .filter((s) => formData.services.includes(s.id))
+      .map(({ id, price }) => ({ id, price }));
+
     const payload = {
       name,
       email,
@@ -171,7 +176,7 @@ const BookingForm = () => {
       address,
       event_date: event_date ? event_date.toISOString().split('T')[0] : null,
       message: formData.message || '',
-      services,
+      services: selectedServices,
     };
 
     try {
@@ -290,11 +295,7 @@ const BookingForm = () => {
                         onChange={handleChange}
                       />
                       {service.name}
-                      {service.price && (
-                        <span className="service-price">
-                          {' '}– ${parseFloat(service.price).toLocaleString()}
-                        </span>
-                      )}
+                      {/* Price hidden from UI */}
                     </label>
                   ))
                 ) : (

@@ -2,15 +2,23 @@
 import baseURL from './baseURL';
 
 const bookingAPI = {
-  create: `${baseURL}/bookings/submit/`,
-  list: `${baseURL}/bookings/`,
-  userBookings: `${baseURL}/bookings/user/`,
-  userBookingHistory: `${baseURL}/bookings/user/history/`,
-  detail: (id) => `${baseURL}/bookings/${id}/`,
-  adminList: `${baseURL}/bookings/admin/bookings/`,
-  adminDetail: (id) => `${baseURL}/bookings/admin/bookings/${id}/`,
-  adminUpdateStatus: (id) => `${baseURL}/bookings/admin/bookings/${id}/status/`,
-  invoice: (id) => `${baseURL}/bookings/invoice/${id}/`,
+  // ===== Client =====
+  create: `${baseURL}/submit/`,
+  list: `${baseURL}/`,
+
+  userBookings: `${baseURL}/user/`,
+  userBookingHistory: `${baseURL}/user/history/`,
+  detail: (id) => `${baseURL}/${id}/`,
+
+  // ===== Admin =====
+  adminList: `${baseURL}/bookings-admin/bookings/`,
+  adminDetail: (id) => `${baseURL}/bookings-admin/bookings/${id}/update/`,
+  adminUpdate: (id) => `${baseURL}/bookings-admin/bookings/${id}/update/`,
+  adminUpdateStatus: (id) => `${baseURL}/bookings-admin/bookings/${id}/status/`,
+  adminDelete: (id) => `${baseURL}/bookings-admin/bookings/${id}/delete/`,
+
+  // ===== Invoice =====
+  invoice: (id) => `${baseURL}/invoice/${id}/`,
 };
 
 export default bookingAPI;

@@ -136,7 +136,7 @@
   align-items: center;
 }
 
-.booking-wrapper.datepicker-wrapper .icon {
+.booking-wrapper .datepicker-wrapper .icon {
   position: absolute;
   left: 0.75rem;
   z-index: 2;
@@ -284,7 +284,7 @@
 }
 
 /* Textarea Resizing */
-.booking-wrapper .textarea {
+.booking-wrapper textarea {
   resize: vertical;
   min-height: 100px;
 }
