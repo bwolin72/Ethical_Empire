@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import useMediaFetcher from "../../hooks/useMediaFetcher";
+import useMediaFetcher from "../../hooks/useFetcher";
 import "./PromotionPopup.css";
 
 const BACKEND_BASE_URL = process.env.REACT_APP_API_BASE_URL;

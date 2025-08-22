@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useEffect, useState } from 'react';
 import './components/styles/variables.css';
 import {
@@ -6,6 +7,7 @@ import {
   Route,
   Navigate,
   useNavigate,
+  useLocation,
 } from 'react-router-dom';
 
 import './App.css';
@@ -22,6 +24,10 @@ import EethmHome from './components/home/EethmHome';
 import About from './components/home/About';
 import Services from './components/home/Services';
 import ContactForm from './components/Queries/ContactForm';
+
+// Legal Pages
+import Terms from './components/legal/Terms';
+import Privacy from './components/legal/Privacy';
 
 // Pages - Auth & Profile
 import Register from './components/Auth/Register';
@@ -43,7 +49,7 @@ import NewsletterSignup from './components/user/NewsLetterSignup';
 import Unsubscribe from './components/user/UnsubscribePage';
 import VendorProfile from './components/agency/VendorProfile';
 import PartnerProfilePage from './components/agency/PartnerProfilePage';
-import WorkerDashboard from './components/worker/WorkerDashboard'; // ✅ added
+import WorkerDashboard from './components/worker/WorkerDashboard';
 
 // Pages - Services
 import LiveBandServicePage from './components/services/LiveBandServicePage';
@@ -60,6 +66,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 // Auth Service
 import authService from './api/services/authService';
+
 
 // ==============================
 // Homepage with Booking Button
@@ -115,7 +122,7 @@ const ConnectRedirect = () => {
           case 'partner':
             navigate('/partner-profile', { replace: true });
             break;
-          case 'worker': // ✅ added
+          case 'worker':
             navigate('/worker-dashboard', { replace: true });
             break;
           default:
@@ -140,6 +147,23 @@ const ConnectRedirect = () => {
 };
 
 // ==============================
+// Auto Scroll + Refresh on Navigation
+// ==============================
+const ScrollAndRefresh = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Scroll to top whenever route changes
+    window.scrollTo(0, 0);
+
+    // Force re-run of effects in children by triggering refresh event
+    window.dispatchEvent(new Event("route-change"));
+  }, [location]);
+
+  return null;
+};
+
+// ==============================
 // App Routes Definition
 // ==============================
 const AppRoutes = () => (
@@ -149,10 +173,16 @@ const AppRoutes = () => (
     <Route path="/about" element={<About />} />
     <Route path="/services" element={<Services />} />
     <Route path="/contact" element={<ContactForm />} />
+    <Route path="/terms" element={<Terms />} />
+    <Route path="/privacy" element={<Privacy />} />
+
+    {/* Service Pages */}
     <Route path="/services/live-band" element={<LiveBandServicePage />} />
     <Route path="/services/catering" element={<CateringServicePage />} />
     <Route path="/services/decor" element={<DecorServicePage />} />
     <Route path="/services/media-hosting" element={<MediaHostingServicePage />} />
+
+    {/* Newsletter */}
     <Route path="/newsletter" element={<NewsletterSignup />} />
     <Route path="/unsubscribe" element={<Unsubscribe />} />
 
@@ -175,22 +205,22 @@ const AppRoutes = () => (
       <Route path="/agency-dashboard" element={<AgencyDashboard />} />
     </Route>
 
-    {/* Protected Vendor Routes */}
+    {/* Vendor */}
     <Route element={<ProtectedRoute roles={['vendor']} />}>
       <Route path="/vendor-profile" element={<VendorProfile />} />
     </Route>
 
-    {/* Protected Partner Routes */}
+    {/* Partner */}
     <Route element={<ProtectedRoute roles={['partner']} />}>
       <Route path="/partner-profile" element={<PartnerProfilePage />} />
     </Route>
 
-    {/* Protected Worker Routes ✅ */}
+    {/* Worker */}
     <Route element={<ProtectedRoute roles={['worker']} />}>
       <Route path="/worker-dashboard" element={<WorkerDashboard />} />
     </Route>
 
-    {/* Protected Admin Route */}
+    {/* Admin */}
     <Route element={<ProtectedRoute roles={['admin']} />}>
       <Route path="/admin" element={<AdminPanel />} />
     </Route>
@@ -225,6 +255,7 @@ const AppWithAuth = () => {
   return (
     <div className="App">
       <Navbar />
+      <ScrollAndRefresh />
       <main>
         <AppRoutes />
       </main>

@@ -1,63 +1,45 @@
 // src/components/context/MediaCards.jsx
-
-import React, { useState } from 'react';
-import useMediaFetcher from '../../hooks/useMediaFetcher';
-import SingleMediaCard from './MediaCard';
-import MediaSkeleton from './MediaSkeleton';
-import placeholderImg from '../../assets/placeholder.jpg';
-import './MediaCard.css';
+import React, { useState } from "react";
+import useFetcher from "../../hooks/useFetcher"; // ✅ correct import
+import SingleMediaCard from "./MediaCard";
+import MediaSkeleton from "./MediaSkeleton";
+import placeholderImg from "../../assets/placeholder.jpg";
+import "./MediaCard.css";
 
 const MediaCards = ({
-  endpoint,        // API endpoint override
-  type = 'media',  // 'media', 'banner', 'vendor', 'partner'
+  endpointKey = "media", // ✅ match useFetcher
+  resourceType = "media", // "media" | "videos"
   title,
   fullWidth = false,
   isActive = true,
   isFeatured = false,
-  fileType = '',
-  labelQuery = '',
+  fileType = "",
+  labelQuery = "",
 }) => {
   const [previewMedia, setPreviewMedia] = useState(null);
 
-  // Resolve API endpoint dynamically
-  const resolvedEndpoint = (() => {
-    switch (type) {
-      case 'banner': return endpoint || '/api/banners/';
-      case 'vendor': return endpoint || '/api/vendors/';
-      case 'partner': return endpoint || '/api/partners/';
-      default:       return endpoint || '/api/media/';
-    }
-  })();
-
-  const {
-    media: rawMedia,
-    loading,
-    error,
-  } = useMediaFetcher({
-    type,
-    endpoint: resolvedEndpoint,
-    isActive,
-    isFeatured,
-    autoFetch: true,
-    pageSize: 20,
-    fileType,
-    labelQuery,
+  // 🔑 call useFetcher with resourceType + endpointKey
+  const { data, loading, error } = useFetcher(resourceType, endpointKey, {
+    is_active: isActive,
+    is_featured: isFeatured,
+    file_type: fileType,
+    label: labelQuery,
   });
 
-  // ✅ Always normalize mediaItems to an array
-  const mediaItems = Array.isArray(rawMedia) ? rawMedia : [];
+  // ✅ normalize
+  const mediaItems = Array.isArray(data) ? data : [];
 
   return (
     <section className="media-cards-container">
       {title && <h2 className="media-cards-title">{title}</h2>}
 
-      <div className={`media-cards-scroll-wrapper ${fullWidth ? 'full' : ''}`}>
+      <div className={`media-cards-scroll-wrapper ${fullWidth ? "full" : ""}`}>
         {loading ? (
           <MediaSkeleton count={3} />
         ) : error ? (
-          <p className="media-error">⚠️ {error}</p>
+          <p className="media-error">⚠️ {error.message || "Failed to load media"}</p>
         ) : mediaItems.length === 0 ? (
-          <p className="media-card-empty">📭 No {type} uploaded.</p>
+          <p className="media-card-empty">📭 No {resourceType} uploaded.</p>
         ) : (
           mediaItems.map((media) => (
             <div
@@ -66,7 +48,7 @@ const MediaCards = ({
               onClick={() => setPreviewMedia(media)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && setPreviewMedia(media)}
+              onKeyDown={(e) => e.key === "Enter" && setPreviewMedia(media)}
             >
               <SingleMediaCard media={media} fullWidth={fullWidth} />
             </div>
@@ -88,7 +70,7 @@ const MediaCards = ({
               ✖
             </button>
 
-            {previewMedia.file_type?.includes('video') ? (
+            {previewMedia.file_type?.includes("video") ? (
               <video
                 src={previewMedia.url?.full}
                 controls
@@ -97,7 +79,7 @@ const MediaCards = ({
             ) : (
               <img
                 src={previewMedia.url?.full || placeholderImg}
-                alt={previewMedia.label || 'Preview'}
+                alt={previewMedia.label || "Preview"}
                 className="modal-media-content"
                 onError={(e) => (e.target.src = placeholderImg)}
               />

@@ -1,4 +1,3 @@
-// src/components/services/DecorServicePage.jsx
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +5,7 @@ import "./decor.css";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
 import BannerCards from "../context/BannerCards";
-import useMediaFetcher from "../../hooks/useMediaFetcher";
+import useMediaFetcher from "../../hooks/useFetcher";
 import apiService from "../../api/apiService";
 import Services from "../home/Services"; // ✅ shared Services component
 
@@ -14,7 +13,7 @@ const DecorServicePage = () => {
   const navigate = useNavigate();
 
   const { media: mediaCards = [], loading: mediaLoading, fetchMedia } =
-    useMediaFetcher(); // ✅ default empty array
+    useMediaFetcher();
 
   const [testimonials, setTestimonials] = useState([]);
   const [loadingTestimonials, setLoadingTestimonials] = useState(true);
@@ -26,7 +25,7 @@ const DecorServicePage = () => {
   // === Fetch media ===
   useEffect(() => {
     fetchMedia({
-      endpoint: "decor",
+      endpoint: "decor", // ✅ only valid endpoint keys
       type: "featured",
       is_active: true,
     });
@@ -37,7 +36,7 @@ const DecorServicePage = () => {
     setLoadingTestimonials(true);
     try {
       const res = await apiService.getReviews({ category: "decor" });
-      const reviews = Array.isArray(res?.data) ? res.data : []; // ✅ guard
+      const reviews = Array.isArray(res?.data) ? res.data : [];
       setTestimonials(reviews);
     } catch (err) {
       console.error("Error loading reviews:", err);
@@ -120,7 +119,7 @@ const DecorServicePage = () => {
           From elegant floral arrangements to immersive lighting, explore the
           services that bring your event to life.
         </p>
-        <Services /> {/* ✅ reuse shared component */}
+        <Services />
       </section>
 
       {/* === Venue Transformation Preview === */}

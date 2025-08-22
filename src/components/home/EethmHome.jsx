@@ -1,11 +1,11 @@
-// src/pages/home/EethmHome.jsx
+// src/components/home/EethmHome.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../api/apiService";
 import BannerCards from "../context/BannerCards";
 import FadeInSection from "../FadeInSection";
-import ReCAPTCHA from "react-google-recaptcha";
 import Services from "./Services"; // ✅ shared Services component
+import NewsletterSignup from "../user/NewsLetterSignup"; // ✅ centralized newsletter form
 import "./EethmHome.css";
 
 // --- Local fallbacks ---
@@ -44,12 +44,8 @@ const EethmHome = () => {
   const [promoError, setPromoError] = useState(null);
   const [reviewError, setReviewError] = useState(null);
 
-  // Newsletter states
-  const [newsletterEmail, setNewsletterEmail] = useState("");
-  const [newsletterSuccess, setNewsletterSuccess] = useState("");
-  const [newsletterError, setNewsletterError] = useState("");
+  // Newsletter modal state
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
-  const [recaptchaToken, setRecaptchaToken] = useState(null);
 
   // --- Fetch all data (except services, handled by <Services />) ---
   useEffect(() => {
@@ -120,44 +116,6 @@ const EethmHome = () => {
 
   const toggleMute = () => setIsMuted((p) => !p);
 
-  // --- Captcha handler ---
-  const handleCaptchaChange = (token) => {
-    setRecaptchaToken(token);
-  };
-
-  // --- Newsletter subscribe ---
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    setNewsletterError("");
-    setNewsletterSuccess("");
-
-    if (!newsletterEmail.includes("@")) {
-      setNewsletterError("Please enter a valid email.");
-      return;
-    }
-    if (!recaptchaToken) {
-      setNewsletterError("Please complete the reCAPTCHA.");
-      return;
-    }
-
-    try {
-      const res = await apiService.subscribeNewsletter(
-        newsletterEmail,
-        recaptchaToken
-      );
-      if ([200, 201].includes(res?.status)) {
-        setNewsletterSuccess("Thank you for subscribing!");
-        setNewsletterEmail("");
-        setRecaptchaToken(null);
-      } else {
-        setNewsletterError("Subscription failed.");
-      }
-    } catch (err) {
-      console.error("❌ Newsletter subscription failed:", err);
-      setNewsletterError("Subscription failed.");
-    }
-  };
-
   return (
     <div className="eethm-home-page">
       {/* === Hero === */}
@@ -211,7 +169,7 @@ const EethmHome = () => {
         </button>
       </section>
 
-      {/* === Newsletter Modal === */}
+      {/* === Newsletter Modal (centralized component) === */}
       {showNewsletterForm && (
         <div
           className="newsletter-modal-backdrop"
@@ -228,35 +186,12 @@ const EethmHome = () => {
             >
               &times;
             </button>
-            <h2>Subscribe to Our Newsletter</h2>
-            <form onSubmit={handleSubscribe} className="newsletter-form">
-              <input
-                type="email"
-                value={newsletterEmail}
-                placeholder="Your email"
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-              />
-              <div className="recaptcha-wrapper">
-                <ReCAPTCHA
-                  sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-                  onChange={handleCaptchaChange}
-                />
-              </div>
-              <button type="submit" className="btn-primary">
-                Subscribe
-              </button>
-            </form>
-            {newsletterSuccess && (
-              <p className="success-message">{newsletterSuccess}</p>
-            )}
-            {newsletterError && (
-              <p className="error-message">{newsletterError}</p>
-            )}
+            <NewsletterSignup /> {/* ✅ use the centralized component */}
           </div>
         </div>
       )}
 
-      {/* === Services (✅ shared component instead of inline fetch/render) === */}
+      {/* === Services === */}
       <FadeInSection>
         <section className="services-page">
           <h2>Explore Eethm_GH Ministrations</h2>

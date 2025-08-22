@@ -28,7 +28,7 @@ import logo from '../../assets/logo.png';
 
 const BookingForm = () => {
   const { darkMode } = useTheme();
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth(); // ✅ remove isAuthenticated enforcement
 
   const [formData, setFormData] = useState({
     name: '',
@@ -136,7 +136,6 @@ const BookingForm = () => {
     } = formData;
 
     if (
-      !isAuthenticated ||
       !name ||
       !email ||
       !phone ||
@@ -161,11 +160,7 @@ const BookingForm = () => {
 
     setIsSubmitting(true);
 
-    // Map selected services to include price internally
-    const selectedServices = servicesList
-      .filter((s) => formData.services.includes(s.id))
-      .map(({ id, price }) => ({ id, price }));
-
+    // ✅ Backend expects only service IDs, not objects
     const payload = {
       name,
       email,
@@ -176,7 +171,7 @@ const BookingForm = () => {
       address,
       event_date: event_date ? event_date.toISOString().split('T')[0] : null,
       message: formData.message || '',
-      services: selectedServices,
+      services: services, // IDs only
     };
 
     try {
@@ -295,7 +290,6 @@ const BookingForm = () => {
                         onChange={handleChange}
                       />
                       {service.name}
-                      {/* Price hidden from UI */}
                     </label>
                   ))
                 ) : (

@@ -1,51 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import ReCAPTCHA from 'react-google-recaptcha';
-import apiService from '../../api/apiService'; // ✅ now using apiService
 import './Footer.css';
-
-const SITE_KEY = process.env.REACT_APP_RECAPTCHA_PUBLIC_KEY;
+import NewsLetterSignup from '../user/NewsLetterSignup'; // ✅ path to your newsletter component
 
 function Footer() {
-  const [email, setEmail] = useState('');
-  const [captchaToken, setCaptchaToken] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleCaptchaChange = (token) => {
-    setCaptchaToken(token);
-  };
-
-  const handleNewsletterSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!email.trim()) {
-      toast.error('Please enter an email address.');
-      return;
-    }
-
-    if (!captchaToken) {
-      toast.error('Please complete the reCAPTCHA.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await apiService.subscribeNewsletter(email, captchaToken); // ✅ using apiService method
-      toast.success('✅ Please check your email to confirm your subscription.');
-      setEmail('');
-      setCaptchaToken('');
-    } catch (error) {
-      toast.error(
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        '❌ Subscription failed. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -68,45 +26,26 @@ function Footer() {
           </ul>
         </div>
 
+        {/* Legal Links */}
+        <div className="footer-section">
+          <h4>Legal</h4>
+          <ul>
+            <li><Link to="/terms">Terms & Conditions</Link></li>
+            <li><Link to="/privacy">Privacy Policy</Link></li>
+          </ul>
+        </div>
+
         {/* Contact Info */}
         <div className="footer-section">
           <h4>Contact Us</h4>
-          <p>Email: <a href="mailto:asaasebandeethm@gmail.com">asaasebandeethm@gmail.com</a></p>
+          <p>Email: <a href="mailto:info@eethmghmultimedia.com">info@eethmghmultimedia.com</a></p>
           <p>WhatsApp: <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">+233 55 298 8735</a></p>
           <p>Phone: <a href="tel:+233553424865">+233 55 342 4865</a></p>
         </div>
 
         {/* Newsletter Signup */}
         <div className="footer-section newsletter">
-          <h4>Subscribe to Our Newsletter</h4>
-          <form onSubmit={handleNewsletterSubmit}>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="newsletter-input"
-              required
-            />
-
-            <div className="recaptcha-wrapper">
-              <ReCAPTCHA
-                sitekey={SITE_KEY}
-                onChange={handleCaptchaChange}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="newsletter-button"
-              disabled={loading}
-            >
-              {loading ? 'Subscribing...' : 'Subscribe'}
-            </button>
-          </form>
-          <p className="unsubscribe-text">
-            Want out? <Link to="/unsubscribe">Unsubscribe</Link>.
-          </p>
+          <NewsLetterSignup /> {/* ✅ call your newsletter component here */}
         </div>
       </div>
 

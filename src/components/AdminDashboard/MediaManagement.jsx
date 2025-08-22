@@ -1,46 +1,44 @@
+// src/pages/admin/MediaManagement.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import axiosInstance from '../../api/axiosInstance';
-import './MediaManagement.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import {
   DndContext,
   closestCenter,
   PointerSensor,
   useSensor,
-  useSensors
+  useSensors,
 } from '@dnd-kit/core';
-
 import {
   arrayMove,
   SortableContext,
   useSortable,
-  verticalListSortingStrategy
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-
 import { CSS } from '@dnd-kit/utilities';
+import mediaService from '../../api/services/mediaService';
+import './MediaManagement.css';
 
 const endpoints = [
-  { label: 'Home', value: 'EethmHome' },
-  { label: 'User Page', value: 'UserPage' },
-  { label: 'About', value: 'About' },
-  { label: 'Catering', value: 'CateringPage' },
-  { label: 'Live Band', value: 'LiveBandServicePage' },
-  { label: 'Decor', value: 'DecorPage' },
-  { label: 'Media Hosting', value: 'MediaHostingServicePage' },
+  { label: 'Home', value: 'home' },
+  { label: 'User Page', value: 'user' },
+  { label: 'About', value: 'about' },
+  { label: 'Catering', value: 'catering' },
+  { label: 'Live Band', value: 'liveBand' },
+  { label: 'Decor', value: 'decor' },
+  { label: 'Media Hosting', value: 'mediaHosting' },
+  { label: 'Vendor', value: 'vendor' },
+  { label: 'Partner', value: 'partner' },
 ];
 
 const MAX_FILE_SIZE_MB = 10;
 const ACCEPTED_FILE_TYPES = ['image/', 'video/'];
 
-function SortableMediaCard({ item, index, toggleActive, toggleFeatured, deleteMedia, setPreviewItem }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
+function SortableMediaCard({ item, toggleActive, toggleFeatured, deleteMedia, setPreviewItem }) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: item.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition
-  };
+  const style = { transform: CSS.Transform.toString(transform), transition };
 
   const renderPreview = (url) => {
     if (!url) return <span>Broken link</span>;
@@ -74,7 +72,7 @@ function SortableMediaCard({ item, index, toggleActive, toggleFeatured, deleteMe
 
 const MediaManagement = () => {
   const [mediaType, setMediaType] = useState('media');
-  const [selectedEndpoints, setSelectedEndpoints] = useState(['EethmHome']);
+  const [selectedEndpoints, setSelectedEndpoints] = useState(['home']);
   const [statusFilter, setStatusFilter] = useState('all');
   const [files, setFiles] = useState([]);
   const [uploadedItems, setUploadedItems] = useState([]);
@@ -92,22 +90,20 @@ const MediaManagement = () => {
       const endpoint = selectedEndpoints[0];
 
       if (mediaType === 'featured') {
-        res = await axiosInstance.get('/media/featured/', {
-          params: { endpoint }
-        });
+        res = await mediaService.getFeaturedMedia();
+        setUploadedItems(Array.isArray(res.data) ? res.data : []);
+      } else if (mediaType === 'banner') {
+        res = await mediaService.getBanners();
         setUploadedItems(Array.isArray(res.data) ? res.data : []);
       } else {
-        const params = { type: mediaType };
-        if (statusFilter !== 'all') params.is_active = statusFilter === 'active';
-        if (mediaType !== 'banner') params.endpoint = endpoint;
-        res = await axiosInstance.get('/media/', { params });
-        setUploadedItems(Array.isArray(res.data.results) ? res.data.results : []);
+        res = await mediaService.byEndpoint(endpoint);
+        setUploadedItems(Array.isArray(res.data) ? res.data : []);
       }
     } catch {
       toast.error('Failed to load media.', { autoClose: 4000 });
       setUploadedItems([]);
     }
-  }, [mediaType, selectedEndpoints, statusFilter]);
+  }, [mediaType, selectedEndpoints]);
 
   useEffect(() => {
     fetchMedia();
@@ -125,13 +121,7 @@ const MediaManagement = () => {
     selectedEndpoints.forEach((ep) => formData.append('endpoint', ep));
 
     try {
-      await axiosInstance.post('/media/upload/', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        onUploadProgress: (e) => {
-          setUploadProgress(Math.round((e.loaded * 100) / e.total));
-        },
-      });
-
+      await mediaService.uploadMedia(formData);
       fetchMedia();
       setFiles([]);
       setLabel('');
@@ -166,7 +156,7 @@ const MediaManagement = () => {
 
   const toggleActive = async (id) => {
     try {
-      const res = await axiosInstance.patch(`/media/${id}/toggle/`);
+      const res = await mediaService.toggleMediaActive(id);
       toast.info(res.data.is_active ? 'Activated.' : 'Deactivated.', { autoClose: 2500 });
       setUploadedItems((prev) => prev.map((item) => (item.id === id ? { ...item, is_active: res.data.is_active } : item)));
     } catch {
@@ -176,7 +166,7 @@ const MediaManagement = () => {
 
   const toggleFeatured = async (id) => {
     try {
-      const res = await axiosInstance.patch(`/media/${id}/toggle/featured/`);
+      const res = await mediaService.toggleMediaFeatured(id);
       toast.info(res.data.is_featured ? 'Marked as featured.' : 'Unmarked.', { autoClose: 2500 });
       setUploadedItems((prev) => prev.map((item) => (item.id === id ? { ...item, is_featured: res.data.is_featured } : item)));
     } catch {
@@ -186,9 +176,8 @@ const MediaManagement = () => {
 
   const deleteMedia = async (id) => {
     if (!window.confirm('Delete this media?')) return;
-
     try {
-      await axiosInstance.delete(`/media/${id}/delete/`);
+      await mediaService.deleteMedia(id);
       setUploadedItems((prev) => prev.filter((item) => item.id !== id));
       toast.success('Media deleted.', { autoClose: 3000 });
     } catch {
@@ -207,7 +196,7 @@ const MediaManagement = () => {
 
     try {
       const orderedIds = reordered.map((item, index) => ({ id: item.id, position: index }));
-      await axiosInstance.post('/media/reorder/', orderedIds);
+      await mediaService.reorderMedia(orderedIds);
       toast.success('Order updated.', { autoClose: 2000 });
     } catch {
       toast.error('Reorder failed.', { autoClose: 3000 });
@@ -219,6 +208,7 @@ const MediaManagement = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <h2>{mediaType === 'media' ? 'Media Uploads' : mediaType === 'banner' ? 'Banner Uploads' : 'Featured Media'}</h2>
 
+      {/* Controls */}
       <div className="media-controls">
         <input type="file" multiple accept="image/*,video/*" onChange={handleFileChange} />
         <input type="text" placeholder="Enter media label" value={label} onChange={(e) => setLabel(e.target.value)} />
@@ -243,6 +233,7 @@ const MediaManagement = () => {
         </button>
       </div>
 
+      {/* List */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={uploadedItems.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="media-list">
@@ -252,11 +243,10 @@ const MediaManagement = () => {
                 item.label?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 item.url?.full?.toLowerCase().includes(searchQuery.toLowerCase())
               )
-              .map((item, index) => (
+              .map((item) => (
                 <SortableMediaCard
                   key={item.id}
                   item={item}
-                  index={index}
                   toggleActive={toggleActive}
                   toggleFeatured={toggleFeatured}
                   deleteMedia={deleteMedia}
@@ -267,6 +257,7 @@ const MediaManagement = () => {
         </SortableContext>
       </DndContext>
 
+      {/* Preview Overlay */}
       {previewItem && (
         <div className="preview-overlay" onClick={() => setPreviewItem(null)}>
           <div className="preview-content" onClick={(e) => e.stopPropagation()}>

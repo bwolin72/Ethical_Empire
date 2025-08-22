@@ -32,6 +32,7 @@ const Register = () => {
     company_name: '',
     agency_name: '',
     role: 'USER',
+    acceptTerms: false, // ✅ New checkbox
   });
 
   const [loading, setLoading] = useState(false);
@@ -50,8 +51,7 @@ const Register = () => {
     }
   }, [searchParams]);
 
-  const validateEmail = (email) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const getPasswordStrength = (password) => {
     if (password.length < 6) return 'Weak';
@@ -65,13 +65,11 @@ const Register = () => {
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (!data) return 'Unexpected error. Please try again.';
-
     if (data.errors && typeof data.errors === 'object') {
       return Object.entries(data.errors)
         .map(([field, messages]) => `${capitalize(field)}: ${messages.join(' ')}`)
         .join('\n');
     }
-
     if (typeof data === 'object') {
       return Object.entries(data)
         .map(([field, messages]) =>
@@ -79,17 +77,21 @@ const Register = () => {
         )
         .join('\n');
     }
-
     if (typeof data === 'string') return data;
-
     return 'An error occurred. Please check your input.';
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     const cleanValue = DOMPurify.sanitize(value);
+
     if (name === 'password') setPasswordStrength(getPasswordStrength(cleanValue));
-    setForm((prev) => ({ ...prev, [name]: cleanValue }));
+
+    if (type === 'checkbox') {
+      setForm((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: cleanValue }));
+    }
   };
 
   const handlePhoneChange = (value) => {
@@ -98,6 +100,12 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.acceptTerms) {
+      toast.error('❌ You must accept our Terms & Privacy Policy to continue.');
+      return;
+    }
+
     const {
       full_name, email, phone, dob, gender, password, password2,
       role, access_code, worker_category_id, company_name, agency_name,
@@ -115,7 +123,7 @@ const Register = () => {
       name: full_name, email, phone, dob, gender, password, password2,
     };
 
-    let requestFn = authAPI.register; // default
+    let requestFn = authAPI.register;
     if (role === 'WORKER') {
       if (!access_code.trim()) return toast.error('Access code is required.');
       if (!worker_category_id) return toast.error('Worker category ID is required.');
@@ -125,14 +133,11 @@ const Register = () => {
     } else if (role === 'VENDOR') {
       if (!company_name.trim()) return toast.error('Company name is required.');
       payload.company_name = company_name;
-      // directly hit vendor register endpoint
-      requestFn = (data) =>
-        authAPI.register({ ...data, role: 'VENDOR' });
+      requestFn = (data) => authAPI.register({ ...data, role: 'VENDOR' });
     } else if (role === 'PARTNER') {
       if (!agency_name.trim()) return toast.error('Agency name is required.');
       payload.agency_name = agency_name;
-      requestFn = (data) =>
-        authAPI.register({ ...data, role: 'PARTNER' });
+      requestFn = (data) => authAPI.register({ ...data, role: 'PARTNER' });
     }
 
     setLoading(true);
@@ -182,6 +187,7 @@ const Register = () => {
           <h2>Create an Account</h2>
 
           <form onSubmit={handleSubmit} className="register-form" noValidate>
+            {/* ROLE SELECTION */}
             <div className="form-group">
               <label htmlFor="role">Account Type</label>
               <select id="role" name="role" value={form.role} onChange={handleChange}>
@@ -192,6 +198,7 @@ const Register = () => {
               </select>
             </div>
 
+            {/* Conditional Fields */}
             {form.role === 'WORKER' && (
               <>
                 <div className="form-group">
@@ -219,6 +226,7 @@ const Register = () => {
               </div>
             )}
 
+            {/* COMMON FIELDS */}
             <div className="form-group">
               <label htmlFor="full_name">Full Name</label>
               <input id="full_name" name="full_name" value={form.full_name} onChange={handleChange} />
@@ -249,6 +257,7 @@ const Register = () => {
               </select>
             </div>
 
+            {/* PASSWORD FIELDS */}
             <div className="form-group password-field">
               <label htmlFor="password">Password</label>
               <input
@@ -280,11 +289,29 @@ const Register = () => {
               </span>
             </div>
 
+            {/* TERMS & PRIVACY CHECKBOX */}
+            <div className="form-group terms-checkbox">
+              <input
+                type="checkbox"
+                id="acceptTerms"
+                name="acceptTerms"
+                checked={form.acceptTerms}
+                onChange={handleChange}
+              />
+              <label htmlFor="acceptTerms">
+                I accept the{' '}
+                <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> &{' '}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+              </label>
+            </div>
+
+            {/* SUBMIT */}
             <button type="submit" disabled={loading}>
               {loading ? 'Registering…' : 'Register'}
             </button>
           </form>
 
+          {/* GOOGLE SIGNUP */}
           <div className="google-signup">
             <p>Or register with Google:</p>
             <GoogleLogin
@@ -294,6 +321,7 @@ const Register = () => {
             />
           </div>
 
+          {/* LOGIN PROMPT */}
           <div className="login-prompt">
             Already have an account?{' '}
             <span onClick={() => navigate('/login')} role="button" tabIndex={0}>

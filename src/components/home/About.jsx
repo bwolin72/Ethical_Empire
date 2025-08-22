@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { FaStar, FaCheckCircle, FaClock, FaCogs, FaCheck } from "react-icons/fa";
 import { toast } from "react-toastify";
 
-import useMediaFetcher from "../../hooks/useMediaFetcher";
+import useMediaFetcher from "../../hooks/useFetcher";
 import MediaCards from "../context/MediaCards";
 import MediaCard from "../context/MediaCard";
 import BannerCards from "../context/BannerCards";

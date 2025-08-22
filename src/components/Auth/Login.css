@@ -149,17 +149,18 @@ body.dark-mode .login-form input {
   padding-right: 2.5rem;
 }
 
-.login-page .password-field span {
+.login-page .password-field button.toggle-password {
   position: absolute;
   right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   font-size: 1.25rem;
-  color: #666;
+  background: none;
+  border: none;
 }
 
-body.dark-mode .password-field span {
+body.dark-mode .password-field button.toggle-password {
   color: #bbb;
 }
 
@@ -173,6 +174,33 @@ body.dark-mode .password-field span {
   font-size: 0.85rem;
   margin-top: -0.5rem;
   margin-bottom: 0.5rem;
+}
+
+/* === TERMS & PRIVACY CHECKBOX === */
+.terms-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.terms-checkbox input {
+  width: 1rem;
+  height: 1rem;
+}
+
+.terms-checkbox a {
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.terms-checkbox a:hover {
+  text-decoration: underline;
+}
+
+.error-text {
+  color: #e74c3c;
+  font-size: 0.85rem;
 }
 
 /* === REMEMBER & FORGOT === */
@@ -315,7 +343,8 @@ body.dark-mode .error-message {
   .dark-toggle,
   .remember-me,
   .forgot-link,
-  .register-prompt {
+  .register-prompt,
+  .terms-checkbox {
     font-size: 0.85rem;
   }
 
@@ -329,7 +358,7 @@ body.dark-mode .error-message {
     padding: 0.6rem;
   }
 
-  .login-page .password-field span {
+  .login-page .password-field button.toggle-password {
     font-size: 1.1rem;
   }
 

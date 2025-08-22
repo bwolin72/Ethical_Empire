@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
-import authAPI from '../../api/authAPI';   // ✅ Correct import path
+import authAPI from '../../api/authAPI';
 import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Login.css';
@@ -19,39 +19,39 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false); // ✅ Terms checkbox
   const [hasRedirected, setHasRedirected] = useState(false);
 
   const navigate = useNavigate();
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  // ===== Redirect by role =====
-  const redirectByRole = useCallback((role) => {
-    const routes = {
-      admin: '/admin',
-      worker: '/worker',
-      user: '/user',
-      vendor: '/vendor-profile',
-      partner: '/partner-profile',
-    };
-    navigate(routes[role] || '/user', { replace: true });
-  }, [navigate]);
+  const redirectByRole = useCallback(
+    (role) => {
+      const routes = {
+        admin: '/admin',
+        worker: '/worker',
+        user: '/user',
+        vendor: '/vendor-profile',
+        partner: '/partner-profile',
+      };
+      navigate(routes[role] || '/user', { replace: true });
+    },
+    [navigate]
+  );
 
-  // ===== Dark mode init =====
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
     document.body.classList.toggle('dark', savedDark);
   }, []);
 
-  // ===== Redirect if already logged in =====
   useEffect(() => {
     if (!ready || hasRedirected || !user) return;
     setHasRedirected(true);
     redirectByRole(user.role);
   }, [ready, user, hasRedirected, redirectByRole]);
 
-  // ===== Toggle dark mode =====
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
@@ -59,7 +59,6 @@ const Login = () => {
     localStorage.setItem('darkMode', updated);
   };
 
-  // ===== Handle input change =====
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -67,16 +66,16 @@ const Login = () => {
     setError('');
   };
 
-  // ===== Validate form =====
   const validateForm = () => {
     const errors = {};
     if (!form.email.trim()) errors.email = 'Please enter your email address.';
     if (!form.password.trim()) errors.password = 'Please enter your password.';
+    if (!acceptedTerms)
+      errors.terms = 'You must accept the Terms and Privacy Policy.';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // ===== Extract error message from backend =====
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (typeof data === 'string') return data;
@@ -95,7 +94,6 @@ const Login = () => {
     return 'Oops! Something went wrong. Please try again.';
   };
 
-  // ===== Handle login success =====
   const handleLoginSuccess = (data) => {
     const { access, refresh, user } = data;
 
@@ -115,14 +113,13 @@ const Login = () => {
     login({ access, refresh, user: userPayload, remember: rememberMe });
   };
 
-  // ===== Handle form submit (email/password login) =====
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setLoading(true);
     try {
-      const { data } = await authAPI.login(form);   // ✅ Using authAPI
+      const { data } = await authAPI.login(form);
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
@@ -135,7 +132,6 @@ const Login = () => {
     }
   };
 
-  // ===== Handle Google OAuth login =====
   const handleGoogleSuccess = async ({ credential }) => {
     if (!credential) {
       setError('Google login failed. Missing credentials.');
@@ -143,7 +139,9 @@ const Login = () => {
     }
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(authAPI.endpoints.googleLogin, { credential });  
+      const { data } = await axiosInstance.post(authAPI.endpoints.googleLogin, {
+        credential,
+      });
       handleLoginSuccess(data);
     } catch (err) {
       const msg = extractErrorMessage(err);
@@ -156,7 +154,7 @@ const Login = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className="login-page">
-        {/* ==== Left Side Branding ==== */}
+        {/* Left Side Branding */}
         <div className="login-left">
           <div className="login-brand">
             <img src={logo} alt="Ethical Multimedia Logo" />
@@ -165,7 +163,7 @@ const Login = () => {
           </div>
         </div>
 
-        {/* ==== Right Side Form ==== */}
+        {/* Right Side Form */}
         <div className="login-right">
           <h2>Welcome Back 👋</h2>
           <p className="login-subtext">Log in to continue exploring our services</p>
@@ -223,6 +221,19 @@ const Login = () => {
             </div>
             {formErrors.password && <small>{formErrors.password}</small>}
 
+            {/* ===== Terms & Privacy Checkbox ===== */}
+            <label className="terms-checkbox">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={() => setAcceptedTerms((prev) => !prev)}
+              />
+              I accept the{' '}
+              <Link to="/terms">Terms & Conditions</Link> and{' '}
+              <Link to="/privacy">Privacy Policy</Link>
+            </label>
+            {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
+
             <div className="login-options">
               <label className="remember-me">
                 <input
@@ -233,7 +244,9 @@ const Login = () => {
                 Keep me signed in
               </label>
 
-              <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+              <Link to="/forgot-password" className="forgot-link">
+                Forgot password?
+              </Link>
             </div>
 
             <button type="submit" className="login-button" disabled={loading}>
@@ -241,7 +254,7 @@ const Login = () => {
             </button>
           </form>
 
-          {/* ==== Google Login ==== */}
+          {/* Google Login */}
           <div className="google-signup">
             <p>Or sign in using your Google account</p>
             <GoogleLogin
@@ -254,8 +267,7 @@ const Login = () => {
           </div>
 
           <p className="register-prompt">
-            Don’t have an account?{' '}
-            <Link to="/register">Create one now</Link>
+            Don’t have an account? <Link to="/register">Create one now</Link>
           </p>
         </div>
       </div>

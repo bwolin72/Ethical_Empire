@@ -317,4 +317,39 @@ body.dark .register-page .react-phone-number-input__input {
     font-size: 0.75rem;
   }
 }
+  /* === Terms & Privacy Checkbox === */
+.register-form .terms-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.register-form .terms-checkbox input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.register-form .terms-checkbox label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  cursor: pointer;
+  color: #1a2c5a;
+}
+
+.register-form .terms-checkbox label a {
+  color: #5a1a1a;
+  text-decoration: underline;
+}
+
+body.dark .register-form .terms-checkbox label {
+  color: #d4af37;
+}
+
+body.dark .register-form .terms-checkbox label a {
+  color: #d4af37;
+}
 

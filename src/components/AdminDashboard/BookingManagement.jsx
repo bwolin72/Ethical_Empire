@@ -46,7 +46,7 @@ const BookingManagement = () => {
   // Fetch services
   const fetchServices = useCallback(async () => {
     try {
-      const res = await serviceService.list();
+      const res = await serviceService.getServices(); // ✅ keep consistent
       const data = res?.data?.results || res?.data || [];
       setServices(data);
     } catch (err) {
@@ -63,7 +63,7 @@ const BookingManagement = () => {
   const handleEdit = (booking) => {
     setEditBooking({
       ...booking,
-      services: booking.services.map((s) => s.id),
+      services: booking.services.map((s) => s.id), // ✅ ensure only IDs
       event_date: booking.event_date || '',
     });
   };
@@ -86,6 +86,7 @@ const BookingManagement = () => {
 
   const saveEdit = async () => {
     try {
+      // ✅ send update with IDs only
       await bookingService.update(editBooking.id, {
         name: editBooking.name,
         email: editBooking.email,
@@ -96,8 +97,10 @@ const BookingManagement = () => {
         services: editBooking.services,
       });
 
-      if (['approved', 'rejected'].includes(editBooking.status)) {
-        await bookingService.adminUpdateStatus(editBooking.id, { status: editBooking.status });
+      if (['approved', 'rejected', 'completed'].includes(editBooking.status)) {
+        await bookingService.adminUpdateStatus(editBooking.id, {
+          status: editBooking.status,
+        });
       }
 
       setEditBooking(null);

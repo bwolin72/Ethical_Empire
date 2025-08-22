@@ -1,16 +1,19 @@
 // src/components/context/BannerCards.jsx
 import React, { useState, useRef, useEffect } from "react";
-import useMediaFetcher from "../../hooks/useMediaFetcher";
+import useFetcher from "../../hooks/useFetcher"; // ✅ corrected import
 import placeholderImg from "../../assets/placeholder.jpg";
 import BannerSkeleton from "./BannerSkeleton";
 import "./BannerCards.css";
 
-const BannerCards = ({ endpoint, title, type = "banner" }) => {
+const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
   const [previewBanner, setPreviewBanner] = useState(null);
   const scrollRef = useRef(null);
 
-  // ✅ Fetch banners from API using new hook
-  const { data: banners, loading, error } = useMediaFetcher(endpoint);
+  // ✅ Fetch banners using useFetcher
+  const { data, loading, error } = useFetcher("media", endpointKey);
+
+  // Always normalize to array
+  const banners = Array.isArray(data) ? data : [];
 
   // === Scroll controls ===
   const scrollLeft = () =>
@@ -46,20 +49,20 @@ const BannerCards = ({ endpoint, title, type = "banner" }) => {
       {/* Cards Wrapper */}
       <div className="banner-cards-scroll-wrapper" ref={scrollRef}>
         {loading ? (
-          // Skeleton placeholders
           Array.from({ length: 3 }).map((_, idx) => (
             <div key={idx} className="banner-card">
               <BannerSkeleton />
             </div>
           ))
         ) : error ? (
-          <div className="banner-error">❌ {String(error)}</div>
+          <div className="banner-error">
+            ❌ {error.message || "Failed to load banners"}
+          </div>
         ) : banners.length === 0 ? (
           <p className="banner-card-empty">
-            📭 No {type}s available for <strong>{endpoint}</strong>.
+            📭 No {type}s available for <strong>{endpointKey}</strong>.
           </p>
         ) : (
-          // Actual banners
           banners.map((banner) => (
             <div
               key={banner.id || banner.url?.full || banner.label}
@@ -89,10 +92,7 @@ const BannerCards = ({ endpoint, title, type = "banner" }) => {
 
       {/* === Modal Preview === */}
       {previewBanner && (
-        <div
-          className="banner-modal"
-          onClick={() => setPreviewBanner(null)}
-        >
+        <div className="banner-modal" onClick={() => setPreviewBanner(null)}>
           <div
             className="banner-modal-content"
             onClick={(e) => e.stopPropagation()}

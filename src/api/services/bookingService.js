@@ -18,7 +18,7 @@ const bookingService = {
   adminDetail: (id) => axiosInstance.get(bookingAPI.adminDetail(id)),
   adminUpdate: (id, data) => axiosInstance.patch(bookingAPI.adminUpdate(id), data),
   adminUpdateStatus: (id, data) =>
-    axiosInstance.post(bookingAPI.adminUpdateStatus(id), data),
+    axiosInstance.patch(bookingAPI.adminUpdateStatus(id), data), // ✅ FIXED to PATCH
   adminDelete: (id) => axiosInstance.delete(bookingAPI.adminDelete(id)),
 
   // ===== Invoice =====

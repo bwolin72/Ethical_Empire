@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api';
+import bookingService from '../../api/services/bookingService';
+import videoService from '../../api/services/videoService';
+import invoiceService from '../../api/services/invoiceService';
+import mediaService from '../../api/services/mediaService';
+import reviewService from '../../api/services/reviewService';
+import newsletterService from '../../api/services/newsletterService';
+import analyticsService from '../../api/services/analyticsService';
 import './AdminDashboard.css';
 
 const AdminDashboard = ({ setActiveTab }) => {
@@ -16,10 +21,9 @@ const AdminDashboard = ({ setActiveTab }) => {
   // Fetch Bookings
   const fetchBookings = async () => {
     try {
-      const res = await axiosInstance.get(api.bookings.list);
-      const activeCount = Array.isArray(res.data)
-        ? res.data.filter(b => b.status?.toLowerCase() === 'active').length
-        : 0;
+      const res = await bookingService.list();
+      const data = Array.isArray(res.data) ? res.data : [];
+      const activeCount = data.filter(b => b.status?.toLowerCase() === 'active').length;
       setBookings({ active: activeCount });
     } catch (err) {
       console.error('Failed to fetch bookings:', err);
@@ -30,7 +34,7 @@ const AdminDashboard = ({ setActiveTab }) => {
   // Fetch Videos
   const fetchVideos = async () => {
     try {
-      const res = await axiosInstance.get(api.videos.list);
+      const res = await videoService.list();
       setVideos(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error('Failed to fetch videos:', err);
@@ -41,10 +45,9 @@ const AdminDashboard = ({ setActiveTab }) => {
   // Fetch Invoices
   const fetchInvoices = async () => {
     try {
-      const res = await axiosInstance.get(api.invoices.list);
-      const pendingCount = Array.isArray(res.data)
-        ? res.data.filter(inv => inv.status?.toLowerCase() === 'pending').length
-        : 0;
+      const res = await invoiceService.list();
+      const data = Array.isArray(res.data) ? res.data : [];
+      const pendingCount = data.filter(inv => inv.status?.toLowerCase() === 'pending').length;
       setInvoices({ pending: pendingCount });
     } catch (err) {
       console.error('Failed to fetch invoices:', err);
@@ -52,19 +55,16 @@ const AdminDashboard = ({ setActiveTab }) => {
     }
   };
 
-  // Fetch Media Stats (safe)
+  // Fetch Media Stats
   const fetchMediaStats = async () => {
     try {
-      const res = await axiosInstance.get(api.media.mediaItems);
+      const res = await mediaService.list();
       if (Array.isArray(res.data)) {
-        // Just store total count if it's a list
         setMediaStats({ totalMediaItems: res.data.length });
       } else if (res.data && typeof res.data === 'object') {
-        // Flatten or stringify any non-primitive values
         const safeStats = {};
         for (const [key, value] of Object.entries(res.data)) {
-          safeStats[key] =
-            typeof value === 'object' ? JSON.stringify(value) : value;
+          safeStats[key] = typeof value === 'object' ? JSON.stringify(value) : value;
         }
         setMediaStats(safeStats);
       } else {
@@ -76,10 +76,10 @@ const AdminDashboard = ({ setActiveTab }) => {
     }
   };
 
-  // Fetch Review Count
+  // Fetch Reviews
   const fetchReviewCount = async () => {
     try {
-      const res = await axiosInstance.get(api.reviews.list);
+      const res = await reviewService.list();
       setReviewCount(Array.isArray(res.data) ? res.data.length : 0);
     } catch (err) {
       console.error('Failed to fetch reviews:', err);
@@ -90,7 +90,7 @@ const AdminDashboard = ({ setActiveTab }) => {
   // Fetch Newsletter Stats
   const fetchNewsletterStats = async () => {
     try {
-      const res = await axiosInstance.get(api.newsletter.logs);
+      const res = await newsletterService.logs();
       const postsCount = Array.isArray(res.data?.posts)
         ? res.data.posts.length
         : Array.isArray(res.data)
@@ -104,10 +104,10 @@ const AdminDashboard = ({ setActiveTab }) => {
     }
   };
 
-  // Fetch Analytics Data
+  // Fetch Analytics
   const fetchAnalytics = async () => {
     try {
-      const res = await axiosInstance.get(api.analytics.site);
+      const res = await analyticsService.site();
       setAnalytics({
         visits: res.data?.total || 0,
         users: res.data?.unique_users || 0,
@@ -118,6 +118,7 @@ const AdminDashboard = ({ setActiveTab }) => {
     }
   };
 
+  // Fetch all
   const fetchAllDashboardData = useCallback(() => {
     fetchBookings();
     fetchVideos();
@@ -176,7 +177,7 @@ const AdminDashboard = ({ setActiveTab }) => {
           <button onClick={() => setActiveTab?.('invoice')}>Learn More</button>
         </div>
 
-        {/* Media Management */}
+        {/* Media */}
         <div className="overview-card">
           <h2>Media Management</h2>
           {mediaStats && Object.keys(mediaStats).length > 0 ? (

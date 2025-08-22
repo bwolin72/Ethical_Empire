@@ -12,10 +12,10 @@ const bookingAPI = {
 
   // ===== Admin =====
   adminList: `${baseURL}/bookings-admin/bookings/`,
-  adminDetail: (id) => `${baseURL}/bookings-admin/bookings/${id}/update/`,
-  adminUpdate: (id) => `${baseURL}/bookings-admin/bookings/${id}/update/`,
-  adminUpdateStatus: (id) => `${baseURL}/bookings-admin/bookings/${id}/status/`,
-  adminDelete: (id) => `${baseURL}/bookings-admin/bookings/${id}/delete/`,
+  adminDetail: (id) => `${baseURL}/bookings-admin/bookings/${id}/update/`, // GET for details
+  adminUpdate: (id) => `${baseURL}/bookings-admin/bookings/${id}/update/`, // PATCH for updates
+  adminUpdateStatus: (id) => `${baseURL}/bookings-admin/bookings/${id}/status/`, // PATCH for status updates
+  adminDelete: (id) => `${baseURL}/bookings-admin/bookings/${id}/delete/`, // DELETE
 
   // ===== Invoice =====
   invoice: (id) => `${baseURL}/invoice/${id}/`,

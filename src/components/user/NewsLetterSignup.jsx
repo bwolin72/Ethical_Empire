@@ -1,7 +1,8 @@
+// src/components/user/NewsLetterSignup.jsx
 import { useState, useRef } from 'react';
-import apiService from '../../api/apiService';  // <-- import apiService
 import ReCAPTCHA from 'react-google-recaptcha';
 import { toast } from 'react-toastify';
+import apiService from '../../api/apiService';
 import 'react-toastify/dist/ReactToastify.css';
 import './newsletter.css';
 
@@ -26,7 +27,6 @@ export default function NewsletterSignup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const captchaToken = recaptchaRef.current?.getValue();
 
     if (!captchaToken) {
@@ -44,7 +44,6 @@ export default function NewsletterSignup() {
     setSubmitting(true);
 
     try {
-      // Use apiService method, passing email, name, and token
       const { data } = await apiService.subscribeNewsletter({
         email: email.trim(),
         name: name.trim(),
@@ -57,8 +56,7 @@ export default function NewsletterSignup() {
       setTimeout(() => setShowSuccess(false), 6000);
     } catch (err) {
       const errorMsg =
-        err?.response?.data?.error ||
-        '❌ Subscription failed. Please try again later.';
+        err?.response?.data?.error || '❌ Subscription failed. Please try again later.';
 
       if (errorMsg.toLowerCase().includes('already')) {
         toast.info('📬 You are already subscribed or confirmation is pending.');
@@ -139,12 +137,19 @@ export default function NewsletterSignup() {
         </div>
       )}
 
-      <p className="newsletter-terms">
-        By subscribing, you agree to our{' '}
-        <a href="/privacy-policy" className="newsletter-link">
-          Privacy Policy
-        </a>.
-      </p>
+      <label className="terms-checkbox">
+        <input type="checkbox" required />
+        <span>
+          I agree to the{' '}
+          <a href="/terms-of-service" target="_blank" rel="noopener noreferrer">
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </a>.
+        </span>
+      </label>
     </form>
   );
 }

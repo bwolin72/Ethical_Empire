@@ -45,6 +45,68 @@
   background-color: #ffeaea;
 }
 
+/* === Terms & Privacy Checkbox === */
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-neutral-dark);
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.terms-checkbox span {
+  line-height: 1.4;
+}
+
+body.dark .terms-checkbox {
+  color: #e0e0e0;
+}
+
+.terms-checkbox a {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.terms-checkbox a:hover {
+  text-decoration: none;
+}
+
+/* Optional: Dark mode background for inputs/button */
+body.dark .newsletter-form {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark .newsletter-input {
+  background-color: #2a2a2a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark .newsletter-button {
+  background-color: #5a1a1a;
+}
+
+body.dark .newsletter-button:hover {
+  background-color: #7d2a2a;
+}
+
+body.dark .newsletter-success {
+  color: #a6f1a6;
+}
+
+
 .newsletter-recaptcha {
   margin-bottom: 1rem;
   transform: scale(1);
