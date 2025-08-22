@@ -6,22 +6,23 @@ import publicAxios from './publicAxios';
 const mediaAPI = {
   endpoints: {
     // ===== MEDIA (public-facing) =====
-    defaultList: `${baseURL}/media/`,           // ''
-    banners: `${baseURL}/media/banners/`,       // 'banners/'
-    featured: `${baseURL}/media/featured/`,     // 'featured/'
-    vendor: `${baseURL}/media/vendor/`,         // 'vendor/'
-    partner: `${baseURL}/media/partner/`,       // 'partner/'
-    user: `${baseURL}/media/user/`,             // 'user/'
-    home: `${baseURL}/media/home/`,             // 'home/'
-    about: `${baseURL}/media/about/`,           // 'about/'
-    decor: `${baseURL}/media/decor/`,           // 'decor/'
-    liveBand: `${baseURL}/media/live-band/`,    // 'live-band/'
-    catering: `${baseURL}/media/catering/`,     // 'catering/'
-    mediaHosting: `${baseURL}/media/media-hosting/`, // 'media-hosting/'
+    defaultList: `${baseURL}/media/`,
+    banners: `${baseURL}/media/banners/`,
+    featured: `${baseURL}/media/featured/`,
+    vendor: `${baseURL}/media/vendor/`,
+    partner: `${baseURL}/media/partner/`,
+    user: `${baseURL}/media/user/`,
+    home: `${baseURL}/media/home/`,
+    about: `${baseURL}/media/about/`,
+    decor: `${baseURL}/media/decor/`,
+    liveBand: `${baseURL}/media/live-band/`,
+    catering: `${baseURL}/media/catering/`,
+    mediaHosting: `${baseURL}/media/media-hosting/`,
+    partnerVendorDashboard: `${baseURL}/media/partner-vendor-dashboard/`, // new endpoint
 
     // ===== ADMIN (media management) =====
-    upload: `${baseURL}/media/upload/`,         // 'upload/'
-    all: `${baseURL}/media/all/`,               // 'all/'
+    upload: `${baseURL}/media/upload/`,
+    all: `${baseURL}/media/all/`,
     update: (id) => `${baseURL}/media/${id}/update/`,
     toggle: (id) => `${baseURL}/media/${id}/toggle/`,
     toggleFeatured: (id) => `${baseURL}/media/${id}/toggle/featured/`,
@@ -46,6 +47,7 @@ const mediaAPI = {
   getLiveBand: () => publicAxios.get(mediaAPI.endpoints.liveBand),
   getCatering: () => publicAxios.get(mediaAPI.endpoints.catering),
   getMediaHosting: () => publicAxios.get(mediaAPI.endpoints.mediaHosting),
+  getPartnerVendorDashboard: () => publicAxios.get(mediaAPI.endpoints.partnerVendorDashboard),
 
   // ===== ADMIN METHODS (MEDIA) =====
   upload: (data) => axiosInstance.post(mediaAPI.endpoints.upload, data),

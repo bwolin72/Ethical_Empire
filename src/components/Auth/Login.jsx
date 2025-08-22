@@ -7,7 +7,7 @@ import axiosInstance from '../../api/axiosInstance';
 import authAPI from '../../api/authAPI';
 import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/logo.png';
-import './Login.css';
+import './Auth.css'; // unified auth CSS
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -19,8 +19,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false); // ✅ Terms checkbox
-  const [hasRedirected, setHasRedirected] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const navigate = useNavigate();
   const { login, auth, ready } = useAuth();
@@ -43,19 +42,18 @@ const Login = () => {
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
-    document.body.classList.toggle('dark', savedDark);
+    document.body.classList.toggle('dark-mode', savedDark);
   }, []);
 
   useEffect(() => {
-    if (!ready || hasRedirected || !user) return;
-    setHasRedirected(true);
+    if (!ready || !user) return;
     redirectByRole(user.role);
-  }, [ready, user, hasRedirected, redirectByRole]);
+  }, [ready, user, redirectByRole]);
 
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
-    document.body.classList.toggle('dark', updated);
+    document.body.classList.toggle('dark-mode', updated);
     localStorage.setItem('darkMode', updated);
   };
 
@@ -68,10 +66,9 @@ const Login = () => {
 
   const validateForm = () => {
     const errors = {};
-    if (!form.email.trim()) errors.email = 'Please enter your email address.';
+    if (!form.email.trim()) errors.email = 'Please enter your email.';
     if (!form.password.trim()) errors.password = 'Please enter your password.';
-    if (!acceptedTerms)
-      errors.terms = 'You must accept the Terms and Privacy Policy.';
+    if (!acceptedTerms) errors.terms = 'You must accept Terms & Privacy.';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -81,35 +78,15 @@ const Login = () => {
     if (typeof data === 'string') return data;
     if (Array.isArray(data)) return data[0];
     if (typeof data === 'object') {
-      return (
-        data.message ||
-        data.detail ||
-        data.error?.non_field_errors?.[0] ||
-        data.error?.email?.[0] ||
-        data.error?.password?.[0] ||
-        Object.values(data.error || {})[0] ||
-        'Oops! Something went wrong. Please try again.'
-      );
+      return data.message || data.detail || 'Something went wrong.';
     }
-    return 'Oops! Something went wrong. Please try again.';
+    return 'Something went wrong.';
   };
 
   const handleLoginSuccess = (data) => {
     const { access, refresh, user } = data;
-
-    if (!access || !refresh || !user) {
-      setError('Login failed. Server returned incomplete data.');
-      return;
-    }
-
-    const userPayload = {
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      isAdmin: user.role === 'admin',
-      is_email_verified: user.is_email_verified,
-    };
-
+    if (!access || !refresh || !user) return setError('Login failed.');
+    const userPayload = { name: user.name, email: user.email, role: user.role };
     login({ access, refresh, user: userPayload, remember: rememberMe });
   };
 
@@ -122,10 +99,7 @@ const Login = () => {
       const { data } = await authAPI.login(form);
       handleLoginSuccess(data);
     } catch (err) {
-      const msg = extractErrorMessage(err);
-      setError(msg);
-      localStorage.clear();
-      sessionStorage.clear();
+      setError(extractErrorMessage(err));
       setForm((prev) => ({ ...prev, password: '' }));
     } finally {
       setLoading(false);
@@ -133,19 +107,13 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = async ({ credential }) => {
-    if (!credential) {
-      setError('Google login failed. Missing credentials.');
-      return;
-    }
+    if (!credential) return setError('Google login failed.');
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(authAPI.endpoints.googleLogin, {
-        credential,
-      });
+      const { data } = await axiosInstance.post(authAPI.endpoints.googleLogin, { credential });
       handleLoginSuccess(data);
     } catch (err) {
-      const msg = extractErrorMessage(err);
-      setError(msg);
+      setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -153,59 +121,46 @@ const Login = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className="login-page">
-        {/* Left Side Branding */}
-        <div className="login-left">
-          <div className="login-brand">
-            <img src={logo} alt="Ethical Multimedia Logo" />
+      <div className={`auth-page login ${darkMode ? 'dark-mode' : ''}`}>
+        {/* Left Branding */}
+        <div className="auth-left">
+          <div className="auth-brand">
+            <img src={logo} alt="Logo" />
             <h1>Eethm_GH</h1>
             <p>Your Trusted Digital Hub in Ghana</p>
           </div>
         </div>
 
-        {/* Right Side Form */}
-        <div className="login-right">
+        {/* Right Form */}
+        <div className="auth-right">
           <h2>Welcome Back 👋</h2>
-          <p className="login-subtext">Log in to continue exploring our services</p>
-
           <label className="dark-toggle">
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={toggleDarkMode}
-              aria-label="Toggle dark mode"
-            />
+            <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
             Enable Dark Mode
           </label>
 
           {error && <div className="error-message">{error}</div>}
 
-          <form onSubmit={handleSubmit} className="login-form" noValidate>
-            <label htmlFor="email">Email Address</label>
+          <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <input
-              id="email"
               type="email"
               name="email"
-              placeholder="you@example.com"
+              placeholder="Email"
               value={form.email}
               onChange={handleChange}
-              autoComplete="username"
               className={formErrors.email ? 'input-error' : ''}
               disabled={loading}
               required
             />
             {formErrors.email && <small>{formErrors.email}</small>}
 
-            <label htmlFor="password">Password</label>
             <div className="password-field">
               <input
-                id="password"
                 type={showPassword ? 'text' : 'password'}
                 name="password"
-                placeholder="Enter your password"
+                placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
-                autoComplete="current-password"
                 className={formErrors.password ? 'input-error' : ''}
                 disabled={loading}
                 required
@@ -214,60 +169,42 @@ const Login = () => {
                 type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword((prev) => !prev)}
-                aria-label="Toggle password visibility"
               >
                 {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
             {formErrors.password && <small>{formErrors.password}</small>}
 
-            {/* ===== Terms & Privacy Checkbox ===== */}
             <label className="terms-checkbox">
               <input
                 type="checkbox"
                 checked={acceptedTerms}
                 onChange={() => setAcceptedTerms((prev) => !prev)}
               />
-              I accept the{' '}
-              <Link to="/terms">Terms & Conditions</Link> and{' '}
-              <Link to="/privacy">Privacy Policy</Link>
+              I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
             </label>
-            {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
+            {formErrors.terms && <small>{formErrors.terms}</small>}
 
-            <div className="login-options">
+            <div className="auth-options">
               <label className="remember-me">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={() => setRememberMe(!rememberMe)}
-                />
+                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
                 Keep me signed in
               </label>
-
-              <Link to="/forgot-password" className="forgot-link">
-                Forgot password?
-              </Link>
+              <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
             </div>
 
-            <button type="submit" className="login-button" disabled={loading}>
+            <button type="submit" className="auth-button" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
-          {/* Google Login */}
           <div className="google-signup">
-            <p>Or sign in using your Google account</p>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google login failed')}
-              useOneTap
-              theme="outline"
-              size="large"
-            />
+            <p>Or sign in with Google:</p>
+            <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError('Google login failed')} />
           </div>
 
           <p className="register-prompt">
-            Don’t have an account? <Link to="/register">Create one now</Link>
+            Don’t have an account? <Link to="/register">Register</Link>
           </p>
         </div>
       </div>

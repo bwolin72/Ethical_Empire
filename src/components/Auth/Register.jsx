@@ -1,6 +1,6 @@
-// src/pages/auth/Register.jsx
+// src/components/auth/Register.jsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
@@ -11,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import authAPI from '../../api/authAPI';
 import logo from '../../assets/logo.png';
-import './Register.css';
+import './Auth.css';
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -32,7 +32,7 @@ const Register = () => {
     company_name: '',
     agency_name: '',
     role: 'USER',
-    acceptTerms: false, // ✅ New checkbox
+    acceptTerms: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -52,14 +52,12 @@ const Register = () => {
   }, [searchParams]);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
   const getPasswordStrength = (password) => {
     if (password.length < 6) return 'Weak';
     if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8)
       return 'Strong';
     return 'Medium';
   };
-
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   const extractErrorMessage = (err) => {
@@ -86,7 +84,6 @@ const Register = () => {
     const cleanValue = DOMPurify.sanitize(value);
 
     if (name === 'password') setPasswordStrength(getPasswordStrength(cleanValue));
-
     if (type === 'checkbox') {
       setForm((prev) => ({ ...prev, [name]: checked }));
     } else {
@@ -102,14 +99,11 @@ const Register = () => {
     e.preventDefault();
 
     if (!form.acceptTerms) {
-      toast.error('❌ You must accept our Terms & Privacy Policy to continue.');
+      toast.error('❌ You must accept our Terms & Privacy Policy.');
       return;
     }
 
-    const {
-      full_name, email, phone, dob, gender, password, password2,
-      role, access_code, worker_category_id, company_name, agency_name,
-    } = form;
+    const { full_name, email, phone, dob, gender, password, password2, role, access_code, worker_category_id, company_name, agency_name } = form;
 
     if (!full_name.trim()) return toast.error('Full name is required.');
     if (!validateEmail(email)) return toast.error('Invalid email format.');
@@ -119,11 +113,9 @@ const Register = () => {
     if (!password) return toast.error('Password is required.');
     if (password !== password2) return toast.error('Passwords do not match.');
 
-    const payload = {
-      name: full_name, email, phone, dob, gender, password, password2,
-    };
-
+    const payload = { name: full_name, email, phone, dob, gender, password, password2 };
     let requestFn = authAPI.register;
+
     if (role === 'WORKER') {
       if (!access_code.trim()) return toast.error('Access code is required.');
       if (!worker_category_id) return toast.error('Worker category ID is required.');
@@ -167,27 +159,36 @@ const Register = () => {
     }
   };
 
+  const toggleDarkMode = () => {
+    const updated = !darkMode;
+    setDarkMode(updated);
+    document.body.classList.toggle('dark', updated);
+    localStorage.setItem('darkMode', updated);
+  };
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className={`register-page ${darkMode ? 'dark' : ''}`}>
+      <div className={`auth-page ${darkMode ? 'dark' : ''}`}>
         <ToastContainer position="top-right" autoClose={4000} />
 
-        <div className="register-left">
-          <div className="register-brand">
-            <img src={logo} alt="Logo" className="register-logo" />
+        <div className="auth-left">
+          <div className="auth-brand">
+            <img src={logo} alt="Logo" />
             <h1>Ethical Multimedia GH</h1>
-            <p>
-              Empowering creatives, vendors, and partners with ethical, community-driven technology.
-              Register to get started with our inclusive ecosystem.
-            </p>
+            <p>Empowering creatives, vendors, and partners with ethical, community-driven technology.</p>
           </div>
         </div>
 
-        <div className="register-right">
+        <div className="auth-right">
           <h2>Create an Account</h2>
 
-          <form onSubmit={handleSubmit} className="register-form" noValidate>
-            {/* ROLE SELECTION */}
+          <label className="dark-toggle">
+            <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
+            Enable Dark Mode
+          </label>
+
+          <form onSubmit={handleSubmit} className="auth-form" noValidate>
+            {/* Account Type */}
             <div className="form-group">
               <label htmlFor="role">Account Type</label>
               <select id="role" name="role" value={form.role} onChange={handleChange}>
@@ -211,14 +212,12 @@ const Register = () => {
                 </div>
               </>
             )}
-
             {form.role === 'VENDOR' && (
               <div className="form-group">
                 <label htmlFor="company_name">Company Name</label>
                 <input id="company_name" name="company_name" value={form.company_name} onChange={handleChange} />
               </div>
             )}
-
             {form.role === 'PARTNER' && (
               <div className="form-group">
                 <label htmlFor="agency_name">Agency Name</label>
@@ -226,7 +225,7 @@ const Register = () => {
               </div>
             )}
 
-            {/* COMMON FIELDS */}
+            {/* Common Fields */}
             <div className="form-group">
               <label htmlFor="full_name">Full Name</label>
               <input id="full_name" name="full_name" value={form.full_name} onChange={handleChange} />
@@ -239,7 +238,7 @@ const Register = () => {
 
             <div className="form-group">
               <label htmlFor="phone">Phone Number</label>
-              <PhoneInput id="phone" defaultCountry="GH" value={form.phone} onChange={handlePhoneChange} placeholder="Phone number" />
+              <PhoneInput id="phone" defaultCountry="GH" value={form.phone} onChange={handlePhoneChange} />
             </div>
 
             <div className="form-group">
@@ -257,16 +256,10 @@ const Register = () => {
               </select>
             </div>
 
-            {/* PASSWORD FIELDS */}
+            {/* Password Fields */}
             <div className="form-group password-field">
               <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                name="password"
-                type={passwordVisible ? 'text' : 'password'}
-                value={form.password}
-                onChange={handleChange}
-              />
+              <input id="password" name="password" type={passwordVisible ? 'text' : 'password'} value={form.password} onChange={handleChange} />
               <span onClick={() => setPasswordVisible((v) => !v)}>
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
               </span>
@@ -277,57 +270,32 @@ const Register = () => {
 
             <div className="form-group password-field">
               <label htmlFor="password2">Confirm Password</label>
-              <input
-                id="password2"
-                name="password2"
-                type={passwordVisible ? 'text' : 'password'}
-                value={form.password2}
-                onChange={handleChange}
-              />
+              <input id="password2" name="password2" type={passwordVisible ? 'text' : 'password'} value={form.password2} onChange={handleChange} />
               <span onClick={() => setPasswordVisible((v) => !v)}>
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
               </span>
             </div>
 
-            {/* TERMS & PRIVACY CHECKBOX */}
-            <div className="form-group terms-checkbox">
-              <input
-                type="checkbox"
-                id="acceptTerms"
-                name="acceptTerms"
-                checked={form.acceptTerms}
-                onChange={handleChange}
-              />
-              <label htmlFor="acceptTerms">
-                I accept the{' '}
-                <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> &{' '}
-                <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-              </label>
-            </div>
+            {/* Terms & Privacy */}
+            <label className="terms-checkbox">
+              <input type="checkbox" name="acceptTerms" checked={form.acceptTerms} onChange={handleChange} />
+              I accept the <Link to="/terms">Terms & Conditions</Link> and <Link to="/privacy">Privacy Policy</Link>
+            </label>
 
-            {/* SUBMIT */}
             <button type="submit" disabled={loading}>
-              {loading ? 'Registering…' : 'Register'}
+              {loading ? 'Registering...' : 'Register'}
             </button>
           </form>
 
-          {/* GOOGLE SIGNUP */}
+          {/* Google SignUp */}
           <div className="google-signup">
             <p>Or register with Google:</p>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => toast.error('Google sign-up failed.')}
-              useOneTap
-            />
+            <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => toast.error('Google sign-up failed.')} useOneTap />
           </div>
 
-          {/* LOGIN PROMPT */}
-          <div className="login-prompt">
-            Already have an account?{' '}
-            <span onClick={() => navigate('/login')} role="button" tabIndex={0}>
-              Login
-            </span>
-          </div>
+          <p className="register-prompt">
+            Already have an account? <Link to="/login">Login</Link>
+          </p>
         </div>
       </div>
     </GoogleOAuthProvider>

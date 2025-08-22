@@ -16,12 +16,27 @@ const mediaService = {
 
   // -------- Filtered lists (dynamic via endpointMap) --------
   byEndpoint: (key) => {
-    const path = endpointMap[key];
-    if (!path) throw new Error(`[mediaService] Unknown endpoint: ${key}`);
-    return publicAxios.get(`${API.media.base}/${path}`);
+    const code = endpointMap[key];
+    if (!code) throw new Error(`[mediaService] Unknown endpoint: ${key}`);
+    // Match mediaAPI endpoints (ensure correct path)
+    const urlMap = {
+      home: API.media.home,
+      about: API.media.about,
+      decor: API.media.decor,
+      liveBand: API.media.liveBand,
+      catering: API.media.catering,
+      mediaHosting: API.media.mediaHosting,
+      vendor: API.media.vendor,
+      partner: API.media.partner,
+      partnerVendorDashboard: API.media.partnerVendorDashboard,
+      user: API.media.user,
+    };
+    const url = urlMap[key];
+    if (!url) throw new Error(`[mediaService] No URL found for key: ${key}`);
+    return publicAxios.get(url);
   },
 
-  // Still keep explicit helpers if you want backwards compatibility:
+  // Explicit helpers for backward compatibility
   getHomeMedia: () => mediaService.byEndpoint("home"),
   getAboutMedia: () => mediaService.byEndpoint("about"),
   getDecorMedia: () => mediaService.byEndpoint("decor"),
@@ -30,6 +45,7 @@ const mediaService = {
   getMediaHostingMedia: () => mediaService.byEndpoint("mediaHosting"),
   getVendorMedia: () => mediaService.byEndpoint("vendor"),
   getPartnerMedia: () => mediaService.byEndpoint("partner"),
+  getPartnerVendorDashboardMedia: () => mediaService.byEndpoint("partnerVendorDashboard"), // ✅ new
   getUserMedia: () => mediaService.byEndpoint("user"),
 
   // -------- Mutations --------

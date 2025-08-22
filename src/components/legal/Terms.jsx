@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./Legal.css";
 
 const COMPANY = "Ethical Multimedia";
 const CONTACT_EMAIL = "contact@ethicalmultimedia.gh";
@@ -6,7 +7,7 @@ const VERSION = "v1.0";
 const LAST_UPDATED = "August 21, 2025";
 
 const ServicesList = () => (
-  <ul className="list-disc pl-5 space-y-1">
+  <ul className="legal-list">
     <li>Catering — authentic Ghanaian & gourmet menus</li>
     <li>DJ — professional DJs for every vibe</li>
     <li>Event Planning — concept to completion</li>
@@ -34,13 +35,13 @@ export default function Terms() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 prose prose-lg">
+    <div className="legal-page">
       <header>
         <h1>{COMPANY} — Terms & Conditions</h1>
-        <p className="text-sm text-gray-600">
+        <p className="legal-meta">
           Version: {VERSION} • Last updated: {LAST_UPDATED}
         </p>
-        <p className="mt-2">
+        <p>
           Welcome — these Terms & Conditions (the "Terms") govern your use of
           services provided by {COMPANY} (we, us, our). By using our site or
           booking services, you agree to these Terms.
@@ -84,7 +85,7 @@ export default function Terms() {
           is received and confirmed by us. Prices, deposits, payment schedules
           and accepted payment methods will be shown at booking or in a quote.
         </p>
-        <ul>
+        <ul className="legal-list">
           <li>Clients must provide accurate information (date, venue, guest counts).</li>
           <li>Taxes, travel, or venue-related fees may be charged in addition to service fees.</li>
           <li>Invoices are generated and emailed — clients are responsible for ensuring contact details are correct.</li>
@@ -96,7 +97,7 @@ export default function Terms() {
         <p>
           Cancellation/refund policies vary by service. Unless otherwise stated:
         </p>
-        <ul>
+        <ul className="legal-list">
           <li>Deposits are typically non-refundable within X days of event (see your booking confirmation).</li>
           <li>Refunds (where applicable) will follow our refund processing timelines shown on the invoice.</li>
           <li>We may reschedule services due to force majeure (see Liability).</li>
@@ -108,7 +109,7 @@ export default function Terms() {
         <p>
           As a client you agree to:
         </p>
-        <ul>
+        <ul className="legal-list">
           <li>Provide accurate booking details and required permissions for venues.</li>
           <li>Comply with local laws at event locations.</li>
           <li>Not use our services for illegal or harmful activities.</li>
@@ -137,18 +138,14 @@ export default function Terms() {
           client for the affected service.
         </p>
         <p>
-          We are not responsible for circumstances outside our control —
-          including but not limited to venue restrictions, vendor failure,
-          weather events, or government restrictions.
+          We are not responsible for circumstances outside our control — including but not limited to venue restrictions, vendor failure, weather events, or government restrictions.
         </p>
       </section>
 
       <section id="privacy">
         <h2>7. Privacy & Data</h2>
         <p>
-          Our Privacy Policy describes how we collect and use personal
-          information — please read it carefully. By accepting these Terms you
-          also acknowledge our Privacy Policy.
+          Our Privacy Policy describes how we collect and use personal information — please read it carefully. By accepting these Terms you also acknowledge our Privacy Policy.
         </p>
         <p><a href="/privacy" className="underline">Read our full Privacy Policy</a></p>
       </section>
@@ -156,19 +153,14 @@ export default function Terms() {
       <section id="jurisdiction">
         <h2>8. Governing Law & Jurisdiction</h2>
         <p>
-          These Terms are governed by the laws of Ghana. Where we operate
-          internationally, local laws may also apply. Any disputes arising shall
-          be subject to the exclusive jurisdiction of Ghanaian courts unless
-          otherwise agreed in writing.
+          These Terms are governed by the laws of Ghana. Where we operate internationally, local laws may also apply. Any disputes arising shall be subject to the exclusive jurisdiction of Ghanaian courts unless otherwise agreed in writing.
         </p>
       </section>
 
       <section id="changes">
         <h2>9. Changes to Terms</h2>
         <p>
-          We may change these Terms from time to time. Changes will be posted
-          with an updated "Last updated" date. Continued use of services after
-          changes constitutes acceptance of the revised Terms.
+          We may change these Terms from time to time. Changes will be posted with an updated "Last updated" date. Continued use of services after changes constitutes acceptance of the revised Terms.
         </p>
       </section>
 
@@ -182,35 +174,14 @@ export default function Terms() {
         </p>
       </section>
 
-      <footer className="mt-6">
-        <div className="border-t pt-4">
-          <p className="text-sm text-gray-700">
-            Country of origin: Ghana • Region of origin: Central • Operation:
-            Local & International.
-          </p>
-
-          {!accepted ? (
-            <div className="mt-4 flex items-center gap-3">
-              <button
-                onClick={handleAccept}
-                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-              >
-                I have read and accept these Terms
-              </button>
-              <span className="text-sm text-gray-600">
-                (Saved locally. For stronger proof, record acceptance on server.)
-              </span>
-            </div>
-          ) : (
-            <p className="text-sm text-green-700">You have accepted these Terms.</p>
-          )}
-
-          <p className="text-xs text-gray-500 mt-3">
-            Legal disclaimer: This page is a template. Consult a lawyer to
-            ensure compliance with applicable laws and your specific business
-            needs.
-          </p>
-        </div>
+      <footer>
+        {!accepted ? (
+          <button className="btn-accept" onClick={handleAccept}>
+            I have read and accept these Terms
+          </button>
+        ) : (
+          <p className="accepted-msg">You have accepted these Terms.</p>
+        )}
       </footer>
     </div>
   );

@@ -1,8 +1,7 @@
 // src/api/endpointMap.js
-
 /**
  * Central mapping between frontend keys and backend endpoint codes.
- * Use this for both media and videos.
+ * Used by useFetcher for media & videos.
  */
 const endpointMap = {
   home: "EethmHome",
@@ -13,7 +12,7 @@ const endpointMap = {
   mediaHosting: "MediaHostingServicePage",
   vendor: "VendorPage",
   partner: "PartnerPage",
-  partnerVendorDashboard: "PartnerVendorDashboard",
+  partnerVendorDashboard: "PartnerVendorDashboard", // added for AgencyDashboard
   user: "UserPage",
 };
 

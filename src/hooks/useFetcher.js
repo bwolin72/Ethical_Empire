@@ -4,20 +4,11 @@ import publicAxios from "../api/publicAxios";
 import axiosInstance from "../api/axiosInstance";
 import mediaAPI from "../api/mediaAPI";
 import videoService from "../api/services/videoService";
-import endpointMap from "../api/services/endpointMap"; // centralised map
+import endpointMap from "../api/services/endpointMap";
 
 // Local fallback hero video path (served from public/)
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
 
-/**
- * useFetcher
- *
- * Generic hook for fetching & mutating media or videos
- *
- * @param {string} resourceType - "media" | "videos"
- * @param {string} endpointKey  - key like "home", "decor", "user"
- * @param {object} options      - same as before (notify, transform, etc.)
- */
 export default function useFetcher(resourceType, endpointKey, params = null, options = {}) {
   const { notify, successMessages = {}, errorMessages = {}, transform, resource, mutation } = options;
 
@@ -31,22 +22,19 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
   const mountedRef = useRef(false);
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
 
-  /* -------------------------
-     Resolve GET fetcher for endpointKey
-  ------------------------- */
+  // -------------------------
+  // Resolve GET fetcher
+  // -------------------------
   const getFetcher = useCallback(() => {
     if (!endpointKey || typeof endpointKey !== "string") return null;
 
-    // Decide based on resourceType
     if (resourceType === "media") {
-      // 1) Direct method match (e.g. getHomeMedia)
       const methodSuffix = toMethodSuffix(endpointKey);
       const mediaMethodName = `get${methodSuffix}`;
       if (typeof mediaAPI[mediaMethodName] === "function") {
         return () => mediaAPI[mediaMethodName](params);
       }
 
-      // 2) Endpoint map lookup
       const keyCandidates = uniqueNonEmpty([
         endpointKey,
         applyAliases(endpointKey),
@@ -63,20 +51,18 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
     }
 
     if (resourceType === "videos") {
-      // Use videoService dynamic fetcher via endpointMap
       if (endpointMap[endpointKey]) {
         return () => videoService.byEndpoint(endpointKey, params);
       }
-      // fallback to list
       return () => videoService.list(params);
     }
 
     return null;
   }, [resourceType, endpointKey, params]);
 
-  /* -------------------------
-     Core fetch with fallback
-  ------------------------- */
+  // -------------------------
+  // Fetch Data
+  // -------------------------
   const fetchData = useCallback(async () => {
     const fetcher = getFetcher();
     if (!fetcher) {
@@ -110,22 +96,22 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
     }
   }, [getFetcher, resourceType, endpointKey, transform]);
 
-  /* -------------------------
-     Build mutation endpoints
-  ------------------------- */
+  // -------------------------
+  // Build mutation endpoints
+  // -------------------------
   const endpoints = useMemo(
     () => buildMutationEndpoints({ resourceType, endpointKey, resourceOverride: resource, custom: mutation }),
     [resourceType, endpointKey, resource, mutation]
   );
 
-  const resolveCreateUrl = (eps) => (typeof eps.create === "function" ? eps.create() : eps.create);
+  const resolveCreateUrl = eps => (typeof eps.create === "function" ? eps.create() : eps.create);
   const resolveUpdateUrl = (eps, id) => (typeof eps.update === "function" ? eps.update(id) : eps.update);
   const resolvePatchUrl = (eps, id) => (typeof eps.patch === "function" ? eps.patch(id) : eps.patch);
   const resolveRemoveUrl = (eps, id) => (typeof eps.remove === "function" ? eps.remove(id) : eps.remove);
 
-  /* -------------------------
-     Optimistic CRUD operations
-  ------------------------- */
+  // -------------------------
+  // Optimistic CRUD operations
+  // -------------------------
   const post = useCallback(async (payload, { optimisticItem } = {}) => {
     const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
     const tmpId = `tmp-${Date.now()}`;
@@ -146,17 +132,38 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
     }
   }, [endpoints, fetchData, notify, successMessages, errorMessages]);
 
-  // put, patch, remove are the same as your current code — omitted for brevity
-  // just reuse them with `endpoints` and `fetchData`
+  const patch = useCallback(async (id, payload) => {
+    try {
+      const url = resolvePatchUrl(endpoints, id);
+      const res = await axiosInstance.patch(url, payload);
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData]);
+
+  const remove = useCallback(async (id) => {
+    try {
+      const url = resolveRemoveUrl(endpoints, id);
+      const res = await axiosInstance.delete(url);
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  return { data, loading, error, refetch: fetchData, post /*, put, patch, remove */ };
+  return { data, loading, error, refetch: fetchData, post, patch, remove };
 }
 
-/* ---------------------------
-   Helpers
---------------------------- */
+// ---------------------------
+// Helpers
+// ---------------------------
 function extractItems(res) {
   if (!res) return [];
   if (Array.isArray(res?.data)) return res.data;
@@ -183,9 +190,6 @@ function safeNotify(notify, type, message) {
   }
 }
 
-/**
- * Build CRUD endpoints map for axiosInstance mutations
- */
 function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, custom }) {
   const res = resourceOverride || inferResource(resourceType, endpointKey);
   let defaults = {};
@@ -220,7 +224,7 @@ function inferResource(resourceType, endpointKey) {
   return null;
 }
 
-/* ---------- key normalization utils ---------- */
+// ---------- Key utils ----------
 function toCamelCase(str) {
   if (typeof str !== "string") return "";
   return str.replace(/[-_\s]+([a-zA-Z0-9])/g, (_, c) => c.toUpperCase());

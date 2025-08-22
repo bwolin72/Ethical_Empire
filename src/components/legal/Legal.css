@@ -1,0 +1,111 @@
+/* ======================================================
+   Legal Page Styles — Legal.css
+   ====================================================== */
+
+@import './variables.css';
+
+.legal-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: var(--font-main);
+  color: var(--color-neutral);
+  line-height: 1.6;
+}
+
+.dark .legal-page {
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+.legal-page header h1 {
+  font-family: var(--font-accent);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.legal-meta {
+  font-size: 0.875rem;
+  color: var(--color-neutral-light);
+  margin-bottom: 1rem;
+}
+
+.legal-page nav h2 {
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.legal-page nav ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.legal-page nav a {
+  text-decoration: underline;
+  color: var(--color-primary);
+}
+
+.legal-page section {
+  margin-top: 1.5rem;
+}
+
+.legal-list {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.legal-list li {
+  margin-bottom: 0.5rem;
+}
+
+.underline {
+  text-decoration: underline;
+  color: var(--color-primary);
+}
+
+footer {
+  margin-top: 2rem;
+  border-top: 1px solid var(--color-neutral-light);
+  padding-top: 1rem;
+}
+
+.btn-accept, .btn-consent {
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-accept {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.btn-accept:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-consent {
+  background-color: var(--color-accent-green);
+  color: var(--color-white);
+}
+
+.btn-consent:hover {
+  background-color: var(--color-accent-green-dark);
+}
+
+.accepted-msg {
+  color: var(--color-success);
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .legal-page {
+    padding: 1rem;
+  }
+}
