@@ -4,7 +4,7 @@ import publicAxios from "../api/publicAxios";
 import axiosInstance from "../api/axiosInstance";
 import mediaAPI from "../api/mediaAPI";
 import videoService from "../api/services/videoService";
-import endpointMap from "../api/endpointMap"; // centralised map
+import endpointMap from "../api/services/endpointMap"; // centralised map
 
 // Local fallback hero video path (served from public/)
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
