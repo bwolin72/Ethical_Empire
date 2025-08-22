@@ -2,7 +2,6 @@
    Legal Page Styles — Legal.css
    ====================================================== */
 
-@import './variables.css';
 
 .legal-page {
   max-width: 900px;
