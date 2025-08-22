@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import publicAxios from "../api/publicAxios";
 import axiosInstance from "../api/axiosInstance";
 import mediaAPI from "../api/mediaAPI";
-import videoService from "../api/videoService";
+import videoService from "../api/services/videoService";
 import endpointMap from "../api/endpointMap"; // centralised map
 
 // Local fallback hero video path (served from public/)
