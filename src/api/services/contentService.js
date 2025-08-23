@@ -1,6 +1,6 @@
 // src/api/services/contentService.js
 import publicAxios from "../publicAxios";
-import videosAPI from "./videoAPI";
+import videosAPI from "../videoAPI";
 import mediaAPI from "../mediaAPI";
 
 // --- Normalizers: unify backend shapes ---
