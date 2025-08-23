@@ -211,7 +211,7 @@ const AppRoutes = () => (
     {/* Partner */}
     <Route element={<ProtectedRoute roles={["partner"]} />}>
       <Route path="/partner-profile" element={<PartnerProfilePage />} />
-      <Route path="/partner-dashboard" element={<PartnerDashboard />} />
+      <Route path="/partner-dashboard" element={<AgencyDashboard />} />
     </Route>
 
     {/* Worker */}
