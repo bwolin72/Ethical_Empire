@@ -39,7 +39,6 @@ import EditProfile from "./components/user/EditProfile";
 import UpdatePassword from "./components/user/UpdatePassword";
 import ConfirmPasswordChange from "./components/user/ConfirmPasswordChange";
 import AccountProfile from "./components/user/AccountProfile";
-import AgencyDashboard from "./components/agency/AgencyDashboard";
 
 // Pages - Dashboard & Forms
 import AdminPanel from "./components/AdminDashboard/AdminPanel";
@@ -49,7 +48,7 @@ import NewsletterSignup from "./components/user/NewsLetterSignup";
 import Unsubscribe from "./components/user/UnsubscribePage";
 import VendorProfile from "./components/agency/VendorProfile";
 import PartnerProfilePage from "./components/agency/PartnerProfilePage";
-import PartnerDashboard from "./components/agency/PartnerDashboard";
+import AgencyDashboard from "./components/agency/AgencyDashboard"; // ✅ correct file
 import WorkerDashboard from "./components/worker/WorkerDashboard";
 
 // Pages - Services
