@@ -1,3 +1,4 @@
+// src/api/services/mediaService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import API from "../api";
@@ -9,14 +10,21 @@ const mediaService = {
   getBanners: () => publicAxios.get(API.media.banners),
   getFeaturedMedia: () => publicAxios.get(API.media.featured),
 
+  // ✅ Service Page fetcher (fix for LiveBandServicePage etc.)
+  getServicePage: (endpoint) =>
+    publicAxios.get("/api/media/", {
+      params: { endpoint, is_active: true },
+    }),
+
   // -------- Admin & management (auth required) --------
-  getAllMedia: () => axiosInstance.get(API.media.all),       // FIXED: needs auth
-  getArchivedMedia: () => axiosInstance.get(API.media.archived), // FIXED: needs auth
+  getAllMedia: () => axiosInstance.get(API.media.all), // needs auth
+  getArchivedMedia: () => axiosInstance.get(API.media.archived), // needs auth
 
   // -------- Filtered lists --------
   byEndpoint: (key) => {
     const code = endpointMap[key];
     if (!code) throw new Error(`[mediaService] Unknown endpoint: ${key}`);
+
     const urlMap = {
       home: API.media.home,
       about: API.media.about,
@@ -29,6 +37,7 @@ const mediaService = {
       partnerVendorDashboard: API.media.partnerVendorDashboard,
       user: API.media.user,
     };
+
     const url = urlMap[key];
     if (!url) throw new Error(`[mediaService] No URL found for key: ${key}`);
     return publicAxios.get(url);
@@ -43,7 +52,8 @@ const mediaService = {
   getMediaHostingMedia: () => mediaService.byEndpoint("mediaHosting"),
   getVendorMedia: () => mediaService.byEndpoint("vendor"),
   getPartnerMedia: () => mediaService.byEndpoint("partner"),
-  getPartnerVendorDashboardMedia: () => mediaService.byEndpoint("partnerVendorDashboard"),
+  getPartnerVendorDashboardMedia: () =>
+    mediaService.byEndpoint("partnerVendorDashboard"),
   getUserMedia: () => mediaService.byEndpoint("user"),
 
   // -------- Mutations (auth required) --------
