@@ -1,8 +1,10 @@
 // src/api/services/videoService.js
 import publicAxios from "../publicAxios";
+import API from "../api";
+
 import axiosInstance from "../axiosInstance";
 
-const BASE = "/api/videos/videos/";
+const BASE = API.videos.base;
 
 const videoService = {
   // ================================
