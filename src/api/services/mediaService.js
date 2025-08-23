@@ -10,9 +10,18 @@ const mediaService = {
   getBanners: () => publicAxios.get(API.media.banners),
   getFeaturedMedia: () => publicAxios.get(API.media.featured),
 
-  // ✅ Service Page fetcher (fix for LiveBandServicePage etc.)
-  getServicePage: (endpoint) =>
-    publicAxios.get("/api/media/", { params: { endpoint, is_active: true } }),
+  // ✅ Service Page fetcher (fix for LiveBandServicePage)
+  getServicePage: (endpoint) => {
+    // Special-case: LiveBandServicePage should map to slug `/media/live-band/`
+    if (endpoint === "LiveBandServicePage") {
+      return publicAxios.get(API.media.liveBand);
+    }
+
+    // Default flow → /api/media/?endpoint=SomeServicePage&is_active=true
+    return publicAxios.get("/api/media/", {
+      params: { endpoint, is_active: true },
+    });
+  },
 
   // -------- Admin --------
   getAllMedia: () => axiosInstance.get(API.media.all),
@@ -41,7 +50,7 @@ const mediaService = {
     return publicAxios.get(url);
   },
 
-  // Explicit helpers
+  // -------- Explicit helpers --------
   getHomeMedia: () => mediaService.byEndpoint("home"),
   getAboutMedia: () => mediaService.byEndpoint("about"),
   getDecorMedia: () => mediaService.byEndpoint("decor"),
@@ -58,7 +67,8 @@ const mediaService = {
   uploadMedia: (data) => axiosInstance.post(API.media.upload, data),
   updateMedia: (id, data) => axiosInstance.patch(API.media.update(id), data),
   toggleMediaActive: (id) => axiosInstance.post(API.media.toggle(id)),
-  toggleMediaFeatured: (id) => axiosInstance.post(API.media.toggleFeatured(id)),
+  toggleMediaFeatured: (id) =>
+    axiosInstance.post(API.media.toggleFeatured(id)),
   deleteMedia: (id) => axiosInstance.delete(API.media.delete(id)),
   restoreMedia: (id) => axiosInstance.post(API.media.restore(id)),
 
