@@ -29,6 +29,10 @@ const MediaCards = ({
   // ✅ normalize
   const mediaItems = Array.isArray(data) ? data : [];
 
+  // ✅ safe check for video type
+  const isVideoType = (fileType) =>
+    typeof fileType === "string" && fileType.toLowerCase().includes("video");
+
   return (
     <section className="media-cards-container">
       {title && <h2 className="media-cards-title">{title}</h2>}
@@ -37,7 +41,9 @@ const MediaCards = ({
         {loading ? (
           <MediaSkeleton count={3} />
         ) : error ? (
-          <p className="media-error">⚠️ {error.message || "Failed to load media"}</p>
+          <p className="media-error">
+            ⚠️ {error.message || "Failed to load media"}
+          </p>
         ) : mediaItems.length === 0 ? (
           <p className="media-card-empty">📭 No {resourceType} uploaded.</p>
         ) : (
@@ -70,7 +76,7 @@ const MediaCards = ({
               ✖
             </button>
 
-            {previewMedia.file_type?.includes("video") ? (
+            {isVideoType(previewMedia.file_type) ? (
               <video
                 src={previewMedia.url?.full}
                 controls
