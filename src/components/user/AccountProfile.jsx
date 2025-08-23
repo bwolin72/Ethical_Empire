@@ -1,7 +1,7 @@
 // src/components/whatever/AccountProfile.jsx
 import React, { useEffect, useState, useCallback } from "react";
-import apiService from "../../api/apiService"; // service-layer aggregator (auth, bookings, reviews, ...)
-import { useNavigate } from "react-router-dom";
+import apiService from "../../api/apiService";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { logoutHelper } from "../../utils/logoutHelper";
 import { FaStar } from "react-icons/fa";
@@ -39,6 +39,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [roleInfo, setRoleInfo] = useState(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
@@ -54,7 +55,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
     const fetchData = async () => {
       try {
-        // note: these service methods should accept an optional axios config { signal }
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
           apiService.auth.getProfile?.({ signal: controller.signal }) ??
             apiService.auth.getProfile?.(),
@@ -128,12 +128,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
       if (!uploadData.secure_url) throw new Error("Upload failed");
 
-      // use auth.updateProfile to set profile image (matches /api/accounts/profile/ PATCH)
-      // service should handle authenticated axiosInstance internally
       if (apiService.auth.updateProfile) {
         await apiService.auth.updateProfile({ profile_image_url: uploadData.secure_url });
       } else {
-        // fallback: if your service function is named differently, adjust accordingly
         console.warn("apiService.auth.updateProfile not found; image not saved to profile");
       }
 
@@ -154,7 +151,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
 
     try {
-      // POST to /api/reviews/ ; create method name used here is `create`
       if (apiService.reviews.create) {
         await apiService.reviews.create({
           comment: review,
@@ -162,7 +158,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
           rating: reviewRating,
         });
       } else if (apiService.reviews.list) {
-        // fallback if the service uses a different name
         await apiService.reviews.list({ comment: review, service: reviewService, rating: reviewRating });
       } else {
         throw new Error("Reviews service not available");
@@ -182,7 +177,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     try {
-      // optional: call backend logout if available
       if (apiService.auth.logout) {
         await apiService.auth.logout();
       }
@@ -193,6 +187,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
   };
 
+  // 🔹 Fixed handleClose
   const handleClose = () => {
     const role = (roleInfo?.role || "").toLowerCase();
     const paths = {
@@ -201,7 +196,14 @@ const AccountProfile = ({ profile: externalProfile }) => {
       vendor: "/vendor-profile",
       partner: "/partner-profile",
     };
-    navigate(paths[role] || "/");
+
+    if (role && paths[role]) {
+      navigate(paths[role]);
+    } else if (location.key !== "default") {
+      navigate(-1); // go back to previous page
+    } else {
+      navigate("/"); // fallback to homepage if no history
+    }
   };
 
   const renderBookingStatus = (status) => {

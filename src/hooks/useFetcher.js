@@ -6,7 +6,7 @@ import mediaAPI from "../api/mediaAPI";
 // import videosAPI from "../api/videosAPI"; // (unused) removed to avoid confusion
 import videoService from "../api/services/videoService";
 import endpointMap from "../api/services/endpointMap";
-import API from "../api/api"; // ✅ for mutation URL building
+import API from "../api/videosAPI"; // ✅ for mutation URL building
 
 // Local fallback hero video path (served from public/)
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
