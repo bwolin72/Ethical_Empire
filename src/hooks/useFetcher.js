@@ -3,8 +3,10 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import publicAxios from "../api/publicAxios";
 import axiosInstance from "../api/axiosInstance";
 import mediaAPI from "../api/mediaAPI";
+// import videosAPI from "../api/videosAPI"; // (unused) removed to avoid confusion
 import videoService from "../api/services/videoService";
 import endpointMap from "../api/services/endpointMap";
+import API from "../api"; // ✅ for mutation URL building
 
 // Local fallback hero video path (served from public/)
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
@@ -26,15 +28,32 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
   // Resolve GET fetcher
   // -------------------------
   const getFetcher = useCallback(() => {
-    if (!endpointKey || typeof endpointKey !== "string") return null;
+    // ✅ Provide sensible defaults if endpointKey is missing
+    if (!endpointKey || typeof endpointKey !== "string") {
+      if (resourceType === "media") {
+        return () => mediaAPI.getDefaultList(); // params usually not needed
+      }
+      if (resourceType === "videos") {
+        return () => videoService.list(params);
+      }
+      return null;
+    }
 
     if (resourceType === "media") {
+      // ✅ Handle generic keys commonly used in code
+      const genericKeys = new Set(["media", "defaultList", "all", "default", "list"]);
+      if (genericKeys.has(endpointKey)) {
+        return () => mediaAPI.getDefaultList(); // ignore params by design
+      }
+
+      // Try method like mediaAPI.getHome(), getLiveBand(), etc.
       const methodSuffix = toMethodSuffix(endpointKey);
       const mediaMethodName = `get${methodSuffix}`;
       if (typeof mediaAPI[mediaMethodName] === "function") {
         return () => mediaAPI[mediaMethodName](params);
       }
 
+      // Try raw endpoints lookup (e.g., 'liveBand', 'home', etc.)
       const keyCandidates = uniqueNonEmpty([
         endpointKey,
         applyAliases(endpointKey),
@@ -51,9 +70,11 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
     }
 
     if (resourceType === "videos") {
-      if (endpointMap[endpointKey]) {
+      // If it maps to a known endpoint key, use the service's helper
+      if (endpointMap && endpointMap[endpointKey]) {
         return () => videoService.byEndpoint(endpointKey, params);
       }
+      // Otherwise, generic list with filters (e.g., endpoint=..., is_active=true)
       return () => videoService.list(params);
     }
 
@@ -66,8 +87,8 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
   const fetchData = useCallback(async () => {
     const fetcher = getFetcher();
     if (!fetcher) {
-      if (mountedRef.current) { setError(`Unknown endpoint: ${endpointKey}`); setLoading(false); }
-      console.error(`[useFetcher] Unknown endpoint key: ${endpointKey}`);
+      if (mountedRef.current) { setError(`Unknown endpoint for ${resourceType}: ${String(endpointKey)}`); setLoading(false); }
+      console.error(`[useFetcher] Unknown endpoint key for ${resourceType}: ${endpointKey}`);
       return;
     }
 
@@ -77,6 +98,7 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
       const res = await fetcher();
       const items = extractItems(res);
 
+      // ✅ Always give the UI something playable for videos
       if (resourceType === "videos" && Array.isArray(items) && items.length === 0) {
         if (mountedRef.current) setData([fallbackVideoObject()]);
         return;
@@ -100,7 +122,12 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
   // Build mutation endpoints
   // -------------------------
   const endpoints = useMemo(
-    () => buildMutationEndpoints({ resourceType, endpointKey, resourceOverride: resource, custom: mutation }),
+    () => buildMutationEndpoints({
+      resourceType,
+      endpointKey,
+      resourceOverride: resource,
+      custom: mutation
+    }),
     [resourceType, endpointKey, resource, mutation]
   );
 
@@ -195,11 +222,12 @@ function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, c
   let defaults = {};
 
   if (res === "videos") {
+    // ✅ Use API.videos URLs instead of endpointMap.*Video (those may not exist)
     defaults = {
-      create: endpointMap.createVideo,
-      update: (id) => endpointMap.updateVideo(id),
-      patch:  (id) => endpointMap.updateVideo(id),
-      remove: (id) => endpointMap.deleteVideo(id),
+      create: () => API.videos.list,            // POST to collection
+      update: (id) => API.videos.detail(id),    // PUT
+      patch:  (id) => API.videos.detail(id),    // PATCH
+      remove: (id) => API.videos.detail(id),    // DELETE
     };
   } else if (res === "media") {
     defaults = {
@@ -218,7 +246,7 @@ function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, c
   };
 }
 
-function inferResource(resourceType, endpointKey) {
+function inferResource(resourceType /*, endpointKey */) {
   if (resourceType === "videos") return "videos";
   if (resourceType === "media") return "media";
   return null;
@@ -250,6 +278,13 @@ function uniqueNonEmpty(arr) {
   });
 }
 function applyAliases(key) {
-  const aliases = { userMedia: "user", mediaItems: "all" };
+  const aliases = {
+    userMedia: "user",
+    mediaItems: "all",
+    media: "defaultList",   // ✅ new: map "media" → defaultList
+    default: "defaultList",
+    list: "defaultList",
+    all: "defaultList",
+  };
   return aliases[key] || key;
 }
