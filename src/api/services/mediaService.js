@@ -12,13 +12,11 @@ const mediaService = {
 
   // ✅ Service Page fetcher (fix for LiveBandServicePage etc.)
   getServicePage: (endpoint) =>
-    publicAxios.get("/api/media/", {
-      params: { endpoint, is_active: true },
-    }),
+    publicAxios.get("/api/media/", { params: { endpoint, is_active: true } }),
 
-  // -------- Admin & management (auth required) --------
-  getAllMedia: () => axiosInstance.get(API.media.all), // needs auth
-  getArchivedMedia: () => axiosInstance.get(API.media.archived), // needs auth
+  // -------- Admin --------
+  getAllMedia: () => axiosInstance.get(API.media.all),
+  getArchivedMedia: () => axiosInstance.get(API.media.archived),
 
   // -------- Filtered lists --------
   byEndpoint: (key) => {
@@ -43,7 +41,7 @@ const mediaService = {
     return publicAxios.get(url);
   },
 
-  // Explicit helpers (backward compatibility)
+  // Explicit helpers
   getHomeMedia: () => mediaService.byEndpoint("home"),
   getAboutMedia: () => mediaService.byEndpoint("about"),
   getDecorMedia: () => mediaService.byEndpoint("decor"),
@@ -56,7 +54,7 @@ const mediaService = {
     mediaService.byEndpoint("partnerVendorDashboard"),
   getUserMedia: () => mediaService.byEndpoint("user"),
 
-  // -------- Mutations (auth required) --------
+  // -------- Mutations --------
   uploadMedia: (data) => axiosInstance.post(API.media.upload, data),
   updateMedia: (id, data) => axiosInstance.patch(API.media.update(id), data),
   toggleMediaActive: (id) => axiosInstance.post(API.media.toggle(id)),
