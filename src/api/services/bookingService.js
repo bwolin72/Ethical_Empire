@@ -28,7 +28,7 @@ const bookingService = {
   // ===== Client-facing (no CSRF required for create/list) =====
   create: (data) =>
     axiosInstance.post(bookingAPI.create, data, {
-      withCredentials: true, // 🚀 guest-friendly
+      withCredentials: true,
     }),
 
   list: () =>
@@ -44,19 +44,20 @@ const bookingService = {
 
   // ===== Admin (requires auth/CSRF) =====
   adminList: () => axiosInstance.get(bookingAPI.adminList, withCSRF()),
-  adminDetail: (id) => axiosInstance.get(bookingAPI.adminDetail(id), withCSRF()),
+  // ❌ removed adminDetail (no such backend endpoint)
   adminUpdate: (id, data) =>
     axiosInstance.patch(bookingAPI.adminUpdate(id), data, withCSRF()),
   adminUpdateStatus: (id, data) =>
     axiosInstance.patch(bookingAPI.adminUpdateStatus(id), data, withCSRF()),
-  adminDelete: (id) => axiosInstance.delete(bookingAPI.adminDelete(id), withCSRF()),
+  adminDelete: (id) =>
+    axiosInstance.delete(bookingAPI.adminDelete(id), withCSRF()),
 
   // ===== Invoice (requires auth/CSRF) =====
   invoice: (id) => axiosInstance.get(bookingAPI.invoice(id), withCSRF()),
   invoiceDownload: (id) =>
-    axiosInstance.get(bookingAPI.invoice(id), {
-      responseType: 'blob',
+    axiosInstance.get(bookingAPI.invoiceDownload(id), {
       ...withCSRF(),
+      responseType: 'blob',
     }),
   invoiceEmail: (id, data = {}) =>
     axiosInstance.post(bookingAPI.invoiceEmail(id), data, withCSRF()),

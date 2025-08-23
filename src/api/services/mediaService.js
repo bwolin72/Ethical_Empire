@@ -1,4 +1,3 @@
-// src/api/mediaService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import API from "../api";
@@ -10,15 +9,14 @@ const mediaService = {
   getBanners: () => publicAxios.get(API.media.banners),
   getFeaturedMedia: () => publicAxios.get(API.media.featured),
 
-  // -------- Admin & management --------
-  getAllMedia: () => publicAxios.get(API.media.all),
-  getArchivedMedia: () => publicAxios.get(API.media.archived),
+  // -------- Admin & management (auth required) --------
+  getAllMedia: () => axiosInstance.get(API.media.all),       // FIXED: needs auth
+  getArchivedMedia: () => axiosInstance.get(API.media.archived), // FIXED: needs auth
 
-  // -------- Filtered lists (dynamic via endpointMap) --------
+  // -------- Filtered lists --------
   byEndpoint: (key) => {
     const code = endpointMap[key];
     if (!code) throw new Error(`[mediaService] Unknown endpoint: ${key}`);
-    // Match mediaAPI endpoints (ensure correct path)
     const urlMap = {
       home: API.media.home,
       about: API.media.about,
@@ -36,7 +34,7 @@ const mediaService = {
     return publicAxios.get(url);
   },
 
-  // Explicit helpers for backward compatibility
+  // Explicit helpers (backward compatibility)
   getHomeMedia: () => mediaService.byEndpoint("home"),
   getAboutMedia: () => mediaService.byEndpoint("about"),
   getDecorMedia: () => mediaService.byEndpoint("decor"),
@@ -45,10 +43,10 @@ const mediaService = {
   getMediaHostingMedia: () => mediaService.byEndpoint("mediaHosting"),
   getVendorMedia: () => mediaService.byEndpoint("vendor"),
   getPartnerMedia: () => mediaService.byEndpoint("partner"),
-  getPartnerVendorDashboardMedia: () => mediaService.byEndpoint("partnerVendorDashboard"), // ✅ new
+  getPartnerVendorDashboardMedia: () => mediaService.byEndpoint("partnerVendorDashboard"),
   getUserMedia: () => mediaService.byEndpoint("user"),
 
-  // -------- Mutations --------
+  // -------- Mutations (auth required) --------
   uploadMedia: (data) => axiosInstance.post(API.media.upload, data),
   updateMedia: (id, data) => axiosInstance.patch(API.media.update(id), data),
   toggleMediaActive: (id) => axiosInstance.post(API.media.toggle(id)),
