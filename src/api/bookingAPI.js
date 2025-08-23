@@ -3,13 +3,13 @@ import baseURL from './baseURL';
 
 const bookingAPI = {
   // ===== Client =====
-  create: `${baseURL}/submit/`,
-  list: `${baseURL}/`,
+  create: `${baseURL}/bookings/submit/`,
+  list: `${baseURL}/bookings/`,
 
   // ===== User =====
   userBookings: `${baseURL}/user/`,
   userBookingHistory: `${baseURL}/user/history/`,
-  detail: (id) => `${baseURL}/${id}/`,
+  detail: (id) => `${baseURL}/bookings/${id}/`,
 
   // ===== Admin =====
   adminList: `${baseURL}/bookings-admin/bookings/`,
@@ -18,7 +18,7 @@ const bookingAPI = {
   adminDelete: (id) => `${baseURL}/bookings-admin/bookings/${id}/delete/`,   // DELETE
 
   // ===== Invoice =====
-  invoice: (id) => `${baseURL}/invoice/${id}/`,
+  invoice: (id) => `${baseURL}/bookings/${id}/invoice/`,
 
   // ✅ Correct: email sending is in the invoices app, not bookings
   invoiceEmail: (id) => `/api/invoices/invoices/${id}/send_email/`,
