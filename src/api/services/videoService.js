@@ -1,63 +1,61 @@
-// src/api/mediaService.js
+// src/api/services/videoService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
-import API from "../api";
-import endpointMap from "./endpointMap";
 
-const mediaService = {
-  // -------- Public-facing --------
-  getMedia: () => publicAxios.get(API.media.defaultList),   // /media/
-  getBanners: () => publicAxios.get(API.media.banners),     // /media/banners/
-  getFeaturedMedia: () => publicAxios.get(API.media.featured), // /media/featured/
+const BASE = "/api/videos/videos/";
 
-  // -------- Admin & management --------
-  // NOTE: No /media/all/ in backend — replaced with /media/ (same as getMedia)
-  getAllMedia: () => publicAxios.get(API.media.defaultList), 
-  getArchivedMedia: () => publicAxios.get(API.media.archived), // /media/archived/
+const videoService = {
+  // ================================
+  // Public-facing (lists & filters)
+  // ================================
+  list: (params) => publicAxios.get(BASE, { params }),   // generic list with filters
+  get: (id) => publicAxios.get(`${BASE}${id}/`),         // single video
 
-  // -------- Filtered lists --------
-  byEndpoint: (key) => {
-    const urlMap = {
-      home: API.media.home,            // /media/home/
-      about: API.media.about,          // /media/about/
-      decor: API.media.decor,          // /media/decor/
-      liveBand: API.media.liveBand,    // /media/live-band/
-      catering: API.media.catering,    // /media/catering/
-      mediaHosting: API.media.mediaHosting, // /media/media-hosting/
-      vendor: API.media.vendor,        // /media/vendor/
-      partner: API.media.partner,      // /media/partner/
-      user: API.media.user,            // /media/user/
-      // ⚠️ partnerVendorDashboard is removed unless you add a DRF view for it
+  // Endpoint-based lists (from DRF custom actions)
+  getHome: () => publicAxios.get(`${BASE}home/`),
+  getAbout: () => publicAxios.get(`${BASE}about/`),
+  getDecor: () => publicAxios.get(`${BASE}decor/`),
+  getLiveBand: () => publicAxios.get(`${BASE}live_band/`),
+  getCatering: () => publicAxios.get(`${BASE}catering/`),
+  getMediaHosting: () => publicAxios.get(`${BASE}media_hosting/`),
+  getVendor: () => publicAxios.get(`${BASE}vendor/`),
+  getPartner: () => publicAxios.get(`${BASE}partner/`),
+  getUser: () => publicAxios.get(`${BASE}user/`),
+  getPartnerVendorDashboard: () =>
+    publicAxios.get(`${BASE}partner_vendor_dashboard/`),
+
+  // Generic helper so useFetcher can resolve by endpoint key
+  byEndpoint: (key, params) => {
+    const map = {
+      home: videoService.getHome,
+      about: videoService.getAbout,
+      decor: videoService.getDecor,
+      liveBand: videoService.getLiveBand,
+      catering: videoService.getCatering,
+      mediaHosting: videoService.getMediaHosting,
+      vendor: videoService.getVendor,
+      partner: videoService.getPartner,
+      user: videoService.getUser,
+      partnerVendorDashboard: videoService.getPartnerVendorDashboard,
     };
-
-    const url = urlMap[key];
-    if (!url) throw new Error(`[mediaService] No URL found for key: ${key}`);
-    return publicAxios.get(url);
+    const fn = map[key];
+    if (!fn) {
+      throw new Error(`[videoService] No endpoint method for key: ${key}`);
+    }
+    return fn(params);
   },
 
-  // Explicit helpers
-  getHomeMedia: () => mediaService.byEndpoint("home"),
-  getAboutMedia: () => mediaService.byEndpoint("about"),
-  getDecorMedia: () => mediaService.byEndpoint("decor"),
-  getLiveBandMedia: () => mediaService.byEndpoint("liveBand"),
-  getCateringMedia: () => mediaService.byEndpoint("catering"),
-  getMediaHostingMedia: () => mediaService.byEndpoint("mediaHosting"),
-  getVendorMedia: () => mediaService.byEndpoint("vendor"),
-  getPartnerMedia: () => mediaService.byEndpoint("partner"),
-  getUserMedia: () => mediaService.byEndpoint("user"),
+  // ================================
+  // Admin (CRUD & mutations)
+  // ================================
+  create: (data) => axiosInstance.post(BASE, data),
+  update: (id, data) => axiosInstance.put(`${BASE}${id}/`, data),
+  patch: (id, data) => axiosInstance.patch(`${BASE}${id}/`, data),
+  remove: (id) => axiosInstance.delete(`${BASE}${id}/`),
 
-  // -------- Mutations --------
-  uploadMedia: (data) => axiosInstance.post(API.media.upload, data),
-  updateMedia: (id, data) => axiosInstance.patch(API.media.update(id), data),
-  toggleMediaActive: (id) => axiosInstance.post(API.media.toggle(id)),
-  toggleMediaFeatured: (id) => axiosInstance.post(API.media.toggleFeatured(id)),
-  deleteMedia: (id) => axiosInstance.delete(API.media.delete(id)),
-  restoreMedia: (id) => axiosInstance.post(API.media.restore(id)),
-
-  // -------- Utils --------
-  reorderMedia: (data) => axiosInstance.post(API.media.reorder, data),
-  getMediaStats: () => axiosInstance.get(API.media.stats),
-  debugMediaProto: () => axiosInstance.get(API.media.debugProto),
+  // Toggle helpers (DRF custom @action)
+  toggleActive: (id) => axiosInstance.post(`${BASE}${id}/toggle_active/`),
+  toggleFeatured: (id) => axiosInstance.post(`${BASE}${id}/toggle_featured/`),
 };
 
-export default mediaService;
+export default videoService;

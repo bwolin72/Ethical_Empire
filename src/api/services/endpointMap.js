@@ -1,18 +1,13 @@
-// src/api/endpointMap.js
-/**
- * Central mapping between frontend keys and backend endpoint codes.
- * Used by useFetcher for media & videos.
- */
 const endpointMap = {
   home: "EethmHome",
   about: "About",
-  catering: "CateringServicePage",
+  catering: "CateringPage",           // FIXED (backend uses CateringPage, not CateringServicePage)
   liveBand: "LiveBandServicePage",
-  decor: "DecorServicePage",
+  decor: "DecorPage",                 // FIXED (backend uses DecorPage, not DecorServicePage)
   mediaHosting: "MediaHostingServicePage",
   vendor: "VendorPage",
   partner: "PartnerPage",
-  partnerVendorDashboard: "PartnerVendorDashboard", // added for AgencyDashboard
+  partnerVendorDashboard: "PartnerVendorDashboard",
   user: "UserPage",
 };
 
