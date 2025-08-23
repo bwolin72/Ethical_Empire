@@ -1,5 +1,3 @@
-// src/components/auth/Login.jsx
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
@@ -42,7 +40,7 @@ const Login = () => {
   useEffect(() => {
     const savedDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDark);
-    document.body.classList.toggle('dark-mode', savedDark);
+    document.body.classList.toggle('dark', savedDark);
   }, []);
 
   useEffect(() => {
@@ -53,7 +51,7 @@ const Login = () => {
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
-    document.body.classList.toggle('dark-mode', updated);
+    document.body.classList.toggle('dark', updated);
     localStorage.setItem('darkMode', updated);
   };
 
@@ -121,7 +119,7 @@ const Login = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className={`auth-page login ${darkMode ? 'dark-mode' : ''}`}>
+      <div className={`auth-page login ${darkMode ? 'dark' : ''}`}>
         {/* Left Branding */}
         <div className="auth-left">
           <div className="auth-brand">
@@ -139,7 +137,7 @@ const Login = () => {
             Enable Dark Mode
           </label>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="alert-error" role="alert">{error}</div>}
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <input
@@ -152,7 +150,7 @@ const Login = () => {
               disabled={loading}
               required
             />
-            {formErrors.email && <small>{formErrors.email}</small>}
+            {formErrors.email && <small className="error-text">{formErrors.email}</small>}
 
             <div className="password-field">
               <input
@@ -168,12 +166,14 @@ const Login = () => {
               <button
                 type="button"
                 className="toggle-password"
+                aria-pressed={showPassword}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
                 onClick={() => setShowPassword((prev) => !prev)}
               >
                 {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
-            {formErrors.password && <small>{formErrors.password}</small>}
+            {formErrors.password && <small className="error-text">{formErrors.password}</small>}
 
             <label className="terms-checkbox">
               <input
@@ -183,7 +183,7 @@ const Login = () => {
               />
               I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
             </label>
-            {formErrors.terms && <small>{formErrors.terms}</small>}
+            {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
 
             <div className="auth-options">
               <label className="remember-me">

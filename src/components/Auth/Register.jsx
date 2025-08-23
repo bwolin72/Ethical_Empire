@@ -1,4 +1,3 @@
-// src/components/auth/Register.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
@@ -98,12 +97,26 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Keep toast UX for register, but we validate things before calling API
     if (!form.acceptTerms) {
       toast.error('❌ You must accept our Terms & Privacy Policy.');
       return;
     }
 
-    const { full_name, email, phone, dob, gender, password, password2, role, access_code, worker_category_id, company_name, agency_name } = form;
+    const {
+      full_name,
+      email,
+      phone,
+      dob,
+      gender,
+      password,
+      password2,
+      role,
+      access_code,
+      worker_category_id,
+      company_name,
+      agency_name,
+    } = form;
 
     if (!full_name.trim()) return toast.error('Full name is required.');
     if (!validateEmail(email)) return toast.error('Invalid email format.');
@@ -135,9 +148,11 @@ const Register = () => {
     setLoading(true);
     try {
       const res = await requestFn(payload);
-      const { email, phone } = res.data;
+      const { email: returnedEmail, phone: returnedPhone } = res.data;
       toast.success('✅ Verification code sent. Check your email and SMS.');
-      navigate(`/verify-otp?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`);
+      navigate(
+        `/verify-otp?email=${encodeURIComponent(returnedEmail)}&phone=${encodeURIComponent(returnedPhone)}`
+      );
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {
@@ -260,9 +275,15 @@ const Register = () => {
             <div className="form-group password-field">
               <label htmlFor="password">Password</label>
               <input id="password" name="password" type={passwordVisible ? 'text' : 'password'} value={form.password} onChange={handleChange} />
-              <span onClick={() => setPasswordVisible((v) => !v)}>
+              <button
+                type="button"
+                className="toggle-password"
+                aria-pressed={passwordVisible}
+                aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                onClick={() => setPasswordVisible((v) => !v)}
+              >
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-              </span>
+              </button>
               <div className={`password-strength ${passwordStrength.toLowerCase()}`}>
                 Password Strength: {passwordStrength}
               </div>
@@ -271,9 +292,15 @@ const Register = () => {
             <div className="form-group password-field">
               <label htmlFor="password2">Confirm Password</label>
               <input id="password2" name="password2" type={passwordVisible ? 'text' : 'password'} value={form.password2} onChange={handleChange} />
-              <span onClick={() => setPasswordVisible((v) => !v)}>
+              <button
+                type="button"
+                className="toggle-password"
+                aria-pressed={passwordVisible}
+                aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                onClick={() => setPasswordVisible((v) => !v)}
+              >
                 {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-              </span>
+              </button>
             </div>
 
             {/* Terms & Privacy */}

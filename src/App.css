@@ -194,3 +194,22 @@ a:hover {
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* === Fix unwanted horizontal scroll === */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Prevent images/videos from overflowing */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* For any flex/grid child pushing out */
+.container, .section, .card {
+  overflow-x: hidden;
+}
+

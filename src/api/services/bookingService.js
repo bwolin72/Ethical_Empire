@@ -2,9 +2,6 @@
 import axiosInstance from '../axiosInstance';
 import bookingAPI from '../bookingAPI';
 
-/**
- * Helper to get CSRF token from cookies
- */
 const getCSRFToken = () => {
   return document.cookie
     .split('; ')
@@ -12,9 +9,6 @@ const getCSRFToken = () => {
     ?.split('=')[1];
 };
 
-/**
- * Helper to attach CSRF token in headers for unsafe methods
- */
 const withCSRF = (config = {}) => {
   const csrfToken = getCSRFToken();
   return {
@@ -24,7 +18,7 @@ const withCSRF = (config = {}) => {
       'Content-Type': 'application/json',
       ...(config.headers || {}),
     },
-    withCredentials: true, // Ensure cookies are sent
+    withCredentials: true,
   };
 };
 
@@ -35,8 +29,6 @@ const bookingService = {
   userBookings: () => axiosInstance.get(bookingAPI.userBookings, withCSRF()),
   userBookingHistory: () => axiosInstance.get(bookingAPI.userBookingHistory, withCSRF()),
   detail: (id) => axiosInstance.get(bookingAPI.detail(id), withCSRF()),
-  update: (id, data) => axiosInstance.patch(bookingAPI.detail(id), data, withCSRF()),
-  delete: (id) => axiosInstance.delete(bookingAPI.detail(id), withCSRF()),
 
   // ===== Admin =====
   adminList: () => axiosInstance.get(bookingAPI.adminList, withCSRF()),
@@ -48,6 +40,13 @@ const bookingService = {
 
   // ===== Invoice =====
   invoice: (id) => axiosInstance.get(bookingAPI.invoice(id), withCSRF()),
+  invoiceDownload: (id) =>
+    axiosInstance.get(bookingAPI.invoice(id), {
+      responseType: 'blob',
+      ...withCSRF(),
+    }),
+  invoiceEmail: (id, data = {}) =>
+    axiosInstance.post(bookingAPI.invoiceEmail(id), data, withCSRF()), // ✅ New
 };
 
 export default bookingService;
