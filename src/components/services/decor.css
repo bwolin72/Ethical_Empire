@@ -51,6 +51,11 @@
   transform: scale(1.1);
 }
 
+.decor-page-container .mute-button:focus {
+  outline: 2px solid var(--color-white);
+  outline-offset: 2px;
+}
+
 /* === CTA Section === */
 .decor-page-container .cta-section {
   text-align: center;
@@ -75,11 +80,17 @@
   transform: scale(1.05);
 }
 
+.decor-page-container .cta-button:focus {
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 2px;
+}
+
 /* === Sections === */
 .decor-page-container .section {
   padding: 4rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
+  animation: fadeInUp 0.8s ease both;
 }
 
 .decor-page-container .section-title,
@@ -128,6 +139,7 @@
   color: var(--color-black);
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  animation: fadeIn 0.9s ease both;
 }
 
 .decor-page-container .card:hover,
@@ -178,8 +190,8 @@
 /* === Testimonials === */
 .decor-page-container .testimonial-text {
   font-style: italic;
-  font-size: 0.9rem;
-  color: var(--color-neutral-light);
+  font-size: 0.95rem;
+  color: var(--color-neutral); /* improved contrast */
   margin-bottom: 0.5rem;
 }
 
@@ -187,6 +199,48 @@
   font-weight: bold;
   text-align: right;
   color: var(--color-primary);
+}
+
+/* === Animations === */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Dark Mode Support === */
+.dark .decor-page-container {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.dark .decor-page-container .card,
+.dark .decor-page-container .testimonial-card {
+  background-color: var(--color-bg-light);
+  border-color: var(--color-neutral-dark);
+  color: var(--color-text);
+}
+
+.dark .decor-page-container .section-title,
+.dark .decor-page-container .creative-text h3 {
+  color: var(--color-primary);
+}
+
+.dark .decor-page-container .testimonial-text {
+  color: var(--color-neutral);
+}
+
+.dark .decor-page-container .cta-button {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.dark .decor-page-container .mute-button {
+  background-color: var(--color-primary);
 }
 
 /* === Responsive === */

@@ -189,6 +189,33 @@
   color: var(--color-white);
 }
 
+.btn {
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: var(--transition-fast);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn-secondary {
+  background: var(--color-accent-gold);
+  color: var(--color-primary);
+}
+.btn-secondary:hover {
+  background: var(--color-accent-gold-dark);
+  color: var(--color-white);
+}
 /* Responsive Tweaks */
 @media (max-width: 768px) {
   .services-page {

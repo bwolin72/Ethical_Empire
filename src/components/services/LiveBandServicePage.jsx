@@ -7,9 +7,9 @@ import { useNavigate } from "react-router-dom";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import apiService from "../../api/apiService";
-import Services from "../home/Services"; // ✅ import shared Services component
+import Services from "../home/Services"; // ✅ shared services component
 
-// === Animation Variants (shared) ===
+// === Animation Variants ===
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i = 0) => ({
@@ -167,14 +167,12 @@ const LiveBandServicePage = () => {
         )}
       </section>
 
-      {/* === Services Offered (reusing global Services) === */}
+      {/* === Services Offered (Shared Component) === */}
       <section className="section services-section">
         <h2 className="section-title">Live Band Services</h2>
         <p className="section-description">
           From intimate acoustic duos to full orchestras — choose your sound.
         </p>
-
-        {/* ✅ Shared services component */}
         <Services />
       </section>
 
@@ -211,12 +209,7 @@ const LiveBandServicePage = () => {
               <div key={i} className="testimonial-card shimmer" />
             ))
           ) : errorMsg ? (
-            <p
-              className="section-description"
-              style={{ textAlign: "center", opacity: 0.7 }}
-            >
-              {errorMsg}
-            </p>
+            <p className="section-description center-text">{errorMsg}</p>
           ) : testimonials.length > 0 ? (
             testimonials.slice(0, 6).map((review, index) => (
               <motion.div
@@ -236,10 +229,7 @@ const LiveBandServicePage = () => {
               </motion.div>
             ))
           ) : (
-            <p
-              className="section-description"
-              style={{ textAlign: "center", opacity: 0.7 }}
-            >
+            <p className="section-description center-text">
               No client reviews available yet.
             </p>
           )}
