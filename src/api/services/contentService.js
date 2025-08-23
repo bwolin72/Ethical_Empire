@@ -1,9 +1,9 @@
 // src/api/services/contentService.js
 import publicAxios from "../publicAxios";
-import videoService from "./videoService";
+import videosAPI from "./videoAPI";
 import mediaAPI from "../mediaAPI";
 
-// --- Helpers: normalize different backend shapes ---
+// --- Normalizers: unify backend shapes ---
 const normalizeVideo = (v) => ({
   id: v.id,
   title: v.title || v.name || "",
@@ -24,7 +24,7 @@ const normalizePromotion = (p) => ({
 const normalizeReview = (r) => ({
   id: r.id,
   author: r.author || r.name || "Anonymous",
-  rating: r.rating || null,
+  rating: r.rating ?? null,
   content: r.content || r.text || "",
 });
 
@@ -35,33 +35,34 @@ const normalizeMedia = (m) => ({
   type: m.file_type || "image",
 });
 
+// --- Service ---
 const contentService = {
-  // -------- Videos --------
+  // -------- Videos (videos app) --------
   getVideos: async (params) => {
-    const res = await videoService.list(params);
+    const res = await videosAPI.list(params); 
     return Array.isArray(res.data) ? res.data.map(normalizeVideo) : [];
   },
 
-  // -------- Promotions --------
+  // -------- Promotions (root app) --------
   getPromotions: async () => {
     const res = await publicAxios.get("/promotions/");
     return Array.isArray(res.data) ? res.data.map(normalizePromotion) : [];
   },
 
-  // -------- Reviews --------
+  // -------- Reviews (root app) --------
   getReviews: async () => {
     const res = await publicAxios.get("/reviews/");
     return Array.isArray(res.data) ? res.data.map(normalizeReview) : [];
   },
 
-  // -------- Media (public-facing) --------
+  // -------- Media (media app) --------
   getBanners: async () => {
-    const res = await publicAxios.get(mediaAPI.endpoints.banners);
+    const res = await publicAxios.get(mediaAPI.endpoints.banners); // /api/media/banners/
     return Array.isArray(res.data) ? res.data.map(normalizeMedia) : [];
   },
 
   getMedia: async () => {
-    const res = await publicAxios.get(mediaAPI.endpoints.defaultList);
+    const res = await publicAxios.get(mediaAPI.endpoints.defaultList); // /api/media/
     return Array.isArray(res.data) ? res.data.map(normalizeMedia) : [];
   },
 
