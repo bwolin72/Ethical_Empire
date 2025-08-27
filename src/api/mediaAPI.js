@@ -2,36 +2,36 @@
 
 const mediaAPI = {
   // -------- Public-facing --------
-  defaultList: "/api/media/",              // GET
-  banners: "/api/media/banners/",          // GET
-  featured: "/api/media/featured/",        // GET
+  defaultList: "/media/",              // GET
+  banners: "/media/banners/",          // GET
+  featured: "/media/featured/",        // GET
 
   // -------- Filtered by endpoint --------
-  vendor: "/api/media/vendor/",                           // GET
-  partner: "/api/media/partner/",                         // GET
-  user: "/api/media/user/",                               // GET
-  home: "/api/media/home/",                               // GET
-  about: "/api/media/about/",                             // GET
-  decor: "/api/media/decor/",                             // GET
-  liveBand: "/api/media/live-band/",                      // GET
-  catering: "/api/media/catering/",                       // GET
-  mediaHosting: "/api/media/media-hosting/",              // GET
-  partnerVendorDashboard: "/api/media/partner-vendor-dashboard/", // GET
+  vendor: "/media/vendor/",                           // GET
+  partner: "/media/partner/",                         // GET
+  user: "/media/user/",                               // GET
+  home: "/media/home/",                               // GET
+  about: "/media/about/",                             // GET
+  decor: "/media/decor/",                             // GET
+  liveBand: "/media/live-band/",                      // GET
+  catering: "/media/catering/",                       // GET
+  mediaHosting: "/media/media-hosting/",              // GET
+  partnerVendorDashboard: "/media/partner-vendor-dashboard/", // GET
 
   // -------- Admin-only --------
-  upload: "/api/media/upload/",             // POST
-  all: "/api/media/all/",                   // GET (admin full list)
-  update: "/api/media/",                    // PATCH   -> /api/media/<id>/update/
-  toggle: "/api/media/",                    // POST    -> /api/media/<id>/toggle/
-  toggleFeatured: "/api/media/",            // POST    -> /api/media/<id>/toggle/featured/
-  delete: "/api/media/",                    // DELETE  -> /api/media/<id>/delete/
-  restore: "/api/media/",                   // POST    -> /api/media/<id>/restore/
-  archived: "/api/media/archived/",         // GET
-  reorder: "/api/media/reorder/",           // POST
-  stats: "/api/media/stats/",               // GET
+  upload: "/media/upload/",             // POST
+  all: "/media/all/",                   // GET (admin full list)
+  update: "/media/",                    // PATCH   -> /media/<id>/update/
+  toggle: "/media/",                    // POST    -> /media/<id>/toggle/
+  toggleFeatured: "/media/",            // POST    -> /media/<id>/toggle/featured/
+  delete: "/media/",                    // DELETE  -> /media/<id>/delete/
+  restore: "/media/",                   // POST    -> /media/<id>/restore/
+  archived: "/media/archived/",         // GET
+  reorder: "/media/reorder/",           // POST
+  stats: "/media/stats/",               // GET
 
   // -------- Debug --------
-  debugProto: "/api/media/debug/proto/",    // GET
+  debugProto: "/media/debug/proto/",    // GET
 };
 
 export default mediaAPI;
