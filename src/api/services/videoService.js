@@ -1,7 +1,7 @@
 // src/api/videoService.js
-import publicAxios from "../api/publicAxios";
-import axiosInstance from "../api/axiosInstance";
-import videosAPI from "../api/videosAPI";
+import publicAxios from "../publicAxios";
+import axiosInstance from "../axiosInstance";
+import videosAPI from "../videosAPI";
 
 const videoService = {
   // -------- Public-facing --------
