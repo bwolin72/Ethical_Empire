@@ -1,6 +1,6 @@
 // src/context/ProfileContext.js
 import { createContext, useContext, useState, useEffect } from "react";
-import apiService from "../api/apiService";
+import authAPI from "../../api/authAPI";
 
 const ProfileContext = createContext();
 
@@ -11,7 +11,7 @@ export const ProfileProvider = ({ children }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await apiService.auth.getProfile();
+        const res = await authAPI.auth.getProfile();
         setProfile(res?.data ?? null);
       } catch (err) {
         console.error("Error fetching profile:", err);
