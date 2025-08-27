@@ -1,24 +1,23 @@
-// src/components/user/NewsLetterSignup.jsx
-import { useState, useRef } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
-import { toast } from 'react-toastify';
-import apiService from '../../api/apiService';
-import 'react-toastify/dist/ReactToastify.css';
-import './newsletter.css';
+import { useState, useRef } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import { toast } from "react-toastify";
+import newsletterService from "../../api/services/newsletterService";
+import "react-toastify/dist/ReactToastify.css";
+import "./newsletter.css";
 
 const SITE_KEY = process.env.REACT_APP_RECAPTCHA_PUBLIC_KEY;
 
 export default function NewsletterSignup() {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [inputError, setInputError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const recaptchaRef = useRef(null);
 
   const resetForm = () => {
-    setEmail('');
-    setName('');
+    setEmail("");
+    setName("");
     recaptchaRef.current?.reset();
   };
 
@@ -30,12 +29,12 @@ export default function NewsletterSignup() {
     const captchaToken = recaptchaRef.current?.getValue();
 
     if (!captchaToken) {
-      toast.error('❌ Please complete the reCAPTCHA.');
+      toast.error("❌ Please complete the reCAPTCHA.");
       return;
     }
 
     if (!validateEmail(email)) {
-      toast.warn('⚠️ A valid email is required.');
+      toast.warn("⚠️ A valid email is required.");
       setInputError(true);
       setTimeout(() => setInputError(false), 3000);
       return;
@@ -44,22 +43,28 @@ export default function NewsletterSignup() {
     setSubmitting(true);
 
     try {
-      const { data } = await apiService.subscribeNewsletter({
+      const { data } = await newsletterService.subscribe({
         email: email.trim(),
         name: name.trim(),
         token: captchaToken,
       });
 
-      toast.success(data?.message || '✅ Please check your email to confirm your subscription.');
+      toast.success(
+        data?.message ||
+          "✅ Please check your email to confirm your subscription."
+      );
       resetForm();
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 6000);
     } catch (err) {
       const errorMsg =
-        err?.response?.data?.error || '❌ Subscription failed. Please try again later.';
+        err?.response?.data?.error ||
+        "❌ Subscription failed. Please try again later.";
 
-      if (errorMsg.toLowerCase().includes('already')) {
-        toast.info('📬 You are already subscribed or confirmation is pending.');
+      if (errorMsg.toLowerCase().includes("already")) {
+        toast.info(
+          "📬 You are already subscribed or confirmation is pending."
+        );
       } else {
         toast.error(errorMsg);
       }
@@ -72,7 +77,7 @@ export default function NewsletterSignup() {
   };
 
   if (!SITE_KEY) {
-    console.warn('Missing reCAPTCHA site key');
+    console.warn("Missing reCAPTCHA site key");
     return <p>⚠️ Cannot load subscription form. Please try again later.</p>;
   }
 
@@ -105,11 +110,11 @@ export default function NewsletterSignup() {
         onBlur={() => {
           if (email && !validateEmail(email)) {
             setInputError(true);
-            toast.warn('⚠️ Invalid email format');
+            toast.warn("⚠️ Invalid email format");
           }
         }}
         required
-        className={`newsletter-input ${inputError ? 'error' : ''}`}
+        className={`newsletter-input ${inputError ? "error" : ""}`}
         aria-invalid={inputError}
         aria-label="Email address"
         autoComplete="email"
@@ -128,7 +133,7 @@ export default function NewsletterSignup() {
         aria-busy={submitting}
         aria-label="Submit newsletter subscription"
       >
-        {submitting ? <span className="spinner" /> : 'Subscribe'}
+        {submitting ? <span className="spinner" /> : "Subscribe"}
       </button>
 
       {showSuccess && (
@@ -140,14 +145,15 @@ export default function NewsletterSignup() {
       <label className="terms-checkbox">
         <input type="checkbox" required />
         <span>
-          I agree to the{' '}
+          I agree to the{" "}
           <a href="/terms-of-service" target="_blank" rel="noopener noreferrer">
             Terms of Service
-          </a>{' '}
-          and{' '}
+          </a>{" "}
+          and{" "}
           <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">
             Privacy Policy
-          </a>.
+          </a>
+          .
         </span>
       </label>
     </form>

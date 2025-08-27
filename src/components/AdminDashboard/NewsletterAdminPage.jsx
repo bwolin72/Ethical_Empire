@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api';
 import { toast } from 'react-toastify';
 import { FaTrash, FaEnvelope, FaEye, FaPaperPlane } from 'react-icons/fa';
 import 'react-toastify/dist/ReactToastify.css';
 import styles from './NewsletterAdminPage.module.css';
+import newsletterService from '../../api/services/newsletterService';
 
 const NewsletterManagement = () => {
   const [subject, setSubject] = useState('');
@@ -19,17 +18,18 @@ const NewsletterManagement = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const [logsRes, countRes, subsRes] = await Promise.all([
-          axiosInstance.get(api.newsletter.logs),
-          axiosInstance.get(api.newsletter.count),
-          axiosInstance.get(api.newsletter.list),
+        const [logs, count, subs] = await Promise.all([
+          newsletterService.getLogs(),
+          newsletterService.getSubscriberCount(),
+          newsletterService.getSubscribers(),
         ]);
 
-        setNewsletterLog(logsRes.data);
-        setRecipientsCount(countRes.data.count);
-        setSubscribers(subsRes.data);
+        setNewsletterLog(logs.data);
+        setRecipientsCount(count.data.count);
+        setSubscribers(subs.data);
       } catch (error) {
         toast.error('❌ Failed to load newsletter data');
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -40,7 +40,7 @@ const NewsletterManagement = () => {
 
   const refreshLogs = async () => {
     try {
-      const { data } = await axiosInstance.get(api.newsletter.logs);
+      const { data } = await newsletterService.getLogs();
       setNewsletterLog(data);
     } catch {
       toast.error('❌ Failed to refresh logs');
@@ -49,12 +49,12 @@ const NewsletterManagement = () => {
 
   const refreshSubscribers = async () => {
     try {
-      const [subsRes, countRes] = await Promise.all([
-        axiosInstance.get(api.newsletter.list),
-        axiosInstance.get(api.newsletter.count),
+      const [subs, count] = await Promise.all([
+        newsletterService.getSubscribers(),
+        newsletterService.getSubscriberCount(),
       ]);
-      setSubscribers(subsRes.data);
-      setRecipientsCount(countRes.data.count);
+      setSubscribers(subs.data);
+      setRecipientsCount(count.data.count);
     } catch {
       toast.error('❌ Failed to refresh subscribers');
     }
@@ -68,15 +68,16 @@ const NewsletterManagement = () => {
 
     setSending(true);
     try {
-      const { data } = await axiosInstance.post(api.newsletter.send, {
+      const { data } = await newsletterService.sendNewsletter({
         subject,
         html: content,
         test,
       });
       toast.success(data.message || '✅ Newsletter sent');
       if (!test) refreshLogs();
-    } catch {
+    } catch (error) {
       toast.error('❌ Failed to send newsletter');
+      console.error(error);
     } finally {
       setSending(false);
     }
@@ -84,21 +85,23 @@ const NewsletterManagement = () => {
 
   const handleResendConfirmation = async (email) => {
     try {
-      await axiosInstance.post(api.newsletter.resendConfirmation, { email });
+      await newsletterService.resendConfirmation({ email });
       toast.success(`✅ Confirmation email resent to ${email}`);
-    } catch {
+    } catch (error) {
       toast.error(`❌ Failed to resend confirmation to ${email}`);
+      console.error(error);
     }
   };
 
   const handleDeleteSubscriber = async (id) => {
     if (!window.confirm('Are you sure you want to delete this subscriber?')) return;
     try {
-      await axiosInstance.delete(api.newsletter.delete(id));
+      await newsletterService.deleteSubscriber(id);
       toast.success('✅ Subscriber deleted');
       await refreshSubscribers();
-    } catch {
+    } catch (error) {
       toast.error('❌ Failed to delete subscriber');
+      console.error(error);
     }
   };
 

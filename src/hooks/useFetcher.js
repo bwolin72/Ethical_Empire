@@ -5,7 +5,7 @@ import axiosInstance from "../api/axiosInstance";
 import mediaAPI from "../api/mediaAPI";
 import videoService from "../api/services/videoService";
 import endpointMap from "../api/services/endpointMap";
-import videosAPI from "../api/videosAPI"; // ✅ official videos API
+import videosAPI from "../api/videosAPI"; // official videos API
 
 // Local fallback hero video path (served from public/)
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
@@ -41,9 +41,9 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
   // Resolve GET fetcher
   // -------------------------
   const getFetcher = useCallback(() => {
-    // ✅ Default fallback if endpointKey missing
+    // Default fallback if endpointKey missing
     if (!endpointKey || typeof endpointKey !== "string") {
-      if (resourceType === "media") return () => mediaAPI.getDefaultList();
+      if (resourceType === "media") return () => publicAxios.get(mediaAPI.defaultList, params ? { params } : undefined);
       if (resourceType === "videos") return () => videoService.list(params);
       return null;
     }
@@ -51,13 +51,16 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
     // MEDIA endpoints
     if (resourceType === "media") {
       const genericKeys = new Set(["media", "defaultList", "all", "default", "list"]);
-      if (genericKeys.has(endpointKey)) return () => mediaAPI.getDefaultList();
+      if (genericKeys.has(endpointKey)) return () => publicAxios.get(mediaAPI.defaultList, params ? { params } : undefined);
 
+      // If mediaAPI exports helper functions (some setups auto-generate getters),
+      // prefer calling them (e.g. mediaAPI.getHome())
       const mediaMethodName = `get${toMethodSuffix(endpointKey)}`;
       if (typeof mediaAPI[mediaMethodName] === "function") {
         return () => mediaAPI[mediaMethodName](params);
       }
 
+      // Build candidate keys and look up endpoints on mediaAPI
       const keyCandidates = uniqueNonEmpty([
         endpointKey,
         applyAliases(endpointKey),
@@ -65,19 +68,49 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
         applyAliases(toCamelCase(endpointKey)),
       ]);
 
+      // admin-only endpoints that require auth (use axiosInstance)
+      const adminKeys = new Set(["all", "archived", "stats", "debugProto", "upload", "reorder"]);
+
       for (const k of keyCandidates) {
-        const val = mediaAPI?.endpoints?.[k];
+        const val = mediaAPI?.[k];
         if (typeof val === "string") {
-          return () => publicAxios.get(val, params ? { params } : undefined);
+          const useAuth = adminKeys.has(k);
+          return () => (useAuth ? axiosInstance.get(val, params ? { params } : undefined) : publicAxios.get(val, params ? { params } : undefined));
         }
+
+        // if val is a function that returns URL or a promise, call it
+        if (typeof val === "function") {
+          // assume function returns a promise or URL -> call with params if provided
+          return () => val(params);
+        }
+      }
+
+      // fallback: if endpointKey looks like an absolute path, call it directly
+      if (endpointKey.startsWith("/")) {
+        return () => publicAxios.get(endpointKey, params ? { params } : undefined);
       }
     }
 
     // VIDEO endpoints
     if (resourceType === "videos") {
+      // If endpointMap exists (maps page keys to endpoint names) use byEndpoint
       if (endpointMap && endpointMap[endpointKey]) {
-        return () => videoService.byEndpoint(endpointKey, params);
+        return () => videoService.byEndpoint(endpointMap[endpointKey], params);
       }
+
+      // if user passed an endpointKey that matches videosAPI keys, use that
+      const videoKeyCandidates = uniqueNonEmpty([
+        endpointKey,
+        toCamelCase(endpointKey),
+        applyAliases(endpointKey),
+      ]);
+      for (const k of videoKeyCandidates) {
+        if (typeof videosAPI[k] === "string") {
+          return () => publicAxios.get(videosAPI[k], params ? { params } : undefined);
+        }
+      }
+
+      // default list
       return () => videoService.list(params);
     }
 
@@ -107,7 +140,7 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
       const res = await fetcher();
       const items = extractItems(res);
 
-      // ✅ Always provide fallback video if no results
+      // Always provide fallback video if no results
       if (resourceType === "videos" && Array.isArray(items) && items.length === 0) {
         if (mountedRef.current) setData([fallbackVideoObject()]);
         return;
@@ -257,19 +290,29 @@ function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, c
   const res = resourceOverride || inferResource(resourceType, endpointKey);
   let defaults = {};
 
+  // Videos: use videosAPI.defaultList and videosAPI.detail(id)
   if (res === "videos") {
     defaults = {
-      create: () => videosAPI.videos.list, // POST collection
-      update: (id) => videosAPI.videos.detail(id),
-      patch: (id) => videosAPI.videos.detail(id),
-      remove: (id) => videosAPI.videos.detail(id),
+      create: () => videosAPI.defaultList,
+      update: (id) => videosAPI.detail(id),
+      patch: (id) => videosAPI.detail(id),
+      remove: (id) => videosAPI.detail(id),
     };
   } else if (res === "media") {
+    // Media may expose strings or functions for endpoints. Support both.
+    const createFn = () => (typeof mediaAPI.upload === "function" ? mediaAPI.upload() : mediaAPI.upload);
+    const updateFn = (id) =>
+      typeof mediaAPI.update === "function" ? mediaAPI.update(id) : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.update)}${id}/update/`;
+    const deleteFn = (id) =>
+      typeof mediaAPI.delete === "function" ? mediaAPI.delete(id) : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.delete)}${id}/delete/`;
+    const restoreFn = (id) =>
+      typeof mediaAPI.restore === "function" ? mediaAPI.restore(id) : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.restore)}${id}/restore/`;
+
     defaults = {
-      create: mediaAPI?.endpoints?.upload,
-      update: (id) => mediaAPI?.endpoints?.update?.(id),
-      patch: (id) => mediaAPI?.endpoints?.update?.(id),
-      remove: (id) => mediaAPI?.endpoints?.delete?.(id),
+      create: createFn,
+      update: updateFn,
+      patch: updateFn,
+      remove: deleteFn,
     };
   }
 
@@ -285,6 +328,12 @@ function inferResource(resourceType) {
   if (resourceType === "videos") return "videos";
   if (resourceType === "media") return "media";
   return null;
+}
+
+/* Utility: ensure trailing slash string base for constructing URLs */
+function ensureTrailingSlash(str) {
+  if (!str || typeof str !== "string") return "/";
+  return str.endsWith("/") ? str : `${str}/`;
 }
 
 // ---------- Key utils ----------

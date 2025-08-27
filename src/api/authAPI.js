@@ -1,12 +1,14 @@
 // src/api/authAPI.js
-import baseURL from './baseURL';
-import axiosInstance from './axiosInstance';
+import baseURL from "./baseURL";
+import axiosInstance from "./axiosInstance";
 
-// All endpoints mapped 1:1 to backend routes
+// -------- Endpoints (1:1 with backend routes) --------
 const endpoints = {
-  // Auth & registration
+  // Auth
   login: `${baseURL}/accounts/login/`,
-  logout: `${baseURL}/accounts/profile/logout/`,
+  logout: `${baseURL}/accounts/logout/`,
+
+  // Registration
   register: `${baseURL}/accounts/register/`,
   registerPartner: `${baseURL}/accounts/register/partner/`,
   registerVendor: `${baseURL}/accounts/register/vendor/`,
@@ -14,7 +16,6 @@ const endpoints = {
 
   // Profile
   profile: `${baseURL}/accounts/profile/`,
-  updateProfile: `${baseURL}/accounts/profile/`,
   changePassword: `${baseURL}/accounts/profile/change-password/`,
 
   // Password reset
@@ -48,7 +49,7 @@ const endpoints = {
 
   // Admin
   adminListUsers: `${baseURL}/accounts/admin/list-users/`,
-  adminResetPassword: `${baseURL}/accounts/admin-reset-password/`,
+  adminResetPassword: `${baseURL}/accounts/admin/reset-password/`,
   adminInviteWorker: `${baseURL}/accounts/admin/invite-worker/`,
 
   // Worker invitations
@@ -56,7 +57,7 @@ const endpoints = {
     `${baseURL}/accounts/worker/validate-invite/${uid}/${token}/`,
   workerCompleteInvite: `${baseURL}/accounts/worker/complete-invite/`,
 
-  // Profiles collection + comms
+  // Profiles + comms
   profilesList: `${baseURL}/accounts/profiles/list/`,
   profilesProfile: `${baseURL}/accounts/profiles/profile/`,
   sendMessageToUsers: `${baseURL}/accounts/profiles/send-message/`,
@@ -71,10 +72,11 @@ const endpoints = {
   deleteByEmail: `${baseURL}/accounts/delete-by-email/`,
 };
 
+// -------- API Layer --------
 const authAPI = {
   endpoints,
 
-  // Core auth
+  // Auth
   login: (data) => axiosInstance.post(endpoints.login, data),
   logout: () => axiosInstance.post(endpoints.logout),
 
@@ -86,7 +88,7 @@ const authAPI = {
 
   // Profile
   getProfile: () => axiosInstance.get(endpoints.profile),
-  updateProfile: (data) => axiosInstance.patch(endpoints.updateProfile, data),
+  updateProfile: (data) => axiosInstance.patch(endpoints.profile, data),
   changePassword: (data) => axiosInstance.post(endpoints.changePassword, data),
 
   // Password reset
@@ -99,7 +101,7 @@ const authAPI = {
   tokenRefresh: (data) => axiosInstance.post(endpoints.tokenRefresh, data),
   tokenVerify: (data) => axiosInstance.post(endpoints.tokenVerify, data),
 
-  // Email/OTP flows
+  // Email/OTP
   verifyEmail: (uid, token) => axiosInstance.get(endpoints.verifyEmail(uid, token)),
   resendOtp: (data) => axiosInstance.post(endpoints.resendOtp, data),
   resendOtpEmail: (data) => axiosInstance.post(endpoints.resendOtpEmail, data),
@@ -112,19 +114,19 @@ const authAPI = {
   adminResetPassword: (data) => axiosInstance.post(endpoints.adminResetPassword, data),
   adminInviteWorker: (data) => axiosInstance.post(endpoints.adminInviteWorker, data),
 
-  // Worker invitations
+  // Worker
   workerValidateInvite: (uid, token) =>
     axiosInstance.get(endpoints.workerValidateInvite(uid, token)),
   workerCompleteInvite: (data) => axiosInstance.post(endpoints.workerCompleteInvite, data),
 
-  // Profiles collection + comms
+  // Profiles
   profilesList: () => axiosInstance.get(endpoints.profilesList),
   profilesProfile: () => axiosInstance.get(endpoints.profilesProfile),
   sendMessageToUsers: (data) => axiosInstance.post(endpoints.sendMessageToUsers, data),
   specialOffer: (data) => axiosInstance.post(endpoints.specialOffer, data),
   toggleUserActive: (userId) => axiosInstance.post(endpoints.toggleUserActive(userId)),
 
-  // Roles taxonomy
+  // Roles
   workerCategories: () => axiosInstance.get(endpoints.workerCategories),
 
   // Internal

@@ -1,81 +1,41 @@
-// src/api/services/mediaService.js
-import publicAxios from "../publicAxios";
-import axiosInstance from "../axiosInstance";
-import API from "../api";
-import endpointMap from "./endpointMap";
+// src/api/mediaService.js
+import publicAxios from "../api/publicAxios";
+import axiosInstance from "../api/axiosInstance";
+import API from "../api/api";
 
 const mediaService = {
   // -------- Public-facing --------
-  getMedia: () => publicAxios.get(API.media.defaultList),
-  getBanners: () => publicAxios.get(API.media.banners),
-  getFeaturedMedia: () => publicAxios.get(API.media.featured),
+  getMedia: () => publicAxios.get(API.media.defaultList),       // GET /api/media/
+  getBanners: () => publicAxios.get(API.media.banners),         // GET /api/media/banners/
+  getFeatured: () => publicAxios.get(API.media.featured),       // GET /api/media/featured/
 
-  // ✅ Service Page fetcher (fix for LiveBandServicePage)
-  getServicePage: (endpoint) => {
-    // Special-case: LiveBandServicePage should map to slug `/media/live-band/`
-    if (endpoint === "LiveBandServicePage") {
-      return publicAxios.get(API.media.liveBand);
-    }
+  // -------- Filtered endpoints --------
+  getVendorMedia: () => publicAxios.get(API.media.vendor),                // GET /api/media/vendor/
+  getPartnerMedia: () => publicAxios.get(API.media.partner),              // GET /api/media/partner/
+  getUserMedia: () => publicAxios.get(API.media.user),                    // GET /api/media/user/
+  getHomeMedia: () => publicAxios.get(API.media.home),                    // GET /api/media/home/
+  getAboutMedia: () => publicAxios.get(API.media.about),                  // GET /api/media/about/
+  getDecorMedia: () => publicAxios.get(API.media.decor),                  // GET /api/media/decor/
+  getLiveBandMedia: () => publicAxios.get(API.media.liveBand),            // GET /api/media/live-band/
+  getCateringMedia: () => publicAxios.get(API.media.catering),            // GET /api/media/catering/
+  getMediaHosting: () => publicAxios.get(API.media.mediaHosting),         // GET /api/media/media-hosting/
+  getPartnerVendorDashboardMedia: () => 
+    publicAxios.get(API.media.partnerVendorDashboard),                    // GET /api/media/partner-vendor-dashboard/
 
-    // Default flow → /api/media/?endpoint=SomeServicePage&is_active=true
-    return publicAxios.get("/api/media/", {
-      params: { endpoint, is_active: true },
-    });
-  },
-
-  // -------- Admin --------
-  getAllMedia: () => axiosInstance.get(API.media.all),
+  // -------- Admin-only --------
+  uploadMedia: (formData) => axiosInstance.post(API.media.upload, formData),   // POST /api/media/upload/
+  getAllMedia: () => axiosInstance.get(API.media.all),                         // GET /api/media/all/
+  updateMedia: (id, payload) => axiosInstance.patch(`${API.media.update}${id}/`, payload), 
+  toggleActive: (id) => axiosInstance.post(`${API.media.toggle}${id}/toggle/`), 
+  toggleFeatured: (id) => axiosInstance.post(`${API.media.toggleFeatured}${id}/toggle/featured/`),
+  deleteMedia: (id) => axiosInstance.delete(`${API.media.delete}${id}/delete/`),
+  restoreMedia: (id) => axiosInstance.post(`${API.media.restore}${id}/restore/`),
   getArchivedMedia: () => axiosInstance.get(API.media.archived),
-
-  // -------- Filtered lists --------
-  byEndpoint: (key) => {
-    const code = endpointMap[key];
-    if (!code) throw new Error(`[mediaService] Unknown endpoint: ${key}`);
-
-    const urlMap = {
-      home: API.media.home,
-      about: API.media.about,
-      decor: API.media.decor,
-      liveBand: API.media.liveBand,
-      catering: API.media.catering,
-      mediaHosting: API.media.mediaHosting,
-      vendor: API.media.vendor,
-      partner: API.media.partner,
-      partnerVendorDashboard: API.media.partnerVendorDashboard,
-      user: API.media.user,
-    };
-
-    const url = urlMap[key];
-    if (!url) throw new Error(`[mediaService] No URL found for key: ${key}`);
-    return publicAxios.get(url);
-  },
-
-  // -------- Explicit helpers --------
-  getHomeMedia: () => mediaService.byEndpoint("home"),
-  getAboutMedia: () => mediaService.byEndpoint("about"),
-  getDecorMedia: () => mediaService.byEndpoint("decor"),
-  getLiveBandMedia: () => mediaService.byEndpoint("liveBand"),
-  getCateringMedia: () => mediaService.byEndpoint("catering"),
-  getMediaHostingMedia: () => mediaService.byEndpoint("mediaHosting"),
-  getVendorMedia: () => mediaService.byEndpoint("vendor"),
-  getPartnerMedia: () => mediaService.byEndpoint("partner"),
-  getPartnerVendorDashboardMedia: () =>
-    mediaService.byEndpoint("partnerVendorDashboard"),
-  getUserMedia: () => mediaService.byEndpoint("user"),
-
-  // -------- Mutations --------
-  uploadMedia: (data) => axiosInstance.post(API.media.upload, data),
-  updateMedia: (id, data) => axiosInstance.patch(API.media.update(id), data),
-  toggleMediaActive: (id) => axiosInstance.post(API.media.toggle(id)),
-  toggleMediaFeatured: (id) =>
-    axiosInstance.post(API.media.toggleFeatured(id)),
-  deleteMedia: (id) => axiosInstance.delete(API.media.delete(id)),
-  restoreMedia: (id) => axiosInstance.post(API.media.restore(id)),
-
-  // -------- Utils --------
-  reorderMedia: (data) => axiosInstance.post(API.media.reorder, data),
+  reorderMedia: (payload) => axiosInstance.post(API.media.reorder, payload),
   getMediaStats: () => axiosInstance.get(API.media.stats),
-  debugMediaProto: () => axiosInstance.get(API.media.debugProto),
+
+  // -------- Debug --------
+  debugProto: () => axiosInstance.get(API.media.debugProto),
 };
 
 export default mediaService;

@@ -1,5 +1,7 @@
+// src/components/account/UpdatePassword.jsx
+
 import React, { useState } from "react";
-import apiService from "../../api/apiService";
+import authAPI from "../../api/authAPI"; // ✅ use centralized auth API
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./UpdatePassword.css";
@@ -29,8 +31,8 @@ const UpdatePassword = () => {
 
     setLoading(true);
     try {
-      // Use the apiService for the password change endpoint
-      await apiService.changePassword({
+      // ✅ call the authAPI instead of apiService
+      await authAPI.changePassword({
         current_password: currentPassword,
         new_password: newPassword,
       });
@@ -42,7 +44,8 @@ const UpdatePassword = () => {
     } catch (err) {
       const errorMsg =
         err.response?.data?.error ||
-        (err.response?.data?.new_password && err.response?.data?.new_password[0]) ||
+        (err.response?.data?.new_password &&
+          err.response?.data?.new_password[0]) ||
         "❌ Password update failed.";
       toast.error(errorMsg);
     } finally {
@@ -52,7 +55,12 @@ const UpdatePassword = () => {
 
   return (
     <div className="password-update">
-      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        theme="colored"
+      />
       <h2>Change Password</h2>
 
       {/* Current Password */}
@@ -69,7 +77,9 @@ const UpdatePassword = () => {
           type="button"
           className="toggle-btn"
           onClick={() => setShowCurrent((prev) => !prev)}
-          aria-label={showCurrent ? "Hide current password" : "Show current password"}
+          aria-label={
+            showCurrent ? "Hide current password" : "Show current password"
+          }
         >
           {showCurrent ? "🙈" : "👁️"}
         </button>
@@ -109,7 +119,9 @@ const UpdatePassword = () => {
           type="button"
           className="toggle-btn"
           onClick={() => setShowConfirm((prev) => !prev)}
-          aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
+          aria-label={
+            showConfirm ? "Hide confirm password" : "Show confirm password"
+          }
         >
           {showConfirm ? "🙈" : "👁️"}
         </button>

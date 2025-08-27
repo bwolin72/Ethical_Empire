@@ -1,57 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api';
-import { Button } from '../ui/Button';
-import { Card, CardContent } from '../ui/Card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/Tabs';
-import { Checkbox } from '../ui/checkbox';
-import { Textarea } from '../ui/Textarea';
-import { Input } from '../ui/Input';
-import { toast } from 'react-toastify';
-import './UserRoleManager.css';
-
-const palette = {
-  burgundy: '#4B0F24',
-  gold: '#D4AF37',
-  green: '#228B22',
-  cream: '#F5F5DC',
-  charcoal: '#36454F',
-};
+// src/components/admin/UserRoleManager.jsx
+import React, { useState, useEffect, useMemo } from "react";
+import authAPI from "../../api/authAPI"; // ✅ use centralized auth API that matches urls
+import { Button } from "../ui/Button";
+import { Card, CardContent } from "../ui/Card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/Tabs";
+import { Checkbox } from "../ui/checkbox";
+import { Textarea } from "../ui/Textarea";
+import { Input } from "../ui/Input";
+import { toast } from "react-toastify";
+import "./UserRoleManager.css";
 
 const roles = [
-  { label: 'Admin', value: 'admin' },
-  { label: 'Worker', value: 'worker' },
-  { label: 'User', value: 'user' },
-  { label: 'Vendor', value: 'vendor' },
-  { label: 'Partner', value: 'partner' },
+  { label: "Admin", value: "admin" },
+  { label: "Worker", value: "worker" },
+  { label: "User", value: "user" },
+  { label: "Vendor", value: "vendor" },
+  { label: "Partner", value: "partner" },
 ];
 
 const UserRoleManager = () => {
-  const [activeTab, setActiveTab] = useState('admin');
+  const [activeTab, setActiveTab] = useState("admin");
   const [users, setUsers] = useState([]);
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState([]); // stores user IDs
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteEmail, setInviteEmail] = useState("");
+
+  // quick lookup maps
+  const idToEmail = useMemo(
+    () => new Map(users.map((u) => [u.id, u.email])),
+    [users]
+  );
 
   useEffect(() => {
-    fetchUsers(activeTab);
-  }, [activeTab]);
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const fetchUsers = async (role) => {
+  const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.get(api.accounts.admin.listUsers(role));
-      setUsers(Array.isArray(res.data) ? res.data : res.data.results || []);
+      // /accounts/admin/list-users/
+      const res = await authAPI.adminListUsers();
+      const list = Array.isArray(res.data) ? res.data : res.data?.results || [];
+      setUsers(list);
     } catch (err) {
-      console.error('[UserRoleManager] Fetch error:', err);
-      toast.error('Failed to fetch users');
+      console.error("[UserRoleManager] Fetch error:", err);
+      toast.error("Failed to fetch users.");
       setUsers([]);
     } finally {
       setLoading(false);
     }
   };
+
+  const filteredUsers = useMemo(() => {
+    // If the backend doesn't support role filtering via query param,
+    // filter on the client by the tab's role.
+    return users.filter(
+      (u) => (u.role || "").toLowerCase() === activeTab.toLowerCase()
+    );
+  }, [users, activeTab]);
 
   const toggleSelection = (id) => {
     setSelected((prev) =>
@@ -63,16 +72,29 @@ const UserRoleManager = () => {
     if (!selected.length) return;
     setSubmitting(true);
     try {
+      // /accounts/delete-by-email/ expects POST, one email per request
+      const emails = selected
+        .map((id) => idToEmail.get(id))
+        .filter(Boolean);
+
+      if (!emails.length) {
+        toast.warn("No emails found for selected users.");
+        return;
+      }
+
       await Promise.all(
-        selected.map((id) =>
-          axiosInstance.delete(api.accounts.deleteByEmail, { data: { id } })
-        )
+        emails.map((email) => authAPI.deleteByEmail({ email }))
       );
-      toast.success('Users deleted');
+      toast.success("Users deleted.");
       setSelected([]);
-      fetchUsers(activeTab);
+      await fetchUsers();
     } catch (err) {
-      toast.error('Error deleting users');
+      console.error("[UserRoleManager] Delete error:", err);
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Error deleting users.";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -82,14 +104,17 @@ const UserRoleManager = () => {
     if (!selected.length || !message.trim()) return;
     setSubmitting(true);
     try {
-      await axiosInstance.post(api.accounts.profiles.sendMessage, {
-        ids: selected,
-        message,
-      });
-      toast.success('Message sent');
-      setMessage('');
+      // /accounts/profiles/send-message/
+      await authAPI.sendMessageToUsers({ ids: selected, message });
+      toast.success("Message sent.");
+      setMessage("");
     } catch (err) {
-      toast.error('Failed to send message');
+      console.error("[UserRoleManager] Send message error:", err);
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Failed to send message.";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -99,14 +124,17 @@ const UserRoleManager = () => {
     if (!selected.length || !message.trim()) return;
     setSubmitting(true);
     try {
-      await axiosInstance.post(api.accounts.profiles.specialOffer, {
-        ids: selected,
-        message,
-      });
-      toast.success('Offer sent');
-      setMessage('');
+      // /accounts/profiles/special-offer/
+      await authAPI.specialOffer({ ids: selected, message });
+      toast.success("Offer sent.");
+      setMessage("");
     } catch (err) {
-      toast.error('Failed to send offer');
+      console.error("[UserRoleManager] Offer error:", err);
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Failed to send offer.";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -116,13 +144,20 @@ const UserRoleManager = () => {
     if (!inviteEmail.trim()) return;
     setSubmitting(true);
     try {
-      const res = await axiosInstance.post(api.accounts.admin.inviteWorker, {
-        email: inviteEmail,
-      });
-      toast.success(`Worker invited. Access code: ${res.data.access_code}`);
-      setInviteEmail('');
+      // /accounts/admin/invite-worker/ (optional feature)
+      const res = await authAPI.adminInviteWorker({ email: inviteEmail });
+      const access = res?.data?.access_code;
+      toast.success(
+        access ? `Worker invited. Access code: ${access}` : "Worker invited."
+      );
+      setInviteEmail("");
     } catch (err) {
-      toast.error('Worker invite failed');
+      console.error("[UserRoleManager] Invite worker error:", err);
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Worker invite failed.";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -131,28 +166,32 @@ const UserRoleManager = () => {
   const handleToggleActive = async (userId) => {
     setSubmitting(true);
     try {
-      await axiosInstance.post(api.accounts.profiles.toggleActive(userId));
-      toast.success('Status updated');
-      fetchUsers(activeTab);
+      // POST /accounts/profiles/toggle-active/<user_id>/
+      await authAPI.toggleUserActive(userId);
+      toast.success("Status updated.");
+      await fetchUsers();
     } catch (err) {
-      toast.error('Failed to update user status');
+      console.error("[UserRoleManager] Toggle active error:", err);
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "Failed to update user status.";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div style={{ backgroundColor: palette.cream }} className="p-4 md:p-8 min-h-screen">
+    <div className="urm-container">
       <Tabs defaultValue="admin" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="flex gap-3 border-b pb-3 mb-5 overflow-x-auto">
+        <TabsList className="urm-tabs">
           {roles.map((role) => (
             <TabsTrigger
               key={role.value}
               value={role.value}
-              className={`px-4 py-2 rounded-t-xl font-semibold text-sm transition ${
-                activeTab === role.value
-                  ? 'bg-[#4B0F24] text-white'
-                  : 'bg-white text-black border border-gray-200'
+              className={`urm-tab ${
+                activeTab === role.value ? "urm-tab--active" : ""
               }`}
             >
               {role.label}
@@ -162,8 +201,8 @@ const UserRoleManager = () => {
 
         {roles.map((role) => (
           <TabsContent key={role.value} value={role.value}>
-            {activeTab === 'worker' && (
-              <div className="flex gap-3 mb-6 items-center">
+            {activeTab === "worker" && (
+              <div className="urm-invite">
                 <Input
                   type="email"
                   value={inviteEmail}
@@ -173,7 +212,7 @@ const UserRoleManager = () => {
                 <Button
                   onClick={handleInviteWorker}
                   disabled={submitting || !inviteEmail.trim()}
-                  className="bg-[#4B0F24] text-white"
+                  className="urm-btn-primary"
                 >
                   Invite Worker
                 </Button>
@@ -181,40 +220,48 @@ const UserRoleManager = () => {
             )}
 
             {loading ? (
-              <p className="text-center text-gray-500">Loading users...</p>
-            ) : users.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {users.map((user) => {
+              <p className="urm-loading">Loading users...</p>
+            ) : filteredUsers.length > 0 ? (
+              <div className="urm-grid">
+                {filteredUsers.map((user) => {
                   const {
                     id,
-                    name = 'Unnamed',
-                    email = 'No email',
-                    role: userRole = '',
+                    name = "Unnamed",
+                    email = "No email",
+                    role: userRole = "",
                     is_active = false,
                   } = user;
 
                   return (
-                    <Card key={id} className="rounded-2xl border shadow-md p-4 bg-white">
-                      <CardContent className="flex items-start gap-4 justify-between">
-                        <div className="pt-1">
+                    <Card key={id} className="urm-card">
+                      <CardContent className="urm-card-content">
+                        <div className="urm-check">
                           <Checkbox
                             checked={selected.includes(id)}
                             onCheckedChange={() => toggleSelection(id)}
                           />
                         </div>
-                        <div className="flex-grow text-gray-800">
-                          <h2 className="font-semibold text-lg">{name}</h2>
-                          <p className="text-sm">{email}</p>
-                          <p className="text-xs uppercase">{userRole}</p>
-                          <p className={`text-xs mt-1 ${is_active ? 'text-green-600' : 'text-red-500'}`}>
-                            {is_active ? 'Active' : 'Inactive'}
+
+                        <div className="urm-user">
+                          <h2 className="urm-user-name">{name}</h2>
+                          <p className="urm-user-email">{email}</p>
+                          <p className="urm-user-role">
+                            {(userRole || "").toUpperCase()}
+                          </p>
+                          <p
+                            className={`urm-user-status ${
+                              is_active ? "urm-status--active" : "urm-status--inactive"
+                            }`}
+                          >
+                            {is_active ? "Active" : "Inactive"}
                           </p>
                         </div>
+
                         <Button
                           onClick={() => handleToggleActive(id)}
-                          className="text-white bg-gray-700 hover:bg-gray-800 px-2 py-1 text-xs"
+                          className="urm-btn-muted"
                         >
-                          {is_active ? 'Deactivate' : 'Activate'}
+                          {is_active ? "Deactivate" : "Activate"}
                         </Button>
                       </CardContent>
                     </Card>
@@ -222,32 +269,32 @@ const UserRoleManager = () => {
                 })}
               </div>
             ) : (
-              <p className="text-center text-gray-400 mt-8">No users found for this role.</p>
+              <p className="urm-empty">No users found for this role.</p>
             )}
 
-            <div className="mt-6 space-y-4">
-              <div className="flex flex-wrap gap-3">
+            <div className="urm-actions">
+              <div className="urm-actions-row">
                 <Button
                   onClick={handleDelete}
                   disabled={submitting || !selected.length}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="urm-btn-danger"
                 >
                   Delete Selected
                 </Button>
 
-                {activeTab === 'user' && (
+                {activeTab === "user" && (
                   <>
                     <Button
                       onClick={handleSendMsg}
                       disabled={submitting || !message.trim() || !selected.length}
-                      className="bg-[#228B22] hover:bg-green-700 text-white"
+                      className="urm-btn-success"
                     >
                       Send Message
                     </Button>
                     <Button
                       onClick={handleOffer}
                       disabled={submitting || !message.trim() || !selected.length}
-                      className="bg-[#D4AF37] hover:bg-yellow-500 text-white"
+                      className="urm-btn-accent"
                     >
                       Send Offer
                     </Button>
@@ -255,12 +302,12 @@ const UserRoleManager = () => {
                 )}
               </div>
 
-              {activeTab === 'user' && (
+              {activeTab === "user" && (
                 <Textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Write your message or offer..."
-                  className="w-full p-3 border rounded-xl shadow-sm"
+                  className="urm-textarea"
                 />
               )}
             </div>

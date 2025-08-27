@@ -1,9 +1,9 @@
 // src/utils/logoutHelper.js
 
-import { toast } from 'react-hot-toast';
-import axiosInstance from '../api/axiosInstance';
+import { toast } from "react-hot-toast";
+import authAPI from "../api/authAPI"; // centralized auth API methods
 
-const AUTH_KEYS = ['access', 'refresh', 'user', 'remember'];
+const AUTH_KEYS = ["access", "refresh", "user", "remember"];
 
 /**
  * Logs out the user by:
@@ -12,22 +12,27 @@ const AUTH_KEYS = ['access', 'refresh', 'user', 'remember'];
  * 3. Redirecting to /login after 600ms
  */
 export const logoutHelper = async () => {
-  const access = localStorage.getItem('access') || sessionStorage.getItem('access');
+  const access =
+    localStorage.getItem("access") || sessionStorage.getItem("access");
   let didServerLogout = false;
 
   try {
     if (access) {
-      // Attempt to notify backend to invalidate the session
-      await axiosInstance.post('/accounts/logout/');
-      toast.success('✅ You have been logged out from the server.');
+      // Attempt backend logout via authAPI
+      await authAPI.logout();
+      toast.success("✅ You have been logged out from the server.");
       didServerLogout = true;
     } else {
-      console.log('[Logout] No token found, skipping server logout.');
+      console.log("[Logout] No token found, skipping server logout.");
     }
   } catch (err) {
-    console.warn('[Logout] Server logout failed:', err?.response?.status, err?.response?.data);
+    console.warn(
+      "[Logout] Server logout failed:",
+      err?.response?.status,
+      err?.response?.data
+    );
     if (!didServerLogout) {
-      toast.error('⚠️ Server logout failed. Logging out locally.');
+      toast.error("⚠️ Server logout failed. Logging out locally.");
     }
   } finally {
     // Clear stored auth/session data
@@ -36,12 +41,12 @@ export const logoutHelper = async () => {
       sessionStorage.removeItem(key);
     });
 
-    toast.success('👋 You have been logged out.');
+    toast.success("👋 You have been logged out.");
 
     // Redirect if not already on the login page
-    if (!window.location.pathname.includes('/login')) {
+    if (!window.location.pathname.includes("/login")) {
       setTimeout(() => {
-        window.location.href = '/login';
+        window.location.href = "/login";
       }, 600);
     }
   }

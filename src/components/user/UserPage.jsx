@@ -1,13 +1,16 @@
-// src/components/UserPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiService from "../../api/apiService";
 import { ToastContainer, toast } from "react-toastify";
+import { useProfile } from "../context/ProfileContext"; // ✅ shared context
+import apiService from "../../api/apiService";
+
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
 import ProfileAvatar from "./ProfileAvatar";
 import NewsletterSignup from "./NewsLetterSignup"; // ✅ centralized newsletter component
+import Reviews from "./Reviews"; // ✅ unified reviews section
+
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
 
@@ -21,7 +24,7 @@ const services = [
 ];
 
 const UserPage = () => {
-  const [profile, setProfile] = useState(null);
+  const { profile, updateProfile } = useProfile(); // ✅ use shared profile
   const [media, setMedia] = useState([]);
   const [videos, setVideos] = useState([]);
   const [promotions, setPromotions] = useState([]);
@@ -33,7 +36,7 @@ const UserPage = () => {
 
   const navigate = useNavigate();
 
-  // normalize responses whether paginated or not
+  // normalize API responses
   const extractList = (res) => {
     if (!res) return [];
     const payload = res.data ?? res;
@@ -52,32 +55,20 @@ const UserPage = () => {
       setLoading(true);
 
       try {
-        const [
-          profileRes,
-          mediaRes,
-          reviewsRes,
-          promoRes,
-          videosRes,
-        ] = await Promise.all([
-          apiService.auth?.getProfile?.({ signal }) ??
-            Promise.resolve({ data: null }),
-
+        const [mediaRes, reviewsRes, promoRes, videosRes] = await Promise.all([
           apiService.media?.user?.({ signal }) ??
             apiService.media?.getAllMedia?.({ signal }) ??
             Promise.resolve({ data: [] }),
 
-          apiService.reviews?.list?.({ signal }) ??
-            Promise.resolve({ data: [] }),
+          apiService.reviews?.list?.({ signal }) ?? Promise.resolve({ data: [] }),
 
           apiService.promotions?.active?.({ signal }) ??
             apiService.promotions?.list?.({ signal }) ??
             Promise.resolve({ data: [] }),
 
-          apiService.videos?.list?.({ signal }) ??
-            Promise.resolve({ data: [] }),
+          apiService.videos?.list?.({ signal }) ?? Promise.resolve({ data: [] }),
         ]);
 
-        setProfile(profileRes?.data ?? null);
         setMedia(extractList(mediaRes));
         setReviews(extractList(reviewsRes));
         setPromotions(extractList(promoRes));
@@ -111,10 +102,6 @@ const UserPage = () => {
         )
       : null;
 
-  const onProfileUpdate = (updatedProfile) => {
-    setProfile(updatedProfile);
-  };
-
   return (
     <div className={`userpage-container ${darkMode ? "dark" : ""}`}>
       <ToastContainer
@@ -147,7 +134,10 @@ const UserPage = () => {
           onKeyPress={(e) => (e.key === "Enter" ? navigate("/account") : null)}
           aria-label="Go to account profile"
         >
-          <ProfileAvatar profile={profile} onProfileUpdate={onProfileUpdate} />
+          <ProfileAvatar
+            profile={profile}
+            onProfileUpdate={updateProfile} // ✅ update global context
+          />
           <p className="open-profile-link">
             {profile?.profile_image_url ? "Change Profile" : "Open Profile"}
           </p>
@@ -249,40 +239,11 @@ const UserPage = () => {
             )}
           </section>
 
-          <section>
-            <h3>Client Reviews</h3>
-            <div className="reviews-list">
-              {reviews.length > 0 ? (
-                reviews.map((r, i) => (
-                  <FadeInSection key={i}>
-                    <div className="review-card">
-                      <p>"{r.comment}"</p>
-                      <small>
-                        - {r.user_email || r.user?.email || "Anonymous"}
-                      </small>
-                      {r.reply && (
-                        <div className="review-reply">
-                          <strong>Admin Reply:</strong> <p>{r.reply}</p>
-                        </div>
-                      )}
-                    </div>
-                  </FadeInSection>
-                ))
-              ) : (
-                <p className="empty-text">No reviews yet.</p>
-              )}
-              <button
-                className="review-btn"
-                onClick={() => navigate("/account#reviews")}
-              >
-                Write a Review
-              </button>
-            </div>
-          </section>
+          {/* ✅ Unified Reviews section */}
+          <Reviews reviews={reviews} />
 
           <section>
             <h3>Subscribe to Our Newsletter</h3>
-            {/* ✅ replaced inline form with centralized NewsletterSignup */}
             <NewsletterSignup />
           </section>
         </>

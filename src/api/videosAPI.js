@@ -1,34 +1,25 @@
 // src/api/videosAPI.js
-import baseURL from './axiosCommon';
-
-const base = `${baseURL}/videos`;
 
 const videosAPI = {
-  // CRUD
-  list: `${base}/`,                       // GET (list), POST (create)
-  detail: (id) => `${base}/${id}/`,       // GET, PATCH, DELETE
+  // -------- Public-facing --------
+  defaultList: "/api/videos/",               // GET all videos (with query params: ?endpoint=&is_active=&is_featured)
+  home: "/api/videos/home/",                 // GET
+  about: "/api/videos/about/",               // GET
+  decor: "/api/videos/decor/",               // GET
+  liveBand: "/api/videos/live_band/",        // GET
+  catering: "/api/videos/catering/",         // GET
+  mediaHosting: "/api/videos/media_hosting/",// GET
+  vendor: "/api/videos/vendor/",             // GET
+  partner: "/api/videos/partner/",           // GET
+  user: "/api/videos/user/",                 // GET
+  partnerVendorDashboard: "/api/videos/partner_vendor_dashboard/", // GET
 
-  // Toggle actions
-  toggleActive: (id) => `${base}/${id}/toggle_active/`,
-  toggleFeatured: (id) => `${base}/${id}/toggle_featured/`,
-
-  // Endpoint-specific actions
-  home: `${base}/home/`,
-  about: `${base}/about/`,
-  decor: `${base}/decor/`,
-  liveBand: `${base}/live_band/`,
-  catering: `${base}/catering/`,
-  mediaHosting: `${base}/media_hosting/`,
-  vendor: `${base}/vendor/`,
-  partner: `${base}/partner/`,
-  user: `${base}/user/`,
-  partnerVendorDashboard: `${base}/partner_vendor_dashboard/`,
-
-  // Query by endpoint (?endpoint=...)
-  byEndpoint: (endpoint, params = {}) => {
-    const qs = new URLSearchParams({ endpoint, ...params }).toString();
-    return `${base}/?${qs}`;
-  },
+  // -------- Admin-only --------
+  upload: "/api/videos/",                    // POST (create new video)
+  update: "/api/videos/",                    // PATCH   -> /api/videos/<id>/
+  delete: "/api/videos/",                    // DELETE  -> /api/videos/<id>/
+  toggle: "/api/videos/",                    // POST    -> /api/videos/<id>/toggle_active/
+  toggleFeatured: "/api/videos/",            // POST    -> /api/videos/<id>/toggle_featured/
 };
 
 export default videosAPI;

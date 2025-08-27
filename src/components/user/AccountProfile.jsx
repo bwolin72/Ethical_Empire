@@ -56,12 +56,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
     const fetchData = async () => {
       try {
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
-          apiService.auth.getProfile?.({ signal: controller.signal }) ??
-            apiService.auth.getProfile?.(),
-          apiService.bookings.getUserBookings?.({ signal: controller.signal }) ??
-            apiService.bookings.getUserBookings?.(),
-          apiService.auth.getCurrentUserRole?.({ signal: controller.signal }) ??
-            apiService.auth.getCurrentUserRole?.(),
+          apiService.auth.getProfile(),
+          apiService.bookings.getUserBookings(),
+          apiService.auth.currentUserRole(),
         ]);
 
         if (!mounted) return;
@@ -128,11 +125,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
       if (!uploadData.secure_url) throw new Error("Upload failed");
 
-      if (apiService.auth.updateProfile) {
-        await apiService.auth.updateProfile({ profile_image_url: uploadData.secure_url });
-      } else {
-        console.warn("apiService.auth.updateProfile not found; image not saved to profile");
-      }
+      await apiService.auth.updateProfile({ profile_image_url: uploadData.secure_url });
 
       setProfileImage(uploadData.secure_url);
       setProfile((prev) => (prev ? { ...prev, profile_image_url: uploadData.secure_url } : prev));
@@ -151,24 +144,18 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
 
     try {
-      if (apiService.reviews.create) {
-        await apiService.reviews.create({
-          comment: review,
-          service: reviewService,
-          rating: reviewRating,
-        });
-      } else if (apiService.reviews.list) {
-        await apiService.reviews.list({ comment: review, service: reviewService, rating: reviewRating });
-      } else {
-        throw new Error("Reviews service not available");
-      }
+      await apiService.reviews.create({
+        comment: review,
+        service: reviewService,
+        rating: reviewRating,
+      });
 
       toast.success("Review submitted!");
       setReview("");
       setReviewService("");
       setReviewRating(5);
     } catch (err) {
-      console.error(err);
+      console.error("Review submit failed:", err);
       toast.error("Failed to submit review.");
     }
   };
@@ -177,9 +164,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     try {
-      if (apiService.auth.logout) {
-        await apiService.auth.logout();
-      }
+      await apiService.auth.logout();
     } catch (e) {
       console.warn("logout endpoint error:", e);
     } finally {
@@ -187,7 +172,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
   };
 
-  // 🔹 Fixed handleClose
   const handleClose = () => {
     const role = (roleInfo?.role || "").toLowerCase();
     const paths = {
@@ -200,9 +184,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (role && paths[role]) {
       navigate(paths[role]);
     } else if (location.key !== "default") {
-      navigate(-1); // go back to previous page
+      navigate(-1);
     } else {
-      navigate("/"); // fallback to homepage if no history
+      navigate("/");
     }
   };
 
@@ -237,6 +221,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       </button>
 
       <div className="account-profile">
+        {/* Profile header */}
         <div className="account-header">
           {profileImage ? (
             <img src={profileImage} alt="Profile" className="profile-image" />
@@ -255,42 +240,28 @@ const AccountProfile = ({ profile: externalProfile }) => {
           </label>
         </div>
 
+        {/* User info */}
         <section className="user-info">
           <h3>@{profile?.name}</h3>
-          <p>
-            <strong>Name:</strong> {profile?.name}
-          </p>
-          <p>
-            <strong>Email:</strong> {profile?.email}
-          </p>
-          <p>
-            <strong>Phone:</strong> {profile?.phone || "N/A"}
-          </p>
-          {roleInfo?.role && (
-            <p>
-              <strong>Role:</strong> {roleInfo.role}
-            </p>
-          )}
+          <p><strong>Name:</strong> {profile?.name}</p>
+          <p><strong>Email:</strong> {profile?.email}</p>
+          <p><strong>Phone:</strong> {profile?.phone || "N/A"}</p>
+          {roleInfo?.role && <p><strong>Role:</strong> {roleInfo.role}</p>}
           <div className="button-group">
             <button onClick={() => navigate("/edit-profile")}>Edit Profile</button>
             <button onClick={() => navigate("/update-password")}>Change Password</button>
           </div>
         </section>
 
+        {/* Bookings */}
         <section className="booking-section">
           <h4>My Bookings ({bookings.length})</h4>
           {bookings.length > 0 ? (
             bookings.map((bk) => (
               <article key={bk.id} className="booking-card">
-                <p>
-                  <strong>Service:</strong> {bk.service_type}
-                </p>
-                <p>
-                  <strong>Date:</strong> {new Date(bk.event_date).toLocaleDateString()}
-                </p>
-                <p>
-                  <strong>Status:</strong> {renderBookingStatus(bk.status)}
-                </p>
+                <p><strong>Service:</strong> {bk.service_type}</p>
+                <p><strong>Date:</strong> {new Date(bk.event_date).toLocaleDateString()}</p>
+                <p><strong>Status:</strong> {renderBookingStatus(bk.status)}</p>
               </article>
             ))
           ) : (
@@ -301,6 +272,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           )}
         </section>
 
+        {/* Reviews */}
         <section className="review-section">
           <label htmlFor="review-textarea">Write a Review</label>
           <textarea
@@ -328,16 +300,12 @@ const AccountProfile = ({ profile: externalProfile }) => {
               "MC/Host",
               "Sound Setup",
             ].map((service) => (
-              <option key={service} value={service}>
-                {service}
-              </option>
+              <option key={service} value={service}>{service}</option>
             ))}
           </select>
           <label>Rating</label>
           <StarRating rating={reviewRating} setRating={setReviewRating} />
-          <button className="btn" onClick={handleReviewSubmit}>
-            Submit Review
-          </button>
+          <button className="btn" onClick={handleReviewSubmit}>Submit Review</button>
         </section>
 
         <button

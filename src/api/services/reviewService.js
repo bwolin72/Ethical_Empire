@@ -1,14 +1,14 @@
 import publicAxios from '../publicAxios';
 import axiosInstance from '../axiosInstance';
-import API from '../api';
+import reviewsAPI from '../reviewsAPI';
 
 const reviewService = {
-  getReviews: () => publicAxios.get(API.reviews.list),
-  getReviewDetail: (id) => publicAxios.get(API.reviews.detail(id)),
-  createReview: (data) => publicAxios.post(API.reviews.create, data),
-  updateReview: (id, data) => axiosInstance.patch(API.reviews.update(id), data),
-  deleteReview: (id) => axiosInstance.delete(API.reviews.delete(id)),
-  approveReview: (id) => axiosInstance.post(API.reviews.approve(id)),
+  getReviews: () => publicAxios.get(reviewsAPI.list),
+  createReview: (data) => axiosInstance.post(reviewsAPI.create, data),
+  getAdminReviews: () => axiosInstance.get(reviewsAPI.adminList),
+  approveReview: (id) => axiosInstance.post(reviewsAPI.approve(id)),
+  replyToReview: (id, reply) => axiosInstance.post(reviewsAPI.reply(id), { reply }),
+  deleteReview: (id) => axiosInstance.delete(reviewsAPI.delete(id)),
 };
 
 export default reviewService;

@@ -12,10 +12,19 @@ const authService = {
   internalRegister: (data) => publicAxios.post(API.auth.endpoints.internalRegister, data),
   logout: () => axiosInstance.post(API.auth.endpoints.logout),
 
+  // ===== SOCIAL =====
+  googleLogin: (data) => publicAxios.post(API.auth.endpoints.googleLogin, data),
+  googleRegister: (data) => publicAxios.post(API.auth.endpoints.googleRegister, data),
+
   // ===== PROFILE =====
   getProfile: () => axiosInstance.get(API.auth.endpoints.profile),
   updateProfile: (data) => axiosInstance.patch(API.auth.endpoints.updateProfile, data),
   changePassword: (data) => axiosInstance.post(API.auth.endpoints.changePassword, data),
+  profileByEmail: (data) => axiosInstance.post(API.auth.endpoints.profileByEmail, data),
+  partnerProfile: () => axiosInstance.get(API.auth.endpoints.partnerProfile),
+  vendorProfile: () => axiosInstance.get(API.auth.endpoints.vendorProfile),
+  currentUserRole: () => axiosInstance.get(API.auth.endpoints.currentUserRole),
+  roleChoices: () => axiosInstance.get(API.auth.endpoints.roleChoices),
 
   // ===== PASSWORD RESET =====
   resetPassword: (data) => publicAxios.post(API.auth.endpoints.resetPassword, data),

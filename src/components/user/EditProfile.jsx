@@ -1,5 +1,6 @@
+// src/components/auth/EditProfile.jsx
 import React, { useState, useEffect } from "react";
-import api from "../../api/api"; // centralized API methods
+import authAPI from "../../api/authAPI"; // ✅ match centralized auth API
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,7 +17,7 @@ const EditProfile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api
+    authAPI
       .getProfile()
       .then((res) => {
         const { first_name, last_name, email, phone_number } = res.data;
@@ -36,18 +37,22 @@ const EditProfile = () => {
   };
 
   const handleSubmit = async () => {
-    // Filter out empty or whitespace-only fields before sending
+    // Remove empty or whitespace-only fields
     const filteredForm = Object.fromEntries(
       Object.entries(form).filter(([_, value]) => value?.trim())
     );
 
     try {
-      await api.updateProfile(filteredForm);
+      await authAPI.updateProfile(filteredForm);
       toast.success("✅ Profile updated successfully!");
       setTimeout(() => navigate(-1), 1500);
     } catch (err) {
       console.error("[EditProfile] Update failed", err);
-      toast.error("❌ Failed to update profile.");
+      const backendError =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "❌ Failed to update profile.";
+      toast.error(backendError);
     }
   };
 

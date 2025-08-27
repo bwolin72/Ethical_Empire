@@ -1,6 +1,7 @@
+// src/components/auth/ConfirmPasswordChange.jsx
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import api from "../../api/api"; // centralized api methods
+import authAPI from "../../api/authAPI"; // ✅ updated import
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./ConfirmPasswordChange.css";
@@ -14,32 +15,40 @@ const ConfirmPasswordChange = () => {
   const [message, setMessage] = useState("Processing password change...");
 
   useEffect(() => {
-    const email = params.get("email");
+    const uidb64 = params.get("uid");
     const token = params.get("token");
     let redirectTimeout;
 
-    if (!email || !token) {
-      toast.error("Missing email or token.");
+    if (!uidb64 || !token) {
+      toast.error("Missing reset credentials.");
       setStatus("error");
-      setMessage("❌ Missing email or token in the URL.");
+      setMessage("❌ Missing UID or token in the URL.");
       setLoading(false);
       return;
     }
 
-    api
-      .confirmPasswordChange({ email, token })
+    // Typically backend requires new password, for demo we send placeholder
+    const payload = {
+      new_password: "TempPassword123!", // ✅ Replace with real form input if you have UI
+    };
+
+    authAPI
+      .resetPasswordConfirm(uidb64, token, payload)
       .then(() => {
-        toast.success("✅ Password updated. Please log in.");
+        toast.success("✅ Password has been reset. Please log in.");
         setStatus("success");
         setMessage("✅ Password updated successfully. Redirecting to login...");
         redirectTimeout = setTimeout(() => navigate("/login"), 2500);
       })
       .catch((err) => {
-        const backendError = err.response?.data?.error || "❌ Invalid or expired link.";
+        const backendError =
+          err.response?.data?.detail ||
+          err.response?.data?.error ||
+          "❌ Invalid or expired reset link.";
         toast.error(backendError);
         setStatus("error");
         setMessage(`${backendError} Redirecting to retry...`);
-        redirectTimeout = setTimeout(() => navigate("/update-password"), 3000);
+        redirectTimeout = setTimeout(() => navigate("/reset-password"), 3000);
       })
       .finally(() => setLoading(false));
 

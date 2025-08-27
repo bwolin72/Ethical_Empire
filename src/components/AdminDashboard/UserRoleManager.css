@@ -1,15 +1,7 @@
-/* ======= COLOR PALETTE ======= */
-:root {
-  --burgundy: #4B0F24;
-  --navy: #1A1E3F;
-  --gold: #D4AF37;
-  --cream: #F5F5DC;
-  --forest: #228B22;
-  --charcoal: #36454F;
-  --white: #ffffff;
-  --gray-light: #f2f2f2;
-  --gray-border: #ddd;
-}
+/* ======================================================
+   👤 User Role Manager — user-role-manager.css
+   Uses global theme variables (variables.css)
+   ====================================================== */
 
 /* ======= GLOBAL RESET ======= */
 * {
@@ -19,9 +11,9 @@
 }
 
 body {
-  background-color: var(--cream);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: var(--charcoal);
+  background-color: var(--color-accent-gold-light);
+  font-family: var(--font-main);
+  color: var(--color-neutral-dark);
   line-height: 1.6;
 }
 
@@ -29,7 +21,7 @@ body {
 .user-role-manager {
   padding: 1rem;
   min-height: 100vh;
-  background-color: var(--cream);
+  background-color: var(--color-accent-gold-light);
 }
 
 @media screen and (min-width: 768px) {
@@ -43,27 +35,27 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  border-bottom: 2px solid var(--gray-border);
+  border-bottom: 2px solid var(--color-neutral-light);
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
 }
 
 .tab-trigger {
   padding: 0.5rem 1rem;
-  border-radius: 1rem 1rem 0 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  border: 1px solid var(--gray-border);
-  background-color: var(--white);
-  color: var(--charcoal);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  border: 1px solid var(--color-neutral-light);
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
 }
 
 .tab-trigger.active {
-  background-color: var(--burgundy);
-  color: var(--white);
-  border-color: var(--burgundy);
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
 }
 
 /* ======= USER CARD GRID ======= */
@@ -87,26 +79,27 @@ body {
 
 /* ======= CARD STYLES ======= */
 .user-card {
-  background-color: var(--white);
-  border: 1px solid var(--gray-border);
-  border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   padding: 1rem;
   display: flex;
   align-items: start;
   gap: 1rem;
+  animation: fade-in-up 0.5s var(--transition-fast);
 }
 
 .user-card h2 {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--charcoal);
+  color: var(--color-neutral-dark);
 }
 
 .user-card p {
   margin-top: 0.25rem;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--color-neutral-light);
 }
 
 /* ======= ACTION BUTTONS ======= */
@@ -119,37 +112,41 @@ body {
 
 .action-buttons button {
   padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 0.875rem;
-  color: var(--white);
+  color: var(--color-white);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-fast);
+  border: none;
 }
 
+/* Delete button (error) */
 .btn-delete {
-  background-color: #b91c1c;
+  background-color: var(--color-error);
 }
 
 .btn-delete:hover {
-  background-color: #991b1b;
+  background-color: #991b1b; /* darker red */
 }
 
+/* Message button (success/green) */
 .btn-message {
-  background-color: var(--forest);
+  background-color: var(--color-success);
 }
 
 .btn-message:hover {
-  background-color: #1e6d1e;
+  background-color: var(--color-accent-green-dark);
 }
 
+/* Offer button (gold) */
 .btn-offer {
-  background-color: var(--gold);
-  color: var(--charcoal);
+  background-color: var(--color-accent-gold);
+  color: var(--color-neutral-dark);
 }
 
 .btn-offer:hover {
-  background-color: #c59f2f;
+  background-color: var(--color-accent-gold-dark);
 }
 
 /* ======= TEXTAREA ======= */
@@ -157,22 +154,24 @@ body {
   width: 100%;
   margin-top: 1rem;
   padding: 0.75rem;
-  border: 1px solid var(--gray-border);
-  border-radius: 0.75rem;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-md);
   font-size: 0.9rem;
   resize: vertical;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-main);
+  color: var(--color-neutral-dark);
 }
 
 /* ======= LOADING / EMPTY ======= */
 .loading-text {
   text-align: center;
   font-size: 1rem;
-  color: #777;
+  color: var(--color-neutral-light);
   margin: 2rem 0;
 }
 
-/* ======= CHECKBOX STYLING (optional custom) ======= */
+/* ======= CHECKBOX ======= */
 input[type="checkbox"] {
   width: 18px;
   height: 18px;
