@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import authAPI from "../../api/authAPI"; // ✅ centralized API
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../styles/PasswordForm.css"; // ✅ central stylesheet
-
+import "../styles/PasswordForm.css"; // ✅ centralized styles
 const UpdatePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
