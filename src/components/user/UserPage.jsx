@@ -1,19 +1,24 @@
+// src/components/user/UserPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { useProfile } from "../context/ProfileContext"; // ✅ shared context
+
+import { useProfile } from "../context/ProfileContext"; // ✅ Shared profile context
 import apiService from "../../api/apiService";
 
+// Components
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
 import ProfileAvatar from "./ProfileAvatar";
-import NewsletterSignup from "./NewsLetterSignup"; // ✅ centralized newsletter component
-import Reviews from "./Reviews"; // ✅ unified reviews section
+import NewsletterSignup from "./NewsLetterSignup"; // ✅ Centralized newsletter signup
+import Reviews from "./Reviews"; // ✅ Unified reviews section
 
+// Styles
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
 
+// ✅ Local static services (can later come from API if needed)
 const services = [
   { title: "Live Band", desc: "Experience live music with Asaase Band.", icon: "🎸" },
   { title: "Catering", desc: "Delicious catering for your events.", icon: "🍽️" },
@@ -24,19 +29,17 @@ const services = [
 ];
 
 const UserPage = () => {
-  const { profile, updateProfile } = useProfile(); // ✅ use shared profile
+  const { profile, updateProfile } = useProfile(); // ✅ global context
   const [media, setMedia] = useState([]);
   const [videos, setVideos] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem("darkMode") === "true"
-  );
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
-  // normalize API responses
+  // ✅ Normalizer for different API shapes
   const extractList = (res) => {
     if (!res) return [];
     const payload = res.data ?? res;
@@ -53,7 +56,6 @@ const UserPage = () => {
 
     const fetchData = async () => {
       setLoading(true);
-
       try {
         const [mediaRes, reviewsRes, promoRes, videosRes] = await Promise.all([
           apiService.media?.user?.({ signal }) ??
@@ -75,7 +77,7 @@ const UserPage = () => {
         setVideos(extractList(videosRes));
       } catch (err) {
         if (err?.name !== "CanceledError") {
-          console.error("UserPage load error:", err);
+          console.error("❌ UserPage load error:", err);
           toast.error("Error loading data. Please try again.");
         }
       } finally {
@@ -87,12 +89,14 @@ const UserPage = () => {
     return () => controller.abort();
   }, []);
 
+  // ✅ Toggle dark mode
   const toggleDarkMode = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
     localStorage.setItem("darkMode", newMode);
   };
 
+  // ✅ Get featured video
   const featuredVideo =
     Array.isArray(videos) && videos.length > 0
       ? videos.find(
@@ -104,13 +108,9 @@ const UserPage = () => {
 
   return (
     <div className={`userpage-container ${darkMode ? "dark" : ""}`}>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar
-        theme="colored"
-      />
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
 
+      {/* Header */}
       <header className="userpage-header">
         <h2>Welcome {profile?.name || "Ethical Empire"}</h2>
         <div className="header-right">
@@ -124,6 +124,7 @@ const UserPage = () => {
         </div>
       </header>
 
+      {/* Avatar / Profile */}
       <FadeInSection>
         <div
           className="avatar-section"
@@ -134,10 +135,7 @@ const UserPage = () => {
           onKeyPress={(e) => (e.key === "Enter" ? navigate("/account") : null)}
           aria-label="Go to account profile"
         >
-          <ProfileAvatar
-            profile={profile}
-            onProfileUpdate={updateProfile} // ✅ update global context
-          />
+          <ProfileAvatar profile={profile} onProfileUpdate={updateProfile} />
           <p className="open-profile-link">
             {profile?.profile_image_url ? "Change Profile" : "Open Profile"}
           </p>
@@ -146,20 +144,18 @@ const UserPage = () => {
 
       <p className="intro-text">It's a great day to explore our services!</p>
 
+      {/* Loader */}
       {loading ? (
         <p className="loading-text">Loading...</p>
       ) : (
         <>
+          {/* Featured Video */}
           {featuredVideo ? (
             <FadeInSection>
               <div className="asaase-card">
                 <video controls width="100%" preload="metadata">
                   <source
-                    src={
-                      featuredVideo.file ||
-                      featuredVideo.video_url ||
-                      featuredVideo.url
-                    }
+                    src={featuredVideo.file || featuredVideo.video_url || featuredVideo.url}
                     type="video/mp4"
                   />
                   Your browser does not support the video tag.
@@ -170,6 +166,7 @@ const UserPage = () => {
             <p className="empty-text">No featured video available.</p>
           )}
 
+          {/* Featured Banners */}
           <FadeInSection>
             <section>
               <h3>Featured Banners</h3>
@@ -177,6 +174,7 @@ const UserPage = () => {
             </section>
           </FadeInSection>
 
+          {/* Promotions */}
           {Array.isArray(promotions) && promotions.length > 0 && (
             <section>
               <h3>Special Offers</h3>
@@ -209,6 +207,7 @@ const UserPage = () => {
             </section>
           )}
 
+          {/* Services */}
           <section>
             <h3>Our Services</h3>
             <div className="services-grid">
@@ -224,6 +223,7 @@ const UserPage = () => {
             </div>
           </section>
 
+          {/* Media */}
           <section>
             <h3>Your Media Gallery</h3>
             {media.length > 0 ? (
@@ -239,9 +239,10 @@ const UserPage = () => {
             )}
           </section>
 
-          {/* ✅ Unified Reviews section */}
+          {/* Reviews */}
           <Reviews reviews={reviews} />
 
+          {/* Newsletter */}
           <section>
             <h3>Subscribe to Our Newsletter</h3>
             <NewsletterSignup />
