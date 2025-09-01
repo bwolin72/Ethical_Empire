@@ -16,35 +16,39 @@ export default function useFetch(url, params = {}, initialData = null) {
 
   const fetchData = useCallback(async () => {
     const controller = new AbortController();
-    try {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    try {
       const response = await axiosInstance.get(url, {
         params,
         signal: controller.signal,
       });
-
       setData(response.data);
+      return response.data; // return data for refetch usage
     } catch (err) {
-      if (err.name !== "CanceledError" && !axiosInstance.isCancel?.(err)) {
-        // Normalize error
-        setError({
-          message: err.response?.data?.detail || err.message,
-          status: err.response?.status || null,
-          data: err.response?.data || null,
-        });
+      if (axiosInstance.isCancel?.(err) || err.name === "CanceledError") {
+        // Request was canceled, do nothing
+        return;
       }
+      setError({
+        message: err.response?.data?.detail || err.message,
+        status: err.response?.status || null,
+        data: err.response?.data || null,
+      });
     } finally {
       setLoading(false);
     }
-    return () => controller.abort();
+
+    return () => controller.abort(); // not really needed, handled by useEffect
   }, [url, JSON.stringify(params)]);
 
   useEffect(() => {
-    const cancel = fetchData();
+    const controller = new AbortController();
+    fetchData();
+
     return () => {
-      if (typeof cancel === "function") cancel();
+      controller.abort(); // abort fetch on unmount
     };
   }, [fetchData]);
 
