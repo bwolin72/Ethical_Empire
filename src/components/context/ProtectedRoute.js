@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import SplashScreen from "../SplashScreen";
+import SplashScreen from "../ui/SplashScreen";
 
 /**
  * ProtectedRoute
