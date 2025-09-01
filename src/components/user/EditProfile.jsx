@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import authAPI from "../../api/authAPI";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { useProfile } from "../../context/ProfileContext";
+import { useProfile } from "../context/ProfileContext";
 import "react-toastify/dist/ReactToastify.css";
 
 // ✅ Use the central PasswordForm styles
