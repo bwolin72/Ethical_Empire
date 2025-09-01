@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "https://eethmghmultimedia.com/",
-  "proxy": "http://localhost:8000",
+  "proxy": "https://localhost:8000",
   "scripts": {
-    "start": "cross-env GENERATE_SOURCEMAP=false REACT_APP_API_BASE_URL=http://eethmghmultimedia.com react-scripts start",
+    "start": "cross-env GENERATE_SOURCEMAP=false REACT_APP_API_BASE_URL=https://eethmghmultimedia.com react-scripts start",
     "build": "cross-env GENERATE_SOURCEMAP=false REACT_APP_API_BASE_URL=https://api.eethmghmultimedia.com/api react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

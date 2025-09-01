@@ -1,10 +1,10 @@
-// src/components/account/UpdatePassword.jsx
+// src/components/user/UpdatePassword.jsx
 
 import React, { useState } from "react";
-import authAPI from "../../api/authAPI"; // ✅ use centralized auth API
+import authAPI from "../../api/authAPI"; // ✅ centralized API
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./UpdatePassword.css";
+import "../styles/PasswordForm.css"; // ✅ central stylesheet
 
 const UpdatePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -31,7 +31,6 @@ const UpdatePassword = () => {
 
     setLoading(true);
     try {
-      // ✅ call the authAPI instead of apiService
       await authAPI.changePassword({
         current_password: currentPassword,
         new_password: newPassword,
@@ -42,6 +41,7 @@ const UpdatePassword = () => {
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
+      console.error("[UpdatePassword] Error:", err);
       const errorMsg =
         err.response?.data?.error ||
         (err.response?.data?.new_password &&
@@ -54,7 +54,7 @@ const UpdatePassword = () => {
   };
 
   return (
-    <div className="password-update">
+    <div className="password-form-container">
       <ToastContainer
         position="top-center"
         autoClose={3000}
@@ -77,9 +77,7 @@ const UpdatePassword = () => {
           type="button"
           className="toggle-btn"
           onClick={() => setShowCurrent((prev) => !prev)}
-          aria-label={
-            showCurrent ? "Hide current password" : "Show current password"
-          }
+          aria-label={showCurrent ? "Hide current password" : "Show current password"}
         >
           {showCurrent ? "🙈" : "👁️"}
         </button>
@@ -119,9 +117,7 @@ const UpdatePassword = () => {
           type="button"
           className="toggle-btn"
           onClick={() => setShowConfirm((prev) => !prev)}
-          aria-label={
-            showConfirm ? "Hide confirm password" : "Show confirm password"
-          }
+          aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
         >
           {showConfirm ? "🙈" : "👁️"}
         </button>

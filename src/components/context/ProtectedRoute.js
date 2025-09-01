@@ -1,6 +1,7 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import SplashScreen from "../SplashScreen";
 
 /**
  * ProtectedRoute
@@ -11,36 +12,33 @@ import { useAuth } from './AuthContext';
 const ProtectedRoute = ({ roles = [] }) => {
   const { auth, isAuthenticated, loading, ready } = useAuth();
   const user = auth?.user || {};
-  const userRole = user?.role || '';
+  const userRole = (user?.role || "").toLowerCase();
+  const allowedRoles = roles.map((r) => r.toLowerCase());
 
-  console.log('[ProtectedRoute] Snapshot:', {
+  console.log("[ProtectedRoute] Snapshot:", {
     loading,
     ready,
     isAuthenticated,
     user,
-    allowedRoles: roles,
+    allowedRoles,
   });
 
   // Wait until context is ready
   if (loading || !ready) {
-    return (
-      <div className="flex items-center justify-center h-screen text-lg">
-        Loading...
-      </div>
-    );
+    return <SplashScreen />;
   }
 
   // Not logged in
   if (!isAuthenticated) {
-    console.warn('[ProtectedRoute] Not authenticated. Redirecting to login.');
+    console.warn("[ProtectedRoute] Not authenticated. Redirecting to login.");
     return <Navigate to="/login" replace />;
   }
 
   // Role-based access control
-  if (roles.length > 0) {
-    if (!userRole || !roles.includes(userRole)) {
+  if (allowedRoles.length > 0) {
+    if (!userRole || !allowedRoles.includes(userRole)) {
       console.warn(
-        `[ProtectedRoute] Access denied. Role "${userRole}" is not allowed.`,
+        `[ProtectedRoute] Access denied. Role "${userRole}" is not allowed.`
       );
       return <Navigate to="/unauthorized" replace />;
     }

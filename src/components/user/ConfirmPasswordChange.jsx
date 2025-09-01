@@ -1,76 +1,106 @@
-// src/components/auth/ConfirmPasswordChange.jsx
-import React, { useEffect, useState } from "react";
+// src/components/user/ConfirmPasswordChange.jsx
+
+import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import authAPI from "../../api/authAPI"; // ✅ updated import
+import authAPI from "../../api/authAPI";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./ConfirmPasswordChange.css";
+
+// ✅ Use the central PasswordForm styles
+import "../styles/PasswordForm.css";
 
 const ConfirmPasswordChange = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("loading"); // loading | success | error
-  const [message, setMessage] = useState("Processing password change...");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const uidb64 = params.get("uid");
+  const token = params.get("token");
 
   useEffect(() => {
-    const uidb64 = params.get("uid");
-    const token = params.get("token");
-    let redirectTimeout;
-
     if (!uidb64 || !token) {
-      toast.error("Missing reset credentials.");
-      setStatus("error");
-      setMessage("❌ Missing UID or token in the URL.");
-      setLoading(false);
-      return;
+      toast.error("❌ Missing reset credentials.");
+      navigate("/reset-password");
+    }
+  }, [uidb64, token, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!newPassword || !confirmPassword) {
+      return toast.warn("⚠️ Please fill in both fields.");
     }
 
-    // Typically backend requires new password, for demo we send placeholder
-    const payload = {
-      new_password: "TempPassword123!", // ✅ Replace with real form input if you have UI
-    };
+    if (newPassword !== confirmPassword) {
+      return toast.error("❌ Passwords do not match.");
+    }
 
-    authAPI
-      .resetPasswordConfirm(uidb64, token, payload)
-      .then(() => {
-        toast.success("✅ Password has been reset. Please log in.");
-        setStatus("success");
-        setMessage("✅ Password updated successfully. Redirecting to login...");
-        redirectTimeout = setTimeout(() => navigate("/login"), 2500);
-      })
-      .catch((err) => {
-        const backendError =
-          err.response?.data?.detail ||
-          err.response?.data?.error ||
-          "❌ Invalid or expired reset link.";
-        toast.error(backendError);
-        setStatus("error");
-        setMessage(`${backendError} Redirecting to retry...`);
-        redirectTimeout = setTimeout(() => navigate("/reset-password"), 3000);
-      })
-      .finally(() => setLoading(false));
+    if (newPassword.length < 8) {
+      return toast.warn("🔐 Password must be at least 8 characters.");
+    }
 
-    return () => {
-      if (redirectTimeout) clearTimeout(redirectTimeout);
-    };
-  }, [params, navigate]);
+    setLoading(true);
+    try {
+      await authAPI.resetPasswordConfirm(uidb64, token, {
+        new_password: newPassword,
+      });
+
+      toast.success("✅ Password has been reset. Redirecting...");
+      setTimeout(() => navigate("/login"), 2500);
+    } catch (err) {
+      console.error("[ConfirmPasswordChange] Error:", err);
+      const backendError =
+        err.response?.data?.detail ||
+        err.response?.data?.error ||
+        "❌ Invalid or expired reset link.";
+      toast.error(backendError);
+      setTimeout(() => navigate("/reset-password"), 3000);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="confirm-container">
-      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+    <div className="password-form">
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        theme="colored"
+      />
 
-      <div className={`confirm-message ${status}`}>
-        {loading ? (
-          <div className="loader">
-            <span className="spinner" role="status" aria-label="Processing..." />
-            <p>{message}</p>
-          </div>
-        ) : (
-          <p>{message}</p>
-        )}
-      </div>
+      <h2>Set a New Password</h2>
+
+      <form onSubmit={handleSubmit}>
+        <div className="password-field">
+          <input
+            type="password"
+            placeholder="Enter New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            aria-label="New Password"
+          />
+        </div>
+
+        <div className="password-field">
+          <input
+            type="password"
+            placeholder="Confirm New Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            aria-label="Confirm New Password"
+          />
+        </div>
+
+        <button type="submit" className="btn" disabled={loading}>
+          {loading ? "Submitting..." : "Reset Password"}
+        </button>
+      </form>
     </div>
   );
 };

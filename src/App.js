@@ -59,6 +59,7 @@ import MediaHostingServicePage from "./components/services/MediaHostingServicePa
 
 // Context & Auth
 import { AuthProvider, useAuth } from "./components/context/AuthContext";
+import { ProfileProvider } from "./components/context/ProfileContext"; // ✅ added
 import ProtectedRoute from "./components/context/ProtectedRoute";
 
 // Google OAuth
@@ -66,7 +67,6 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // Auth Service
 import authService from "./api/services/authService";
-
 
 // ==============================
 // Homepage with Booking Button
@@ -271,7 +271,9 @@ function App() {
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <Router>
         <AuthProvider>
-          <AppWithAuth />
+          <ProfileProvider>
+            <AppWithAuth />
+          </ProfileProvider>
         </AuthProvider>
       </Router>
     </GoogleOAuthProvider>

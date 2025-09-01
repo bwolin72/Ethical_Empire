@@ -10,7 +10,7 @@ const getStoredAccessToken = () => {
 
 // === Main Axios Instance ===
 const axiosCommon = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api', // fallback for local dev
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'https://localhost:8000/api', // fallback for local dev
   headers: {
     'Content-Type': 'application/json',
   },
