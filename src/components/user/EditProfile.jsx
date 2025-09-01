@@ -8,7 +8,7 @@ import { useProfile } from "../context/ProfileContext";
 import "react-toastify/dist/ReactToastify.css";
 
 // ✅ Use the central PasswordForm styles
-import "../styles/PasswordForm.css";
+import "../../styles/PasswordForm.css";
 
 const EditProfile = () => {
   const [form, setForm] = useState({

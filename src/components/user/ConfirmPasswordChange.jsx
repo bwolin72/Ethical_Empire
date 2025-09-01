@@ -7,7 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // ✅ Use the central PasswordForm styles
-import "../styles/PasswordForm.css";
+import "../../styles/PasswordForm.css";
 
 const ConfirmPasswordChange = () => {
   const [params] = useSearchParams();
