@@ -18,7 +18,7 @@ import Reviews from "./Reviews"; // ✅ Unified reviews section
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
 
-// ✅ Local static services (can later come from API if needed)
+// ✅ Local static services
 const services = [
   { title: "Live Band", desc: "Experience live music with Asaase Band.", icon: "🎸" },
   { title: "Catering", desc: "Delicious catering for your events.", icon: "🍽️" },
@@ -29,7 +29,7 @@ const services = [
 ];
 
 const UserPage = () => {
-  const { profile, updateProfile } = useProfile(); // ✅ global context
+  const { profile, updateProfile } = useProfile();
   const [media, setMedia] = useState([]);
   const [videos, setVideos] = useState([]);
   const [promotions, setPromotions] = useState([]);
@@ -39,7 +39,7 @@ const UserPage = () => {
 
   const navigate = useNavigate();
 
-  // ✅ Normalizer for different API shapes
+  // ✅ Normalize API responses
   const extractList = (res) => {
     if (!res) return [];
     const payload = res.data ?? res;
@@ -98,13 +98,11 @@ const UserPage = () => {
 
   // ✅ Get featured video
   const featuredVideo =
-    Array.isArray(videos) && videos.length > 0
-      ? videos.find(
-          (item) =>
-            (item.is_featured || item.featured) &&
-            (item.file || item.url || item.video_url)
-        )
-      : null;
+    Array.isArray(videos) && videos.find(
+      (item) =>
+        (item.is_featured || item.featured) &&
+        (item.file || item.url || item.video_url)
+    );
 
   return (
     <div className={`userpage-container ${darkMode ? "dark" : ""}`}>
@@ -211,22 +209,23 @@ const UserPage = () => {
           <section>
             <h3>Our Services</h3>
             <div className="services-grid">
-              {services.map((s, i) => (
-                <FadeInSection key={i}>
-                  <div className="service-card">
-                    <div className="icon">{s.icon}</div>
-                    <h4>{s.title}</h4>
-                    <p>{s.desc}</p>
-                  </div>
-                </FadeInSection>
-              ))}
+              {Array.isArray(services) &&
+                services.map((s, i) => (
+                  <FadeInSection key={i}>
+                    <div className="service-card">
+                      <div className="icon">{s.icon}</div>
+                      <h4>{s.title}</h4>
+                      <p>{s.desc}</p>
+                    </div>
+                  </FadeInSection>
+                ))}
             </div>
           </section>
 
           {/* Media */}
           <section>
             <h3>Your Media Gallery</h3>
-            {media.length > 0 ? (
+            {Array.isArray(media) && media.length > 0 ? (
               <div className="gallery-grid">
                 {media.map((item, idx) => (
                   <FadeInSection key={idx}>
@@ -240,7 +239,11 @@ const UserPage = () => {
           </section>
 
           {/* Reviews */}
-          <Reviews reviews={reviews} />
+          {Array.isArray(reviews) && reviews.length > 0 ? (
+            <Reviews reviews={reviews} />
+          ) : (
+            <p className="empty-text">No reviews yet.</p>
+          )}
 
           {/* Newsletter */}
           <section>
