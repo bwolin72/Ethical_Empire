@@ -1,5 +1,5 @@
 import axiosInstance from '../axiosInstance';
-import API from '../api';
+import API from '../messagingAPI';
 
 const messagingService = {
   getMessages: () => axiosInstance.get(API.messaging.list),

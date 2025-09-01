@@ -1,5 +1,5 @@
 import axiosInstance from '../axiosInstance';
-import API from '../api';
+import API from '../analyticsAPI';
 
 const analyticsService = {
   getOverview: () => axiosInstance.get(API.analytics.overview),

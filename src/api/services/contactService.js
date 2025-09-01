@@ -1,6 +1,6 @@
 // src/api/services/contactService.js
 import publicAxios from '../publicAxios';
-import API from '../api'; // endpoint constants aggregator (../api -> src/api/api.js)
+import API from '../contactAPI'; // endpoint constants aggregator (../api -> src/api/api.js)
 
 const contactService = {
   /**

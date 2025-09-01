@@ -1,7 +1,7 @@
 // src/api/mediaService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
-import API from "../api/mediaAPI"; // <-- make sure this points to the right file
+import API from "../mediaAPI"; // <-- make sure this points to the right file
 
 const mediaService = {
   // -------- Public-facing --------

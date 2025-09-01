@@ -1,5 +1,5 @@
 import publicAxios from '../publicAxios';
-import API from '../api';
+import API from '../miscAPI';
 
 const miscService = {
   getSettings: () => publicAxios.get(API.misc.settings),

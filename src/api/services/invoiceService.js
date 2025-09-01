@@ -1,5 +1,5 @@
 import axiosInstance from '../axiosInstance';
-import API from '../api';
+import API from '../invoicesAPI';
 
 const invoiceService = {
   createInvoice: (data) => axiosInstance.post(API.invoices.create, data),

@@ -1,7 +1,7 @@
 // src/api/services/promotionService.js
 import publicAxios from '../publicAxios';
 import axiosInstance from '../axiosInstance';
-import API from '../api';
+import API from '../promotionsAPI';
 
 const promotionService = {
   // Public endpoints
