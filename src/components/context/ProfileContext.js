@@ -11,10 +11,12 @@ export const ProfileProvider = ({ children }) => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await authAPI.auth.getProfile();
+        // Fixed: call the correct method from authAPI
+        const res = await authAPI.getProfile();
         setProfile(res?.data ?? null);
       } catch (err) {
         console.error("Error fetching profile:", err);
+        setProfile(null); // ensure profile is null on error
       } finally {
         setLoading(false);
       }
