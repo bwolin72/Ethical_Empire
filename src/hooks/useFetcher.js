@@ -5,9 +5,8 @@ import axiosInstance from "../api/axiosInstance";
 import mediaAPI from "../api/mediaAPI";
 import videoService from "../api/services/videoService";
 import endpointMap from "../api/services/endpointMap";
-import videosAPI from "../api/videosAPI"; // official videos API
+import videosAPI from "../api/videosAPI";
 
-// Local fallback hero video path (served from public/)
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
 
 export default function useFetcher(resourceType, endpointKey, params = null, options = {}) {
@@ -18,7 +17,11 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
     transform,
     resource,
     mutation,
+    fallback = true, // optional fallback for videos
   } = options;
+
+  const stableParams = useMemo(() => params, [JSON.stringify(params)]);
+  const stableEndpointKey = useMemo(() => endpointKey, [endpointKey]);
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,81 +44,59 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
   // Resolve GET fetcher
   // -------------------------
   const getFetcher = useCallback(() => {
-    // Default fallback if endpointKey missing
-    if (!endpointKey || typeof endpointKey !== "string") {
-      if (resourceType === "media") return () => publicAxios.get(mediaAPI.defaultList, params ? { params } : undefined);
-      if (resourceType === "videos") return () => videoService.list(params);
+    if (!stableEndpointKey || typeof stableEndpointKey !== "string") {
+      if (resourceType === "media") return () => publicAxios.get(mediaAPI.defaultList, stableParams ? { params: stableParams } : undefined);
+      if (resourceType === "videos") return () => videoService.list(stableParams);
       return null;
     }
 
-    // MEDIA endpoints
     if (resourceType === "media") {
       const genericKeys = new Set(["media", "defaultList", "all", "default", "list"]);
-      if (genericKeys.has(endpointKey)) return () => publicAxios.get(mediaAPI.defaultList, params ? { params } : undefined);
+      if (genericKeys.has(stableEndpointKey)) return () => publicAxios.get(mediaAPI.defaultList, stableParams ? { params: stableParams } : undefined);
 
-      // If mediaAPI exports helper functions (some setups auto-generate getters),
-      // prefer calling them (e.g. mediaAPI.getHome())
-      const mediaMethodName = `get${toMethodSuffix(endpointKey)}`;
-      if (typeof mediaAPI[mediaMethodName] === "function") {
-        return () => mediaAPI[mediaMethodName](params);
-      }
+      const mediaMethodName = `get${toMethodSuffix(stableEndpointKey)}`;
+      if (typeof mediaAPI[mediaMethodName] === "function") return () => mediaAPI[mediaMethodName](stableParams);
 
-      // Build candidate keys and look up endpoints on mediaAPI
       const keyCandidates = uniqueNonEmpty([
-        endpointKey,
-        applyAliases(endpointKey),
-        toCamelCase(endpointKey),
-        applyAliases(toCamelCase(endpointKey)),
+        stableEndpointKey,
+        applyAliases(stableEndpointKey),
+        toCamelCase(stableEndpointKey),
+        applyAliases(toCamelCase(stableEndpointKey)),
       ]);
 
-      // admin-only endpoints that require auth (use axiosInstance)
       const adminKeys = new Set(["all", "archived", "stats", "debugProto", "upload", "reorder"]);
 
       for (const k of keyCandidates) {
         const val = mediaAPI?.[k];
         if (typeof val === "string") {
           const useAuth = adminKeys.has(k);
-          return () => (useAuth ? axiosInstance.get(val, params ? { params } : undefined) : publicAxios.get(val, params ? { params } : undefined));
+          return () => (useAuth ? axiosInstance.get(val, stableParams ? { params: stableParams } : undefined) : publicAxios.get(val, stableParams ? { params: stableParams } : undefined));
         }
-
-        // if val is a function that returns URL or a promise, call it
-        if (typeof val === "function") {
-          // assume function returns a promise or URL -> call with params if provided
-          return () => val(params);
-        }
+        if (typeof val === "function") return () => val(stableParams);
       }
 
-      // fallback: if endpointKey looks like an absolute path, call it directly
-      if (endpointKey.startsWith("/")) {
-        return () => publicAxios.get(endpointKey, params ? { params } : undefined);
+      if (stableEndpointKey.startsWith("/")) {
+        return () => publicAxios.get(stableEndpointKey, stableParams ? { params: stableParams } : undefined);
       }
     }
 
-    // VIDEO endpoints
     if (resourceType === "videos") {
-      // If endpointMap exists (maps page keys to endpoint names) use byEndpoint
-      if (endpointMap && endpointMap[endpointKey]) {
-        return () => videoService.byEndpoint(endpointMap[endpointKey], params);
-      }
+      if (endpointMap && endpointMap[stableEndpointKey]) return () => videoService.byEndpoint(endpointMap[stableEndpointKey], stableParams);
 
-      // if user passed an endpointKey that matches videosAPI keys, use that
       const videoKeyCandidates = uniqueNonEmpty([
-        endpointKey,
-        toCamelCase(endpointKey),
-        applyAliases(endpointKey),
+        stableEndpointKey,
+        toCamelCase(stableEndpointKey),
+        applyAliases(stableEndpointKey),
       ]);
       for (const k of videoKeyCandidates) {
-        if (typeof videosAPI[k] === "string") {
-          return () => publicAxios.get(videosAPI[k], params ? { params } : undefined);
-        }
+        if (typeof videosAPI[k] === "string") return () => publicAxios.get(videosAPI[k], stableParams ? { params: stableParams } : undefined);
       }
 
-      // default list
-      return () => videoService.list(params);
+      return () => videoService.list(stableParams);
     }
 
     return null;
-  }, [resourceType, endpointKey, params]);
+  }, [resourceType, stableEndpointKey, stableParams]);
 
   // -------------------------
   // Fetch Data
@@ -124,10 +105,10 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
     const fetcher = getFetcher();
     if (!fetcher) {
       if (mountedRef.current) {
-        setError(`Unknown endpoint for ${resourceType}: ${String(endpointKey)}`);
+        setError({ message: `Unknown endpoint for ${resourceType}: ${String(stableEndpointKey)}` });
         setLoading(false);
       }
-      console.error(`[useFetcher] Unknown endpoint key for ${resourceType}: ${endpointKey}`);
+      console.error(`[useFetcher] Unknown endpoint key for ${resourceType}: ${stableEndpointKey}`);
       return;
     }
 
@@ -138,10 +119,9 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
 
     try {
       const res = await fetcher();
-      const items = extractItems(res);
+      let items = extractItems(res);
 
-      // Always provide fallback video if no results
-      if (resourceType === "videos" && Array.isArray(items) && items.length === 0) {
+      if (resourceType === "videos" && fallback && Array.isArray(items) && items.length === 0) {
         if (mountedRef.current) setData([fallbackVideoObject()]);
         return;
       }
@@ -149,8 +129,14 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
       const finalItems = typeof transform === "function" ? transform(items) : items;
       if (mountedRef.current) setData(finalItems);
     } catch (err) {
-      console.error(`❌ API fetch failed for ${resourceType}:${endpointKey}`, err);
-      if (resourceType === "videos") {
+      const normalizedError = {
+        message: err.response?.data?.detail || err.message,
+        status: err.response?.status || null,
+        data: err.response?.data || null,
+      };
+      console.error(`❌ API fetch failed for ${resourceType}:${stableEndpointKey}`, normalizedError);
+
+      if (resourceType === "videos" && fallback) {
         if (mountedRef.current) {
           setData([fallbackVideoObject()]);
           setError(null);
@@ -158,92 +144,74 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
       } else {
         if (mountedRef.current) {
           setData([]);
-          setError(err);
+          setError(normalizedError);
         }
       }
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, [getFetcher, resourceType, endpointKey, transform]);
+  }, [getFetcher, resourceType, stableEndpointKey, transform, fallback]);
 
   // -------------------------
-  // Build mutation endpoints
+  // Mutation endpoints
   // -------------------------
-  const endpoints = useMemo(
-    () =>
-      buildMutationEndpoints({
-        resourceType,
-        endpointKey,
-        resourceOverride: resource,
-        custom: mutation,
-      }),
-    [resourceType, endpointKey, resource, mutation]
-  );
+  const endpoints = useMemo(() => buildMutationEndpoints({
+    resourceType,
+    endpointKey: stableEndpointKey,
+    resourceOverride: resource,
+    custom: mutation,
+  }), [resourceType, stableEndpointKey, resource, mutation]);
 
-  const resolveCreateUrl = (eps) =>
-    typeof eps.create === "function" ? eps.create() : eps.create;
-  const resolveUpdateUrl = (eps, id) =>
-    typeof eps.update === "function" ? eps.update(id) : eps.update;
-  const resolvePatchUrl = (eps, id) =>
-    typeof eps.patch === "function" ? eps.patch(id) : eps.patch;
-  const resolveRemoveUrl = (eps, id) =>
-    typeof eps.remove === "function" ? eps.remove(id) : eps.remove;
+  const resolveCreateUrl = (eps) => typeof eps.create === "function" ? eps.create() : eps.create;
+  const resolvePatchUrl = (eps, id) => typeof eps.patch === "function" ? eps.patch(id) : eps.patch;
+  const resolveRemoveUrl = (eps, id) => typeof eps.remove === "function" ? eps.remove(id) : eps.remove;
 
   // -------------------------
   // Optimistic CRUD operations
   // -------------------------
-  const post = useCallback(
-    async (payload, { optimisticItem } = {}) => {
-      const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
-      const tmpId = `tmp-${Date.now()}`;
-      const optimistic = { id: tmpId, ...(optimisticItem || payload) };
-      if (mountedRef.current) setData((prev) => [optimistic, ...prev]);
+  const post = useCallback(async (payload, { optimisticItem } = {}) => {
+    const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
+    const tmpId = `tmp-${Date.now()}`;
+    const optimistic = { id: tmpId, ...(optimisticItem || payload) };
+    if (mountedRef.current) setData((prev) => [optimistic, ...prev]);
 
-      try {
-        const url = resolveCreateUrl(endpoints);
-        const res = await axiosInstance.post(url, payload);
-        safeNotify(notify, "success", successMessages.post || "Created successfully.");
-        await fetchData();
-        return res;
-      } catch (err) {
-        if (mountedRef.current) setData(previous);
-        safeNotify(notify, "error", errorMessages.post || "Create failed. Changes reverted.");
-        if (mountedRef.current) setError(err);
-        throw err;
-      }
-    },
-    [endpoints, fetchData, notify, successMessages, errorMessages]
-  );
+    try {
+      const url = resolveCreateUrl(endpoints);
+      const res = await axiosInstance.post(url, payload);
+      safeNotify(notify, "success", successMessages.post || "Created successfully.");
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setData(previous);
+      safeNotify(notify, "error", errorMessages.post || "Create failed. Changes reverted.");
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData, notify, successMessages, errorMessages]);
 
-  const patch = useCallback(
-    async (id, payload) => {
-      try {
-        const url = resolvePatchUrl(endpoints, id);
-        const res = await axiosInstance.patch(url, payload);
-        await fetchData();
-        return res;
-      } catch (err) {
-        if (mountedRef.current) setError(err);
-        throw err;
-      }
-    },
-    [endpoints, fetchData]
-  );
+  const patch = useCallback(async (id, payload) => {
+    try {
+      const url = resolvePatchUrl(endpoints, id);
+      const res = await axiosInstance.patch(url, payload);
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData]);
 
-  const remove = useCallback(
-    async (id) => {
-      try {
-        const url = resolveRemoveUrl(endpoints, id);
-        const res = await axiosInstance.delete(url);
-        await fetchData();
-        return res;
-      } catch (err) {
-        if (mountedRef.current) setError(err);
-        throw err;
-      }
-    },
-    [endpoints, fetchData]
-  );
+  const remove = useCallback(async (id) => {
+    try {
+      const url = resolveRemoveUrl(endpoints, id);
+      const res = await axiosInstance.delete(url);
+      await fetchData();
+      return res;
+    } catch (err) {
+      if (mountedRef.current) setError(err);
+      throw err;
+    }
+  }, [endpoints, fetchData]);
 
   // Fetch on mount
   useEffect(() => {
@@ -278,19 +246,15 @@ function fallbackVideoObject() {
 
 function safeNotify(notify, type, message) {
   if (typeof notify === "function" && message) {
-    try {
-      notify(type, message);
-    } catch (e) {
-      console.warn("[useFetcher] notify failed:", e);
-    }
+    try { notify(type, message); } 
+    catch (e) { console.warn("[useFetcher] notify failed:", e); }
   }
 }
 
 function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, custom }) {
-  const res = resourceOverride || inferResource(resourceType, endpointKey);
+  const res = resourceOverride || inferResource(resourceType);
   let defaults = {};
 
-  // Videos: use videosAPI.defaultList and videosAPI.detail(id)
   if (res === "videos") {
     defaults = {
       create: () => videosAPI.defaultList,
@@ -299,14 +263,11 @@ function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, c
       remove: (id) => videosAPI.detail(id),
     };
   } else if (res === "media") {
-    // Media may expose strings or functions for endpoints. Support both.
     const createFn = () => (typeof mediaAPI.upload === "function" ? mediaAPI.upload() : mediaAPI.upload);
     const updateFn = (id) =>
       typeof mediaAPI.update === "function" ? mediaAPI.update(id) : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.update)}${id}/update/`;
     const deleteFn = (id) =>
       typeof mediaAPI.delete === "function" ? mediaAPI.delete(id) : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.delete)}${id}/delete/`;
-    const restoreFn = (id) =>
-      typeof mediaAPI.restore === "function" ? mediaAPI.restore(id) : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.restore)}${id}/restore/`;
 
     defaults = {
       create: createFn,
@@ -330,13 +291,11 @@ function inferResource(resourceType) {
   return null;
 }
 
-/* Utility: ensure trailing slash string base for constructing URLs */
 function ensureTrailingSlash(str) {
   if (!str || typeof str !== "string") return "/";
   return str.endsWith("/") ? str : `${str}/`;
 }
 
-// ---------- Key utils ----------
 function toCamelCase(str) {
   if (typeof str !== "string") return "";
   return str.replace(/[-_\s]+([a-zA-Z0-9])/g, (_, c) => c.toUpperCase());
@@ -346,18 +305,14 @@ function toMethodSuffix(str) {
   if (typeof str !== "string") return "";
   const hasDelim = /[-_\s]/.test(str);
   if (hasDelim) {
-    return str
-      .split(/[-_\s]+/)
-      .filter(Boolean)
-      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-      .join("");
+    return str.split(/[-_\s]+/).filter(Boolean).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join("");
   }
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function uniqueNonEmpty(arr) {
   const seen = new Set();
-  return arr.filter((v) => {
+  return arr.filter(v => {
     const ok = typeof v === "string" && v.length > 0 && !seen.has(v);
     if (ok) seen.add(v);
     return ok;
