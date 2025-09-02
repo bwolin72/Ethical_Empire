@@ -19,11 +19,11 @@ const videoService = {
 
   // -------- Admin & management --------
   uploadVideo: (data) => axiosInstance.post(videosAPI.upload, data),
-  updateVideo: (id, data) => axiosInstance.patch(`${videosAPI.update}${id}/`, data),
-  deleteVideo: (id) => axiosInstance.delete(`${videosAPI.delete}${id}/`),
+  updateVideo: (id, data) => axiosInstance.patch(videosAPI.update(id), data),
+  deleteVideo: (id) => axiosInstance.delete(videosAPI.delete(id)),
 
-  toggleActive: (id) => axiosInstance.post(`${videosAPI.toggle}${id}/toggle_active/`),
-  toggleFeatured: (id) => axiosInstance.post(`${videosAPI.toggleFeatured}${id}/toggle_featured/`),
+  toggleActive: (id) => axiosInstance.post(videosAPI.toggle(id)),
+  toggleFeatured: (id) => axiosInstance.post(videosAPI.toggleFeatured(id)),
 };
 
 export default videoService;
