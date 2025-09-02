@@ -1,3 +1,4 @@
+// src/api/services/newsletterService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import newsletterAPI from "../newsletterAPI";
@@ -11,7 +12,7 @@ const newsletterService = {
   resendConfirmation: (data) =>
     publicAxios.post(newsletterAPI.resendConfirmation, data),
 
-  // === Admin Only (requires auth) ===
+  // === Admin Only ===
   getSubscribers: () => axiosInstance.get(newsletterAPI.list),
   getSubscriberCount: () => axiosInstance.get(newsletterAPI.count),
   getLogs: () => axiosInstance.get(newsletterAPI.logs),

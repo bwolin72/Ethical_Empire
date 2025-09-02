@@ -1,3 +1,4 @@
+// src/api/newsletterAPI.js
 import baseURL from "./baseURL";
 
 const newsletterAPI = {

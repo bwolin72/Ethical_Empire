@@ -5,7 +5,7 @@ import videosAPI from "../videosAPI";
 
 const videoService = {
   // -------- Public-facing --------
-  getVideos: (params = {}) => publicAxios.get(videosAPI.defaultList, { params }),
+  getVideos: (params = {}) => publicAxios.get(videosAPI.list, { params }),
   getHomeVideos: () => publicAxios.get(videosAPI.home),
   getAboutVideos: () => publicAxios.get(videosAPI.about),
   getDecorVideos: () => publicAxios.get(videosAPI.decor),
