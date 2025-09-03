@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import mediaService from '../../api/services/mediaService';
+import mediaService from '../../api/mediaAPI';
 import './MediaManagement.css';
 
 const endpoints = [

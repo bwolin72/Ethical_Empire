@@ -28,72 +28,64 @@ const UserRoleManager = () => {
   const [inviteEmail, setInviteEmail] = useState("");
 
   // quick lookup maps
-  const idToEmail = useMemo(() => new Map(users.map((u) => [u.id, u.email])), [users]);
-
-  // Fetch users depending on activeTab
-  const fetchUsers = useCallback(
-    async (role) => {
-      setLoading(true);
-      try {
-        let res;
-
-        if (role === "admin") {
-          // Admin-specific endpoint (returns admins)
-          res = await authAPI.adminListUsers();
-        } else {
-          // Use profiles list endpoint with a role query param (preferred)
-          // authAPI.profilesList now accepts an optional params object
-          res = await authAPI.profilesList({ role });
-        }
-
-        const list = Array.isArray(res?.data)
-          ? res.data
-          : res?.data?.results
-          ? res.data.results
-          : res?.data
-          ? res.data
-          : [];
-
-        // If backend ignored role param (returned all users), filter client-side
-        const normalizedList = Array.isArray(list)
-          ? list
-          : [];
-
-        // make sure role property exists in lowercase (normalize)
-        const normalized = normalizedList.map((u) => ({
-          ...u,
-          role: (u.role || "").toString().toLowerCase(),
-        }));
-
-        // if server returned all roles in response to profilesList, filter client-side
-        const filteredByRole =
-          role === "admin"
-            ? normalized // admin endpoint already filtered
-            : normalized.filter((u) => (u.role || "").toLowerCase() === role.toLowerCase());
-
-        // if filtering produced an empty set but server intended different behaviour,
-        // keep server result so that admin can still act on returned data.
-        const finalList = filteredByRole.length > 0 ? filteredByRole : normalized;
-
-        setUsers(finalList);
-      } catch (err) {
-        console.error("[UserRoleManager] Fetch error:", err);
-        toast.error("Failed to fetch users.");
-        setUsers([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
+  const idToEmail = useMemo(
+    () => new Map(users.map((u) => [u.id, u.email])),
+    [users]
   );
 
-  // fetch initial and when activeTab changes
+  // Fetch users depending on activeTab
+  const fetchUsers = useCallback(async (role) => {
+    setLoading(true);
+    try {
+      let res;
+
+      if (role === "admin") {
+        // Admin-specific endpoint (returns admins)
+        res = await authAPI.adminListUsers();
+      } else {
+        // Use profiles list endpoint with a role query param
+        res = await authAPI.profilesList({ role });
+      }
+
+      const list = Array.isArray(res?.data)
+        ? res.data
+        : res?.data?.results
+        ? res.data.results
+        : res?.data
+        ? res.data
+        : [];
+
+      const normalized = list.map((u) => ({
+        ...u,
+        role: (u.role || "").toString().toLowerCase(),
+      }));
+
+      const filtered =
+        role === "admin"
+          ? normalized
+          : normalized.filter(
+              (u) => (u.role || "").toLowerCase() === role.toLowerCase()
+            );
+
+      setUsers(filtered.length > 0 ? filtered : normalized);
+    } catch (err) {
+      console.error("[UserRoleManager] Fetch error:", err);
+      toast.error("Failed to fetch users.");
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // fetch initial and whenever activeTab changes
   useEffect(() => {
     fetchUsers(activeTab);
   }, [activeTab, fetchUsers]);
 
   const toggleSelection = (id) => {
-    setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   };
 
   const handleDelete = async () => {
@@ -110,18 +102,17 @@ const UserRoleManager = () => {
         return;
       }
 
-      // delete each by email (endpoint expects { email })
       await Promise.all(emails.map((email) => authAPI.deleteByEmail({ email })));
       toast.success("Users deleted.");
       setSelected([]);
       await fetchUsers(activeTab);
     } catch (err) {
       console.error("[UserRoleManager] Delete error:", err);
-      const msg =
+      toast.error(
         err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        "Error deleting users.";
-      toast.error(msg);
+          err?.response?.data?.error ||
+          "Error deleting users."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -139,11 +130,11 @@ const UserRoleManager = () => {
       setMessage("");
     } catch (err) {
       console.error("[UserRoleManager] Send message error:", err);
-      const msg =
+      toast.error(
         err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        "Failed to send message.";
-      toast.error(msg);
+          err?.response?.data?.error ||
+          "Failed to send message."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -161,11 +152,11 @@ const UserRoleManager = () => {
       setMessage("");
     } catch (err) {
       console.error("[UserRoleManager] Offer error:", err);
-      const msg =
+      toast.error(
         err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        "Failed to send offer.";
-      toast.error(msg);
+          err?.response?.data?.error ||
+          "Failed to send offer."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -180,17 +171,18 @@ const UserRoleManager = () => {
     try {
       const res = await authAPI.adminInviteWorker({ email: inviteEmail });
       const access = res?.data?.access_code;
-      toast.success(access ? `Worker invited. Access code: ${access}` : "Worker invited.");
+      toast.success(
+        access ? `Worker invited. Access code: ${access}` : "Worker invited."
+      );
       setInviteEmail("");
-      // refresh worker list (if active)
       if (activeTab === "worker") await fetchUsers("worker");
     } catch (err) {
       console.error("[UserRoleManager] Invite worker error:", err);
-      const msg =
+      toast.error(
         err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        "Worker invite failed.";
-      toast.error(msg);
+          err?.response?.data?.error ||
+          "Worker invite failed."
+      );
     } finally {
       setSubmitting(false);
     }
@@ -204,18 +196,15 @@ const UserRoleManager = () => {
       await fetchUsers(activeTab);
     } catch (err) {
       console.error("[UserRoleManager] Toggle active error:", err);
-      const msg =
+      toast.error(
         err?.response?.data?.detail ||
-        err?.response?.data?.error ||
-        "Failed to update user status.";
-      toast.error(msg);
+          err?.response?.data?.error ||
+          "Failed to update user status."
+      );
     } finally {
       setSubmitting(false);
     }
   };
-
-  // filteredUsers is just the users state (already filtered server-side if possible)
-  const filteredUsers = users;
 
   return (
     <div className="urm-container">
@@ -225,100 +214,130 @@ const UserRoleManager = () => {
             <TabsTrigger
               key={role.value}
               value={role.value}
-              className={`urm-tab ${activeTab === role.value ? "urm-tab--active" : ""}`}
+              className={`urm-tab ${
+                activeTab === role.value ? "urm-tab--active" : ""
+              }`}
             >
               {role.label}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {roles.map((role) => (
-          <TabsContent key={role.value} value={role.value}>
-            {activeTab === "worker" && (
-              <div className="urm-invite">
-                <Input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="Enter worker email"
-                />
-                <Button
-                  onClick={handleInviteWorker}
-                  disabled={submitting || !inviteEmail.trim()}
-                  className="urm-btn-primary"
-                >
-                  Invite Worker
-                </Button>
-              </div>
-            )}
+        <TabsContent value={activeTab}>
+          {/* Worker-specific Invite UI */}
+          {activeTab === "worker" && (
+            <div className="urm-invite">
+              <Input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="Enter worker email"
+              />
+              <Button
+                onClick={handleInviteWorker}
+                disabled={submitting || !inviteEmail.trim()}
+                className="urm-btn-primary"
+              >
+                Invite Worker
+              </Button>
+            </div>
+          )}
 
-            {loading ? (
-              <p className="urm-loading">Loading users...</p>
-            ) : filteredUsers && filteredUsers.length > 0 ? (
-              <div className="urm-grid">
-                {filteredUsers.map((user) => {
-                  const { id, name = "Unnamed", email = "No email", role: userRole = "", is_active = false } = user;
+          {/* User grid */}
+          {loading ? (
+            <p className="urm-loading">Loading users...</p>
+          ) : users.length > 0 ? (
+            <div className="urm-grid">
+              {users.map(
+                ({
+                  id,
+                  name = "Unnamed",
+                  email = "No email",
+                  role: userRole = "",
+                  is_active = false,
+                }) => (
+                  <Card key={id} className="urm-card">
+                    <CardContent className="urm-card-content">
+                      <div className="urm-check">
+                        <Checkbox
+                          checked={selected.includes(id)}
+                          onCheckedChange={() => toggleSelection(id)}
+                        />
+                      </div>
 
-                  return (
-                    <Card key={id} className="urm-card">
-                      <CardContent className="urm-card-content">
-                        <div className="urm-check">
-                          <Checkbox checked={selected.includes(id)} onCheckedChange={() => toggleSelection(id)} />
-                        </div>
+                      <div className="urm-user">
+                        <h2 className="urm-user-name">{name}</h2>
+                        <p className="urm-user-email">{email}</p>
+                        <p className="urm-user-role">
+                          {(userRole || "").toUpperCase()}
+                        </p>
+                        <p
+                          className={`urm-user-status ${
+                            is_active
+                              ? "urm-status--active"
+                              : "urm-status--inactive"
+                          }`}
+                        >
+                          {is_active ? "Active" : "Inactive"}
+                        </p>
+                      </div>
 
-                        <div className="urm-user">
-                          <h2 className="urm-user-name">{name}</h2>
-                          <p className="urm-user-email">{email}</p>
-                          <p className="urm-user-role">{(userRole || "").toUpperCase()}</p>
-                          <p className={`urm-user-status ${is_active ? "urm-status--active" : "urm-status--inactive"}`}>
-                            {is_active ? "Active" : "Inactive"}
-                          </p>
-                        </div>
-
-                        <Button onClick={() => handleToggleActive(id)} className="urm-btn-muted">
-                          {is_active ? "Deactivate" : "Activate"}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="urm-empty">No users found for this role.</p>
-            )}
-
-            <div className="urm-actions">
-              <div className="urm-actions-row">
-                <Button onClick={handleDelete} disabled={submitting || !selected.length} className="urm-btn-danger">
-                  Delete Selected
-                </Button>
-
-                {activeTab === "user" && (
-                  <>
-                    <Button
-                      onClick={handleSendMsg}
-                      disabled={submitting || !message.trim() || !selected.length}
-                      className="urm-btn-success"
-                    >
-                      Send Message
-                    </Button>
-                    <Button
-                      onClick={handleOffer}
-                      disabled={submitting || !message.trim() || !selected.length}
-                      className="urm-btn-accent"
-                    >
-                      Send Offer
-                    </Button>
-                  </>
-                )}
-              </div>
-
-              {activeTab === "user" && (
-                <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write your message or offer..." className="urm-textarea" />
+                      <Button
+                        onClick={() => handleToggleActive(id)}
+                        className="urm-btn-muted"
+                      >
+                        {is_active ? "Deactivate" : "Activate"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )
               )}
             </div>
-          </TabsContent>
-        ))}
+          ) : (
+            <p className="urm-empty">No users found for this role.</p>
+          )}
+
+          {/* Actions */}
+          <div className="urm-actions">
+            <div className="urm-actions-row">
+              <Button
+                onClick={handleDelete}
+                disabled={submitting || !selected.length}
+                className="urm-btn-danger"
+              >
+                Delete Selected
+              </Button>
+
+              {activeTab === "user" && (
+                <>
+                  <Button
+                    onClick={handleSendMsg}
+                    disabled={submitting || !message.trim() || !selected.length}
+                    className="urm-btn-success"
+                  >
+                    Send Message
+                  </Button>
+                  <Button
+                    onClick={handleOffer}
+                    disabled={submitting || !message.trim() || !selected.length}
+                    className="urm-btn-accent"
+                  >
+                    Send Offer
+                  </Button>
+                </>
+              )}
+            </div>
+
+            {activeTab === "user" && (
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Write your message or offer..."
+                className="urm-textarea"
+              />
+            )}
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );

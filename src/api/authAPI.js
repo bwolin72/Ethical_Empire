@@ -2,11 +2,10 @@
 import baseURL from "./baseURL";
 import axiosInstance from "./axiosInstance";
 
-// -------- Endpoints (must match backend 1:1) --------
 const endpoints = {
   // Auth
   login: `${baseURL}/accounts/login/`,
-  logout: `${baseURL}/accounts/profile/logout/`, // ✅ fixed: backend requires /profile/logout/
+  logout: `${baseURL}/accounts/profile/logout/`, // ✅ backend requires /profile/logout/
 
   // Registration
   register: `${baseURL}/accounts/register/`,
@@ -43,7 +42,7 @@ const endpoints = {
 
   // Admin
   adminListUsers: `${baseURL}/accounts/admin/list-users/`,
-  adminResetPassword: `${baseURL}/accounts/admin-reset-password/`, // ✅ fixed: no /admin/ in URL
+  adminResetPassword: `${baseURL}/accounts/admin-reset-password/`, // ✅ correct
   adminInviteWorker: `${baseURL}/accounts/admin/invite-worker/`,
 
   // Workers
@@ -53,8 +52,8 @@ const endpoints = {
   workerCategories: `${baseURL}/accounts/worker-categories/`,
 
   // Profiles + comms
-  profilesList: (params = {}) => axiosInstance.get(endpoints.profilesList, { params }),
-  profilesProfile: (userId) => `${baseURL}/accounts/profiles/profile/${userId}/`,
+  profilesList: `${baseURL}/accounts/profiles/list/`, // ✅ no dynamic params here
+  profilesProfile: `${baseURL}/accounts/profiles/profile/`, // ✅ no :id in backend
   sendMessageToUsers: `${baseURL}/accounts/profiles/send-message/`,
   specialOffer: `${baseURL}/accounts/profiles/special-offer/`,
   toggleUserActive: (userId) =>
@@ -64,7 +63,6 @@ const endpoints = {
   deleteByEmail: `${baseURL}/accounts/delete-by-email/`,
 };
 
-// -------- API Layer --------
 const authAPI = {
   endpoints,
 
@@ -117,8 +115,8 @@ const authAPI = {
   workerCompleteInvite: (data) => axiosInstance.post(endpoints.workerCompleteInvite, data),
   workerCategories: () => axiosInstance.get(endpoints.workerCategories),
 
-  // Profiles + comms
-  profilesList: () => axiosInstance.get(endpoints.profilesList),
+  // Profiles
+  profilesList: (params) => axiosInstance.get(endpoints.profilesList, { params }),
   profilesProfile: () => axiosInstance.get(endpoints.profilesProfile),
   sendMessageToUsers: (data) => axiosInstance.post(endpoints.sendMessageToUsers, data),
   specialOffer: (data) => axiosInstance.post(endpoints.specialOffer, data),
