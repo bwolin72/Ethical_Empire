@@ -3,62 +3,62 @@ import axiosInstance from "./axiosInstance";
 
 const endpoints = {
   // Auth
-  login: `${baseURL}/accounts/login/`,
-  logout: `${baseURL}/accounts/profile/logout/`,
+  login: `${baseURL}/api/accounts/login/`,
+  logout: `${baseURL}/api/accounts/profile/logout/`,
 
   // Registration
-  register: `${baseURL}/accounts/register/`,
-  registerPartner: `${baseURL}/accounts/register/partner/`,
-  registerVendor: `${baseURL}/accounts/register/vendor/`,
-  internalRegister: `${baseURL}/accounts/internal-register/`,
+  register: `${baseURL}/api/accounts/register/`,
+  registerPartner: `${baseURL}/api/accounts/register/partner/`,
+  registerVendor: `${baseURL}/api/accounts/register/vendor/`,
+  internalRegister: `${baseURL}/api/accounts/internal-register/`,
 
   // Profile
-  profile: `${baseURL}/accounts/profile/`,
-  changePassword: `${baseURL}/accounts/profile/change-password/`,
-  profileByEmail: `${baseURL}/accounts/profile-by-email/`,
-  partnerProfile: `${baseURL}/accounts/profile/partner/`,
-  vendorProfile: `${baseURL}/accounts/profile/vendor/`,
-  currentUserRole: `${baseURL}/accounts/profile/role/`,
-  roleChoices: `${baseURL}/accounts/role-choices/`,
+  profile: `${baseURL}/api/accounts/profile/`,
+  changePassword: `${baseURL}/api/accounts/profile/change-password/`,
+  profileByEmail: `${baseURL}/api/accounts/profile-by-email/`,
+  partnerProfile: `${baseURL}/api/accounts/profile/partner/`,
+  vendorProfile: `${baseURL}/api/accounts/profile/vendor/`,
+  currentUserRole: `${baseURL}/api/accounts/profile/role/`,
+  roleChoices: `${baseURL}/api/accounts/role-choices/`,
 
   // Password reset
-  resetPassword: `${baseURL}/accounts/reset-password/`,
+  resetPassword: `${baseURL}/api/accounts/reset-password/`,
   resetPasswordConfirm: (uidb64, token) =>
-    `${baseURL}/accounts/reset-password-confirm/${uidb64}/${token}/`,
+    `${baseURL}/api/accounts/reset-password-confirm/${uidb64}/${token}/`,
 
   // JWT
-  token: `${baseURL}/accounts/token/`,
-  tokenRefresh: `${baseURL}/accounts/token/refresh/`,
-  tokenVerify: `${baseURL}/accounts/token/verify/`,
+  token: `${baseURL}/api/accounts/token/`,
+  tokenRefresh: `${baseURL}/api/accounts/token/refresh/`,
+  tokenVerify: `${baseURL}/api/accounts/token/verify/`,
 
   // Email / OTP
-  verifyEmail: (uid, token) => `${baseURL}/accounts/verify-email/${uid}/${token}/`,
-  resendOtp: `${baseURL}/accounts/resend-otp/`,
-  resendOtpEmail: `${baseURL}/accounts/resend-otp/email/`,
-  verifyOtp: `${baseURL}/accounts/verify-otp/`,
-  verifyOtpEmail: `${baseURL}/accounts/verify-otp/email/`,
-  resendWelcomeEmail: `${baseURL}/accounts/resend-welcome-email/`,
+  verifyEmail: (uid, token) => `${baseURL}/api/accounts/verify-email/${uid}/${token}/`,
+  resendOtp: `${baseURL}/api/accounts/resend-otp/`,
+  resendOtpEmail: `${baseURL}/api/accounts/resend-otp/email/`,
+  verifyOtp: `${baseURL}/api/accounts/verify-otp/`,
+  verifyOtpEmail: `${baseURL}/api/accounts/verify-otp/email/`,
+  resendWelcomeEmail: `${baseURL}/api/accounts/resend-welcome-email/`,
 
   // Admin
-  adminListUsers: `${baseURL}/accounts/admin/list-users/`,
-  adminResetPassword: `${baseURL}/accounts/admin-reset-password/`,
-  adminInviteWorker: `${baseURL}/accounts/admin/invite-worker/`,
+  adminListUsers: `${baseURL}/api/accounts/admin/list-users/`,
+  adminResetPassword: `${baseURL}/api/accounts/admin-reset-password/`,
+  adminInviteWorker: `${baseURL}/api/accounts/admin/invite-worker/`,
 
   // Workers
   workerValidateInvite: (uid, token) =>
-    `${baseURL}/accounts/worker/validate-invite/${uid}/${token}/`,
-  workerCompleteInvite: `${baseURL}/accounts/worker/complete-invite/`,
-  workerCategories: `${baseURL}/accounts/worker-categories/`,
+    `${baseURL}/api/accounts/worker/validate-invite/${uid}/${token}/`,
+  workerCompleteInvite: `${baseURL}/api/accounts/worker/complete-invite/`,
+  workerCategories: `${baseURL}/api/accounts/worker-categories/`,
 
   // Profiles + comms
-  profilesList: `${baseURL}/accounts/profiles/list/`,
-  profilesProfile: `${baseURL}/accounts/profiles/profile/`,
-  sendMessageToUsers: `${baseURL}/accounts/profiles/send-message/`,
-  specialOffer: `${baseURL}/accounts/profiles/special-offer/`,
-  toggleUserActive: (userId) => `${baseURL}/accounts/profiles/toggle-active/${userId}/`,
+  profilesList: `${baseURL}/api/accounts/profiles/list/`,
+  profilesProfile: `${baseURL}/api/accounts/profiles/profile/`,
+  sendMessageToUsers: `${baseURL}/api/accounts/profiles/send-message/`,
+  specialOffer: `${baseURL}/api/accounts/profiles/special-offer/`,
+  toggleUserActive: (userId) => `${baseURL}/api/accounts/profiles/toggle-active/${userId}/`,
 
   // Internal
-  deleteByEmail: `${baseURL}/accounts/delete-by-email/`,
+  deleteByEmail: `${baseURL}/api/accounts/delete-by-email/`,
 };
 
 const authAPI = {

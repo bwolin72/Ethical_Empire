@@ -6,6 +6,7 @@ import mediaAPI from "../api/mediaAPI";
 import videoService from "../api/services/videoService";
 import endpointMap from "../api/services/endpointMap";
 import videosAPI from "../api/videosAPI";
+import promotionsAPI from "../api/promotionsAPI";
 
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
 
@@ -44,18 +45,41 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
   // Resolve GET fetcher
   // -------------------------
   const getFetcher = useCallback(() => {
+    // ✅ Promotions support
+    if (resourceType === "promotions") {
+      if (!stableEndpointKey || stableEndpointKey === "list" || stableEndpointKey === "all") {
+        return () => publicAxios.get(promotionsAPI.list, stableParams ? { params: stableParams } : undefined);
+      }
+      if (stableEndpointKey === "active") {
+        return () => publicAxios.get(promotionsAPI.active, stableParams ? { params: stableParams } : undefined);
+      }
+      if (stableEndpointKey === "detail") {
+        return (id) => publicAxios.get(promotionsAPI.detail(id));
+      }
+
+      const val = promotionsAPI?.[stableEndpointKey];
+      if (typeof val === "string") {
+        return () => publicAxios.get(val, stableParams ? { params: stableParams } : undefined);
+      }
+    }
+
     if (!stableEndpointKey || typeof stableEndpointKey !== "string") {
-      if (resourceType === "media") return () => publicAxios.get(mediaAPI.defaultList, stableParams ? { params: stableParams } : undefined);
+      if (resourceType === "media")
+        return () =>
+          publicAxios.get(mediaAPI.defaultList, stableParams ? { params: stableParams } : undefined);
       if (resourceType === "videos") return () => videoService.list(stableParams);
       return null;
     }
 
     if (resourceType === "media") {
       const genericKeys = new Set(["media", "defaultList", "all", "default", "list"]);
-      if (genericKeys.has(stableEndpointKey)) return () => publicAxios.get(mediaAPI.defaultList, stableParams ? { params: stableParams } : undefined);
+      if (genericKeys.has(stableEndpointKey))
+        return () =>
+          publicAxios.get(mediaAPI.defaultList, stableParams ? { params: stableParams } : undefined);
 
       const mediaMethodName = `get${toMethodSuffix(stableEndpointKey)}`;
-      if (typeof mediaAPI[mediaMethodName] === "function") return () => mediaAPI[mediaMethodName](stableParams);
+      if (typeof mediaAPI[mediaMethodName] === "function")
+        return () => mediaAPI[mediaMethodName](stableParams);
 
       const keyCandidates = uniqueNonEmpty([
         stableEndpointKey,
@@ -70,18 +94,23 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
         const val = mediaAPI?.[k];
         if (typeof val === "string") {
           const useAuth = adminKeys.has(k);
-          return () => (useAuth ? axiosInstance.get(val, stableParams ? { params: stableParams } : undefined) : publicAxios.get(val, stableParams ? { params: stableParams } : undefined));
+          return () =>
+            useAuth
+              ? axiosInstance.get(val, stableParams ? { params: stableParams } : undefined)
+              : publicAxios.get(val, stableParams ? { params: stableParams } : undefined);
         }
         if (typeof val === "function") return () => val(stableParams);
       }
 
       if (stableEndpointKey.startsWith("/")) {
-        return () => publicAxios.get(stableEndpointKey, stableParams ? { params: stableParams } : undefined);
+        return () =>
+          publicAxios.get(stableEndpointKey, stableParams ? { params: stableParams } : undefined);
       }
     }
 
     if (resourceType === "videos") {
-      if (endpointMap && endpointMap[stableEndpointKey]) return () => videoService.byEndpoint(endpointMap[stableEndpointKey], stableParams);
+      if (endpointMap && endpointMap[stableEndpointKey])
+        return () => videoService.byEndpoint(endpointMap[stableEndpointKey], stableParams);
 
       const videoKeyCandidates = uniqueNonEmpty([
         stableEndpointKey,
@@ -89,7 +118,9 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
         applyAliases(stableEndpointKey),
       ]);
       for (const k of videoKeyCandidates) {
-        if (typeof videosAPI[k] === "string") return () => publicAxios.get(videosAPI[k], stableParams ? { params: stableParams } : undefined);
+        if (typeof videosAPI[k] === "string")
+          return () =>
+            publicAxios.get(videosAPI[k], stableParams ? { params: stableParams } : undefined);
       }
 
       return () => videoService.list(stableParams);
@@ -155,63 +186,79 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
   // -------------------------
   // Mutation endpoints
   // -------------------------
-  const endpoints = useMemo(() => buildMutationEndpoints({
-    resourceType,
-    endpointKey: stableEndpointKey,
-    resourceOverride: resource,
-    custom: mutation,
-  }), [resourceType, stableEndpointKey, resource, mutation]);
+  const endpoints = useMemo(
+    () =>
+      buildMutationEndpoints({
+        resourceType,
+        endpointKey: stableEndpointKey,
+        resourceOverride: resource,
+        custom: mutation,
+      }),
+    [resourceType, stableEndpointKey, resource, mutation]
+  );
 
-  const resolveCreateUrl = (eps) => typeof eps.create === "function" ? eps.create() : eps.create;
-  const resolvePatchUrl = (eps, id) => typeof eps.patch === "function" ? eps.patch(id) : eps.patch;
-  const resolveRemoveUrl = (eps, id) => typeof eps.remove === "function" ? eps.remove(id) : eps.remove;
+  const resolveCreateUrl = (eps) =>
+    typeof eps.create === "function" ? eps.create() : eps.create;
+  const resolvePatchUrl = (eps, id) =>
+    typeof eps.patch === "function" ? eps.patch(id) : eps.patch;
+  const resolveRemoveUrl = (eps, id) =>
+    typeof eps.remove === "function" ? eps.remove(id) : eps.remove;
 
   // -------------------------
   // Optimistic CRUD operations
   // -------------------------
-  const post = useCallback(async (payload, { optimisticItem } = {}) => {
-    const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
-    const tmpId = `tmp-${Date.now()}`;
-    const optimistic = { id: tmpId, ...(optimisticItem || payload) };
-    if (mountedRef.current) setData((prev) => [optimistic, ...prev]);
+  const post = useCallback(
+    async (payload, { optimisticItem } = {}) => {
+      const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
+      const tmpId = `tmp-${Date.now()}`;
+      const optimistic = { id: tmpId, ...(optimisticItem || payload) };
+      if (mountedRef.current) setData((prev) => [optimistic, ...prev]);
 
-    try {
-      const url = resolveCreateUrl(endpoints);
-      const res = await axiosInstance.post(url, payload);
-      safeNotify(notify, "success", successMessages.post || "Created successfully.");
-      await fetchData();
-      return res;
-    } catch (err) {
-      if (mountedRef.current) setData(previous);
-      safeNotify(notify, "error", errorMessages.post || "Create failed. Changes reverted.");
-      if (mountedRef.current) setError(err);
-      throw err;
-    }
-  }, [endpoints, fetchData, notify, successMessages, errorMessages]);
+      try {
+        const url = resolveCreateUrl(endpoints);
+        const res = await axiosInstance.post(url, payload);
+        safeNotify(notify, "success", successMessages.post || "Created successfully.");
+        await fetchData();
+        return res;
+      } catch (err) {
+        if (mountedRef.current) setData(previous);
+        safeNotify(notify, "error", errorMessages.post || "Create failed. Changes reverted.");
+        if (mountedRef.current) setError(err);
+        throw err;
+      }
+    },
+    [endpoints, fetchData, notify, successMessages, errorMessages]
+  );
 
-  const patch = useCallback(async (id, payload) => {
-    try {
-      const url = resolvePatchUrl(endpoints, id);
-      const res = await axiosInstance.patch(url, payload);
-      await fetchData();
-      return res;
-    } catch (err) {
-      if (mountedRef.current) setError(err);
-      throw err;
-    }
-  }, [endpoints, fetchData]);
+  const patch = useCallback(
+    async (id, payload) => {
+      try {
+        const url = resolvePatchUrl(endpoints, id);
+        const res = await axiosInstance.patch(url, payload);
+        await fetchData();
+        return res;
+      } catch (err) {
+        if (mountedRef.current) setError(err);
+        throw err;
+      }
+    },
+    [endpoints, fetchData]
+  );
 
-  const remove = useCallback(async (id) => {
-    try {
-      const url = resolveRemoveUrl(endpoints, id);
-      const res = await axiosInstance.delete(url);
-      await fetchData();
-      return res;
-    } catch (err) {
-      if (mountedRef.current) setError(err);
-      throw err;
-    }
-  }, [endpoints, fetchData]);
+  const remove = useCallback(
+    async (id) => {
+      try {
+        const url = resolveRemoveUrl(endpoints, id);
+        const res = await axiosInstance.delete(url);
+        await fetchData();
+        return res;
+      } catch (err) {
+        if (mountedRef.current) setError(err);
+        throw err;
+      }
+    },
+    [endpoints, fetchData]
+  );
 
   // Fetch on mount
   useEffect(() => {
@@ -246,8 +293,11 @@ function fallbackVideoObject() {
 
 function safeNotify(notify, type, message) {
   if (typeof notify === "function" && message) {
-    try { notify(type, message); } 
-    catch (e) { console.warn("[useFetcher] notify failed:", e); }
+    try {
+      notify(type, message);
+    } catch (e) {
+      console.warn("[useFetcher] notify failed:", e);
+    }
   }
 }
 
@@ -263,17 +313,29 @@ function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, c
       remove: (id) => videosAPI.detail(id),
     };
   } else if (res === "media") {
-    const createFn = () => (typeof mediaAPI.upload === "function" ? mediaAPI.upload() : mediaAPI.upload);
+    const createFn = () =>
+      typeof mediaAPI.upload === "function" ? mediaAPI.upload() : mediaAPI.upload;
     const updateFn = (id) =>
-      typeof mediaAPI.update === "function" ? mediaAPI.update(id) : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.update)}${id}/update/`;
+      typeof mediaAPI.update === "function"
+        ? mediaAPI.update(id)
+        : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.update)}${id}/update/`;
     const deleteFn = (id) =>
-      typeof mediaAPI.delete === "function" ? mediaAPI.delete(id) : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.delete)}${id}/delete/`;
+      typeof mediaAPI.delete === "function"
+        ? mediaAPI.delete(id)
+        : `${ensureTrailingSlash(mediaAPI.defaultBase || mediaAPI.delete)}${id}/delete/`;
 
     defaults = {
       create: createFn,
       update: updateFn,
       patch: updateFn,
       remove: deleteFn,
+    };
+  } else if (res === "promotions") {
+    defaults = {
+      create: promotionsAPI.create,
+      update: (id) => promotionsAPI.update(id),
+      patch: (id) => promotionsAPI.update(id),
+      remove: (id) => promotionsAPI.delete(id),
     };
   }
 
@@ -288,6 +350,7 @@ function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, c
 function inferResource(resourceType) {
   if (resourceType === "videos") return "videos";
   if (resourceType === "media") return "media";
+  if (resourceType === "promotions") return "promotions";
   return null;
 }
 
@@ -305,14 +368,18 @@ function toMethodSuffix(str) {
   if (typeof str !== "string") return "";
   const hasDelim = /[-_\s]/.test(str);
   if (hasDelim) {
-    return str.split(/[-_\s]+/).filter(Boolean).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join("");
+    return str
+      .split(/[-_\s]+/)
+      .filter(Boolean)
+      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+      .join("");
   }
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function uniqueNonEmpty(arr) {
   const seen = new Set();
-  return arr.filter(v => {
+  return arr.filter((v) => {
     const ok = typeof v === "string" && v.length > 0 && !seen.has(v);
     if (ok) seen.add(v);
     return ok;
