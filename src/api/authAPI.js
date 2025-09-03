@@ -1,11 +1,10 @@
-// src/api/authAPI.js
 import baseURL from "./baseURL";
 import axiosInstance from "./axiosInstance";
 
 const endpoints = {
   // Auth
   login: `${baseURL}/accounts/login/`,
-  logout: `${baseURL}/accounts/profile/logout/`, // ✅ backend requires /profile/logout/
+  logout: `${baseURL}/accounts/profile/logout/`,
 
   // Registration
   register: `${baseURL}/accounts/register/`,
@@ -42,7 +41,7 @@ const endpoints = {
 
   // Admin
   adminListUsers: `${baseURL}/accounts/admin/list-users/`,
-  adminResetPassword: `${baseURL}/accounts/admin-reset-password/`, // ✅ correct
+  adminResetPassword: `${baseURL}/accounts/admin-reset-password/`,
   adminInviteWorker: `${baseURL}/accounts/admin/invite-worker/`,
 
   // Workers
@@ -52,12 +51,11 @@ const endpoints = {
   workerCategories: `${baseURL}/accounts/worker-categories/`,
 
   // Profiles + comms
-  profilesList: `${baseURL}/accounts/profiles/list/`, // ✅ no dynamic params here
-  profilesProfile: `${baseURL}/accounts/profiles/profile/`, // ✅ no :id in backend
+  profilesList: `${baseURL}/accounts/profiles/list/`,
+  profilesProfile: `${baseURL}/accounts/profiles/profile/`,
   sendMessageToUsers: `${baseURL}/accounts/profiles/send-message/`,
   specialOffer: `${baseURL}/accounts/profiles/special-offer/`,
-  toggleUserActive: (userId) =>
-    `${baseURL}/accounts/profiles/toggle-active/${userId}/`,
+  toggleUserActive: (userId) => `${baseURL}/accounts/profiles/toggle-active/${userId}/`,
 
   // Internal
   deleteByEmail: `${baseURL}/accounts/delete-by-email/`,
@@ -105,7 +103,7 @@ const authAPI = {
   resendWelcomeEmail: (data) => axiosInstance.post(endpoints.resendWelcomeEmail, data),
 
   // Admin
-  adminListUsers: () => axiosInstance.get(endpoints.adminListUsers),
+  adminListUsers: (params) => axiosInstance.get(endpoints.adminListUsers, { params }),
   adminResetPassword: (data) => axiosInstance.post(endpoints.adminResetPassword, data),
   adminInviteWorker: (data) => axiosInstance.post(endpoints.adminInviteWorker, data),
 
