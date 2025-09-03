@@ -1,26 +1,25 @@
-// src/api/videosAPI.js
 import baseURL from "./baseURL";
 
 const videosAPI = {
   // -------- Public-facing --------
-  list: `${baseURL}/videos/`,                    // GET all videos (query params: ?endpoint=&is_active=&is_featured)
-  home: `${baseURL}/videos/home/`,               // GET -> VideoViewSet.home
-  about: `${baseURL}/videos/about/`,             // GET -> VideoViewSet.about
-  decor: `${baseURL}/videos/decor/`,             // GET -> VideoViewSet.decor
-  liveBand: `${baseURL}/videos/live_band/`,      // GET -> VideoViewSet.live_band
-  catering: `${baseURL}/videos/catering/`,       // GET -> VideoViewSet.catering
-  mediaHosting: `${baseURL}/videos/media_hosting/`, // GET -> VideoViewSet.media_hosting
-  vendor: `${baseURL}/videos/vendor/`,           // GET -> VideoViewSet.vendor
-  partner: `${baseURL}/videos/partner/`,         // GET -> VideoViewSet.partner
-  user: `${baseURL}/videos/user/`,               // GET -> VideoViewSet.user
-  partnerVendorDashboard: `${baseURL}/videos/partner_vendor_dashboard/`, // GET -> VideoViewSet.partner_vendor_dashboard
+  list: `${baseURL}/api/videos/videos/`,                        // GET all videos
+  home: `${baseURL}/api/videos/videos/home/`,                   // GET home videos
+  about: `${baseURL}/api/videos/videos/about/`,                 // GET about videos
+  decor: `${baseURL}/api/videos/videos/decor/`,                 // GET decor videos
+  liveBand: `${baseURL}/api/videos/videos/live_band/`,          // GET live band videos
+  catering: `${baseURL}/api/videos/videos/catering/`,           // GET catering videos
+  mediaHosting: `${baseURL}/api/videos/videos/media_hosting/`,  // GET media hosting videos
+  vendor: `${baseURL}/api/videos/videos/vendor/`,               // GET vendor videos
+  partner: `${baseURL}/api/videos/videos/partner/`,             // GET partner videos
+  user: `${baseURL}/api/videos/videos/user/`,                   // GET user videos
+  partnerVendorDashboard: `${baseURL}/api/videos/videos/partner_vendor_dashboard/`,
 
   // -------- Admin-only --------
-  upload: `${baseURL}/videos/`,                          // POST -> create new video
-  update: (id) => `${baseURL}/videos/${id}/`,            // PATCH -> update video by ID
-  delete: (id) => `${baseURL}/videos/${id}/`,            // DELETE -> delete video by ID
-  toggle: (id) => `${baseURL}/videos/${id}/toggle_active/`,     // POST -> toggle active status
-  toggleFeatured: (id) => `${baseURL}/videos/${id}/toggle_featured/`, // POST -> toggle featured status
+  upload: `${baseURL}/api/videos/videos/`,                        // POST -> create new video
+  update: (id) => `${baseURL}/api/videos/videos/${id}/`,           // PATCH -> update video
+  delete: (id) => `${baseURL}/api/videos/videos/${id}/`,           // DELETE -> remove video
+  toggle: (id) => `${baseURL}/api/videos/videos/${id}/toggle_active/`,     
+  toggleFeatured: (id) => `${baseURL}/api/videos/videos/${id}/toggle_featured/`
 };
 
 export default videosAPI;
