@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import mediaService from '../../api/mediaAPI';
+import mediaService from '../../api/services/mediaService'; // ✅ fixed import
 import './MediaManagement.css';
 
 const endpoints = [
@@ -91,14 +91,14 @@ const MediaManagement = () => {
 
       if (mediaType === 'featured') {
         res = await mediaService.getFeaturedMedia();
-        setUploadedItems(Array.isArray(res.data) ? res.data : []);
       } else if (mediaType === 'banner') {
         res = await mediaService.getBanners();
-        setUploadedItems(Array.isArray(res.data) ? res.data : []);
       } else {
         res = await mediaService.byEndpoint(endpoint);
-        setUploadedItems(Array.isArray(res.data) ? res.data : []);
       }
+
+      // ✅ fixed response handling
+      setUploadedItems(Array.isArray(res) ? res : []);
     } catch {
       toast.error('Failed to load media.', { autoClose: 4000 });
       setUploadedItems([]);
@@ -154,11 +154,12 @@ const MediaManagement = () => {
     setFiles(selected);
   };
 
+  // ✅ updated toggle calls
   const toggleActive = async (id) => {
     try {
-      const res = await mediaService.toggleMediaActive(id);
-      toast.info(res.data.is_active ? 'Activated.' : 'Deactivated.', { autoClose: 2500 });
-      setUploadedItems((prev) => prev.map((item) => (item.id === id ? { ...item, is_active: res.data.is_active } : item)));
+      const res = await mediaService.toggleActive(id);
+      toast.info(res.is_active ? 'Activated.' : 'Deactivated.', { autoClose: 2500 });
+      setUploadedItems((prev) => prev.map((item) => (item.id === id ? { ...item, is_active: res.is_active } : item)));
     } catch {
       toast.error('Toggle failed.', { autoClose: 3000 });
     }
@@ -166,9 +167,9 @@ const MediaManagement = () => {
 
   const toggleFeatured = async (id) => {
     try {
-      const res = await mediaService.toggleMediaFeatured(id);
-      toast.info(res.data.is_featured ? 'Marked as featured.' : 'Unmarked.', { autoClose: 2500 });
-      setUploadedItems((prev) => prev.map((item) => (item.id === id ? { ...item, is_featured: res.data.is_featured } : item)));
+      const res = await mediaService.toggleFeatured(id);
+      toast.info(res.is_featured ? 'Marked as featured.' : 'Unmarked.', { autoClose: 2500 });
+      setUploadedItems((prev) => prev.map((item) => (item.id === id ? { ...item, is_featured: res.is_featured } : item)));
     } catch {
       toast.error('Feature toggle failed.', { autoClose: 3000 });
     }

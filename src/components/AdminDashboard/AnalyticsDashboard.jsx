@@ -11,7 +11,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api';
+import api from '../../api/analyticsAPI';
 import './AnalyticsDashboard.css';
 
 const AnalyticsDashboard = () => {
