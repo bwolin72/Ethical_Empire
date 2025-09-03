@@ -1,5 +1,5 @@
 import axiosInstance from '../axiosInstance';
-import API from '../invoicesAPI';
+import API from '../invoicesAPI'; // should expose: list, create, detail(id), update(id), delete(id), downloadPdf(id), sendEmail(id)
 
 const invoiceService = {
   createInvoice: (data) => axiosInstance.post(API.create, data),
@@ -10,6 +10,9 @@ const invoiceService = {
 
   downloadPdf: (id) => axiosInstance.get(API.downloadPdf(id), { responseType: 'blob' }),
   sendInvoiceEmail: (id) => axiosInstance.post(API.sendEmail(id)),
+
+  // 🔁 Dashboard compatibility alias
+  list: () => axiosInstance.get(API.list),
 };
 
 export default invoiceService;

@@ -1,11 +1,18 @@
+import publicAxios from '../publicAxios';
 import axiosInstance from '../axiosInstance';
-import API from '../analyticsAPI';
+// If you have ../analyticsAPI, use it. Otherwise, we inline the paths from your endpoints file.
+
+const PATHS = {
+  stats: '/api/analytics/stats/',  // GET
+  log: '/api/analytics/log/',      // usually POST to record a visit
+};
 
 const analyticsService = {
-  getOverview: () => axiosInstance.get(API.analytics.overview),
-  getMediaStats: () => axiosInstance.get(API.analytics.mediaStats),
-  getBookingStats: () => axiosInstance.get(API.analytics.bookingStats),
-  getUserStats: () => axiosInstance.get(API.analytics.userStats),
+  stats: () => axiosInstance.get(PATHS.stats),
+  logVisit: (payload = {}) => publicAxios.post(PATHS.log, payload),
+
+  // 🔁 Dashboard compatibility alias
+  site: () => axiosInstance.get(PATHS.stats),
 };
 
 export default analyticsService;

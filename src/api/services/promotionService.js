@@ -1,18 +1,16 @@
-// src/api/services/promotionService.js
 import publicAxios from '../publicAxios';
-import axiosInstance from '../axiosInstance';
-import promotionsAPI from '../promotionsAPI';
-
-const promotionService = {
-  // Public endpoints
-  getPromotions: () => publicAxios.get(promotionsAPI.list),
-  getActivePromotions: () => publicAxios.get(promotionsAPI.active),
-  getPromotionDetail: (id) => publicAxios.get(promotionsAPI.detail(id)),
-
-  // Admin-only endpoints
-  createPromotion: (data) => axiosInstance.post(promotionsAPI.create, data),
-  updatePromotion: (id, data) => axiosInstance.patch(promotionsAPI.update(id), data),
-  deletePromotion: (id) => axiosInstance.delete(promotionsAPI.delete(id)),
+import axiosInstance from '../axiosInstance'; // keep for future admin-only actions
+// If you have ../promotionsAPI, swap these strings for constants.
+const PROMO = {
+  list: '/api/promotions/',           // GET list/create
+  active: '/api/promotions/active/',  // GET active
+  detail: (id) => `/api/promotions/${id}/`, // GET detail
 };
 
-export default promotionService;
+const promotionsService = {
+  list: (params = {}) => publicAxios.get(PROMO.list, { params }),
+  active: () => publicAxios.get(PROMO.active),
+  detail: (id) => publicAxios.get(PROMO.detail(id)),
+};
+
+export default promotionsService;
