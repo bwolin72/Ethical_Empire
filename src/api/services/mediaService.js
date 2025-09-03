@@ -1,6 +1,7 @@
 // src/api/services/mediaService.js
 import publicAxios from '../publicAxios';
 import axiosInstance from '../axiosInstance';
+import './endpointMap'
 import API from '../mediaAPI'; 
 // API should expose: defaultList, all, upload, update(id), delete(id), restore(id), toggle(id), toggleFeatured(id),
 // archived, reorder, stats, banners, featured, and all section-specific lists.

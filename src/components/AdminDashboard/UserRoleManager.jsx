@@ -21,73 +21,57 @@ const roles = [
 const UserRoleManager = () => {
   const [activeTab, setActiveTab] = useState("admin");
   const [users, setUsers] = useState([]);
-  const [selected, setSelected] = useState([]); // stores user IDs
+  const [selected, setSelected] = useState([]); // user IDs
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
 
-  // quick lookup maps
+  // Quick lookup
   const idToEmail = useMemo(
     () => new Map(users.map((u) => [u.id, u.email])),
     [users]
   );
 
-  // Fetch users depending on activeTab
-  const fetchUsers = useCallback(async (role) => {
-    setLoading(true);
-    try {
-      let res;
+  // Fetch users from unified admin endpoint
+  const fetchUsers = useCallback(
+    async (role) => {
+      setLoading(true);
+      try {
+        const res = await authAPI.adminListUsers({ role });
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : res?.data?.results || [];
 
-      if (role === "admin") {
-        // Admin-specific endpoint (returns admins)
-        res = await authAPI.adminListUsers();
-      } else {
-        // Use profiles list endpoint with a role query param
-        res = await authAPI.profilesList({ role });
+        const normalized = list.map((u) => ({
+          ...u,
+          role: (u.role || "").toLowerCase(),
+        }));
+
+        setUsers(normalized);
+      } catch (err) {
+        console.error("[UserRoleManager] Fetch error:", err);
+        toast.error("Failed to fetch users.");
+        setUsers([]);
+      } finally {
+        setLoading(false);
       }
+    },
+    []
+  );
 
-      const list = Array.isArray(res?.data)
-        ? res.data
-        : res?.data?.results
-        ? res.data.results
-        : res?.data
-        ? res.data
-        : [];
-
-      const normalized = list.map((u) => ({
-        ...u,
-        role: (u.role || "").toString().toLowerCase(),
-      }));
-
-      const filtered =
-        role === "admin"
-          ? normalized
-          : normalized.filter(
-              (u) => (u.role || "").toLowerCase() === role.toLowerCase()
-            );
-
-      setUsers(filtered.length > 0 ? filtered : normalized);
-    } catch (err) {
-      console.error("[UserRoleManager] Fetch error:", err);
-      toast.error("Failed to fetch users.");
-      setUsers([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // fetch initial and whenever activeTab changes
   useEffect(() => {
     fetchUsers(activeTab);
   }, [activeTab, fetchUsers]);
 
+  // Toggle checkbox
   const toggleSelection = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
+  // Delete selected users
   const handleDelete = async () => {
     if (!selected.length) {
       toast.warn("No users selected.");
@@ -97,30 +81,25 @@ const UserRoleManager = () => {
     try {
       const emails = selected.map((id) => idToEmail.get(id)).filter(Boolean);
       if (!emails.length) {
-        toast.warn("No emails found for selected users.");
-        setSubmitting(false);
+        toast.warn("No emails found.");
         return;
       }
-
       await Promise.all(emails.map((email) => authAPI.deleteByEmail({ email })));
       toast.success("Users deleted.");
       setSelected([]);
       await fetchUsers(activeTab);
     } catch (err) {
       console.error("[UserRoleManager] Delete error:", err);
-      toast.error(
-        err?.response?.data?.detail ||
-          err?.response?.data?.error ||
-          "Error deleting users."
-      );
+      toast.error("Error deleting users.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // Send message
   const handleSendMsg = async () => {
     if (!selected.length || !message.trim()) {
-      toast.warn("Select users and write a message.");
+      toast.warn("Select users and enter a message.");
       return;
     }
     setSubmitting(true);
@@ -130,19 +109,16 @@ const UserRoleManager = () => {
       setMessage("");
     } catch (err) {
       console.error("[UserRoleManager] Send message error:", err);
-      toast.error(
-        err?.response?.data?.detail ||
-          err?.response?.data?.error ||
-          "Failed to send message."
-      );
+      toast.error("Failed to send message.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // Send special offer
   const handleOffer = async () => {
     if (!selected.length || !message.trim()) {
-      toast.warn("Select users and write an offer message.");
+      toast.warn("Select users and enter an offer.");
       return;
     }
     setSubmitting(true);
@@ -152,55 +128,45 @@ const UserRoleManager = () => {
       setMessage("");
     } catch (err) {
       console.error("[UserRoleManager] Offer error:", err);
-      toast.error(
-        err?.response?.data?.detail ||
-          err?.response?.data?.error ||
-          "Failed to send offer."
-      );
+      toast.error("Failed to send offer.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // Invite worker
   const handleInviteWorker = async () => {
     if (!inviteEmail.trim()) {
-      toast.warn("Enter email to invite.");
+      toast.warn("Enter worker email.");
       return;
     }
     setSubmitting(true);
     try {
       const res = await authAPI.adminInviteWorker({ email: inviteEmail });
-      const access = res?.data?.access_code;
+      const code = res?.data?.access_code;
       toast.success(
-        access ? `Worker invited. Access code: ${access}` : "Worker invited."
+        code ? `Worker invited. Access code: ${code}` : "Worker invited."
       );
       setInviteEmail("");
-      if (activeTab === "worker") await fetchUsers("worker");
+      await fetchUsers("worker");
     } catch (err) {
-      console.error("[UserRoleManager] Invite worker error:", err);
-      toast.error(
-        err?.response?.data?.detail ||
-          err?.response?.data?.error ||
-          "Worker invite failed."
-      );
+      console.error("[UserRoleManager] Worker invite error:", err);
+      toast.error("Worker invite failed.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // Toggle active/inactive
   const handleToggleActive = async (userId) => {
     setSubmitting(true);
     try {
       await authAPI.toggleUserActive(userId);
-      toast.success("Status updated.");
+      toast.success("User status updated.");
       await fetchUsers(activeTab);
     } catch (err) {
       console.error("[UserRoleManager] Toggle active error:", err);
-      toast.error(
-        err?.response?.data?.detail ||
-          err?.response?.data?.error ||
-          "Failed to update user status."
-      );
+      toast.error("Failed to update status.");
     } finally {
       setSubmitting(false);
     }
@@ -224,7 +190,7 @@ const UserRoleManager = () => {
         </TabsList>
 
         <TabsContent value={activeTab}>
-          {/* Worker-specific Invite UI */}
+          {/* Worker invite UI */}
           {activeTab === "worker" && (
             <div className="urm-invite">
               <Input
@@ -294,7 +260,7 @@ const UserRoleManager = () => {
               )}
             </div>
           ) : (
-            <p className="urm-empty">No users found for this role.</p>
+            <p className="urm-empty">No users found.</p>
           )}
 
           {/* Actions */}

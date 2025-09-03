@@ -1,7 +1,7 @@
 import baseURL from './baseURL';
 
 const promotionsAPI = {
-  list: `${baseURL}/promotions/promotions/`,                     // GET all promotions
+  list: `${baseURL}/promotions/`,                     // GET all promotions
   active: `${baseURL}/promotions/active/`,            // GET only active promotions
   detail: (id) => `${baseURL}/promotions/${id}/`,     // GET promotion by ID
   create: `${baseURL}/promotions/`,                   // POST new promotion
