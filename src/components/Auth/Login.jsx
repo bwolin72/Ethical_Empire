@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
-import authAPI from '../../api/authAPI';
+import authAPI from '../../api/services/authService';
 import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Auth.css'; // unified auth CSS
