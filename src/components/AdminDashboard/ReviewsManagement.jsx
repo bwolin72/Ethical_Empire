@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api';
-import './ReviewsManagement.css';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+// src/components/admin/ReviewsManagement.jsx
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
+import reviewsAPI from "../../api/reviewsAPI"; // ✅ direct import of API config
+import "./ReviewsManagement.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ReviewsManagement = () => {
   const [reviews, setReviews] = useState([]);
@@ -14,23 +15,30 @@ const ReviewsManagement = () => {
     fetchReviews();
   }, []);
 
+  // === Fetch Reviews (handles paginated response) ===
   const fetchReviews = async () => {
-    const toastId = toast.loading('Loading reviews...');
+    const toastId = toast.loading("Loading reviews...");
     setLoading(true);
     try {
-      const res = await axiosInstance.get(api.reviews.admin.list);
-      const data = Array.isArray(res.data) ? res.data : [];
+      const res = await axiosInstance.get(reviewsAPI.adminList);
+      const data = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.results)
+        ? res.data.results
+        : [];
       setReviews(data);
+
       toast.update(toastId, {
-        render: '✅ Reviews loaded',
-        type: 'success',
+        render: "✅ Reviews loaded",
+        type: "success",
         isLoading: false,
         autoClose: 3000,
       });
     } catch (error) {
+      console.error("❌ Failed to load reviews:", error);
       toast.update(toastId, {
-        render: '❌ Failed to load reviews',
-        type: 'error',
+        render: "❌ Failed to load reviews",
+        type: "error",
         isLoading: false,
         autoClose: 3000,
       });
@@ -39,76 +47,83 @@ const ReviewsManagement = () => {
     }
   };
 
+  // === Delete Review ===
   const handleDelete = async (id) => {
-    const toastId = toast.loading('Deleting review...');
+    const toastId = toast.loading("Deleting review...");
     try {
-      await axiosInstance.delete(api.reviews.delete(id));
+      await axiosInstance.delete(reviewsAPI.delete(id));
       toast.update(toastId, {
-        render: '🗑️ Review deleted.',
-        type: 'success',
+        render: "🗑️ Review deleted.",
+        type: "success",
         isLoading: false,
         autoClose: 3000,
       });
       fetchReviews();
     } catch (error) {
+      console.error("❌ Failed to delete review:", error);
       toast.update(toastId, {
-        render: '❌ Failed to delete review.',
-        type: 'error',
+        render: "❌ Failed to delete review.",
+        type: "error",
         isLoading: false,
         autoClose: 3000,
       });
     }
   };
 
+  // === Reply to Review ===
   const handleReply = async (id) => {
     const reply = replyMap[id];
     if (!reply?.trim()) {
-      toast.warning('⚠️ Reply cannot be empty.');
+      toast.warning("⚠️ Reply cannot be empty.");
       return;
     }
 
-    const toastId = toast.loading('Sending reply...');
+    const toastId = toast.loading("Sending reply...");
     try {
-      await axiosInstance.patch(api.reviews.reply(id), { reply });
+      await axiosInstance.patch(reviewsAPI.reply(id), { reply });
       toast.update(toastId, {
-        render: '✅ Reply sent.',
-        type: 'success',
+        render: "✅ Reply sent.",
+        type: "success",
         isLoading: false,
         autoClose: 3000,
       });
-      setReplyMap((prev) => ({ ...prev, [id]: '' }));
+      setReplyMap((prev) => ({ ...prev, [id]: "" }));
       fetchReviews();
     } catch (error) {
+      console.error("❌ Failed to send reply:", error);
       toast.update(toastId, {
-        render: '❌ Failed to send reply.',
-        type: 'error',
+        render: "❌ Failed to send reply.",
+        type: "error",
         isLoading: false,
         autoClose: 3000,
       });
     }
   };
 
+  // === Approve Review ===
   const handleApprove = async (id) => {
-    const toastId = toast.loading('Approving review...');
+    const toastId = toast.loading("Approving review...");
     try {
-      await axiosInstance.patch(api.reviews.approve(id));
+      await axiosInstance.patch(reviewsAPI.approve(id));
       toast.update(toastId, {
-        render: '✅ Review approved.',
-        type: 'success',
+        render: "✅ Review approved.",
+        type: "success",
         isLoading: false,
         autoClose: 3000,
       });
       fetchReviews();
     } catch (error) {
+      console.error("❌ Failed to approve review:", error);
       toast.update(toastId, {
-        render: '❌ Failed to approve review.',
-        type: 'error',
+        render: "❌ Failed to approve review.",
+        type: "error",
         isLoading: false,
         autoClose: 3000,
       });
     }
   };
 
+  // === Reply input state ===
   const handleReplyChange = (id, value) => {
     setReplyMap((prev) => ({ ...prev, [id]: value }));
   };
@@ -125,12 +140,27 @@ const ReviewsManagement = () => {
       ) : (
         reviews.map((review) => (
           <div className="review-card" key={review.id}>
-            <p><strong>Service:</strong> {review.service_display || review.service}</p>
-            <p><strong>Rating:</strong> {review.rating} ⭐</p>
-            <p><strong>Comment:</strong> "{review.comment}"</p>
-            <p className="review-author"><strong>By:</strong> {review.user_email}</p>
-            <p><strong>Submitted:</strong> {new Date(review.created_at).toLocaleString()}</p>
-            <p><strong>Status:</strong> {review.approved ? '✅ Approved' : '❌ Pending Approval'}</p>
+            <p>
+              <strong>Service:</strong>{" "}
+              {review.service_display || review.service}
+            </p>
+            <p>
+              <strong>Rating:</strong> {review.rating} ⭐
+            </p>
+            <p>
+              <strong>Comment:</strong> "{review.comment}"
+            </p>
+            <p className="review-author">
+              <strong>By:</strong> {review.user_email}
+            </p>
+            <p>
+              <strong>Submitted:</strong>{" "}
+              {new Date(review.created_at).toLocaleString()}
+            </p>
+            <p>
+              <strong>Status:</strong>{" "}
+              {review.approved ? "✅ Approved" : "❌ Pending Approval"}
+            </p>
 
             {review.reply && (
               <p className="review-reply">
@@ -139,14 +169,17 @@ const ReviewsManagement = () => {
             )}
 
             {!review.approved && (
-              <button className="approve-btn" onClick={() => handleApprove(review.id)}>
+              <button
+                className="approve-btn"
+                onClick={() => handleApprove(review.id)}
+              >
                 ✅ Approve
               </button>
             )}
 
             <textarea
               placeholder="Type your reply..."
-              value={replyMap[review.id] || ''}
+              value={replyMap[review.id] || ""}
               onChange={(e) => handleReplyChange(review.id, e.target.value)}
             />
 

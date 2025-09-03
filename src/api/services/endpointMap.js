@@ -1,13 +1,13 @@
 const endpointMap = {
   home: "EethmHome",
   about: "About",
-  catering: "CateringPage",           // FIXED (backend uses CateringPage, not CateringServicePage)
+  catering: "CateringServicePage",         // matches App.js
   liveBand: "LiveBandServicePage",
-  decor: "DecorPage",                 // FIXED (backend uses DecorPage, not DecorServicePage)
+  decor: "DecorServicePage",               // matches App.js
   mediaHosting: "MediaHostingServicePage",
-  vendor: "VendorPage",
-  partner: "PartnerPage",
-  partnerVendorDashboard: "PartnerVendorDashboard",
+  vendor: "VendorProfile",                 // matches App.js
+  partner: "PartnerProfilePage",           // matches App.js
+  partnerVendorDashboard: "AgencyDashboard", // matches App.js
   user: "UserPage",
 };
 
