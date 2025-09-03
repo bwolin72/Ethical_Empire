@@ -2,11 +2,11 @@
 import baseURL from "./baseURL";
 import axiosInstance from "./axiosInstance";
 
-// -------- Endpoints (1:1 with backend routes) --------
+// -------- Endpoints (must match backend 1:1) --------
 const endpoints = {
   // Auth
   login: `${baseURL}/accounts/login/`,
-  logout: `${baseURL}/accounts/logout/`,
+  logout: `${baseURL}/accounts/profile/logout/`, // ✅ fixed: backend requires /profile/logout/
 
   // Registration
   register: `${baseURL}/accounts/register/`,
@@ -17,30 +17,24 @@ const endpoints = {
   // Profile
   profile: `${baseURL}/accounts/profile/`,
   changePassword: `${baseURL}/accounts/profile/change-password/`,
+  profileByEmail: `${baseURL}/accounts/profile-by-email/`,
+  partnerProfile: `${baseURL}/accounts/profile/partner/`,
+  vendorProfile: `${baseURL}/accounts/profile/vendor/`,
+  currentUserRole: `${baseURL}/accounts/profile/role/`,
+  roleChoices: `${baseURL}/accounts/role-choices/`,
 
   // Password reset
   resetPassword: `${baseURL}/accounts/reset-password/`,
   resetPasswordConfirm: (uidb64, token) =>
     `${baseURL}/accounts/reset-password-confirm/${uidb64}/${token}/`,
 
-  // Social
-  googleLogin: `${baseURL}/accounts/google-login/`,
-  googleRegister: `${baseURL}/accounts/google-register/`,
-
   // JWT
   token: `${baseURL}/accounts/token/`,
   tokenRefresh: `${baseURL}/accounts/token/refresh/`,
   tokenVerify: `${baseURL}/accounts/token/verify/`,
 
-  // Other account utilities
-  profileByEmail: `${baseURL}/accounts/profile-by-email/`,
-  partnerProfile: `${baseURL}/accounts/profile/partner/`,
-  vendorProfile: `${baseURL}/accounts/profile/vendor/`,
-  currentUserRole: `${baseURL}/accounts/profile/role/`,
-  roleChoices: `${baseURL}/accounts/role-choices/`,
+  // Email / OTP
   verifyEmail: (uid, token) => `${baseURL}/accounts/verify-email/${uid}/${token}/`,
-
-  // OTP & welcome email
   resendOtp: `${baseURL}/accounts/resend-otp/`,
   resendOtpEmail: `${baseURL}/accounts/resend-otp/email/`,
   verifyOtp: `${baseURL}/accounts/verify-otp/`,
@@ -49,24 +43,22 @@ const endpoints = {
 
   // Admin
   adminListUsers: `${baseURL}/accounts/admin/list-users/`,
-  adminResetPassword: `${baseURL}/accounts/admin/reset-password/`,
+  adminResetPassword: `${baseURL}/accounts/admin-reset-password/`, // ✅ fixed: no /admin/ in URL
   adminInviteWorker: `${baseURL}/accounts/admin/invite-worker/`,
 
-  // Worker invitations
+  // Workers
   workerValidateInvite: (uid, token) =>
     `${baseURL}/accounts/worker/validate-invite/${uid}/${token}/`,
   workerCompleteInvite: `${baseURL}/accounts/worker/complete-invite/`,
+  workerCategories: `${baseURL}/accounts/worker-categories/`,
 
   // Profiles + comms
-  profilesList: `${baseURL}/accounts/profiles/list/`,
-  profilesProfile: `${baseURL}/accounts/profiles/profile/`,
+  profilesList: (params = {}) => axiosInstance.get(endpoints.profilesList, { params }),
+  profilesProfile: (userId) => `${baseURL}/accounts/profiles/profile/${userId}/`,
   sendMessageToUsers: `${baseURL}/accounts/profiles/send-message/`,
   specialOffer: `${baseURL}/accounts/profiles/special-offer/`,
   toggleUserActive: (userId) =>
     `${baseURL}/accounts/profiles/toggle-active/${userId}/`,
-
-  // Roles taxonomy
-  workerCategories: `${baseURL}/accounts/worker-categories/`,
 
   // Internal
   deleteByEmail: `${baseURL}/accounts/delete-by-email/`,
@@ -90,6 +82,11 @@ const authAPI = {
   getProfile: () => axiosInstance.get(endpoints.profile),
   updateProfile: (data) => axiosInstance.patch(endpoints.profile, data),
   changePassword: (data) => axiosInstance.post(endpoints.changePassword, data),
+  getProfileByEmail: (data) => axiosInstance.post(endpoints.profileByEmail, data),
+  getPartnerProfile: () => axiosInstance.get(endpoints.partnerProfile),
+  getVendorProfile: () => axiosInstance.get(endpoints.vendorProfile),
+  getCurrentUserRole: () => axiosInstance.get(endpoints.currentUserRole),
+  getRoleChoices: () => axiosInstance.get(endpoints.roleChoices),
 
   // Password reset
   resetPassword: (data) => axiosInstance.post(endpoints.resetPassword, data),
@@ -101,7 +98,7 @@ const authAPI = {
   tokenRefresh: (data) => axiosInstance.post(endpoints.tokenRefresh, data),
   tokenVerify: (data) => axiosInstance.post(endpoints.tokenVerify, data),
 
-  // Email/OTP
+  // Email / OTP
   verifyEmail: (uid, token) => axiosInstance.get(endpoints.verifyEmail(uid, token)),
   resendOtp: (data) => axiosInstance.post(endpoints.resendOtp, data),
   resendOtpEmail: (data) => axiosInstance.post(endpoints.resendOtpEmail, data),
@@ -114,20 +111,18 @@ const authAPI = {
   adminResetPassword: (data) => axiosInstance.post(endpoints.adminResetPassword, data),
   adminInviteWorker: (data) => axiosInstance.post(endpoints.adminInviteWorker, data),
 
-  // Worker
+  // Workers
   workerValidateInvite: (uid, token) =>
     axiosInstance.get(endpoints.workerValidateInvite(uid, token)),
   workerCompleteInvite: (data) => axiosInstance.post(endpoints.workerCompleteInvite, data),
+  workerCategories: () => axiosInstance.get(endpoints.workerCategories),
 
-  // Profiles
+  // Profiles + comms
   profilesList: () => axiosInstance.get(endpoints.profilesList),
   profilesProfile: () => axiosInstance.get(endpoints.profilesProfile),
   sendMessageToUsers: (data) => axiosInstance.post(endpoints.sendMessageToUsers, data),
   specialOffer: (data) => axiosInstance.post(endpoints.specialOffer, data),
   toggleUserActive: (userId) => axiosInstance.post(endpoints.toggleUserActive(userId)),
-
-  // Roles
-  workerCategories: () => axiosInstance.get(endpoints.workerCategories),
 
   // Internal
   deleteByEmail: (data) => axiosInstance.post(endpoints.deleteByEmail, data),

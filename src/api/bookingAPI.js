@@ -1,28 +1,25 @@
-// src/api/bookingAPI.js
 import baseURL from './baseURL';
 
 const bookingAPI = {
   // ===== Client =====
-  create: `${baseURL}/bookings/submit/`,
-  list: `${baseURL}/bookings/`,
+  create: `${baseURL}/api/bookings/submit/`,             // POST
+  list: `${baseURL}/api/bookings/`,                      // GET
 
   // ===== User =====
-  userBookings: `${baseURL}/user/`,
-  userBookingHistory: `${baseURL}/user/history/`,
-  detail: (id) => `${baseURL}/bookings/${id}/`,
+  userBookings: `${baseURL}/api/bookings/user/`,         // GET
+  detail: (id) => `${baseURL}/api/bookings/${id}/`,      // GET, PATCH, DELETE
 
   // ===== Admin =====
-  adminList: `${baseURL}/bookings-admin/bookings/`,
-  adminUpdate: (id) => `${baseURL}/bookings-admin/bookings/${id}/update/`,   // PATCH
-  adminUpdateStatus: (id) => `${baseURL}/bookings-admin/bookings/${id}/status/`, // PATCH
-  adminDelete: (id) => `${baseURL}/bookings-admin/bookings/${id}/delete/`,   // DELETE
+  adminList: `${baseURL}/api/bookings/admin/bookings/`,           // GET
+  adminUpdateStatus: (id) => `${baseURL}/api/bookings/admin/bookings/${id}/status/`, // PATCH
+  adminDelete: (id) => `${baseURL}/api/bookings/admin/bookings/${id}/delete/`,       // DELETE
 
   // ===== Invoice =====
-  invoice: (id) => `${baseURL}/bookings/${id}/invoice/`,
+  invoice: (id) => `${baseURL}/api/bookings/invoice/${id}/`,      // GET invoice for booking
 
-  // ✅ Correct: email sending is in the invoices app, not bookings
-  invoiceEmail: (id) => `/api/invoices/invoices/${id}/send_email/`,
-  invoiceDownload: (id) => `/api/invoices/invoices/${id}/download_pdf/`,
+  // Forward to invoices app
+  invoiceEmail: (id) => `${baseURL}/api/invoices/invoices/${id}/send_email/`,
+  invoiceDownload: (id) => `${baseURL}/api/invoices/invoices/${id}/download_pdf/`,
 };
 
 export default bookingAPI;

@@ -1,6 +1,6 @@
 // src/components/admin/UserRoleManager.jsx
-import React, { useState, useEffect, useMemo } from "react";
-import authAPI from "../../api/authAPI"; // ✅ use centralized auth API that matches urls
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import authAPI from "../../api/authAPI";
 import { Button } from "../ui/Button";
 import { Card, CardContent } from "../ui/Card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/Tabs";
@@ -28,71 +28,98 @@ const UserRoleManager = () => {
   const [inviteEmail, setInviteEmail] = useState("");
 
   // quick lookup maps
-  const idToEmail = useMemo(
-    () => new Map(users.map((u) => [u.id, u.email])),
-    [users]
+  const idToEmail = useMemo(() => new Map(users.map((u) => [u.id, u.email])), [users]);
+
+  // Fetch users depending on activeTab
+  const fetchUsers = useCallback(
+    async (role) => {
+      setLoading(true);
+      try {
+        let res;
+
+        if (role === "admin") {
+          // Admin-specific endpoint (returns admins)
+          res = await authAPI.adminListUsers();
+        } else {
+          // Use profiles list endpoint with a role query param (preferred)
+          // authAPI.profilesList now accepts an optional params object
+          res = await authAPI.profilesList({ role });
+        }
+
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : res?.data?.results
+          ? res.data.results
+          : res?.data
+          ? res.data
+          : [];
+
+        // If backend ignored role param (returned all users), filter client-side
+        const normalizedList = Array.isArray(list)
+          ? list
+          : [];
+
+        // make sure role property exists in lowercase (normalize)
+        const normalized = normalizedList.map((u) => ({
+          ...u,
+          role: (u.role || "").toString().toLowerCase(),
+        }));
+
+        // if server returned all roles in response to profilesList, filter client-side
+        const filteredByRole =
+          role === "admin"
+            ? normalized // admin endpoint already filtered
+            : normalized.filter((u) => (u.role || "").toLowerCase() === role.toLowerCase());
+
+        // if filtering produced an empty set but server intended different behaviour,
+        // keep server result so that admin can still act on returned data.
+        const finalList = filteredByRole.length > 0 ? filteredByRole : normalized;
+
+        setUsers(finalList);
+      } catch (err) {
+        console.error("[UserRoleManager] Fetch error:", err);
+        toast.error("Failed to fetch users.");
+        setUsers([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
   );
 
+  // fetch initial and when activeTab changes
   useEffect(() => {
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      // /accounts/admin/list-users/
-      const res = await authAPI.adminListUsers();
-      const list = Array.isArray(res.data) ? res.data : res.data?.results || [];
-      setUsers(list);
-    } catch (err) {
-      console.error("[UserRoleManager] Fetch error:", err);
-      toast.error("Failed to fetch users.");
-      setUsers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredUsers = useMemo(() => {
-    // If the backend doesn't support role filtering via query param,
-    // filter on the client by the tab's role.
-    return users.filter(
-      (u) => (u.role || "").toLowerCase() === activeTab.toLowerCase()
-    );
-  }, [users, activeTab]);
+    fetchUsers(activeTab);
+  }, [activeTab, fetchUsers]);
 
   const toggleSelection = (id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
+    setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleDelete = async () => {
-    if (!selected.length) return;
+    if (!selected.length) {
+      toast.warn("No users selected.");
+      return;
+    }
     setSubmitting(true);
     try {
-      // /accounts/delete-by-email/ expects POST, one email per request
-      const emails = selected
-        .map((id) => idToEmail.get(id))
-        .filter(Boolean);
-
+      const emails = selected.map((id) => idToEmail.get(id)).filter(Boolean);
       if (!emails.length) {
         toast.warn("No emails found for selected users.");
+        setSubmitting(false);
         return;
       }
 
-      await Promise.all(
-        emails.map((email) => authAPI.deleteByEmail({ email }))
-      );
+      // delete each by email (endpoint expects { email })
+      await Promise.all(emails.map((email) => authAPI.deleteByEmail({ email })));
       toast.success("Users deleted.");
       setSelected([]);
-      await fetchUsers();
+      await fetchUsers(activeTab);
     } catch (err) {
       console.error("[UserRoleManager] Delete error:", err);
       const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
+        err?.response?.data?.detail ||
+        err?.response?.data?.error ||
         "Error deleting users.";
       toast.error(msg);
     } finally {
@@ -101,18 +128,20 @@ const UserRoleManager = () => {
   };
 
   const handleSendMsg = async () => {
-    if (!selected.length || !message.trim()) return;
+    if (!selected.length || !message.trim()) {
+      toast.warn("Select users and write a message.");
+      return;
+    }
     setSubmitting(true);
     try {
-      // /accounts/profiles/send-message/
       await authAPI.sendMessageToUsers({ ids: selected, message });
       toast.success("Message sent.");
       setMessage("");
     } catch (err) {
       console.error("[UserRoleManager] Send message error:", err);
       const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
+        err?.response?.data?.detail ||
+        err?.response?.data?.error ||
         "Failed to send message.";
       toast.error(msg);
     } finally {
@@ -121,18 +150,20 @@ const UserRoleManager = () => {
   };
 
   const handleOffer = async () => {
-    if (!selected.length || !message.trim()) return;
+    if (!selected.length || !message.trim()) {
+      toast.warn("Select users and write an offer message.");
+      return;
+    }
     setSubmitting(true);
     try {
-      // /accounts/profiles/special-offer/
       await authAPI.specialOffer({ ids: selected, message });
       toast.success("Offer sent.");
       setMessage("");
     } catch (err) {
       console.error("[UserRoleManager] Offer error:", err);
       const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
+        err?.response?.data?.detail ||
+        err?.response?.data?.error ||
         "Failed to send offer.";
       toast.error(msg);
     } finally {
@@ -141,21 +172,23 @@ const UserRoleManager = () => {
   };
 
   const handleInviteWorker = async () => {
-    if (!inviteEmail.trim()) return;
+    if (!inviteEmail.trim()) {
+      toast.warn("Enter email to invite.");
+      return;
+    }
     setSubmitting(true);
     try {
-      // /accounts/admin/invite-worker/ (optional feature)
       const res = await authAPI.adminInviteWorker({ email: inviteEmail });
       const access = res?.data?.access_code;
-      toast.success(
-        access ? `Worker invited. Access code: ${access}` : "Worker invited."
-      );
+      toast.success(access ? `Worker invited. Access code: ${access}` : "Worker invited.");
       setInviteEmail("");
+      // refresh worker list (if active)
+      if (activeTab === "worker") await fetchUsers("worker");
     } catch (err) {
       console.error("[UserRoleManager] Invite worker error:", err);
       const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
+        err?.response?.data?.detail ||
+        err?.response?.data?.error ||
         "Worker invite failed.";
       toast.error(msg);
     } finally {
@@ -166,21 +199,23 @@ const UserRoleManager = () => {
   const handleToggleActive = async (userId) => {
     setSubmitting(true);
     try {
-      // POST /accounts/profiles/toggle-active/<user_id>/
       await authAPI.toggleUserActive(userId);
       toast.success("Status updated.");
-      await fetchUsers();
+      await fetchUsers(activeTab);
     } catch (err) {
       console.error("[UserRoleManager] Toggle active error:", err);
       const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.error ||
+        err?.response?.data?.detail ||
+        err?.response?.data?.error ||
         "Failed to update user status.";
       toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
+
+  // filteredUsers is just the users state (already filtered server-side if possible)
+  const filteredUsers = users;
 
   return (
     <div className="urm-container">
@@ -190,9 +225,7 @@ const UserRoleManager = () => {
             <TabsTrigger
               key={role.value}
               value={role.value}
-              className={`urm-tab ${
-                activeTab === role.value ? "urm-tab--active" : ""
-              }`}
+              className={`urm-tab ${activeTab === role.value ? "urm-tab--active" : ""}`}
             >
               {role.label}
             </TabsTrigger>
@@ -221,46 +254,28 @@ const UserRoleManager = () => {
 
             {loading ? (
               <p className="urm-loading">Loading users...</p>
-            ) : filteredUsers.length > 0 ? (
+            ) : filteredUsers && filteredUsers.length > 0 ? (
               <div className="urm-grid">
                 {filteredUsers.map((user) => {
-                  const {
-                    id,
-                    name = "Unnamed",
-                    email = "No email",
-                    role: userRole = "",
-                    is_active = false,
-                  } = user;
+                  const { id, name = "Unnamed", email = "No email", role: userRole = "", is_active = false } = user;
 
                   return (
                     <Card key={id} className="urm-card">
                       <CardContent className="urm-card-content">
                         <div className="urm-check">
-                          <Checkbox
-                            checked={selected.includes(id)}
-                            onCheckedChange={() => toggleSelection(id)}
-                          />
+                          <Checkbox checked={selected.includes(id)} onCheckedChange={() => toggleSelection(id)} />
                         </div>
 
                         <div className="urm-user">
                           <h2 className="urm-user-name">{name}</h2>
                           <p className="urm-user-email">{email}</p>
-                          <p className="urm-user-role">
-                            {(userRole || "").toUpperCase()}
-                          </p>
-                          <p
-                            className={`urm-user-status ${
-                              is_active ? "urm-status--active" : "urm-status--inactive"
-                            }`}
-                          >
+                          <p className="urm-user-role">{(userRole || "").toUpperCase()}</p>
+                          <p className={`urm-user-status ${is_active ? "urm-status--active" : "urm-status--inactive"}`}>
                             {is_active ? "Active" : "Inactive"}
                           </p>
                         </div>
 
-                        <Button
-                          onClick={() => handleToggleActive(id)}
-                          className="urm-btn-muted"
-                        >
+                        <Button onClick={() => handleToggleActive(id)} className="urm-btn-muted">
                           {is_active ? "Deactivate" : "Activate"}
                         </Button>
                       </CardContent>
@@ -274,11 +289,7 @@ const UserRoleManager = () => {
 
             <div className="urm-actions">
               <div className="urm-actions-row">
-                <Button
-                  onClick={handleDelete}
-                  disabled={submitting || !selected.length}
-                  className="urm-btn-danger"
-                >
+                <Button onClick={handleDelete} disabled={submitting || !selected.length} className="urm-btn-danger">
                   Delete Selected
                 </Button>
 
@@ -303,12 +314,7 @@ const UserRoleManager = () => {
               </div>
 
               {activeTab === "user" && (
-                <Textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Write your message or offer..."
-                  className="urm-textarea"
-                />
+                <Textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write your message or offer..." className="urm-textarea" />
               )}
             </div>
           </TabsContent>
