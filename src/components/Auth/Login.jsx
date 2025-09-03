@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
-import authAPI from '../../api/services/authService';
+import authService from '../../api/services/authService';
 import { useAuth } from '../context/AuthContext';
 import logo from '../../assets/logo.png';
 import './Auth.css'; // unified auth CSS
@@ -94,7 +94,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data } = await authAPI.login(form);
+      const { data } = await authService.login(form);
       handleLoginSuccess(data);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -108,7 +108,7 @@ const Login = () => {
     if (!credential) return setError('Google login failed.');
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(authAPI.endpoints.googleLogin, { credential });
+      const { data } = await axiosInstance.post(authService.endpoints.googleLogin, { credential });
       handleLoginSuccess(data);
     } catch (err) {
       setError(extractErrorMessage(err));
