@@ -1,9 +1,9 @@
 // src/components/booking/BookingForm.jsx
-import React, { useState, useEffect } from 'react';
-import DatePicker from 'react-datepicker';
-import PhoneInput from 'react-phone-input-2';
-import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
-import { toast, ToastContainer } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import PhoneInput from "react-phone-input-2";
+import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
+import { toast, ToastContainer } from "react-toastify";
 import {
   FaCalendarAlt,
   FaWhatsapp,
@@ -13,33 +13,33 @@ import {
   FaLinkedin,
   FaTwitter,
   FaFacebookF,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
-import { useTheme } from '../../context/ThemeContext';
-import { useAuth } from '../context/AuthContext';
-import bookingService from '../../api/services/bookingService';
-import serviceService from '../../api/services/serviceService';
+import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
+import bookingService from "../../api/services/bookingService";
+import serviceService from "../../api/services/serviceService";
 
-import 'react-datepicker/dist/react-datepicker.css';
-import 'react-phone-input-2/lib/style.css';
-import 'react-toastify/dist/ReactToastify.css';
-import './BookingForm.css';
-import logo from '../../assets/logo.png';
+import "react-datepicker/dist/react-datepicker.css";
+import "react-phone-input-2/lib/style.css";
+import "react-toastify/dist/ReactToastify.css";
+import "./BookingForm.css";
+import logo from "../../assets/logo.png";
 
 const BookingForm = () => {
   const { darkMode } = useTheme();
-  const { user } = useAuth(); // ✅ remove isAuthenticated enforcement
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    country: 'Ghana',
-    state_or_region: '',
-    venue_name: '',
-    address: '',
+    name: "",
+    email: "",
+    phone: "",
+    country: "Ghana",
+    state_or_region: "",
+    venue_name: "",
+    address: "",
     event_date: null,
-    message: '',
+    message: "",
     services: [],
   });
 
@@ -53,20 +53,21 @@ const BookingForm = () => {
       try {
         const res = await serviceService.getServices();
         const data = res?.data;
-        let normalized = [];
 
+        let normalized = [];
         if (Array.isArray(data)) normalized = data;
         else if (Array.isArray(data?.results)) normalized = data.results;
         else if (Array.isArray(data?.data)) normalized = data.data;
 
         setServicesList(normalized);
       } catch (err) {
-        toast.error('Failed to fetch services.', { autoClose: 3000 });
-        console.error('Service fetch error:', err);
+        toast.error("Failed to fetch services.", { autoClose: 3000 });
+        console.error("Service fetch error:", err);
       } finally {
         setServicesLoading(false);
       }
     };
+
     fetchServices();
   }, []);
 
@@ -81,9 +82,11 @@ const BookingForm = () => {
     }
   }, [user]);
 
+  // Input handlers
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === 'checkbox') {
+
+    if (type === "checkbox") {
       const id = parseInt(value, 10);
       setFormData((prev) => ({
         ...prev,
@@ -100,25 +103,25 @@ const BookingForm = () => {
     setFormData((prev) => ({ ...prev, event_date: date }));
 
   const handlePhoneChange = (value) => {
-    const normalized = value ? `+${value}` : '';
-    setFormData((prev) => ({ ...prev, phone: normalized }));
+    setFormData((prev) => ({ ...prev, phone: value ? `+${value}` : "" }));
   };
 
   const resetForm = () => {
     setFormData({
-      name: user?.full_name || '',
-      email: user?.email || '',
-      phone: '',
-      country: 'Ghana',
-      state_or_region: '',
-      venue_name: '',
-      address: '',
+      name: user?.full_name || "",
+      email: user?.email || "",
+      phone: "",
+      country: "Ghana",
+      state_or_region: "",
+      venue_name: "",
+      address: "",
       event_date: null,
-      message: '',
+      message: "",
       services: [],
     });
   };
 
+  // Submit booking
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -135,6 +138,7 @@ const BookingForm = () => {
       services,
     } = formData;
 
+    // Client-side validation
     if (
       !name ||
       !email ||
@@ -147,20 +151,22 @@ const BookingForm = () => {
       !Array.isArray(services) ||
       services.length === 0
     ) {
-      toast.error('Please complete all required fields and select at least one service.', {
+      toast.error(
+        "Please complete all required fields and select at least one service.",
+        { autoClose: 3000 }
+      );
+      return;
+    }
+
+    if (!/^\+\d{8,15}$/.test(phone)) {
+      toast.error("Please enter a valid international phone number.", {
         autoClose: 3000,
       });
       return;
     }
 
-    if (!/^\+\d{8,15}$/.test(phone)) {
-      toast.error('Please enter a valid international phone number.', { autoClose: 3000 });
-      return;
-    }
-
     setIsSubmitting(true);
 
-    // ✅ Backend expects only service IDs, not objects
     const payload = {
       name,
       email,
@@ -169,37 +175,50 @@ const BookingForm = () => {
       state_or_region,
       venue_name,
       address,
-      event_date: event_date ? event_date.toISOString().split('T')[0] : null,
-      message: formData.message || '',
-      services: services, // IDs only
+      event_date: event_date
+        ? event_date.toISOString().split("T")[0]
+        : null,
+      message: formData.message || "",
+      services, // IDs only
     };
 
     try {
       await bookingService.create(payload);
-      toast.success('🎉 Booking request submitted successfully!', { autoClose: 3000 });
-      toast.info('📧 A confirmation email will be sent to you shortly.', { autoClose: 4000 });
+      toast.success("🎉 Booking request submitted successfully!", {
+        autoClose: 3000,
+      });
+      toast.info("📧 A confirmation email will be sent to you shortly.", {
+        autoClose: 4000,
+      });
       resetForm();
     } catch (err) {
       const response = err?.response?.data;
-      let msg = 'Error occurred submitting form.';
+      let msg = "Error occurred submitting form.";
+
       if (response) {
-        if (typeof response === 'string') msg = response;
-        else if (Array.isArray(response)) msg = response.join(' ');
-        else if (typeof response === 'object') {
+        if (typeof response === "string") msg = response;
+        else if (Array.isArray(response)) msg = response.join(" ");
+        else if (typeof response === "object") {
           const first = Object.values(response)[0];
           msg = Array.isArray(first) ? first[0] : first?.toString() || msg;
         }
       }
+
       toast.error(msg, { autoClose: 4000 });
-      console.error('Booking submit error:', err);
+      console.error("Booking submit error:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className={`booking-wrapper ${darkMode ? 'dark' : 'light'}`}>
-      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+    <div className={`booking-wrapper ${darkMode ? "dark" : "light"}`}>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        theme="colored"
+      />
 
       <div className="booking-container">
         {/* === Left Form === */}
@@ -213,13 +232,13 @@ const BookingForm = () => {
           <form onSubmit={handleSubmit} className="form-content" noValidate>
             <h3>Event Booking Form</h3>
 
-            {['name', 'email', 'venue_name', 'address'].map((id) => (
+            {["name", "email", "venue_name", "address"].map((id) => (
               <div key={id} className="input-group">
-                <label htmlFor={id}>{id.replace('_', ' ')}</label>
+                <label htmlFor={id}>{id.replace("_", " ")}</label>
                 <input
                   id={id}
                   name={id}
-                  type={id === 'email' ? 'email' : 'text'}
+                  type={id === "email" ? "email" : "text"}
                   value={formData[id]}
                   onChange={handleChange}
                   required
@@ -232,7 +251,11 @@ const BookingForm = () => {
               <CountryDropdown
                 value={formData.country}
                 onChange={(val) =>
-                  setFormData((prev) => ({ ...prev, country: val, state_or_region: '' }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    country: val,
+                    state_or_region: "",
+                  }))
                 }
               />
             </div>
@@ -242,7 +265,9 @@ const BookingForm = () => {
               <RegionDropdown
                 country={formData.country}
                 value={formData.state_or_region}
-                onChange={(val) => setFormData((prev) => ({ ...prev, state_or_region: val }))}
+                onChange={(val) =>
+                  setFormData((prev) => ({ ...prev, state_or_region: val }))
+                }
               />
             </div>
 
@@ -250,12 +275,12 @@ const BookingForm = () => {
               <label>Phone Number</label>
               <PhoneInput
                 country="gh"
-                value={(formData.phone || '').replace(/^\+/, '')}
+                value={(formData.phone || "").replace(/^\+/, "")}
                 onChange={handlePhoneChange}
-                inputProps={{ name: 'phone', required: true, autoComplete: 'tel' }}
+                inputProps={{ name: "phone", required: true, autoComplete: "tel" }}
                 enableSearch
                 international
-                preferredCountries={['gh', 'us', 'gb', 'ng', 'de']}
+                preferredCountries={["gh", "us", "gb", "ng", "de"]}
               />
             </div>
 
@@ -309,7 +334,7 @@ const BookingForm = () => {
             </div>
 
             <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? 'Submitting...' : 'Submit Booking'}
+              {isSubmitting ? "Submitting..." : "Submit Booking"}
             </button>
           </form>
         </div>
@@ -318,19 +343,46 @@ const BookingForm = () => {
         <div className="booking-brand-panel">
           <div className="brand-content">
             <h3>Operation Manager</h3>
-            <p><strong>Name:</strong> Mrs. Eunice Chai</p>
-            <p><strong>Email:</strong> <a href="mailto:info@eethmghmultimedia.com">info@eethmghmultimedia.com</a></p>
-            <p><strong>Phone:</strong> <a href="tel:+233559241828">+233 55 924 1828</a></p>
-            <p><strong>WhatsApp:</strong> <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">+233 55 298 8735</a></p>
+            <p>
+              <strong>Name:</strong> Mrs. Eunice Chai
+            </p>
+            <p>
+              <strong>Email:</strong>{" "}
+              <a href="mailto:info@eethmghmultimedia.com">
+                info@eethmghmultimedia.com
+              </a>
+            </p>
+            <p>
+              <strong>Phone:</strong>{" "}
+              <a href="tel:+233559241828">+233 55 924 1828</a>
+            </p>
+            <p>
+              <strong>WhatsApp:</strong>{" "}
+              <a
+                href="https://wa.me/233552988735"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                +233 55 298 8735
+              </a>
+            </p>
 
             <div className="location-block">
               <h3>Headquarters</h3>
-              <p><FaMapMarkerAlt className="icon" /> Bicycle City, Ojobi, Gomoa Akotsi</p>
+              <p>
+                <FaMapMarkerAlt className="icon" /> Bicycle City, Ojobi, Gomoa
+                Akotsi
+              </p>
               <p>Central Region, Ghana</p>
             </div>
 
             <div className="contact-buttons">
-              <a href="https://wa.me/233553424865" className="whatsapp" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://wa.me/233553424865"
+                className="whatsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <FaWhatsapp /> WhatsApp
               </a>
               <a href="tel:+233559241828" className="phone">
@@ -339,10 +391,34 @@ const BookingForm = () => {
             </div>
 
             <div className="social-media-links">
-              <a href="https://www.instagram.com/ethicalmultimedia" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
-              <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noopener noreferrer"><FaLinkedin /></a>
-              <a href="https://x.com/EeTHm_Gh" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
-              <a href="https://www.facebook.com/16nQGbE7Zk/" target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>
+              <a
+                href="https://www.instagram.com/ethicalmultimedia"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaInstagram />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/ethical-empire/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaLinkedin />
+              </a>
+              <a
+                href="https://x.com/EeTHm_Gh"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaTwitter />
+              </a>
+              <a
+                href="https://www.facebook.com/16nQGbE7Zk/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <FaFacebookF />
+              </a>
             </div>
           </div>
         </div>

@@ -8,7 +8,6 @@ import endpointMap from "./endpointMap"; // central map
 const normalizeCloudinaryUrls = (data) => {
   if (!data) return data;
 
-  // Convert object, array, or single media object
   const normalizeItem = (item) => {
     if (item?.url) {
       if (item.url.full?.startsWith("http://res.cloudinary.com")) {
@@ -114,13 +113,13 @@ const mediaService = {
     const map = {
       EethmHome: API.home,
       About: API.about,
-      CateringPage: API.catering,
+      CateringServicePage: API.catering,
       LiveBandServicePage: API.liveBand,
-      DecorPage: API.decor,
+      DecorServicePage: API.decor,
       MediaHostingServicePage: API.mediaHosting,
-      VendorPage: API.vendor,
-      PartnerPage: API.partner,
-      PartnerVendorDashboard: API.partnerVendorDashboard,
+      VendorProfile: API.vendor,
+      PartnerProfilePage: API.partner,
+      AgencyDashboard: API.partnerVendorDashboard,
       UserPage: API.user,
     };
 

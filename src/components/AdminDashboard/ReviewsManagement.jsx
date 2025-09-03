@@ -1,7 +1,7 @@
 // src/components/admin/ReviewsManagement.jsx
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
-import reviewsAPI from "../../api/reviewsAPI"; // ✅ direct import of API config
+import reviewsAPI from "../../api/reviewsAPI"; // ✅ API config
 import "./ReviewsManagement.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,7 +15,7 @@ const ReviewsManagement = () => {
     fetchReviews();
   }, []);
 
-  // === Fetch Reviews (handles paginated response) ===
+  // === Fetch Reviews ===
   const fetchReviews = async () => {
     const toastId = toast.loading("Loading reviews...");
     setLoading(true);
@@ -32,7 +32,7 @@ const ReviewsManagement = () => {
         render: "✅ Reviews loaded",
         type: "success",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 2000,
       });
     } catch (error) {
       console.error("❌ Failed to load reviews:", error);
@@ -40,7 +40,7 @@ const ReviewsManagement = () => {
         render: "❌ Failed to load reviews",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 2000,
       });
     } finally {
       setLoading(false);
@@ -56,7 +56,7 @@ const ReviewsManagement = () => {
         render: "🗑️ Review deleted.",
         type: "success",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 2000,
       });
       fetchReviews();
     } catch (error) {
@@ -65,7 +65,7 @@ const ReviewsManagement = () => {
         render: "❌ Failed to delete review.",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 2000,
       });
     }
   };
@@ -80,12 +80,13 @@ const ReviewsManagement = () => {
 
     const toastId = toast.loading("Sending reply...");
     try {
-      await axiosInstance.patch(reviewsAPI.reply(id), { reply });
+      // ✅ must be POST, not PATCH
+      await axiosInstance.post(reviewsAPI.reply(id), { reply });
       toast.update(toastId, {
         render: "✅ Reply sent.",
         type: "success",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 2000,
       });
       setReplyMap((prev) => ({ ...prev, [id]: "" }));
       fetchReviews();
@@ -95,7 +96,7 @@ const ReviewsManagement = () => {
         render: "❌ Failed to send reply.",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 2000,
       });
     }
   };
@@ -104,12 +105,13 @@ const ReviewsManagement = () => {
   const handleApprove = async (id) => {
     const toastId = toast.loading("Approving review...");
     try {
-      await axiosInstance.patch(reviewsAPI.approve(id));
+      // ✅ must be POST, not PATCH
+      await axiosInstance.post(reviewsAPI.approve(id));
       toast.update(toastId, {
         render: "✅ Review approved.",
         type: "success",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 2000,
       });
       fetchReviews();
     } catch (error) {
@@ -118,7 +120,7 @@ const ReviewsManagement = () => {
         render: "❌ Failed to approve review.",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 2000,
       });
     }
   };
@@ -130,7 +132,7 @@ const ReviewsManagement = () => {
 
   return (
     <div className="reviews-panel">
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={2000} />
       <h2>Reviews Management</h2>
 
       {loading ? (
@@ -141,8 +143,7 @@ const ReviewsManagement = () => {
         reviews.map((review) => (
           <div className="review-card" key={review.id}>
             <p>
-              <strong>Service:</strong>{" "}
-              {review.service_display || review.service}
+              <strong>Service:</strong> {review.service_display || review.service}
             </p>
             <p>
               <strong>Rating:</strong> {review.rating} ⭐
@@ -169,10 +170,7 @@ const ReviewsManagement = () => {
             )}
 
             {!review.approved && (
-              <button
-                className="approve-btn"
-                onClick={() => handleApprove(review.id)}
-              >
+              <button className="approve-btn" onClick={() => handleApprove(review.id)}>
                 ✅ Approve
               </button>
             )}

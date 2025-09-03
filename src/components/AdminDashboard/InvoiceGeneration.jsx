@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api';
-import './InvoiceGeneration.css';
+// src/components/admin/InvoiceGeneration.jsx
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import bookingService from "../../api/services/bookingService";
+import serviceService from "../../api/services/serviceService";
+import invoiceService from "../../api/services/invoiceService"; // ✅ new service
+import "./InvoiceGeneration.css";
 
 const InvoiceGeneration = () => {
   const [bookings, setBookings] = useState([]);
   const [services, setServices] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  const [paymentStatus, setPaymentStatus] = useState('none');
+  const [paymentStatus, setPaymentStatus] = useState("none");
   const [creating, setCreating] = useState(false);
   const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -20,14 +22,22 @@ const InvoiceGeneration = () => {
       setLoading(true);
       try {
         const [bookingsRes, servicesRes] = await Promise.all([
-          axiosInstance.get(api.bookings.list),
-          axiosInstance.get(api.services.list),
+          bookingService.adminList(),
+          serviceService.getServices(),
         ]);
-        setBookings(Array.isArray(bookingsRes.data) ? bookingsRes.data : bookingsRes.data?.results || []);
-        setServices(Array.isArray(servicesRes.data) ? servicesRes.data : servicesRes.data?.results || []);
+
+        const bookingsData = Array.isArray(bookingsRes.data)
+          ? bookingsRes.data
+          : bookingsRes.data?.results || [];
+        const servicesData = Array.isArray(servicesRes.data)
+          ? servicesRes.data
+          : servicesRes.data?.results || [];
+
+        setBookings(bookingsData);
+        setServices(servicesData);
       } catch (err) {
-        console.error('[InvoiceGeneration] Fetch error:', err);
-        setMessage('❌ Failed to load bookings or services.');
+        console.error("[InvoiceGeneration] Fetch error:", err);
+        setMessage("❌ Failed to load bookings or services.");
       } finally {
         setLoading(false);
       }
@@ -37,44 +47,40 @@ const InvoiceGeneration = () => {
 
   const booking = bookings.find((b) => b.id === selectedId);
 
-  const serviceList = Array.isArray(booking?.service_type)
-    ? booking.service_type
-    : booking?.service_type
-    ? [booking.service_type]
-    : [];
+  const serviceList = booking?.services || []; // ✅ bookings already have services (IDs or names)
+  const total = serviceList.reduce((sum, id) => {
+    const match = services.find((s) => s.id === id || s.name === id);
+    return sum + (match ? parseFloat(match.price) : 0);
+  }, 0);
 
-  const total =
-    serviceList.reduce((sum, s) => {
-      const match = services.find((item) => item.name === s);
-      return sum + (match ? parseFloat(match.price) : 0);
-    }, 0);
-
-  const paid = paymentStatus === 'full' ? total : paymentStatus === 'half' ? total / 2 : 0;
+  const paid =
+    paymentStatus === "full" ? total : paymentStatus === "half" ? total / 2 : 0;
   const remaining = total - paid;
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
+    if (!dateStr) return "N/A";
     const date = new Date(dateStr);
-    return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
+    return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
   };
 
   const createInvoice = async () => {
     if (!booking || !paymentStatus) return;
     setCreating(true);
-    setMessage('');
+    setMessage("");
     setPdfPreviewUrl(null);
 
     try {
-      const res = await axiosInstance.post(api.invoices.create, {
+      const res = await invoiceService.create({
         booking_id: booking.id,
         payment_status: paymentStatus,
       });
+
       setCreatedInvoiceId(res.data.id);
-      setMessage('✅ Invoice created successfully.');
+      setMessage("✅ Invoice created successfully.");
       fetchInvoicePDF(res.data.id);
     } catch (error) {
-      console.error('[InvoiceGeneration] Create error:', error);
-      setMessage('❌ Error creating invoice.');
+      console.error("[InvoiceGeneration] Create error:", error);
+      setMessage("❌ Error creating invoice.");
     } finally {
       setCreating(false);
     }
@@ -82,50 +88,46 @@ const InvoiceGeneration = () => {
 
   const fetchInvoicePDF = async (invoiceId) => {
     try {
-      const res = await axiosInstance.get(api.invoices.downloadPDF(invoiceId), {
-        responseType: 'blob',
-      });
-      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const res = await invoiceService.download(invoiceId);
+      const blob = new Blob([res.data], { type: "application/pdf" });
       setPdfPreviewUrl(URL.createObjectURL(blob));
     } catch (error) {
-      console.error('[InvoiceGeneration] PDF fetch error:', error);
-      setMessage('❌ Could not load PDF preview.');
+      console.error("[InvoiceGeneration] PDF fetch error:", error);
+      setMessage("❌ Could not load PDF preview.");
     }
   };
 
   const downloadInvoice = async () => {
     if (!createdInvoiceId) return;
     try {
-      const res = await axiosInstance.get(api.invoices.downloadPDF(createdInvoiceId), {
-        responseType: 'blob',
-      });
-      const blob = new Blob([res.data], { type: 'application/pdf' });
-      const link = document.createElement('a');
+      const res = await invoiceService.download(createdInvoiceId);
+      const blob = new Blob([res.data], { type: "application/pdf" });
+      const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `invoice_${booking?.name || 'booking'}_${createdInvoiceId}.pdf`;
+      link.download = `invoice_${booking?.name || "booking"}_${createdInvoiceId}.pdf`;
       link.click();
     } catch (error) {
-      console.error('[InvoiceGeneration] Download error:', error);
-      setMessage('❌ Failed to download PDF.');
+      console.error("[InvoiceGeneration] Download error:", error);
+      setMessage("❌ Failed to download PDF.");
     }
   };
 
   const sendInvoiceEmail = async () => {
     if (!createdInvoiceId) return;
     try {
-      await axiosInstance.post(api.invoices.sendEmail(createdInvoiceId));
-      setMessage('📧 Invoice sent via email.');
+      await invoiceService.sendEmail(createdInvoiceId);
+      setMessage("📧 Invoice sent via email.");
     } catch (error) {
-      console.error('[InvoiceGeneration] Email error:', error);
-      setMessage('❌ Failed to send invoice email.');
+      console.error("[InvoiceGeneration] Email error:", error);
+      setMessage("❌ Failed to send invoice email.");
     }
   };
 
   const resetInvoiceState = () => {
     setCreatedInvoiceId(null);
     setPdfPreviewUrl(null);
-    setPaymentStatus('none');
-    setMessage('');
+    setPaymentStatus("none");
+    setMessage("");
   };
 
   return (
@@ -144,12 +146,12 @@ const InvoiceGeneration = () => {
             <p><strong>Booking Date:</strong> {formatDate(booking.created_at)}</p>
             <p><strong>Event Date:</strong> {formatDate(booking.event_date)}</p>
             <p><strong>Phone:</strong> {booking.phone}</p>
-            <p><strong>Venue:</strong> {booking.address || 'N/A'}</p>
-            <p><strong>Service Type:</strong> {serviceList.join(', ') || 'N/A'}</p>
+            <p><strong>Venue:</strong> {booking.address || "N/A"}</p>
+            <p><strong>Services:</strong> {serviceList.join(", ") || "N/A"}</p>
             <p><strong>Total:</strong> GHS {total.toFixed(2)}</p>
 
             <div className="payment-options">
-              {['none', 'half', 'full'].map((option) => (
+              {["none", "half", "full"].map((option) => (
                 <label key={option}>
                   <input
                     type="radio"
@@ -168,7 +170,7 @@ const InvoiceGeneration = () => {
 
             <div className="invoice-actions">
               <button onClick={createInvoice} disabled={creating}>
-                {creating ? 'Creating...' : 'Create Invoice'}
+                {creating ? "Creating..." : "Create Invoice"}
               </button>
               <button onClick={downloadInvoice} disabled={!createdInvoiceId}>
                 Download PDF
@@ -212,7 +214,7 @@ const InvoiceGeneration = () => {
               setSelectedId(b.id);
               resetInvoiceState();
             }}
-            className={`invoice-item ${b.id === selectedId ? 'active' : ''}`}
+            className={`invoice-item ${b.id === selectedId ? "active" : ""}`}
           >
             {b.name} – {formatDate(b.event_date)}
           </div>
