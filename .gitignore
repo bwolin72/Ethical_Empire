@@ -1,28 +1,30 @@
 # --- Ignore everything first ---
 /*
 
-# --- Keep backend and frontend ---
-!/backend/
-!/frontend/
-
 # --- Keep project root essentials ---
-!/.gitignore
+!.gitignore
 !/README.md
 !/package.json
 !/package-lock.json
 !/yarn.lock
 
-# --- Ignore node_modules, build, dist ---
+# --- Keep backend and frontend folders ---
+!/backend/
+!/frontend/
+!/frontend/**
+!/backend/**
+
+# --- Ignore Node modules and build outputs ---
 frontend/node_modules/
 frontend/build/
 frontend/dist/
 
-# --- Ignore Python virtual environments ---
-backend/venv*/
+# --- Ignore Python virtual environments and cache ---
+backend/venv/
 backend/__pycache__/
 *.pyc
 
-# --- Ignore secrets ---
+# --- Ignore environment files / secrets ---
 *.env
 *.env.*
 .env
@@ -30,7 +32,7 @@ backend/__pycache__/
 # --- Ignore logs ---
 *.log
 
-# --- Ignore IDE/system files ---
+# --- Ignore IDE / system files ---
 .vscode/
 .idea/
 .DS_Store
