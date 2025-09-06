@@ -52,26 +52,33 @@ const getMediaUrl = (media) => {
 const About = () => {
   const navigate = useNavigate();
 
-  // --- State ---
   const [bannerMedia, setBannerMedia] = useState([]);
   const [heroVideo, setHeroVideo] = useState(FALLBACKS.video);
   const [services, setServices] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
 
-  // --- Fetch banner videos, services, testimonials ---
+  // --- Fetch all content ---
   useEffect(() => {
     let active = true;
 
     const fetchAll = async () => {
-      const banners = await safeFetch(() => apiService.getVideos("about"));
+      // Properly pass endpoint object to getVideos
+      const banners = await safeFetch(() => apiService.getVideos({ endpoint: "about", is_active: true }));
       const srv = await safeFetch(apiService.getServices);
-      const reviews = await safeFetch(apiService.getReviews);
+      const reviewsRaw = await safeFetch(apiService.getReviews);
 
       if (!active) return;
 
+      // Normalize testimonials
+      const normReviews = reviewsRaw.map((r) => ({
+        id: r.id ?? r._id,
+        text: r.comment ?? r.message ?? r.content ?? "",
+        author: r.name ?? r.reviewer_name ?? "Anonymous",
+      }));
+
       setBannerMedia(banners.length ? banners : []);
       setServices(srv.length ? srv : []);
-      setTestimonials(reviews.length ? reviews : []);
+      setTestimonials(normReviews);
 
       if (!srv.length) toast.warn("No services available currently.");
     };
@@ -81,22 +88,18 @@ const About = () => {
     return () => { active = false; };
   }, []);
 
-  // --- Hero video logic ---
+  // --- Hero video selection ---
   useEffect(() => {
-    if (bannerMedia.length > 0) {
+    if (bannerMedia.length) {
       const featured = bannerMedia.find(v => v?.is_featured && getMediaUrl(v).endsWith(".mp4"));
       const anyVideo = bannerMedia.find(v => getMediaUrl(v).endsWith(".mp4"));
-      const chosen = getMediaUrl(featured || anyVideo) || FALLBACKS.video;
-      setHeroVideo(chosen);
+      setHeroVideo(getMediaUrl(featured || anyVideo) || FALLBACKS.video);
     } else {
       setHeroVideo(FALLBACKS.video);
     }
   }, [bannerMedia]);
 
-  // --- Hero banner image fallback ---
   const heroBannerImage = bannerMedia[0] ? getMediaUrl(bannerMedia[0]) : FALLBACKS.image;
-
-  // --- Gallery items ---
   const galleryItems = bannerMedia.length ? bannerMedia : [{ url: FALLBACKS.image }];
 
   return (
@@ -166,8 +169,8 @@ const About = () => {
           <div className="reviews-container">
             {testimonials.map((t, idx) => (
               <div key={t.id ?? `review-${idx}`} className="review-card">
-                <p>"{t.comment}"</p>
-                <p>— {t.name || "Anonymous"}</p>
+                <p>"{t.text}"</p>
+                <p>— {t.author}</p>
               </div>
             ))}
           </div>
