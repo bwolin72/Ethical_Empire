@@ -2,70 +2,76 @@
    Legal Page Styles — Legal.css
    Matches: Terms.jsx, Privacy.jsx
    Relies on variables.css
+   Updated layout/look to match BookingForm design
    ====================================================== */
 
-/* ---- Container ---- */
+/* ---- Root container ---- */
 .legal-page {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2.5rem 1.5rem;
   font-family: var(--font-main);
-  color: var(--color-neutral);
-  line-height: 1.6;
+  color: var(--color-text-light);
+  line-height: 1.65;
+  transition: color var(--transition-medium), background-color var(--transition-medium);
 }
 
 .dark .legal-page {
-  color: var(--color-text);
-  background-color: var(--color-bg);
+  color: var(--color-text-dark);
+  background-color: var(--color-bg-dark);
 }
 
-/* Provide a hook if you use <main className="legal-content"> */
+/* ---- Content wrapper ---- */
 .legal-page .legal-content {
   display: block;
 }
 
-/* Anchor jump offset so headings aren’t hidden under sticky headers (if any) */
+/* ---- Section offsets & target highlight ---- */
 .legal-page section {
-  margin-top: 1.5rem;
-  scroll-margin-top: 80px; /* tweak if you have a taller header */
+  margin-top: 2rem;
+  scroll-margin-top: 90px; /* for sticky header offset */
 }
 
-/* Optional: subtle highlight on the target section */
 .legal-page section:target {
-  outline: 2px dashed var(--color-accent-gold);
+  outline: 2px dashed var(--color-accent);
   outline-offset: 6px;
+  border-radius: var(--radius-sm);
 }
 
 /* ---- Header ---- */
 .legal-page header h1 {
   font-family: var(--font-accent);
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.1rem;
+  margin-bottom: 0.75rem;
   color: var(--color-primary);
 }
 
 .legal-page header p {
   margin-top: 0.25rem;
+  font-size: 0.95rem;
+  color: var(--color-muted);
 }
 
 /* Version / meta line */
 .legal-meta {
   font-size: 0.875rem;
-  color: var(--color-neutral-light);
-  margin-bottom: 1rem;
+  color: var(--color-muted);
+  margin-bottom: 1.25rem;
 }
 
-/* ---- Nav / Table of Contents ---- */
+/* ---- Navigation / Table of Contents ---- */
 .legal-page nav h2 {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   margin-top: 1.5rem;
   color: var(--color-primary);
+  font-weight: 600;
 }
 
 .legal-page nav ol {
   list-style: decimal;
-  padding-left: 1.5rem;
+  padding-left: 1.75rem;
   margin-top: 0.5rem;
+  color: var(--color-text-light);
 }
 
 .legal-page nav a {
@@ -83,27 +89,32 @@
 
 /* ---- Sections ---- */
 .legal-page section h2 {
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   color: var(--color-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  border-left: 3px solid var(--color-primary);
+  padding-left: 0.75rem;
 }
 
-.legal-page section p + .legal-list {
-  margin-top: 0.25rem;
+/* Paragraph spacing after headings/lists */
+.legal-page section p + .legal-list,
+.legal-page section ul + p {
+  margin-top: 0.5rem;
 }
 
 /* ---- Lists ---- */
 .legal-list {
   list-style: disc;
-  padding-left: 1.5rem;
+  padding-left: 2rem;
   margin-top: 0.5rem;
 }
 
 .legal-list li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
 }
 
-/* Nice colored markers (supported in modern browsers) */
 .legal-list li::marker {
   color: var(--color-primary-light);
 }
@@ -113,6 +124,7 @@
   text-decoration: underline;
   color: var(--color-primary);
   text-underline-offset: 2px;
+  transition: color var(--transition-fast);
 }
 
 .underline:hover,
@@ -123,47 +135,48 @@
 
 /* ---- Footer ---- */
 .legal-page footer {
-  margin-top: 2rem;
-  border-top: 1px solid var(--color-neutral-light);
-  padding-top: 1rem;
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--color-border-light);
+  padding-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-/* ---- Buttons ---- */
+/* ---- Buttons (Accept / Consent) ---- */
 .btn-accept,
 .btn-consent {
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: var(--shadow-sm);
 }
 
 .btn-accept {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: var(--color-white);
 }
 
 .btn-accept:hover {
-  background-color: var(--color-primary-dark);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
 .btn-consent {
-  background-color: var(--color-accent-green);
+  background: linear-gradient(135deg, var(--color-accent-green), var(--color-accent-green-dark));
   color: var(--color-white);
 }
 
 .btn-consent:hover {
-  background-color: var(--color-accent-green-dark);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-/* Accessible focus ring */
+/* Focus ring for accessibility */
 .btn-accept:focus-visible,
 .btn-consent:focus-visible,
 .legal-page a:focus-visible,
@@ -173,11 +186,12 @@
   border-radius: var(--radius-sm);
 }
 
-/* ---- Accepted/consent message ---- */
+/* Accepted / consent message */
 .accepted-msg {
   color: var(--color-success);
   font-weight: 500;
   margin-top: 0.5rem;
+  font-size: 0.95rem;
 }
 
 /* ---- Dark theme tweaks ---- */
@@ -196,15 +210,25 @@
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .legal-page {
-    padding: 1rem;
+    padding: 1.25rem;
   }
 
   .legal-page header h1 {
-    font-size: 1.75rem;
+    font-size: 1.85rem;
   }
 
   .legal-page section h2 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
+  }
+
+  .legal-list {
+    padding-left: 1.5rem;
+  }
+
+  .btn-accept,
+  .btn-consent {
+    width: 100%;
+    text-align: center;
   }
 }
 
@@ -218,17 +242,19 @@
   }
 }
 
-/* ---- Print (optional but useful) ---- */
+/* ---- Print ---- */
 @media print {
   .btn-accept,
   .btn-consent,
   .legal-page nav {
     display: none !important;
   }
+
   .legal-page {
     color: #000;
     background: #fff;
     box-shadow: none;
     max-width: 100%;
+    padding: 0.5rem;
   }
 }

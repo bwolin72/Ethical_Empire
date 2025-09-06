@@ -1,15 +1,16 @@
 /* === Banner Cards Component === */
 .banner-cards-container {
-  padding: 2rem;
+  padding: 2rem 1rem;
   background-color: var(--color-white);
-  text-align: left;
-  position: relative;
   font-family: var(--font-main);
+  width: 100%;
+  max-width: 1200px; /* keeps layout centered on big screens */
+  margin: 0 auto;
 }
 
 .banner-cards-title {
   font-size: 2rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
   color: var(--color-neutral-dark);
   font-family: var(--font-accent);
 }
@@ -18,58 +19,54 @@
 .banner-cards-scroll-wrapper {
   display: flex;
   overflow-x: auto;
-  gap: 1rem;
-  padding-bottom: 0.5rem;
+  gap: 1.5rem;
   scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-accent-gold) transparent;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE */
 }
 
 .banner-cards-scroll-wrapper::-webkit-scrollbar {
-  height: 8px;
+  display: none; /* Chrome, Safari */
 }
 
-.banner-cards-scroll-wrapper::-webkit-scrollbar-thumb {
-  background-color: var(--color-accent-gold);
-  border-radius: var(--radius-md);
-}
-
-/* === Banner Card === */
+/* === Banner Card (Hero Style) === */
 .banner-card {
   flex: 0 0 auto;
-  width: 260px;
+  width: 90vw;              /* almost full viewport width */
+  max-width: 1000px;        /* but cap it on large screens */
   border-radius: var(--radius-lg);
   overflow: hidden;
   background-color: var(--color-neutral-light);
   box-shadow: var(--shadow-md);
   transition: transform var(--transition-slow), box-shadow var(--transition-fast);
-  scroll-snap-align: start;
+  scroll-snap-align: center;
   cursor: pointer;
 }
 
 .banner-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
   box-shadow: var(--shadow-lg);
 }
 
+/* === Banner Image === */
 .banner-img-wrapper {
   position: relative;
-  overflow: hidden;
   aspect-ratio: 16 / 9;
+  width: 100%;
+  overflow: hidden;
 }
 
 .banner-card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-bottom: 2px solid var(--color-accent-gold);
 }
 
 /* === Hover Overlay === */
 .banner-hover-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.45);
   color: var(--color-white);
   opacity: 0;
   display: flex;
@@ -79,48 +76,41 @@
   font-weight: bold;
   transition: opacity var(--transition-fast);
   text-align: center;
-  padding: 0.5rem;
+  padding: 1rem;
 }
 .banner-card:hover .banner-hover-overlay {
   opacity: 1;
 }
 
-/* === Card Info === */
+/* === Info Below Banner === */
 .banner-card-info {
   padding: 0.75rem 1rem;
+  background: var(--color-white);
 }
 
 .banner-card-caption {
-  font-size: 1rem;
-  color: var(--color-neutral-dark);
+  font-size: 1.1rem;
   font-weight: 600;
+  color: var(--color-neutral-dark);
 }
 
 .banner-card-meta {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--color-neutral);
-}
-
-/* === Empty & Error === */
-.banner-card-empty,
-.banner-error {
-  color: var(--color-disabled);
-  font-size: 1rem;
-  padding: 1rem;
-  text-align: center;
+  margin-top: 0.25rem;
 }
 
 /* === Skeleton Loader === */
 .banner-skeleton {
-  width: 260px;
+  flex: 0 0 auto;
+  width: 90vw;
+  max-width: 1000px;
   aspect-ratio: 16 / 9;
   border-radius: var(--radius-lg);
-  background-color: var(--color-neutral-light);
-  overflow: hidden;
+  background: var(--color-neutral-light);
   position: relative;
-  flex-shrink: 0;
+  overflow: hidden;
 }
-
 .skeleton-box {
   width: 100%;
   height: 100%;
@@ -133,39 +123,38 @@
 .banner-modal {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
   padding: 1rem;
+  z-index: 9999;
 }
 
 .banner-modal-content {
-  background-color: var(--color-white);
+  position: relative;
+  background: var(--color-white);
   border-radius: var(--radius-lg);
   padding: 1rem;
-  max-width: 90%;
-  max-height: 90%;
-  position: relative;
+  max-width: 95vw;
+  max-height: 95vh;
   box-shadow: var(--shadow-lg);
-  overflow: auto;
 }
 
 .modal-banner-image {
   width: 100%;
   height: auto;
   max-height: 80vh;
-  border-radius: var(--radius-md);
   object-fit: contain;
-  background-color: var(--color-black);
+  border-radius: var(--radius-md);
+  background: var(--color-black);
 }
 
 .modal-banner-caption {
-  margin-top: 1rem;
-  font-size: 1.1rem;
-  color: var(--color-neutral-dark);
+  margin-top: 0.75rem;
   text-align: center;
+  font-size: 1rem;
+  color: var(--color-neutral-dark);
 }
 
 /* === Close Button === */
@@ -173,11 +162,13 @@
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--color-white);
   border: none;
-  font-size: 1.5rem;
-  color: var(--color-neutral-dark);
+  border-radius: var(--radius-sm);
+  font-size: 1.4rem;
   cursor: pointer;
+  padding: 0.2rem 0.6rem;
 }
 
 /* === Scroll Controls === */
@@ -209,54 +200,20 @@
 }
 
 /* === Responsive Breakpoints === */
-@media (max-width: 1024px) {
-  .banner-card {
-    width: 220px;
-  }
-}
-
 @media (max-width: 768px) {
-  .banner-cards-container {
-    padding: 1rem;
-  }
   .banner-card {
-    width: 200px;
+    width: 95vw;
   }
   .banner-card-caption {
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 }
-
 @media (max-width: 480px) {
   .banner-card {
-    width: 170px;
+    width: 100%;
+    border-radius: var(--radius-md);
   }
   .banner-card-meta {
     font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 380px) {
-  .banner-cards-container {
-    padding: 0.75rem;
-  }
-  .banner-cards-title {
-    font-size: 1.4rem;
-  }
-  .banner-card {
-    width: 150px;
-  }
-  .banner-card-caption {
-    font-size: 0.85rem;
-  }
-  .banner-card-meta {
-    font-size: 0.7rem;
-  }
-  .scroll-btn {
-    font-size: 1rem;
-    padding: 0.3rem 0.6rem;
-  }
-  .modal-banner-caption {
-    font-size: 0.9rem;
   }
 }

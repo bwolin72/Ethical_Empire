@@ -1,6 +1,6 @@
 // src/components/contact/ContactForm.jsx
 import React, { useState } from 'react';
-import contactService from '../../api/services/contactService'; // ✅ use correct service
+import contactService from '../../api/services/contactService';
 import './ContactForm.css';
 import logo from '../../assets/logo.png';
 import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
@@ -11,14 +11,12 @@ const serviceOptions = [
   'Event Planning', 'Lighting', 'MC/Host', 'Sound Setup'
 ];
 
-const phoneRegex = /^\+?\d{9,15}$/; // matches +233XXXXXXXXX or 0XXXXXXXXX etc (9-15 digits)
+const phoneRegex = /^\+?\d{9,15}$/;
 
 const ContactForm = () => {
-  const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [errors, setErrors] = useState({});
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -31,137 +29,94 @@ const ContactForm = () => {
     description: ''
   });
 
+  /* ----------------- Handlers ----------------- */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // clear field-level error while editing
     setErrors(prev => ({ ...prev, [name]: undefined }));
     setStatusMessage('');
   };
 
   const validateClient = () => {
     const newErrors = {};
-    // required fields
     if (!formData.name.trim()) newErrors.name = 'Name is required.';
     if (!formData.email.trim()) newErrors.email = 'Email is required.';
     if (!formData.phone.trim()) newErrors.phone = 'Phone number is required.';
-    if (!formData.enquiry_type) newErrors.enquiry_type = 'Enquiry type is required.';
-
-    // phone format
     if (formData.phone && !phoneRegex.test(formData.phone.trim())) {
-      newErrors.phone = 'Enter a valid phone number (e.g. +233XXXXXXXXX or 055XXXXXXX).';
+      newErrors.phone = 'Enter a valid phone number (e.g. +233XXXXXXXXX).';
     }
-
-    // service_type required if enquiry_type === 'Services'
+    if (!formData.enquiry_type) newErrors.enquiry_type = 'Enquiry type is required.';
     if (formData.enquiry_type === 'Services' && !formData.service_type) {
-      newErrors.service_type = "Service type is required when enquiry type is 'Services'.";
+      newErrors.service_type = 'Select a service type.';
     }
-
-    // event_date cannot be in the past (compare dates only)
     if (formData.event_date) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const evDate = new Date(formData.event_date);
-      if (evDate < today) {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      if (new Date(formData.event_date) < today) {
         newErrors.event_date = 'Event date cannot be in the past.';
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const parseServerErrors = (data) => {
-    const parsed = {};
-    if (!data) return parsed;
-    if (typeof data === 'string') {
-      parsed._global = data;
-      return parsed;
-    }
-    if (Array.isArray(data)) {
-      parsed._global = data.join(' ');
-      return parsed;
-    }
-    Object.entries(data).forEach(([k, v]) => {
-      if (Array.isArray(v)) parsed[k] = v.join(' ');
-      else if (typeof v === 'object') parsed[k] = JSON.stringify(v);
-      else parsed[k] = String(v);
-    });
-    return parsed;
+    if (!data) return {};
+    if (typeof data === 'string') return { _global: data };
+    if (Array.isArray(data)) return { _global: data.join(' ') };
+    return Object.fromEntries(Object.entries(data).map(([k, v]) => [k, Array.isArray(v) ? v.join(' ') : String(v)]));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatusMessage('');
-    setErrors({});
-
     if (!validateClient()) {
-      setStatusMessage('Please fix the errors and try again.');
+      setStatusMessage('❌ Please fix errors and try again.');
       return;
     }
-
-    // ✅ Build payload — omit frontend-only fields and blanks
     const payload = {};
     Object.entries(formData).forEach(([k, v]) => {
-      if (['country', 'region'].includes(k)) return; // skip unsupported
-      if (v !== '' && v !== null && v !== undefined) {
-        payload[k] = v;
-      }
+      if (!['country', 'region'].includes(k) && v) payload[k] = v;
     });
-
     setLoading(true);
     try {
       const res = await contactService.send(payload);
       if (res.status === 201) {
-        setStatusMessage('✅ Message sent successfully! We will be in touch.');
+        setStatusMessage('✅ Message sent successfully! We’ll be in touch.');
         setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          country: '',
-          region: '',
-          enquiry_type: '',
-          service_type: '',
-          event_date: '',
-          description: ''
+          name: '', email: '', phone: '', country: '', region: '',
+          enquiry_type: '', service_type: '', event_date: '', description: ''
         });
-        setErrors({});
       }
     } catch (err) {
-      const serverData = err?.response?.data;
-      const parsed = parseServerErrors(serverData);
+      const parsed = parseServerErrors(err?.response?.data);
       setErrors(parsed);
-      if (parsed._global) setStatusMessage(parsed._global);
-      else setStatusMessage('❌ Failed to send message. Please correct any errors and try again.');
+      setStatusMessage(parsed._global || '❌ Failed to send. Try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  /* ----------------- Render ----------------- */
   return (
-    <div className={`contact-page ${darkMode ? 'dark-mode' : ''}`}>
-      <header className="form-header centered-header">
-        <img src={logo} alt="Ethical Multimedia GH Logo" className="logo" />
-        <h2>Ethical Multimedia GH</h2>
-        <p className="slogan">Empowering Events – EETHM_GH</p>
-        <button
-          className="theme-toggle"
-          type="button"
-          onClick={() => setDarkMode(!darkMode)}
-          aria-pressed={darkMode}
-        >
-          {darkMode ? 'Light Mode' : 'Dark Mode'}
-        </button>
-      </header>
+    <div className="contact-page">
+      {/* Hero Section */}
+      <section className="contact-hero animate-fade-in-up">
+        <img src={logo} alt="EETHM Logo" className="hero-logo" />
+        <h1>Let’s Create Something Memorable</h1>
+        <p>Reach out to book our services or request more information</p>
+        <a href="#contact-form" className="cta-btn">Start Here</a>
+      </section>
 
+      {/* Form + Company Info */}
       <main className="contact-grid">
-        <section className="contact-form-section">
+        {/* Contact Form */}
+        <section id="contact-form" className="contact-form-section animate-fade-in-up">
+          <h2>Send Us a Message</h2>
           <form onSubmit={handleSubmit} noValidate>
+            {/* Name, Email, Phone */}
             {['name', 'email', 'phone'].map((field) => (
               <div className="form-group" key={field}>
                 <input
                   type={field === 'email' ? 'email' : 'text'}
-                  id={field}
                   name={field}
                   value={formData[field]}
                   onChange={handleChange}
@@ -169,186 +124,107 @@ const ContactForm = () => {
                   placeholder=" "
                   aria-invalid={!!errors[field]}
                 />
-                <label htmlFor={field}>
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
-                </label>
+                <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                 {errors[field] && <small className="error">{errors[field]}</small>}
               </div>
             ))}
 
+            {/* Country + Region */}
             <div className="form-group">
               <CountryDropdown
                 value={formData.country}
-                onChange={(val) =>
-                  setFormData(prev => ({ ...prev, country: val, region: '' }))
-                }
-                className="country-dropdown"
-                aria-label="Country"
+                onChange={(val) => setFormData(prev => ({ ...prev, country: val, region: '' }))}
+                className="dropdown"
               />
               <label>Country</label>
-              {errors.country && <small className="error">{errors.country}</small>}
             </div>
-
             <div className="form-group">
               <RegionDropdown
                 country={formData.country}
                 value={formData.region}
-                onChange={(val) =>
-                  setFormData(prev => ({ ...prev, region: val }))
-                }
-                className="region-dropdown"
-                aria-label="Region / State"
+                onChange={(val) => setFormData(prev => ({ ...prev, region: val }))}
+                className="dropdown"
               />
               <label>Region / State</label>
-              {errors.region && <small className="error">{errors.region}</small>}
             </div>
 
+            {/* Enquiry Type + Service */}
             <div className="form-group">
-              <select
-                id="enquiry_type"
-                name="enquiry_type"
-                value={formData.enquiry_type}
-                onChange={handleChange}
-                required
-                aria-invalid={!!errors.enquiry_type}
-              >
-                {enquiryOptions.map(option => (
-                  <option key={option} value={option}>
-                    {option || 'Select enquiry type'}
-                  </option>
-                ))}
+              <select name="enquiry_type" value={formData.enquiry_type} onChange={handleChange} required>
+                {enquiryOptions.map(opt => <option key={opt} value={opt}>{opt || 'Select enquiry type'}</option>)}
               </select>
-              <label htmlFor="enquiry_type">Enquiry Type *</label>
+              <label>Enquiry Type *</label>
               {errors.enquiry_type && <small className="error">{errors.enquiry_type}</small>}
             </div>
-
             <div className="form-group">
-              <select
-                id="service_type"
-                name="service_type"
-                value={formData.service_type}
-                onChange={handleChange}
-                aria-invalid={!!errors.service_type}
-              >
-                {serviceOptions.map(option => (
-                  <option key={option} value={option}>
-                    {option || 'Select service type'}
-                  </option>
-                ))}
+              <select name="service_type" value={formData.service_type} onChange={handleChange}>
+                {serviceOptions.map(opt => <option key={opt} value={opt}>{opt || 'Select service type'}</option>)}
               </select>
-              <label htmlFor="service_type">Service Type {formData.enquiry_type === 'Services' ? '*' : '(optional)'}</label>
-              {errors.service_type && <small className="error">{errors.service_type}</small>}
+              <label>Service Type</label>
             </div>
 
+            {/* Event Date */}
             <div className="form-group">
-              <input
-                type="date"
-                id="event_date"
-                name="event_date"
-                value={formData.event_date}
-                onChange={handleChange}
-                aria-invalid={!!errors.event_date}
-              />
-              <label htmlFor="event_date">Event Date (optional)</label>
-              {errors.event_date && <small className="error">{errors.event_date}</small>}
+              <input type="date" name="event_date" value={formData.event_date} onChange={handleChange} />
+              <label>Event Date (optional)</label>
             </div>
 
+            {/* Message */}
             <div className="form-group full-width">
               <textarea
-                id="description"
                 name="description"
                 rows="4"
                 value={formData.description}
                 onChange={handleChange}
                 placeholder=" "
-                aria-invalid={!!errors.description}
               />
-              <label htmlFor="description">Message (optional)</label>
-              {errors.description && <small className="error">{errors.description}</small>}
+              <label>Message</label>
             </div>
 
-            {errors._global && <div className="form-error global-error">{errors._global}</div>}
-
-            <button className="submit-btn" type="submit" disabled={loading}>
+            {/* Status + Submit */}
+            {statusMessage && <div className="form-status">{statusMessage}</div>}
+            <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? 'Sending…' : 'Submit'}
             </button>
           </form>
-
-          {statusMessage && (
-            <div className="toast-notification" role="status" aria-live="polite">
-              {statusMessage}
-            </div>
-          )}
         </section>
 
-        <aside className="company-details-section">
-          <div className="info-row">
-            <div className="info-block">
-              <h3>Co-Founder</h3>
-              <p><strong>Name:</strong> Mr. Nhyira Nana Joseph</p>
-              <p><strong>Email:</strong> info@eethmghmultimedia.com</p>
-              <p><strong>Phone:</strong> +233 55 342 4865</p>
-              <p><strong>WhatsApp:</strong> +233 55 924 1828</p>
-            </div>
-            <div className="info-block">
-              <h3>Headquarters</h3>
-              <p><strong>City:</strong> Gomoa Akotsi</p>
-              <p><strong>District:</strong> Gomoa East</p>
-              <p><strong>Region:</strong> Central Region</p>
-              <p><strong>Location:</strong> Bicycle City, Ojobi</p>
-            </div>
+        {/* Company Info */}
+        <aside className="company-info animate-fade-in-up">
+          <h2>Contact Details</h2>
+          <div className="info-block">
+            <h3>Co-Founder</h3>
+            <p><strong>Name:</strong> Mr. Nhyira Nana Joseph</p>
+            <p><strong>Email:</strong> info@eethmghmultimedia.com</p>
+            <p><strong>Phone:</strong> +233 55 342 4865</p>
+            <p><strong>WhatsApp:</strong> +233 55 924 1828</p>
+          </div>
+          <div className="info-block">
+            <h3>Headquarters</h3>
+            <p>Gomoa Akotsi, Gomoa East</p>
+            <p>Central Region, Bicycle City, Ojobi</p>
           </div>
 
           <div className="contact-buttons">
-            <a
-              href="https://wa.me/233553424865"
-              className="whatsapp"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              WhatsApp
-            </a>
-            <a href="tel:+233553424865" className="phone">Call</a>
+            <a href="https://wa.me/233553424865" className="btn whatsapp">WhatsApp</a>
+            <a href="tel:+233553424865" className="btn phone">Call</a>
           </div>
 
-          <div className="social-media-links">
-            <a
-              href="https://www.instagram.com/ethicalmultimedia?igsh=NmVmdXV2dHhkdW4w"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Instagram
-            </a>
-            <a
-              href="https://www.linkedin.com/in/ethical-empire/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://x.com/EeTHm_Gh?t=DE32RjXhsgO6A_rgeGIFmA&s=09"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Twitter
-            </a>
-            <a
-              href="https://facebook.com/16nQGbE7Zk/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Facebook
-            </a>
+          <div className="social-links">
+            <a href="https://www.instagram.com/ethicalmultimedia" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href="https://x.com/EeTHm_Gh" target="_blank" rel="noreferrer">Twitter</a>
+            <a href="https://facebook.com/16nQGbE7Zk/" target="_blank" rel="noreferrer">Facebook</a>
           </div>
         </aside>
       </main>
 
-      <section className="map-section">
-        <h4>Our Location</h4>
+      {/* Map Section */}
+      <section className="map-section animate-fade-in-up">
+        <h2>Our Location</h2>
         <iframe
           title="Ethical Multimedia GH Location"
-          src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3971.428661923482!2d-0.5330301294382339!3d5.503194382269809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2s!5e0!3m2!1sen!2sin!4v1755619633455!5m2!1sen!2sin"
+          src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3971.428661923482!2d-0.5330301294382339!3d5.503194382269809"
           allowFullScreen
           loading="lazy"
         ></iframe>

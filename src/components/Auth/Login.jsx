@@ -139,60 +139,60 @@ const Login = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className={`auth-page login ${darkMode ? 'dark' : ''}`}>
-        {/* Left Branding */}
-        <div className="auth-left">
-          <div className="auth-brand">
-            <img src={logo} alt="Logo" />
-            <h1>Eethm_GH</h1>
-            <p>Your Trusted Digital Hub in Ghana</p>
-          </div>
+      <div className={`auth-wrapper ${darkMode ? 'dark' : ''}`}>
+        {/* Left Branding Panel */}
+        <div className="auth-brand-panel">
+          <img src={logo} alt="Logo" className="auth-logo" />
+          <h2>EETHM_GH</h2>
+          <p>Your Trusted Digital Hub in Ghana</p>
+          <button className="toggle-theme-btn" onClick={toggleDarkMode}>
+            {darkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+          </button>
         </div>
 
-        {/* Right Form */}
-        <div className="auth-right">
-          <h2>Welcome Back 👋</h2>
-
-          <label className="dark-toggle">
-            <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
-            Enable Dark Mode
-          </label>
-
+        {/* Right Form Panel */}
+        <div className="auth-form-panel">
+          <h2 className="form-title">Welcome Back 👋</h2>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              className={formErrors.email ? 'input-error' : ''}
-              disabled={loading}
-              required
-            />
-            {formErrors.email && <small className="error-text">{formErrors.email}</small>}
-
-            <div className="password-field">
+            <div className="input-group">
+              <label>Email</label>
               <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                placeholder="Password"
-                value={form.password}
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={form.email}
                 onChange={handleChange}
-                className={formErrors.password ? 'input-error' : ''}
+                className={formErrors.email ? 'input-error' : ''}
                 disabled={loading}
                 required
               />
-              <button
-                type="button"
-                className="toggle-password"
-                aria-pressed={showPassword}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                onClick={() => setShowPassword((prev) => !prev)}
-              >
-                {showPassword ? '🙈' : '👁️'}
-              </button>
+              {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
-            {formErrors.password && <small className="error-text">{formErrors.password}</small>}
+
+            <div className="input-group password-group">
+              <label>Password</label>
+              <div className="password-field">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="Enter your password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className={formErrors.password ? 'input-error' : ''}
+                  disabled={loading}
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
+              {formErrors.password && <small className="error-text">{formErrors.password}</small>}
+            </div>
 
             <label className="terms-checkbox">
               <input
@@ -212,12 +212,12 @@ const Login = () => {
               <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
             </div>
 
-            <button type="submit" className="auth-button" disabled={loading}>
+            <button type="submit" className="auth-submit-btn" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
 
-          <div className="google-signup">
+          <div className="social-login">
             <p>Or sign in with Google:</p>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}

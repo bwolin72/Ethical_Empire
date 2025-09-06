@@ -295,3 +295,44 @@
     padding: 1.5rem;
   }
 }
+
+.auth-wrapper {
+  display: flex;
+  min-height: 100vh;
+  font-family: var(--font-main);
+  color: var(--color-neutral);
+  background-color: var(--color-white);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.dark .auth-wrapper {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+.auth-brand-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  text-align: center;
+}
+
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  background-color: var(--color-white);
+  transition: background-color var(--transition-fast);
+}
+
+.dark .auth-form-panel {
+  background-color: var(--color-neutral-dark);
+  color: var(--color-text);
+}

@@ -1,8 +1,7 @@
 // src/components/context/BannerSkeleton.jsx
 
 import React from 'react';
-import './BannerCards.css'; // Assumes skeleton styles exist here
-
+import './BannerSkeleton.css'; 
 const BannerSkeleton = () => (
   <div className="banner-skeleton">
     <div className="skeleton-box" />

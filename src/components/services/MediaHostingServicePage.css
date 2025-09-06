@@ -1,6 +1,6 @@
 /* ======================================================
    🌐 Media Hosting Styles — Fully Synced with JSX
-   Includes missing selectors from JSX and preserves theme vars
+   Includes refinements for Hero, Cards, Gallery & Testimonials
    ====================================================== */
 
 .media-hosting-page {
@@ -36,16 +36,28 @@
   object-fit: cover;
 }
 
+.media-hosting-page .hero-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  z-index: 1;
+}
+
 .media-hosting-page .hero-overlay {
   position: absolute;
   inset: 0;
   background: rgba(88, 28, 28, 0.5);
-  z-index: 1;
+  z-index: 2;
 }
 
 .media-hosting-page .hero-title {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   color: var(--color-white);
   background: rgba(0, 0, 0, 0.5);
   padding: 1rem 2rem;
@@ -148,20 +160,41 @@
 }
 
 /* ---------- Sections ---------- */
+.media-hosting-page .section {
+  padding: 4rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .media-hosting-page .section h2,
 .media-hosting-page .section h3 {
   text-align: center;
   color: var(--color-primary);
   font-size: 2rem;
   margin: 2rem 0;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.5rem;
   animation: fadeInUp var(--transition-slow);
+}
+
+.media-hosting-page .section h2::after,
+.media-hosting-page .section h3::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 60px;
+  height: 3px;
+  background: var(--color-primary);
+  transform: translateX(-50%);
+  border-radius: 2px;
 }
 
 .media-hosting-page .card-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  padding: 0 1rem;
   margin-bottom: 2rem;
 }
 
@@ -184,7 +217,7 @@
   box-shadow: var(--shadow-md);
 }
 
-/* ---------- Creative Media ---------- */
+/* ---------- Creative Media (MediaCards & Gallery) ---------- */
 .media-hosting-page .creative-section {
   padding: 2rem 1rem;
 }
@@ -206,6 +239,13 @@
   overflow: hidden;
   cursor: pointer;
   animation: zoomIn var(--transition-slow);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.media-hosting-page .media-card:hover {
+  box-shadow: 0 8px 20px rgba(88, 28, 28, 0.3);
+  transform: translateY(-5px);
 }
 
 .media-hosting-page .media-card img {
@@ -236,10 +276,21 @@
 }
 
 .media-hosting-page .testimonial-card {
+  position: relative;
   background: var(--color-neutral-light);
   padding: 1rem;
   border-radius: var(--radius-lg);
   animation: fadeInUp var(--transition-slow);
+}
+
+.media-hosting-page .testimonial-card::before {
+  content: "“";
+  font-size: 3rem;
+  color: var(--color-primary);
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  opacity: 0.2;
 }
 
 .media-hosting-page .testimonial-text {
@@ -305,7 +356,6 @@
 @media (min-width: 768px) {
   .media-hosting-page .card-grid {
     grid-template-columns: repeat(2, 1fr);
-    padding: 0 2rem;
   }
   .media-hosting-page .creative-layout {
     flex-direction: row;
@@ -336,7 +386,6 @@
   .media-hosting-page .testimonial-grid,
   .media-hosting-page .creative-media {
     grid-template-columns: 1fr;
-    padding: 0 0.5rem;
   }
 }
 

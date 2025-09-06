@@ -2,10 +2,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../api/apiService";
-import BannerCards from "../context/BannerCards";
 import FadeInSection from "../FadeInSection";
 import Services from "./Services";
 import NewsletterSignup from "../user/NewsLetterSignup";
+
+// New: use the three feature components
+import BannerCards from "../context/BannerCards";
+import MediaCards from "../context/MediaCards";
+import MediaGallery from "../gallery/MediaGallery";
+
 import "./EethmHome.css";
 
 // --- Local fallbacks ---
@@ -14,9 +19,8 @@ const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
 // --- Helpers ---
 const asArray = (res) => {
-  // Accepts axios response or raw data and returns a safe array
   if (!res) return [];
-  const data = res?.data ?? res; // axios puts payload on `data`
+  const data = res?.data ?? res;
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.results)) return data.results;
   return [];
@@ -24,8 +28,6 @@ const asArray = (res) => {
 
 const getMediaUrl = (media) => {
   if (!media) return "";
-
-  // Try a list of common fields; return the first string URL we find
   const candidates = [
     media?.video_url,
     media?.file_url,
@@ -34,7 +36,6 @@ const getMediaUrl = (media) => {
     media?.image_url,
     media?.thumbnail_url,
   ];
-
   return candidates.find((v) => typeof v === "string" && v.length) || "";
 };
 
@@ -44,6 +45,21 @@ const isVideoItem = (item, url) => {
   return typeof url === "string" && /\.mp4(\?.*)?$/i.test(url);
 };
 
+// Map mixed media into MediaGallery's expected shape
+const toGalleryItems = (arr = []) =>
+  arr
+    .map((m) => {
+      const url = getMediaUrl(m);
+      if (!url) return null;
+      return {
+        id: m.id ?? url,
+        type: isVideoItem(m, url) ? "video" : "image",
+        url,
+        title: m.title ?? m.label ?? "",
+      };
+    })
+    .filter(Boolean);
+
 const EethmHome = () => {
   const navigate = useNavigate();
   const videoRef = useRef(null);
@@ -52,35 +68,32 @@ const EethmHome = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [videoLoadFailed, setVideoLoadFailed] = useState(false);
 
-  // API data
+  // API data (kept: videos, media, promotions, reviews)
   const [videos, setVideos] = useState([]);
+  const [media, setMedia] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [banners, setBanners] = useState([]);
-  const [media, setMedia] = useState([]);
 
   // Error states
   const [videosError, setVideosError] = useState(null);
   const [promoError, setPromoError] = useState(null);
   const [reviewError, setReviewError] = useState(null);
 
-  // Newsletter modal state
+  // Newsletter modal
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // --- Fetch all data (except services, handled by <Services />) ---
+  // --- Fetch data (BannerCards fetches its own data) ---
   useEffect(() => {
     let mounted = true;
 
     const fetchAll = async () => {
       try {
-        const [videoRes, promoRes, reviewRes, bannerRes, mediaRes] =
-          await Promise.allSettled([
-            apiService.getVideos(),
-            apiService.getPromotions(),
-            apiService.getReviews(),
-            apiService.getBanners(),
-            apiService.getMedia(),
-          ]);
+        const [videoRes, promoRes, reviewRes, mediaRes] = await Promise.allSettled([
+          apiService.getVideos(),
+          apiService.getPromotions(),
+          apiService.getReviews(),
+          apiService.getMedia(),
+        ]);
 
         if (!mounted) return;
 
@@ -105,12 +118,6 @@ const EethmHome = () => {
           setReviewError("Failed to load reviews");
         }
 
-        if (bannerRes.status === "fulfilled") {
-          setBanners(asArray(bannerRes.value));
-        } else {
-          setBanners([]);
-        }
-
         if (mediaRes.status === "fulfilled") {
           setMedia(asArray(mediaRes.value));
         } else {
@@ -118,11 +125,9 @@ const EethmHome = () => {
         }
       } catch (err) {
         console.error("❌ Unexpected API fetch error:", err);
-        // Ensure arrays even on unexpected failures
         setVideos([]);
         setPromotions([]);
         setReviews([]);
-        setBanners([]);
         setMedia([]);
       }
     };
@@ -133,21 +138,22 @@ const EethmHome = () => {
     };
   }, []);
 
-  // --- Normalize arrays for safe usage ---
+  // --- Normalize ---
   const videosArr = Array.isArray(videos) ? videos : [];
   const mediaArr = Array.isArray(media) ? media : [];
   const promosArr = Array.isArray(promotions) ? promotions : [];
   const reviewsArr = Array.isArray(reviews) ? reviews : [];
-  const bannersArr = Array.isArray(banners) ? banners : [];
 
   // --- Hero video ---
   const featuredVideo =
     videosArr.find((v) => v?.is_featured) || videosArr.find((v) => v?.is_active);
   const heroVideoUrl = getMediaUrl(featuredVideo) || LOCAL_FALLBACK_VIDEO;
 
-  // --- Mixed media ---
+  // --- Mixed/Featured media for Gallery ---
   const mixedMedia = [...videosArr, ...mediaArr].filter((m) => m?.is_active);
   const featuredMedia = mixedMedia.filter((m) => m?.is_featured);
+  const galleryItems =
+    toGalleryItems(featuredMedia.length ? featuredMedia : mixedMedia).slice(0, 12);
 
   // --- Sync mute state ---
   useEffect(() => {
@@ -158,7 +164,7 @@ const EethmHome = () => {
 
   return (
     <div className="eethm-home-page">
-      {/* === Hero === */}
+      {/* === HERO (Video) === */}
       <section className="video-hero-section">
         <video
           ref={videoRef}
@@ -180,9 +186,7 @@ const EethmHome = () => {
         <div className="overlay-gradient"></div>
         <div className="overlay-content">
           <h1 className="hero-title">Ethical Multimedia GH</h1>
-          <p className="hero-subtitle">
-            Live Band • Catering • Multimedia • Decor Services
-          </p>
+          <p className="hero-subtitle">Live Band • Catering • Multimedia • Decor Services</p>
           <div className="hero-buttons">
             <button onClick={() => navigate("/bookings")} className="btn-primary">
               Book Now
@@ -190,6 +194,7 @@ const EethmHome = () => {
             <button
               onClick={() => setShowNewsletterForm(true)}
               className="btn-secondary"
+              type="button"
             >
               📩 Subscribe
             </button>
@@ -206,29 +211,14 @@ const EethmHome = () => {
         </button>
       </section>
 
-      {/* === Newsletter Modal (centralized component) === */}
-      {showNewsletterForm && (
-        <div
-          className="newsletter-modal-backdrop"
-          onClick={() => setShowNewsletterForm(false)}
-        >
-          <div
-            className="newsletter-modal"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-          >
-            <button
-              className="newsletter-close-btn"
-              onClick={() => setShowNewsletterForm(false)}
-            >
-              &times;
-            </button>
-            <NewsletterSignup />
-          </div>
-        </div>
-      )}
+      {/* === HERO HIGHLIGHTS (BannerCards) === */}
+      <FadeInSection>
+        <section className="banners-hero-wrap">
+          <BannerCards endpointKey="banners" title="Highlights" type="banner" />
+        </section>
+      </FadeInSection>
 
-      {/* === Services === */}
+      {/* === SERVICES === */}
       <FadeInSection>
         <section className="services-page">
           <h2>Explore Eethm_GH Ministrations</h2>
@@ -236,7 +226,7 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* === Promotions === */}
+      {/* === PROMOTIONS === */}
       <FadeInSection>
         <section className="promotions-section">
           <h2>Special Offers</h2>
@@ -254,14 +244,43 @@ const EethmHome = () => {
               ))}
             </div>
           ) : promoError ? (
-            <p>{promoError}</p>
+            <p className="error-text">{promoError}</p>
           ) : (
-            <p>No promotions.</p>
+            <p className="muted-text">No promotions.</p>
           )}
         </section>
       </FadeInSection>
 
-      {/* === Reviews === */}
+      {/* === MEDIA LIBRARY (MediaCards) === */}
+      <FadeInSection>
+        <section className="media-library-section">
+          <h2>Our Media Library</h2>
+          {/* MediaCards handles its own fetching & modal */}
+          <MediaCards
+            endpointKey="media"
+            resourceType="media"
+            title={null}
+            fullWidth={false}
+            isActive={true}
+            isFeatured={false}
+          />
+        </section>
+      </FadeInSection>
+
+      {/* === GALLERY SHOWCASE (MediaGallery) === */}
+      <FadeInSection>
+        <section className="media-gallery-section">
+          <h2>Gallery Showcase</h2>
+          {videosError && <p className="error-text">{videosError}</p>}
+          {galleryItems.length > 0 ? (
+            <MediaGallery items={galleryItems} />
+          ) : (
+            <p className="muted-text">No highlights to show.</p>
+          )}
+        </section>
+      </FadeInSection>
+
+      {/* === REVIEWS === */}
       <FadeInSection>
         <section className="reviews-section">
           <h2>What Our Clients Say</h2>
@@ -275,76 +294,35 @@ const EethmHome = () => {
               ))}
             </div>
           ) : reviewError ? (
-            <p>{reviewError}</p>
+            <p className="error-text">{reviewError}</p>
           ) : (
-            <p>No reviews.</p>
+            <p className="muted-text">No reviews.</p>
           )}
         </section>
       </FadeInSection>
 
-      {/* === Highlights (Banners) === */}
-      <FadeInSection>
-        <section className="banners-section">
-          <h2>Highlights from Our Services</h2>
-          {bannersArr.length > 0 ? (
-            <div className="banners-grid">
-              {bannersArr.map((b, idx) => (
-                <div key={b.id ?? b.image_url ?? idx} className="banner-card">
-                  {b.image_url && <img src={b.image_url} alt={b.title} />}
-                  <h4>{b.title}</h4>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <BannerCards endpoint="banners" />
-          )}
-        </section>
-      </FadeInSection>
-
-      {/* === Mixed Media === */}
-      <FadeInSection>
-        <section className="mixed-media-section">
-          <h2>Gallery</h2>
-          {videosError && <p className="error-text">{videosError}</p>}
-          {mixedMedia.length > 0 ? (
-            <div className="mixed-media-grid">
-              {mixedMedia.map((m, idx) => {
-                const url = getMediaUrl(m);
-                const video = isVideoItem(m, url);
-                return video ? (
-                  <video key={m.id ?? url ?? idx} src={url} controls />
-                ) : (
-                  <img key={m.id ?? url ?? idx} src={url} alt={m.title || "media"} />
-                );
-              })}
-            </div>
-          ) : (
-            <p>No media available.</p>
-          )}
-        </section>
-      </FadeInSection>
-
-      {/* === Featured Media Carousel === */}
-      <FadeInSection>
-        <section className="featured-media-section">
-          <h2>Featured Media</h2>
-          {featuredMedia.length > 0 ? (
-            <div className="featured-carousel">
-              {featuredMedia.map((m, idx) => {
-                const url = getMediaUrl(m);
-                const video = isVideoItem(m, url);
-                return video ? (
-                  <video key={m.id ?? url ?? idx} src={url} controls />
-                ) : (
-                  <img key={m.id ?? url ?? idx} src={url} alt={m.title || "featured"} />
-                );
-              })}
-            </div>
-          ) : (
-            <p>No featured media.</p>
-          )}
-        </section>
-      </FadeInSection>
+      {/* === NEWSLETTER MODAL === */}
+      {showNewsletterForm && (
+        <div
+          className="newsletter-modal-backdrop"
+          onClick={() => setShowNewsletterForm(false)}
+        >
+          <div
+            className="newsletter-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+          >
+            <button
+              className="newsletter-close-btn"
+              onClick={() => setShowNewsletterForm(false)}
+              type="button"
+            >
+              &times;
+            </button>
+            <NewsletterSignup />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

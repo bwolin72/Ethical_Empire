@@ -6,7 +6,7 @@ import "./MediaHostingServicePage.css";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../api/apiService";
-import Services from "../home/Services"; // ✅ shared Services component
+import Services from "../home/Services";
 
 const MediaHostingServicePage = () => {
   const [videoUrl, setVideoUrl] = useState("");
@@ -14,6 +14,7 @@ const MediaHostingServicePage = () => {
   const videoRef = useRef(null);
   const navigate = useNavigate();
 
+  // === Fetch Hero Video (fallback to banner if none) ===
   useEffect(() => {
     const fetchHeroVideo = async () => {
       try {
@@ -30,11 +31,11 @@ const MediaHostingServicePage = () => {
         if (results.length > 0 && results[0].url?.full) {
           setVideoUrl(results[0].url.full);
         } else {
-          setVideoUrl("/mock/hero-video.mp4"); // fallback if no API video
+          setVideoUrl(""); // fallback → banner only
         }
       } catch (error) {
         console.error("Failed to load hero video:", error);
-        setVideoUrl("/mock/hero-video.mp4"); // fallback on error
+        setVideoUrl(""); // fallback → banner only
       }
     };
 
@@ -53,7 +54,12 @@ const MediaHostingServicePage = () => {
       {/* === Hero Banner or Video === */}
       <section className="hero-banner">
         {videoUrl ? (
-          <div className="video-wrapper">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+            className="video-wrapper"
+          >
             <video
               ref={videoRef}
               src={videoUrl}
@@ -66,7 +72,7 @@ const MediaHostingServicePage = () => {
             <button className="mute-button" onClick={toggleMute}>
               {isMuted ? "🔇" : "🔊"}
             </button>
-          </div>
+          </motion.div>
         ) : (
           <BannerCards
             endpoint="mediaHostingServicePage"
@@ -75,20 +81,34 @@ const MediaHostingServicePage = () => {
         )}
       </section>
 
-      {/* === Shared Services Section === */}
+      {/* === Overview Services Section === */}
       <section className="section services-section">
-        <h2 className="section-title">Our Multimedia & Hosting Services</h2>
-        <p className="section-description">
-          From professional photography to full-scale event hosting, explore all
-          our multimedia services designed to capture and share your moments.
-        </p>
-        <Services /> {/* ✅ shared component */}
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="section-title">Our Multimedia & Hosting Services</h2>
+          <p className="section-description">
+            From professional photography to full-scale event hosting, explore
+            our multimedia services designed to capture, share, and elevate your
+            moments with precision.
+          </p>
+        </motion.div>
+        <Services />
       </section>
 
-      {/* === Creative Media Preview === */}
+      {/* === Creative Media Preview Section === */}
       <section className="section creative-section">
         <div className="creative-layout">
-          <div className="creative-text">
+          <motion.div
+            className="creative-text"
+            initial={{ x: -40, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+          >
             <h3 className="section-subtitle">
               Visual Storytelling & Professional Coverage
             </h3>
@@ -98,8 +118,15 @@ const MediaHostingServicePage = () => {
               clarity. From cinematic videography to detailed photography and
               reliable hosting — your memories and messages are in expert hands.
             </p>
-          </div>
-          <div className="creative-media">
+          </motion.div>
+
+          <motion.div
+            className="creative-media"
+            initial={{ x: 40, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+          >
             <MediaCards
               endpoint="mediaHostingServicePage"
               type="media"
@@ -107,31 +134,46 @@ const MediaHostingServicePage = () => {
               fullWidth={false}
               supportPreview={true}
             />
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* === Hosting Venue Info === */}
+      {/* === Event Hosting Info === */}
       <section className="section event-hosting-section">
-        <h2 className="section-title">Hosting Event Place</h2>
-        <p className="section-description">
-          Need a location for your next shoot, seminar, or celebration? We offer
-          fully equipped event spaces with lighting, seating, sound, and
-          ambiance — ready for recording, streaming, or staging your
-          unforgettable moment.
-        </p>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          className="cta-button"
-          onClick={() => navigate("/bookings")}
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
         >
-          Book a Venue
-        </motion.button>
+          <h2 className="section-title">Host Your Event with Us</h2>
+          <p className="section-description">
+            Need a location for your next shoot, seminar, or celebration? We
+            provide fully equipped event spaces with lighting, seating, sound,
+            and ambiance — ready for recording, streaming, or staging your
+            unforgettable moment.
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="cta-button"
+            onClick={() => navigate("/bookings")}
+          >
+            Book a Venue
+          </motion.button>
+        </motion.div>
       </section>
 
-      {/* === Full Gallery === */}
-      <section className="section">
-        <h2 className="section-title">Multimedia Gallery</h2>
+      {/* === Full Multimedia Gallery === */}
+      <section className="section gallery-section">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="section-title">Multimedia Gallery</h2>
+        </motion.div>
         <MediaCards
           endpoint="mediaHostingServicePage"
           type="media"

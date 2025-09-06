@@ -1,6 +1,6 @@
 // src/components/context/BannerCards.jsx
 import React, { useState, useRef, useEffect } from "react";
-import useFetcher from "../../hooks/useFetcher"; // ✅ corrected import
+import useFetcher from "../../hooks/useFetcher";
 import placeholderImg from "../../assets/placeholder.jpg";
 import BannerSkeleton from "./BannerSkeleton";
 import "./BannerCards.css";
@@ -9,20 +9,19 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
   const [previewBanner, setPreviewBanner] = useState(null);
   const scrollRef = useRef(null);
 
-  // ✅ Fetch banners using useFetcher
+  // Fetch banners
   const { data, loading, error } = useFetcher("media", endpointKey);
 
-  // Always normalize to array
   const banners = Array.isArray(data) ? data : [];
 
-  // === Scroll controls ===
+  // Scroll controls
   const scrollLeft = () =>
     scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" });
 
   const scrollRight = () =>
     scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" });
 
-  // === Close modal on Escape ===
+  // Close modal on Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") setPreviewBanner(null);
@@ -36,12 +35,20 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
       {/* Optional Title */}
       {title && <h2 className="banner-cards-title">{title}</h2>}
 
-      {/* Scroll Buttons */}
+      {/* Scroll Controls */}
       <div className="scroll-controls">
-        <button onClick={scrollLeft} className="scroll-btn left">
+        <button
+          onClick={scrollLeft}
+          className="scroll-btn left"
+          aria-label="Scroll left"
+        >
           ◀
         </button>
-        <button onClick={scrollRight} className="scroll-btn right">
+        <button
+          onClick={scrollRight}
+          className="scroll-btn right"
+          aria-label="Scroll right"
+        >
           ▶
         </button>
       </div>
@@ -72,6 +79,7 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
               tabIndex={0}
               onKeyDown={(e) => e.key === "Enter" && setPreviewBanner(banner)}
             >
+              {/* Image + Hover Overlay */}
               <div className="banner-img-wrapper">
                 <img
                   src={banner.url?.thumb || banner.url?.full || placeholderImg}
@@ -85,14 +93,31 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
                   {banner.uploaded_by && <span>{banner.uploaded_by}</span>}
                 </div>
               </div>
+
+              {/* Card Info */}
+              <div className="banner-card-info">
+                {banner.label && (
+                  <p className="banner-card-caption">{banner.label}</p>
+                )}
+                {banner.uploaded_by && (
+                  <p className="banner-card-meta">
+                    Uploaded by {banner.uploaded_by}
+                  </p>
+                )}
+              </div>
             </div>
           ))
         )}
       </div>
 
-      {/* === Modal Preview === */}
+      {/* Modal Preview */}
       {previewBanner && (
-        <div className="banner-modal" onClick={() => setPreviewBanner(null)}>
+        <div
+          className="banner-modal"
+          onClick={() => setPreviewBanner(null)}
+          role="dialog"
+          aria-modal="true"
+        >
           <div
             className="banner-modal-content"
             onClick={(e) => e.stopPropagation()}
@@ -100,6 +125,7 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
             <button
               className="close-button"
               onClick={() => setPreviewBanner(null)}
+              aria-label="Close preview"
             >
               ✖
             </button>

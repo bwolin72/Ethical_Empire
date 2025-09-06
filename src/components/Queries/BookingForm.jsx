@@ -13,6 +13,8 @@ import {
   FaLinkedin,
   FaTwitter,
   FaFacebookF,
+  FaUsers,
+  FaRegListAlt,
 } from "react-icons/fa";
 
 import { useTheme } from "../../context/ThemeContext";
@@ -38,6 +40,8 @@ const BookingForm = () => {
     state_or_region: "",
     venue_name: "",
     address: "",
+    event_type: "",
+    guests: "",
     event_date: null,
     message: "",
     services: [],
@@ -115,6 +119,8 @@ const BookingForm = () => {
       state_or_region: "",
       venue_name: "",
       address: "",
+      event_type: "",
+      guests: "",
       event_date: null,
       message: "",
       services: [],
@@ -134,11 +140,12 @@ const BookingForm = () => {
       state_or_region,
       venue_name,
       address,
+      event_type,
+      guests,
       event_date,
       services,
     } = formData;
 
-    // Client-side validation
     if (
       !name ||
       !email ||
@@ -148,6 +155,8 @@ const BookingForm = () => {
       !venue_name ||
       !address ||
       !event_date ||
+      !event_type ||
+      !guests ||
       !Array.isArray(services) ||
       services.length === 0
     ) {
@@ -175,11 +184,13 @@ const BookingForm = () => {
       state_or_region,
       venue_name,
       address,
+      event_type,
+      guests,
       event_date: event_date
         ? event_date.toISOString().split("T")[0]
         : null,
       message: formData.message || "",
-      services, // IDs only
+      services,
     };
 
     try {
@@ -213,12 +224,7 @@ const BookingForm = () => {
 
   return (
     <div className={`booking-wrapper ${darkMode ? "dark" : "light"}`}>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar
-        theme="colored"
-      />
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
 
       <div className="booking-container">
         {/* === Left Form === */}
@@ -232,6 +238,7 @@ const BookingForm = () => {
           <form onSubmit={handleSubmit} className="form-content" noValidate>
             <h3>Event Booking Form</h3>
 
+            {/* Personal Info */}
             {["name", "email", "venue_name", "address"].map((id) => (
               <div key={id} className="input-group">
                 <label htmlFor={id}>{id.replace("_", " ")}</label>
@@ -246,6 +253,7 @@ const BookingForm = () => {
               </div>
             ))}
 
+            {/* Country & Region */}
             <div className="input-group">
               <label>Country</label>
               <CountryDropdown
@@ -271,6 +279,7 @@ const BookingForm = () => {
               />
             </div>
 
+            {/* Phone */}
             <div className="input-group">
               <label>Phone Number</label>
               <PhoneInput
@@ -284,6 +293,40 @@ const BookingForm = () => {
               />
             </div>
 
+            {/* Event Details */}
+            <div className="input-group">
+              <label>Event Type</label>
+              <select
+                name="event_type"
+                value={formData.event_type}
+                onChange={handleChange}
+                required
+              >
+                <option value="">-- Select Event Type --</option>
+                <option value="Wedding">Wedding</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Party">Party</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div className="input-group">
+              <label>Number of Guests</label>
+              <div className="guest-wrapper">
+                <FaUsers className="icon" />
+                <input
+                  type="number"
+                  name="guests"
+                  value={formData.guests}
+                  onChange={handleChange}
+                  placeholder="e.g., 150"
+                  min="1"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Event Date */}
             <div className="input-group">
               <label>Event Date</label>
               <div className="datepicker-wrapper">
@@ -299,6 +342,7 @@ const BookingForm = () => {
               </div>
             </div>
 
+            {/* Services */}
             <div className="input-group">
               <label>Services</label>
               <div className="checkbox-group">
@@ -323,6 +367,7 @@ const BookingForm = () => {
               </div>
             </div>
 
+            {/* Notes */}
             <div className="input-group">
               <label>Additional Notes</label>
               <textarea
@@ -337,52 +382,51 @@ const BookingForm = () => {
               {isSubmitting ? "Submitting..." : "Submit Booking"}
             </button>
           </form>
+
+          {/* Trust Section */}
+          <div className="trust-section">
+            <p>✔️ Over 100 successful events hosted</p>
+            <p>✔️ Secure & private booking process</p>
+            <p>✔️ Licensed GHAMRO Partner</p>
+          </div>
         </div>
 
-        {/* === Right Info === */}
+        {/* === Right Info (Booking Summary & Contact) === */}
         <div className="booking-brand-panel">
           <div className="brand-content">
+            <h3>Booking Summary</h3>
+            <p><strong>Name:</strong> {formData.name || "—"}</p>
+            <p><strong>Event:</strong> {formData.event_type || "—"} on {formData.event_date ? formData.event_date.toDateString() : "—"}</p>
+            <p><strong>Guests:</strong> {formData.guests || "—"}</p>
+            <p><strong>Services:</strong> {formData.services.length > 0 ? formData.services.length : "—"} selected</p>
+
+            <hr />
+
             <h3>Operation Manager</h3>
-            <p>
-              <strong>Name:</strong> Mrs. Eunice Chai
-            </p>
+            <p><strong>Name:</strong> Mrs. Eunice Chai</p>
             <p>
               <strong>Email:</strong>{" "}
               <a href="mailto:info@eethmghmultimedia.com">
                 info@eethmghmultimedia.com
               </a>
             </p>
-            <p>
-              <strong>Phone:</strong>{" "}
+            <p><strong>Phone:</strong>{" "}
               <a href="tel:+233559241828">+233 55 924 1828</a>
             </p>
-            <p>
-              <strong>WhatsApp:</strong>{" "}
-              <a
-                href="https://wa.me/233552988735"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+            <p><strong>WhatsApp:</strong>{" "}
+              <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">
                 +233 55 298 8735
               </a>
             </p>
 
             <div className="location-block">
               <h3>Headquarters</h3>
-              <p>
-                <FaMapMarkerAlt className="icon" /> Bicycle City, Ojobi, Gomoa
-                Akotsi
-              </p>
+              <p><FaMapMarkerAlt className="icon" /> Bicycle City, Ojobi, Gomoa Akotsi</p>
               <p>Central Region, Ghana</p>
             </div>
 
             <div className="contact-buttons">
-              <a
-                href="https://wa.me/233553424865"
-                className="whatsapp"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://wa.me/233553424865" className="whatsapp" target="_blank" rel="noopener noreferrer">
                 <FaWhatsapp /> WhatsApp
               </a>
               <a href="tel:+233559241828" className="phone">
@@ -391,32 +435,16 @@ const BookingForm = () => {
             </div>
 
             <div className="social-media-links">
-              <a
-                href="https://www.instagram.com/ethicalmultimedia"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://www.instagram.com/ethicalmultimedia" target="_blank" rel="noopener noreferrer">
                 <FaInstagram />
               </a>
-              <a
-                href="https://www.linkedin.com/in/ethical-empire/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noopener noreferrer">
                 <FaLinkedin />
               </a>
-              <a
-                href="https://x.com/EeTHm_Gh"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://x.com/EeTHm_Gh" target="_blank" rel="noopener noreferrer">
                 <FaTwitter />
               </a>
-              <a
-                href="https://www.facebook.com/16nQGbE7Zk/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://www.facebook.com/16nQGbE7Zk/" target="_blank" rel="noopener noreferrer">
                 <FaFacebookF />
               </a>
             </div>

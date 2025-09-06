@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import apiService from "../../api/apiService";
-import Services from "../home/Services"; // ✅ shared services component
 
 // === Animation Variants ===
 const fadeUp = {
@@ -39,7 +38,7 @@ const LiveBandServicePage = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const [videoUrl, setVideoUrl] = useState("");
+  const [videoUrl, setVideoUrl] = useState("/videos/liveband-fallback.mp4"); // ✅ fallback local video
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
@@ -60,7 +59,7 @@ const LiveBandServicePage = () => {
         // Normalize testimonials
         const rawReviews = Array.isArray(reviewRes?.data) ? reviewRes.data : [];
         const normReviews = rawReviews.map((r) => ({
-          id: r.id ?? r._id ?? undefined,
+          id: r.id ?? r._id,
           text: r.message ?? r.comment ?? r.text ?? r.content ?? "",
           author:
             r.user?.username ??
@@ -75,7 +74,7 @@ const LiveBandServicePage = () => {
         const rawVideos = Array.isArray(videoRes?.data) ? videoRes.data : [];
         const featured = rawVideos.find((v) => v?.is_featured) ?? rawVideos[0];
         const src = getMediaUrl(featured);
-        if (mounted) setVideoUrl(src || "");
+        if (mounted && src) setVideoUrl(src);
       } catch (error) {
         console.error("Failed to load content:", error);
         if (mounted) setErrorMsg("Failed to load reviews or video.");
@@ -103,77 +102,66 @@ const LiveBandServicePage = () => {
 
   return (
     <div className="liveband-page">
-      {/* === Hero Banner or Video === */}
+      {/* === Hero Banner / Video === */}
       <section className="banner-section">
-        {videoUrl ? (
-          <>
-            <video
-              ref={videoRef}
-              className="hero-banner-image"
-              src={videoUrl}
-              autoPlay
-              loop
-              muted={isMuted}
-              playsInline
-              preload="auto"
-              onError={() => setVideoUrl("/fallback-banner.jpg")}
-            />
-            <button
-              className="mute-button"
-              onClick={toggleMute}
-              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
-              type="button"
-            >
-              {isMuted ? "🔇" : "🔊"}
-            </button>
+        <video
+          ref={videoRef}
+          className="hero-banner-image"
+          src={videoUrl}
+          autoPlay
+          loop
+          muted={isMuted}
+          playsInline
+          preload="auto"
+        />
+        <div className="hero-overlay" />
+        <button
+          className="mute-button"
+          onClick={toggleMute}
+          aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+        >
+          {isMuted ? "🔇" : "🔊"}
+        </button>
 
-            <div className="hero-overlay" />
-            <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
-            <p className="hero-subtitle">
-              Professional Live Bands for Unforgettable Events
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="cta-button hero-button"
-              onClick={() => navigate("/bookings")}
-              type="button"
-            >
-              Book a Live Band
-            </motion.button>
-          </>
-        ) : (
-          <>
-            <div className="hero-overlay" />
-            <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
-            <p className="hero-subtitle">
-              Professional Live Bands for Unforgettable Events
-            </p>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              className="cta-button hero-button"
-              onClick={() => navigate("/bookings")}
-              type="button"
-            >
-              Book a Live Band
-            </motion.button>
-
-            <div className="banner-cards-wrapper">
-              <BannerCards
-                endpoint="LiveBandServicePage"
-                title="Live Band Highlights"
-              />
-            </div>
-          </>
-        )}
+        <div className="hero-text">
+          <h1 className="hero-title">Experience the Rhythm of Elegance</h1>
+          <p className="hero-subtitle">
+            Professional Live Bands for Unforgettable Events
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            className="cta-button hero-button"
+            onClick={() => navigate("/bookings")}
+          >
+            Book a Live Band
+          </motion.button>
+        </div>
       </section>
 
-      {/* === Services Offered (Shared Component) === */}
-      <section className="section services-section">
-        <h2 className="section-title">Live Band Services</h2>
-        <p className="section-description">
-          From intimate acoustic duos to full orchestras — choose your sound.
-        </p>
-        <Services />
+      {/* === Why Choose Us === */}
+      <section className="section highlights-section">
+        <h2 className="section-title">Why Choose Our Live Band?</h2>
+        <div className="highlight-grid">
+          {[
+            { icon: "🎤", title: "Professional Vocalists", text: "Talented singers who adapt to any genre." },
+            { icon: "🎸", title: "Versatile Repertoire", text: "From Afrobeat & Highlife to Jazz, Gospel & Reggae." },
+            { icon: "🥁", title: "Dynamic Presence", text: "Energy that keeps your guests entertained all night." },
+          ].map((item, index) => (
+            <motion.div
+              key={item.title}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              custom={index}
+              viewport={{ once: true }}
+              className="highlight-card"
+            >
+              <div className="highlight-icon">{item.icon}</div>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </motion.div>
+          ))}
+        </div>
       </section>
 
       {/* === Immersive Preview === */}
@@ -188,11 +176,7 @@ const LiveBandServicePage = () => {
             </p>
           </div>
           <div className="creative-media">
-            <MediaCards
-              endpoint="LiveBandServicePage"
-              fullWidth={false}
-              title=""
-            />
+            <MediaCards endpoint="LiveBandServicePage" fullWidth={false} title="" />
           </div>
         </div>
       </section>
@@ -200,9 +184,6 @@ const LiveBandServicePage = () => {
       {/* === Testimonials === */}
       <section className="section testimonial-section" aria-live="polite">
         <h2 className="section-title">Client Reviews</h2>
-        <p className="section-description">
-          Hear what our clients say about their elevated musical experiences.
-        </p>
         <div className="testimonial-grid">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => (
@@ -221,7 +202,7 @@ const LiveBandServicePage = () => {
                 viewport={{ once: true }}
               >
                 <Card className="testimonial-card">
-                  <CardContent className="card-content">
+                  <CardContent>
                     <p className="testimonial-text">"{review.text}"</p>
                     <p className="testimonial-user">— {review.author}</p>
                   </CardContent>
@@ -240,6 +221,18 @@ const LiveBandServicePage = () => {
       <section className="section media-gallery-section">
         <h2 className="section-title">Full Gallery</h2>
         <MediaCards endpoint="LiveBandServicePage" fullWidth={true} title="" />
+      </section>
+
+      {/* === Final CTA === */}
+      <section className="section final-cta">
+        <h2 className="section-title">Make Your Event Unforgettable</h2>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          className="cta-button"
+          onClick={() => navigate("/bookings")}
+        >
+          Book the Live Band Today
+        </motion.button>
       </section>
     </div>
   );

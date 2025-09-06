@@ -1,17 +1,17 @@
 /* src/pages/home/EethmHome.css */
 
 /* ===========================================
-   🌟 Base wrapper
+   🌟 Base Wrapper
    =========================================== */
 .eethm-home-page {
-  background: var(--color-page, #f7f7f7);
+  background: var(--color-bg-light);
   font-family: var(--font-main);
   color: var(--color-neutral-dark);
 }
 
-/* ======================================================
+/* ===========================================
    🖼 Hero Section
-   ====================================================== */
+   =========================================== */
 .eethm-home-page .video-hero-section {
   position: relative;
   height: 100vh;
@@ -24,7 +24,6 @@
   left: 0;
 }
 
-/* subtle gradient for readability (kept) */
 .eethm-home-page .video-hero-section::after {
   content: "";
   position: absolute;
@@ -34,7 +33,6 @@
   pointer-events: none;
 }
 
-/* explicit overlay element used in JSX */
 .eethm-home-page .overlay-gradient {
   position: absolute;
   inset: 0;
@@ -44,19 +42,17 @@
       rgba(0,0,0,0.20) 0%,
       rgba(0,0,0,0.35) 40%,
       rgba(0,0,0,0.55) 100%
-    ), var(--gradient-navy-gold);
+    ),
+    var(--gradient-navy-gold);
   mix-blend-mode: multiply;
   pointer-events: none;
 }
 
-/* Video & image share the same visual behavior */
 .eethm-home-page .background-video,
 .eethm-home-page img.background-video {
   position: absolute;
   top: 0;
   left: 0;
-  min-width: 100%;
-  min-height: 100%;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -66,7 +62,6 @@
   background: var(--color-black);
 }
 
-/* overlay content sits above media & gradients */
 .eethm-home-page .overlay-content {
   position: relative;
   z-index: 2;
@@ -79,7 +74,6 @@
   animation: fade-in-up var(--transition-slow) both;
 }
 
-/* hero copy (class-based to match JSX) */
 .eethm-home-page .hero-title {
   font-family: var(--font-accent);
   font-size: 3.2rem;
@@ -94,7 +88,6 @@
   letter-spacing: 1px;
 }
 
-/* hero action buttons */
 .eethm-home-page .hero-buttons {
   display: flex;
   justify-content: center;
@@ -109,7 +102,9 @@
   font-weight: 700;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              transform var(--transition-fast);
   box-shadow: var(--shadow-sm);
   user-select: none;
 }
@@ -118,42 +113,25 @@
   transform: translateY(-3px);
 }
 
-/* Buttons */
 .eethm-home-page .btn-primary {
   background: var(--gradient-navy-gold);
   color: var(--color-white);
-  border: none;
-  padding: 12px 28px;
-  border-radius: var(--radius-sm);
-  font-weight: 700;
 }
 .eethm-home-page .btn-primary:hover {
   filter: brightness(0.95);
 }
 
-/* Secondary button used in JSX */
-.eethm-home-page .btn-secondary {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  padding: 12px 28px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.15);
-  font-weight: 700;
-}
-.eethm-home-page .btn-secondary:hover {
-  background-color: var(--color-primary-dark);
-}
-
-/* Legacy alias (kept if used elsewhere) */
+.eethm-home-page .btn-secondary,
 .eethm-home-page .newsletter-btn {
   background-color: var(--color-primary);
   color: var(--color-white);
+  border: 1px solid rgba(255,255,255,0.15);
 }
+.eethm-home-page .btn-secondary:hover,
 .eethm-home-page .newsletter-btn:hover {
   background-color: var(--color-primary-dark);
 }
 
-/* mute control */
 .eethm-home-page .mute-button {
   position: absolute;
   top: 20px;
@@ -172,13 +150,11 @@
   outline-offset: 4px;
 }
 
-/* fallback text + api error */
 .eethm-home-page .video-fallback {
   color: var(--color-white);
   font-size: 1.8rem;
   text-align: center;
   padding: 60px 20px;
-  user-select: none;
 }
 .eethm-home-page .video-error {
   position: absolute;
@@ -191,36 +167,30 @@
   border-radius: .5rem;
   font-size: .9rem;
 }
-
-/* generic error text used in JSX */
 .eethm-home-page .error-text {
   color: var(--color-error);
   font-weight: 600;
 }
 
-/* ======================================================
+/* ===========================================
    📄 Section Wrappers
-   ====================================================== */
-.eethm-home-page .services-page,
-.eethm-home-page .banners-section {
+   =========================================== */
+.eethm-home-page .content-section {
   max-width: 1200px;
   margin: 3rem auto;
   padding: 0 1rem;
 }
 
-.eethm-home-page .services-page > h2,
-.eethm-home-page .banners-section > h2,
-.eethm-home-page .promotions-section > h2,
-.eethm-home-page .reviews-section > h2 {
+.eethm-home-page .content-section > h2 {
   font-family: var(--font-accent);
   color: var(--color-primary);
   margin-bottom: 1rem;
   letter-spacing: .5px;
 }
 
-/* ======================================================
-   🎭 Services Flip Card Section
-   ====================================================== */
+/* ===========================================
+   🎭 Services Flip Cards
+   =========================================== */
 .eethm-home-page .service-card-grid {
   display: flex;
   flex-wrap: wrap;
@@ -245,13 +215,10 @@
 }
 
 .eethm-home-page .service-flip-card:hover .service-flip-card-inner,
-.eethm-home-page .service-flip-card:focus .service-flip-card-inner,
 .eethm-home-page .service-flip-card:focus-within .service-flip-card-inner {
   transform: rotateY(180deg);
-  outline: none;
 }
 
-/* visible focus ring for accessibility */
 .eethm-home-page .service-flip-card:focus {
   outline: 3px solid var(--color-accent-gold);
   outline-offset: 4px;
@@ -278,7 +245,6 @@
   border-left: 6px solid var(--color-accent-green);
 }
 
-/* service image / fallback */
 .eethm-home-page .service-flip-card-front img,
 .eethm-home-page .service-image {
   width: 100%;
@@ -303,20 +269,17 @@
   flex-direction: column;
   justify-content: center;
 }
-
 .eethm-home-page .service-flip-card-back p {
   font-size: 1rem;
   margin-bottom: 10px;
   line-height: 1.4;
 }
-
 .eethm-home-page .service-flip-card-back ul {
   padding-left: 20px;
   margin-bottom: 10px;
   list-style-type: disc;
   font-size: 0.95rem;
 }
-
 .eethm-home-page .click-hint {
   margin-top: auto;
   font-size: 0.85rem;
@@ -324,9 +287,9 @@
   text-align: center;
 }
 
-/* ======================================================
+/* ===========================================
    📩 Newsletter Modal
-   ====================================================== */
+   =========================================== */
 .eethm-home-page .newsletter-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -336,7 +299,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  animation: fade-in 0.3s ease-out;
 }
 
 .eethm-home-page .newsletter-modal {
@@ -346,7 +309,7 @@
   width: min(90%, 500px);
   box-shadow: var(--shadow-lg);
   position: relative;
-  animation: slideUp 0.4s ease-out;
+  animation: fade-in-up 0.4s ease-out;
 }
 
 .eethm-home-page .newsletter-modal h2 {
@@ -355,29 +318,22 @@
   color: var(--color-primary);
   font-family: var(--font-accent);
 }
-
 .eethm-home-page .newsletter-modal p {
   color: var(--color-neutral-dark);
   margin-bottom: 1.5rem;
 }
 
-/* explicit newsletter-form class (matches JSX) */
-.eethm-home-page .newsletter-form,
-.eethm-home-page .newsletter-modal form {
+.eethm-home-page .newsletter-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
-
-.eethm-home-page .newsletter-modal input,
 .eethm-home-page .newsletter-form input {
   padding: 12px;
-  border: 1px solid var(--color-neutral-light);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
   font-size: 1rem;
 }
-
-.eethm-home-page .newsletter-modal button,
 .eethm-home-page .newsletter-form button {
   background: var(--color-primary);
   color: var(--color-white);
@@ -388,8 +344,6 @@
   cursor: pointer;
   transition: background var(--transition-fast);
 }
-
-.eethm-home-page .newsletter-modal button:hover,
 .eethm-home-page .newsletter-form button:hover {
   background: var(--color-primary-dark);
 }
@@ -411,13 +365,10 @@
   outline-offset: 4px;
 }
 
-/* reCAPTCHA spacing (class used in JSX) */
 .eethm-home-page .newsletter-recaptcha {
   display: flex;
   justify-content: center;
 }
-
-/* Feedback messages */
 .eethm-home-page .success-message {
   color: var(--color-success);
   font-weight: 600;
@@ -429,16 +380,9 @@
   margin-top: 0.75rem;
 }
 
-/* ======================================================
+/* ===========================================
    🎉 Promotions Section
-   ====================================================== */
-.eethm-home-page .promotions-section {
-  display: block;
-  max-width: 1200px;
-  margin: 3rem auto;
-  padding: 0 1rem;
-}
-
+   =========================================== */
 .eethm-home-page .promotions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -453,18 +397,15 @@
   box-shadow: var(--shadow-md);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-
 .eethm-home-page .promotion-card:hover {
   transform: translateY(-5px);
   box-shadow: var(--shadow-lg);
 }
-
 .eethm-home-page .promotion-card img {
   width: 100%;
   height: 200px;
   object-fit: cover;
 }
-
 .eethm-home-page .promotion-card-content { padding: 1rem; }
 .eethm-home-page .promotion-card-content h3 {
   font-size: 1.2rem;
@@ -483,22 +424,14 @@
   font-size: 0.9rem; color: var(--color-neutral-dark); margin-top: 0.25rem;
 }
 
-/* ======================================================
-   ⭐ Reviews/Testimonials
-   ====================================================== */
-.eethm-home-page .reviews-section {
-  display: block;
-  max-width: 1200px;
-  margin: 3rem auto 1rem;
-  padding: 0 1rem;
-}
-
+/* ===========================================
+   ⭐ Reviews
+   =========================================== */
 .eethm-home-page .reviews-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
 }
-
 .eethm-home-page .review-card {
   background: var(--color-white);
   border-radius: var(--radius-md);
@@ -506,18 +439,22 @@
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.eethm-home-page .review-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.eethm-home-page .review-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
 .eethm-home-page .review-author { font-weight: bold; color: var(--color-primary); margin-bottom: 0.5rem; }
 .eethm-home-page .review-text { font-style: italic; color: var(--color-neutral-dark); }
 
-/* ======================================================
-   🖼 Banner & Media Cards (rendered by sub-components)
-   ====================================================== */
+/* ===========================================
+   🖼 Banner & Media Cards (subcomponents)
+   =========================================== */
 .eethm-home-page .media-cards-container {
   max-width: 1200px;
   margin: 3rem auto;
   padding: 0 1rem;
 }
+
 .eethm-home-page .media-cards-title {
   font-size: 1.6rem;
   margin: 0 0 1rem;
@@ -525,7 +462,6 @@
   font-family: var(--font-accent);
 }
 
-/* desktop: grid; small screens: horizontal scroll */
 .eethm-home-page .media-cards-scroll-wrapper {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -539,15 +475,10 @@
     scroll-snap-type: x mandatory;
     padding-bottom: .5rem;
   }
-  .eethm-home-page .media-card-wrapper { scroll-snap-align: start; min-width: 72%; }
-}
-
-/* legacy grid classes */
-.eethm-home-page .banner-cards,
-.eethm-home-page .media-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
+  .eethm-home-page .media-card-wrapper {
+    scroll-snap-align: start;
+    min-width: 72%;
+  }
 }
 
 .eethm-home-page .banner-card,
@@ -559,9 +490,16 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 .eethm-home-page .banner-card:hover,
-.eethm-home-page .media-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+.eethm-home-page .media-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
 .eethm-home-page .banner-card img,
-.eethm-home-page .media-card img { width: 100%; height: 180px; object-fit: cover; }
+.eethm-home-page .media-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
 .eethm-home-page .banner-card-content,
 .eethm-home-page .media-card-content { padding: 1rem; }
 .eethm-home-page .banner-card-content h3,
@@ -571,26 +509,12 @@
   margin-bottom: 0.5rem;
   font-family: var(--font-accent);
 }
-
-/* simple messaging styles used by MediaCards */
-.eethm-home-page .media-error { color: var(--color-error); margin: .25rem 0 0; }
+.eethm-home-page .media-error { color: var(--color-error); margin-top: .25rem; }
 .eethm-home-page .media-card-empty { opacity: .7; }
 
-/* ======================================================
-   🎠 Featured Media Horizontal Carousel
-   ====================================================== */
-.eethm-home-page .featured-media-section {
-  max-width: 1200px;
-  margin: 3rem auto;
-  padding: 0 1rem;
-}
-
-.eethm-home-page .featured-media-section h2 {
-  font-family: var(--font-accent);
-  color: var(--color-primary);
-  margin-bottom: 1rem;
-}
-
+/* ===========================================
+   🎠 Featured Media Carousel
+   =========================================== */
 .eethm-home-page .featured-carousel {
   display: flex;
   overflow-x: auto;
@@ -599,7 +523,6 @@
   padding-bottom: 0.5rem;
   -webkit-overflow-scrolling: touch;
 }
-
 .eethm-home-page .featured-carousel > img,
 .eethm-home-page .featured-carousel > video {
   flex: 0 0 auto;
@@ -612,63 +535,20 @@
   background: var(--color-neutral-light);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-
 .eethm-home-page .featured-carousel > img:hover,
 .eethm-home-page .featured-carousel > video:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
-/* optional arrows (place absolutely in section if you want) */
-.eethm-home-page .featured-carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0,0,0,0.5);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  padding: 0.5rem;
-  cursor: pointer;
-  z-index: 5;
-}
-.eethm-home-page .featured-carousel-arrow.left { left: 10px; }
-.eethm-home-page .featured-carousel-arrow.right { right: 10px; }
-.eethm-home-page .featured-carousel-arrow:hover { background: rgba(0,0,0,0.7); }
-
-/* ======================================================
-   🎬 Animations
-   ====================================================== */
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-/* ======================================================
-   📱 Responsive Adjustments
-   ====================================================== */
+/* ===========================================
+   📱 Responsive
+   =========================================== */
 @media (max-width: 1024px) {
   .eethm-home-page .hero-title { font-size: 2.8rem; }
   .eethm-home-page .hero-subtitle { font-size: 1.3rem; }
 }
-
 @media (max-width: 768px) {
   .eethm-home-page .hero-title { font-size: 2.4rem; }
-  .eethm-home-page .hero-subtitle { font-size: 1.15rem; }
-
-  .eethm-home-page .service-card-grid {
-    flex-direction: column;
-    align-items: center;
-  }
-  .eethm-home-page .service-flip-card { width: 90%; height: auto; }
-  .eethm-home-page .service-flip-card .service-flip-card-inner { min-height: 360px; }
-
-  .eethm-home-page .video-hero-section {
-    height: calc(100vh - 56px);
-    min-height: 50vh;
-  }
-}
-
-@media (max-width: 380px) {
-  .eethm-home-page .hero-title { font-size: 1.9rem; }
-  .eethm-home-page .hero-subtitle { font-size: 1rem; }
-  .eethm-home-page .service-flip-card { width: 100%; height: auto; }
+  /* Add additional responsive styles here if needed */
 }

@@ -1,84 +1,67 @@
 /* frontend/src/components/Services.css */
 
+/* --- PAGE LAYOUT --- */
 .services-page {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
-  background-color: var(--color-accent-gold-light); /* Soft Sand using theme */
   font-family: var(--font-main);
+  background-color: var(--color-accent-gold-light); /* Soft Sand */
+  padding-bottom: 60px;
 }
 
-/* Section Heading */
-.services-page h2,
-.service-detail h2 {
+/* --- HERO SECTION --- */
+.services-hero {
+  position: relative;
+  background: linear-gradient(
+      rgba(90, 20, 30, 0.85),
+      rgba(90, 20, 30, 0.7)
+    ),
+    url('../../assets/images/services-hero.jpg') center/cover no-repeat;
+  color: var(--color-white);
   text-align: center;
-  margin-bottom: 30px;
-  color: var(--color-primary); /* Burgundy */
+  padding: 100px 20px;
+}
+
+.services-hero h1 {
+  font-size: 2.8rem;
+  font-family: var(--font-accent);
+  margin-bottom: 15px;
+}
+
+.services-hero p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* --- SECTION HEADING --- */
+.section-title {
+  text-align: center;
+  margin: 50px 0 30px;
   font-size: 2rem;
   font-weight: 700;
+  color: var(--color-primary); /* Burgundy */
   font-family: var(--font-accent);
 }
 
-/* Service Detail View */
-.service-detail {
-  background-color: var(--color-white);
-  padding: 40px;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.service-detail p {
-  color: var(--color-neutral);
-  font-size: 1.1rem;
-  line-height: 1.7;
-  margin-bottom: 24px;
-}
-
-.service-detail ul {
-  padding-left: 1.5rem;
-  margin-bottom: 24px;
-}
-
-.service-detail li {
-  margin-bottom: 10px;
-  font-size: 1rem;
-  color: var(--color-neutral);
-}
-
-/* Back Link */
-.services-page .back-link {
-  display: inline-block;
-  margin-top: 20px;
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color var(--transition-fast);
-}
-
-.services-page .back-link:hover {
-  color: var(--color-accent-gold);
-  text-decoration: underline;
-}
-
-/* Flip Card Grid */
+/* --- SERVICE LIST (GRID) --- */
 .service-list {
+  max-width: 1200px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
-  margin-top: 2rem;
+  padding: 0 20px;
 }
 
-/* Flip Card Styles */
+/* --- SERVICE CARD (Flip style kept) --- */
 .service-card {
   perspective: 1000px;
   cursor: pointer;
-  height: 240px;
+  height: 260px;
   border-radius: var(--radius-lg);
 }
 
-.services-page .card-inner {
+.card-inner {
   position: relative;
   width: 100%;
   height: 100%;
@@ -92,9 +75,9 @@
   transform: rotateY(180deg);
 }
 
-/* Front and Back shared styles */
-.services-page .card-front,
-.services-page .card-back {
+/* Card faces */
+.card-front,
+.card-back {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -109,192 +92,129 @@
   transition: box-shadow var(--transition-fast);
 }
 
-/* Service Icon */
-.service-card .service-icon {
+.card-front h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0;
+  color: var(--color-accent-gold);
+}
+
+.service-icon {
   font-size: 2.5rem;
   color: var(--color-primary);
   margin-bottom: 12px;
 }
 
-.services-page .card-front h3 {
-  color: var(--color-accent-gold);
-  font-size: 1.4rem;
-  margin-bottom: 0;
-}
-
-.services-page .card-back {
+.card-back {
   transform: rotateY(180deg);
-  background-color: var(--color-accent-gold-light); /* lighter sand */
+  background-color: var(--color-accent-gold-light);
   color: var(--color-neutral);
-}
-
-.services-page .card-back p {
-  font-size: 1rem;
-  line-height: 1.5;
   text-align: center;
 }
 
-.service-card .book-btn {
+.card-back p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* --- BUTTONS --- */
+.book-btn,
+.contact-btn {
   margin-top: 1rem;
-  background-color: var(--color-primary);
-  color: var(--color-white);
   padding: 8px 16px;
   border-radius: var(--radius-md);
   text-decoration: none;
   font-weight: 600;
-  transition: background-color var(--transition-fast);
+  transition: var(--transition-fast);
 }
 
-.service-card .book-btn:hover {
-  background-color: var(--color-primary-dark);
-}
-
-/* Hover effect for elevated card */
-.service-card:hover .card-inner {
-  box-shadow: var(--shadow-lg);
-}
-
-/* Service Detail Action Buttons */
-.service-detail .action-buttons {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-top: 24px;
-}
-
-.service-detail .action-buttons .btn {
+.book-btn {
   background-color: var(--color-primary);
   color: var(--color-white);
-  padding: 10px 20px;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  font-weight: 600;
-  transition: background-color var(--transition-fast),
-              transform var(--transition-fast);
 }
 
-.service-detail .action-buttons .btn:hover {
+.book-btn:hover {
   background-color: var(--color-primary-dark);
   transform: translateY(-2px);
 }
 
-/* Contact button variant */
-.service-detail .action-buttons .btn.contact-btn {
+.contact-btn {
   background-color: var(--color-accent-gold);
   color: var(--color-primary);
 }
 
-.service-detail .action-buttons .btn.contact-btn:hover {
+.contact-btn:hover {
   background-color: var(--color-accent-gold-dark);
   color: var(--color-white);
+  transform: translateY(-2px);
 }
 
-.btn {
-  padding: 0.6rem 1.4rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  transition: var(--transition-fast);
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
+/* Back card action buttons */
+.card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 1rem;
+  justify-content: center;
 }
 
-.btn-primary {
+/* --- CTA STRIP --- */
+.services-cta {
   background: var(--color-primary);
   color: var(--color-white);
+  text-align: center;
+  padding: 60px 20px;
+  margin-top: 60px;
 }
 
-.btn-primary:hover {
-  background: var(--color-primary-dark);
+.services-cta h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-family: var(--font-accent);
 }
 
-.btn-secondary {
+.services-cta .cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.services-cta .btn {
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.services-cta .btn-primary {
   background: var(--color-accent-gold);
   color: var(--color-primary);
 }
-.btn-secondary:hover {
+
+.services-cta .btn-primary:hover {
   background: var(--color-accent-gold-dark);
   color: var(--color-white);
 }
 
-/* Card Actions (on the back of service cards) */
-.service-card .card-actions {
-  display: flex;
-  gap: 12px; /* space between buttons */
-  margin-top: 1rem;
-  justify-content: center;
-}
-
-/* Book Now button inside card */
-.service-card .card-actions .book-btn {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  font-weight: 600;
-  transition: background-color var(--transition-fast),
-              transform var(--transition-fast);
-}
-
-.service-card .card-actions .book-btn:hover {
-  background-color: var(--color-primary-dark);
-  transform: translateY(-2px);
-}
-
-/* Contact button inside card (secondary style) */
-.service-card .card-actions .contact-btn {
-  background-color: var(--color-accent-gold);
+.services-cta .btn-secondary {
+  background: var(--color-white);
   color: var(--color-primary);
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  font-weight: 600;
-  transition: background-color var(--transition-fast),
-              color var(--transition-fast),
-              transform var(--transition-fast);
 }
 
-.service-card .card-actions .contact-btn:hover {
-  background-color: var(--color-accent-gold-dark);
-  color: var(--color-white);
-  transform: translateY(-2px);
+.services-cta .btn-secondary:hover {
+  background: var(--color-accent-gold-light);
+  color: var(--color-primary-dark);
 }
 
-/* Responsive Tweaks */
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
-  .services-page {
-    margin: 20px auto;
-    padding: 0 16px;
+  .services-hero h1 {
+    font-size: 2rem;
   }
-
-  .services-page .card-front,
-  .services-page .card-back {
-    padding: 20px;
+  .services-hero p {
+    font-size: 1rem;
   }
-
-  .service-detail {
-    padding: 24px;
-  }
-
-  .service-detail .action-buttons {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 480px) {
-  .services-page h2,
-  .service-detail h2 {
+  .services-cta h2 {
     font-size: 1.5rem;
-  }
-
-  .services-page .card-front h3 {
-    font-size: 1.2rem;
-  }
-
-  .services-page .card-back p,
-  .service-detail p,
-  .service-detail li {
-    font-size: 0.95rem;
   }
 }

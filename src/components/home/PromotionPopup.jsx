@@ -1,17 +1,17 @@
 // src/components/context/PromotionPopup.jsx
 import React, { useEffect, useState } from "react";
-import useFetcher from "../../hooks/useFetcher"; // ✅ fixed import
-import placeholderImg from "../../assets/placeholder.jpg"; // ✅ fallback
+import useFetcher from "../../hooks/useFetcher";
+import placeholderImg from "../../assets/placeholder.jpg";
 import "./PromotionPopup.css";
 
 const BACKEND_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const PromotionPopup = () => {
-  const { data: promotions } = useFetcher("promotions"); // ✅ streamlined
+  const { data: promotions } = useFetcher("promotions");
   const [promotion, setPromotion] = useState(null);
   const [visible, setVisible] = useState(false);
 
-  // ✅ Normalize URLs
+  // Normalize URLs
   useEffect(() => {
     if (Array.isArray(promotions) && promotions.length > 0) {
       const promo = { ...promotions[0] };
@@ -30,7 +30,7 @@ const PromotionPopup = () => {
     }
   }, [promotions]);
 
-  // ✅ Delay popup
+  // Delay popup
   useEffect(() => {
     if (promotion) {
       const timer = setTimeout(() => setVisible(true), 5000);
@@ -38,33 +38,58 @@ const PromotionPopup = () => {
     }
   }, [promotion]);
 
+  // Auto close after 15s
+  useEffect(() => {
+    if (visible) {
+      const autoClose = setTimeout(() => setVisible(false), 15000);
+      return () => clearTimeout(autoClose);
+    }
+  }, [visible]);
+
+  // Close on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setVisible(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const handleClose = () => setVisible(false);
 
   if (!promotion || !visible) return null;
 
   return (
-    <div className="promotion-popup-overlay">
+    <div
+      className="promotion-popup-overlay"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="promotion-popup">
         <div className="promotion-content">
-          <button className="close-button" onClick={handleClose}>
+          <button
+            className="close-button"
+            onClick={handleClose}
+            aria-label="Close promotion"
+          >
             ×
           </button>
 
           {promotion.title && <h3>{promotion.title}</h3>}
 
-          {/* ✅ Image */}
+          {/* Image */}
           {promotion.image && (
             <img
               src={promotion.image}
               alt={promotion.title || "Promotion"}
               className="promo-image"
-              onError={(e) => (e.target.src = placeholderImg)} // fallback
+              onError={(e) => (e.target.src = placeholderImg)}
             />
           )}
 
-          {/* ✅ Video */}
+          {/* Video */}
           {promotion.video && (
-            <video controls className="promo-video">
+            <video controls preload="metadata" className="promo-video">
               <source
                 src={promotion.video}
                 type={`video/${promotion.video.split(".").pop() || "mp4"}`}
@@ -73,7 +98,7 @@ const PromotionPopup = () => {
             </video>
           )}
 
-          {/* ✅ Rendered HTML */}
+          {/* Rendered HTML */}
           {promotion.html_content && (
             <div
               className="promo-html"

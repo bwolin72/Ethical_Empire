@@ -130,8 +130,27 @@ const Services = () => {
 
   return (
     <div className="services-page">
+      {/* === HERO SECTION === */}
+      {!selectedService && (
+        <section className="services-hero">
+          <motion.h1
+            className="gradient-text hero-title"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            Our Services
+          </motion.h1>
+          <p className="hero-subtitle">
+            Everything you need to make your events unforgettable with{" "}
+            <span className="brand-highlight">Eethm_GH</span>.
+          </p>
+        </section>
+      )}
+
       <AnimatePresence mode="wait">
         {selectedService ? (
+          /* === SERVICE DETAIL === */
           <motion.section
             key="service-detail"
             className="service-detail"
@@ -150,13 +169,13 @@ const Services = () => {
             </Link>
           </motion.section>
         ) : (
+          /* === SERVICE GRID === */
           <motion.div
             key="service-list"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <h2 className="gradient-text">Our Services</h2>
             <section className="service-list">
               {services.map((srv, index) => {
                 const Icon = serviceIcons[srv.name] || Users;
@@ -215,6 +234,21 @@ const Services = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* === CALL TO ACTION STRIP === */}
+      {!selectedService && (
+        <section className="services-cta">
+          <h3>Ready to plan your next event with us?</h3>
+          <div className="cta-buttons">
+            <Link to="/bookings" className="book-btn">
+              Book Now
+            </Link>
+            <Link to="/contact" className="contact-btn">
+              Contact Us
+            </Link>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

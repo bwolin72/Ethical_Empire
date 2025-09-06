@@ -19,17 +19,18 @@ import {
   FaSeedling,
 } from "react-icons/fa";
 
-// ✅ import your Services component
+// ✅ Reuse global Services
 import Services from "../home/Services";
 
 const CateringPage = () => {
   const navigate = useNavigate();
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [videoUrl, setVideoUrl] = useState("");
+  const [videoUrl, setVideoUrl] = useState(""); // video URL if available
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
+  // === Sample Data ===
   const cateringServices = [
     "Traditional Ghanaian Buffet",
     "Continental Plated Meals",
@@ -63,6 +64,7 @@ const CateringPage = () => {
     "Cocktail Receptions",
   ];
 
+  // === Fetch Testimonials ===
   const fetchData = useCallback(async () => {
     try {
       const { data } = await publicAxios.get("/reviews/");
@@ -74,6 +76,7 @@ const CateringPage = () => {
     }
   }, []);
 
+  // === Fetch Catering Page Video ===
   const fetchVideo = useCallback(async () => {
     try {
       const { data } = await axiosCommon.get(
@@ -92,6 +95,7 @@ const CateringPage = () => {
     fetchVideo();
   }, [fetchData, fetchVideo]);
 
+  // === Mute Toggle ===
   const toggleMute = () => {
     setIsMuted((prev) => !prev);
     if (videoRef.current) {
@@ -125,7 +129,7 @@ const CateringPage = () => {
         )}
       </section>
 
-      {/* === Call to Action === */}
+      {/* === CTA === */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -234,10 +238,10 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* === Embed Global Services Section === */}
+      {/* === Other Services === */}
       <section className="section other-services-section">
         <h2>Explore More of Our Services</h2>
-        <Services /> {/* ✅ Reuse your Services component here */}
+        <Services />
       </section>
     </div>
   );

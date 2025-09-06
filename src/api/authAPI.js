@@ -13,6 +13,10 @@ const endpoints = {
   registerVendor: `${baseURL}/accounts/register/vendor/`,
   internalRegister: `${baseURL}/accounts/internal-register/`,
 
+  // Google Auth
+  googleLogin: `${baseURL}/accounts/google-login/`,
+  googleRegister: `${baseURL}/accounts/google-register/`,
+
   // Profile
   profile: `${baseURL}/accounts/profile/`,
   changePassword: `${baseURL}/accounts/profile/change-password/`,
@@ -56,7 +60,8 @@ const endpoints = {
   profilesProfile: `${baseURL}/accounts/profiles/profile/`,
   sendMessageToUsers: `${baseURL}/accounts/profiles/send-message/`,
   specialOffer: `${baseURL}/accounts/profiles/special-offer/`,
-  toggleUserActive: (userId) => `${baseURL}/accounts/profiles/toggle-active/${userId}/`,
+  toggleUserActive: (userId) =>
+    `${baseURL}/accounts/profiles/toggle-active/${userId}/`,
 
   // Internal
   deleteByEmail: `${baseURL}/accounts/delete-by-email/`,
@@ -74,6 +79,10 @@ const authAPI = {
   registerPartner: (data) => axiosInstance.post(endpoints.registerPartner, data),
   registerVendor: (data) => axiosInstance.post(endpoints.registerVendor, data),
   internalRegister: (data) => axiosInstance.post(endpoints.internalRegister, data),
+
+  // Google Auth
+  googleLogin: (data) => axiosInstance.post(endpoints.googleLogin, data),
+  googleRegister: (data) => axiosInstance.post(endpoints.googleRegister, data),
 
   // Profile
   getProfile: () => axiosInstance.get(endpoints.profile),
@@ -109,7 +118,8 @@ const authAPI = {
   adminInviteWorker: (data) => axiosInstance.post(endpoints.adminInviteWorker, data),
 
   // Workers
-  workerValidateInvite: (uid, token) => axiosInstance.get(endpoints.workerValidateInvite(uid, token)),
+  workerValidateInvite: (uid, token) =>
+    axiosInstance.get(endpoints.workerValidateInvite(uid, token)),
   workerCompleteInvite: (data) => axiosInstance.post(endpoints.workerCompleteInvite, data),
   workerCategories: () => axiosInstance.get(endpoints.workerCategories),
 

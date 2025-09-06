@@ -8,8 +8,9 @@ import useMediaFetcher from "../../hooks/useFetcher";
 import MediaCards from "../context/MediaCards";
 import MediaCard from "../context/MediaCard";
 import BannerCards from "../context/BannerCards";
+import GalleryWrapper from "../gallery/GalleryWrapper"; // ✅ slideshow wrapper
 import apiService from "../../api/apiService";
-import videoService from "../../api/services/videoService"; // ✅ video API
+import videoService from "../../api/services/videoService";
 
 import euniceImg from "../../assets/team/eunice.png";
 import josephImg from "../../assets/team/joseph.jpg";
@@ -34,18 +35,14 @@ const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
 const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
 const About = () => {
-  // fetch banners/images for About page
   const aboutFetch = useMediaFetcher("about");
   const mediaItems =
     (Array.isArray(aboutFetch?.media) && aboutFetch.media) ||
     (Array.isArray(aboutFetch?.data) && aboutFetch.data) ||
     [];
 
-  // hero video state
   const [heroVideoUrl, setHeroVideoUrl] = useState(null);
   const [videoLoadFailed, setVideoLoadFailed] = useState(false);
-
-  // backend lists
   const [services, setServices] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
 
@@ -122,7 +119,6 @@ const About = () => {
     };
   }, []);
 
-  /* ---------- handlers ---------- */
   const onHeroVideoError = () => {
     setVideoLoadFailed(true);
     if (heroVideoUrl !== LOCAL_FALLBACK_VIDEO) {
@@ -130,7 +126,6 @@ const About = () => {
     }
   };
 
-  /* ---------- hero display ---------- */
   const effectiveHeroVideo = videoLoadFailed ? LOCAL_FALLBACK_VIDEO : heroVideoUrl;
   const heroBanner = bannerList.length > 0 ? bannerList[0] : null;
   const heroBannerImage = getMediaUrl(heroBanner) || null;
@@ -201,12 +196,10 @@ const About = () => {
       {/* Visual Stories (banner cards) */}
       <BannerCards endpoint="about" title="Explore Our Visual Stories" />
 
-      {/* === Services Grid === */}
+      {/* Services */}
       {services.length > 0 && (
         <section className="service-grid" aria-labelledby="services-heading">
-          <h2 id="services-heading" className="section-heading">
-            What We Do
-          </h2>
+          <h2 id="services-heading" className="section-heading">What We Do</h2>
           <div className="service-grid-inner">
             {services.map(({ id, icon_url, title, name, description }) => (
               <article key={id} className="service-card" tabIndex={0}>
@@ -240,7 +233,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* About copy */}
+      {/* About Story */}
       <section className="about-text">
         <h2 className="section-heading">Our Story</h2>
         <p>
@@ -250,7 +243,7 @@ const About = () => {
         </p>
       </section>
 
-      {/* Featured Media Carousel */}
+      {/* Featured Media */}
       <section className="featured-media-section">
         <h2 className="section-heading">Our Work in Action</h2>
         <div className="featured-carousel">
@@ -279,15 +272,11 @@ const About = () => {
               "Flexible packages and transparent pricing.",
               "A track record of flawless delivery across Ghana and beyond.",
             ].map((item, idx) => (
-              <li key={idx}>
-                <FaCheck aria-hidden="true" /> {item}
-              </li>
+              <li key={idx}><FaCheck aria-hidden="true" /> {item}</li>
             ))}
           </ul>
         </div>
-        <div className="why-star">
-          <FaStar className="star-icon" />
-        </div>
+        <div className="why-star"><FaStar className="star-icon" /></div>
       </section>
 
       {/* Team */}
@@ -318,6 +307,12 @@ const About = () => {
         </div>
       </section>
 
+      {/* Slideshow Gallery */}
+      <section className="gallery-showcase">
+        <h2 className="section-heading">Highlights in Motion</h2>
+        <GalleryWrapper endpoint="about" limit={8} /> {/* ✅ integrated */}
+      </section>
+
       {/* Testimonials */}
       {testimonials.length > 0 && (
         <section className="testimonial-carousel">
@@ -333,12 +328,10 @@ const About = () => {
         </section>
       )}
 
-      {/* CTA */}
+      {/* Final CTA */}
       <section className="cta-section">
         <h3 className="cta-title">Let’s create something remarkable together.</h3>
-        <Link to="/bookings" className="cta-button">
-          Book a Service
-        </Link>
+        <Link to="/bookings" className="cta-button">Book a Service</Link>
       </section>
     </div>
   );
