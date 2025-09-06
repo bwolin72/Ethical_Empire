@@ -4,15 +4,15 @@ import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
 import authService from '../../api/services/authService';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-hot-toast';
 import logo from '../../assets/logo.png';
-import './Auth.css'; // unified auth CSS
+import './Auth.css';
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState({});
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -23,29 +23,31 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  const redirectByRole = useCallback(
-    (role) => {
-      const routes = {
-        admin: '/admin',
-        worker: '/worker',
-        user: '/user',
-        vendor: '/vendor-profile',
-        partner: '/partner-profile',
-      };
-      navigate(routes[role] || '/user', { replace: true });
-    },
-    [navigate]
-  );
+  /** 🔹 Redirect user by role */
+  const redirectByRole = useCallback((role) => {
+    const routes = {
+      admin: '/admin',
+      worker: '/worker',
+      user: '/user',
+      vendor: '/vendor-profile',
+      partner: '/partner-profile',
+    };
+    navigate(routes[role] || '/user', { replace: true });
+  }, [navigate]);
 
+  /** 🔹 Initialize dark mode */
   useEffect(() => {
-    const savedDark = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedDark);
-    document.body.classList.toggle('dark', savedDark);
+    const saved = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(saved);
+    document.body.classList.toggle('dark', saved);
   }, []);
 
+  /** 🔹 Auto redirect if logged in */
   useEffect(() => {
-    if (!ready || !user) return;
-    redirectByRole(user.role);
+    if (ready && user?.role) {
+      toast.success(`Welcome back, ${user.name || 'User'}! 🎉`);
+      redirectByRole(user.role);
+    }
   }, [ready, user, redirectByRole]);
 
   const toggleDarkMode = () => {
@@ -53,13 +55,13 @@ const Login = () => {
     setDarkMode(updated);
     document.body.classList.toggle('dark', updated);
     localStorage.setItem('darkMode', updated);
+    toast(updated ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: '' }));
-    setError('');
   };
 
   const validateForm = () => {
@@ -68,6 +70,10 @@ const Login = () => {
     if (!form.password.trim()) errors.password = 'Please enter your password.';
     if (!acceptedTerms) errors.terms = 'You must accept Terms & Privacy.';
     setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      toast.error('Please fix the highlighted errors.');
+    }
     return Object.keys(errors).length === 0;
   };
 
@@ -76,16 +82,26 @@ const Login = () => {
     if (typeof data === 'string') return data;
     if (Array.isArray(data)) return data[0];
     if (typeof data === 'object') {
-      return data.message || data.detail || 'Something went wrong.';
+      return data.message || data.detail || 'Login failed.';
     }
     return 'Something went wrong.';
   };
 
   const handleLoginSuccess = (data) => {
     const { access, refresh, user } = data;
-    if (!access || !refresh || !user) return setError('Login failed.');
-    const userPayload = { name: user.name, email: user.email, role: user.role };
-    login({ access, refresh, user: userPayload, remember: rememberMe });
+    if (!access || !refresh || !user) {
+      toast.error('Invalid login response.');
+      return;
+    }
+
+    login({
+      access,
+      refresh,
+      user: { name: user.name, email: user.email, role: user.role },
+      remember: rememberMe,
+    });
+
+    toast.success(`Welcome, ${user.name || 'User'} 🎉`);
   };
 
   const handleSubmit = async (e) => {
@@ -97,7 +113,8 @@ const Login = () => {
       const { data } = await authService.login(form);
       handleLoginSuccess(data);
     } catch (err) {
-      setError(extractErrorMessage(err));
+      const msg = extractErrorMessage(err);
+      toast.error(msg);
       setForm((prev) => ({ ...prev, password: '' }));
     } finally {
       setLoading(false);
@@ -105,13 +122,16 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = async ({ credential }) => {
-    if (!credential) return setError('Google login failed.');
+    if (!credential) {
+      toast.error('Google login failed.');
+      return;
+    }
     setLoading(true);
     try {
       const { data } = await axiosInstance.post(authService.endpoints.googleLogin, { credential });
       handleLoginSuccess(data);
     } catch (err) {
-      setError(extractErrorMessage(err));
+      toast.error(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -132,12 +152,11 @@ const Login = () => {
         {/* Right Form */}
         <div className="auth-right">
           <h2>Welcome Back 👋</h2>
+
           <label className="dark-toggle">
             <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
             Enable Dark Mode
           </label>
-
-          {error && <div className="alert-error" role="alert">{error}</div>}
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <input
@@ -200,7 +219,10 @@ const Login = () => {
 
           <div className="google-signup">
             <p>Or sign in with Google:</p>
-            <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError('Google login failed')} />
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => toast.error('Google login failed')}
+            />
           </div>
 
           <p className="register-prompt">
