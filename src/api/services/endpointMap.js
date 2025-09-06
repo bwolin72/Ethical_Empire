@@ -1,15 +1,18 @@
+// src/api/services/endpointMap.js
+
 const endpointMap = {
-  home: "EethmHome",
-  about: "About",
-  catering: "CateringServicePage",
-  liveBand: "LiveBandServicePage",
-  decor: "DecorServicePage",
-  mediaHosting: "MediaHostingServicePage",
-  vendor: "VendorProfile",
-  partner: "PartnerProfilePage",
-  partnerVendorDashboard: "AgencyDashboard",
-  user: "UserPage",
-  newsletter: "NewsletterSignup",      // new
-  unsubscribe: "UnsubscribePage",      // new
+  home: "home",
+  about: "about",
+  catering: "catering",
+  liveBand: "live-band",
+  decor: "decor",
+  mediaHosting: "media-hosting",
+  vendor: "vendor",
+  partner: "partner",
+  partnerVendorDashboard: "partner-vendor-dashboard",
+  user: "user",
+  newsletter: "newsletter",    // new
+  unsubscribe: "unsubscribe",  // new
 };
-export default endpointMap; 
+
+export default endpointMap;
