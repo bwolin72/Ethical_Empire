@@ -15,7 +15,11 @@ const normalizeVideo = (v = {}) => ({
   created_at: v?.created_at || null,
   updated_at: v?.updated_at || null,
   category: v?.category || v?.type || null,
-  tags: Array.isArray(v?.tags) ? v.tags : [],
+  tags: Array.isArray(v?.tags)
+    ? v.tags
+    : typeof v?.tags === "string"
+      ? v.tags.split(",").map((t) => t.trim())
+      : [],
 });
 
 const normalizePromotion = (p = {}) => ({
@@ -48,6 +52,16 @@ const normalizeMedia = (m = {}) => ({
 // --- Helpers ---
 const safeMap = (data, normalizer) =>
   Array.isArray(data) ? data.map(normalizer) : [];
+
+const fetchAndNormalize = async (fn, normalizer) => {
+  try {
+    const res = await fn();
+    return safeMap(res?.data, normalizer);
+  } catch (err) {
+    console.error("API fetch error:", err);
+    return [];
+  }
+};
 
 // --- Service ---
 const contentService = {
@@ -103,47 +117,25 @@ const contentService = {
   },
 
   // -------- Promotions --------
-  getPromotions: async () => {
-    try {
-      const res = await publicAxios.get("/promotions/");
-      return safeMap(res?.data, normalizePromotion);
-    } catch (err) {
-      console.error("Error fetching promotions:", err);
-      return [];
-    }
-  },
+  getPromotions: () =>
+    fetchAndNormalize(() => publicAxios.get("/promotions/"), normalizePromotion),
 
   // -------- Reviews --------
-  getReviews: async () => {
-    try {
-      const res = await publicAxios.get("/reviews/");
-      return safeMap(res?.data, normalizeReview);
-    } catch (err) {
-      console.error("Error fetching reviews:", err);
-      return [];
-    }
-  },
+  getReviews: () =>
+    fetchAndNormalize(() => publicAxios.get("/reviews/"), normalizeReview),
 
   // -------- Media --------
-  getBanners: async () => {
-    try {
-      const res = await publicAxios.get(mediaAPI.endpoints.banners);
-      return safeMap(res?.data, normalizeMedia);
-    } catch (err) {
-      console.error("Error fetching banners:", err);
-      return [];
-    }
-  },
+  getBanners: () =>
+    fetchAndNormalize(
+      () => publicAxios.get(mediaAPI.endpoints.banners),
+      normalizeMedia
+    ),
 
-  getMedia: async () => {
-    try {
-      const res = await publicAxios.get(mediaAPI.endpoints.defaultList);
-      return safeMap(res?.data, normalizeMedia);
-    } catch (err) {
-      console.error("Error fetching media:", err);
-      return [];
-    }
-  },
+  getMedia: () =>
+    fetchAndNormalize(
+      () => publicAxios.get(mediaAPI.endpoints.defaultList),
+      normalizeMedia
+    ),
 };
 
 export default contentService;
