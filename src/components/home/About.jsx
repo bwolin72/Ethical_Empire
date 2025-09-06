@@ -62,13 +62,12 @@ const About = () => {
     let active = true;
 
     const fetchAll = async () => {
-      // ✅ no need to pass endpoint manually to asArray
       const banners = await safeFetch(() =>
         apiService.getVideos({ endpoint: "about", is_active: true })
       );
 
-      const srv = await safeFetch(apiService.services.list);
-      const reviewsRaw = await safeFetch(apiService.getReviews);
+      const srv = await safeFetch(() => apiService.services.list());
+      const reviewsRaw = await safeFetch(() => apiService.getReviews());
 
       if (!active) return;
 
