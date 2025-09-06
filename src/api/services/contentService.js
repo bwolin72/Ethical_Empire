@@ -38,32 +38,57 @@ const normalizeMedia = (m) => ({
 // --- Service ---
 const contentService = {
   // -------- Videos --------
-  getVideos: async (params) => {
-    const res = await videosAPI.getAll(params); // <--- corrected
-    return Array.isArray(res.data) ? res.data.map(normalizeVideo) : [];
+  getVideos: async (params = {}) => {
+    try {
+      const res = await videosAPI.list(params);
+      return Array.isArray(res.data) ? res.data.map(normalizeVideo) : [];
+    } catch (err) {
+      console.error("Error fetching videos:", err);
+      return [];
+    }
   },
 
   // -------- Promotions --------
   getPromotions: async () => {
-    const res = await publicAxios.get("/promotions/");
-    return Array.isArray(res.data) ? res.data.map(normalizePromotion) : [];
+    try {
+      const res = await publicAxios.get("/promotions/");
+      return Array.isArray(res.data) ? res.data.map(normalizePromotion) : [];
+    } catch (err) {
+      console.error("Error fetching promotions:", err);
+      return [];
+    }
   },
 
   // -------- Reviews --------
   getReviews: async () => {
-    const res = await publicAxios.get("/reviews/");
-    return Array.isArray(res.data) ? res.data.map(normalizeReview) : [];
+    try {
+      const res = await publicAxios.get("/reviews/");
+      return Array.isArray(res.data) ? res.data.map(normalizeReview) : [];
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+      return [];
+    }
   },
 
   // -------- Media --------
   getBanners: async () => {
-    const res = await publicAxios.get(mediaAPI.endpoints.banners);
-    return Array.isArray(res.data) ? res.data.map(normalizeMedia) : [];
+    try {
+      const res = await publicAxios.get(mediaAPI.endpoints.banners);
+      return Array.isArray(res.data) ? res.data.map(normalizeMedia) : [];
+    } catch (err) {
+      console.error("Error fetching banners:", err);
+      return [];
+    }
   },
 
   getMedia: async () => {
-    const res = await publicAxios.get(mediaAPI.endpoints.defaultList);
-    return Array.isArray(res.data) ? res.data.map(normalizeMedia) : [];
+    try {
+      const res = await publicAxios.get(mediaAPI.endpoints.defaultList);
+      return Array.isArray(res.data) ? res.data.map(normalizeMedia) : [];
+    } catch (err) {
+      console.error("Error fetching media:", err);
+      return [];
+    }
   },
 };
 
