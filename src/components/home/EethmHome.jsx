@@ -1,21 +1,21 @@
 // src/components/home/EethmHome.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import apiService from "../../api/apiService";
 import FadeInSection from "../FadeInSection";
 import Services from "./Services";
 import NewsletterSignup from "../user/NewsLetterSignup";
 
-// New: use the three feature components
+// Feature components
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import MediaGallery from "../gallery/MediaGallery";
+import VideoGallery from "../gallery/VideoGallery";
 
 import "./EethmHome.css";
 
 // --- Local fallbacks ---
 const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
-const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
 // --- Helpers ---
 const asArray = (res) => {
@@ -26,49 +26,10 @@ const asArray = (res) => {
   return [];
 };
 
-const getMediaUrl = (media) => {
-  if (!media) return "";
-  const candidates = [
-    media?.video_url,
-    media?.file_url,
-    media?.file,
-    typeof media?.url === "string" ? media.url : media?.url?.full,
-    media?.image_url,
-    media?.thumbnail_url,
-  ];
-  return candidates.find((v) => typeof v === "string" && v.length) || "";
-};
-
-const isVideoItem = (item, url) => {
-  const t = (item?.file_type || "").toLowerCase();
-  if (t.includes("video")) return true;
-  return typeof url === "string" && /\.mp4(\?.*)?$/i.test(url);
-};
-
-// Map mixed media into MediaGallery's expected shape
-const toGalleryItems = (arr = []) =>
-  arr
-    .map((m) => {
-      const url = getMediaUrl(m);
-      if (!url) return null;
-      return {
-        id: m.id ?? url,
-        type: isVideoItem(m, url) ? "video" : "image",
-        url,
-        title: m.title ?? m.label ?? "",
-      };
-    })
-    .filter(Boolean);
-
 const EethmHome = () => {
   const navigate = useNavigate();
-  const videoRef = useRef(null);
 
-  // Video state
-  const [isMuted, setIsMuted] = useState(true);
-  const [videoLoadFailed, setVideoLoadFailed] = useState(false);
-
-  // API data (kept: videos, media, promotions, reviews)
+  // API data (videos, media, promotions, reviews)
   const [videos, setVideos] = useState([]);
   const [media, setMedia] = useState([]);
   const [promotions, setPromotions] = useState([]);
@@ -82,7 +43,7 @@ const EethmHome = () => {
   // Newsletter modal
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // --- Fetch data (BannerCards fetches its own data) ---
+  // --- Fetch all ---
   useEffect(() => {
     let mounted = true;
 
@@ -138,77 +99,37 @@ const EethmHome = () => {
     };
   }, []);
 
-  // --- Normalize ---
+  // --- Normalized ---
   const videosArr = Array.isArray(videos) ? videos : [];
-  const mediaArr = Array.isArray(media) ? media : [];
   const promosArr = Array.isArray(promotions) ? promotions : [];
   const reviewsArr = Array.isArray(reviews) ? reviews : [];
 
-  // --- Hero video ---
-  const featuredVideo =
-    videosArr.find((v) => v?.is_featured) || videosArr.find((v) => v?.is_active);
-  const heroVideoUrl = getMediaUrl(featuredVideo) || LOCAL_FALLBACK_VIDEO;
-
-  // --- Mixed/Featured media for Gallery ---
-  const mixedMedia = [...videosArr, ...mediaArr].filter((m) => m?.is_active);
-  const featuredMedia = mixedMedia.filter((m) => m?.is_featured);
-  const galleryItems =
-    toGalleryItems(featuredMedia.length ? featuredMedia : mixedMedia).slice(0, 12);
-
-  // --- Sync mute state ---
-  useEffect(() => {
-    if (videoRef.current) videoRef.current.muted = isMuted;
-  }, [isMuted]);
-
-  const toggleMute = () => setIsMuted((p) => !p);
-
   return (
     <div className="eethm-home-page">
-      {/* === HERO (Video) === */}
+      {/* === HERO (VideoGallery) === */}
       <section className="video-hero-section">
-        <video
-          ref={videoRef}
-          className="background-video"
+        <VideoGallery
+          videos={videosArr}
+          fallbackVideo={LOCAL_FALLBACK_VIDEO}
+          showHero
           autoPlay
           loop
-          muted={isMuted}
-          playsInline
-          preload="auto"
-          poster={LOCAL_FALLBACK_IMAGE}
-          onError={() => setVideoLoadFailed(true)}
-        >
-          <source
-            src={!videoLoadFailed ? heroVideoUrl : LOCAL_FALLBACK_VIDEO}
-            type="video/mp4"
-          />
-        </video>
-
-        <div className="overlay-gradient"></div>
-        <div className="overlay-content">
-          <h1 className="hero-title">Ethical Multimedia GH</h1>
-          <p className="hero-subtitle">Live Band • Catering • Multimedia • Decor Services</p>
-          <div className="hero-buttons">
-            <button onClick={() => navigate("/bookings")} className="btn-primary">
-              Book Now
-            </button>
-            <button
-              onClick={() => setShowNewsletterForm(true)}
-              className="btn-secondary"
-              type="button"
-            >
-              📩 Subscribe
-            </button>
-          </div>
-        </div>
-
-        <button
-          aria-label={isMuted ? "Unmute video" : "Mute video"}
-          className="mute-button"
-          onClick={toggleMute}
-          type="button"
-        >
-          {isMuted ? "🔇" : "🔊"}
-        </button>
+          allowMuteToggle
+          title="Ethical Multimedia GH"
+          subtitle="Live Band • Catering • Multimedia • Decor Services"
+          actions={[
+            {
+              label: "Book Now",
+              onClick: () => navigate("/bookings"),
+              className: "btn-primary",
+            },
+            {
+              label: "📩 Subscribe",
+              onClick: () => setShowNewsletterForm(true),
+              className: "btn-secondary",
+            },
+          ]}
+        />
       </section>
 
       {/* === HERO HIGHLIGHTS (BannerCards) === */}
@@ -255,7 +176,6 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="media-library-section">
           <h2>Our Media Library</h2>
-          {/* MediaCards handles its own fetching & modal */}
           <MediaCards
             endpointKey="media"
             resourceType="media"
@@ -272,8 +192,8 @@ const EethmHome = () => {
         <section className="media-gallery-section">
           <h2>Gallery Showcase</h2>
           {videosError && <p className="error-text">{videosError}</p>}
-          {galleryItems.length > 0 ? (
-            <MediaGallery items={galleryItems} />
+          {videosArr.length > 0 || media.length > 0 ? (
+            <MediaGallery items={[...videosArr, ...media]} />
           ) : (
             <p className="muted-text">No highlights to show.</p>
           )}

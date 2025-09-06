@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+// src/components/nav/Navbar.jsx
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { logoutHelper } from "../../utils/logoutHelper";
@@ -22,27 +23,23 @@ function Navbar() {
   const navigate = useNavigate();
   const navRef = useRef(null);
 
-  /* ----------------- Resize listener ----------------- */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 960);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /* ----------------- Auth check ----------------- */
   useEffect(() => {
     const access = localStorage.getItem("access") || sessionStorage.getItem("access");
     const refresh = localStorage.getItem("refresh") || sessionStorage.getItem("refresh");
     setIsLoggedIn(!!(access && refresh));
   }, [location]);
 
-  /* ----------------- Close menus on route change ----------------- */
   useEffect(() => {
     setMenuOpen(false);
     setDropdownOpen(false);
   }, [location]);
 
-  /* ----------------- Outside click & Escape ----------------- */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
@@ -64,7 +61,6 @@ function Navbar() {
     };
   }, []);
 
-  /* ----------------- Handlers ----------------- */
   const toggleMenu = useCallback(() => setMenuOpen((prev) => !prev), []);
   const toggleDropdown = useCallback(() => setDropdownOpen((prev) => !prev), []);
   const handleNavClick = () => {
@@ -99,7 +95,6 @@ function Navbar() {
     }
   };
 
-  /* ----------------- Render ----------------- */
   return (
     <nav className="navbar" aria-label="Main navigation" ref={navRef}>
       <div className="navbar-container">
@@ -121,139 +116,119 @@ function Navbar() {
           {menuOpen ? "✖" : "☰"}
         </button>
 
-        {/* Main Nav */}
+        {/* ---------- Desktop nav (always present) ---------- */}
+        {!isMobile && (
+          <ul id="primary-navigation" className="nav-menu" role="menubar">
+            <li className="nav-item" role="none">
+              <Link to="/bookings" className={`nav-links ${location.pathname === "/bookings" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Bookings</Link>
+            </li>
+
+            <li className="nav-item" role="none">
+              <Link to="/about" className={`nav-links ${location.pathname === "/about" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">About</Link>
+            </li>
+
+            <li className="nav-item dropdown" role="none"
+                onMouseEnter={() => setDropdownOpen(true)}
+                onMouseLeave={() => setDropdownOpen(false)}
+            >
+              <button
+                type="button"
+                className="nav-links dropdown-toggle"
+                onClick={handleServicesClick}
+                aria-haspopup="true"
+                aria-expanded={dropdownOpen}
+              >
+                Services <span className={`caret ${dropdownOpen ? "rotated" : ""}`}>▼</span>
+              </button>
+
+              {/* Desktop dropdown: always in DOM; visibility handled by CSS :hover */}
+              <ul className={`dropdown-menu desktop`} role="menu" aria-label="Services submenu">
+                {services.map(({ label, path }) => (
+                  <li key={path} className="dropdown-item" role="menuitem" tabIndex={0}
+                      onClick={() => handleDropdownItemClick(path)}
+                      onKeyDown={(e) => handleDropdownItemKeyDown(e, path)}
+                  >
+                    {label}
+                  </li>
+                ))}
+              </ul>
+            </li>
+
+            <li className="nav-item" role="none">
+              <Link to="/contact" className={`nav-links ${location.pathname === "/contact" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Contact</Link>
+            </li>
+
+            <li className="nav-item" role="none">
+              <Link to="/connect" className={`nav-links ${location.pathname === "/connect" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Connect With Us</Link>
+            </li>
+
+            <li className="nav-item" role="none">
+              {isLoggedIn ? (
+                <button type="button" onClick={handleLogout} className="nav-links logout-btn" role="menuitem">Logout</button>
+              ) : (
+                <Link to="/login" className={`nav-links ${location.pathname === "/login" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Login</Link>
+              )}
+            </li>
+          </ul>
+        )}
+
+        {/* ---------- Mobile nav via AnimatePresence ---------- */}
         <AnimatePresence>
-          {menuOpen && (
+          {isMobile && menuOpen && (
             <motion.ul
               id="primary-navigation"
-              className="nav-menu"
+              className={`nav-menu mobile ${menuOpen ? "active" : ""}`}
               role="menubar"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.25 }}
             >
               <li className="nav-item" role="none">
-                <Link
-                  to="/bookings"
-                  className={`nav-links ${
-                    location.pathname === "/bookings" ? "active" : ""
-                  }`}
-                  onClick={handleNavClick}
-                  role="menuitem"
-                >
-                  Bookings
-                </Link>
+                <Link to="/bookings" className={`nav-links ${location.pathname === "/bookings" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Bookings</Link>
               </li>
 
               <li className="nav-item" role="none">
-                <Link
-                  to="/about"
-                  className={`nav-links ${
-                    location.pathname === "/about" ? "active" : ""
-                  }`}
-                  onClick={handleNavClick}
-                  role="menuitem"
-                >
-                  About
-                </Link>
+                <Link to="/about" className={`nav-links ${location.pathname === "/about" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">About</Link>
               </li>
 
-              {/* Services Dropdown */}
-              <li
-                className="nav-item dropdown"
-                role="none"
-                onMouseEnter={() => !isMobile && setDropdownOpen(true)}
-                onMouseLeave={() => !isMobile && setDropdownOpen(false)}
-              >
+              <li className="nav-item dropdown" role="none">
                 <button
                   type="button"
                   className="nav-links dropdown-toggle"
-                  onClick={handleServicesClick}
+                  onClick={toggleDropdown}
                   aria-haspopup="true"
                   aria-expanded={dropdownOpen}
                 >
-                  Services{" "}
-                  <span className={`caret ${dropdownOpen ? "rotated" : ""}`}>
-                    ▼
-                  </span>
+                  Services <span className={`caret ${dropdownOpen ? "rotated" : ""}`}>▼</span>
                 </button>
 
-                <AnimatePresence>
-                  {dropdownOpen && (
-                    <motion.ul
-                      className={`dropdown-menu ${isMobile ? "mobile" : "desktop"}`}
-                      role="menu"
-                      aria-label="Services submenu"
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
+                {/* Mobile dropdown: show/hide via .active */}
+                <ul className={`dropdown-menu mobile ${dropdownOpen ? "active" : ""}`} role="menu" aria-label="Services submenu">
+                  {services.map(({ label, path }) => (
+                    <li key={path} className="dropdown-item" role="menuitem" tabIndex={0}
+                        onClick={() => handleDropdownItemClick(path)}
+                        onKeyDown={(e) => handleDropdownItemKeyDown(e, path)}
                     >
-                      {services.map(({ label, path }) => (
-                        <li
-                          key={path}
-                          className="dropdown-item"
-                          role="menuitem"
-                          tabIndex={0}
-                          onClick={() => handleDropdownItemClick(path)}
-                          onKeyDown={(e) => handleDropdownItemKeyDown(e, path)}
-                        >
-                          {label}
-                        </li>
-                      ))}
-                    </motion.ul>
-                  )}
-                </AnimatePresence>
+                      {label}
+                    </li>
+                  ))}
+                </ul>
               </li>
 
               <li className="nav-item" role="none">
-                <Link
-                  to="/contact"
-                  className={`nav-links ${
-                    location.pathname === "/contact" ? "active" : ""
-                  }`}
-                  onClick={handleNavClick}
-                  role="menuitem"
-                >
-                  Contact
-                </Link>
+                <Link to="/contact" className={`nav-links ${location.pathname === "/contact" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Contact</Link>
               </li>
 
               <li className="nav-item" role="none">
-                <Link
-                  to="/connect"
-                  className={`nav-links ${
-                    location.pathname === "/connect" ? "active" : ""
-                  }`}
-                  onClick={handleNavClick}
-                  role="menuitem"
-                >
-                  Connect With Us
-                </Link>
+                <Link to="/connect" className={`nav-links ${location.pathname === "/connect" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Connect With Us</Link>
               </li>
 
               <li className="nav-item" role="none">
                 {isLoggedIn ? (
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="nav-links logout-btn"
-                    role="menuitem"
-                  >
-                    Logout
-                  </button>
+                  <button type="button" onClick={handleLogout} className="nav-links logout-btn" role="menuitem">Logout</button>
                 ) : (
-                  <Link
-                    to="/login"
-                    className={`nav-links ${
-                      location.pathname === "/login" ? "active" : ""
-                    }`}
-                    onClick={handleNavClick}
-                    role="menuitem"
-                  >
-                    Login
-                  </Link>
+                  <Link to="/login" className={`nav-links ${location.pathname === "/login" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Login</Link>
                 )}
               </li>
             </motion.ul>

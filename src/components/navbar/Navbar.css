@@ -291,3 +291,48 @@
     animation: none !important;
   }
 }
+/* ensure desktop nav is visible when rendered */
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+/* mobile-specific */
+.nav-menu.mobile {
+  position: absolute;
+  top: 70px;
+  right: -100%;
+  width: 100%;
+  height: calc(100vh - 70px);
+  background: var(--color-neutral-dark);
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 2rem 1.5rem;
+  gap: 1.5rem;
+  opacity: 0;
+  transition: all var(--transition-slow);
+}
+
+/* when AnimatePresence mounts, we use .active to slide in */
+.nav-menu.mobile.active {
+  right: 0;
+  opacity: 1;
+}
+
+/* keep dropdown desktop logic using :hover */
+.dropdown:hover .dropdown-menu.desktop {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+/* mobile dropdown uses .active */
+.dropdown-menu.mobile {
+  display: none; /* hidden unless .active */
+}
+.dropdown-menu.mobile.active {
+  display: block;
+  padding-left: 1rem;
+}

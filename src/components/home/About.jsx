@@ -8,9 +8,12 @@ import useMediaFetcher from "../../hooks/useFetcher";
 import MediaCards from "../context/MediaCards";
 import MediaCard from "../context/MediaCard";
 import BannerCards from "../context/BannerCards";
-import GalleryWrapper from "../gallery/GalleryWrapper"; // ✅ slideshow wrapper
+import GalleryWrapper from "../gallery/GalleryWrapper";
 import apiService from "../../api/apiService";
 import videoService from "../../api/services/videoService";
+
+// ✅ import unified video handler
+import VideoGallery from "../videos/VideoGallery";
 
 import euniceImg from "../../assets/team/eunice.png";
 import josephImg from "../../assets/team/joseph.jpg";
@@ -243,6 +246,12 @@ const About = () => {
         </p>
       </section>
 
+      {/* ✅ Reusable Video Gallery */}
+      <section className="video-showcase">
+        <h2 className="section-heading">Our Work in Motion</h2>
+        <VideoGallery endpoint="about" /> 
+      </section>
+
       {/* Featured Media */}
       <section className="featured-media-section">
         <h2 className="section-heading">Our Work in Action</h2>
@@ -310,7 +319,7 @@ const About = () => {
       {/* Slideshow Gallery */}
       <section className="gallery-showcase">
         <h2 className="section-heading">Highlights in Motion</h2>
-        <GalleryWrapper endpoint="about" limit={8} /> {/* ✅ integrated */}
+        <GalleryWrapper endpoint="about" limit={8} />
       </section>
 
       {/* Testimonials */}
