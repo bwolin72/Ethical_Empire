@@ -1,16 +1,7 @@
-:root {
-  --deep-burgundy: #58181C;
-  --muted-gold: #CBA135;
-  --cream: #FAFAF8;
-  --charcoal: #2E2E2E;
-  --royal-navy: #1E2A45;
-  --forest-green: #3A5A40;
-}
-
 /* Main container */
 .splash-screen {
-  background-color: var(--deep-burgundy);
-  color: var(--cream);
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
   height: 100vh;
   width: 100%;
   display: flex;
@@ -18,84 +9,93 @@
   justify-content: center;
   flex-direction: column;
   text-align: center;
-  animation: fadeIn 1s ease-in forwards;
+  animation: fade-in 1s ease-in forwards;
   overflow: hidden;
+  font-family: var(--font-main);
 }
 
 /* Splash content */
 .splash-content {
-  animation: scaleIn 0.8s ease-in-out forwards;
+  animation: fade-in-up 0.8s var(--transition-fast) forwards;
   opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.95);
 }
 
-/* Logo animation */
+/* Logo */
 .splash-logo-img {
   width: 120px;
   height: auto;
   margin-bottom: 1.5rem;
-  animation: fadeInLogo 1.2s ease-out forwards;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
-/* Company name */
+/* Company name with shimmer */
 .splash-company-name {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--muted-gold);
+  color: var(--color-accent-gold);
   letter-spacing: 1px;
   margin-bottom: 0.5rem;
-  animation: fadeInText 1.5s ease-out forwards;
-  opacity: 0;
+  font-family: var(--font-accent);
+
+  /* Shimmer gradient */
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-gold-dark) 20%,
+    var(--color-accent-gold-light) 50%,
+    var(--color-accent-gold-dark) 80%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
 }
 
 /* Slogan */
 .splash-service {
   font-size: 1.2rem;
-  color: var(--cream);
+  color: var(--color-white);
   font-style: italic;
-  animation: fadeInText 1.8s ease-out forwards;
-  opacity: 0;
+  opacity: 0.9;
+}
+
+/* Loader dots */
+.splash-loader {
+  display: flex;
+  gap: 8px;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.splash-loader span {
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent-gold);
+  border-radius: 50%;
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+.splash-loader span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.splash-loader span:nth-child(3) {
+  animation-delay: 0.4s;
 }
 
 /* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    background-color: #000;
-  }
-  to {
-    opacity: 1;
-    background-color: var(--deep-burgundy);
-  }
-}
-
-@keyframes scaleIn {
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes fadeInLogo {
+@keyframes shimmer {
   0% {
-    opacity: 0;
-    transform: translateY(-10px);
+    background-position: -200% center;
   }
   100% {
-    opacity: 1;
-    transform: translateY(0);
+    background-position: 200% center;
   }
 }
 
-@keyframes fadeInText {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.6; }
+  40% { transform: scale(1.2); opacity: 1; }
 }
 
 /* Responsive */
@@ -103,11 +103,9 @@
   .splash-logo-img {
     width: 90px;
   }
-
   .splash-company-name {
     font-size: 1.5rem;
   }
-
   .splash-service {
     font-size: 1rem;
   }
@@ -116,12 +114,10 @@
   .splash-logo-img {
     width: 80px;
   }
-
   .splash-company-name {
     font-size: 1.2rem;
   }
-
   .splash-service {
     font-size: 0.9rem;
   }
-} 
+}

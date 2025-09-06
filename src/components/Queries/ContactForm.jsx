@@ -11,7 +11,9 @@ const serviceOptions = [
   'Event Planning', 'Lighting', 'MC/Host', 'Sound Setup'
 ];
 
-const phoneRegex = /^\+?\d{9,15}$/;
+// Regex: accept local (e.g. 055xxxxxxx) or international (+233xxxxxxx)
+const intlRegex = /^\+?[1-9]\d{8,14}$/;
+const localRegex = /^0\d{9}$/;
 
 const ContactForm = () => {
   const [loading, setLoading] = useState(false);
@@ -37,14 +39,31 @@ const ContactForm = () => {
     setStatusMessage('');
   };
 
+  // Normalize phone to international format if local is used
+  const normalizePhone = (phone) => {
+    let cleaned = phone.trim().replace(/\s+/g, '');
+    if (intlRegex.test(cleaned)) {
+      if (!cleaned.startsWith('+')) cleaned = `+${cleaned}`;
+      return cleaned;
+    }
+    if (localRegex.test(cleaned)) {
+      return `+233${cleaned.slice(1)}`;
+    }
+    return null;
+  };
+
   const validateClient = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Name is required.';
     if (!formData.email.trim()) newErrors.email = 'Email is required.';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required.';
-    if (formData.phone && !phoneRegex.test(formData.phone.trim())) {
-      newErrors.phone = 'Enter a valid phone number (e.g. +233XXXXXXXXX).';
+
+    const normalizedPhone = normalizePhone(formData.phone);
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required.';
+    } else if (!normalizedPhone) {
+      newErrors.phone = 'Enter a valid phone number (e.g. 055xxxxxxx or +233xxxxxxx).';
     }
+
     if (!formData.enquiry_type) newErrors.enquiry_type = 'Enquiry type is required.';
     if (formData.enquiry_type === 'Services' && !formData.service_type) {
       newErrors.service_type = 'Select a service type.';
@@ -72,10 +91,14 @@ const ContactForm = () => {
       setStatusMessage('❌ Please fix errors and try again.');
       return;
     }
+
     const payload = {};
     Object.entries(formData).forEach(([k, v]) => {
       if (!['country', 'region'].includes(k) && v) payload[k] = v;
     });
+
+    payload.phone = normalizePhone(formData.phone);
+
     setLoading(true);
     try {
       const res = await contactService.send(payload);
@@ -98,21 +121,18 @@ const ContactForm = () => {
   /* ----------------- Render ----------------- */
   return (
     <div className="contact-page">
-      {/* Hero Section */}
-      <section className="contact-hero animate-fade-in-up">
-        <img src={logo} alt="EETHM Logo" className="hero-logo" />
-        <h1>Let’s Create Something Memorable</h1>
-        <p>Reach out to book our services or request more information</p>
-        <a href="#contact-form" className="cta-btn">Start Here</a>
-      </section>
+      {/* Header */}
+      <header className="form-header animate-fade-in-up">
+        <img src={logo} alt="EETHM Logo" className="logo" />
+        <h2>Let’s Create Something Memorable</h2>
+        <p className="slogan">Reach out to book our services or request more information</p>
+      </header>
 
-      {/* Form + Company Info */}
+      {/* Grid */}
       <main className="contact-grid">
-        {/* Contact Form */}
+        {/* Form Section */}
         <section id="contact-form" className="contact-form-section animate-fade-in-up">
-          <h2>Send Us a Message</h2>
           <form onSubmit={handleSubmit} noValidate>
-            {/* Name, Email, Phone */}
             {['name', 'email', 'phone'].map((field) => (
               <div className="form-group" key={field}>
                 <input
@@ -182,7 +202,7 @@ const ContactForm = () => {
             </div>
 
             {/* Status + Submit */}
-            {statusMessage && <div className="form-status">{statusMessage}</div>}
+            {statusMessage && <div className="toast-notification">{statusMessage}</div>}
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? 'Sending…' : 'Submit'}
             </button>
@@ -190,7 +210,7 @@ const ContactForm = () => {
         </section>
 
         {/* Company Info */}
-        <aside className="company-info animate-fade-in-up">
+        <aside className="company-details-section animate-fade-in-up">
           <h2>Contact Details</h2>
           <div className="info-block">
             <h3>Co-Founder</h3>
@@ -206,11 +226,11 @@ const ContactForm = () => {
           </div>
 
           <div className="contact-buttons">
-            <a href="https://wa.me/233553424865" className="btn whatsapp">WhatsApp</a>
-            <a href="tel:+233553424865" className="btn phone">Call</a>
+            <a href="https://wa.me/233553424865" className="whatsapp">WhatsApp</a>
+            <a href="tel:+233553424865" className="phone">Call</a>
           </div>
 
-          <div className="social-links">
+          <div className="social-media-links">
             <a href="https://www.instagram.com/ethicalmultimedia" target="_blank" rel="noreferrer">Instagram</a>
             <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noreferrer">LinkedIn</a>
             <a href="https://x.com/EeTHm_Gh" target="_blank" rel="noreferrer">Twitter</a>
@@ -221,12 +241,16 @@ const ContactForm = () => {
 
       {/* Map Section */}
       <section className="map-section animate-fade-in-up">
-        <h2>Our Location</h2>
+        <h4>Our Location</h4>
         <iframe
           title="Ethical Multimedia GH Location"
-          src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3971.428661923482!2d-0.5330301294382339!3d5.503194382269809"
-          allowFullScreen
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3971.428661923482!2d-0.5330301294382339!3d5.503194382269809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNcKwMzAnMTEuNSJOIDDCsDMyJzAwLjkiVw!5e0!3m2!1sen!2sgh!4v1693952745678!5m2!1sen!2sgh"
+          width="100%"
+          height="400"
+          style={{ border: 0 }}
+          allowFullScreen=""
           loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
         ></iframe>
       </section>
     </div>

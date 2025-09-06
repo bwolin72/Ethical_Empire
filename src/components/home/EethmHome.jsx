@@ -10,7 +10,7 @@ import NewsletterSignup from "../user/NewsLetterSignup";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import MediaGallery from "../gallery/MediaGallery";
-import VideoGallery from "../gallery/VideoGallery";
+import VideoGallery from "../videos/VideoGallery";
 
 import "./EethmHome.css";
 
