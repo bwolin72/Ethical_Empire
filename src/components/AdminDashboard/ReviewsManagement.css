@@ -1,0 +1,133 @@
+/* ======================================================
+   🎨 Reviews Panel — reviews.css
+   Updated to match root variables
+   ====================================================== */
+
+.reviews-panel {
+  padding: 2rem;
+  background: var(--color-neutral-light);
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.review-card {
+  background: var(--color-white);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  animation: fade-in 0.4s var(--transition-fast) both;
+}
+
+.review-message {
+  font-style: italic;
+  color: var(--color-neutral-dark);
+  text-align: center;
+  margin-top: 2rem;
+  font-family: var(--font-main);
+}
+
+.review-author {
+  margin-top: 0.5rem;
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+.review-reply {
+  margin-top: 0.5rem;
+  background-color: var(--color-accent-green-light);
+  padding: 0.5rem;
+  border-left: 3px solid var(--color-accent-green);
+  font-size: 0.95rem;
+  color: var(--color-neutral-dark);
+  border-radius: var(--radius-sm);
+}
+
+textarea {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-neutral-light);
+  resize: vertical;
+  min-height: 60px;
+  font-size: 1rem;
+  font-family: var(--font-main);
+  color: var(--color-neutral-dark);
+  background: var(--color-white);
+}
+
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.review-actions button,
+.approve-btn {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 0.45rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background var(--transition-fast);
+}
+
+.review-actions button:hover,
+.approve-btn:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Responsive styles for small screens */
+@media (max-width: 600px) {
+  .reviews-panel {
+    padding: 1rem;
+  }
+
+  .review-card {
+    padding: 1rem;
+  }
+
+  textarea {
+    font-size: 0.95rem;
+  }
+
+  .review-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .review-actions button,
+  .approve-btn {
+    width: 100%;
+    padding: 0.5rem;
+  }
+}
+
+/* Additional scaling for very small screens (like 380px) */
+@media (max-width: 400px) {
+  .reviews-panel {
+    padding: 0.75rem;
+  }
+
+  .review-card {
+    padding: 0.75rem;
+  }
+
+  .review-actions button,
+  .approve-btn {
+    font-size: 0.9rem;
+  }
+
+  textarea {
+    font-size: 0.9rem;
+    min-height: 50px;
+  }
+}

@@ -1,0 +1,306 @@
+/* ===============================
+   Navbar Base Styles
+================================== */
+.navbar {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(31, 41, 55, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: fade-in-up 0.6s var(--transition-fast) both;
+}
+
+.navbar-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===============================
+   Logo Styles
+================================== */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  gap: 0.5rem;
+  transition: transform var(--transition-fast);
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-white);
+  letter-spacing: 1px;
+}
+
+/* ===============================
+   Menu Icon (Mobile)
+================================== */
+.menu-icon {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  color: var(--color-white);
+  cursor: pointer;
+  display: none;
+  transition: transform var(--transition-fast);
+}
+
+.menu-icon:hover {
+  transform: rotate(90deg);
+}
+
+.menu-icon:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ===============================
+   Nav Menu
+================================== */
+.nav-menu {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+  align-items: center;
+  transition: all var(--transition-slow);
+}
+
+.nav-menu.active {
+  right: 0;
+  opacity: 1;
+}
+
+/* Each list item wrapper */
+.nav-item {
+  position: relative;
+}
+
+/* ===============================
+   Nav Links
+================================== */
+.nav-links {
+  color: var(--color-white);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem;
+  position: relative;
+  transition: color var(--transition-fast);
+}
+
+.nav-links:hover {
+  color: var(--color-accent-gold);
+}
+
+.nav-links:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+/* Underline grow effect */
+.nav-links::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--color-accent-gold);
+  transition: all var(--transition-fast);
+  transform: translateX(-50%);
+}
+
+.nav-links:hover::after {
+  width: 100%;
+}
+
+/* ===============================
+   Dropdown Styles
+================================== */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.dropdown-toggle:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.caret {
+  transition: transform var(--transition-fast);
+}
+
+.caret.rotated {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 200px;
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(-10px);
+  visibility: hidden;
+  transition: all var(--transition-fast);
+  z-index: 999;
+  padding: 0.25rem 0;
+}
+
+/* Shown via .active */
+.dropdown-menu.active {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+/* Desktop hover fallback */
+.dropdown:hover .dropdown-menu.desktop {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+/* Mobile mode */
+.dropdown-menu.mobile {
+  position: static;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  backdrop-filter: none;
+  transform: none;
+  padding-left: 1rem;
+}
+
+.dropdown-menu.mobile:not(.active) {
+  display: none;
+}
+
+/* Dropdown Items */
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  color: var(--color-white);
+  transition: background var(--transition-fast), padding-left var(--transition-fast);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+  padding-left: 1.25rem;
+  outline: none;
+}
+
+/* ===============================
+   Logout Button
+================================== */
+.logout-btn {
+  border: 1px solid var(--color-accent-gold);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-accent-gold);
+  transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+  background: var(--color-accent-gold);
+  color: var(--color-black);
+}
+
+.logout-btn:focus-visible {
+  outline: 2px solid var(--color-accent-gold);
+  outline-offset: 3px;
+}
+
+/* ===============================
+   Animations
+================================== */
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ===============================
+   Responsive
+================================== */
+@media screen and (max-width: 960px) {
+  .menu-icon {
+    display: block;
+  }
+
+  .nav-menu {
+    position: absolute;
+    top: 70px;
+    right: -100%;
+    width: 100%;
+    height: calc(100vh - 70px);
+    background: rgba(20, 20, 20, 0.98);
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
+    opacity: 0;
+  }
+
+  .nav-menu.active {
+    right: 0;
+    opacity: 1;
+  }
+
+  /* Disable desktop dropdowns */
+  .dropdown-menu.desktop {
+    display: none;
+  }
+}
+
+/* Motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .navbar-logo,
+  .menu-icon,
+  .nav-menu,
+  .nav-links::after,
+  .dropdown-menu,
+  .dropdown-item,
+  .caret {
+    transition: none !important;
+    animation: none !important;
+  }
+}

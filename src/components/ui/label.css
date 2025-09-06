@@ -1,0 +1,12 @@
+.ui-label {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  color: #333;
+}
+
+.ui-label:has(+ input:disabled),
+.ui-label:has(+ textarea:disabled) {
+  color: #999;
+}

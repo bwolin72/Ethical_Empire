@@ -1,0 +1,44 @@
+/* Tabs container */
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* TabsList (tab headers container) */
+.tabs-list {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid #3a3a3a; /* Charcoal */
+  padding-bottom: 0.25rem;
+}
+
+/* TabsTrigger (individual tab) */
+.tabs-trigger {
+  background: none;
+  border: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  color: #3a3a3a; /* Charcoal */
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-bottom: 3px solid transparent;
+}
+
+.tabs-trigger:hover {
+  color: #800020; /* Burgundy */
+}
+
+.tabs-trigger.active {
+  color: #800020; /* Burgundy */
+  border-bottom-color: #800020;
+  opacity: 1;
+}
+
+/* TabsContent */
+.tabs-content {
+  padding: 1rem 0;
+  color: #1a1a1a;
+  background-color: #fff;
+}

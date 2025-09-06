@@ -1,0 +1,309 @@
+/* Root wrapper */
+.booking-wrapper {
+  background-color: var(--color-bg-light);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.booking-wrapper.dark {
+  background-color: var(--color-bg-dark);
+}
+
+/* Main container */
+.booking-container {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1140px;
+  width: 100%;
+  background-color: var(--color-bg-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border-light);
+}
+
+.booking-wrapper.dark .booking-container {
+  background-color: var(--color-bg-dark);
+  border-color: var(--color-border-dark);
+}
+
+/* Left panel */
+.booking-form-panel {
+  flex: 1 1 60%;
+  padding: 2rem;
+  background: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+
+.booking-wrapper.dark .booking-form-panel {
+  background: var(--color-bg-dark);
+  color: var(--color-text-dark);
+}
+
+/* Form header */
+.booking-wrapper .form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.booking-wrapper .form-header .logo {
+  width: 80px;
+  margin: 0 auto 1rem;
+}
+
+.booking-wrapper .form-header h2 {
+  font-size: 1.8rem;
+  font-family: var(--font-accent);
+}
+
+.booking-wrapper .form-header .subtitle {
+  font-size: 0.95rem;
+  font-weight: 300;
+}
+
+/* Form content */
+.booking-wrapper .form-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-wrapper .form-content h3 {
+  font-size: 1.5rem;
+  font-family: var(--font-accent);
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  font-weight: bold;
+}
+
+/* Input group */
+.booking-wrapper .input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.2rem;
+}
+
+.booking-wrapper .input-group label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.booking-wrapper .input-group input,
+.booking-wrapper .input-group textarea,
+.booking-wrapper .datepicker-wrapper input,
+.booking-wrapper .react-tel-input .form-control,
+.booking-wrapper .input-group select {
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+  font-family: var(--font-main);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  color: var(--color-text-light);
+  background-color: var(--color-input-bg);
+}
+
+.booking-wrapper.dark .input-group input,
+.booking-wrapper.dark .input-group textarea,
+.booking-wrapper.dark .datepicker-wrapper input,
+.booking-wrapper.dark .react-tel-input .form-control,
+.booking-wrapper.dark .input-group select {
+  background-color: var(--color-input-bg-dark);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-dark);
+}
+
+/* Country & Region Dropdowns */
+.booking-wrapper .input-group select {
+  width: 100%;
+}
+
+/* Phone Input */
+.booking-wrapper .react-tel-input {
+  width: 100%;
+}
+
+.booking-wrapper .react-tel-input .form-control {
+  padding-left: 48px;
+  font-size: 1rem;
+}
+
+/* Date Picker */
+.booking-wrapper .datepicker-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.booking-wrapper .datepicker-wrapper .icon {
+  position: absolute;
+  left: 0.75rem;
+  z-index: 2;
+  color: var(--color-calendar-icon);
+}
+
+.booking-wrapper .datepicker-wrapper input {
+  width: 100%;
+  padding-left: 2.5rem;
+}
+
+/* Checkboxes */
+.booking-wrapper .checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--color-service-bg-light);
+  border-radius: var(--radius-md);
+}
+
+.booking-wrapper.dark .checkbox-group {
+  background-color: var(--color-service-bg-dark);
+}
+
+.booking-wrapper .checkbox-option {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.booking-wrapper .checkbox-option input {
+  margin-right: 0.5rem;
+}
+
+.booking-wrapper .no-services {
+  font-style: italic;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+/* Submit Button */
+.booking-wrapper .submit-btn {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 0.8rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  width: 100%;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.booking-wrapper .submit-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.booking-wrapper .submit-btn:disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+/* Right panel */
+.booking-brand-panel {
+  flex: 1 1 40%;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+/* Brand Content */
+.booking-brand-panel .brand-content h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.booking-brand-panel .brand-content p {
+  margin: 0.3rem 0;
+}
+
+.booking-brand-panel .brand-content a {
+  color: var(--color-white);
+  text-decoration: underline;
+}
+
+.booking-brand-panel .brand-content .icon {
+  margin-right: 0.4rem;
+}
+
+/* Location Block */
+.booking-brand-panel .location-block {
+  margin-top: 1rem;
+}
+
+/* Contact Buttons */
+.booking-brand-panel .contact-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.booking-brand-panel .contact-buttons a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--color-white);
+  background-color: var(--color-accent);
+  transition: background-color var(--transition-fast);
+}
+
+.booking-brand-panel .contact-buttons a.phone {
+  background-color: var(--color-accent-alt);
+}
+
+.booking-brand-panel .contact-buttons a:hover {
+  opacity: 0.9;
+}
+
+/* Social Media Links */
+.booking-brand-panel .social-media-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.booking-brand-panel .social-media-links a {
+  font-size: 1.25rem;
+  color: var(--color-white);
+  transition: transform 0.2s ease;
+}
+
+.booking-brand-panel .social-media-links a:hover {
+  transform: scale(1.15);
+}
+
+/* Textarea Resizing */
+.booking-wrapper textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Spinner */
+.booking-wrapper .loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--color-white);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,393 @@
+/* === Global === */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.userpage-container {
+  font-family: var(--font-main);
+  padding: 1.5rem 1rem;
+  background-color: var(--color-white);
+  color: var(--color-neutral-dark);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.userpage-container.dark {
+  background-color: var(--color-neutral-dark);
+  color: var(--color-accent-gold);
+}
+
+/* === Header === */
+.userpage-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  animation: slideFade 0.8s ease forwards;
+}
+
+.userpage-header h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.userpage-container .header-right {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.userpage-container .dark-toggle,
+.userpage-container .profile-icon {
+  padding: 0.5rem 1.1rem;
+  background-color: var(--color-accent-gold);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s;
+}
+
+.userpage-container .dark-toggle:hover,
+.userpage-container .profile-icon:hover {
+  background-color: var(--color-accent-gold-dark);
+  transform: translateY(-2px);
+}
+
+/* === Intro Text === */
+.userpage-container .intro-text {
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-neutral);
+  animation: fadeInUp 0.9s ease forwards;
+}
+
+/* === Section Headings === */
+.userpage-container .section-heading {
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.3s;
+  will-change: transform, opacity;
+}
+
+.userpage-container .section-heading h3 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--color-secondary);
+  padding-left: 0.75rem;
+  color: var(--color-secondary);
+}
+
+/* === Messages === */
+.userpage-container .loading-text,
+.userpage-container .empty-text {
+  text-align: center;
+  font-size: 1.05rem;
+  margin: 2rem 0;
+  color: var(--color-neutral);
+}
+
+/* === Card Grids === */
+.userpage-container .services-grid,
+.userpage-container .gallery-grid,
+.userpage-container .promotions-grid {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.userpage-container .services-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.userpage-container .gallery-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.userpage-container .promotions-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* === Service Cards === */
+.userpage-container .service-card {
+  background: var(--color-accent-gold-light);
+  border: 1px solid var(--color-accent-gold);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  text-align: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-md);
+}
+
+.userpage-container .service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.userpage-container .service-card .icon {
+  font-size: 2.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.userpage-container .service-card h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+  color: var(--color-primary);
+}
+
+.userpage-container .service-card p {
+  font-size: 0.95rem;
+  color: var(--color-neutral);
+}
+
+/* === Promo Cards === */
+.userpage-container .promo-card {
+  background: var(--color-accent-gold-light);
+  border: 1px solid var(--color-accent-gold);
+  border-left: 5px solid var(--color-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-md);
+}
+
+.userpage-container .promo-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.userpage-container .promo-card img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  margin-bottom: 0.5rem;
+}
+
+.userpage-container .promo-card h4 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+  color: var(--color-primary);
+}
+
+.userpage-container .promo-card p {
+  font-size: 0.95rem;
+  color: var(--color-neutral-dark);
+}
+
+.userpage-container .promo-discount {
+  color: var(--color-success);
+  font-weight: 600;
+  margin-top: 0.3rem;
+}
+
+.userpage-container .promo-valid {
+  font-size: 0.85rem;
+  color: var(--color-neutral);
+  margin-top: 0.3rem;
+}
+
+/* === Gallery === */
+.userpage-container .gallery-item img,
+.userpage-container .gallery-item video {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+/* === Reviews === */
+.userpage-container .reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.userpage-container .review-card {
+  background-color: var(--color-accent-green-light);
+  border-left: 4px solid var(--color-secondary);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  transition: box-shadow var(--transition-fast);
+}
+
+.userpage-container .review-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.userpage-container .review-card p {
+  margin: 0.25rem 0;
+}
+
+.userpage-container .review-reply {
+  margin-top: 0.5rem;
+  background-color: var(--color-primary-light);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  color: var(--color-white);
+}
+
+.userpage-container .review-btn {
+  align-self: center;
+  margin-top: 1.5rem;
+  background-color: var(--color-secondary);
+  color: white;
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform 0.2s;
+}
+
+.userpage-container .review-btn:hover {
+  background-color: var(--color-secondary-dark);
+  transform: scale(1.05);
+}
+
+/* === Newsletter === */
+.userpage-container .newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.userpage-container .newsletter-form input {
+  padding: 0.7rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-neutral);
+  border-radius: var(--radius-sm);
+  width: 100%;
+  transition: border-color var(--transition-fast);
+}
+
+.userpage-container .newsletter-form input:focus {
+  outline: none;
+  border-color: var(--color-accent-gold);
+}
+
+.userpage-container .newsletter-form button {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform 0.2s;
+}
+
+.userpage-container .newsletter-form button:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+}
+
+/* === Featured Video === */
+.userpage-container .asaase-card {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+/* === Animations === */
+.userpage-container .fade-in {
+  opacity: 0;
+  animation: fadeIn 0.8s ease-in forwards;
+}
+
+.userpage-container .open-profile-link {
+  color: var(--color-accent-gold);
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.userpage-container .avatar-section {
+  margin: 1rem auto;
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .userpage-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .userpage-container .dark-toggle,
+  .userpage-container .profile-icon {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.9rem;
+  }
+
+  .userpage-container section h3 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .userpage-header {
+    gap: 0.5rem;
+  }
+
+  .userpage-container .intro-text {
+    font-size: 1rem;
+  }
+
+  .userpage-container .review-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.1rem;
+  }
+
+  .userpage-container .promo-card {
+    font-size: 0.9rem;
+  }
+
+  .userpage-container .services-grid,
+  .userpage-container .gallery-grid,
+  .userpage-container .promotions-grid {
+    grid-template-columns: 1fr;
+  }
+}

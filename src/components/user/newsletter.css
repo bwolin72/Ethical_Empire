@@ -1,0 +1,256 @@
+.newsletter-form {
+  width: 100%;
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--color-neutral-dark);
+}
+
+.newsletter-title {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-family: var(--font-accent);
+}
+
+.newsletter-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: var(--radius-md);
+  background-color: var(--color-white);
+  transition: border-color var(--transition-fast);
+  margin-bottom: 1rem;
+  font-family: var(--font-main);
+  color: var(--color-neutral-dark);
+}
+
+.newsletter-input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 4px var(--color-primary-light);
+}
+
+.newsletter-input.error {
+  border-color: var(--color-error);
+  background-color: #ffeaea;
+}
+
+/* === Terms & Privacy Checkbox === */
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-neutral-dark);
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.terms-checkbox span {
+  line-height: 1.4;
+}
+
+body.dark .terms-checkbox {
+  color: #e0e0e0;
+}
+
+.terms-checkbox a {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.terms-checkbox a:hover {
+  text-decoration: none;
+}
+
+/* Optional: Dark mode background for inputs/button */
+body.dark .newsletter-form {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark .newsletter-input {
+  background-color: #2a2a2a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark .newsletter-button {
+  background-color: #5a1a1a;
+}
+
+body.dark .newsletter-button:hover {
+  background-color: #7d2a2a;
+}
+
+body.dark .newsletter-success {
+  color: #a6f1a6;
+}
+
+
+.newsletter-recaptcha {
+  margin-bottom: 1rem;
+  transform: scale(1);
+  transform-origin: 0 0;
+}
+
+.newsletter-button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-white);
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.newsletter-button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.newsletter-button:disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--color-white);
+  border-top: 3px solid var(--color-disabled);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.newsletter-terms {
+  font-size: 0.85rem;
+  color: var(--color-neutral);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.newsletter-link {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.newsletter-link:hover {
+  text-decoration: none;
+}
+
+/* Success message */
+.newsletter-success {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-success);
+  animation: fadeInOut 4s ease-in-out;
+  text-align: center;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+/* === Responsive Styles === */
+@media (max-width: 600px) {
+  .newsletter-form {
+    padding: 1.5rem;
+  }
+
+  .newsletter-title {
+    font-size: 1.3rem;
+  }
+
+  .newsletter-input,
+  .newsletter-button {
+    font-size: 0.95rem;
+  }
+
+  .newsletter-recaptcha {
+    transform: scale(0.85);
+  }
+}
+
+@media (max-width: 420px) {
+  .newsletter-form {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+  }
+
+  .newsletter-title {
+    font-size: 1.2rem;
+  }
+
+  .newsletter-input,
+  .newsletter-button {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.9rem;
+  }
+
+  .newsletter-success {
+    font-size: 0.85rem;
+  }
+
+  .newsletter-recaptcha {
+    transform: scale(0.75);
+  }
+}
+
+@media (max-width: 380px) {
+  .newsletter-form {
+    padding: 1rem;
+    box-shadow: none;
+    border-radius: var(--radius-sm);
+  }
+
+  .newsletter-title {
+    font-size: 1.1rem;
+  }
+
+  .newsletter-input,
+  .newsletter-button {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .newsletter-link {
+    font-size: 0.8rem;
+  }
+
+  .newsletter-recaptcha {
+    transform: scale(0.7);
+  }
+}

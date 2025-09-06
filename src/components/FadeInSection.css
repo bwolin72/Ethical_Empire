@@ -1,0 +1,52 @@
+/* === FadeInSection Animation Styles === */
+
+/* Default state: hidden until in view */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+/* Visible when in view */
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Revert to hidden when out of view (for reverse animation) */
+.fade-in-section:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Optional: delay for staggered effects */
+.fade-in-delay-1 {
+  transition-delay: 0.1s;
+}
+.fade-in-delay-2 {
+  transition-delay: 0.2s;
+}
+.fade-in-delay-3 {
+  transition-delay: 0.3s;
+}
+
+/* === Fallback for no-JS users === */
+.no-js .fade-in-section {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* For Framer Motion fallback class */
+.fade-in-motion {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeMotion 0.8s ease-out forwards;
+}
+
+@keyframes fadeMotion {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

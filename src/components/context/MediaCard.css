@@ -1,0 +1,149 @@
+/* ===============================
+   Media Section Scoped Styles
+   =============================== */
+.media-section {
+  /* Optional section-wide padding or background */
+  background: var(--color-white);
+  padding: 1rem;
+}
+
+.media-section .media-cards-scroll-wrapper {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 1rem 0;
+  scroll-snap-type: x mandatory;
+}
+
+.media-section .media-cards-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* === Media Card === */
+.media-section .media-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  background-color: var(--color-white);
+  border: 2px solid var(--color-neutral-dark);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
+  width: 220px;
+  max-width: 100%;
+  animation: fade-in-up 0.5s ease-out;
+}
+
+.media-section .media-card:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-accent-gold);
+}
+
+/* === Thumbnail === */
+.media-section .media-thumb {
+  width: 100%;
+  object-fit: cover;
+  border: 3px solid var(--color-accent-gold);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-dark);
+  transition: filter var(--transition-fast);
+}
+
+.media-section .media-thumb:hover {
+  filter: brightness(1.05);
+}
+
+/* === Label === */
+.media-section .media-label {
+  text-align: center;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  color: var(--color-neutral-dark);
+}
+
+/* === Video Icon === */
+.media-section .video-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--color-white);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* === Skeleton Loader === */
+.media-section .media-skeleton-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.media-section .media-skeleton-card {
+  height: 200px;
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.media-section .shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -150px;
+  height: 100%; width: 150px;
+  background: linear-gradient(
+    to right,
+    var(--color-neutral-light) 0%,
+    var(--color-white) 50%,
+    var(--color-neutral-light) 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+/* === Modal === */
+.media-section .media-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 9999;
+}
+
+.media-section .media-modal-content {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.media-section .close-button {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* === Animations === */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
