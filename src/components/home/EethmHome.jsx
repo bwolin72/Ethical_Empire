@@ -14,10 +14,9 @@ import VideoGallery from "../videos/VideoGallery";
 
 import "./EethmHome.css";
 
-// --- Local fallbacks ---
 const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
+const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
-// --- Helpers ---
 const asArray = (res) => {
   if (!res) return [];
   const data = res?.data ?? res;
@@ -26,90 +25,69 @@ const asArray = (res) => {
   return [];
 };
 
+const safeFetch = async (fn) => {
+  try {
+    const res = await fn();
+    return asArray(res);
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
+
 const EethmHome = () => {
   const navigate = useNavigate();
 
-  // API data (videos, media, promotions, reviews)
   const [videos, setVideos] = useState([]);
   const [media, setMedia] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
 
-  // Error states
   const [videosError, setVideosError] = useState(null);
   const [promoError, setPromoError] = useState(null);
   const [reviewError, setReviewError] = useState(null);
 
-  // Newsletter modal
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // --- Fetch all ---
   useEffect(() => {
     let mounted = true;
 
     const fetchAll = async () => {
-      try {
-        const [videoRes, promoRes, reviewRes, mediaRes] = await Promise.allSettled([
-          apiService.getVideos(),
-          apiService.getPromotions(),
-          apiService.getReviews(),
-          apiService.getMedia(),
-        ]);
+      const [videosData, promotionsData, reviewsData, mediaData] = await Promise.all([
+        safeFetch(apiService.getVideos),
+        safeFetch(apiService.getPromotions),
+        safeFetch(apiService.getReviews),
+        safeFetch(apiService.getMedia),
+      ]);
 
-        if (!mounted) return;
+      if (!mounted) return;
 
-        if (videoRes.status === "fulfilled") {
-          setVideos(asArray(videoRes.value));
-        } else {
-          setVideos([]);
-          setVideosError("Failed to load videos");
-        }
+      setVideos(videosData);
+      setPromotions(promotionsData);
+      setReviews(reviewsData);
+      setMedia(mediaData);
 
-        if (promoRes.status === "fulfilled") {
-          setPromotions(asArray(promoRes.value));
-        } else {
-          setPromotions([]);
-          setPromoError("Failed to load promotions");
-        }
-
-        if (reviewRes.status === "fulfilled") {
-          setReviews(asArray(reviewRes.value));
-        } else {
-          setReviews([]);
-          setReviewError("Failed to load reviews");
-        }
-
-        if (mediaRes.status === "fulfilled") {
-          setMedia(asArray(mediaRes.value));
-        } else {
-          setMedia([]);
-        }
-      } catch (err) {
-        console.error("❌ Unexpected API fetch error:", err);
-        setVideos([]);
-        setPromotions([]);
-        setReviews([]);
-        setMedia([]);
-      }
+      if (!videosData.length) setVideosError("No videos available");
+      if (!promotionsData.length) setPromoError("No promotions available");
+      if (!reviewsData.length) setReviewError("No reviews available");
     };
 
     fetchAll();
-    return () => {
-      mounted = false;
-    };
+
+    return () => { mounted = false; };
   }, []);
 
-  // --- Normalized ---
-  const videosArr = Array.isArray(videos) ? videos : [];
-  const promosArr = Array.isArray(promotions) ? promotions : [];
-  const reviewsArr = Array.isArray(reviews) ? reviews : [];
+  const heroVideo = videos.length ? videos[0] : { url: LOCAL_FALLBACK_VIDEO };
+  const galleryItems = [...videos, ...media].length
+    ? [...videos, ...media]
+    : [{ url: LOCAL_FALLBACK_IMAGE }];
 
   return (
     <div className="eethm-home-page">
-      {/* === HERO (VideoGallery) === */}
+      {/* HERO */}
       <section className="video-hero-section">
         <VideoGallery
-          videos={videosArr}
+          videos={[heroVideo]}
           fallbackVideo={LOCAL_FALLBACK_VIDEO}
           showHero
           autoPlay
@@ -118,28 +96,20 @@ const EethmHome = () => {
           title="Ethical Multimedia GH"
           subtitle="Live Band • Catering • Multimedia • Decor Services"
           actions={[
-            {
-              label: "Book Now",
-              onClick: () => navigate("/bookings"),
-              className: "btn-primary",
-            },
-            {
-              label: "📩 Subscribe",
-              onClick: () => setShowNewsletterForm(true),
-              className: "btn-secondary",
-            },
+            { label: "Book Now", onClick: () => navigate("/bookings"), className: "btn-primary" },
+            { label: "📩 Subscribe", onClick: () => setShowNewsletterForm(true), className: "btn-secondary" },
           ]}
         />
       </section>
 
-      {/* === HERO HIGHLIGHTS (BannerCards) === */}
+      {/* HERO HIGHLIGHTS */}
       <FadeInSection>
         <section className="banners-hero-wrap">
           <BannerCards endpointKey="banners" title="Highlights" type="banner" />
         </section>
       </FadeInSection>
 
-      {/* === SERVICES === */}
+      {/* SERVICES */}
       <FadeInSection>
         <section className="services-page">
           <h2>Explore Eethm_GH Ministrations</h2>
@@ -147,14 +117,14 @@ const EethmHome = () => {
         </section>
       </FadeInSection>
 
-      {/* === PROMOTIONS === */}
+      {/* PROMOTIONS */}
       <FadeInSection>
         <section className="promotions-section">
           <h2>Special Offers</h2>
-          {promosArr.length > 0 ? (
+          {promotions.length ? (
             <div className="promotions-grid">
-              {promosArr.map((p, idx) => (
-                <article key={p.id ?? p.image_url ?? idx} className="promotion-card">
+              {promotions.map((p, idx) => (
+                <article key={p.id ?? `promo-${idx}`} className="promotion-card">
                   {p.image_url && <img src={p.image_url} alt={p.title} />}
                   <div>
                     <h3>{p.title}</h3>
@@ -164,81 +134,49 @@ const EethmHome = () => {
                 </article>
               ))}
             </div>
-          ) : promoError ? (
-            <p className="error-text">{promoError}</p>
-          ) : (
-            <p className="muted-text">No promotions.</p>
-          )}
+          ) : promoError ? <p className="error-text">{promoError}</p> : <p className="muted-text">No promotions.</p>}
         </section>
       </FadeInSection>
 
-      {/* === MEDIA LIBRARY (MediaCards) === */}
+      {/* MEDIA LIBRARY */}
       <FadeInSection>
         <section className="media-library-section">
           <h2>Our Media Library</h2>
-          <MediaCards
-            endpointKey="media"
-            resourceType="media"
-            title={null}
-            fullWidth={false}
-            isActive={true}
-            isFeatured={false}
-          />
+          <MediaCards endpointKey="media" resourceType="media" title={null} fullWidth={false} isActive isFeatured={false} />
         </section>
       </FadeInSection>
 
-      {/* === GALLERY SHOWCASE (MediaGallery) === */}
+      {/* GALLERY SHOWCASE */}
       <FadeInSection>
         <section className="media-gallery-section">
           <h2>Gallery Showcase</h2>
           {videosError && <p className="error-text">{videosError}</p>}
-          {videosArr.length > 0 || media.length > 0 ? (
-            <MediaGallery items={[...videosArr, ...media]} />
-          ) : (
-            <p className="muted-text">No highlights to show.</p>
-          )}
+          <MediaGallery items={galleryItems} />
         </section>
       </FadeInSection>
 
-      {/* === REVIEWS === */}
+      {/* REVIEWS */}
       <FadeInSection>
         <section className="reviews-section">
           <h2>What Our Clients Say</h2>
-          {reviewsArr.length > 0 ? (
+          {reviews.length ? (
             <div className="reviews-container">
-              {reviewsArr.map((r, idx) => (
-                <div key={r.id ?? idx} className="review-card">
+              {reviews.map((r, idx) => (
+                <div key={r.id ?? `review-${idx}`} className="review-card">
                   <p>"{r.comment}"</p>
-                  <p>— {r.name}</p>
+                  <p>— {r.name || "Anonymous"}</p>
                 </div>
               ))}
             </div>
-          ) : reviewError ? (
-            <p className="error-text">{reviewError}</p>
-          ) : (
-            <p className="muted-text">No reviews.</p>
-          )}
+          ) : reviewError ? <p className="error-text">{reviewError}</p> : <p className="muted-text">No reviews.</p>}
         </section>
       </FadeInSection>
 
-      {/* === NEWSLETTER MODAL === */}
+      {/* NEWSLETTER */}
       {showNewsletterForm && (
-        <div
-          className="newsletter-modal-backdrop"
-          onClick={() => setShowNewsletterForm(false)}
-        >
-          <div
-            className="newsletter-modal"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-          >
-            <button
-              className="newsletter-close-btn"
-              onClick={() => setShowNewsletterForm(false)}
-              type="button"
-            >
-              &times;
-            </button>
+        <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
+          <div className="newsletter-modal" onClick={(e) => e.stopPropagation()} role="dialog">
+            <button className="newsletter-close-btn" onClick={() => setShowNewsletterForm(false)} type="button">&times;</button>
             <NewsletterSignup />
           </div>
         </div>

@@ -1,90 +1,75 @@
 // src/components/videos/VideoGallery.jsx
-import React, { useEffect, useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import videoService from "../../api/services/videoService";
 import "./videos.css";
 
-/**
- * Generic VideoGallery
- * Usage:
- *   <VideoGallery endpoint="LiveBandServicePage" title="Live Band Videos" />
- *   <VideoGallery endpoint="CateringServicePage" title="Catering Highlights" limit={4} />
- *
- * Props:
- *   - endpoint: string (E.g. "About", "LiveBandServicePage", "media-hosting")
- *   - title: optional section heading
- *   - limit: optional max number of videos to show
- *   - className: optional extra classes
- */
-const VideoGallery = ({ endpoint, title, limit, className }) => {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadVideos = async () => {
-      try {
-        setLoading(true);
-        const res = await videoService.byEndpoint(endpoint, { is_active: true });
-        const data = res?.results || res || [];
-        const sliced = limit ? data.slice(0, limit) : data;
-        if (isMounted) setVideos(sliced);
-      } catch (err) {
-        console.error("❌ Failed to load videos for endpoint:", endpoint, err);
-        toast.error("Could not load videos. Please try again later.");
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    loadVideos();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [endpoint, limit]);
+const VideoGallery = ({
+  videos = [],
+  fallbackVideo,
+  title,
+  showHero = false,
+  autoPlay = false,
+  loop = false,
+  allowMuteToggle = false,
+  className,
+  actions = [],
+}) => {
+  const hasVideos = videos.length > 0;
+  const heroVideo = hasVideos ? videos[0] : { url: fallbackVideo };
 
   return (
     <section className={`video-gallery ${className || ""}`}>
       {title && <h2>{title}</h2>}
 
-      {loading ? (
-        <p className="status">Loading videos...</p>
-      ) : videos.length === 0 ? (
-        <p className="status">No videos available.</p>
-      ) : (
+      {showHero ? (
+        <div className="hero-video-wrapper">
+          <video
+            src={heroVideo.url || fallbackVideo}
+            autoPlay={autoPlay}
+            loop={loop}
+            muted={!allowMuteToggle}
+            controls={allowMuteToggle}
+            className="hero-video"
+          >
+            Your browser does not support HTML5 video.
+          </video>
+
+          {actions.length > 0 && (
+            <div className="hero-actions">
+              {actions.map((a, idx) => (
+                <button
+                  key={idx}
+                  onClick={a.onClick}
+                  className={a.className}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : hasVideos ? (
         <div className="video-grid">
-          {videos.map((video) => (
-            <div key={video.id} className="video-card">
-              {/* Thumbnail / Video */}
-              {video.thumbnail ? (
-                <img
-                  src={video.thumbnail?.url || video.thumbnail}
-                  alt={video.title}
-                />
-              ) : (
-                <video
-                  controls
-                  src={video.video_file?.url || video.video_file}
-                />
-              )}
-
-              {/* Info */}
-              <div className="video-card-content">
-                <h3>{video.title}</h3>
-                {video.description && <p>{video.description}</p>}
-
-                <video
-                  controls
-                  src={video.video_file?.url || video.video_file}
-                  poster={video.thumbnail?.url || video.thumbnail}
-                />
-              </div>
+          {videos.map((video, idx) => (
+            <div key={video.id || idx} className="video-card">
+              <video
+                controls
+                src={video.video_file?.url || video.video_file || fallbackVideo}
+                poster={video.thumbnail?.url || video.thumbnail}
+              />
+              {video.title && <h3>{video.title}</h3>}
+              {video.description && <p>{video.description}</p>}
             </div>
           ))}
+        </div>
+      ) : (
+        <div className="video-grid">
+          <video
+            controls
+            src={fallbackVideo}
+            className="fallback-video"
+          />
+          <p>No videos available. Showing fallback.</p>
         </div>
       )}
     </section>
@@ -92,10 +77,15 @@ const VideoGallery = ({ endpoint, title, limit, className }) => {
 };
 
 VideoGallery.propTypes = {
-  endpoint: PropTypes.string.isRequired,
+  videos: PropTypes.array,
+  fallbackVideo: PropTypes.string,
   title: PropTypes.string,
-  limit: PropTypes.number,
+  showHero: PropTypes.bool,
+  autoPlay: PropTypes.bool,
+  loop: PropTypes.bool,
+  allowMuteToggle: PropTypes.bool,
   className: PropTypes.string,
+  actions: PropTypes.array,
 };
 
 export default VideoGallery;
