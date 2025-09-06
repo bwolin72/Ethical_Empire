@@ -9,9 +9,9 @@ import GalleryWrapper from "../gallery/GalleryWrapper";
 import VideoGallery from "../videos/VideoGallery";
 
 // --- Import direct service modules ---
-import VideoService from "../../api/videosAPI";
-import ServiceService from "../../api/services";
-import ReviewService from "../../api/reviewsAPI"; // if you have a separate service
+import VideoService from "../../api/services/videoService";
+import ServiceService from "../../api/services/serviceService";
+import ReviewService from "../../api/services/reviewService"; // if you have a separate service
 
 import "./About.css";
 
