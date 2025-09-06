@@ -62,10 +62,12 @@ const About = () => {
     let active = true;
 
     const fetchAll = async () => {
+      // ✅ no need to pass endpoint manually to asArray
       const banners = await safeFetch(() =>
         apiService.getVideos({ endpoint: "about", is_active: true })
       );
-      const srv = await safeFetch(apiService.getServices);
+
+      const srv = await safeFetch(apiService.services.list);
       const reviewsRaw = await safeFetch(apiService.getReviews);
 
       if (!active) return;
@@ -84,7 +86,9 @@ const About = () => {
     };
 
     fetchAll();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, []);
 
   // --- Hero video selection ---
@@ -174,9 +178,7 @@ const About = () => {
                   />
                 )}
                 <h3 className="service-title">{title || name}</h3>
-                {description && (
-                  <p className="service-desc">{description}</p>
-                )}
+                {description && <p className="service-desc">{description}</p>}
               </article>
             ))}
           </div>

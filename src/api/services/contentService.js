@@ -40,7 +40,47 @@ const contentService = {
   // -------- Videos --------
   getVideos: async (params = {}) => {
     try {
-      const res = await videosAPI.list(params);
+      let res;
+
+      // Pick API based on endpoint
+      switch (params.endpoint) {
+        case "home":
+          res = await videosAPI.home(params);
+          break;
+        case "about":
+          res = await videosAPI.about(params);
+          break;
+        case "decor":
+          res = await videosAPI.decor(params);
+          break;
+        case "live_band":
+          res = await videosAPI.liveBand(params);
+          break;
+        case "catering":
+          res = await videosAPI.catering(params);
+          break;
+        case "media_hosting":
+          res = await videosAPI.mediaHosting(params);
+          break;
+        case "vendor":
+          res = await videosAPI.vendor(params);
+          break;
+        case "partner":
+          res = await videosAPI.partner(params);
+          break;
+        case "user":
+          res = await videosAPI.user(params);
+          break;
+        case "partner_dashboard":
+          res = await videosAPI.partnerDashboard(params);
+          break;
+        case "agency_dashboard":
+          res = await videosAPI.agencyDashboard(params);
+          break;
+        default:
+          res = await videosAPI.list(params);
+      }
+
       return Array.isArray(res.data) ? res.data.map(normalizeVideo) : [];
     } catch (err) {
       console.error("Error fetching videos:", err);
