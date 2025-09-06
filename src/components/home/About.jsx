@@ -1,7 +1,14 @@
 // src/components/home/About.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaStar, FaCheckCircle, FaClock, FaCogs, FaCheck } from "react-icons/fa";
+import {
+  FaStar,
+  FaCheckCircle,
+  FaClock,
+  FaCogs,
+  FaCheck,
+} from "react-icons/fa";
+import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 
 import useMediaFetcher from "../../hooks/useFetcher";
@@ -11,8 +18,6 @@ import BannerCards from "../context/BannerCards";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import apiService from "../../api/apiService";
 import videoService from "../../api/services/videoService";
-
-// ✅ import unified video handler
 import VideoGallery from "../videos/VideoGallery";
 
 import euniceImg from "../../assets/team/eunice.png";
@@ -23,93 +28,86 @@ import "./About.css";
 /* ------------ helpers ------------ */
 const getMediaUrl = (media) => {
   if (!media) return "";
-  const val =
-    (media?.url && (media.url.full ?? media.url)) ??
+  return (
+    media?.url?.full ??
+    media?.url ??
     media?.file_url ??
     media?.file ??
     media?.video_url ??
     media?.video_file ??
-    "";
-  return typeof val === "string" ? val : String(val ?? "");
+    ""
+  );
 };
 
-/* ------------ local fallbacks ------------ */
-const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
-const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
+/* ------------ fallbacks ------------ */
+const FALLBACKS = {
+  video: "/mock/hero-video.mp4",
+  image: "/mock/hero-fallback.jpg",
+};
 
 const About = () => {
   const aboutFetch = useMediaFetcher("about");
-  const mediaItems =
-    (Array.isArray(aboutFetch?.media) && aboutFetch.media) ||
-    (Array.isArray(aboutFetch?.data) && aboutFetch.data) ||
-    [];
+  const bannerList = Array.isArray(aboutFetch?.media)
+    ? aboutFetch.media
+    : Array.isArray(aboutFetch?.data)
+    ? aboutFetch.data
+    : [];
 
-  const [heroVideoUrl, setHeroVideoUrl] = useState(null);
-  const [videoLoadFailed, setVideoLoadFailed] = useState(false);
+  const [heroVideo, setHeroVideo] = useState(null);
+  const [videoFailed, setVideoFailed] = useState(false);
   const [services, setServices] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
 
-  const bannerList = Array.isArray(mediaItems) ? mediaItems : [];
-
-  /* ---------- fetch About videos for hero ---------- */
+  /* ---------- Hero Video ---------- */
   useEffect(() => {
     const fetchVideos = async () => {
       try {
         const res = await videoService.about();
         const list = Array.isArray(res?.data) ? res.data : [];
 
-        const featured = list.find(
-          (v) => v?.is_featured && getMediaUrl(v).toLowerCase().endsWith(".mp4")
+        const pickVideo = list.find(
+          (v) => v?.is_featured && getMediaUrl(v).endsWith(".mp4")
         );
-        const anyVideo = list.find((v) =>
-          getMediaUrl(v).toLowerCase().endsWith(".mp4")
+        const fallbackPick = list.find((v) =>
+          getMediaUrl(v).endsWith(".mp4")
         );
 
-        if (featured) setHeroVideoUrl(getMediaUrl(featured));
-        else if (anyVideo) setHeroVideoUrl(getMediaUrl(anyVideo));
-        else setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
-
-        setVideoLoadFailed(false);
+        setHeroVideo(
+          getMediaUrl(pickVideo || fallbackPick) || FALLBACKS.video
+        );
+        setVideoFailed(false);
       } catch (err) {
-        console.error("About videos fetch error:", err);
-        setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
+        console.error("Hero video fetch error:", err);
+        setHeroVideo(FALLBACKS.video);
       }
     };
-
     fetchVideos();
   }, []);
 
-  /* ---------- fetch services & testimonials ---------- */
+  /* ---------- Services & Testimonials ---------- */
   useEffect(() => {
-    let mounted = true;
+    let active = true;
 
     const fetchServices = async () => {
       try {
         const res = await apiService.getServices?.();
-        const serviceList = Array.isArray(res?.data?.results)
-          ? res.data.results
-          : Array.isArray(res?.data)
-          ? res.data
-          : [];
-        if (mounted) {
-          setServices(serviceList);
-          if (!serviceList.length) toast.warn("No services available at the moment.");
+        const list =
+          res?.data?.results || res?.data || [];
+        if (active) {
+          setServices(Array.isArray(list) ? list : []);
+          if (!list?.length) toast.warn("No services available currently.");
         }
-      } catch (err) {
-        console.error("Services fetch error:", err);
-        if (mounted) toast.error("Failed to load services.");
+      } catch {
+        if (active) toast.error("Failed to load services.");
       }
     };
 
     const fetchReviews = async () => {
       try {
         const res = await apiService.getReviews?.();
-        const reviewList = Array.isArray(res?.data)
-          ? res.data
-          : Array.isArray(res?.data?.results)
-          ? res.data.results
-          : [];
-        if (mounted) setTestimonials(reviewList);
+        const list =
+          res?.data?.results || res?.data || [];
+        if (active) setTestimonials(Array.isArray(list) ? list : []);
       } catch (err) {
         console.error("Reviews fetch error:", err);
       }
@@ -118,52 +116,60 @@ const About = () => {
     fetchServices();
     fetchReviews();
     return () => {
-      mounted = false;
+      active = false;
     };
   }, []);
 
-  const onHeroVideoError = () => {
-    setVideoLoadFailed(true);
-    if (heroVideoUrl !== LOCAL_FALLBACK_VIDEO) {
-      setHeroVideoUrl(LOCAL_FALLBACK_VIDEO);
-    }
+  const handleVideoError = () => {
+    setVideoFailed(true);
+    setHeroVideo(FALLBACKS.video);
   };
 
-  const effectiveHeroVideo = videoLoadFailed ? LOCAL_FALLBACK_VIDEO : heroVideoUrl;
-  const heroBanner = bannerList.length > 0 ? bannerList[0] : null;
-  const heroBannerImage = getMediaUrl(heroBanner) || null;
-  const heroHasVideo =
-    typeof effectiveHeroVideo === "string" &&
-    effectiveHeroVideo.toLowerCase().endsWith(".mp4");
+  const heroBanner = bannerList[0] || null;
+  const heroBannerImage = getMediaUrl(heroBanner);
+  const effectiveVideo =
+    !videoFailed && heroVideo?.endsWith(".mp4")
+      ? heroVideo
+      : null;
 
   return (
     <div className="about-container">
       {/* Sticky CTA */}
-      <div className="sticky-cta-bar">
+      <motion.div
+        className="sticky-cta-bar"
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+      >
         <Link to="/bookings" className="sticky-cta-link">
           Let’s Talk
         </Link>
-      </div>
+      </motion.div>
 
       {/* === Hero Section === */}
       <section className="about-hero">
-        {heroHasVideo ? (
+        {effectiveVideo ? (
           <div className="hero-banner video">
             <video
-              src={effectiveHeroVideo}
+              src={effectiveVideo}
               autoPlay
               loop
               muted
               playsInline
-              poster={heroBannerImage || LOCAL_FALLBACK_IMAGE}
+              poster={heroBannerImage || FALLBACKS.image}
               className="hero-video"
-              onError={onHeroVideoError}
+              onError={handleVideoError}
             />
             <div className="hero-overlay" />
-            <div className="hero-copy">
+            <motion.div
+              className="hero-copy"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
               <h1 className="hero-title">Ethical Multimedia GH</h1>
               <p className="hero-subtitle">
-                Crafting unforgettable experiences across music, visuals, and events.
+                Crafting unforgettable experiences across music, visuals,
+                and events.
               </p>
               <div className="hero-actions">
                 <Link to="/bookings" className="btn btn-primary">
@@ -173,18 +179,22 @@ const About = () => {
                   Why Choose Us
                 </a>
               </div>
-            </div>
+            </motion.div>
           </div>
         ) : heroBannerImage ? (
-          <div className="hero-banner mb-10">
-            <MediaCard media={heroBanner} fullWidth />
-          </div>
+          <MediaCard media={heroBanner} fullWidth />
         ) : (
           <div className="hero-banner fallback">
-            <img src={LOCAL_FALLBACK_IMAGE} alt="Fallback hero" className="hero-fallback-img" />
+            <img
+              src={FALLBACKS.image}
+              alt="Hero fallback"
+              className="hero-fallback-img"
+            />
             <div className="hero-copy">
               <h1 className="hero-title">Ethical Multimedia GH</h1>
-              <p className="hero-subtitle">Creative production, seamless execution.</p>
+              <p className="hero-subtitle">
+                Creative production, seamless execution.
+              </p>
             </div>
           </div>
         )}
@@ -193,23 +203,36 @@ const About = () => {
       {/* Intro */}
       <section className="intro text-center">
         <h2 className="section-heading">Who We Are</h2>
-        <p className="subtext">We don’t just offer services — we deliver lasting impressions.</p>
+        <p className="subtext">
+          We don’t just offer services — we deliver lasting impressions.
+        </p>
       </section>
 
-      {/* Visual Stories (banner cards) */}
+      {/* Visual Stories */}
       <BannerCards endpoint="about" title="Explore Our Visual Stories" />
 
       {/* Services */}
       {services.length > 0 && (
-        <section className="service-grid" aria-labelledby="services-heading">
-          <h2 id="services-heading" className="section-heading">What We Do</h2>
+        <section className="service-grid">
+          <h2 className="section-heading">What We Do</h2>
           <div className="service-grid-inner">
             {services.map(({ id, icon_url, title, name, description }) => (
-              <article key={id} className="service-card" tabIndex={0}>
-                {icon_url && <img src={icon_url} alt={title || name} className="service-icon-img" />}
-                <h3 className="service-title">{title || name}</h3>
-                {description && <p className="service-desc">{description}</p>}
-              </article>
+              <motion.article
+                key={id}
+                className="service-card"
+                whileHover={{ scale: 1.03 }}
+                tabIndex={0}
+              >
+                {icon_url && (
+                  <img
+                    src={icon_url}
+                    alt={title || name}
+                    className="service-icon-img"
+                  />
+                )}
+                <h3>{title || name}</h3>
+                {description && <p>{description}</p>}
+              </motion.article>
             ))}
           </div>
         </section>
@@ -218,21 +241,35 @@ const About = () => {
       {/* Values */}
       <section className="values">
         <div className="values-grid">
-          <div className="value-card">
-            <FaCheckCircle className="value-icon" />
-            <h3>Integrity</h3>
-            <p>Transparent communication and delivery you can trust.</p>
-          </div>
-          <div className="value-card">
-            <FaCogs className="value-icon" />
-            <h3>Craft</h3>
-            <p>Refined visuals, audio, and staging from seasoned pros.</p>
-          </div>
-          <div className="value-card">
-            <FaClock className="value-icon" />
-            <h3>Reliability</h3>
-            <p>On time, on budget, and beyond expectations.</p>
-          </div>
+          {[
+            {
+              icon: <FaCheckCircle />,
+              title: "Integrity",
+              text: "Transparent communication and delivery you can trust.",
+            },
+            {
+              icon: <FaCogs />,
+              title: "Craft",
+              text: "Refined visuals, audio, and staging from seasoned pros.",
+            },
+            {
+              icon: <FaClock />,
+              title: "Reliability",
+              text: "On time, on budget, and beyond expectations.",
+            },
+          ].map((v, idx) => (
+            <motion.div
+              key={idx}
+              className="value-card"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="value-icon">{v.icon}</span>
+              <h3>{v.title}</h3>
+              <p>{v.text}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -240,32 +277,30 @@ const About = () => {
       <section className="about-text">
         <h2 className="section-heading">Our Story</h2>
         <p>
-          At <strong>Ethical Multimedia GH</strong>, we merge artistic passion with event precision.
-          From live performances and stunning visuals to disciplined coordination, we turn ideas
-          into memorable experiences for weddings, concerts, and corporate events.
+          At <strong>Ethical Multimedia GH</strong>, we merge artistic
+          passion with event precision. From live performances and
+          stunning visuals to disciplined coordination, we turn ideas
+          into memorable experiences.
         </p>
       </section>
 
-      {/* ✅ Reusable Video Gallery */}
-      <section className="video-showcase">
-        <h2 className="section-heading">Our Work in Motion</h2>
-        <VideoGallery endpoint="about" /> 
-      </section>
+      {/* Reusable Video Gallery */}
+      <VideoGallery endpoint="about" title="Our Work in Motion" />
 
       {/* Featured Media */}
       <section className="featured-media-section">
         <h2 className="section-heading">Our Work in Action</h2>
-        <div className="featured-carousel">
-          <MediaCards endpoint="about" type="media" isFeatured={true} fullWidth />
-        </div>
+        <MediaCards endpoint="about" type="media" isFeatured fullWidth />
       </section>
 
-      {/* Commitments */}
+      {/* Commitment */}
       <section className="about-text">
         <h2 className="section-heading">Our Commitment</h2>
         <p>
-          We value integrity, artistry, and a deep understanding of your goals. Every event is
-          approached with care, strategy, and passion — ensuring it's not just successful, but unforgettable.
+          We value integrity, artistry, and a deep understanding of your
+          goals. Every event is approached with care, strategy, and
+          passion — ensuring it’s not just successful, but
+          unforgettable.
         </p>
       </section>
 
@@ -280,68 +315,86 @@ const About = () => {
               "Cutting-edge equipment and visual production.",
               "Flexible packages and transparent pricing.",
               "A track record of flawless delivery across Ghana and beyond.",
-            ].map((item, idx) => (
-              <li key={idx}><FaCheck aria-hidden="true" /> {item}</li>
+            ].map((item, i) => (
+              <li key={i}>
+                <FaCheck /> {item}
+              </li>
             ))}
           </ul>
         </div>
-        <div className="why-star"><FaStar className="star-icon" /></div>
+        <div className="why-star">
+          <FaStar className="star-icon" />
+        </div>
       </section>
 
       {/* Team */}
       <section className="team-section">
         <h2 className="section-heading">Meet the Team</h2>
-        <p className="team-sub">The people behind the performances and precision.</p>
+        <p className="team-sub">
+          The people behind the performances and precision.
+        </p>
         <div className="team-grid">
-          <div className="team-member">
-            <img src={euniceImg} alt="Mrs. Eunice Chai" className="team-img" />
-            <h4>Mrs. Eunice Chai</h4>
-            <p>Operations Manager</p>
-          </div>
-          <div className="team-member">
-            <img src={josephImg} alt="Mr. Nhyira Nana Joseph" className="team-img" />
-            <h4>Mr. Nhyira Nana Joseph</h4>
-            <p>Event Manager</p>
-          </div>
+          {[ 
+            { img: euniceImg, name: "Mrs. Eunice Chai", role: "Operations Manager" },
+            { img: josephImg, name: "Mr. Nhyira Nana Joseph", role: "Event Manager" }
+          ].map((m, idx) => (
+            <div className="team-member" key={idx}>
+              <img src={m.img} alt={m.name} className="team-img" />
+              <h4>{m.name}</h4>
+              <p>{m.role}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Logos */}
       <section className="press-logos">
         <h2 className="section-heading text-center">Trusted By</h2>
-        <div className="logo-carousel" aria-label="Partner logos">
+        <div className="logo-carousel">
           <img src="/logos/client1.png" alt="Client 1" />
           <img src="/logos/client2.png" alt="Client 2" />
           <img src="/logos/client3.png" alt="Client 3" />
         </div>
       </section>
 
-      {/* Slideshow Gallery */}
-      <section className="gallery-showcase">
-        <h2 className="section-heading">Highlights in Motion</h2>
-        <GalleryWrapper endpoint="about" limit={8} />
-      </section>
+      {/* Gallery */}
+      <GalleryWrapper endpoint="about" limit={8} title="Highlights in Motion" />
 
       {/* Testimonials */}
       {testimonials.length > 0 && (
         <section className="testimonial-carousel">
           <h2 className="section-heading">What Our Clients Say</h2>
           <div className="carousel-wrapper">
-            {testimonials.map((review, idx) => (
-              <div key={review?.id ?? idx} className="testimonial-slide">
-                {review?.comment && <p>“{review.comment}”</p>}
-                <p className="testimonial-author">— {review?.name || "Anonymous"}</p>
-              </div>
+            {testimonials.map((r, idx) => (
+              <motion.div
+                key={r?.id ?? idx}
+                className="testimonial-slide"
+                whileHover={{ scale: 1.02 }}
+              >
+                {r?.comment && <p>“{r.comment}”</p>}
+                <p className="testimonial-author">
+                  — {r?.name || "Anonymous"}
+                </p>
+              </motion.div>
             ))}
           </div>
         </section>
       )}
 
       {/* Final CTA */}
-      <section className="cta-section">
-        <h3 className="cta-title">Let’s create something remarkable together.</h3>
-        <Link to="/bookings" className="cta-button">Book a Service</Link>
-      </section>
+      <motion.section
+        className="cta-section"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <h3 className="cta-title">
+          Let’s create something remarkable together.
+        </h3>
+        <Link to="/bookings" className="cta-button">
+          Book a Service
+        </Link>
+      </motion.section>
     </div>
   );
 };
