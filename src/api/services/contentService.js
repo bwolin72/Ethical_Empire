@@ -3,7 +3,7 @@ import publicAxios from "../publicAxios";
 import videosAPI from "../videosAPI";
 import mediaAPI from "../mediaAPI";
 
-// --- Normalizers: unify backend shapes ---
+// --- Normalizers ---
 const normalizeVideo = (v) => ({
   id: v.id,
   title: v.title || v.name || "",
@@ -37,36 +37,34 @@ const normalizeMedia = (m) => ({
 
 // --- Service ---
 const contentService = {
-  // -------- Videos (videos app) --------
+  // -------- Videos --------
   getVideos: async (params) => {
-    const res = await videosAPI.list(params); 
+    const res = await videosAPI.getAll(params); // <--- corrected
     return Array.isArray(res.data) ? res.data.map(normalizeVideo) : [];
   },
 
-  // -------- Promotions (root app) --------
+  // -------- Promotions --------
   getPromotions: async () => {
     const res = await publicAxios.get("/promotions/");
     return Array.isArray(res.data) ? res.data.map(normalizePromotion) : [];
   },
 
-  // -------- Reviews (root app) --------
+  // -------- Reviews --------
   getReviews: async () => {
     const res = await publicAxios.get("/reviews/");
     return Array.isArray(res.data) ? res.data.map(normalizeReview) : [];
   },
 
-  // -------- Media (media app) --------
+  // -------- Media --------
   getBanners: async () => {
-    const res = await publicAxios.get(mediaAPI.endpoints.banners); // /api/media/banners/
+    const res = await publicAxios.get(mediaAPI.endpoints.banners);
     return Array.isArray(res.data) ? res.data.map(normalizeMedia) : [];
   },
 
   getMedia: async () => {
-    const res = await publicAxios.get(mediaAPI.endpoints.defaultList); // /api/media/
+    const res = await publicAxios.get(mediaAPI.endpoints.defaultList);
     return Array.isArray(res.data) ? res.data.map(normalizeMedia) : [];
   },
-
-  // (Admin-only goes via mediaService, not here)
 };
 
 export default contentService;
