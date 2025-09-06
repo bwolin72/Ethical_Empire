@@ -35,10 +35,12 @@ const apiService = {
 
   // ----- Shorthand methods (for Home + global use) -----
   getVideos: contentService.getVideos,
+  getVideosByEndpoint: contentService.getVideosByEndpoint,   // 👈 added
   getPromotions: contentService.getPromotions,
   getReviews: contentService.getReviews,
   getBanners: contentService.getBanners,
   getMedia: contentService.getMedia,
+  getMediaByEndpoint: contentService.getMediaByEndpoint,     // 👈 added
 };
 
 export default apiService;

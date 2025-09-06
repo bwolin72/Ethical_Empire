@@ -116,6 +116,10 @@ const contentService = {
     }
   },
 
+  // 👇 Wrapper for useFetcher compatibility
+  getVideosByEndpoint: async (endpoint, params = {}) =>
+    contentService.getVideos({ endpoint, ...params }),
+
   // -------- Promotions --------
   getPromotions: () =>
     fetchAndNormalize(() => publicAxios.get("/promotions/"), normalizePromotion),
@@ -136,6 +140,14 @@ const contentService = {
       () => publicAxios.get(mediaAPI.endpoints.defaultList),
       normalizeMedia
     ),
+
+  // 👇 Wrapper for useFetcher compatibility
+  getMediaByEndpoint: async (endpoint) => {
+    if (!endpoint) {
+      return contentService.getMedia();
+    }
+    return fetchAndNormalize(() => publicAxios.get(endpoint), normalizeMedia);
+  },
 };
 
 export default contentService;
