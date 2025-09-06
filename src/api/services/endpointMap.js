@@ -1,14 +1,15 @@
 const endpointMap = {
   home: "EethmHome",
   about: "About",
-  catering: "CateringServicePage",         // matches App.js
+  catering: "CateringServicePage",
   liveBand: "LiveBandServicePage",
-  decor: "DecorServicePage",               // matches App.js
+  decor: "DecorServicePage",
   mediaHosting: "MediaHostingServicePage",
-  vendor: "VendorProfile",                 // matches App.js
-  partner: "PartnerProfilePage",           // matches App.js
-  partnerVendorDashboard: "AgencyDashboard", // matches App.js
+  vendor: "VendorProfile",
+  partner: "PartnerProfilePage",
+  partnerVendorDashboard: "AgencyDashboard",
   user: "UserPage",
+  newsletter: "NewsletterSignup",      // new
+  unsubscribe: "UnsubscribePage",      // new
 };
-
-export default endpointMap;
+export default endpointMap; 
