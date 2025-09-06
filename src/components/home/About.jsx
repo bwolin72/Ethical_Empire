@@ -7,7 +7,11 @@ import { toast } from "react-toastify";
 import BannerCards from "../context/BannerCards";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import VideoGallery from "../videos/VideoGallery";
-import apiService from "../../api/apiService";
+
+// --- Import direct service modules ---
+import VideoService from "../../api/videosAPI";
+import ServiceService from "../../api/services";
+import ReviewService from "../../api/reviewsAPI"; // if you have a separate service
 
 import "./About.css";
 
@@ -26,12 +30,13 @@ const asArray = (res) => {
   return [];
 };
 
-const safeFetch = async (fn) => {
+const safeFetch = async (fn, label = "") => {
   try {
     const res = await fn();
+    console.log(`[Success] ${label}:`, res);
     return asArray(res);
   } catch (err) {
-    console.error(err);
+    console.error(`[Error] ${label}:`, err);
     return [];
   }
 };
@@ -62,12 +67,23 @@ const About = () => {
     let active = true;
 
     const fetchAll = async () => {
-      const banners = await safeFetch(() =>
-        apiService.getVideos({ endpoint: "about", is_active: true })
+      // ✅ Fetch videos directly from VideoService
+      const banners = await safeFetch(
+        () => VideoService.getVideosByEndpoint("about", { is_active: true }),
+        "Videos (About)"
       );
 
-      const srv = await safeFetch(() => apiService.services.list());
-      const reviewsRaw = await safeFetch(() => apiService.getReviews());
+      // ✅ Fetch services directly from ServiceService
+      const srv = await safeFetch(
+        () => ServiceService.getAll(), // adjust if your method is called differently
+        "Services"
+      );
+
+      // ✅ Fetch reviews from ReviewService or apiService.getReviews
+      const reviewsRaw = await safeFetch(
+        () => ReviewService.getAll(), // or apiService.getReviews()
+        "Reviews"
+      );
 
       if (!active) return;
 

@@ -135,18 +135,32 @@ const contentService = {
       normalizeMedia
     ),
 
-  getMedia: () =>
+  getMedia: (params = {}) =>
     fetchAndNormalize(
-      () => publicAxios.get(mediaAPI.endpoints.defaultList),
+      () => publicAxios.get(mediaAPI.endpoints.defaultList, { params }),
       normalizeMedia
     ),
 
   // 👇 Wrapper for useFetcher compatibility
-  getMediaByEndpoint: async (endpoint) => {
-    if (!endpoint) {
-      return contentService.getMedia();
+  getMediaByEndpoint: async (endpoint, params = {}) => {
+    try {
+      switch (endpoint) {
+        case "banners":
+          return contentService.getBanners(params);
+        case "featured":
+          return fetchAndNormalize(
+            () => publicAxios.get(mediaAPI.endpoints.featured, { params }),
+            normalizeMedia
+          );
+        case "all":
+          return contentService.getMedia(params);
+        default:
+          return contentService.getMedia(params);
+      }
+    } catch (err) {
+      console.error("Error fetching media:", err);
+      return [];
     }
-    return fetchAndNormalize(() => publicAxios.get(endpoint), normalizeMedia);
   },
 };
 

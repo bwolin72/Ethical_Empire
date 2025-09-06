@@ -2,13 +2,13 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import publicAxios from "../api/publicAxios";
 import axiosInstance from "../api/axiosInstance";
-import mediaAPI from "../api/mediaAPI";
-import videoService from "../api/services/videoService";
-import endpointMap from "../api/services/endpointMap";
-import videosAPI from "../api/videosAPI";
 import promotionsAPI from "../api/promotionsAPI";
+import apiService from "../api/apiService";   // ✅ unified wrapper
+import videosAPI from "../api/videosAPI";
+import mediaAPI from "../api/mediaAPI";
 
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
+const FALLBACK_BANNER_PATH = "/mock/banner-1.png";
 
 export default function useFetcher(resourceType, endpointKey, params = null, options = {}) {
   const {
@@ -48,65 +48,24 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
       }
       if (stableEndpointKey === "active") return () => publicAxios.get(promotionsAPI.active, stableParams ? { params: stableParams } : undefined);
       if (stableEndpointKey === "detail") return (id) => publicAxios.get(promotionsAPI.detail(id));
-
       const val = promotionsAPI?.[stableEndpointKey];
       if (typeof val === "string") return () => publicAxios.get(val, stableParams ? { params: stableParams } : undefined);
     }
 
-    // --------- Media ---------
+    // --------- Media (via apiService) ---------
     if (resourceType === "media") {
-      const genericKeys = new Set(["media", "defaultList", "all", "default", "list"]);
-      if (!stableEndpointKey || genericKeys.has(stableEndpointKey)) {
-        return () => publicAxios.get(mediaAPI.defaultList, stableParams ? { params: stableParams } : undefined);
-      }
-
-      const methodName = `get${toMethodSuffix(stableEndpointKey)}`;
-      if (typeof mediaAPI[methodName] === "function") return () => mediaAPI[methodName](stableParams);
-
-      const keyCandidates = uniqueNonEmpty([
-        stableEndpointKey,
-        applyAliases(stableEndpointKey),
-        toCamelCase(stableEndpointKey),
-        applyAliases(toCamelCase(stableEndpointKey)),
-      ]);
-
-      const adminKeys = new Set(["all", "archived", "stats", "debugProto", "upload", "reorder"]);
-
-      for (const k of keyCandidates) {
-        const val = mediaAPI?.[k];
-        if (typeof val === "string") {
-          const useAuth = adminKeys.has(k);
-          return () => useAuth
-            ? axiosInstance.get(val, stableParams ? { params: stableParams } : undefined)
-            : publicAxios.get(val, stableParams ? { params: stableParams } : undefined);
-        }
-        if (typeof val === "function") return () => val(stableParams);
-      }
-
-      if (stableEndpointKey.startsWith("/")) return () => publicAxios.get(stableEndpointKey, stableParams ? { params: stableParams } : undefined);
+      return async () => {
+        const items = await apiService.getMediaByEndpoint(stableEndpointKey, stableParams);
+        return { data: items };
+      };
     }
 
-    // --------- Videos ---------
+    // --------- Videos (via apiService) ---------
     if (resourceType === "videos") {
-      // Use endpointMap first
-      if (endpointMap && endpointMap[stableEndpointKey]) {
-        return () => videoService.byEndpoint(endpointMap[stableEndpointKey], stableParams);
-      }
-
-      // Check videosAPI keys
-      const videoCandidates = uniqueNonEmpty([
-        stableEndpointKey,
-        toCamelCase(stableEndpointKey),
-        applyAliases(stableEndpointKey),
-      ]);
-      for (const k of videoCandidates) {
-        if (typeof videosAPI[k] === "string") {
-          return () => publicAxios.get(videosAPI[k], stableParams ? { params: stableParams } : undefined);
-        }
-      }
-
-      // Default fallback
-      return () => videoService.list(stableParams);
+      return async () => {
+        const items = await apiService.getVideosByEndpoint(stableEndpointKey, stableParams);
+        return { data: items };
+      };
     }
 
     return null;
@@ -132,9 +91,16 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
       const res = await fetcher();
       let items = extractItems(res);
 
-      if (resourceType === "videos" && fallback && (!items || items.length === 0)) {
-        if (mountedRef.current) setData([fallbackVideoObject()]);
-        return;
+      // Apply fallbacks
+      if (fallback) {
+        if (resourceType === "videos" && (!items || items.length === 0)) {
+          if (mountedRef.current) setData([fallbackVideoObject()]);
+          return;
+        }
+        if (resourceType === "media" && (!items || items.length === 0)) {
+          if (mountedRef.current) setData([fallbackBannerObject()]);
+          return;
+        }
       }
 
       const finalItems = typeof transform === "function" ? transform(items) : items;
@@ -147,11 +113,18 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
       };
       console.error(`❌ API fetch failed for ${resourceType}:${stableEndpointKey}`, normalizedError);
 
-      if (resourceType === "videos" && fallback) {
-        if (mountedRef.current) { setData([fallbackVideoObject()]); setError(null); }
-      } else {
-        if (mountedRef.current) { setData([]); setError(normalizedError); }
+      if (fallback) {
+        if (resourceType === "videos") {
+          if (mountedRef.current) { setData([fallbackVideoObject()]); setError(null); }
+          return;
+        }
+        if (resourceType === "media") {
+          if (mountedRef.current) { setData([fallbackBannerObject()]); setError(null); }
+          return;
+        }
       }
+
+      if (mountedRef.current) { setData([]); setError(normalizedError); }
     } finally {
       if (mountedRef.current) setLoading(false);
     }
@@ -245,6 +218,18 @@ function fallbackVideoObject() {
   };
 }
 
+function fallbackBannerObject() {
+  return {
+    id: "fallback-banner",
+    type: "image",
+    title: "Fallback Banner",
+    image_url: FALLBACK_BANNER_PATH,
+    thumbnail: FALLBACK_BANNER_PATH,
+    is_active: true,
+    is_featured: true,
+  };
+}
+
 function safeNotify(notify, type, message) {
   if (typeof notify === "function" && message) {
     try { notify(type, message); } catch (e) { console.warn("[useFetcher] notify failed:", e); }
@@ -282,7 +267,3 @@ function inferResource(resourceType) {
 }
 
 function ensureTrailingSlash(str) { return !str || typeof str !== "string" ? "/" : str.endsWith("/") ? str : `${str}/`; }
-function toCamelCase(str) { return typeof str !== "string" ? "" : str.replace(/[-_\s]+([a-zA-Z0-9])/g, (_, c) => c.toUpperCase()); }
-function toMethodSuffix(str) { if (typeof str !== "string") return ""; const hasDelim = /[-_\s]/.test(str); if (hasDelim) return str.split(/[-_\s]+/).filter(Boolean).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(""); return str.charAt(0).toUpperCase() + str.slice(1); }
-function uniqueNonEmpty(arr) { const seen = new Set(); return arr.filter(v => { const ok = typeof v === "string" && v.length > 0 && !seen.has(v); if (ok) seen.add(v); return ok; }); }
-function applyAliases(key) { const aliases = { userMedia: "user", mediaItems: "all", media: "defaultList", default: "defaultList", list: "defaultList", all: "defaultList" }; return aliases[key] || key; }
