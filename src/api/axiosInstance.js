@@ -7,16 +7,18 @@ import { logoutHelper } from "../utils/authUtils";
 
 const MAX_RETRIES = 2;
 
-// Only log in development
+// ===== Development logger =====
 const devLog = (...args) => {
   if (process.env.NODE_ENV === "development") {
     rawDevLog(...args);
   }
 };
 
+// ===== Create axios instance =====
 const axiosInstance = axios.create({
   baseURL,
   timeout: 30000, // 30 seconds
+  withCredentials: true, // 👈 allow cookies in CORS requests
 });
 
 // ===== Storage Helper =====
@@ -129,9 +131,13 @@ axiosInstance.interceptors.response.use(
           process.env.REACT_APP_API_REFRESH_URL ||
           `${baseURL}/api/accounts/token/refresh/`;
 
-        const { data } = await axios.post(refreshUrl, { refresh: refreshToken });
-        const newAccess = data.access;
+        const { data } = await axios.post(
+          refreshUrl,
+          { refresh: refreshToken },
+          { withCredentials: true } // 👈 important for cookie-based refresh
+        );
 
+        const newAccess = data.access;
         if (!newAccess) {
           throw new Error("Refresh succeeded but no access token returned");
         }
