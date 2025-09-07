@@ -66,10 +66,10 @@ const contentService = {
   // -------- Videos --------
   getVideos: async (params = {}) => {
     const { endpoint, ...rest } = params;
-    let url = "/api/videos/videos/";
+    let url = "/videos/videos/";
 
     if (endpoint) {
-      url = `/api/videos/videos/${endpoint}/`; // e.g. /api/videos/videos/home/
+      url = `/videos/videos/${endpoint}/`; // e.g. /videos/videos/home/
     }
 
     return fetchAndNormalize(url, normalizeVideo, rest);
@@ -81,22 +81,22 @@ const contentService = {
 
   // -------- Promotions --------
   getPromotions: () =>
-    fetchAndNormalize("/api/promotions/", normalizePromotion),
+    fetchAndNormalize("/promotions/", normalizePromotion),
 
   // -------- Reviews --------
   getReviews: () =>
-    fetchAndNormalize("/api/reviews/", normalizeReview),
+    fetchAndNormalize("/reviews/", normalizeReview),
 
   // -------- Media --------
   getMedia: (params = {}) =>
-    fetchAndNormalize("/api/media/", normalizeMedia, params),
+    fetchAndNormalize("/media/", normalizeMedia, params),
 
   getMediaByEndpoint: async (endpoint, params = {}) => {
     // If your DRF MediaViewSet also has sub-actions like banners/featured,
     // you can mirror them here. Otherwise, just call getMedia.
-    let url = "/api/media/";
+    let url = "/media/";
     if (endpoint) {
-      url = `/api/media/${endpoint}/`;
+      url = `/media/${endpoint}/`;
     }
     return fetchAndNormalize(url, normalizeMedia, params);
   },
