@@ -126,16 +126,10 @@ const contentService = {
 
   // -------- Media --------
   getBanners: () =>
-    fetchAndNormalize(
-      () => publicAxios.get(mediaAPI.endpoints.banners),
-      normalizeMedia
-    ),
+    fetchAndNormalize(() => publicAxios.get(mediaAPI.banners), normalizeMedia),
 
   getMedia: () =>
-    fetchAndNormalize(
-      () => publicAxios.get(mediaAPI.endpoints.defaultList),
-      normalizeMedia
-    ),
+    fetchAndNormalize(() => publicAxios.get(mediaAPI.defaultList), normalizeMedia),
 };
 
 export default contentService;
