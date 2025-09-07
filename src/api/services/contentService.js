@@ -1,5 +1,7 @@
 // src/api/services/contentService.js
 import publicAxios from "../publicAxios";
+import videosAPI from "../videosAPI";
+import mediaAPI from "../mediaAPI";
 
 // --- Normalizers ---
 const normalizeVideo = (v = {}) => ({
@@ -51,9 +53,9 @@ const normalizeMedia = (m = {}) => ({
 const safeMap = (data, normalizer) =>
   Array.isArray(data) ? data.map(normalizer) : [];
 
-const fetchAndNormalize = async (url, normalizer, params = {}) => {
+const fetchAndNormalize = async (fn, normalizer) => {
   try {
-    const res = await publicAxios.get(url, { params });
+    const res = await fn();
     return safeMap(res?.data, normalizer);
   } catch (err) {
     console.error("API fetch error:", err);
@@ -65,41 +67,75 @@ const fetchAndNormalize = async (url, normalizer, params = {}) => {
 const contentService = {
   // -------- Videos --------
   getVideos: async (params = {}) => {
-    const { endpoint, ...rest } = params;
-    let url = "/videos/videos/";
+    try {
+      const { endpoint, ...rest } = params;
+      let res;
 
-    if (endpoint) {
-      url = `/videos/videos/${endpoint}/`; // e.g. /videos/videos/home/
+      switch (endpoint) {
+        case "home":
+          res = await videosAPI.home(rest);
+          break;
+        case "about":
+          res = await videosAPI.about(rest);
+          break;
+        case "decor":
+          res = await videosAPI.decor(rest);
+          break;
+        case "live_band":
+          res = await videosAPI.liveBand(rest);
+          break;
+        case "catering":
+          res = await videosAPI.catering(rest);
+          break;
+        case "media_hosting":
+          res = await videosAPI.mediaHosting(rest);
+          break;
+        case "vendor":
+          res = await videosAPI.vendor(rest);
+          break;
+        case "partner":
+          res = await videosAPI.partner(rest);
+          break;
+        case "user":
+          res = await videosAPI.user(rest);
+          break;
+        case "partner_dashboard":
+          res = await videosAPI.partnerDashboard(rest);
+          break;
+        case "agency_dashboard":
+          res = await videosAPI.agencyDashboard(rest);
+          break;
+        default:
+          res = await videosAPI.list(rest);
+      }
+
+      return safeMap(res?.data, normalizeVideo);
+    } catch (err) {
+      console.error("Error fetching videos:", err);
+      return [];
     }
-
-    return fetchAndNormalize(url, normalizeVideo, rest);
   },
-
-  // For useFetcher compatibility
-  getVideosByEndpoint: async (endpoint, params = {}) =>
-    contentService.getVideos({ endpoint, ...params }),
 
   // -------- Promotions --------
   getPromotions: () =>
-    fetchAndNormalize("/promotions/", normalizePromotion),
+    fetchAndNormalize(() => publicAxios.get("/promotions/"), normalizePromotion),
 
   // -------- Reviews --------
   getReviews: () =>
-    fetchAndNormalize("/reviews/", normalizeReview),
+    fetchAndNormalize(() => publicAxios.get("/reviews/"), normalizeReview),
 
   // -------- Media --------
-  getMedia: (params = {}) =>
-    fetchAndNormalize("/media/", normalizeMedia, params),
+  getBanners: () =>
+    fetchAndNormalize(
+      () => publicAxios.get(mediaAPI.endpoints.banners),
+      normalizeMedia
+    ),
 
-  getMediaByEndpoint: async (endpoint, params = {}) => {
-    // If your DRF MediaViewSet also has sub-actions like banners/featured,
-    // you can mirror them here. Otherwise, just call getMedia.
-    let url = "/media/";
-    if (endpoint) {
-      url = `/media/${endpoint}/`;
-    }
-    return fetchAndNormalize(url, normalizeMedia, params);
-  },
+  getMedia: () =>
+    fetchAndNormalize(
+      () => publicAxios.get(mediaAPI.endpoints.defaultList),
+      normalizeMedia
+    ),
 };
 
 export default contentService;

@@ -1,20 +1,23 @@
+// src/api/services/reviewService.js
 import publicAxios from '../publicAxios';
 import axiosInstance from '../axiosInstance';
-import reviewsAPI from '../reviewsAPI'; // should expose: list, create, adminList, approve(id), reply(id), delete(id)
+import reviewsAPI from '../reviewsAPI';
 
 const reviewService = {
-  // Public
-  getReviews: () => publicAxios.get(reviewsAPI.list),         // GET /api/reviews/
-  createReview: (data) => publicAxios.post(reviewsAPI.create, data),
+  // ----- Public -----
+  getReviews: () => publicAxios.get(reviewsAPI.list),    // GET approved reviews
+  getAll: () => publicAxios.get(reviewsAPI.list),        // Alias for compatibility
+  list: () => publicAxios.get(reviewsAPI.list),          // Another alias
 
-  // Admin
-  getAdminReviews: () => axiosInstance.get(reviewsAPI.adminList), // GET /api/reviews/admin/
-  approveReview: (id) => axiosInstance.post(reviewsAPI.approve(id)),
-  replyToReview: (id, reply) => axiosInstance.post(reviewsAPI.reply(id), { reply }),
-  deleteReview: (id) => axiosInstance.delete(reviewsAPI.delete(id)),
+  // NOTE: POST requires authentication (backend enforces IsAuthenticated)
+  createReview: (data) => axiosInstance.post(reviewsAPI.create, data),
 
-  // 🔁 Dashboard compatibility alias
-  list: () => publicAxios.get(reviewsAPI.list),
+  // ----- Admin -----
+  getAdminReviews: () => axiosInstance.get(reviewsAPI.adminList),   // GET all (admin)
+  approveReview: (id) => axiosInstance.post(reviewsAPI.approve(id)),// POST approve
+  replyToReview: (id, reply) =>
+    axiosInstance.post(reviewsAPI.reply(id), { reply }),            // POST reply
+  deleteReview: (id) => axiosInstance.delete(reviewsAPI.delete(id)),// DELETE review
 };
 
 export default reviewService;
