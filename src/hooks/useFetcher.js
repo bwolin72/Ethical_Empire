@@ -46,16 +46,22 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
       if (!stableEndpointKey || stableEndpointKey === "list" || stableEndpointKey === "all") {
         return () => publicAxios.get(promotionsAPI.list, stableParams ? { params: stableParams } : undefined);
       }
-      if (stableEndpointKey === "active") return () => publicAxios.get(promotionsAPI.active, stableParams ? { params: stableParams } : undefined);
-      if (stableEndpointKey === "detail") return (id) => publicAxios.get(promotionsAPI.detail(id));
+      if (stableEndpointKey === "active") {
+        return () => publicAxios.get(promotionsAPI.active, stableParams ? { params: stableParams } : undefined);
+      }
+      if (stableEndpointKey === "detail") {
+        return (id) => publicAxios.get(promotionsAPI.detail(id));
+      }
       const val = promotionsAPI?.[stableEndpointKey];
-      if (typeof val === "string") return () => publicAxios.get(val, stableParams ? { params: stableParams } : undefined);
+      if (typeof val === "string") {
+        return () => publicAxios.get(val, stableParams ? { params: stableParams } : undefined);
+      }
     }
 
     // --------- Media (via apiService) ---------
     if (resourceType === "media") {
       return async () => {
-        const items = await apiService.getMediaByEndpoint(stableEndpointKey, stableParams);
+        const items = await apiService.byEndpoint(stableEndpointKey, stableParams);
         return { data: items };
       };
     }

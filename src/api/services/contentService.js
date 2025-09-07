@@ -3,7 +3,9 @@ import publicAxios from "../publicAxios";
 import videosAPI from "../videosAPI";
 import mediaAPI from "../mediaAPI";
 
-// --- Normalizers ---
+// -------------------------
+// Normalizers
+// -------------------------
 const normalizeVideo = (v = {}) => ({
   id: v?.id ?? null,
   title: v?.title || v?.name || "",
@@ -49,87 +51,105 @@ const normalizeMedia = (m = {}) => ({
   is_active: m?.is_active ?? true,
 });
 
-// --- Helpers ---
+// -------------------------
+// Helpers
+// -------------------------
 const safeMap = (data, normalizer) =>
   Array.isArray(data) ? data.map(normalizer) : [];
 
-const fetchAndNormalize = async (fn, normalizer) => {
-  try {
-    const res = await fn();
-    return safeMap(res?.data, normalizer);
-  } catch (err) {
-    console.error("API fetch error:", err);
-    return [];
-  }
-};
+function normalizeResponse(res, normalizer) {
+  if (!res) return { data: [], status: null, error: "No response" };
+  return {
+    data: safeMap(res?.data, normalizer),
+    status: res?.status ?? 200,
+    error: null,
+  };
+}
 
-// --- Service ---
+function normalizeError(err) {
+  return {
+    data: [],
+    status: err?.response?.status || null,
+    error: err?.response?.data?.detail || err.message || "Request failed",
+  };
+}
+
+// -------------------------
+// Service
+// -------------------------
 const contentService = {
   // -------- Videos --------
-  getVideos: async (params = {}) => {
+  async getVideos(params = {}) {
+    const { endpoint, ...rest } = params;
+
+    const endpointMap = {
+      home: videosAPI.home,
+      about: videosAPI.about,
+      decor: videosAPI.decor,
+      live_band: videosAPI.liveBand,
+      catering: videosAPI.catering,
+      media_hosting: videosAPI.mediaHosting,
+      vendor: videosAPI.vendor,
+      partner: videosAPI.partner,
+      user: videosAPI.user,
+      partner_dashboard: videosAPI.partnerDashboard,
+      agency_dashboard: videosAPI.agencyDashboard,
+      default: videosAPI.list,
+    };
+
+    const fn = endpointMap[endpoint] || endpointMap.default;
+
     try {
-      const { endpoint, ...rest } = params;
-      let res;
-
-      switch (endpoint) {
-        case "home":
-          res = await videosAPI.home(rest);
-          break;
-        case "about":
-          res = await videosAPI.about(rest);
-          break;
-        case "decor":
-          res = await videosAPI.decor(rest);
-          break;
-        case "live_band":
-          res = await videosAPI.liveBand(rest);
-          break;
-        case "catering":
-          res = await videosAPI.catering(rest);
-          break;
-        case "media_hosting":
-          res = await videosAPI.mediaHosting(rest);
-          break;
-        case "vendor":
-          res = await videosAPI.vendor(rest);
-          break;
-        case "partner":
-          res = await videosAPI.partner(rest);
-          break;
-        case "user":
-          res = await videosAPI.user(rest);
-          break;
-        case "partner_dashboard":
-          res = await videosAPI.partnerDashboard(rest);
-          break;
-        case "agency_dashboard":
-          res = await videosAPI.agencyDashboard(rest);
-          break;
-        default:
-          res = await videosAPI.list(rest);
-      }
-
-      return safeMap(res?.data, normalizeVideo);
+      const res = await fn(rest);
+      return normalizeResponse(res, normalizeVideo);
     } catch (err) {
-      console.error("Error fetching videos:", err);
-      return [];
+      console.error("❌ Error fetching videos:", err);
+      return normalizeError(err);
     }
   },
 
   // -------- Promotions --------
-  getPromotions: () =>
-    fetchAndNormalize(() => publicAxios.get("/promotions/"), normalizePromotion),
+  async getPromotions() {
+    try {
+      const res = await publicAxios.get("/promotions/");
+      return normalizeResponse(res, normalizePromotion);
+    } catch (err) {
+      console.error("❌ Error fetching promotions:", err);
+      return normalizeError(err);
+    }
+  },
 
   // -------- Reviews --------
-  getReviews: () =>
-    fetchAndNormalize(() => publicAxios.get("/reviews/"), normalizeReview),
+  async getReviews() {
+    try {
+      const res = await publicAxios.get("/reviews/");
+      return normalizeResponse(res, normalizeReview);
+    } catch (err) {
+      console.error("❌ Error fetching reviews:", err);
+      return normalizeError(err);
+    }
+  },
 
   // -------- Media --------
-  getBanners: () =>
-    fetchAndNormalize(() => publicAxios.get(mediaAPI.banners), normalizeMedia),
+  async getBanners() {
+    try {
+      const res = await publicAxios.get(mediaAPI.banners);
+      return normalizeResponse(res, normalizeMedia);
+    } catch (err) {
+      console.error("❌ Error fetching banners:", err);
+      return normalizeError(err);
+    }
+  },
 
-  getMedia: () =>
-    fetchAndNormalize(() => publicAxios.get(mediaAPI.defaultList), normalizeMedia),
+  async getMedia() {
+    try {
+      const res = await publicAxios.get(mediaAPI.defaultList);
+      return normalizeResponse(res, normalizeMedia);
+    } catch (err) {
+      console.error("❌ Error fetching media:", err);
+      return normalizeError(err);
+    }
+  },
 };
 
 export default contentService;

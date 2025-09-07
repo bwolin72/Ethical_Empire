@@ -8,12 +8,14 @@ import BannerCards from "../context/BannerCards";
 import GalleryWrapper from "../gallery/GalleryWrapper";
 import VideoGallery from "../videos/VideoGallery";
 
-// --- Import direct service modules ---
-import VideoService from "../../api/services/videoService";
-import ServiceService from "../../api/services/serviceService";
-import ReviewService from "../../api/services/reviewService"; // if you have a separate service
+import contentService from "../../api/services/contentService";
+import serviceService from "../../api/services/serviceService";
 
 import "./About.css";
+
+// team assets
+import EuniceImg from "../../assets/team/eunice.png";
+import JosephImg from "../../assets/team/joseph.jpg";
 
 // --- Fallback media ---
 const FALLBACKS = {
@@ -22,21 +24,24 @@ const FALLBACKS = {
 };
 
 // --- Helpers ---
-const asArray = (res) => {
+const toArray = (res) => {
   if (!res) return [];
-  const data = res?.data ?? res;
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.results)) return data.results;
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res.data)) return res.data;
+  if (Array.isArray(res.data?.results)) return res.data.results;
+  if (Array.isArray(res.results)) return res.results;
+  if (Array.isArray(res.items)) return res.items;
   return [];
 };
 
 const safeFetch = async (fn, label = "") => {
   try {
     const res = await fn();
-    console.log(`[Success] ${label}:`, res);
-    return asArray(res);
+    const arr = toArray(res);
+    console.debug(`[safeFetch][${label}] result length: ${arr.length}`, res);
+    return arr;
   } catch (err) {
-    console.error(`[Error] ${label}:`, err);
+    console.error(`[safeFetch][${label}] error:`, err);
     return [];
   }
 };
@@ -50,82 +55,89 @@ const getMediaUrl = (media) => {
     media?.file ??
     media?.video_url ??
     media?.video_file ??
+    media?.image_url ??
     ""
   );
 };
 
 const About = () => {
   const navigate = useNavigate();
-
   const [bannerMedia, setBannerMedia] = useState([]);
   const [heroVideo, setHeroVideo] = useState(FALLBACKS.video);
   const [services, setServices] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
 
-  // --- Fetch all content ---
   useEffect(() => {
     let active = true;
 
     const fetchAll = async () => {
-      // ✅ Fetch videos directly from VideoService
+      // Videos for about page
       const banners = await safeFetch(
-        () => VideoService.getVideosByEndpoint("about", { is_active: true }),
+        () => contentService.getVideos({ endpoint: "about", is_active: true }),
         "Videos (About)"
       );
 
-      // ✅ Fetch services directly from ServiceService
-      const srv = await safeFetch(
-        () => ServiceService.getAll(), // adjust if your method is called differently
-        "Services"
-      );
+      // Services — call serviceService directly
+      const srv = await safeFetch(() => serviceService.getServices(), "Services");
 
-      // ✅ Fetch reviews from ReviewService or apiService.getReviews
-      const reviewsRaw = await safeFetch(
-        () => ReviewService.getAll(), // or apiService.getReviews()
-        "Reviews"
-      );
+      // Reviews
+      const reviewsRaw = await safeFetch(() => contentService.getReviews(), "Reviews");
 
       if (!active) return;
 
       const normReviews = reviewsRaw.map((r) => ({
-        id: r.id ?? r._id,
-        text: r.comment ?? r.message ?? r.content ?? "",
-        author: r.name ?? r.reviewer_name ?? "Anonymous",
+        id: r?.id ?? r?._id ?? null,
+        text: r?.comment ?? r?.message ?? r?.content ?? r?.text ?? "",
+        author: r?.name ?? r?.reviewer_name ?? r?.author ?? "Anonymous",
       }));
 
       setBannerMedia(banners);
       setServices(srv);
       setTestimonials(normReviews);
 
-      if (!srv.length) toast.warn("No services available currently.");
+      if (!srv || srv.length === 0) toast.warn("No services available currently.");
     };
 
     fetchAll();
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, []);
 
-  // --- Hero video selection ---
+  // choose hero video
   useEffect(() => {
-    if (bannerMedia.length) {
+    if (bannerMedia && bannerMedia.length) {
       const featured = bannerMedia.find(
-        (v) => v?.is_featured && getMediaUrl(v).endsWith(".mp4")
+        (v) => v?.is_featured && getMediaUrl(v).toLowerCase().endsWith(".mp4")
       );
-      const anyVideo = bannerMedia.find((v) => getMediaUrl(v).endsWith(".mp4"));
-      setHeroVideo(getMediaUrl(featured || anyVideo) || FALLBACKS.video);
+      const anyVideo = bannerMedia.find((v) =>
+        getMediaUrl(v).toLowerCase().endsWith(".mp4")
+      );
+      const chosen = featured || anyVideo;
+      setHeroVideo(getMediaUrl(chosen) || FALLBACKS.video);
     } else {
       setHeroVideo(FALLBACKS.video);
     }
   }, [bannerMedia]);
 
-  const heroBannerImage = bannerMedia[0]
-    ? getMediaUrl(bannerMedia[0])
-    : FALLBACKS.image;
-
   const galleryItems = bannerMedia.length
     ? bannerMedia.map((m) => ({ url: getMediaUrl(m) }))
     : [{ url: FALLBACKS.image }];
+
+  const TEAM = [
+    {
+      id: "team-eunice",
+      name: "Eunice",
+      role: "Operations & Client Relations",
+      image: EuniceImg,
+      bio: "Ensures smooth coordination and a top-notch client experience.",
+    },
+    {
+      id: "team-joseph",
+      name: "Joseph",
+      role: "Creative Lead",
+      image: JosephImg,
+      bio: "Creative direction across music, visuals and live events.",
+    },
+  ];
 
   return (
     <div className="about-container">
@@ -135,12 +147,10 @@ const About = () => {
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
       >
-        <Link to="/bookings" className="sticky-cta-link">
-          Let’s Talk
-        </Link>
+        <Link to="/bookings" className="sticky-cta-link">Let’s Talk</Link>
       </motion.div>
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="about-hero">
         <VideoGallery
           videos={[{ url: heroVideo }]}
@@ -152,58 +162,65 @@ const About = () => {
           title="Ethical Multimedia GH"
           subtitle="Crafting unforgettable experiences across music, visuals, and events."
           actions={[
-            {
-              label: "Book a Service",
-              onClick: () => navigate("/bookings"),
-              className: "btn-primary",
-            },
-            {
-              label: "Why Choose Us",
-              onClick: () =>
-                document.getElementById("why-us")?.scrollIntoView(),
-              className: "btn-ghost",
-            },
+            { label: "Book a Service", onClick: () => navigate("/bookings"), className: "btn-primary" },
+            { label: "Why Choose Us", onClick: () => document.getElementById("why-us")?.scrollIntoView(), className: "btn-ghost" },
           ]}
         />
       </section>
 
-      {/* Intro Section */}
+      {/* Intro */}
       <section className="intro text-center">
         <h2 className="section-heading">Who We Are</h2>
-        <p className="subtext">
-          We don’t just offer services — we deliver lasting impressions.
-        </p>
+        <p className="subtext">We don’t just offer services — we deliver lasting impressions.</p>
       </section>
 
-      {/* Visual Stories / Featured Media */}
+      {/* Visual Stories */}
       <BannerCards endpoint="about" title="Explore Our Visual Stories" />
 
       {/* Services */}
-      {services.length > 0 && (
-        <section className="service-grid">
-          <h2 className="section-heading">What We Do</h2>
-          <div className="service-grid-inner">
-            {services.map(({ id, icon_url, title, name, description }) => (
-              <article key={id} className="service-card" tabIndex={0}>
-                {icon_url && (
-                  <img
-                    src={icon_url}
-                    alt={title || name}
-                    className="service-icon-img"
-                  />
-                )}
-                <h3 className="service-title">{title || name}</h3>
-                {description && <p className="service-desc">{description}</p>}
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+      <section className="service-grid">
+        <h2 className="section-heading">What We Do</h2>
+        <div className="service-grid-inner">
+          {services.length > 0 ? (
+            services.map((s) => {
+              const id = s?.id ?? s?._id ?? s?.slug ?? Math.random();
+              const icon = s?.icon_url || s?.icon || s?.image_url || null;
+              const title = s?.title || s?.name || s?.label || "";
+              return (
+                <article key={id} className="service-card" tabIndex={0}>
+                  {icon && <img src={icon} alt={title} className="service-icon-img" />}
+                  <h3 className="service-title">{title}</h3>
+                  {s?.description && <p className="service-desc">{s.description}</p>}
+                </article>
+              );
+            })
+          ) : (
+            <p className="muted">Services will be listed here when available.</p>
+          )}
+        </div>
+      </section>
 
-      {/* Gallery Showcase */}
+      {/* Gallery */}
       <section className="gallery-showcase">
         <h2 className="section-heading">Gallery</h2>
         <GalleryWrapper items={galleryItems} />
+      </section>
+
+      {/* Team */}
+      <section className="team-section">
+        <h2 className="section-heading">Meet Our Team</h2>
+        <div className="team-grid">
+          {TEAM.map((m) => (
+            <article key={m.id} className="team-member">
+              <div className="team-photo-wrap">
+                <img src={m.image} alt={m.name} className="team-photo" />
+              </div>
+              <h3 className="team-name">{m.name}</h3>
+              <p className="team-role">{m.role}</p>
+              <p className="team-bio">{m.bio}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       {/* Testimonials */}
