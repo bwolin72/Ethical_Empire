@@ -23,7 +23,7 @@ const normalizeVideo = (v = {}) => ({
     : typeof v?.tags === "string"
       ? v.tags.split(",").map((t) => t.trim())
       : [],
-  endpoints: v?.endpoints || [], // ✅ backend sends this for filtering
+  endpoints: v?.endpoints || [],
 });
 
 const normalizePromotion = (p = {}) => ({
@@ -34,9 +34,9 @@ const normalizePromotion = (p = {}) => ({
   videoUrl: p?.video || p?.video_url || null,
   html: p?.html_content || "",
   is_active: p?.is_active ?? true,
-  is_active_override: p?.is_active_override ?? false, // ✅ admin override
-  start_time: p?.start_time || null,                 // ✅ scheduling
-  end_time: p?.end_time || null,                     // ✅ scheduling
+  is_active_override: p?.is_active_override ?? false,
+  start_time: p?.start_time || null,
+  end_time: p?.end_time || null,
   created_at: p?.created_at || null,
 });
 
@@ -45,8 +45,8 @@ const normalizeReview = (r = {}) => ({
   author: r?.user?.username || r?.author || r?.name || "Anonymous",
   rating: r?.rating ?? null,
   content: r?.content || r?.text || r?.comment || "",
-  reply: r?.reply || null,             // ✅ admin reply
-  approved: r?.approved ?? false,      // ✅ backend approval flag
+  reply: r?.reply || null,
+  approved: r?.approved ?? false,
   created_at: r?.created_at || null,
 });
 
@@ -138,22 +138,37 @@ const contentService = {
   },
 
   // -------- Media --------
-  async getBanners(params = {}) {
-    try {
-      const res = await mediaAPI.banners(params);
-      return normalizeResponse(res, normalizeMedia);
-    } catch (err) {
-      console.error("❌ Error fetching banners:", err);
-      return normalizeError(err);
-    }
-  },
-
   async getMedia(params = {}) {
+    const { type, endpoint, ...rest } = params;
+
+    const endpointMap = {
+      banners: mediaAPI.banners,
+      catering: mediaAPI.catering,
+      decor: mediaAPI.decor,
+      featured: mediaAPI.featured,
+      home: mediaAPI.home,
+      live_band: mediaAPI.liveBand,
+      media_hosting: mediaAPI.mediaHosting,
+      partner_vendor_dashboard: mediaAPI.partnerVendorDashboard,
+      partner: mediaAPI.partner,
+      reorder: mediaAPI.reorder,
+      stats: mediaAPI.stats,
+      upload: mediaAPI.upload,
+      user: mediaAPI.user,
+      vendor: mediaAPI.vendor,
+      all: mediaAPI.all,
+      archived: mediaAPI.archived,
+      about: mediaAPI.about,
+      default: mediaAPI.defaultList,
+    };
+
+    const fn = endpointMap[endpoint] || endpointMap.default;
+
     try {
-      const res = await mediaAPI.defaultList(params);
+      const res = await fn(rest);
       return normalizeResponse(res, normalizeMedia);
     } catch (err) {
-      console.error("❌ Error fetching media:", err);
+      console.error(`❌ Error fetching media (${endpoint || "default"}):`, err);
       return normalizeError(err);
     }
   },
