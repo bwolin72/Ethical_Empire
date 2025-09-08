@@ -1,7 +1,8 @@
 // src/api/services/contentService.js
-import publicAxios from "../publicAxios";
 import videosAPI from "../videosAPI";
 import mediaAPI from "../mediaAPI";
+import reviewsAPI from "../reviewsAPI";
+import promotionsAPI from "../promotionsAPI";
 
 // -------------------------
 // Normalizers
@@ -22,30 +23,36 @@ const normalizeVideo = (v = {}) => ({
     : typeof v?.tags === "string"
       ? v.tags.split(",").map((t) => t.trim())
       : [],
+  endpoints: v?.endpoints || [], // ✅ backend sends this for filtering
 });
 
 const normalizePromotion = (p = {}) => ({
   id: p?.id ?? null,
   title: p?.title || "",
   description: p?.description || "",
-  imageUrl: p?.image_url || p?.image || null,
-  videoUrl: p?.video_url || p?.video || null,
+  imageUrl: p?.image || p?.image_url || null,
+  videoUrl: p?.video || p?.video_url || null,
   html: p?.html_content || "",
   is_active: p?.is_active ?? true,
+  is_active_override: p?.is_active_override ?? false, // ✅ admin override
+  start_time: p?.start_time || null,                 // ✅ scheduling
+  end_time: p?.end_time || null,                     // ✅ scheduling
   created_at: p?.created_at || null,
 });
 
 const normalizeReview = (r = {}) => ({
   id: r?.id ?? null,
-  author: r?.author || r?.name || "Anonymous",
+  author: r?.user?.username || r?.author || r?.name || "Anonymous",
   rating: r?.rating ?? null,
   content: r?.content || r?.text || r?.comment || "",
+  reply: r?.reply || null,             // ✅ admin reply
+  approved: r?.approved ?? false,      // ✅ backend approval flag
   created_at: r?.created_at || null,
 });
 
 const normalizeMedia = (m = {}) => ({
   id: m?.id ?? null,
-  title: m?.label || m?.title || "",
+  title: m?.title || m?.label || "",
   url: m?.url?.full || m?.file_url || m?.image_url || m?.url || "",
   type: m?.file_type || "image",
   is_active: m?.is_active ?? true,
@@ -109,9 +116,9 @@ const contentService = {
   },
 
   // -------- Promotions --------
-  async getPromotions() {
+  async getPromotions(params = {}) {
     try {
-      const res = await publicAxios.get("/promotions/");
+      const res = await promotionsAPI.list(params);
       return normalizeResponse(res, normalizePromotion);
     } catch (err) {
       console.error("❌ Error fetching promotions:", err);
@@ -120,9 +127,9 @@ const contentService = {
   },
 
   // -------- Reviews --------
-  async getReviews() {
+  async getReviews(params = {}) {
     try {
-      const res = await publicAxios.get("/reviews/");
+      const res = await reviewsAPI.list(params);
       return normalizeResponse(res, normalizeReview);
     } catch (err) {
       console.error("❌ Error fetching reviews:", err);
@@ -131,9 +138,9 @@ const contentService = {
   },
 
   // -------- Media --------
-  async getBanners() {
+  async getBanners(params = {}) {
     try {
-      const res = await publicAxios.get(mediaAPI.banners);
+      const res = await mediaAPI.banners(params);
       return normalizeResponse(res, normalizeMedia);
     } catch (err) {
       console.error("❌ Error fetching banners:", err);
@@ -141,9 +148,9 @@ const contentService = {
     }
   },
 
-  async getMedia() {
+  async getMedia(params = {}) {
     try {
-      const res = await publicAxios.get(mediaAPI.defaultList);
+      const res = await mediaAPI.defaultList(params);
       return normalizeResponse(res, normalizeMedia);
     } catch (err) {
       console.error("❌ Error fetching media:", err);
