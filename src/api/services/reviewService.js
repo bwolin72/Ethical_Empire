@@ -14,3 +14,5 @@ export const reviewService = {
   reply: (id, payload) => axiosInstance.post(reviewsAPI.reply(id), payload),
   adminList: () => axiosInstance.get(reviewsAPI.adminList()),
 };
+
+export default reviewService;
