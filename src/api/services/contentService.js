@@ -21,8 +21,8 @@ const normalizeVideo = (v = {}) => ({
   tags: Array.isArray(v?.tags)
     ? v.tags
     : typeof v?.tags === "string"
-      ? v.tags.split(",").map((t) => t.trim())
-      : [],
+    ? v.tags.split(",").map((t) => t.trim())
+    : [],
   endpoints: v?.endpoints || [],
 });
 
@@ -54,7 +54,7 @@ const normalizeMedia = (m = {}) => ({
   id: m?.id ?? null,
   title: m?.title || m?.label || "",
   url: m?.url?.full || m?.file_url || m?.image_url || m?.url || "",
-  type: m?.file_type || "image",
+  type: m?.type || "image",
   is_active: m?.is_active ?? true,
 });
 
@@ -88,24 +88,21 @@ const contentService = {
   // -------- Videos --------
   async getVideos(params = {}) {
     const { endpoint, ...rest } = params;
-
     const endpointMap = {
       home: videosAPI.home,
       about: videosAPI.about,
       decor: videosAPI.decor,
-      live_band: videosAPI.liveBand,
+      live_band: videosAPI.live_band,
       catering: videosAPI.catering,
-      media_hosting: videosAPI.mediaHosting,
+      media_hosting: videosAPI.media_hosting,
       vendor: videosAPI.vendor,
       partner: videosAPI.partner,
       user: videosAPI.user,
-      partner_dashboard: videosAPI.partnerDashboard,
-      agency_dashboard: videosAPI.agencyDashboard,
+      partner_dashboard: videosAPI.partner_dashboard,
+      agency_dashboard: videosAPI.agency_dashboard,
       default: videosAPI.list,
     };
-
     const fn = endpointMap[endpoint] || endpointMap.default;
-
     try {
       const res = await fn(rest);
       return normalizeResponse(res, normalizeVideo);
@@ -139,31 +136,25 @@ const contentService = {
 
   // -------- Media --------
   async getMedia(params = {}) {
-    const { type, endpoint, ...rest } = params;
-
+    const { endpoint, ...rest } = params;
     const endpointMap = {
-      banners: mediaAPI.banners,
+      banners: mediaAPI.banner,
       catering: mediaAPI.catering,
       decor: mediaAPI.decor,
       featured: mediaAPI.featured,
       home: mediaAPI.home,
-      live_band: mediaAPI.liveBand,
-      media_hosting: mediaAPI.mediaHosting,
+      live_band: mediaAPI.live_band,
+      media_hosting: mediaAPI.media_hosting,
       partner_vendor_dashboard: mediaAPI.partnerVendorDashboard,
       partner: mediaAPI.partner,
-      reorder: mediaAPI.reorder,
-      stats: mediaAPI.stats,
-      upload: mediaAPI.upload,
       user: mediaAPI.user,
       vendor: mediaAPI.vendor,
       all: mediaAPI.all,
       archived: mediaAPI.archived,
       about: mediaAPI.about,
-      default: mediaAPI.defaultList,
+      default: mediaAPI.list,
     };
-
     const fn = endpointMap[endpoint] || endpointMap.default;
-
     try {
       const res = await fn(rest);
       return normalizeResponse(res, normalizeMedia);
