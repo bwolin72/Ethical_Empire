@@ -3,11 +3,11 @@ import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import reviewsAPI from "../reviewsAPI";
 
-export const reviewService = {
-  // Public endpoints (no auth)
+const reviewService = {
+  // Public endpoints
   list: (params) => publicAxios.get(reviewsAPI.listCreate(), params ? { params } : undefined),
 
-  // Admin/authenticated endpoints
+  // Admin / Authenticated endpoints
   create: (payload) => axiosInstance.post(reviewsAPI.listCreate(), payload),
   approve: (id) => axiosInstance.patch(reviewsAPI.approve(id)),
   delete: (id) => axiosInstance.delete(reviewsAPI.delete(id)),
