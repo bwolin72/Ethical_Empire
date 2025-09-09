@@ -1,30 +1,15 @@
 // src/api/videosAPI.js
-import publicAxios from "./publicAxios";
-import baseURL from "./baseURL";
+
+const BASE = "/videos/";
 
 const videosAPI = {
-  // Generic list
-  list: (params) => publicAxios.get(`${baseURL}/videos/videos/`, { params }),
-
-  // Endpoint-specific
-  home: (params) => publicAxios.get(`${baseURL}/videos/videos/home/`, { params }),
-  about: (params) => publicAxios.get(`${baseURL}/videos/videos/about/`, { params }),
-  decor: (params) => publicAxios.get(`${baseURL}/videos/videos/decor/`, { params }),
-  liveBand: (params) => publicAxios.get(`${baseURL}/videos/videos/live_band/`, { params }),
-  catering: (params) => publicAxios.get(`${baseURL}/videos/videos/catering/`, { params }),
-  mediaHosting: (params) => publicAxios.get(`${baseURL}/videos/videos/media_hosting/`, { params }),
-  vendor: (params) => publicAxios.get(`${baseURL}/videos/videos/vendor/`, { params }),
-  partner: (params) => publicAxios.get(`${baseURL}/videos/videos/partner/`, { params }),
-  user: (params) => publicAxios.get(`${baseURL}/videos/videos/user/`, { params }),
-  partnerDashboard: (params) => publicAxios.get(`${baseURL}/videos/videos/partner_dashboard/`, { params }),
-  agencyDashboard: (params) => publicAxios.get(`${baseURL}/videos/videos/agency_dashboard/`, { params }),
-
-  // Admin-only
-  upload: (data) => publicAxios.post(`${baseURL}/videos/videos/`, data),
-  update: (id, data) => publicAxios.patch(`${baseURL}/videos/videos/${id}/`, data),
-  delete: (id) => publicAxios.delete(`${baseURL}/videos/videos/${id}/`),
-  toggle: (id) => publicAxios.post(`${baseURL}/videos/videos/${id}/toggle_active/`),
-  toggleFeatured: (id) => publicAxios.post(`${baseURL}/videos/videos/${id}/toggle_featured/`),
+  list: () => `${BASE}`,
+  active: () => `${BASE}active/`,
+  detail: (id) => `${BASE}${id}/`,
+  create: () => `${BASE}create/`,
+  update: (id) => `${BASE}${id}/update/`,
+  delete: (id) => `${BASE}${id}/delete/`,
+  defaultList: () => `${BASE}`,
 };
 
 export default videosAPI;

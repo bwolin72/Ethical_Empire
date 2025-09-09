@@ -1,16 +1,19 @@
-import publicAxios from '../publicAxios';
-import axiosInstance from '../axiosInstance'; // keep for future admin-only actions
-// If you have ../promotionsAPI, swap these strings for constants.
-const PROMO = {
-  list: '/api/promotions/',           // GET list/create
-  active: '/api/promotions/active/',  // GET active
-  detail: (id) => `/api/promotions/${id}/`, // GET detail
+// src/api/services/promotionService.js
+
+import apiInstance from "../axiosInstance";
+import publicAxios from "../publicAxios";
+import promotionsAPI from "../promotionsAPI";
+
+const promotionService = {
+  // Public GET
+  list: (params) => publicAxios.get(promotionsAPI.list(), { params }),
+  active: (params) => publicAxios.get(promotionsAPI.active(), { params }),
+  detail: (id) => publicAxios.get(promotionsAPI.detail(id)),
+
+  // Authenticated CRUD
+  create: (data) => apiInstance.post(promotionsAPI.create(), data),
+  update: (id, data) => apiInstance.patch(promotionsAPI.update(id), data),
+  remove: (id) => apiInstance.delete(promotionsAPI.delete(id)),
 };
 
-const promotionsService = {
-  list: (params = {}) => publicAxios.get(PROMO.list, { params }),
-  active: () => publicAxios.get(PROMO.active),
-  detail: (id) => publicAxios.get(PROMO.detail(id)),
-};
-
-export default promotionsService;
+export default promotionService;

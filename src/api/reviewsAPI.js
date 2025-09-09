@@ -1,16 +1,12 @@
 // src/api/reviewsAPI.js
-import baseURL from './baseURL';
+const BASE = "/reviews/";
 
 const reviewsAPI = {
-  // Public
-  list: `${baseURL}/reviews/`,                     // GET approved reviews
-  create: `${baseURL}/reviews/`,                   // POST new review
-
-  // Admin-only
-  adminList: `${baseURL}/reviews/admin/`,          // GET all reviews (admin only)
-  approve: (id) => `${baseURL}/reviews/${id}/approve/`, // POST approve
-  reply: (id) => `${baseURL}/reviews/${id}/reply/`,     // POST reply
-  delete: (id) => `${baseURL}/reviews/${id}/delete/`,   // DELETE review (correct path)
+  listCreate: () => BASE,
+  approve: (id) => `${BASE}${id}/approve/`,
+  delete: (id) => `${BASE}${id}/delete/`,
+  reply: (id) => `${BASE}${id}/reply/`,
+  adminList: () => `${BASE}admin/`,
 };
 
 export default reviewsAPI;
