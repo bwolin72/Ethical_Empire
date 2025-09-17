@@ -1,7 +1,7 @@
 // src/api/apiService.js
 import baseURL from "./baseURL";
 
-// ----- Centralised endpoint definitions -----
+// ---- Grouped endpoints (organized for devs) ----
 export const API_ENDPOINTS = {
   media: {
     all: `${baseURL}/media/all/`,
@@ -39,9 +39,17 @@ export const API_ENDPOINTS = {
   },
 };
 
-// ----- Default export for backward compatibility -----
-const apiService = {
-  API_ENDPOINTS,
+// ---- Flat aliases for useFetcher ----
+export const FLAT_ENDPOINTS = {
+  media: API_ENDPOINTS.media.all,
+  banners: API_ENDPOINTS.media.banners,
+  about: API_ENDPOINTS.media.about,
+  videos: API_ENDPOINTS.videos.all,
+  services: API_ENDPOINTS.services.all,
+  reviews: API_ENDPOINTS.reviews.all,
+  promotions: API_ENDPOINTS.promotions.all,
 };
 
+// ---- Default export for backwards compatibility ----
+const apiService = { API_ENDPOINTS, FLAT_ENDPOINTS };
 export default apiService;
