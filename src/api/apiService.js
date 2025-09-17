@@ -1,6 +1,7 @@
 // src/api/apiService.js
 import baseURL from "./baseURL";
 
+// ----- Centralised endpoint definitions -----
 export const API_ENDPOINTS = {
   media: {
     all: `${baseURL}/media/all/`,
@@ -14,7 +15,6 @@ export const API_ENDPOINTS = {
 
   videos: {
     all: `${baseURL}/videos/videos/`,
-    // You could add helpers for toggle endpoints if needed:
     toggleActive: (id) => `${baseURL}/videos/videos/${id}/toggle_active/`,
     toggleFeatured: (id) => `${baseURL}/videos/videos/${id}/toggle_featured/`,
   },
@@ -38,3 +38,10 @@ export const API_ENDPOINTS = {
     detail: (id) => `${baseURL}/promotions/${id}/`,
   },
 };
+
+// ----- Default export for backward compatibility -----
+const apiService = {
+  API_ENDPOINTS,
+};
+
+export default apiService;
