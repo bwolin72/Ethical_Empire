@@ -39,3 +39,16 @@ export const sendNewsletter = (payload) =>
 
 export const deleteSubscriber = (id) =>
   axiosInstance.delete(`/api/newsletter/delete/${id}/`);
+
+export default {
+  subscribe,
+  confirmSubscription,
+  unsubscribe,
+  resubscribe,
+  resendConfirmation,
+  fetchSubscribers,
+  fetchSubscriberCount,
+  fetchNewsletterLogs,
+  sendNewsletter,
+  deleteSubscriber,
+};

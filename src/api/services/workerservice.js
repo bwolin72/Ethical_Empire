@@ -35,7 +35,7 @@ const normalizeTask = (t) => ({
   title: t.title,
   description: t.description,
   service: t.service || null,
-  serviceId: t.service && t.service.id ? t.service.id : t.service_id || null,
+  serviceId: t.service?.id || t.service_id || null,
   bookingId: t.booking || t.booking_id || null,
   assignedTo: t.assigned_to || null,
   assignedToName: t.assigned_to_name || null,
@@ -89,38 +89,32 @@ const normalizeCalendarItem = (c) => ({
 
 /* ----------------- Worker Service ----------------- */
 
-export const workerService = {
+export const WorkersService = {
   // Workers
   async listWorkers(params = {}) {
     const data = await workersAPI.list(params);
     return Array.isArray(data) ? data.map(normalizeWorker) : [];
   },
-
   async getWorker(id) {
     const data = await workersAPI.retrieve(id);
     return normalizeWorker(data);
   },
-
   async getMyProfile() {
     const data = await workersAPI.me();
     return normalizeWorker(data);
   },
-
   async createWorker(payload) {
     const data = await workersAPI.create(payload);
     return normalizeWorker(data);
   },
-
   async updateWorker(id, payload) {
     const data = await workersAPI.update(id, payload);
     return normalizeWorker(data);
   },
-
   async partialUpdateWorker(id, payload) {
     const data = await workersAPI.partialUpdate(id, payload);
     return normalizeWorker(data);
   },
-
   async deleteWorker(id) {
     await workersAPI.delete(id);
     return true;
@@ -131,55 +125,43 @@ export const workerService = {
     const data = await tasksAPI.list(params);
     return Array.isArray(data) ? data.map(normalizeTask) : [];
   },
-
   async getTask(id) {
     const data = await tasksAPI.retrieve(id);
     return normalizeTask(data);
   },
-
   async createTask(payload) {
     const data = await tasksAPI.create(payload);
     return normalizeTask(data);
   },
-
   async updateTask(id, payload) {
     const data = await tasksAPI.update(id, payload);
     return normalizeTask(data);
   },
-
   async partialUpdateTask(id, payload) {
     const data = await tasksAPI.partialUpdate(id, payload);
     return normalizeTask(data);
   },
-
   async deleteTask(id) {
     await tasksAPI.delete(id);
     return true;
   },
-
-  // Task actions
   async startTask(id) {
     const data = await tasksAPI.start(id);
     return normalizeTask(data);
   },
-
   async pauseTask(id) {
     const data = await tasksAPI.pause(id);
     return normalizeTask(data);
   },
-
   async resumeTask(id) {
     const data = await tasksAPI.resume(id);
     return normalizeTask(data);
   },
-
   async completeTask(id) {
     const data = await tasksAPI.complete(id);
     return normalizeTask(data);
   },
-
   async setTaskProgress(id, progress) {
-    // validate locally as well
     const p = Number(progress);
     if (!Number.isInteger(p) || p < 0 || p > 100) {
       throw new Error("Progress must be an integer between 0 and 100.");
@@ -193,17 +175,14 @@ export const workerService = {
     const data = await commentsAPI.list(params);
     return Array.isArray(data) ? data.map(normalizeComment) : [];
   },
-
   async createComment(payload) {
     const data = await commentsAPI.create(payload);
     return normalizeComment(data);
   },
-
   async updateComment(id, payload) {
     const data = await commentsAPI.update(id, payload);
     return normalizeComment(data);
   },
-
   async deleteComment(id) {
     await commentsAPI.delete(id);
     return true;
@@ -214,17 +193,14 @@ export const workerService = {
     const data = await notificationsAPI.list(params);
     return Array.isArray(data) ? data.map(normalizeNotification) : [];
   },
-
   async getNotification(id) {
     const data = await notificationsAPI.retrieve(id);
     return normalizeNotification(data);
   },
-
   async markAllNotificationsRead() {
     await notificationsAPI.markAllRead();
     return true;
   },
-
   async markNotificationRead(id) {
     await notificationsAPI.markRead(id);
     return true;
@@ -235,10 +211,8 @@ export const workerService = {
     const data = await miscAPI.calendar(params);
     return Array.isArray(data) ? data.map(normalizeCalendarItem) : [];
   },
-
   async getStats(params = {}) {
     const data = await miscAPI.stats(params);
-    // data shape from backend: { total, assigned, in_progress, completed, time_spent_seconds }
     return {
       total: data.total ?? 0,
       assigned: data.assigned ?? 0,
@@ -249,4 +223,5 @@ export const workerService = {
   },
 };
 
-export default workerService;
+// Default export for backward compatibility
+export default WorkersService;
