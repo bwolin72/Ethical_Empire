@@ -1,23 +1,19 @@
-// src/api/authAPI.js
 import baseURL from "./baseURL";
-import axiosInstance from "./axiosInstance";
 
 const endpoints = {
-  // Auth
+  // ===== AUTH =====
   login: `${baseURL}/accounts/login/`,
   logout: `${baseURL}/accounts/profile/logout/`,
 
-  // Registration
-  register: `${baseURL}/accounts/register/`,
-  registerPartner: `${baseURL}/accounts/register/partner/`,
-  registerVendor: `${baseURL}/accounts/register/vendor/`,
-  internalRegister: `${baseURL}/accounts/internal-register/`,
+  // ===== REGISTRATION =====
+  register: `${baseURL}/accounts/register/`, // Handles user, partner, vendor, worker, internal
+  internalRegister: `${baseURL}/accounts/internal-register/`, // Optional legacy
 
-  // Google Auth
+  // ===== SOCIAL AUTH =====
   googleLogin: `${baseURL}/accounts/google-login/`,
   googleRegister: `${baseURL}/accounts/google-register/`,
 
-  // Profile
+  // ===== PROFILE =====
   profile: `${baseURL}/accounts/profile/`,
   changePassword: `${baseURL}/accounts/profile/change-password/`,
   profileByEmail: `${baseURL}/accounts/profile-by-email/`,
@@ -26,17 +22,17 @@ const endpoints = {
   currentUserRole: `${baseURL}/accounts/profile/role/`,
   roleChoices: `${baseURL}/accounts/role-choices/`,
 
-  // Password reset
+  // ===== PASSWORD RESET =====
   resetPassword: `${baseURL}/accounts/reset-password/`,
   resetPasswordConfirm: (uidb64, token) =>
     `${baseURL}/accounts/reset-password-confirm/${uidb64}/${token}/`,
 
-  // JWT
+  // ===== TOKENS (JWT) =====
   token: `${baseURL}/accounts/token/`,
   tokenRefresh: `${baseURL}/accounts/token/refresh/`,
   tokenVerify: `${baseURL}/accounts/token/verify/`,
 
-  // Email / OTP
+  // ===== EMAIL / OTP =====
   verifyEmail: (uid, token) => `${baseURL}/accounts/verify-email/${uid}/${token}/`,
   resendOtp: `${baseURL}/accounts/resend-otp/`,
   resendOtpEmail: `${baseURL}/accounts/resend-otp/email/`,
@@ -44,18 +40,18 @@ const endpoints = {
   verifyOtpEmail: `${baseURL}/accounts/verify-otp/email/`,
   resendWelcomeEmail: `${baseURL}/accounts/resend-welcome-email/`,
 
-  // Admin
+  // ===== ADMIN =====
   adminListUsers: `${baseURL}/accounts/admin/list-users/`,
   adminResetPassword: `${baseURL}/accounts/admin-reset-password/`,
   adminInviteWorker: `${baseURL}/accounts/admin/invite-worker/`,
 
-  // Workers
+  // ===== WORKERS =====
   workerValidateInvite: (uid, token) =>
     `${baseURL}/accounts/worker/validate-invite/${uid}/${token}/`,
   workerCompleteInvite: `${baseURL}/accounts/worker/complete-invite/`,
   workerCategories: `${baseURL}/accounts/worker-categories/`,
 
-  // Profiles + comms
+  // ===== PROFILES / BULK =====
   profilesList: `${baseURL}/accounts/profiles/list/`,
   profilesProfile: `${baseURL}/accounts/profiles/profile/`,
   sendMessageToUsers: `${baseURL}/accounts/profiles/send-message/`,
@@ -63,75 +59,8 @@ const endpoints = {
   toggleUserActive: (userId) =>
     `${baseURL}/accounts/profiles/toggle-active/${userId}/`,
 
-  // Internal
+  // ===== INTERNAL =====
   deleteByEmail: `${baseURL}/accounts/delete-by-email/`,
 };
 
-const authAPI = {
-  endpoints,
-
-  // Auth
-  login: (data) => axiosInstance.post(endpoints.login, data),
-  logout: () => axiosInstance.post(endpoints.logout),
-
-  // Registration
-  register: (data) => axiosInstance.post(endpoints.register, data),
-  registerPartner: (data) => axiosInstance.post(endpoints.registerPartner, data),
-  registerVendor: (data) => axiosInstance.post(endpoints.registerVendor, data),
-  internalRegister: (data) => axiosInstance.post(endpoints.internalRegister, data),
-
-  // Google Auth
-  googleLogin: (data) => axiosInstance.post(endpoints.googleLogin, data),
-  googleRegister: (data) => axiosInstance.post(endpoints.googleRegister, data),
-
-  // Profile
-  getProfile: () => axiosInstance.get(endpoints.profile),
-  updateProfile: (data) => axiosInstance.patch(endpoints.profile, data),
-  changePassword: (data) => axiosInstance.post(endpoints.changePassword, data),
-  getProfileByEmail: (data) => axiosInstance.post(endpoints.profileByEmail, data),
-  getPartnerProfile: () => axiosInstance.get(endpoints.partnerProfile),
-  getVendorProfile: () => axiosInstance.get(endpoints.vendorProfile),
-  getCurrentUserRole: () => axiosInstance.get(endpoints.currentUserRole),
-  getRoleChoices: () => axiosInstance.get(endpoints.roleChoices),
-
-  // Password reset
-  resetPassword: (data) => axiosInstance.post(endpoints.resetPassword, data),
-  resetPasswordConfirm: (uidb64, token, data) =>
-    axiosInstance.post(endpoints.resetPasswordConfirm(uidb64, token), data),
-
-  // JWT
-  token: (data) => axiosInstance.post(endpoints.token, data),
-  tokenRefresh: (data) => axiosInstance.post(endpoints.tokenRefresh, data),
-  tokenVerify: (data) => axiosInstance.post(endpoints.tokenVerify, data),
-
-  // Email / OTP
-  verifyEmail: (uid, token) => axiosInstance.get(endpoints.verifyEmail(uid, token)),
-  resendOtp: (data) => axiosInstance.post(endpoints.resendOtp, data),
-  resendOtpEmail: (data) => axiosInstance.post(endpoints.resendOtpEmail, data),
-  verifyOtp: (data) => axiosInstance.post(endpoints.verifyOtp, data),
-  verifyOtpEmail: (data) => axiosInstance.post(endpoints.verifyOtpEmail, data),
-  resendWelcomeEmail: (data) => axiosInstance.post(endpoints.resendWelcomeEmail, data),
-
-  // Admin
-  adminListUsers: (params) => axiosInstance.get(endpoints.adminListUsers, { params }),
-  adminResetPassword: (data) => axiosInstance.post(endpoints.adminResetPassword, data),
-  adminInviteWorker: (data) => axiosInstance.post(endpoints.adminInviteWorker, data),
-
-  // Workers
-  workerValidateInvite: (uid, token) =>
-    axiosInstance.get(endpoints.workerValidateInvite(uid, token)),
-  workerCompleteInvite: (data) => axiosInstance.post(endpoints.workerCompleteInvite, data),
-  workerCategories: () => axiosInstance.get(endpoints.workerCategories),
-
-  // Profiles
-  profilesList: (params) => axiosInstance.get(endpoints.profilesList, { params }),
-  profilesProfile: () => axiosInstance.get(endpoints.profilesProfile),
-  sendMessageToUsers: (data) => axiosInstance.post(endpoints.sendMessageToUsers, data),
-  specialOffer: (data) => axiosInstance.post(endpoints.specialOffer, data),
-  toggleUserActive: (userId) => axiosInstance.post(endpoints.toggleUserActive(userId)),
-
-  // Internal
-  deleteByEmail: (data) => axiosInstance.post(endpoints.deleteByEmail, data),
-};
-
-export default authAPI;
+export default endpoints;

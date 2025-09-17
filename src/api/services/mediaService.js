@@ -1,8 +1,7 @@
 // src/api/services/mediaService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
-import API from "../mediaAPI";
-import endpointMap from "./endpointMap";
+import mediaAPI from "../mediaAPI";
 
 /**
  * Normalize Cloudinary URLs to HTTPS
@@ -12,6 +11,7 @@ const normalizeCloudinaryUrls = (data) => {
 
   const normalizeItem = (item) => {
     if (!item || typeof item !== "object") return item;
+
     if (item.url) {
       if (item.url.full?.startsWith("http://res.cloudinary.com")) {
         item.url.full = item.url.full.replace("http://", "https://");
@@ -20,6 +20,7 @@ const normalizeCloudinaryUrls = (data) => {
         item.url.thumb = item.url.thumb.replace("http://", "https://");
       }
     }
+
     return item;
   };
 
@@ -28,53 +29,31 @@ const normalizeCloudinaryUrls = (data) => {
   return normalizeItem(data);
 };
 
-/**
- * Resolve API URL for a frontend endpoint identifier
- */
-const resolveApiUrlForEndpoint = (endpoint) => {
-  if (!endpoint) return API.defaultList;
-
-  const candidates = [endpointMap?.[endpoint], endpoint, endpoint.toLowerCase()]
-    .filter(Boolean)
-    .map((c) => c.toString());
-
-  for (const cand of candidates) {
-    if (API[cand]) return API[cand];
-  }
-
-  if (typeof endpoint === "string" && (endpoint.startsWith("/") || endpoint.startsWith("http"))) {
-    return endpoint;
-  }
-
-  return API.defaultList;
-};
-
 const mediaService = {
-  // -------- Public methods --------
-  list: () => publicAxios.get(API.defaultList).then((res) => normalizeCloudinaryUrls(res.data)),
-  getMedia: () => publicAxios.get(API.defaultList).then((res) => normalizeCloudinaryUrls(res.data)),
-  getBanners: () => publicAxios.get(API.banners).then((res) => normalizeCloudinaryUrls(res.data)),
-  getFeatured: () => publicAxios.get(API.featured).then((res) => normalizeCloudinaryUrls(res.data)),
-  byEndpoint: async (endpoint) => {
-    const url = resolveApiUrlForEndpoint(endpoint);
-    const res = await publicAxios.get(url);
-    return normalizeCloudinaryUrls(res.data);
-  },
+  // -------- Public (no auth) --------
+  list: (params) =>
+    publicAxios.get(mediaAPI.list, { params }).then((res) => normalizeCloudinaryUrls(res.data)),
 
-  // -------- Admin / Auth methods --------
-  uploadMedia: (formData) => axiosInstance.post(API.upload, formData),
-  getAllMedia: () => axiosInstance.get(API.all),
-  updateMedia: (id, payload) => axiosInstance.patch(API.update(id), payload),
-  toggleActive: (id) => axiosInstance.post(API.toggle(id)),
-  toggleFeatured: (id) => axiosInstance.post(API.toggleFeatured(id)),
-  deleteMedia: (id) => axiosInstance.delete(API.delete(id)),
-  restoreMedia: (id) => axiosInstance.post(API.restore(id)),
-  getArchivedMedia: () => axiosInstance.get(API.archived),
-  reorderMedia: (payload) => axiosInstance.post(API.reorder, payload),
-  getMediaStats: () => axiosInstance.get(API.stats),
+  banners: (params) =>
+    publicAxios.get(mediaAPI.banner, { params }).then((res) => normalizeCloudinaryUrls(res.data)),
 
-  // -------- Debug --------
-  debugProto: () => axiosInstance.get(API.debugProto),
+  featured: (params) =>
+    publicAxios.get(mediaAPI.featured, { params }).then((res) => normalizeCloudinaryUrls(res.data)),
+
+  home: (params) =>
+    publicAxios.get(mediaAPI.home, { params }).then((res) => normalizeCloudinaryUrls(res.data)),
+
+  // -------- Authenticated (admin / dashboard) --------
+  upload: (formData) => axiosInstance.post(mediaAPI.upload, formData),
+  all: (params) => axiosInstance.get(mediaAPI.all, { params }),
+  update: (id, payload) => axiosInstance.patch(mediaAPI.update(id), payload),
+  toggleActive: (id) => axiosInstance.post(mediaAPI.toggle(id)),
+  toggleFeatured: (id) => axiosInstance.post(mediaAPI.toggleFeatured(id)),
+  delete: (id) => axiosInstance.delete(mediaAPI.delete(id)),
+  restore: (id) => axiosInstance.post(mediaAPI.restore(id)),
+  archived: (params) => axiosInstance.get(mediaAPI.archived, { params }),
+  reorder: (payload) => axiosInstance.post(mediaAPI.reorder, payload),
+  stats: () => axiosInstance.get(mediaAPI.stats),
 };
 
 export default mediaService;

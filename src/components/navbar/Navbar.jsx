@@ -124,6 +124,10 @@ function Navbar() {
             </li>
 
             <li className="nav-item" role="none">
+              <Link to="/flipbook" className={`nav-links ${location.pathname === "/flipbook" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Our Profile</Link>
+            </li>
+
+            <li className="nav-item" role="none">
               <Link to="/about" className={`nav-links ${location.pathname === "/about" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">About</Link>
             </li>
 

@@ -129,3 +129,18 @@
   --color-service-bg: var(--color-service-bg-dark);
   --color-calendar-icon: #d1d5db;
 }
+
+/* Flipbook color variables (scoped with --flip- prefix) */
+:root {
+  --flip-burgundy: #8B0000;    /* Luxury / passion */
+  --flip-navy: #1F3A93;        /* Trust / stability */
+  --flip-gold: #D4AF37;        /* Classy festive accent */
+  --flip-sand: #E7E2DB;        /* Warm neutral background */
+  --flip-forest: #228B22;      /* Fresh / growth */
+  --flip-olive: #556B2F;       /* Natural variant */
+  --flip-charcoal: #2E2E2E;    /* Professional neutral */
+  --flip-cream: #FFF5E1;       /* Soft balance */
+  --flip-silver: #C0C0C0;      /* Accent metallic */
+  --flip-white: #FFFFFF;       /* Base contrast */
+  --flip-muted-yellow: #FFCC00;
+}

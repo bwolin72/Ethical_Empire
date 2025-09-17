@@ -57,6 +57,9 @@ import CateringServicePage from "./components/services/CateringServicePage";
 import DecorServicePage from "./components/services/DecorServicePage";
 import MediaHostingServicePage from "./components/services/MediaHostingServicePage";
 
+import FlipbookViewer from "./components/company/FlipbookViewer";
+
+
 // Context & Auth
 import { AuthProvider, useAuth } from "./components/context/AuthContext";
 import { ProfileProvider } from "./components/context/ProfileContext"; // ✅ added
@@ -171,6 +174,7 @@ const AppRoutes = () => (
     <Route path="/services" element={<Services />} />
     <Route path="/contact" element={<ContactForm />} />
     <Route path="/terms" element={<Terms />} />
+    <Route path="/flipbook" element={<FlipbookViewer />} />
     <Route path="/privacy" element={<Privacy />} />
 
     {/* Service Pages */}

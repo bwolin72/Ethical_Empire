@@ -92,14 +92,14 @@ const contentService = {
       home: videosAPI.home,
       about: videosAPI.about,
       decor: videosAPI.decor,
-      live_band: videosAPI.live_band,
+      liveBand: videosAPI.liveBand,
       catering: videosAPI.catering,
-      media_hosting: videosAPI.media_hosting,
+      mediaHosting: videosAPI.mediaHosting,
       vendor: videosAPI.vendor,
       partner: videosAPI.partner,
       user: videosAPI.user,
-      partner_dashboard: videosAPI.partner_dashboard,
-      agency_dashboard: videosAPI.agency_dashboard,
+      partnerDashboard: videosAPI.partnerDashboard,
+      agencyDashboard: videosAPI.agencyDashboard,
       default: videosAPI.list,
     };
     const fn = endpointMap[endpoint] || endpointMap.default;
@@ -138,20 +138,21 @@ const contentService = {
   async getMedia(params = {}) {
     const { endpoint, ...rest } = params;
     const endpointMap = {
-      banners: mediaAPI.banner,
+      banners: mediaAPI.banners,
       catering: mediaAPI.catering,
       decor: mediaAPI.decor,
       featured: mediaAPI.featured,
       home: mediaAPI.home,
-      live_band: mediaAPI.live_band,
-      media_hosting: mediaAPI.media_hosting,
-      partner_vendor_dashboard: mediaAPI.partnerVendorDashboard,
+      liveBand: mediaAPI.liveBand,
+      mediaHosting: mediaAPI.mediaHosting,
+      partnerVendorDashboard: mediaAPI.partnerVendorDashboard,
       partner: mediaAPI.partner,
       user: mediaAPI.user,
       vendor: mediaAPI.vendor,
-      all: mediaAPI.all,
+      all: mediaAPI.list,
       archived: mediaAPI.archived,
       about: mediaAPI.about,
+      partnerDashboard: mediaAPI.partnerDashboard,
       default: mediaAPI.list,
     };
     const fn = endpointMap[endpoint] || endpointMap.default;

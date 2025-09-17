@@ -1,19 +1,18 @@
 // src/api/services/videoService.js
-
-import apiInstance from "../axiosInstance";
 import publicAxios from "../publicAxios";
+import axiosInstance from "../axiosInstance";
 import videosAPI from "../videosAPI";
 
 const videoService = {
-  // Public GET
-  list: (params) => publicAxios.get(videosAPI.list(), { params }),
-  active: (params) => publicAxios.get(videosAPI.active(), { params }),
+  // -------- Public (no auth) --------
+  list: (params) => publicAxios.get(videosAPI.list, { params }),
+  active: (params) => publicAxios.get(videosAPI.active, { params }),
   detail: (id) => publicAxios.get(videosAPI.detail(id)),
 
-  // Authenticated CRUD
-  create: (data) => apiInstance.post(videosAPI.create(), data),
-  update: (id, data) => apiInstance.patch(videosAPI.update(id), data),
-  remove: (id) => apiInstance.delete(videosAPI.delete(id)),
+  // -------- Authenticated (admin / dashboard) --------
+  create: (data) => axiosInstance.post(videosAPI.create, data),
+  update: (id, data) => axiosInstance.patch(videosAPI.update(id), data),
+  delete: (id) => axiosInstance.delete(videosAPI.delete(id)),
 };
 
 export default videoService;
