@@ -39,14 +39,15 @@ const TEAM = [
 export default function About() {
   const navigate = useNavigate();
 
-  // ✅ Centralised API fetching
-  const { data: heroVideos = [] } = useFetcher(API_ENDPOINTS.aboutHeroMedia);
+  // ✅ Hero video (media.about endpoint)
+  const { data: heroVideos = [] } = useFetcher(API_ENDPOINTS.media.about);
   const heroVideo = heroVideos.length
     ? heroVideos[0]
     : { url: LOCAL_FALLBACK_VIDEO };
 
+  // ✅ Reviews
   const { data: reviews = [], error: reviewError } = useFetcher(
-    API_ENDPOINTS.reviews
+    API_ENDPOINTS.reviews.all
   );
 
   return (
@@ -99,22 +100,22 @@ export default function About() {
 
       {/* ── Visual Stories / Banners ──────────────── */}
       <BannerCards
-        endpointKey="aboutBanners"
+        endpointKey="media.banners"
         title="Explore Our Visual Stories"
       />
 
-      {/* ── Services Grid (MediaCards fetches internally) ────── */}
+      {/* ── Services Grid ────── */}
       <section className="service-grid" id="why-us">
         <h2 className="section-heading">What We Do</h2>
         <div className="service-grid-inner">
-          <MediaCards endpointKey="services" resourceType="services" />
+          <MediaCards endpointKey="services.all" resourceType="services" />
         </div>
       </section>
 
       {/* ── Gallery Showcase ──────────────────────── */}
       <section className="gallery-showcase">
         <h2 className="section-heading">Gallery</h2>
-        <GalleryWrapper endpointKey="gallery" />
+        <GalleryWrapper endpointKey="media.home" />
       </section>
 
       {/* ── Team Section ──────────────────────────── */}

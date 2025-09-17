@@ -1,49 +1,40 @@
 // src/api/apiService.js
+import baseURL from "./baseURL";
 
-import authAPI from './authAPI';
-import messagingAPI from './messagingAPI';
-import mediaAPI from './mediaAPI';
-import videosAPI from './videosAPI';
-import servicesAPI from './servicesAPI';
-import promotionsAPI from './promotionsAPI';
-import newsletterAPI from './newsletterAPI';
-import reviewsAPI from './reviewsAPI';
-import bookingAPI from './bookingAPI';
-import invoicesAPI from './invoicesAPI';
-import contactAPI from './contactAPI';
-import analyticsAPI from './analyticsAPI';
-import miscAPI from './miscAPI';
-import baseURL from './baseURL';  // ✅ make sure you have this already
-
-// ---- Raw endpoints for fetcher hooks ----
 export const API_ENDPOINTS = {
-  // About page specific
-  aboutHeroMedia: `${baseURL}/media/about/`,
-  aboutBanners: `${baseURL}/media/banners/`,
-  gallery: `${baseURL}/media/home/`,
+  media: {
+    all: `${baseURL}/media/all/`,
+    about: `${baseURL}/media/about/`,
+    banners: `${baseURL}/media/banners/`,
+    home: `${baseURL}/media/home/`,
+    featured: `${baseURL}/media/featured/`,
+    user: `${baseURL}/media/user/`,
+    vendor: `${baseURL}/media/vendor/`,
+  },
 
-  // Global/common
-  reviews: `${baseURL}/reviews/`,
-  services: `${baseURL}/services/`,
-  videos: `${baseURL}/videos/videos/`,
-  promotions: `${baseURL}/promotions/`,
+  videos: {
+    all: `${baseURL}/videos/videos/`,
+    // You could add helpers for toggle endpoints if needed:
+    toggleActive: (id) => `${baseURL}/videos/videos/${id}/toggle_active/`,
+    toggleFeatured: (id) => `${baseURL}/videos/videos/${id}/toggle_featured/`,
+  },
+
+  services: {
+    all: `${baseURL}/services/`,
+    detail: (slug) => `${baseURL}/services/${slug}/`,
+  },
+
+  reviews: {
+    all: `${baseURL}/reviews/`,
+    admin: `${baseURL}/reviews/admin/`,
+    approve: (id) => `${baseURL}/reviews/${id}/approve/`,
+    delete: (id) => `${baseURL}/reviews/${id}/delete/`,
+    reply: (id) => `${baseURL}/reviews/${id}/reply/`,
+  },
+
+  promotions: {
+    all: `${baseURL}/promotions/`,
+    active: `${baseURL}/promotions/active/`,
+    detail: (id) => `${baseURL}/promotions/${id}/`,
+  },
 };
-
-// ---- Service-driven API object ----
-const apiService = {
-  auth: authAPI,
-  messaging: messagingAPI,
-  media: mediaAPI,
-  videos: videosAPI,
-  services: servicesAPI,
-  promotions: promotionsAPI,
-  newsletter: newsletterAPI,
-  reviews: reviewsAPI,
-  bookings: bookingAPI,
-  invoices: invoicesAPI,
-  contact: contactAPI,
-  analytics: analyticsAPI,
-  misc: miscAPI,
-};
-
-export default apiService;

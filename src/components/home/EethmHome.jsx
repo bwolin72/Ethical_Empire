@@ -28,25 +28,25 @@ const EethmHome = () => {
     data: videos = [],
     loading: videosLoading,
     error: videosError,
-  } = useFetcher(API_ENDPOINTS.videos);
+  } = useFetcher(API_ENDPOINTS.videos.all);
 
   const {
     data: promotions = [],
     loading: promoLoading,
     error: promoError,
-  } = useFetcher(API_ENDPOINTS.promotions);
+  } = useFetcher(API_ENDPOINTS.promotions.all);
 
   const {
     data: reviews = [],
     loading: reviewLoading,
     error: reviewError,
-  } = useFetcher(API_ENDPOINTS.reviews);
+  } = useFetcher(API_ENDPOINTS.reviews.all);
 
   const {
     data: media = [],
     loading: mediaLoading,
     error: mediaError,
-  } = useFetcher(API_ENDPOINTS.media);
+  } = useFetcher(API_ENDPOINTS.media.all);
 
   // ✅ Hero section uses the first video or a local fallback
   const heroVideo = videos.length ? videos[0] : { url: LOCAL_FALLBACK_VIDEO };
@@ -88,7 +88,11 @@ const EethmHome = () => {
       {/* ===== HIGHLIGHT BANNERS ===== */}
       <FadeInSection>
         <section className="banners-hero-wrap">
-          <BannerCards endpointKey="banners" title="Highlights" type="banner" />
+          <BannerCards
+            endpointKey="media.banners"
+            title="Highlights"
+            type="banner"
+          />
         </section>
       </FadeInSection>
 
@@ -139,7 +143,7 @@ const EethmHome = () => {
           {mediaLoading && <p>Loading media…</p>}
           {mediaError && <p className="error-text">{mediaError}</p>}
           <MediaCards
-            endpointKey="media"
+            endpointKey="media.all"
             resourceType="media"
             fullWidth={false}
             isActive
@@ -166,10 +170,7 @@ const EethmHome = () => {
           ) : reviews.length ? (
             <div className="reviews-container">
               {reviews.map((r, idx) => (
-                <div
-                  key={r.id ?? `review-${idx}`}
-                  className="review-card"
-                >
+                <div key={r.id ?? `review-${idx}`} className="review-card">
                   <p>"{r.comment}"</p>
                   <p>— {r.name || "Anonymous"}</p>
                 </div>
