@@ -1,25 +1,63 @@
-import publicAxios from '../publicAxios';
-import axiosInstance from '../axiosInstance';
-import newsletterAPI from '../newsletterAPI'; // should expose: subscribe, confirm, unsubscribe, resubscribe, resendConfirmation, list, count, logs, send, delete(id)
+/**
+ * Newsletter Service – provides a slightly higher-level abstraction
+ * over raw API calls.  Good place to add client-side validation,
+ * error handling, or transform responses before passing to components.
+ */
 
-const newsletterService = {
-  // Public-facing
-  subscribe: (data) => publicAxios.post(newsletterAPI.subscribe, data),
-  confirm: (params) => publicAxios.get(newsletterAPI.confirm, { params }),
-  unsubscribe: (data) => publicAxios.post(newsletterAPI.unsubscribe, data),
-  resubscribe: (data) => publicAxios.post(newsletterAPI.resubscribe, data),
-  resendConfirmation: (data) => publicAxios.post(newsletterAPI.resendConfirmation, data),
+import * as newsletterAPI from '../newsletterAPI';
 
-  // Admin
-  getSubscribers: () => axiosInstance.get(newsletterAPI.list),    // /api/newsletter/list/
-  getSubscriberCount: () => axiosInstance.get(newsletterAPI.count), // /api/newsletter/count/
-  getLogs: () => axiosInstance.get(newsletterAPI.logs),           // /api/newsletter/logs/
-  sendNewsletter: (data) => axiosInstance.post(newsletterAPI.send, data),
-  deleteSubscriber: (id) => axiosInstance.delete(newsletterAPI.delete(id)),
+export const newsletterService = {
+  // === Public ===
+  async subscribe(email, name, token) {
+    const { data } = await newsletterAPI.subscribe({ email, name, token });
+    return data; // { message: ... }
+  },
 
-  // 🔁 Dashboard compatibility aliases
-  logs: () => axiosInstance.get(newsletterAPI.logs),
-  count: () => axiosInstance.get(newsletterAPI.count),
+  async confirmSubscription(token) {
+    const { data } = await newsletterAPI.confirmSubscription(token);
+    return data; // { message: ... }
+  },
+
+  async unsubscribe(email) {
+    const { data } = await newsletterAPI.unsubscribe({ email });
+    return data; // { message: ... }
+  },
+
+  async resubscribe(email) {
+    const { data } = await newsletterAPI.resubscribe({ email });
+    return data; // { message: ... }
+  },
+
+  async resendConfirmation(email) {
+    const { data } = await newsletterAPI.resendConfirmation({ email });
+    return data; // { message: ... }
+  },
+
+  // === Admin ===
+  async getSubscribers() {
+    const { data } = await newsletterAPI.fetchSubscribers();
+    return data; // [ {id, email, name, ...}, ... ]
+  },
+
+  async getSubscriberCount() {
+    const { data } = await newsletterAPI.fetchSubscriberCount();
+    return data.count; // integer
+  },
+
+  async getNewsletterLogs() {
+    const { data } = await newsletterAPI.fetchNewsletterLogs();
+    return data; // [ {id, subject, html, sent_at, ...}, ... ]
+  },
+
+  async sendNewsletter(subject, html, test = false) {
+    const { data } = await newsletterAPI.sendNewsletter({ subject, html, test });
+    return data; // { message: ..., log_id? }
+  },
+
+  async deleteSubscriber(id) {
+    const { data } = await newsletterAPI.deleteSubscriber(id);
+    return data; // { message: ... }
+  },
 };
 
 export default newsletterService;

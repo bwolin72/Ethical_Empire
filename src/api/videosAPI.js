@@ -1,30 +1,41 @@
-// src/api/videosAPI.js
-const BASE = "/api/videos/"; // matches Django backend prefix
+// videosAPI.js
+// Low-level HTTP calls for the Video API using the existing axios helpers.
 
-const videosAPI = {
-  list: (params) => ({ url: BASE, method: "get", params }),
-  defaultList: (params) => ({ url: BASE, method: "get", params }),
+import axiosInstance from "./axiosInstance";
+import publicAxios from "./publicAxios";
+import { handleRequest } from "./axiosCommon"; // assumes axiosCommon exports a handleRequest or similar
 
-  // Endpoint-specific
-  home: (params) => ({ url: `${BASE}home/`, method: "get", params }),
-  about: (params) => ({ url: `${BASE}about/`, method: "get", params }),
-  decor: (params) => ({ url: `${BASE}decor/`, method: "get", params }),
-  liveBand: (params) => ({ url: `${BASE}live_band/`, method: "get", params }),
-  catering: (params) => ({ url: `${BASE}catering/`, method: "get", params }),
-  mediaHosting: (params) => ({ url: `${BASE}media_hosting/`, method: "get", params }),
-  user: (params) => ({ url: `${BASE}user/`, method: "get", params }),
-  vendor: (params) => ({ url: `${BASE}vendor/`, method: "get", params }),
-  partner: (params) => ({ url: `${BASE}partner/`, method: "get", params }),
-  partnerDashboard: (params) => ({ url: `${BASE}partner_dashboard/`, method: "get", params }),
-  agencyDashboard: (params) => ({ url: `${BASE}agency_dashboard/`, method: "get", params }),
+/*
+  — axiosInstance  → for authenticated requests (requires token)
+  — publicAxios    → for public endpoints
+  — handleRequest  → shared error/response wrapper
+*/
 
-  // Admin / actions
-  create: (data) => ({ url: `${BASE}create/`, method: "post", data }),
-  update: (id, data) => ({ url: `${BASE}${id}/update/`, method: "patch", data }),
-  toggleActive: (id) => ({ url: `${BASE}${id}/toggle_active/`, method: "post" }),
-  toggleFeatured: (id) => ({ url: `${BASE}${id}/toggle_featured/`, method: "post" }),
-  delete: (id) => ({ url: `${BASE}${id}/delete/`, method: "delete" }),
-  detail: (id) => ({ url: `${BASE}${id}/`, method: "get" }),
+export const videosAPI = {
+  // --------- CRUD (protected) ---------
+  list: (params = {}) => handleRequest(publicAxios.get("videos/", { params })), // listing is public
+  retrieve: (id) => handleRequest(publicAxios.get(`videos/${id}/`)),
+  create: (payload) => handleRequest(axiosInstance.post("videos/", payload)),
+  update: (id, payload) => handleRequest(axiosInstance.put(`videos/${id}/`, payload)),
+  partialUpdate: (id, payload) => handleRequest(axiosInstance.patch(`videos/${id}/`, payload)),
+  delete: (id) => handleRequest(axiosInstance.delete(`videos/${id}/`)),
+
+  // --------- Toggle actions (protected) ---------
+  toggleActive: (id) => handleRequest(axiosInstance.post(`videos/${id}/toggle_active/`)),
+  toggleFeatured: (id) => handleRequest(axiosInstance.post(`videos/${id}/toggle_featured/`)),
+
+  // --------- Public endpoint-specific lists ---------
+  home: () => handleRequest(publicAxios.get("videos/home/")),
+  about: () => handleRequest(publicAxios.get("videos/about/")),
+  decor: () => handleRequest(publicAxios.get("videos/decor/")),
+  liveBand: () => handleRequest(publicAxios.get("videos/live_band/")),
+  catering: () => handleRequest(publicAxios.get("videos/catering/")),
+  mediaHosting: () => handleRequest(publicAxios.get("videos/media_hosting/")),
+  user: () => handleRequest(publicAxios.get("videos/user/")),
+  vendor: () => handleRequest(publicAxios.get("videos/vendor/")),
+  partner: () => handleRequest(publicAxios.get("videos/partner/")),
+  partnerDashboard: () => handleRequest(publicAxios.get("videos/partner_dashboard/")),
+  agencyDashboard: () => handleRequest(publicAxios.get("videos/agency_dashboard/")),
 };
 
 export default videosAPI;

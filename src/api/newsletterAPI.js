@@ -1,20 +1,41 @@
-// src/api/newsletterAPI.js
-import baseURL from "./baseURL";
+/**
+ * Newsletter API layer – thin wrappers around Django REST endpoints.
+ * Public endpoints use publicAxios, admin endpoints use axiosInstance.
+ */
 
-const newsletterAPI = {
-  // === Public / Subscriber ===
-  subscribe: `${baseURL}/newsletter/subscribe/`,
-  confirm: `${baseURL}/newsletter/confirm/`,
-  unsubscribe: `${baseURL}/newsletter/unsubscribe/`,
-  resubscribe: `${baseURL}/newsletter/resubscribe/`,
-  resendConfirmation: `${baseURL}/newsletter/resend-confirmation/`,
+import publicAxios from './publicAxios';
+import axiosInstance from './axiosInstance';
 
-  // === Admin Only ===
-  list: `${baseURL}/newsletter/list/`,
-  count: `${baseURL}/newsletter/count/`,
-  logs: `${baseURL}/newsletter/logs/`,
-  send: `${baseURL}/newsletter/send/`,
-  delete: (id) => `${baseURL}/newsletter/delete/${id}/`,
-};
+// === Public endpoints ===
 
-export default newsletterAPI;
+export const subscribe = (payload) =>
+  publicAxios.post('/api/newsletter/subscribe/', payload);
+
+export const confirmSubscription = (token) =>
+  publicAxios.get(`/api/newsletter/confirm/?token=${encodeURIComponent(token)}`);
+
+export const unsubscribe = (payload) =>
+  publicAxios.post('/api/newsletter/unsubscribe/', payload);
+
+export const resubscribe = (payload) =>
+  publicAxios.post('/api/newsletter/resubscribe/', payload);
+
+export const resendConfirmation = (payload) =>
+  publicAxios.post('/api/newsletter/resend-confirmation/', payload);
+
+// === Admin endpoints ===
+
+export const fetchSubscribers = () =>
+  axiosInstance.get('/api/newsletter/list/');
+
+export const fetchSubscriberCount = () =>
+  axiosInstance.get('/api/newsletter/count/');
+
+export const fetchNewsletterLogs = () =>
+  axiosInstance.get('/api/newsletter/logs/');
+
+export const sendNewsletter = (payload) =>
+  axiosInstance.post('/api/newsletter/send/', payload);
+
+export const deleteSubscriber = (id) =>
+  axiosInstance.delete(`/api/newsletter/delete/${id}/`);
