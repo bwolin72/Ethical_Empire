@@ -12,7 +12,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 const FlipbookViewer = () => {
   // ✅ Place brochure.pdf in public/asset/files/
   //    It will be served at  https://yourdomain/asset/files/brochure.pdf
-  const pdfPath = "/asset/files/brochure.pdf";
+  const pdfPath = "../../assets/files/brochure.pdf";
 
   const viewerRef = useRef(null);
   const leftPageRef = useRef(null);
