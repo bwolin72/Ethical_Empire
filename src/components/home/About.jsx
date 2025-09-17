@@ -4,17 +4,20 @@ import { motion } from "framer-motion";
 
 import BannerCards from "../context/BannerCards";
 import GalleryWrapper from "../gallery/GalleryWrapper";
+import MediaCards from "../context/MediaCards";
 import MediaGallery from "../gallery/MediaGallery";
+import VideoGallery from "../videos/VideoGallery";
+
+import useFetcher from "../../hooks/useFetcher";
+import { API_ENDPOINTS } from "../../api/apiService";
 
 import EuniceImg from "../../assets/team/eunice.png";
 import JosephImg from "../../assets/team/joseph.jpg";
 
 import "./About.css";
 
-const FALLBACKS = {
-  video: "/mock/hero-video.mp4",
-  image: "/mock/hero-fallback.jpg",
-};
+const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
+const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
 const TEAM = [
   {
@@ -36,6 +39,16 @@ const TEAM = [
 export default function About() {
   const navigate = useNavigate();
 
+  // ✅ Centralised API fetching
+  const { data: heroVideos = [] } = useFetcher(API_ENDPOINTS.aboutHeroMedia);
+  const heroVideo = heroVideos.length
+    ? heroVideos[0]
+    : { url: LOCAL_FALLBACK_VIDEO };
+
+  const { data: reviews = [], error: reviewError } = useFetcher(
+    API_ENDPOINTS.reviews
+  );
+
   return (
     <div className="about-container">
       {/* ── Sticky CTA ────────────────────────────── */}
@@ -51,11 +64,9 @@ export default function About() {
 
       {/* ── Hero Banner / Video ───────────────────── */}
       <section className="about-hero">
-        {/* The Video/hero section can simply be a MediaGallery 
-            which pulls videos from your API via useFetcher */}
-        <MediaGallery
-          endpoint="about/hero-media"
-          fallbackVideo={FALLBACKS.video}
+        <VideoGallery
+          videos={[heroVideo]}
+          fallbackVideo={LOCAL_FALLBACK_VIDEO}
           showHero
           autoPlay
           loop
@@ -88,24 +99,22 @@ export default function About() {
 
       {/* ── Visual Stories / Banners ──────────────── */}
       <BannerCards
-        endpoint="about/banners"
+        endpointKey="aboutBanners"
         title="Explore Our Visual Stories"
       />
 
-      {/* ── Services (fetched internally by MediaCards) ────── */}
+      {/* ── Services Grid (MediaCards fetches internally) ────── */}
       <section className="service-grid" id="why-us">
         <h2 className="section-heading">What We Do</h2>
-        {/* MediaCards will fetch and render service items from the endpoint */}
         <div className="service-grid-inner">
-          <MediaGallery endpoint="services" cardComponent="MediaCard" />
+          <MediaCards endpointKey="services" resourceType="services" />
         </div>
       </section>
 
       {/* ── Gallery Showcase ──────────────────────── */}
       <section className="gallery-showcase">
         <h2 className="section-heading">Gallery</h2>
-        {/* GalleryWrapper handles its own fetching/display */}
-        <GalleryWrapper endpoint="gallery" />
+        <GalleryWrapper endpointKey="gallery" />
       </section>
 
       {/* ── Team Section ──────────────────────────── */}
@@ -132,7 +141,8 @@ export default function About() {
       {/* ── Testimonials Carousel ─────────────────── */}
       <section className="testimonial-carousel">
         <h2 className="section-heading">What Our Clients Say</h2>
-        <MediaGallery endpoint="reviews" type="carousel" />
+        {reviewError && <p className="error-text">{reviewError}</p>}
+        <MediaGallery items={reviews.length ? reviews : []} type="carousel" />
       </section>
     </div>
   );

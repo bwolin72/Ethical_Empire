@@ -1,10 +1,11 @@
 // src/components/videos/VideoGallery.jsx
 import React from "react";
 import PropTypes from "prop-types";
+import useFetcher from "../../hooks/useFetcher";
 import "./videos.css";
 
 const VideoGallery = ({
-  videos = [],
+  endpointKey = "all",       // which videos endpoint to call (e.g. "all", "featured")
   fallbackVideo,
   title,
   showHero = false,
@@ -14,6 +15,25 @@ const VideoGallery = ({
   className,
   actions = [],
 }) => {
+  // ✅ Fetch videos from the backend
+  const { data: videos = [], loading, error } = useFetcher("videos", endpointKey);
+
+  if (loading) {
+    return (
+      <section className={`video-gallery ${className || ""}`}>
+        <p>Loading videos…</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className={`video-gallery ${className || ""}`}>
+        <p className="error-text">Failed to load videos.</p>
+      </section>
+    );
+  }
+
   const hasVideos = videos.length > 0;
   const heroVideo = hasVideos ? videos[0] : { url: fallbackVideo };
 
@@ -24,7 +44,7 @@ const VideoGallery = ({
       {showHero ? (
         <div className="hero-video-wrapper">
           <video
-            src={heroVideo.url || fallbackVideo}
+            src={heroVideo.url || heroVideo.video_file?.url || heroVideo.video_file || fallbackVideo}
             autoPlay={autoPlay}
             loop={loop}
             muted={!allowMuteToggle}
@@ -37,11 +57,7 @@ const VideoGallery = ({
           {actions.length > 0 && (
             <div className="hero-actions">
               {actions.map((a, idx) => (
-                <button
-                  key={idx}
-                  onClick={a.onClick}
-                  className={a.className}
-                >
+                <button key={idx} onClick={a.onClick} className={a.className}>
                   {a.label}
                 </button>
               ))}
@@ -64,11 +80,7 @@ const VideoGallery = ({
         </div>
       ) : (
         <div className="video-grid">
-          <video
-            controls
-            src={fallbackVideo}
-            className="fallback-video"
-          />
+          <video controls src={fallbackVideo} className="fallback-video" />
           <p>No videos available. Showing fallback.</p>
         </div>
       )}
@@ -77,8 +89,8 @@ const VideoGallery = ({
 };
 
 VideoGallery.propTypes = {
-  videos: PropTypes.array,
-  fallbackVideo: PropTypes.string,
+  endpointKey: PropTypes.string,      // ✅ matches the key in useFetcher (e.g. "all")
+  fallbackVideo: PropTypes.string.isRequired,
   title: PropTypes.string,
   showHero: PropTypes.bool,
   autoPlay: PropTypes.bool,

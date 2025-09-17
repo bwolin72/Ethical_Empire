@@ -1,46 +1,49 @@
 // src/api/apiService.js
 
-import authService from './services/authService';
-import messagingService from './services/messagingService';
-import mediaService from './services/mediaService';
-import videoService from './services/videoService';
-import serviceService from './services/serviceService';
-import promotionService from './services/promotionService';
-import newsletterService from './services/newsletterService';
-import reviewService from './services/reviewService';
-import bookingService from './services/bookingService';
-import invoiceService from './services/invoiceService';
-import contactService from './services/contactService';
-import analyticsService from './services/analyticsService';
-import miscService from './services/miscService';
+import authAPI from './authAPI';
+import messagingAPI from './messagingAPI';
+import mediaAPI from './mediaAPI';
+import videosAPI from './videosAPI';
+import servicesAPI from './servicesAPI';
+import promotionsAPI from './promotionsAPI';
+import newsletterAPI from './newsletterAPI';
+import reviewsAPI from './reviewsAPI';
+import bookingAPI from './bookingAPI';
+import invoicesAPI from './invoicesAPI';
+import contactAPI from './contactAPI';
+import analyticsAPI from './analyticsAPI';
+import miscAPI from './miscAPI';
+import baseURL from './baseURL';  // ✅ make sure you have this already
 
-// ✅ Import your contentService (shorthand endpoints)
-import contentService from './services/contentService';
+// ---- Raw endpoints for fetcher hooks ----
+export const API_ENDPOINTS = {
+  // About page specific
+  aboutHeroMedia: `${baseURL}/media/about/`,
+  aboutBanners: `${baseURL}/media/banners/`,
+  gallery: `${baseURL}/media/home/`,
 
+  // Global/common
+  reviews: `${baseURL}/reviews/`,
+  services: `${baseURL}/services/`,
+  videos: `${baseURL}/videos/videos/`,
+  promotions: `${baseURL}/promotions/`,
+};
+
+// ---- Service-driven API object ----
 const apiService = {
-  // ----- Core Services -----
-  auth: authService,
-  messaging: messagingService,
-  media: mediaService,
-  videos: videoService,
-  services: serviceService,
-  promotions: promotionService,
-  newsletter: newsletterService,
-  reviews: reviewService,
-  bookings: bookingService,
-  invoices: invoiceService,
-  contact: contactService,
-  analytics: analyticsService,
-  misc: miscService,
-
-  // ----- Shorthand methods (for Home + global use) -----
-  getVideos: contentService.getVideos,
-  getVideosByEndpoint: contentService.getVideosByEndpoint,   // 👈 added
-  getPromotions: contentService.getPromotions,
-  getReviews: contentService.getReviews,
-  getBanners: contentService.getBanners,
-  getMedia: contentService.getMedia,
-  getMediaByEndpoint: contentService.getMediaByEndpoint,     // 👈 added
+  auth: authAPI,
+  messaging: messagingAPI,
+  media: mediaAPI,
+  videos: videosAPI,
+  services: servicesAPI,
+  promotions: promotionsAPI,
+  newsletter: newsletterAPI,
+  reviews: reviewsAPI,
+  bookings: bookingAPI,
+  invoices: invoicesAPI,
+  contact: contactAPI,
+  analytics: analyticsAPI,
+  misc: miscAPI,
 };
 
 export default apiService;
