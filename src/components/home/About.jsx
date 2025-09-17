@@ -100,7 +100,7 @@ export default function About() {
 
       {/* ── Visual Stories / Banners ──────────────── */}
       <BannerCards
-        endpointKey="media.banners"
+        endpointKey={API_ENDPOINTS.media.banners}   // ✅ fixed
         title="Explore Our Visual Stories"
       />
 
@@ -108,14 +108,17 @@ export default function About() {
       <section className="service-grid" id="why-us">
         <h2 className="section-heading">What We Do</h2>
         <div className="service-grid-inner">
-          <MediaCards endpointKey="services.all" resourceType="services" />
+          <MediaCards
+            endpointKey={API_ENDPOINTS.services.all}   // ✅ fixed
+            resourceType="services"
+          />
         </div>
       </section>
 
       {/* ── Gallery Showcase ──────────────────────── */}
       <section className="gallery-showcase">
         <h2 className="section-heading">Gallery</h2>
-        <GalleryWrapper endpointKey="media.home" />
+        <GalleryWrapper endpointKey={API_ENDPOINTS.media.home} /> {/* ✅ fixed */}
       </section>
 
       {/* ── Team Section ──────────────────────────── */}

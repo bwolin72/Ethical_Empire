@@ -89,7 +89,7 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="banners-hero-wrap">
           <BannerCards
-            endpointKey="media.banners"
+            endpointKey={API_ENDPOINTS.media.banners}  // ✅ fixed
             title="Highlights"
             type="banner"
           />
@@ -143,7 +143,7 @@ const EethmHome = () => {
           {mediaLoading && <p>Loading media…</p>}
           {mediaError && <p className="error-text">{mediaError}</p>}
           <MediaCards
-            endpointKey="media.all"
+            endpointKey={API_ENDPOINTS.media.all}   // ✅ fixed
             resourceType="media"
             fullWidth={false}
             isActive
