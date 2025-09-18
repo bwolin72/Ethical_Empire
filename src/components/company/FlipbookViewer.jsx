@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import * as pdfjsLib from "pdfjs-dist";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
 import "pdfjs-dist/web/pdf_viewer.css"; // optional base styles
 import "./FlipbookViewer.css";          // your custom styles
 
 // PDF file bundled from src/assets
 import brochure from "../../assets/files/brochure.pdf";
 
-// ✅ Load worker from src/pdf.worker.js (CRA compatible)
+// ✅ Ensure PDF.js uses CRA-compatible worker
 import "../../pdf.worker";
 
 const FlipbookViewer = () => {
@@ -20,7 +20,7 @@ const FlipbookViewer = () => {
   const [animating, setAnimating] = useState(false);
 
   // ---------------------------
-  // Render a single PDF page
+  // Render a single PDF page into a container
   // ---------------------------
   const renderPage = useCallback(
     async (pageNum, container) => {
@@ -124,7 +124,7 @@ const FlipbookViewer = () => {
   useEffect(() => {
     const loadPdf = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument({ url: brochure });
+        const loadingTask = getDocument({ url: brochure });
         const doc = await loadingTask.promise;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
