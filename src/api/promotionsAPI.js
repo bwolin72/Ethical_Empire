@@ -1,7 +1,7 @@
 import axiosInstance from "./axiosInstance";
 import publicAxios from "./publicAxios";
 
-const PROMOTIONS_BASE = "/api/promotions/";
+const PROMOTIONS_BASE = "/promotions/";
 
 const promotionsAPI = {
   // ---- Public Endpoints ----
