@@ -1,5 +1,8 @@
 // src/pdfjs-setup.js
-import { pdfjs } from "react-pdf";
+import * as pdfjsLib from "pdfjs-dist";
 
-// Tell pdfjs where the worker is located (in /public)
-pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
+// Configure PDF.js worker (use CDN or local build)
+pdfjsLib.GlobalWorkerOptions.workerSrc = 
+  `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+
+export default pdfjsLib;
