@@ -5,42 +5,50 @@ import baseURL from './baseURL';
 /**
  * API_ENDPOINTS
  * -------------
- * This object exposes dotted-path keys (e.g. "videos.all")
- * so that useFetcher('videos.all') continues to work.
- * Each value is a function that returns an axios promise.
+ * Flat map of "dotted" keys so that calls like
+ *   useFetcher('videos.all')
+ * work exactly as before.
+ * Each value returns an axios promise.
  */
 export const API_ENDPOINTS = {
-  'media.all':        (params = {}) => axiosInstance.get(`${baseURL}/media/all/`,        { params }),
-  'media.about':      (params = {}) => axiosInstance.get(`${baseURL}/media/about/`,      { params }),
-  'media.banners':    (params = {}) => axiosInstance.get(`${baseURL}/media/banners/`,    { params }),
-  'media.home':       (params = {}) => axiosInstance.get(`${baseURL}/media/home/`,       { params }),
-  'media.featured':   (params = {}) => axiosInstance.get(`${baseURL}/media/featured/`,   { params }),
-  'media.user':       (params = {}) => axiosInstance.get(`${baseURL}/media/user/`,       { params }),
-  'media.vendor':     (params = {}) => axiosInstance.get(`${baseURL}/media/vendor/`,     { params }),
+  // ---- Media ----
+  'media.all':      (params = {}) => axiosInstance.get(`${baseURL}/media/all/`,      { params }),
+  'media.about':    (params = {}) => axiosInstance.get(`${baseURL}/media/about/`,    { params }),
+  'media.banners':  (params = {}) => axiosInstance.get(`${baseURL}/media/banners/`,  { params }),
+  'media.home':     (params = {}) => axiosInstance.get(`${baseURL}/media/home/`,     { params }),
+  'media.featured': (params = {}) => axiosInstance.get(`${baseURL}/media/featured/`, { params }),
+  'media.user':     (params = {}) => axiosInstance.get(`${baseURL}/media/user/`,     { params }),
+  'media.vendor':   (params = {}) => axiosInstance.get(`${baseURL}/media/vendor/`,   { params }),
 
-  'videos.all':       (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/`,    { params }),
-  'videos.toggleActive':  (id)      => axiosInstance.post(`${baseURL}/videos/videos/${id}/toggle_active/`),
-  'videos.toggleFeatured':(id)      => axiosInstance.post(`${baseURL}/videos/videos/${id}/toggle_featured/`),
+  // ---- Videos ----
+  'videos.all':            (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/`, { params }),
+  'videos.toggleActive':   (id) => axiosInstance.post(`${baseURL}/videos/videos/${id}/toggle_active/`),
+  'videos.toggleFeatured': (id) => axiosInstance.post(`${baseURL}/videos/videos/${id}/toggle_featured/`),
 
-  'services.all':     (params = {}) => axiosInstance.get(`${baseURL}/services/`,         { params }),
-  'services.detail':  (slug, params = {}) =>
-                       axiosInstance.get(`${baseURL}/services/${slug}/`,                 { params }),
+  // ---- Services ----
+  'services.all':    (params = {}) => axiosInstance.get(`${baseURL}/services/`, { params }),
+  'services.detail': (slug, params = {}) =>
+                      axiosInstance.get(`${baseURL}/services/${slug}/`, { params }),
 
-  'reviews.all':      (params = {}) => axiosInstance.get(`${baseURL}/reviews/`,          { params }),
-  'reviews.admin':    (params = {}) => axiosInstance.get(`${baseURL}/reviews/admin/`,    { params }),
-  'reviews.approve':  (id)          => axiosInstance.post(`${baseURL}/reviews/${id}/approve/`),
-  'reviews.delete':   (id)          => axiosInstance.delete(`${baseURL}/reviews/${id}/delete/`),
-  'reviews.reply':    (id, payload) => axiosInstance.post(`${baseURL}/reviews/${id}/reply/`, payload),
+  // ---- Reviews ----
+  'reviews.all':     (params = {}) => axiosInstance.get(`${baseURL}/reviews/`,       { params }),
+  'reviews.admin':   (params = {}) => axiosInstance.get(`${baseURL}/reviews/admin/`, { params }),
+  'reviews.approve': (id) => axiosInstance.post(`${baseURL}/reviews/${id}/approve/`),
+  'reviews.delete':  (id) => axiosInstance.delete(`${baseURL}/reviews/${id}/delete/`),
+  'reviews.reply':   (id, payload) =>
+                     axiosInstance.post(`${baseURL}/reviews/${id}/reply/`, payload),
 
-  'promotions.all':   (params = {}) => axiosInstance.get(`${baseURL}/promotions/`,       { params }),
-  'promotions.active':(params = {}) => axiosInstance.get(`${baseURL}/promotions/active/`,{ params }),
-  'promotions.detail':(id, params = {}) =>
-                       axiosInstance.get(`${baseURL}/promotions/${id}/`,                 { params }),
+  // ---- Promotions ----
+  'promotions.all':    (params = {}) => axiosInstance.get(`${baseURL}/promotions/`,        { params }),
+  'promotions.active': (params = {}) => axiosInstance.get(`${baseURL}/promotions/active/`, { params }),
+  'promotions.detail': (id, params = {}) =>
+                       axiosInstance.get(`${baseURL}/promotions/${id}/`, { params }),
 };
 
 /**
- * For backward compatibility with code that uses
- * import { FLAT_ENDPOINTS } and accesses the same dotted keys.
+ * Backward-compatibility alias.
+ * Anything that imported { FLAT_ENDPOINTS }
+ * can continue to work with the same dotted keys.
  */
 export const FLAT_ENDPOINTS = API_ENDPOINTS;
 
