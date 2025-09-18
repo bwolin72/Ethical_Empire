@@ -59,6 +59,8 @@ import MediaHostingServicePage from "./components/services/MediaHostingServicePa
 
 import FlipbookViewer from "./components/company/FlipbookViewer";
 
+import DebugWrapper from "./components/debug/DebugWrapper";
+
 
 // Context & Auth
 import { AuthProvider, useAuth } from "./components/context/AuthContext";
@@ -298,6 +300,7 @@ function App() {
           <ProfileProvider>
             <AppWithAuth />
           </ProfileProvider>
+          <DebugWrapper />
         </AuthProvider>
       </Router>
     </GoogleOAuthProvider>
