@@ -11,7 +11,6 @@ import {
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import "./components/styles/variables.css";
-import "./App.css";
 import "./pdfjs-setup"; // PDF.js Worker Setup
 
 // ==============================

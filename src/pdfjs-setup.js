@@ -1,5 +1,5 @@
 // src/pdfjs-setup.js
-import { GlobalWorkerOptions } from "pdfjs-dist";
+import { pdfjs } from "react-pdf";
 
-// Point to the worker file in /public
-GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
+// Tell pdfjs where the worker is located (in /public)
+pdfjs.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
