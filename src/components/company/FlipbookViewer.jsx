@@ -5,8 +5,7 @@ import "./FlipbookViewer.css";               // your custom styles
 import brochure from "../../assets/files/brochure.pdf"; // PDF file
 
 // Set PDF.js worker (using CDN)
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
 
 const FlipbookViewer = () => {
   const viewerRef = useRef(null);
@@ -60,7 +59,7 @@ const FlipbookViewer = () => {
   );
 
   // ---------------------------
-  // Render current pages (two-page spread)
+  // Display current two-page spread
   // ---------------------------
   const displayPages = useCallback(async () => {
     if (!pdfDoc) return;
@@ -80,7 +79,7 @@ const FlipbookViewer = () => {
       "transitionend",
       async () => {
         right.classList.remove("flip-next");
-        setCurrentIndex((prev) => Math.min(prev + 1, totalPages));
+        setCurrentIndex((prev) => Math.min(prev + 2, totalPages));
         await displayPages();
         setAnimating(false);
       },
@@ -97,7 +96,7 @@ const FlipbookViewer = () => {
       "transitionend",
       async () => {
         left.classList.remove("flip-prev");
-        setCurrentIndex((prev) => Math.max(prev - 1, 1));
+        setCurrentIndex((prev) => Math.max(prev - 2, 1));
         await displayPages();
         setAnimating(false);
       },
@@ -123,7 +122,7 @@ const FlipbookViewer = () => {
   useEffect(() => {
     const loadPdf = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument(pdfPath);
+        const loadingTask = pdfjsLib.getDocument(brochure); // fixed: use imported PDF
         const doc = await loadingTask.promise;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
@@ -136,7 +135,7 @@ const FlipbookViewer = () => {
   }, []);
 
   // ---------------------------
-  // Display pages on PDF load or page change
+  // Display pages when PDF loads or page changes
   // ---------------------------
   useEffect(() => {
     displayPages();
@@ -166,8 +165,7 @@ const FlipbookViewer = () => {
           ◀ Prev
         </button>
         <span className="page-indicator">
-          Page {Math.min(currentIndex, totalPages)} –{" "}
-          {Math.min(currentIndex + 1, totalPages)} of {totalPages}
+          Page {currentIndex} – {Math.min(currentIndex + 1, totalPages)} of {totalPages}
         </span>
         <button
           className="btn next"
