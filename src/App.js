@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
@@ -12,6 +11,11 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import "./components/styles/variables.css";
 import "./App.css";
+
+// ==============================
+// PDF.js Worker Setup
+// ==============================
+import "./pdfjs-setup";
 
 // ==============================
 // Layout & UI
@@ -86,13 +90,13 @@ import ProtectedRoute from "./components/context/ProtectedRoute";
 import authService from "./api/services/authService";
 
 // ==============================
-// Homepage with Booking Button
+// Homepage - Public Access
 // ==============================
 const EethmHomePage = () => {
   const navigate = useNavigate();
 
   const handleBookingClick = () => {
-    navigate("/bookings"); // always try bookings, ProtectedRoute will guard
+    navigate("/bookings"); // ProtectedRoute will guard bookings
   };
 
   return (
@@ -160,7 +164,7 @@ const ConnectRedirect = () => {
 };
 
 // ==============================
-// Auto Scroll + Refresh on Navigation
+// Scroll on Route Change
 // ==============================
 const ScrollAndRefresh = () => {
   const location = useLocation();
