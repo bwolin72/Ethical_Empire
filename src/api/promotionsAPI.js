@@ -1,13 +1,46 @@
-// src/api/promotionsAPI.js
-const BASE = "/api/promotions/"; // matches Django backend prefix
+import axiosInstance from "./axiosInstance";
+import publicAxios from "./publicAxios";
+
+const PROMOTIONS_BASE = "/api/promotions/";
 
 const promotionsAPI = {
-  list: (params) => ({ url: BASE, method: "get", params }),
-  active: (params) => ({ url: `${BASE}active/`, method: "get", params }),
-  detail: (id) => ({ url: `${BASE}${id}/`, method: "get" }),
-  create: (data) => ({ url: BASE, method: "post", data }),
-  update: (id, data) => ({ url: `${BASE}${id}/`, method: "put", data }), // matches DRF RetrieveUpdateDestroyAPIView
-  delete: (id) => ({ url: `${BASE}${id}/`, method: "delete" }),
+  // ---- Public Endpoints ----
+  list(params) {
+    // GET /api/promotions/
+    return publicAxios.get(PROMOTIONS_BASE, { params });
+  },
+
+  active(params) {
+    // GET /api/promotions/active/
+    return publicAxios.get(`${PROMOTIONS_BASE}active/`, { params });
+  },
+
+  detail(id) {
+    // GET /api/promotions/:id/
+    return publicAxios.get(`${PROMOTIONS_BASE}${id}/`);
+  },
+
+  // ---- Admin Endpoints ----
+  create(data) {
+    // POST /api/promotions/
+    return axiosInstance.post(PROMOTIONS_BASE, data);
+  },
+
+  update(id, data) {
+    // PUT /api/promotions/:id/
+    return axiosInstance.put(`${PROMOTIONS_BASE}${id}/`, data);
+  },
+
+  patch(id, data) {
+    // PATCH /api/promotions/:id/
+    return axiosInstance.patch(`${PROMOTIONS_BASE}${id}/`, data);
+  },
+
+  delete(id) {
+    // DELETE /api/promotions/:id/
+    return axiosInstance.delete(`${PROMOTIONS_BASE}${id}/`);
+  },
 };
 
 export default promotionsAPI;
+
