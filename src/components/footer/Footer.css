@@ -56,7 +56,7 @@
 .footer-section a {
   color: var(--color-accent-gold);
   text-decoration: none;
-  transition: color var(--transition-slow);
+  transition: color var(--transition-slow), transform var(--transition-fast);
   position: relative;
 }
 
@@ -74,11 +74,25 @@
 .footer-section a:hover,
 .footer-section a:focus {
   color: var(--color-white);
+  transform: translateX(2px); /* subtle slide effect */
 }
 
 .footer-section a:hover::after,
 .footer-section a:focus::after {
   width: 100%;
+}
+
+/* === FAQ Link Highlight === */
+.footer-section a[href="/faq"] {
+  font-weight: bold;
+  color: var(--color-accent-green-light);
+}
+
+.footer-section a[href="/faq"]:hover,
+.footer-section a[href="/faq"]:focus {
+  color: var(--color-accent-gold-light);
+  text-decoration: underline;
+  transform: translateX(3px);
 }
 
 /* Align icons with text (if used) */

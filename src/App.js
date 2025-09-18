@@ -1,16 +1,9 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
 import "./components/styles/variables.css";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
-
 import "./App.css";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // Layout & UI
 import Navbar from "./components/navbar/Navbar";
@@ -28,6 +21,7 @@ import ContactForm from "./components/Queries/ContactForm";
 // Legal Pages
 import Terms from "./components/legal/Terms";
 import Privacy from "./components/legal/Privacy";
+import FAQ from "./components/legal/FAQ";
 
 // Pages - Auth & Profile
 import Register from "./components/Auth/Register";
@@ -48,7 +42,7 @@ import NewsletterSignup from "./components/user/NewsLetterSignup";
 import Unsubscribe from "./components/user/UnsubscribePage";
 import VendorProfile from "./components/agency/VendorProfile";
 import PartnerProfilePage from "./components/agency/PartnerProfilePage";
-import AgencyDashboard from "./components/agency/AgencyDashboard"; // ✅ correct file
+import AgencyDashboard from "./components/agency/AgencyDashboard";
 import WorkerDashboard from "./components/worker/WorkerDashboard";
 
 // Pages - Services
@@ -58,17 +52,12 @@ import DecorServicePage from "./components/services/DecorServicePage";
 import MediaHostingServicePage from "./components/services/MediaHostingServicePage";
 
 import FlipbookViewer from "./components/company/FlipbookViewer";
-
 import DebugWrapper from "./components/debug/DebugWrapper";
-
 
 // Context & Auth
 import { AuthProvider, useAuth } from "./components/context/AuthContext";
-import { ProfileProvider } from "./components/context/ProfileContext"; // ✅ added
+import { ProfileProvider } from "./components/context/ProfileContext";
 import ProtectedRoute from "./components/context/ProtectedRoute";
-
-// Google OAuth
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // Auth Service
 import authService from "./api/services/authService";
@@ -80,9 +69,7 @@ const EethmHomePage = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
 
-  const handleBookingClick = () => {
-    navigate(auth?.access ? "/bookings" : "/login");
-  };
+  const handleBookingClick = () => navigate(auth?.access ? "/bookings" : "/login");
 
   return (
     <div className="home-page">
@@ -95,26 +82,6 @@ const EethmHomePage = () => {
     </div>
   );
 };
-
-
-// Debug patch for invalid React children
-const originalCreateElement = React.createElement;
-React.createElement = (...args) => {
-  const element = originalCreateElement(...args);
-  if (element?.props?.children) {
-    React.Children.forEach(element.props.children, (child) => {
-      if (typeof child === "object" && !React.isValidElement(child)) {
-        console.error("🚨 Invalid React child detected:", {
-          component: element.type?.name || element.type,
-          child,
-          props: element.props,
-        });
-      }
-    });
-  }
-  return element;
-};
-
 
 // ==============================
 // Role-Based Redirect Handler
@@ -131,28 +98,14 @@ const ConnectRedirect = () => {
         const res = await authService.getProfile();
         if (!isMounted) return;
 
-        const role = res?.data?.role?.trim()?.toLowerCase();
-        console.log("[ConnectRedirect] Redirecting based on role:", role);
-
+        const role = res?.data?.role?.trim?.()?.toLowerCase() || "";
         switch (role) {
-          case "admin":
-            navigate("/admin", { replace: true });
-            break;
-          case "user":
-            navigate("/user", { replace: true });
-            break;
-          case "vendor":
-            navigate("/vendor-profile", { replace: true });
-            break;
-          case "partner":
-            navigate("/partner-dashboard", { replace: true });
-            break;
-          case "worker":
-            navigate("/worker-dashboard", { replace: true });
-            break;
-          default:
-            console.warn("[ConnectRedirect] Unknown role:", role);
-            navigate("/unauthorized", { replace: true });
+          case "admin": navigate("/admin", { replace: true }); break;
+          case "user": navigate("/user", { replace: true }); break;
+          case "vendor": navigate("/vendor-profile", { replace: true }); break;
+          case "partner": navigate("/partner-dashboard", { replace: true }); break;
+          case "worker": navigate("/worker-dashboard", { replace: true }); break;
+          default: navigate("/unauthorized", { replace: true });
         }
       } catch (err) {
         console.error("Failed to determine role:", err);
@@ -163,9 +116,7 @@ const ConnectRedirect = () => {
     };
 
     checkUserRole();
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [navigate]);
 
   return loading ? <div className="loading-screen">Redirecting...</div> : null;
@@ -176,17 +127,15 @@ const ConnectRedirect = () => {
 // ==============================
 const ScrollAndRefresh = () => {
   const location = useLocation();
-
   useEffect(() => {
     window.scrollTo(0, 0);
     window.dispatchEvent(new Event("route-change"));
   }, [location]);
-
   return null;
 };
 
 // ==============================
-// App Routes Definition
+// App Routes
 // ==============================
 const AppRoutes = () => (
   <Routes>
@@ -196,8 +145,9 @@ const AppRoutes = () => (
     <Route path="/services" element={<Services />} />
     <Route path="/contact" element={<ContactForm />} />
     <Route path="/terms" element={<Terms />} />
-    <Route path="/flipbook" element={<FlipbookViewer />} />
     <Route path="/privacy" element={<Privacy />} />
+    <Route path="/faq" element={<FAQ />} />
+    <Route path="/flipbook" element={<FlipbookViewer />} />
 
     {/* Service Pages */}
     <Route path="/services/live-band" element={<LiveBandServicePage />} />
@@ -217,7 +167,7 @@ const AppRoutes = () => (
     <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
     <Route path="/connect" element={<ConnectRedirect />} />
 
-    {/* Protected User/Admin Routes */}
+    {/* Protected Routes */}
     <Route element={<ProtectedRoute roles={["user", "admin"]} />}>
       <Route path="/user" element={<UserPage />} />
       <Route path="/account" element={<AccountProfile />} />
@@ -228,28 +178,24 @@ const AppRoutes = () => (
       <Route path="/agency-dashboard" element={<AgencyDashboard />} />
     </Route>
 
-    {/* Vendor */}
     <Route element={<ProtectedRoute roles={["vendor"]} />}>
       <Route path="/vendor-profile" element={<VendorProfile />} />
     </Route>
 
-    {/* Partner */}
     <Route element={<ProtectedRoute roles={["partner"]} />}>
       <Route path="/partner-profile" element={<PartnerProfilePage />} />
       <Route path="/partner-dashboard" element={<AgencyDashboard />} />
     </Route>
 
-    {/* Worker */}
     <Route element={<ProtectedRoute roles={["worker"]} />}>
       <Route path="/worker-dashboard" element={<WorkerDashboard />} />
     </Route>
 
-    {/* Admin */}
     <Route element={<ProtectedRoute roles={["admin"]} />}>
       <Route path="/admin" element={<AdminPanel />} />
     </Route>
 
-    {/* Unauthorized Access */}
+    {/* Unauthorized */}
     <Route path="/unauthorized" element={<div className="unauthorized">Access Denied</div>} />
 
     {/* Catch-all */}
@@ -265,23 +211,17 @@ const AppWithAuth = () => {
   const [splashVisible, setSplashVisible] = useState(true);
 
   useEffect(() => {
-    const splashTimer = setTimeout(() => {
-      setSplashVisible(false);
-    }, 2500);
+    const splashTimer = setTimeout(() => setSplashVisible(false), 2500);
     return () => clearTimeout(splashTimer);
   }, []);
 
-  if (!ready || loading || splashVisible) {
-    return <SplashScreen onFinish={() => setSplashVisible(false)} />;
-  }
+  if (!ready || loading || splashVisible) return <SplashScreen onFinish={() => setSplashVisible(false)} />;
 
   return (
     <div className="App">
       <Navbar />
       <ScrollAndRefresh />
-      <main>
-        <AppRoutes />
-      </main>
+      <main><AppRoutes /></main>
       <Footer />
       <PromotionPopup />
       <FloatingWhatsAppButton />

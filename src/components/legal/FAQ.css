@@ -1,0 +1,124 @@
+/* FAQ.css */
+
+/* Container & Title */
+.faq-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: var(--font-main);
+  color: var(--color-text-light);
+}
+
+.faq-title {
+  font-family: var(--font-accent);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: 2rem;
+  animation: fade-in-up 0.6s var(--transition-fast) both;
+}
+
+/* FAQ Section */
+.faq-section {
+  margin-bottom: 1.5rem;
+  border-top: 1px solid var(--color-border-light);
+  padding-top: 1rem;
+}
+
+.faq-category {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  margin-bottom: 0.75rem;
+}
+
+/* FAQ Item */
+.faq-item {
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.faq-question {
+  width: 100%;
+  background: var(--color-white);
+  color: var(--color-primary-dark);
+  border: none;
+  padding: 1rem;
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.faq-question:hover,
+.faq-question:focus {
+  background: var(--color-primary-light);
+  color: var(--color-white);
+  outline: none;
+}
+
+.faq-icon {
+  transition: transform var(--transition-fast);
+  width: 20px;
+  height: 20px;
+  stroke: var(--color-primary-dark);
+}
+
+.faq-icon.open {
+  transform: rotate(180deg);
+  stroke: var(--color-accent-gold);
+}
+
+/* FAQ Answer */
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition-fast), padding var(--transition-fast);
+  background: var(--color-bg-light);
+  padding: 0 1rem;
+}
+
+.faq-answer.show {
+  max-height: 500px; /* large enough to fit content */
+  padding: 0.75rem 1rem;
+}
+
+.faq-answer p {
+  margin: 0;
+  color: var(--color-neutral);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Accessibility focus */
+.faq-question:focus-visible {
+  outline: 2px dashed var(--color-accent-gold);
+  outline-offset: 2px;
+}
+
+/* Dark theme support */
+.dark .faq-container {
+  color: var(--color-text-dark);
+}
+
+.dark .faq-question {
+  background: var(--color-input-bg-dark);
+  color: var(--color-white);
+}
+
+.dark .faq-answer {
+  background: var(--color-service-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.dark .faq-icon {
+  stroke: var(--color-white);
+}
+
+.dark .faq-icon.open {
+  stroke: var(--color-accent-gold);
+}

@@ -1,11 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {
-  Mail,
-  Phone,
-  MessageCircle,
-  ArrowRight,
-} from "lucide-react"; // ✅ icons
+import { Mail, Phone, MessageCircle, ArrowRight } from "lucide-react";
 import NewsLetterSignup from "../user/NewsLetterSignup";
 import "./Footer.css";
 
@@ -15,6 +10,7 @@ function Footer() {
     { to: "/services", label: "Services" },
     { to: "/contact", label: "Contact" },
     { to: "/unsubscribe", label: "Unsubscribe" },
+    { to: "/faq", label: "FAQ" }, // ✅ Added FAQ link
   ];
 
   const legalLinks = [

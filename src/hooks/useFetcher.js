@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "../api/axiosInstance";
 
-// Import all your API service modules
+// Import all API service modules
 import mediaAPI from "../api/mediaAPI";
 import videosAPI from "../api/videosAPI";
 import promotionsAPI from "../api/promotionsAPI";
@@ -15,7 +15,9 @@ import contactAPI from "../api/contactAPI";
 import serviceAPI from "../api/servicesAPI";
 import workerAPI from "../api/workerAPI";
 
+// -------------------------------
 // Central API map
+// -------------------------------
 const API_MAP = {
   media: mediaAPI,
   videos: videosAPI,
@@ -31,24 +33,28 @@ const API_MAP = {
   workers: workerAPI,
 };
 
-/**
- * useFetcher hook
- *
- * Supports:
- *   1) useFetcher("videos", "all", params, options)
- *   2) useFetcher({ resourceType: "videos", key: "all" }, params, options)
- */
-export default function useFetcher(resourceTypeOrEndpoint, endpointKeyOrParams, paramsOrOptions = {}, options = {}) {
-  let resourceType, endpointKey, params;
-
+// -------------------------------
+// useFetcher Hook
+// -------------------------------
+export default function useFetcher(
+  resourceTypeOrEndpoint,
+  endpointKeyOrParams,
+  paramsOrOptions = {},
+  options = {}
+) {
   // -------------------------------
   // Parse arguments
   // -------------------------------
+  let resourceType, endpointKey, params;
+
   if (typeof resourceTypeOrEndpoint === "string") {
     resourceType = resourceTypeOrEndpoint;
     endpointKey = endpointKeyOrParams;
     params = paramsOrOptions;
-  } else if (typeof resourceTypeOrEndpoint === "object" && resourceTypeOrEndpoint.resourceType) {
+  } else if (
+    typeof resourceTypeOrEndpoint === "object" &&
+    resourceTypeOrEndpoint.resourceType
+  ) {
     resourceType = resourceTypeOrEndpoint.resourceType;
     endpointKey = resourceTypeOrEndpoint.key;
     params = endpointKeyOrParams || {};
@@ -57,14 +63,23 @@ export default function useFetcher(resourceTypeOrEndpoint, endpointKeyOrParams, 
     throw new Error("[useFetcher] Invalid arguments");
   }
 
-  const { notify, successMessages = {}, errorMessages = {}, transform, fallback = true } = options;
+  const {
+    notify,
+    successMessages = {},
+    errorMessages = {},
+    transform,
+    fallback = true,
+  } = options;
 
+  // -------------------------------
+  // State
+  // -------------------------------
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const mountedRef = useRef(true);
-  useEffect(() => () => { mountedRef.current = false; }, []);
+  useEffect(() => () => (mountedRef.current = false), []);
 
   // -------------------------------
   // Fetch Data
@@ -74,8 +89,8 @@ export default function useFetcher(resourceTypeOrEndpoint, endpointKeyOrParams, 
     if (!apiGroup || typeof apiGroup[endpointKey] !== "function") {
       const msg = `Unknown endpoint: ${resourceType}.${endpointKey}`;
       console.error("[useFetcher]", msg);
-      mountedRef.current && setError({ message: msg });
-      mountedRef.current && setLoading(false);
+      if (mountedRef.current) setError({ message: msg });
+      if (mountedRef.current) setLoading(false);
       return;
     }
 
@@ -92,21 +107,24 @@ export default function useFetcher(resourceTypeOrEndpoint, endpointKeyOrParams, 
         if (resourceType === "media") items = [fallbackBannerObject()];
       }
 
-      mountedRef.current && setData(typeof transform === "function" ? transform(items) : items);
+      if (mountedRef.current)
+        setData(typeof transform === "function" ? transform(items) : items);
     } catch (err) {
       const normalizedError = {
         message: err.response?.data?.detail || err.message,
         status: err.response?.status || null,
         data: err.response?.data || null,
       };
-      mountedRef.current && setError(normalizedError);
-      mountedRef.current && setData([]);
+      if (mountedRef.current) setError(normalizedError);
+      if (mountedRef.current) setData([]);
     } finally {
-      mountedRef.current && setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   }, [resourceType, endpointKey, params, transform, fallback]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // -------------------------------
   // CRUD Mutations
@@ -124,23 +142,15 @@ export default function useFetcher(resourceTypeOrEndpoint, endpointKeyOrParams, 
   };
 
   const patch = async (id, payload) => {
-    try {
-      const res = await axiosInstance.patch(`/${resourceType}/${id}/`, payload);
-      await fetchData();
-      return res;
-    } catch (err) {
-      throw err;
-    }
+    const res = await axiosInstance.patch(`/${resourceType}/${id}/`, payload);
+    await fetchData();
+    return res;
   };
 
   const remove = async (id) => {
-    try {
-      const res = await axiosInstance.delete(`/${resourceType}/${id}/`);
-      await fetchData();
-      return res;
-    } catch (err) {
-      throw err;
-    }
+    const res = await axiosInstance.delete(`/${resourceType}/${id}/`);
+    await fetchData();
+    return res;
   };
 
   return { data, loading, error, refetch: fetchData, post, patch, remove };
@@ -156,6 +166,7 @@ function extractItems(res) {
   return [];
 }
 
+// Fallback data
 const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
 const FALLBACK_BANNER_PATH = "/mock/banner-1.png";
 
