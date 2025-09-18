@@ -1,5 +1,17 @@
 // src/pdfjs-setup.js
-import { GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
+import brochure from "../../assets/files/brochure.pdf";
 
-// Use the worker in the public folder
-GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
+// Set the worker using pdfjs-dist path
+GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${require("pdfjs-dist/package.json").version}/pdf.worker.min.js`;
+
+// Load the PDF
+export const loadingTask = getDocument({ url: brochure });
+
+loadingTask.promise
+  .then((pdf) => {
+    console.log("PDF loaded successfully:", pdf);
+  })
+  .catch((err) => {
+    console.error("Error loading PDF:", err);
+  });
