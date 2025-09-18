@@ -11,7 +11,7 @@ const newsletterAPI = {
     return publicAxios.post(`${NEWSLETTER_BASE}subscribe/`, payload);
   },
 
-  confirm(token) {
+  confirmSubscription(token) {
     // GET /api/newsletter/confirm/?token=...
     return publicAxios.get(`${NEWSLETTER_BASE}confirm/`, {
       params: { token },
@@ -30,28 +30,26 @@ const newsletterAPI = {
 
   resendConfirmation(email) {
     // POST /api/newsletter/resend-confirmation/
-    return publicAxios.post(`${NEWSLETTER_BASE}resend-confirmation/`, {
-      email,
-    });
+    return publicAxios.post(`${NEWSLETTER_BASE}resend-confirmation/`, { email });
   },
 
   // ---- Admin ----
-  listSubscribers() {
+  fetchSubscribers() {
     // GET /api/newsletter/list/
     return axiosInstance.get(`${NEWSLETTER_BASE}list/`);
   },
 
-  countSubscribers() {
+  fetchSubscriberCount() {
     // GET /api/newsletter/count/
     return axiosInstance.get(`${NEWSLETTER_BASE}count/`);
   },
 
-  logs() {
+  fetchNewsletterLogs() {
     // GET /api/newsletter/logs/
     return axiosInstance.get(`${NEWSLETTER_BASE}logs/`);
   },
 
-  send(payload) {
+  sendNewsletter(payload) {
     // POST /api/newsletter/send/
     return axiosInstance.post(`${NEWSLETTER_BASE}send/`, payload);
   },
