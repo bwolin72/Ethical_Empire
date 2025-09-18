@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
@@ -11,11 +12,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import "./components/styles/variables.css";
 import "./App.css";
-
-// ==============================
-// PDF.js Worker Setup
-// ==============================
-import "./pdfjs-setup";
+import "./pdfjs-setup"; // PDF.js Worker Setup
 
 // ==============================
 // Layout & UI
@@ -82,7 +79,7 @@ import DebugWrapper from "./components/debug/DebugWrapper";
 // ==============================
 // Context & Auth
 // ==============================
-import { AuthProvider, useAuth } from "./components/context/AuthContext";
+import { AuthProvider } from "./components/context/AuthContext";
 import { ProfileProvider } from "./components/context/ProfileContext";
 import ProtectedRoute from "./components/context/ProtectedRoute";
 
@@ -249,18 +246,17 @@ const AppRoutes = () => {
 };
 
 // ==============================
-// App With Splash Screen & Auth
+// App With Splash Screen (no auth gating for public pages)
 // ==============================
-const AppWithAuth = () => {
-  const { loading, ready } = useAuth();
+const AppWithSplash = () => {
   const [splashVisible, setSplashVisible] = useState(true);
 
   useEffect(() => {
-    const splashTimer = setTimeout(() => setSplashVisible(false), 2500);
+    const splashTimer = setTimeout(() => setSplashVisible(false), 2000);
     return () => clearTimeout(splashTimer);
   }, []);
 
-  if (!ready || loading || splashVisible) {
+  if (splashVisible) {
     return <SplashScreen onFinish={() => setSplashVisible(false)} />;
   }
 
@@ -287,7 +283,7 @@ function App() {
       <Router>
         <AuthProvider>
           <ProfileProvider>
-            <AppWithAuth />
+            <AppWithSplash />
           </ProfileProvider>
           <DebugWrapper />
         </AuthProvider>
