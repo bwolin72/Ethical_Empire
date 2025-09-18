@@ -1,54 +1,65 @@
-/**
- * Newsletter API layer – thin wrappers around Django REST endpoints.
- * Public endpoints use publicAxios, admin endpoints use axiosInstance.
- */
+// src/api/newsletterAPI.js
+import axiosInstance from "./axiosInstance";
+import publicAxios from "./publicAxios";
 
-import publicAxios from './publicAxios';
-import axiosInstance from './axiosInstance';
+const NEWSLETTER_BASE = "/newsletter/";
 
-// === Public endpoints ===
+const newsletterAPI = {
+  // ---- Public ----
+  subscribe(payload) {
+    // POST /api/newsletter/subscribe/
+    return publicAxios.post(`${NEWSLETTER_BASE}subscribe/`, payload);
+  },
 
-export const subscribe = (payload) =>
-  publicAxios.post('/api/newsletter/subscribe/', payload);
+  confirm(token) {
+    // GET /api/newsletter/confirm/?token=...
+    return publicAxios.get(`${NEWSLETTER_BASE}confirm/`, {
+      params: { token },
+    });
+  },
 
-export const confirmSubscription = (token) =>
-  publicAxios.get(`/api/newsletter/confirm/?token=${encodeURIComponent(token)}`);
+  unsubscribe(email) {
+    // POST /api/newsletter/unsubscribe/
+    return publicAxios.post(`${NEWSLETTER_BASE}unsubscribe/`, { email });
+  },
 
-export const unsubscribe = (payload) =>
-  publicAxios.post('/api/newsletter/unsubscribe/', payload);
+  resubscribe(email) {
+    // POST /api/newsletter/resubscribe/
+    return publicAxios.post(`${NEWSLETTER_BASE}resubscribe/`, { email });
+  },
 
-export const resubscribe = (payload) =>
-  publicAxios.post('/api/newsletter/resubscribe/', payload);
+  resendConfirmation(email) {
+    // POST /api/newsletter/resend-confirmation/
+    return publicAxios.post(`${NEWSLETTER_BASE}resend-confirmation/`, {
+      email,
+    });
+  },
 
-export const resendConfirmation = (payload) =>
-  publicAxios.post('/api/newsletter/resend-confirmation/', payload);
+  // ---- Admin ----
+  listSubscribers() {
+    // GET /api/newsletter/list/
+    return axiosInstance.get(`${NEWSLETTER_BASE}list/`);
+  },
 
-// === Admin endpoints ===
+  countSubscribers() {
+    // GET /api/newsletter/count/
+    return axiosInstance.get(`${NEWSLETTER_BASE}count/`);
+  },
 
-export const fetchSubscribers = () =>
-  axiosInstance.get('/api/newsletter/list/');
+  logs() {
+    // GET /api/newsletter/logs/
+    return axiosInstance.get(`${NEWSLETTER_BASE}logs/`);
+  },
 
-export const fetchSubscriberCount = () =>
-  axiosInstance.get('/api/newsletter/count/');
+  send(payload) {
+    // POST /api/newsletter/send/
+    return axiosInstance.post(`${NEWSLETTER_BASE}send/`, payload);
+  },
 
-export const fetchNewsletterLogs = () =>
-  axiosInstance.get('/api/newsletter/logs/');
-
-export const sendNewsletter = (payload) =>
-  axiosInstance.post('/api/newsletter/send/', payload);
-
-export const deleteSubscriber = (id) =>
-  axiosInstance.delete(`/api/newsletter/delete/${id}/`);
-
-export default {
-  subscribe,
-  confirmSubscription,
-  unsubscribe,
-  resubscribe,
-  resendConfirmation,
-  fetchSubscribers,
-  fetchSubscriberCount,
-  fetchNewsletterLogs,
-  sendNewsletter,
-  deleteSubscriber,
+  deleteSubscriber(id) {
+    // DELETE /api/newsletter/delete/:id/
+    return axiosInstance.delete(`${NEWSLETTER_BASE}delete/${id}/`);
+  },
 };
+
+export default newsletterAPI;
