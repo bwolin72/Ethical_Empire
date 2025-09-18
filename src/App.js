@@ -94,6 +94,26 @@ const EethmHomePage = () => {
   );
 };
 
+
+// Debug patch for invalid React children
+const originalCreateElement = React.createElement;
+React.createElement = (...args) => {
+  const element = originalCreateElement(...args);
+  if (element?.props?.children) {
+    React.Children.forEach(element.props.children, (child) => {
+      if (typeof child === "object" && !React.isValidElement(child)) {
+        console.error("🚨 Invalid React child detected:", {
+          component: element.type?.name || element.type,
+          child,
+          props: element.props,
+        });
+      }
+    });
+  }
+  return element;
+};
+
+
 // ==============================
 // Role-Based Redirect Handler
 // ==============================
