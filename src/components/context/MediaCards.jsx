@@ -1,13 +1,13 @@
 // src/components/context/MediaCards.jsx
-import React, { useState } from "react";
-import useFetcher from "../../hooks/useFetcher"; // ✅ correct import
+import React, { useState, useCallback } from "react";
+import useFetcher from "../../hooks/useFetcher";
 import SingleMediaCard from "./MediaCard";
 import MediaSkeleton from "./MediaSkeleton";
 import placeholderImg from "../../assets/placeholder.jpg";
 import "./MediaCard.css";
 
 const MediaCards = ({
-  endpointKey = "media", // ✅ match useFetcher
+  endpointKey = "media",
   resourceType = "media", // "media" | "videos"
   title,
   fullWidth = false,
@@ -18,7 +18,7 @@ const MediaCards = ({
 }) => {
   const [previewMedia, setPreviewMedia] = useState(null);
 
-  // 🔑 call useFetcher with resourceType + endpointKey
+  // Fetch resources
   const { data, loading, error } = useFetcher(resourceType, endpointKey, {
     is_active: isActive,
     is_featured: isFeatured,
@@ -26,12 +26,55 @@ const MediaCards = ({
     label: labelQuery,
   });
 
-  // ✅ normalize
   const mediaItems = Array.isArray(data) ? data : [];
 
-  // ✅ safe check for video type
-  const isVideoType = (fileType) =>
-    typeof fileType === "string" && fileType.toLowerCase().includes("video");
+  // Helper: check if file is a video
+  const isVideoType = useCallback(
+    (type) => typeof type === "string" && type.toLowerCase().includes("video"),
+    []
+  );
+
+  // Render Preview Modal
+  const renderPreviewModal = (media) => (
+    <div
+      className="media-modal"
+      onClick={() => setPreviewMedia(null)}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="media-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          className="close-button"
+          onClick={() => setPreviewMedia(null)}
+          aria-label="Close preview"
+        >
+          ✖
+        </button>
+
+        {isVideoType(media.file_type) ? (
+          <video
+            src={media.url?.full}
+            controls
+            className="modal-media-content"
+          />
+        ) : (
+          <img
+            src={media.url?.full || placeholderImg}
+            alt={media.label || "Preview"}
+            className="modal-media-content"
+            onError={(e) => (e.currentTarget.src = placeholderImg)}
+          />
+        )}
+
+        {media.label && (
+          <p className="modal-media-caption">{media.label}</p>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <section className="media-cards-container">
@@ -51,9 +94,9 @@ const MediaCards = ({
             <div
               key={media.id || media.url?.full || media.label}
               className="media-card-wrapper"
-              onClick={() => setPreviewMedia(media)}
               role="button"
               tabIndex={0}
+              onClick={() => setPreviewMedia(media)}
               onKeyDown={(e) => e.key === "Enter" && setPreviewMedia(media)}
             >
               <SingleMediaCard media={media} fullWidth={fullWidth} />
@@ -62,41 +105,8 @@ const MediaCards = ({
         )}
       </div>
 
-      {/* === Modal Preview === */}
-      {previewMedia && (
-        <div className="media-modal" onClick={() => setPreviewMedia(null)}>
-          <div
-            className="media-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="close-button"
-              onClick={() => setPreviewMedia(null)}
-            >
-              ✖
-            </button>
-
-            {isVideoType(previewMedia.file_type) ? (
-              <video
-                src={previewMedia.url?.full}
-                controls
-                className="modal-media-content"
-              />
-            ) : (
-              <img
-                src={previewMedia.url?.full || placeholderImg}
-                alt={previewMedia.label || "Preview"}
-                className="modal-media-content"
-                onError={(e) => (e.target.src = placeholderImg)}
-              />
-            )}
-
-            {previewMedia.label && (
-              <p className="modal-media-caption">{previewMedia.label}</p>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Modal */}
+      {previewMedia && renderPreviewModal(previewMedia)}
     </section>
   );
 };

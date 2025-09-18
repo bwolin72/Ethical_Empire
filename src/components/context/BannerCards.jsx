@@ -1,5 +1,5 @@
 // src/components/context/BannerCards.jsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import useFetcher from "../../hooks/useFetcher";
 import placeholderImg from "../../assets/placeholder.jpg";
 import BannerSkeleton from "./BannerSkeleton";
@@ -9,26 +9,59 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
   const [previewBanner, setPreviewBanner] = useState(null);
   const scrollRef = useRef(null);
 
-  // Fetch banners
+  // Fetch banners from API
   const { data, loading, error } = useFetcher("media", endpointKey);
-
   const banners = Array.isArray(data) ? data : [];
 
   // Scroll controls
-  const scrollLeft = () =>
-    scrollRef.current?.scrollBy({ left: -300, behavior: "smooth" });
+  const handleScroll = useCallback((direction) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -300 : 300,
+        behavior: "smooth",
+      });
+    }
+  }, []);
 
-  const scrollRight = () =>
-    scrollRef.current?.scrollBy({ left: 300, behavior: "smooth" });
-
-  // Close modal on Escape
+  // Close preview modal with Escape key
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") setPreviewBanner(null);
-    };
+    const handleKeyDown = (e) => e.key === "Escape" && setPreviewBanner(null);
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Render Banner Card
+  const renderBannerCard = (banner) => (
+    <div
+      key={banner.id || banner.url?.full || banner.label}
+      className="banner-card"
+      role="button"
+      tabIndex={0}
+      onClick={() => setPreviewBanner(banner)}
+      onKeyDown={(e) => e.key === "Enter" && setPreviewBanner(banner)}
+    >
+      <div className="banner-img-wrapper">
+        <img
+          src={banner.url?.thumb || banner.url?.full || placeholderImg}
+          alt={banner.label || `${type} Image`}
+          loading="lazy"
+          className="banner-card-image"
+          onError={(e) => (e.currentTarget.src = placeholderImg)}
+        />
+        <div className="banner-hover-overlay">
+          {banner.label && <p>{banner.label}</p>}
+          {banner.uploaded_by && <span>{banner.uploaded_by}</span>}
+        </div>
+      </div>
+
+      <div className="banner-card-info">
+        {banner.label && <p className="banner-card-caption">{banner.label}</p>}
+        {banner.uploaded_by && (
+          <p className="banner-card-meta">Uploaded by {banner.uploaded_by}</p>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <section className="banner-cards-container">
@@ -38,14 +71,14 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
       {/* Scroll Controls */}
       <div className="scroll-controls">
         <button
-          onClick={scrollLeft}
+          onClick={() => handleScroll("left")}
           className="scroll-btn left"
           aria-label="Scroll left"
         >
           ◀
         </button>
         <button
-          onClick={scrollRight}
+          onClick={() => handleScroll("right")}
           className="scroll-btn right"
           aria-label="Scroll right"
         >
@@ -70,43 +103,7 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
             📭 No {type}s available for <strong>{endpointKey}</strong>.
           </p>
         ) : (
-          banners.map((banner) => (
-            <div
-              key={banner.id || banner.url?.full || banner.label}
-              className="banner-card"
-              onClick={() => setPreviewBanner(banner)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === "Enter" && setPreviewBanner(banner)}
-            >
-              {/* Image + Hover Overlay */}
-              <div className="banner-img-wrapper">
-                <img
-                  src={banner.url?.thumb || banner.url?.full || placeholderImg}
-                  alt={banner.label || `${type} Image`}
-                  loading="lazy"
-                  className="banner-card-image"
-                  onError={(e) => (e.target.src = placeholderImg)}
-                />
-                <div className="banner-hover-overlay">
-                  {banner.label && <p>{banner.label}</p>}
-                  {banner.uploaded_by && <span>{banner.uploaded_by}</span>}
-                </div>
-              </div>
-
-              {/* Card Info */}
-              <div className="banner-card-info">
-                {banner.label && (
-                  <p className="banner-card-caption">{banner.label}</p>
-                )}
-                {banner.uploaded_by && (
-                  <p className="banner-card-meta">
-                    Uploaded by {banner.uploaded_by}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))
+          banners.map(renderBannerCard)
         )}
       </div>
 
@@ -133,7 +130,7 @@ const BannerCards = ({ endpointKey = "banners", title, type = "banner" }) => {
               src={previewBanner.url?.full || placeholderImg}
               alt={previewBanner.label || "Preview"}
               className="modal-banner-image"
-              onError={(e) => (e.target.src = placeholderImg)}
+              onError={(e) => (e.currentTarget.src = placeholderImg)}
             />
             {previewBanner.label && (
               <p className="modal-banner-caption">{previewBanner.label}</p>
