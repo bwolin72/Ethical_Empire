@@ -1,6 +1,6 @@
 // src/components/company/FlipbookViewer.jsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import pdfjsLib from "../../pdfjs-setup"; // ✅ our worker-setup file
+import pdfjsLib from "../../pdfjs-setup"; // ✅ PDF.js worker setup
 import "./FlipbookViewer.css";
 
 const FlipbookViewer = () => {
@@ -40,12 +40,11 @@ const FlipbookViewer = () => {
         const page = await pdfDoc.getPage(pageNum);
         const containerWidth = viewerRef.current?.clientWidth || 800;
         const containerHeight = viewerRef.current?.clientHeight || 600;
-        const perPageWidth =
-          containerWidth > 700 ? (containerWidth - 20) / 2 : containerWidth - 40;
+        const perPageWidth = containerWidth / 2;
 
         const viewportUnscaled = page.getViewport({ scale: 1 });
         const scaleX = perPageWidth / viewportUnscaled.width;
-        const scaleY = (containerHeight - 20) / viewportUnscaled.height;
+        const scaleY = containerHeight / viewportUnscaled.height;
         const scale = Math.min(scaleX, scaleY, 2);
 
         const viewport = page.getViewport({ scale });
