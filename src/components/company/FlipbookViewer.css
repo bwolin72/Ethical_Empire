@@ -169,3 +169,41 @@
     gap: 0.5rem;
   }
 }
+.flipbook-viewer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.nav-btn.prev {
+  left: -50px; /* adjust spacing */
+}
+
+.nav-btn.next {
+  right: -50px; /* adjust spacing */
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  margin-top: 12px;
+  font-weight: bold;
+}
