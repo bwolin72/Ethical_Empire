@@ -1,17 +1,19 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
-import { useNavigate, Link } from 'react-router-dom';
-import axiosInstance from '../../api/axiosInstance';
-import authService from '../../api/services/authService';
-import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-hot-toast';
-import logo from '../../assets/logo.png';
-import './Auth.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+
+import authAPI from "../../api/authAPI";
+import { useAuth } from "../context/AuthContext";
+import logo from "../../assets/logo.png";
+import "./Auth.css";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const Login = () => {
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,29 +25,32 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /** 🔹 Redirect user by role */
-  const redirectByRole = useCallback((role) => {
-    const routes = {
-      admin: '/admin',
-      worker: '/worker',
-      user: '/user',
-      vendor: '/vendor-profile',
-      partner: '/partner-profile',
-    };
-    navigate(routes[role] || '/user', { replace: true });
-  }, [navigate]);
+  /** Redirect user by role */
+  const redirectByRole = useCallback(
+    (role) => {
+      const routes = {
+        admin: "/admin",
+        worker: "/worker",
+        user: "/user",
+        vendor: "/vendor-profile",
+        partner: "/partner-profile",
+      };
+      navigate(routes[role] || "/user", { replace: true });
+    },
+    [navigate]
+  );
 
-  /** 🔹 Initialize dark mode */
+  /** Dark mode */
   useEffect(() => {
-    const saved = localStorage.getItem('darkMode') === 'true';
+    const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
-    document.body.classList.toggle('dark', saved);
+    document.body.classList.toggle("dark", saved);
   }, []);
 
-  /** 🔹 Auto redirect if logged in */
+  /** Auto redirect if logged in */
   useEffect(() => {
     if (ready && user?.role) {
-      toast.success(`Welcome back, ${user.name || 'User'}! 🎉`);
+      toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
       redirectByRole(user.role);
     }
   }, [ready, user, redirectByRole]);
@@ -53,44 +58,44 @@ const Login = () => {
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
-    document.body.classList.toggle('dark', updated);
-    localStorage.setItem('darkMode', updated);
-    toast(updated ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
+    document.body.classList.toggle("dark", updated);
+    localStorage.setItem("darkMode", updated);
+    toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    setFormErrors((prev) => ({ ...prev, [name]: '' }));
+    setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const validateForm = () => {
     const errors = {};
-    if (!form.email.trim()) errors.email = 'Please enter your email.';
-    if (!form.password.trim()) errors.password = 'Please enter your password.';
-    if (!acceptedTerms) errors.terms = 'You must accept Terms & Privacy.';
+    if (!form.email.trim()) errors.email = "Please enter your email.";
+    if (!form.password.trim()) errors.password = "Please enter your password.";
+    if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
     setFormErrors(errors);
 
     if (Object.keys(errors).length > 0) {
-      toast.error('Please fix the highlighted errors.');
+      toast.error("Please fix the highlighted errors.");
     }
     return Object.keys(errors).length === 0;
   };
 
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
-    if (typeof data === 'string') return data;
+    if (typeof data === "string") return data;
     if (Array.isArray(data)) return data[0];
-    if (typeof data === 'object') {
-      return data.message || data.detail || 'Login failed.';
+    if (typeof data === "object") {
+      return data.message || data.detail || "Login failed.";
     }
-    return 'Something went wrong.';
+    return "Something went wrong.";
   };
 
   const handleLoginSuccess = (data) => {
     const { access, refresh, user } = data;
     if (!access || !refresh || !user) {
-      toast.error('Invalid login response.');
+      toast.error("Invalid login response.");
       return;
     }
 
@@ -101,7 +106,8 @@ const Login = () => {
       remember: rememberMe,
     });
 
-    toast.success(`Welcome, ${user.name || 'User'} 🎉`);
+    toast.success(`Welcome, ${user.name || "User"} 🎉`);
+    redirectByRole(user.role);
   };
 
   const handleSubmit = async (e) => {
@@ -110,12 +116,12 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const { data } = await authService.login(form);
-      handleLoginSuccess(data);
+      const res = await authAPI.login(form);
+      handleLoginSuccess(res.data);
     } catch (err) {
       const msg = extractErrorMessage(err);
       toast.error(msg);
-      setForm((prev) => ({ ...prev, password: '' }));
+      setForm((prev) => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
     }
@@ -123,13 +129,13 @@ const Login = () => {
 
   const handleGoogleSuccess = async ({ credential }) => {
     if (!credential) {
-      toast.error('Google login failed.');
+      toast.error("Google login failed.");
       return;
     }
     setLoading(true);
     try {
-      const { data } = await axiosInstance.post(authService.endpoints.googleLogin, { credential });
-      handleLoginSuccess(data);
+      const res = await authAPI.googleLogin({ credential });
+      handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {
@@ -139,14 +145,14 @@ const Login = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className={`auth-wrapper ${darkMode ? 'dark' : ''}`}>
+      <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
         {/* Left Branding Panel */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h2>EETHM_GH</h2>
           <p>Your Trusted Digital Hub in Ghana</p>
           <button className="toggle-theme-btn" onClick={toggleDarkMode}>
-            {darkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+            {darkMode ? "🌙 Dark Mode" : "☀️ Light Mode"}
           </button>
         </div>
 
@@ -162,36 +168,38 @@ const Login = () => {
                 placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange}
-                className={formErrors.email ? 'input-error' : ''}
+                className={formErrors.email ? "input-error" : ""}
                 disabled={loading}
                 required
               />
-              {formErrors.email && <small className="error-text">{formErrors.email}</small>}
+              {formErrors.email && (
+                <small className="error-text">{formErrors.email}</small>
+              )}
             </div>
 
-            <div className="input-group password-group">
+            <div className="input-group password-field">
               <label>Password</label>
-              <div className="password-field">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  placeholder="Enter your password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className={formErrors.password ? 'input-error' : ''}
-                  disabled={loading}
-                  required
-                />
-                <button
-                  type="button"
-                  className="toggle-password"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  onClick={() => setShowPassword((prev) => !prev)}
-                >
-                  {showPassword ? '🙈' : '👁️'}
-                </button>
-              </div>
-              {formErrors.password && <small className="error-text">{formErrors.password}</small>}
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={handleChange}
+                className={formErrors.password ? "input-error" : ""}
+                disabled={loading}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              </button>
+              {formErrors.password && (
+                <small className="error-text">{formErrors.password}</small>
+              )}
             </div>
 
             <label className="terms-checkbox">
@@ -200,20 +208,29 @@ const Login = () => {
                 checked={acceptedTerms}
                 onChange={() => setAcceptedTerms((prev) => !prev)}
               />
-              I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
+              I accept <Link to="/terms">Terms</Link> &{" "}
+              <Link to="/privacy">Privacy</Link>
             </label>
-            {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
+            {formErrors.terms && (
+              <small className="error-text">{formErrors.terms}</small>
+            )}
 
             <div className="auth-options">
               <label className="remember-me">
-                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
+                />
                 Keep me signed in
               </label>
-              <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+              <Link to="/forgot-password" className="forgot-link">
+                Forgot password?
+              </Link>
             </div>
 
             <button type="submit" className="auth-submit-btn" disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
@@ -221,7 +238,7 @@ const Login = () => {
             <p>Or sign in with Google:</p>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
-              onError={() => toast.error('Google login failed')}
+              onError={() => toast.error("Google login failed")}
             />
           </div>
 
