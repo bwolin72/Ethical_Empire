@@ -1,8 +1,7 @@
-// pdfjs-setup.js
-import { GlobalWorkerOptions } from "pdfjs-dist/esm/build/pdf";
+// src/pdf.worker.js
+// import the legacy UMD worker from pdfjs-dist
+import { version as pdfjsVersion } from "pdfjs-dist/package.json";
+import pdfjsLib from "pdfjs-dist/legacy/build/pdf";
 
-// Directly reference the worker file from the ESM build
-GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/esm/build/pdf.worker.min.js",
-  import.meta.url
-).href; // use .href to ensure a string URL
+self.pdfjsVersion = pdfjsVersion;
+self.pdfjsLib = pdfjsLib;
