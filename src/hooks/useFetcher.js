@@ -35,7 +35,6 @@ const API_MAP = {
 
 // -------------------------------
 // Default fallback endpoint mapping
-// (so you don’t call videos.all or media.banners by mistake)
 // -------------------------------
 const DEFAULT_ENDPOINT = "list";
 
@@ -64,7 +63,7 @@ export default function useFetcher(
     params = endpointKeyOrParams || {};
     options = paramsOrOptions || {};
   } else {
-    throw new Error("[useFetcher] Invalid arguments");
+    throw new Error("[useFetcher] Invalid arguments provided");
   }
 
   const {
@@ -81,7 +80,11 @@ export default function useFetcher(
   const [error, setError] = useState(null);
 
   const mountedRef = useRef(true);
-  useEffect(() => () => (mountedRef.current = false), []);
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   // Fetch Data
   const fetchData = useCallback(async () => {
@@ -89,8 +92,10 @@ export default function useFetcher(
     if (!apiGroup || typeof apiGroup[endpointKey] !== "function") {
       const msg = `Unknown endpoint: ${resourceType}.${endpointKey}`;
       console.error("[useFetcher]", msg);
-      if (mountedRef.current) setError({ message: msg });
-      if (mountedRef.current) setLoading(false);
+      if (mountedRef.current) {
+        setError({ message: msg });
+        setLoading(false);
+      }
       return;
     }
 
@@ -101,24 +106,32 @@ export default function useFetcher(
       const res = await apiGroup[endpointKey](params || {});
       let items = extractItems(res);
 
-      // Fallbacks
+      // Apply fallbacks for specific resource types
       if (fallback && (!items || items.length === 0)) {
         if (resourceType === "videos") items = [fallbackVideoObject()];
         if (resourceType === "media") items = [fallbackBannerObject()];
       }
 
-      if (mountedRef.current)
+      if (mountedRef.current) {
         setData(typeof transform === "function" ? transform(items) : items);
+      }
     } catch (err) {
+      console.error("[useFetcher] API request failed:", err);
+
       const normalizedError = {
         message: err.response?.data?.detail || err.message,
         status: err.response?.status || null,
         data: err.response?.data || null,
       };
-      if (mountedRef.current) setError(normalizedError);
-      if (mountedRef.current) setData([]);
+
+      if (mountedRef.current) {
+        setError(normalizedError);
+        setData([]);
+      }
     } finally {
-      if (mountedRef.current) setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [resourceType, endpointKey, params, transform, fallback]);
 
@@ -140,15 +153,23 @@ export default function useFetcher(
   };
 
   const patch = async (id, payload) => {
-    const res = await axiosInstance.patch(`/${resourceType}/${id}/`, payload);
-    await fetchData();
-    return res;
+    try {
+      const res = await axiosInstance.patch(`/${resourceType}/${id}/`, payload);
+      await fetchData();
+      return res;
+    } catch (err) {
+      throw err;
+    }
   };
 
   const remove = async (id) => {
-    const res = await axiosInstance.delete(`/${resourceType}/${id}/`);
-    await fetchData();
-    return res;
+    try {
+      const res = await axiosInstance.delete(`/${resourceType}/${id}/`);
+      await fetchData();
+      return res;
+    } catch (err) {
+      throw err;
+    }
   };
 
   return { data, loading, error, refetch: fetchData, post, patch, remove };
