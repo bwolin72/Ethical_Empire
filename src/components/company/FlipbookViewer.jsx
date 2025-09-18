@@ -1,3 +1,4 @@
+// src/components/company/FlipbookViewer.jsx
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
 import "pdfjs-dist/web/pdf_viewer.css"; // optional base styles
@@ -6,8 +7,8 @@ import "./FlipbookViewer.css";          // your custom styles
 // PDF file bundled from src/assets
 import brochure from "../../assets/files/brochure.pdf";
 
-// ✅ Ensure PDF.js uses CRA-compatible worker
-import "../../pdf.worker";
+// ✅ CRA-compatible PDF.js worker
+GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
 
 const FlipbookViewer = () => {
   const viewerRef = useRef(null);
@@ -19,9 +20,7 @@ const FlipbookViewer = () => {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [animating, setAnimating] = useState(false);
 
-  // ---------------------------
-  // Render a single PDF page into a container
-  // ---------------------------
+  // Render a single page
   const renderPage = useCallback(
     async (pageNum, container) => {
       if (!pdfDoc || !container || pageNum < 1 || pageNum > totalPages) {
@@ -60,18 +59,14 @@ const FlipbookViewer = () => {
     [pdfDoc, totalPages]
   );
 
-  // ---------------------------
-  // Display current two-page spread
-  // ---------------------------
+  // Display two-page spread
   const displayPages = useCallback(async () => {
     if (!pdfDoc) return;
     await renderPage(currentIndex, leftPageRef.current);
     await renderPage(currentIndex + 1, rightPageRef.current);
   }, [pdfDoc, currentIndex, renderPage]);
 
-  // ---------------------------
-  // Next / Prev animations
-  // ---------------------------
+  // Next/Prev animations
   const animateNext = async () => {
     if (animating || currentIndex + 1 > totalPages) return;
     setAnimating(true);
@@ -106,9 +101,7 @@ const FlipbookViewer = () => {
     );
   };
 
-  // ---------------------------
   // Keyboard navigation
-  // ---------------------------
   useEffect(() => {
     const handler = (e) => {
       if (e.key === "ArrowRight") animateNext();
@@ -118,9 +111,7 @@ const FlipbookViewer = () => {
     return () => window.removeEventListener("keydown", handler);
   }, [animateNext, animatePrev]);
 
-  // ---------------------------
-  // Load PDF document
-  // ---------------------------
+  // Load PDF
   useEffect(() => {
     const loadPdf = async () => {
       try {
@@ -136,9 +127,7 @@ const FlipbookViewer = () => {
     loadPdf();
   }, []);
 
-  // ---------------------------
-  // Display pages when PDF loads or page changes
-  // ---------------------------
+  // Display pages when PDF or current index changes
   useEffect(() => {
     displayPages();
   }, [pdfDoc, currentIndex, displayPages]);
