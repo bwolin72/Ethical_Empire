@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/web/pdf_viewer.css"; // optional base styles
 import "./FlipbookViewer.css";          // your custom styles
-import brochure from "../../assets/files/brochure.pdf"; // PDF file
 
-// Set PDF.js worker (using CDN)
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+// PDF file bundled from src/assets
+import brochure from "../../assets/files/brochure.pdf";
+
+// ✅ Load worker from src/pdf.worker.js (CRA compatible)
+import "../../pdf.worker";
 
 const FlipbookViewer = () => {
   const viewerRef = useRef(null);
@@ -122,7 +124,6 @@ const FlipbookViewer = () => {
   useEffect(() => {
     const loadPdf = async () => {
       try {
-        // FIX: use { url: brochure }
         const loadingTask = pdfjsLib.getDocument({ url: brochure });
         const doc = await loadingTask.promise;
         setPdfDoc(doc);
@@ -147,6 +148,14 @@ const FlipbookViewer = () => {
       <h1 className="flipbook-title">Company Profile — Flipbook</h1>
 
       <div className="flipbook-viewer" ref={viewerRef}>
+        <button
+          className="nav-btn prev"
+          onClick={animatePrev}
+          disabled={currentIndex <= 1 || animating}
+        >
+          ◀
+        </button>
+
         <div className="book">
           <div className="page left" ref={leftPageRef}>
             <div className="inner"></div>
@@ -155,27 +164,18 @@ const FlipbookViewer = () => {
             <div className="inner"></div>
           </div>
         </div>
-      </div>
 
-      <div className="controls">
         <button
-          className="btn prev"
-          onClick={animatePrev}
-          disabled={currentIndex <= 1 || animating}
-        >
-          ◀ Prev
-        </button>
-        <span className="page-indicator">
-          Page {currentIndex} – {Math.min(currentIndex + 1, totalPages)} of{" "}
-          {totalPages}
-        </span>
-        <button
-          className="btn next"
+          className="nav-btn next"
           onClick={animateNext}
           disabled={currentIndex + 1 > totalPages || animating}
         >
-          Next ▶
+          ▶
         </button>
+      </div>
+
+      <div className="page-indicator">
+        Page {currentIndex} – {Math.min(currentIndex + 1, totalPages)} of {totalPages}
       </div>
     </div>
   );
