@@ -1,118 +1,77 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import publicAxios from "../api/publicAxios";     // no-auth axios
-import axiosInstance from "../api/axiosInstance"; // auth-required axios
+import { useState, useEffect, useCallback, useRef } from "react";
+import mediaAPI from "../api/mediaAPI";
+import videosAPI from "../api/videosAPI";
+import axiosInstance from "../api/axiosInstance";
+
+const API_MAP = {
+  media: mediaAPI,
+  videos: videosAPI,
+};
 
 /**
- * Generic data fetching & CRUD hook
- * Compatible with:
- *   • /api/videos/ (DRF router)
- *   • /api/media/… (custom endpoints)
+ * useFetcher hook
+ *
+ * Supports:
+ *   1) useFetcher("videos", "all", params, options)
+ *   2) useFetcher(API_ENDPOINTS.videos.all, params, options)
  */
-export default function useFetcher(resourceType, endpointKey, params = null, options = {}) {
-  const {
-    notify,
-    successMessages = {},
-    errorMessages = {},
-    transform,
-    resource,
-    mutation,
-    fallback = true,
-  } = options;
+export default function useFetcher(resourceTypeOrEndpoint, endpointKeyOrParams, paramsOrOptions = null, options = {}) {
+  let resourceType, endpointKey, params;
 
-  // --- stable memoised params so useEffect deps don't thrash ---
-  const stableParams = useMemo(() => params, [JSON.stringify(params)]);
-  const stableEndpointKey = useMemo(() => endpointKey, [endpointKey]);
+  // --------------------------------------------------
+  // Parse arguments
+  // --------------------------------------------------
+  if (typeof resourceTypeOrEndpoint === "string") {
+    // Legacy style
+    resourceType = resourceTypeOrEndpoint;
+    endpointKey = endpointKeyOrParams;
+    params = paramsOrOptions;
+  } else if (typeof resourceTypeOrEndpoint === "object" && resourceTypeOrEndpoint.resourceType) {
+    // New style: endpoint object
+    resourceType = resourceTypeOrEndpoint.resourceType;
+    endpointKey = resourceTypeOrEndpoint.key;
+    params = endpointKeyOrParams || {};
+    options = paramsOrOptions || {};
+  } else {
+    throw new Error("[useFetcher] Invalid arguments");
+  }
+
+  const { notify, successMessages = {}, errorMessages = {}, transform, mutation, fallback = true } = options;
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const dataRef = useRef(data);
-  useEffect(() => { dataRef.current = data; }, [data]);
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
-  const mountedRef = useRef(false);
-  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
-
-  // ------------------------------------------------------------------
-  // Build GET fetcher for each resource type and endpoint
-  // ------------------------------------------------------------------
-  const getFetcher = useCallback(() => {
-    const fetchUrl = (urlOrFn) => (typeof urlOrFn === "function" ? urlOrFn() : urlOrFn);
-
-    if (resourceType === "videos") {
-      // DRF router already exposes list/detail at /videos/
-      if (!stableEndpointKey || stableEndpointKey === "list") {
-        return () => publicAxios.get("/videos/", stableParams ? { params: stableParams } : undefined);
-      }
-      if (stableEndpointKey === "detail") {
-        if (!stableParams?.id) throw new Error("Missing id for video detail");
-        return () => publicAxios.get(`/videos/${stableParams.id}/`);
-      }
-    }
-
-    if (resourceType === "media") {
-      /**
-       * Map the endpointKey to the actual Django URLs from urls.py
-       * Only include the public-facing ones; admin endpoints should use auth.
-       */
-      const mediaPaths = {
-        list: "", // default list
-        banners: "banners/",
-        featured: "featured/",
-        vendor: "vendor/",
-        partner: "partner/",
-        user: "user/",
-        home: "home/",
-        about: "about/",
-        decor: "decor/",
-        "live-band": "live-band/",
-        catering: "catering/",
-        "media-hosting": "media-hosting/",
-        "partner-vendor-dashboard": "partner-vendor-dashboard/",
-      };
-
-      const key = stableEndpointKey || "list";
-      const path = mediaPaths[key];
-      if (path === undefined) {
-        throw new Error(`Unknown media endpoint key: ${key}`);
-      }
-      return () =>
-        publicAxios.get(`/media/${path}`, stableParams ? { params: stableParams } : undefined);
-    }
-
-    return null;
-  }, [resourceType, stableEndpointKey, stableParams]);
-
-  // ------------------------------------------------------------------
-  // Fetch the data
-  // ------------------------------------------------------------------
+  // --------------------------------------------------
+  // Fetch Data
+  // --------------------------------------------------
   const fetchData = useCallback(async () => {
-    const fetcher = getFetcher();
-    if (!fetcher) {
-      if (mountedRef.current) {
-        setError({ message: `Unknown endpoint for ${resourceType}: ${String(stableEndpointKey)}` });
-        setLoading(false);
-      }
-      console.error(`[useFetcher] Unknown endpoint key for ${resourceType}: ${stableEndpointKey}`);
+    const apiGroup = API_MAP[resourceType];
+    if (!apiGroup || typeof apiGroup[endpointKey] !== "function") {
+      setError({ message: `Unknown endpoint: ${resourceType}.${endpointKey}` });
+      console.error(`[useFetcher] Unknown endpoint: ${resourceType}.${endpointKey}`);
+      setLoading(false);
       return;
     }
 
-    if (mountedRef.current) { setLoading(true); setError(null); }
+    setLoading(true);
+    setError(null);
 
     try {
-      const res = await fetcher();
+      const res = await apiGroup[endpointKey](params || {});
       let items = extractItems(res);
 
-      // --- fallback hero or banner if nothing returned ---
-      if (fallback) {
-        if (resourceType === "videos" && (!items || items.length === 0)) {
-          mountedRef.current && setData([fallbackVideoObject()]);
-          return;
-        }
-        if (resourceType === "media" && (!items || items.length === 0)) {
-          mountedRef.current && setData([fallbackBannerObject()]);
-          return;
-        }
+      // Fallbacks
+      if (fallback && (!items || items.length === 0)) {
+        if (resourceType === "videos") items = [fallbackVideoObject()];
+        if (resourceType === "media") items = [fallbackBannerObject()];
       }
 
       const finalItems = typeof transform === "function" ? transform(items) : items;
@@ -123,102 +82,62 @@ export default function useFetcher(resourceType, endpointKey, params = null, opt
         status: err.response?.status || null,
         data: err.response?.data || null,
       };
-      console.error(`❌ API fetch failed for ${resourceType}:${stableEndpointKey}`, normalizedError);
-
-      if (fallback) {
-        if (resourceType === "videos") {
-          mountedRef.current && setData([fallbackVideoObject()]);
-          setError(null);
-          return;
-        }
-        if (resourceType === "media") {
-          mountedRef.current && setData([fallbackBannerObject()]);
-          setError(null);
-          return;
-        }
-      }
-
-      mountedRef.current && setData([]);
       mountedRef.current && setError(normalizedError);
+      mountedRef.current && setData([]);
     } finally {
       mountedRef.current && setLoading(false);
     }
-  }, [getFetcher, resourceType, stableEndpointKey, transform, fallback]);
+  }, [resourceType, endpointKey, params, transform, fallback]);
 
-  // ------------------------------------------------------------------
-  // CRUD mutation endpoints (admin/auth only)
-  // ------------------------------------------------------------------
-  const endpoints = useMemo(
-    () => buildMutationEndpoints({
-      resourceType,
-      endpointKey: stableEndpointKey,
-      resourceOverride: resource,
-      custom: mutation
-    }),
-    [resourceType, stableEndpointKey, resource, mutation]
-  );
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const resolveCreateUrl = (eps) => typeof eps.create === "function" ? eps.create() : eps.create;
-  const resolvePatchUrl = (eps, id) => typeof eps.patch === "function" ? eps.patch(id) : eps.patch;
-  const resolveRemoveUrl = (eps, id) => typeof eps.remove === "function" ? eps.remove(id) : eps.remove;
-
-  const post = useCallback(async (payload, { optimisticItem } = {}) => {
-    const previous = Array.isArray(dataRef.current) ? [...dataRef.current] : [];
-    const tmpId = `tmp-${Date.now()}`;
-    const optimistic = { id: tmpId, ...(optimisticItem || payload) };
-    mountedRef.current && setData(prev => [optimistic, ...prev]);
-
+  // --------------------------------------------------
+  // CRUD Mutations
+  // --------------------------------------------------
+  const post = async (payload) => {
     try {
-      const url = resolveCreateUrl(endpoints);
-      const res = await axiosInstance.post(url, payload);
-      safeNotify(notify, "success", successMessages.post || "Created successfully.");
+      const res = await axiosInstance.post(`/${resourceType}/`, payload);
+      notify?.("success", successMessages.post || "Created successfully.");
       await fetchData();
       return res;
     } catch (err) {
-      mountedRef.current && setData(previous);
-      safeNotify(notify, "error", errorMessages.post || "Create failed. Changes reverted.");
-      mountedRef.current && setError(err);
+      notify?.("error", errorMessages.post || "Create failed.");
       throw err;
     }
-  }, [endpoints, fetchData, notify, successMessages, errorMessages]);
+  };
 
-  const patch = useCallback(async (id, payload) => {
+  const patch = async (id, payload) => {
     try {
-      const url = resolvePatchUrl(endpoints, id);
-      const res = await axiosInstance.patch(url, payload);
+      const res = await axiosInstance.patch(`/${resourceType}/${id}/`, payload);
       await fetchData();
       return res;
     } catch (err) {
-      mountedRef.current && setError(err);
       throw err;
     }
-  }, [endpoints, fetchData]);
+  };
 
-  const remove = useCallback(async (id) => {
+  const remove = async (id) => {
     try {
-      const url = resolveRemoveUrl(endpoints, id);
-      const res = await axiosInstance.delete(url);
+      const res = await axiosInstance.delete(`/${resourceType}/${id}/`);
       await fetchData();
       return res;
     } catch (err) {
-      mountedRef.current && setError(err);
       throw err;
     }
-  }, [endpoints, fetchData]);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
+  };
 
   return { data, loading, error, refetch: fetchData, post, patch, remove };
 }
 
-// ------------------------------------------------------------------
+// --------------------------------------------------
 // Helpers
-// ------------------------------------------------------------------
+// --------------------------------------------------
 function extractItems(res) {
   if (!res) return [];
   if (Array.isArray(res?.data)) return res.data;
   if (Array.isArray(res?.data?.results)) return res.data.results;
-  if (Array.isArray(res)) return res;
   return [];
 }
 
@@ -229,8 +148,7 @@ function fallbackVideoObject() {
   return {
     id: "fallback-video",
     title: "Fallback Hero Video",
-    video_url: FALLBACK_VIDEO_PATH,
-    thumbnail_url: null,
+    url: FALLBACK_VIDEO_PATH,
     is_active: true,
     is_featured: true,
   };
@@ -245,44 +163,4 @@ function fallbackBannerObject() {
     is_active: true,
     is_featured: true,
   };
-}
-
-function safeNotify(notify, type, message) {
-  if (typeof notify === "function" && message) {
-    try { notify(type, message); } catch (e) { console.warn("[useFetcher] notify failed:", e); }
-  }
-}
-
-function buildMutationEndpoints({ resourceType, endpointKey, resourceOverride, custom }) {
-  const res = resourceOverride || inferResource(resourceType);
-  let defaults = {};
-
-  if (res === "videos") {
-    defaults = {
-      create: () => "/videos/",
-      update: (id) => `/videos/${id}/`,
-      patch: (id) => `/videos/${id}/`,
-      remove: (id) => `/videos/${id}/`,
-    };
-  } else if (res === "media") {
-    defaults = {
-      create: () => "/media/upload/",
-      update: (id) => `/media/${id}/update/`,
-      patch: (id) => `/media/${id}/update/`,
-      remove: (id) => `/media/${id}/delete/`,
-    };
-  }
-
-  return {
-    create: custom?.create || defaults.create,
-    update: custom?.update || defaults.update,
-    patch: custom?.patch || defaults.patch,
-    remove: custom?.remove || defaults.remove,
-  };
-}
-
-function inferResource(resourceType) {
-  if (resourceType === "videos") return "videos";
-  if (resourceType === "media") return "media";
-  return null;
 }

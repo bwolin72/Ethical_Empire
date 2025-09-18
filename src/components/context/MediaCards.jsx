@@ -7,7 +7,7 @@ import placeholderImg from "../../assets/placeholder.jpg";
 import "./MediaCard.css";
 
 const MediaCards = ({
-  endpointKey = "media",
+  endpointKey = "all", // ✅ safer default
   resourceType = "media", // "media" | "videos"
   title,
   fullWidth = false,
@@ -34,18 +34,17 @@ const MediaCards = ({
     []
   );
 
-  // Render Preview Modal
+  // Preview Modal
   const renderPreviewModal = (media) => (
     <div
       className="media-modal"
       onClick={() => setPreviewMedia(null)}
       role="dialog"
       aria-modal="true"
+      aria-labelledby="media-preview-title"
+      aria-describedby="media-preview-caption"
     >
-      <div
-        className="media-modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="media-modal-content" onClick={(e) => e.stopPropagation()}>
         <button
           className="close-button"
           onClick={() => setPreviewMedia(null)}
@@ -70,7 +69,9 @@ const MediaCards = ({
         )}
 
         {media.label && (
-          <p className="modal-media-caption">{media.label}</p>
+          <p id="media-preview-caption" className="modal-media-caption">
+            {media.label}
+          </p>
         )}
       </div>
     </div>
@@ -78,29 +79,25 @@ const MediaCards = ({
 
   return (
     <section className="media-cards-container">
-      {title && <h2 className="media-cards-title">{title}</h2>}
+      {title && <h2 id="media-preview-title" className="media-cards-title">{title}</h2>}
 
       <div className={`media-cards-scroll-wrapper ${fullWidth ? "full" : ""}`}>
         {loading ? (
           <MediaSkeleton count={3} />
         ) : error ? (
           <p className="media-error">
-            ⚠️ {error.message || "Failed to load media"}
+            ⚠️ {error.message || `Failed to load ${resourceType}`}
           </p>
         ) : mediaItems.length === 0 ? (
           <p className="media-card-empty">📭 No {resourceType} uploaded.</p>
         ) : (
           mediaItems.map((media) => (
-            <div
+            <SingleMediaCard
               key={media.id || media.url?.full || media.label}
-              className="media-card-wrapper"
-              role="button"
-              tabIndex={0}
+              media={media}
+              fullWidth={fullWidth}
               onClick={() => setPreviewMedia(media)}
-              onKeyDown={(e) => e.key === "Enter" && setPreviewMedia(media)}
-            >
-              <SingleMediaCard media={media} fullWidth={fullWidth} />
-            </div>
+            />
           ))
         )}
       </div>

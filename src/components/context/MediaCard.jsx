@@ -1,60 +1,51 @@
-// src/components/context/MediaCard.jsx
-import React from 'react';
-import PropTypes from 'prop-types';
-import './MediaCard.css';
+import React from "react";
+import PropTypes from "prop-types";
+import "./MediaCard.css";
 
 const SingleMediaCard = ({ media, fullWidth = false, onClick }) => {
-  // ✅ Guard against null/undefined
   const safeMedia = media || {};
 
-  // ✅ Resolve image/video sources with fallbacks
+  // Resolve sources
   const thumbnail =
-    safeMedia?.url?.thumbnail ||
-    safeMedia?.url?.medium ||
-    safeMedia?.url?.full ||
-    '/mock/banner-1.png'; // fallback image
+    safeMedia.url?.thumbnail ||
+    safeMedia.url?.medium ||
+    safeMedia.url?.full ||
+    "/mock/banner-1.png";
 
   const fullUrl =
-    safeMedia?.url?.full ||
-    (safeMedia?.file_type?.toLowerCase().includes('video')
-      ? '/mock/hero-video.mp4' // fallback video
+    safeMedia.url?.full ||
+    (safeMedia.file_type?.toLowerCase().includes("video")
+      ? "/mock/hero-video.mp4"
       : thumbnail);
 
-  // ✅ Detect type safely
-  const isVideo = safeMedia?.file_type?.toLowerCase().includes('video');
+  const isVideo = safeMedia.file_type?.toLowerCase().includes("video");
 
-  // ✅ Label fallback
   const label =
-    safeMedia?.label ||
-    safeMedia?.title ||
-    safeMedia?.category ||
-    'Media Item';
+    safeMedia.label ||
+    safeMedia.title ||
+    safeMedia.category ||
+    "Media Item";
 
-  // ✅ Category (for grouping/styling)
-  const category = safeMedia?.category || 'general';
+  const category = safeMedia.category?.toLowerCase() || "general";
 
-  // Error handlers with correct fallback assets
   const handleVideoError = (e) => {
-    e.target.poster = '/mock/banner-1.png';
-    if (e.target.querySelector('source')) {
-      e.target.querySelector('source').src = '/mock/hero-video.mp4';
-      e.target.load();
-    }
+    e.currentTarget.poster = "/mock/banner-1.png";
+    e.currentTarget.src = "/mock/hero-video.mp4";
   };
 
   const handleImageError = (e) => {
-    e.target.src = '/mock/banner-1.png';
+    e.currentTarget.src = "/mock/banner-1.png";
   };
 
   return (
     <div
-      className={`media-card ${fullWidth ? 'full' : ''}`}
+      className={`media-card ${fullWidth ? "full" : ""}`}
       data-category={category}
-      role="button"
-      tabIndex={0}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
       aria-label={label}
       onClick={onClick}
-      onKeyDown={(e) => e.key === 'Enter' && onClick?.()}
+      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
     >
       <div className="media-thumb-wrapper">
         {isVideo ? (
@@ -63,10 +54,10 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick }) => {
               className="media-thumb"
               muted
               preload="metadata"
-              poster={thumbnail} // ✅ fallback poster
+              poster={thumbnail}
               onError={handleVideoError}
             >
-              <source src={fullUrl} type={safeMedia.file_type || 'video/mp4'} />
+              <source src={fullUrl} type={safeMedia.file_type || "video/mp4"} />
               Your browser does not support the video tag.
             </video>
             <span className="video-icon">📹</span>
@@ -86,7 +77,6 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick }) => {
   );
 };
 
-// ✅ PropTypes for maintainability
 SingleMediaCard.propTypes = {
   media: PropTypes.shape({
     url: PropTypes.shape({
@@ -103,4 +93,4 @@ SingleMediaCard.propTypes = {
   onClick: PropTypes.func,
 };
 
-export default SingleMediaCard;
+export default React.memo(SingleMediaCard);

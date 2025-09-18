@@ -1,19 +1,16 @@
+// EethmHome.jsx (fixed useFetcher + endpoints)
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FadeInSection from "../FadeInSection";
 import Services from "./Services";
 import NewsletterSignup from "../user/NewsLetterSignup";
 
-// Medium components
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import MediaGallery from "../gallery/MediaGallery";
 import VideoGallery from "../videos/VideoGallery";
 
-// Centralised API access
 import useFetcher from "../../hooks/useFetcher";
-import { API_ENDPOINTS } from "../../api/apiService";
-
 import "./EethmHome.css";
 
 const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
@@ -23,39 +20,42 @@ const EethmHome = () => {
   const navigate = useNavigate();
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // ✅ Centralised data fetching
+  // ✅ Always pass (resourceType, endpointKey)
   const {
     data: videos = [],
     loading: videosLoading,
     error: videosError,
-  } = useFetcher(API_ENDPOINTS.videos.all);
+  } = useFetcher("videos", "all");
 
   const {
     data: promotions = [],
     loading: promoLoading,
     error: promoError,
-  } = useFetcher(API_ENDPOINTS.promotions.all);
+  } = useFetcher("promotions", "all");
 
   const {
     data: reviews = [],
     loading: reviewLoading,
     error: reviewError,
-  } = useFetcher(API_ENDPOINTS.reviews.all);
+  } = useFetcher("reviews", "all");
 
   const {
     data: media = [],
     loading: mediaLoading,
     error: mediaError,
-  } = useFetcher(API_ENDPOINTS.media.all);
+  } = useFetcher("media", "all");
 
-  // ✅ Hero section uses the first video or a local fallback
-  const heroVideo = videos.length ? videos[0] : { url: LOCAL_FALLBACK_VIDEO };
+  // ✅ Normalize hero video shape
+  const heroVideo =
+    videos.length > 0
+      ? videos[0]
+      : { url: { full: LOCAL_FALLBACK_VIDEO }, file_type: "video/mp4" };
 
-  // ✅ Gallery shows all videos + media, or a local fallback image
+  // ✅ Merge gallery items with fallback
   const galleryItems =
     [...videos, ...media].length > 0
       ? [...videos, ...media]
-      : [{ url: LOCAL_FALLBACK_IMAGE }];
+      : [{ url: { full: LOCAL_FALLBACK_IMAGE }, file_type: "image/jpeg" }];
 
   return (
     <div className="eethm-home-page">
@@ -88,11 +88,8 @@ const EethmHome = () => {
       {/* ===== HIGHLIGHT BANNERS ===== */}
       <FadeInSection>
         <section className="banners-hero-wrap">
-          <BannerCards
-            endpointKey={API_ENDPOINTS.media.banners}  // ✅ fixed
-            title="Highlights"
-            type="banner"
-          />
+          {/* pass key, not full URL */}
+          <BannerCards endpointKey="banners" title="Highlights" type="banner" />
         </section>
       </FadeInSection>
 
@@ -113,10 +110,7 @@ const EethmHome = () => {
           ) : promotions.length ? (
             <div className="promotions-grid">
               {promotions.map((p, idx) => (
-                <article
-                  key={p.id ?? `promo-${idx}`}
-                  className="promotion-card"
-                >
+                <article key={p.id ?? `promo-${idx}`} className="promotion-card">
                   {p.image_url && <img src={p.image_url} alt={p.title} />}
                   <div>
                     <h3>{p.title}</h3>
@@ -143,7 +137,7 @@ const EethmHome = () => {
           {mediaLoading && <p>Loading media…</p>}
           {mediaError && <p className="error-text">{mediaError}</p>}
           <MediaCards
-            endpointKey={API_ENDPOINTS.media.all}   // ✅ fixed
+            endpointKey="all" // ✅ pass key only
             resourceType="media"
             fullWidth={false}
             isActive
