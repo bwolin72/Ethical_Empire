@@ -1,8 +1,8 @@
-/* eslint-disable import/no-webpack-loader-syntax */
-import { GlobalWorkerOptions } from "pdfjs-dist/build/pdf";
+// pdfjs-setup.js
+import { GlobalWorkerOptions } from "pdfjs-dist/esm/build/pdf";
 
-// ✅ Use new URL so CRA + Webpack handle it
+// Directly reference the worker file from the ESM build
 GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
+  "pdfjs-dist/esm/build/pdf.worker.min.js",
   import.meta.url
-);
+).href; // use .href to ensure a string URL
