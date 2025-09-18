@@ -1,29 +1,43 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
-import "./components/styles/variables.css";
-import "./App.css";
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
+import "./components/styles/variables.css";
+import "./App.css";
+
+// ==============================
 // Layout & UI
+// ==============================
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import SplashScreen from "./components/ui/SplashScreen";
 import PromotionPopup from "./components/home/PromotionPopup";
 import FloatingWhatsAppButton from "./components/ui/FloatingWhatsAppButton";
 
+// ==============================
 // Pages - Home & Static
+// ==============================
 import EethmHome from "./components/home/EethmHome";
 import About from "./components/home/About";
 import Services from "./components/home/Services";
 import ContactForm from "./components/Queries/ContactForm";
 
-// Legal Pages
+// Legal
 import Terms from "./components/legal/Terms";
 import Privacy from "./components/legal/Privacy";
 import FAQ from "./components/legal/FAQ";
 
+// ==============================
 // Pages - Auth & Profile
+// ==============================
 import Register from "./components/Auth/Register";
 import Login from "./components/Auth/Login";
 import ForgotPassword from "./components/Auth/ForgotPassword";
@@ -34,7 +48,9 @@ import UpdatePassword from "./components/user/UpdatePassword";
 import ConfirmPasswordChange from "./components/user/ConfirmPasswordChange";
 import AccountProfile from "./components/user/AccountProfile";
 
+// ==============================
 // Pages - Dashboard & Forms
+// ==============================
 import AdminPanel from "./components/AdminDashboard/AdminPanel";
 import UserPage from "./components/user/UserPage";
 import BookingForm from "./components/Queries/BookingForm";
@@ -45,16 +61,23 @@ import PartnerProfilePage from "./components/agency/PartnerProfilePage";
 import AgencyDashboard from "./components/agency/AgencyDashboard";
 import WorkerDashboard from "./components/worker/WorkerDashboard";
 
+// ==============================
 // Pages - Services
+// ==============================
 import LiveBandServicePage from "./components/services/LiveBandServicePage";
 import CateringServicePage from "./components/services/CateringServicePage";
 import DecorServicePage from "./components/services/DecorServicePage";
 import MediaHostingServicePage from "./components/services/MediaHostingServicePage";
 
+// ==============================
+// Other Pages
+// ==============================
 import FlipbookViewer from "./components/company/FlipbookViewer";
 import DebugWrapper from "./components/debug/DebugWrapper";
 
+// ==============================
 // Context & Auth
+// ==============================
 import { AuthProvider, useAuth } from "./components/context/AuthContext";
 import { ProfileProvider } from "./components/context/ProfileContext";
 import ProtectedRoute from "./components/context/ProtectedRoute";
@@ -69,7 +92,8 @@ const EethmHomePage = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
 
-  const handleBookingClick = () => navigate(auth?.access ? "/bookings" : "/login");
+  const handleBookingClick = () =>
+    navigate(auth?.access ? "/bookings" : "/login");
 
   return (
     <div className="home-page">
@@ -100,12 +124,23 @@ const ConnectRedirect = () => {
 
         const role = res?.data?.role?.trim?.()?.toLowerCase() || "";
         switch (role) {
-          case "admin": navigate("/admin", { replace: true }); break;
-          case "user": navigate("/user", { replace: true }); break;
-          case "vendor": navigate("/vendor-profile", { replace: true }); break;
-          case "partner": navigate("/partner-dashboard", { replace: true }); break;
-          case "worker": navigate("/worker-dashboard", { replace: true }); break;
-          default: navigate("/unauthorized", { replace: true });
+          case "admin":
+            navigate("/admin", { replace: true });
+            break;
+          case "user":
+            navigate("/user", { replace: true });
+            break;
+          case "vendor":
+            navigate("/vendor-profile", { replace: true });
+            break;
+          case "partner":
+            navigate("/partner-dashboard", { replace: true });
+            break;
+          case "worker":
+            navigate("/worker-dashboard", { replace: true });
+            break;
+          default:
+            navigate("/unauthorized", { replace: true });
         }
       } catch (err) {
         console.error("Failed to determine role:", err);
@@ -116,7 +151,9 @@ const ConnectRedirect = () => {
     };
 
     checkUserRole();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
   return loading ? <div className="loading-screen">Redirecting...</div> : null;
@@ -137,71 +174,75 @@ const ScrollAndRefresh = () => {
 // ==============================
 // App Routes
 // ==============================
-const AppRoutes = () => (
-  <Routes>
-    {/* Public Routes */}
-    <Route path="/" element={<EethmHomePage />} />
-    <Route path="/about" element={<About />} />
-    <Route path="/services" element={<Services />} />
-    <Route path="/contact" element={<ContactForm />} />
-    <Route path="/terms" element={<Terms />} />
-    <Route path="/privacy" element={<Privacy />} />
-    <Route path="/faq" element={<FAQ />} />
-    <Route path="/flipbook" element={<FlipbookViewer />} />
+const AppRoutes = () => {
+  const location = useLocation();
 
-    {/* Service Pages */}
-    <Route path="/services/live-band" element={<LiveBandServicePage />} />
-    <Route path="/services/catering" element={<CateringServicePage />} />
-    <Route path="/services/decor" element={<DecorServicePage />} />
-    <Route path="/services/media-hosting" element={<MediaHostingServicePage />} />
+  return (
+    <Routes key={location.pathname}>
+      {/* Public Routes */}
+      <Route path="/" element={<EethmHomePage />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/services" element={<Services />} />
+      <Route path="/contact" element={<ContactForm />} />
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/faq" element={<FAQ />} />
+      <Route path="/flipbook" element={<FlipbookViewer />} />
 
-    {/* Newsletter */}
-    <Route path="/newsletter" element={<NewsletterSignup />} />
-    <Route path="/unsubscribe" element={<Unsubscribe />} />
+      {/* Service Pages */}
+      <Route path="/services/live-band" element={<LiveBandServicePage />} />
+      <Route path="/services/catering" element={<CateringServicePage />} />
+      <Route path="/services/decor" element={<DecorServicePage />} />
+      <Route path="/services/media-hosting" element={<MediaHostingServicePage />} />
 
-    {/* Auth Routes */}
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/verify-otp" element={<VerifyOTP />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
-    <Route path="/connect" element={<ConnectRedirect />} />
+      {/* Newsletter */}
+      <Route path="/newsletter" element={<NewsletterSignup />} />
+      <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-    {/* Protected Routes */}
-    <Route element={<ProtectedRoute roles={["user", "admin"]} />}>
-      <Route path="/user" element={<UserPage />} />
-      <Route path="/account" element={<AccountProfile />} />
-      <Route path="/bookings" element={<BookingForm />} />
-      <Route path="/edit-profile" element={<EditProfile />} />
-      <Route path="/update-password" element={<UpdatePassword />} />
-      <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
-      <Route path="/agency-dashboard" element={<AgencyDashboard />} />
-    </Route>
+      {/* Auth Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/verify-otp" element={<VerifyOTP />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
+      <Route path="/connect" element={<ConnectRedirect />} />
 
-    <Route element={<ProtectedRoute roles={["vendor"]} />}>
-      <Route path="/vendor-profile" element={<VendorProfile />} />
-    </Route>
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute roles={["user", "admin"]} />}>
+        <Route path="/user" element={<UserPage />} />
+        <Route path="/account" element={<AccountProfile />} />
+        <Route path="/bookings" element={<BookingForm />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
+        <Route path="/update-password" element={<UpdatePassword />} />
+        <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
+        <Route path="/agency-dashboard" element={<AgencyDashboard />} />
+      </Route>
 
-    <Route element={<ProtectedRoute roles={["partner"]} />}>
-      <Route path="/partner-profile" element={<PartnerProfilePage />} />
-      <Route path="/partner-dashboard" element={<AgencyDashboard />} />
-    </Route>
+      <Route element={<ProtectedRoute roles={["vendor"]} />}>
+        <Route path="/vendor-profile" element={<VendorProfile />} />
+      </Route>
 
-    <Route element={<ProtectedRoute roles={["worker"]} />}>
-      <Route path="/worker-dashboard" element={<WorkerDashboard />} />
-    </Route>
+      <Route element={<ProtectedRoute roles={["partner"]} />}>
+        <Route path="/partner-profile" element={<PartnerProfilePage />} />
+        <Route path="/partner-dashboard" element={<AgencyDashboard />} />
+      </Route>
 
-    <Route element={<ProtectedRoute roles={["admin"]} />}>
-      <Route path="/admin" element={<AdminPanel />} />
-    </Route>
+      <Route element={<ProtectedRoute roles={["worker"]} />}>
+        <Route path="/worker-dashboard" element={<WorkerDashboard />} />
+      </Route>
 
-    {/* Unauthorized */}
-    <Route path="/unauthorized" element={<div className="unauthorized">Access Denied</div>} />
+      <Route element={<ProtectedRoute roles={["admin"]} />}>
+        <Route path="/admin" element={<AdminPanel />} />
+      </Route>
 
-    {/* Catch-all */}
-    <Route path="*" element={<Navigate to="/" replace />} />
-  </Routes>
-);
+      {/* Unauthorized */}
+      <Route path="/unauthorized" element={<div className="unauthorized">Access Denied</div>} />
+
+      {/* Catch-all */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
 
 // ==============================
 // App With Splash Screen & Auth
@@ -215,13 +256,17 @@ const AppWithAuth = () => {
     return () => clearTimeout(splashTimer);
   }, []);
 
-  if (!ready || loading || splashVisible) return <SplashScreen onFinish={() => setSplashVisible(false)} />;
+  if (!ready || loading || splashVisible) {
+    return <SplashScreen onFinish={() => setSplashVisible(false)} />;
+  }
 
   return (
     <div className="App">
       <Navbar />
       <ScrollAndRefresh />
-      <main><AppRoutes /></main>
+      <main>
+        <AppRoutes />
+      </main>
       <Footer />
       <PromotionPopup />
       <FloatingWhatsAppButton />
