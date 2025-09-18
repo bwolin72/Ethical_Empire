@@ -1,5 +1,5 @@
 // src/pdfjs-setup.js
-import { GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
+import { GlobalWorkerOptions } from "pdfjs-dist";
 
-// Set PDF.js worker
+// Point to the worker file in /public
 GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
