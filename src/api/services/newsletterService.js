@@ -3,7 +3,7 @@
  * over raw API calls.  Good place to add client-side validation,
  * error handling, or transform responses before passing to components.
  */
-import newsletterAPI from "../api/newsletterAPI";
+import newsletterAPI from "../newsletterAPI";
 
 export const newsletterService = {
   // === Public ===
