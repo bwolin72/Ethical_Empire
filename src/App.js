@@ -144,7 +144,15 @@ const ConnectRedirect = () => {
         }
       } catch (err) {
         console.error("Failed to determine role:", err);
-        if (isMounted) navigate("/login", { replace: true });
+        if (!isMounted) return;
+
+        if (err.response?.status === 401) {
+          // Guest user → back to homepage
+          navigate("/", { replace: true });
+        } else {
+          // Other unexpected error → go to login
+          navigate("/login", { replace: true });
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -245,7 +253,7 @@ const AppRoutes = () => {
 };
 
 // ==============================
-// App With Splash Screen (no auth gating for public pages)
+// App With Splash Screen
 // ==============================
 const AppWithSplash = () => {
   const [splashVisible, setSplashVisible] = useState(true);

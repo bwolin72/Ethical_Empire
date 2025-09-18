@@ -74,7 +74,9 @@ export default function useFetcher(
     fallback = true,
   } = options;
 
+  // -------------------------------
   // State
+  // -------------------------------
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -86,7 +88,9 @@ export default function useFetcher(
     };
   }, []);
 
+  // -------------------------------
   // Fetch Data
+  // -------------------------------
   const fetchData = useCallback(async () => {
     const apiGroup = API_MAP[resourceType];
     if (!apiGroup || typeof apiGroup[endpointKey] !== "function") {
@@ -106,7 +110,7 @@ export default function useFetcher(
       const res = await apiGroup[endpointKey](params || {});
       let items = extractItems(res);
 
-      // Apply fallbacks for specific resource types
+      // Apply fallbacks
       if (fallback && (!items || items.length === 0)) {
         if (resourceType === "videos") items = [fallbackVideoObject()];
         if (resourceType === "media") items = [fallbackBannerObject()];
@@ -133,13 +137,17 @@ export default function useFetcher(
         setLoading(false);
       }
     }
-  }, [resourceType, endpointKey, params, transform, fallback]);
+  }, [resourceType, endpointKey, fallback]); // ⬅️ removed params/transform from deps
 
+  // Run fetch when type/endpoint/fallback changes
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resourceType, endpointKey, fallback]); // ⬅️ no dependency on params object
 
+  // -------------------------------
   // CRUD Mutations
+  // -------------------------------
   const post = async (payload) => {
     try {
       const res = await axiosInstance.post(`/${resourceType}/`, payload);
