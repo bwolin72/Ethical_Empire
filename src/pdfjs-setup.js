@@ -1,6 +1,6 @@
-// pdfjs-setup.js
+// src/pdfjs-setup.js
 import { GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
+import PdfWorker from "./pdf.worker.js";
 
-// ✅ Use legacy UMD worker from public folder
-GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
-
+// Configure PDF.js to use the bundled worker
+GlobalWorkerOptions.workerSrc = PdfWorker;
