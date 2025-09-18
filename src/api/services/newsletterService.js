@@ -3,8 +3,7 @@
  * over raw API calls.  Good place to add client-side validation,
  * error handling, or transform responses before passing to components.
  */
-
-import * as newsletterAPI from '../newsletterAPI';
+import newsletterAPI from "../api/newsletterAPI";
 
 export const newsletterService = {
   // === Public ===
@@ -19,17 +18,17 @@ export const newsletterService = {
   },
 
   async unsubscribe(email) {
-    const { data } = await newsletterAPI.unsubscribe({ email });
+    const { data } = await newsletterAPI.unsubscribe(email);
     return data; // { message: ... }
   },
 
   async resubscribe(email) {
-    const { data } = await newsletterAPI.resubscribe({ email });
+    const { data } = await newsletterAPI.resubscribe(email);
     return data; // { message: ... }
   },
 
   async resendConfirmation(email) {
-    const { data } = await newsletterAPI.resendConfirmation({ email });
+    const { data } = await newsletterAPI.resendConfirmation(email);
     return data; // { message: ... }
   },
 
