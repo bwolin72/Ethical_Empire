@@ -89,11 +89,11 @@ import authService from "./api/services/authService";
 // Homepage with Booking Button
 // ==============================
 const EethmHomePage = () => {
-  const { auth } = useAuth();
   const navigate = useNavigate();
 
-  const handleBookingClick = () =>
-    navigate(auth?.access ? "/bookings" : "/login");
+  const handleBookingClick = () => {
+    navigate("/bookings"); // always try bookings, ProtectedRoute will guard
+  };
 
   return (
     <div className="home-page">
