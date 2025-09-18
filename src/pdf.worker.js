@@ -1,8 +1,8 @@
-// pdfjs-setup.js
-import { GlobalWorkerOptions } from "pdfjs-dist/esm/build/pdf";
+/* eslint-disable import/no-webpack-loader-syntax */
+import { GlobalWorkerOptions } from "pdfjs-dist/build/pdf";
 
-// ✅ Use new URL syntax so bundlers like CRA or Vite handle it correctly
+// ✅ Use new URL so CRA + Webpack handle it
 GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/esm/build/pdf.worker.min.js",
+  "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url
-).toString();
+);
