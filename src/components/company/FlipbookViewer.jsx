@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import "pdfjs-dist/web/pdf_viewer.css";      // optional base styles
-import "./FlipbookViewer.css";               // your custom styles
+import "pdfjs-dist/web/pdf_viewer.css"; // optional base styles
+import "./FlipbookViewer.css";          // your custom styles
 import brochure from "../../assets/files/brochure.pdf"; // PDF file
 
 // Set PDF.js worker (using CDN)
@@ -122,7 +122,8 @@ const FlipbookViewer = () => {
   useEffect(() => {
     const loadPdf = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument(brochure); // fixed: use imported PDF
+        // FIX: use { url: brochure }
+        const loadingTask = pdfjsLib.getDocument({ url: brochure });
         const doc = await loadingTask.promise;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
@@ -165,7 +166,8 @@ const FlipbookViewer = () => {
           ◀ Prev
         </button>
         <span className="page-indicator">
-          Page {currentIndex} – {Math.min(currentIndex + 1, totalPages)} of {totalPages}
+          Page {currentIndex} – {Math.min(currentIndex + 1, totalPages)} of{" "}
+          {totalPages}
         </span>
         <button
           className="btn next"
