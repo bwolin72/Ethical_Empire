@@ -34,6 +34,12 @@ const API_MAP = {
 };
 
 // -------------------------------
+// Default fallback endpoint mapping
+// (so you don’t call videos.all or media.banners by mistake)
+// -------------------------------
+const DEFAULT_ENDPOINT = "list";
+
+// -------------------------------
 // useFetcher Hook
 // -------------------------------
 export default function useFetcher(
@@ -42,21 +48,19 @@ export default function useFetcher(
   paramsOrOptions = {},
   options = {}
 ) {
-  // -------------------------------
-  // Parse arguments
-  // -------------------------------
   let resourceType, endpointKey, params;
 
+  // Argument parsing
   if (typeof resourceTypeOrEndpoint === "string") {
     resourceType = resourceTypeOrEndpoint;
-    endpointKey = endpointKeyOrParams;
+    endpointKey = endpointKeyOrParams || DEFAULT_ENDPOINT;
     params = paramsOrOptions;
   } else if (
     typeof resourceTypeOrEndpoint === "object" &&
     resourceTypeOrEndpoint.resourceType
   ) {
     resourceType = resourceTypeOrEndpoint.resourceType;
-    endpointKey = resourceTypeOrEndpoint.key;
+    endpointKey = resourceTypeOrEndpoint.key || DEFAULT_ENDPOINT;
     params = endpointKeyOrParams || {};
     options = paramsOrOptions || {};
   } else {
@@ -71,9 +75,7 @@ export default function useFetcher(
     fallback = true,
   } = options;
 
-  // -------------------------------
   // State
-  // -------------------------------
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,9 +83,7 @@ export default function useFetcher(
   const mountedRef = useRef(true);
   useEffect(() => () => (mountedRef.current = false), []);
 
-  // -------------------------------
   // Fetch Data
-  // -------------------------------
   const fetchData = useCallback(async () => {
     const apiGroup = API_MAP[resourceType];
     if (!apiGroup || typeof apiGroup[endpointKey] !== "function") {
@@ -126,9 +126,7 @@ export default function useFetcher(
     fetchData();
   }, [fetchData]);
 
-  // -------------------------------
   // CRUD Mutations
-  // -------------------------------
   const post = async (payload) => {
     try {
       const res = await axiosInstance.post(`/${resourceType}/`, payload);
