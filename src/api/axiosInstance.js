@@ -1,5 +1,4 @@
 // src/api/axiosInstance.js
-
 import axios from "axios";
 import baseURL from "./baseURL";
 import { applyCommonRequestHeaders, devLog as rawDevLog } from "./axiosCommon";
@@ -41,6 +40,10 @@ const onTokenRefreshed = (newAccess) => {
   refreshSubscribers = [];
 };
 
+// ===== Retry helper with exponential backoff =====
+const retryWithBackoff = (fn, delay) =>
+  new Promise((resolve) => setTimeout(() => resolve(fn()), delay));
+
 // ===== Request Interceptor =====
 axiosInstance.interceptors.request.use(
   (config) => {
@@ -79,6 +82,10 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config || {};
+    if (!originalRequest.metadata) {
+      originalRequest.metadata = { retryCount: 0 };
+    }
+
     const status = error.response?.status;
     const storage = getStorage();
     const refreshToken = storage.getItem("refresh");
@@ -87,13 +94,23 @@ axiosInstance.interceptors.response.use(
     devLog("[Error]", status, originalRequest?.url);
     devLog("[Access Token]", accessToken?.slice(0, 20) + "...");
 
-    // Network error
+    // ===== Network error (no response at all) =====
     if (!error.response) {
       devLog("[Network Error]", error.message);
+
+      if (originalRequest.metadata.retryCount < MAX_RETRIES) {
+        originalRequest.metadata.retryCount += 1;
+        const delay = 500 * 2 ** (originalRequest.metadata.retryCount - 1);
+        devLog(
+          `[Retry:Network] Attempt ${originalRequest.metadata.retryCount} after ${delay}ms → ${originalRequest.url}`
+        );
+        return retryWithBackoff(() => axiosInstance(originalRequest), delay);
+      }
+
       return Promise.reject(error);
     }
 
-    // Timeout
+    // ===== Timeout =====
     if (error.code === "ECONNABORTED") {
       devLog("[Timeout Error]", error.message);
       return Promise.reject(error);
@@ -110,7 +127,6 @@ axiosInstance.interceptors.response.use(
       }
 
       if (isRefreshing) {
-        // Queue the request until refresh is done
         return new Promise((resolve, reject) => {
           subscribeTokenRefresh((newAccess) => {
             if (newAccess) {
@@ -134,7 +150,7 @@ axiosInstance.interceptors.response.use(
         const { data } = await axios.post(
           refreshUrl,
           { refresh: refreshToken },
-          { withCredentials: true } // 👈 important for cookie-based refresh
+          { withCredentials: true }
         );
 
         const newAccess = data.access;
@@ -150,7 +166,7 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         devLog("[Token Refresh Failed]", refreshError);
-        onTokenRefreshed(null); // notify all queued requests of failure
+        onTokenRefreshed(null);
         logoutHelper();
         return Promise.reject(refreshError);
       } finally {
@@ -158,16 +174,16 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // ===== Retry server/network errors (5xx) =====
-    const shouldRetry =
-      !originalRequest._retrying && status >= 500 && status < 600;
-    if (shouldRetry && originalRequest.metadata?.retryCount < MAX_RETRIES) {
-      originalRequest.metadata.retryCount += 1;
-      originalRequest._retrying = true;
-      devLog(
-        `[Retry] Attempt ${originalRequest.metadata.retryCount} → ${originalRequest.url}`
-      );
-      return axiosInstance(originalRequest);
+    // ===== Retry on 5xx errors =====
+    if (status >= 500 && status < 600) {
+      if (originalRequest.metadata.retryCount < MAX_RETRIES) {
+        originalRequest.metadata.retryCount += 1;
+        const delay = 500 * 2 ** (originalRequest.metadata.retryCount - 1);
+        devLog(
+          `[Retry:5xx] Attempt ${originalRequest.metadata.retryCount} after ${delay}ms → ${originalRequest.url}`
+        );
+        return retryWithBackoff(() => axiosInstance(originalRequest), delay);
+      }
     }
 
     // ===== Final fallback: logout on persistent 401 =====
