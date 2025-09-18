@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf";
 import "../../pdfjs-setup"; // Worker setup must be imported first
-import "pdfjs-dist/web/pdf_viewer.css";
 import "./FlipbookViewer.css";
 
 const FlipbookViewer = () => {
