@@ -1,40 +1,29 @@
 import React from "react";
 import PropTypes from "prop-types";
+import placeholderImg from "../../assets/placeholder.jpg";
 import "./MediaCard.css";
 
-const SingleMediaCard = ({ media, fullWidth = false, onClick }) => {
-  const safeMedia = media || {};
-
-  // Resolve sources
+const SingleMediaCard = ({ media = {}, fullWidth = false, onClick }) => {
   const thumbnail =
-    safeMedia.url?.thumbnail ||
-    safeMedia.url?.medium ||
-    safeMedia.url?.full ||
-    "/mock/banner-1.png";
+    media.url?.thumbnail || media.url?.medium || media.url?.full || placeholderImg;
 
   const fullUrl =
-    safeMedia.url?.full ||
-    (safeMedia.file_type?.toLowerCase().includes("video")
+    media.url?.full ||
+    (media.file_type?.toLowerCase().includes("video")
       ? "/mock/hero-video.mp4"
       : thumbnail);
 
-  const isVideo = safeMedia.file_type?.toLowerCase().includes("video");
-
-  const label =
-    safeMedia.label ||
-    safeMedia.title ||
-    safeMedia.category ||
-    "Media Item";
-
-  const category = safeMedia.category?.toLowerCase() || "general";
+  const isVideo = media.file_type?.toLowerCase().includes("video");
+  const label = media.label || media.title || media.category || "Media Item";
+  const category = media.category?.toLowerCase() || "general";
 
   const handleVideoError = (e) => {
-    e.currentTarget.poster = "/mock/banner-1.png";
+    e.currentTarget.poster = placeholderImg;
     e.currentTarget.src = "/mock/hero-video.mp4";
   };
 
   const handleImageError = (e) => {
-    e.currentTarget.src = "/mock/banner-1.png";
+    e.currentTarget.src = placeholderImg;
   };
 
   return (
@@ -57,7 +46,7 @@ const SingleMediaCard = ({ media, fullWidth = false, onClick }) => {
               poster={thumbnail}
               onError={handleVideoError}
             >
-              <source src={fullUrl} type={safeMedia.file_type || "video/mp4"} />
+              <source src={fullUrl} type={media.file_type || "video/mp4"} />
               Your browser does not support the video tag.
             </video>
             <span className="video-icon">📹</span>

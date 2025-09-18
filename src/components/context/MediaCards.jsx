@@ -1,4 +1,3 @@
-// src/components/context/MediaCards.jsx
 import React, { useState, useCallback } from "react";
 import useFetcher from "../../hooks/useFetcher";
 import SingleMediaCard from "./MediaCard";
@@ -7,8 +6,8 @@ import placeholderImg from "../../assets/placeholder.jpg";
 import "./MediaCard.css";
 
 const MediaCards = ({
-  endpointKey = "all", // ✅ safer default
-  resourceType = "media", // "media" | "videos"
+  endpointKey = "all",
+  resourceType = "media",
   title,
   fullWidth = false,
   isActive = true,
@@ -18,7 +17,6 @@ const MediaCards = ({
 }) => {
   const [previewMedia, setPreviewMedia] = useState(null);
 
-  // Fetch resources
   const { data, loading, error } = useFetcher(resourceType, endpointKey, {
     is_active: isActive,
     is_featured: isFeatured,
@@ -26,15 +24,13 @@ const MediaCards = ({
     label: labelQuery,
   });
 
-  const mediaItems = Array.isArray(data) ? data : [];
+  const mediaItems = Array.isArray(data) ? data.filter(Boolean) : [];
 
-  // Helper: check if file is a video
   const isVideoType = useCallback(
     (type) => typeof type === "string" && type.toLowerCase().includes("video"),
     []
   );
 
-  // Preview Modal
   const renderPreviewModal = (media) => (
     <div
       className="media-modal"
@@ -53,22 +49,23 @@ const MediaCards = ({
           ✖
         </button>
 
-        {isVideoType(media.file_type) ? (
+        {isVideoType(media?.file_type) ? (
           <video
-            src={media.url?.full}
+            src={media?.url?.full}
             controls
             className="modal-media-content"
+            poster={media?.url?.thumb || placeholderImg}
           />
         ) : (
           <img
-            src={media.url?.full || placeholderImg}
-            alt={media.label || "Preview"}
+            src={media?.url?.full || placeholderImg}
+            alt={media?.label || "Preview"}
             className="modal-media-content"
             onError={(e) => (e.currentTarget.src = placeholderImg)}
           />
         )}
 
-        {media.label && (
+        {media?.label && (
           <p id="media-preview-caption" className="modal-media-caption">
             {media.label}
           </p>
@@ -91,9 +88,9 @@ const MediaCards = ({
         ) : mediaItems.length === 0 ? (
           <p className="media-card-empty">📭 No {resourceType} uploaded.</p>
         ) : (
-          mediaItems.map((media) => (
+          mediaItems.map((media, idx) => (
             <SingleMediaCard
-              key={media.id || media.url?.full || media.label}
+              key={media?.id || media?.url?.full || media?.label || idx}
               media={media}
               fullWidth={fullWidth}
               onClick={() => setPreviewMedia(media)}
@@ -102,7 +99,6 @@ const MediaCards = ({
         )}
       </div>
 
-      {/* Modal */}
       {previewMedia && renderPreviewModal(previewMedia)}
     </section>
   );

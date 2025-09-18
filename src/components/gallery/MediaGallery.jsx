@@ -1,19 +1,19 @@
-// src/components/gallery/MediaGallery.jsx
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import "./MediaGallery.css";
 
-const MediaGallery = ({ items }) => {
+const MediaGallery = ({ items = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [modalItem, setModalItem] = useState(null);
 
   // Auto-rotate every 5s
   useEffect(() => {
+    if (items.length === 0) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 4) % items.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [items.length]);
+  }, [items]);
 
   const visibleItems = items.slice(currentIndex, currentIndex + 4);
 
@@ -22,7 +22,7 @@ const MediaGallery = ({ items }) => {
       <div className="gallery-grid">
         {visibleItems.map((item) => (
           <motion.div
-            key={item.id}
+            key={item.id || Math.random()}
             className="gallery-card"
             whileHover={{ scale: 1.05 }}
             onClick={() => setModalItem(item)}
@@ -39,7 +39,7 @@ const MediaGallery = ({ items }) => {
       {/* Modal Preview */}
       {modalItem && (
         <div className="gallery-modal" onClick={() => setModalItem(null)}>
-          <div className="gallery-modal-content">
+          <div className="gallery-modal-content" onClick={(e) => e.stopPropagation()}>
             {modalItem.type === "image" ? (
               <img src={modalItem.url} alt={modalItem.title} />
             ) : (

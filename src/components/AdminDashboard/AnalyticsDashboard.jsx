@@ -23,34 +23,24 @@ const AnalyticsDashboard = () => {
     const fetchAnalytics = async () => {
       try {
         const res = await axiosInstance.get(api.analytics.stats);
-        // Ensure the data structure is valid
-        setData(res.data || {});
+        // Ensure the data structure is always an object
+        setData(res?.data ?? {});
       } catch (err) {
         console.error('[AnalyticsDashboard] Fetch error:', err);
-        if (err.response?.status === 401) {
-          setError('You are not authorized to view this dashboard.');
-        } else {
-          setError('Failed to fetch analytics data.');
-        }
+        setError(
+          err.response?.status === 401
+            ? 'You are not authorized to view this dashboard.'
+            : 'Failed to fetch analytics data.'
+        );
       } finally {
         setLoading(false);
       }
     };
-
     fetchAnalytics();
   }, []);
 
-  if (loading) {
-    return <div className="analytics-loading">🔄 Loading analytics...</div>;
-  }
-
-  if (error) {
-    return <div className="analytics-error">⚠️ {error}</div>;
-  }
-
-  if (!data) {
-    return <div className="analytics-error">No analytics data available.</div>;
-  }
+  if (loading) return <div className="analytics-loading">🔄 Loading analytics...</div>;
+  if (error) return <div className="analytics-error">⚠️ {error}</div>;
 
   const {
     total_users = 0,
@@ -59,7 +49,7 @@ const AnalyticsDashboard = () => {
     total_revenue = 0,
     total_visits = 0,
     chart_data = [],
-  } = data;
+  } = data ?? {};
 
   const summaryData = [
     { name: 'Users', value: total_users },
@@ -69,8 +59,9 @@ const AnalyticsDashboard = () => {
     { name: 'Page Views', value: total_visits },
   ];
 
+  // Filter chart data to ensure only valid entries
   const validChartData = Array.isArray(chart_data)
-    ? chart_data.filter((entry) => entry.date && typeof entry.visits === 'number')
+    ? chart_data.filter(entry => entry?.date && typeof entry?.visits === 'number')
     : [];
 
   return (
@@ -83,7 +74,7 @@ const AnalyticsDashboard = () => {
           <Card key={name} className="analytics-card">
             <CardContent>
               <h3>Total {name}</h3>
-              <p>{name === 'Revenue' ? `₵ ${value.toFixed(2)}` : value}</p>
+              <p>{name === 'Revenue' ? `₵ ${Number(value).toFixed(2)}` : value}</p>
             </CardContent>
           </Card>
         ))}
@@ -92,7 +83,7 @@ const AnalyticsDashboard = () => {
       {/* Chart: Visits in last 7 days */}
       <div className="chart-container">
         <h4>📅 Visits in the Last 7 Days</h4>
-        {validChartData.length > 0 ? (
+        {validChartData.length ? (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={validChartData}>
               <CartesianGrid strokeDasharray="3 3" />

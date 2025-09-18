@@ -9,7 +9,7 @@ const BannerCards = ({ endpointKey = "banners", title }) => {
   const [previewBanner, setPreviewBanner] = useState(null);
   const scrollRef = useRef(null);
 
-  // ✅ UseFetcher now talks only to mediaAPI
+  // Fetch banners
   const { data: banners = [], loading, error } = useFetcher("media", endpointKey);
 
   // Scroll controls
@@ -22,12 +22,14 @@ const BannerCards = ({ endpointKey = "banners", title }) => {
     }
   }, []);
 
-  // Escape closes modal
+  // Escape key closes modal
   useEffect(() => {
     const handleKeyDown = (e) => e.key === "Escape" && setPreviewBanner(null);
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const safeBanners = Array.isArray(banners) ? banners.filter(Boolean) : [];
 
   return (
     <section className="banner-cards-container">
@@ -35,24 +37,42 @@ const BannerCards = ({ endpointKey = "banners", title }) => {
 
       {/* Scroll Controls */}
       <div className="scroll-controls">
-        <button onClick={() => handleScroll("left")} className="scroll-btn left" aria-label="Scroll left">◀</button>
-        <button onClick={() => handleScroll("right")} className="scroll-btn right" aria-label="Scroll right">▶</button>
+        <button
+          onClick={() => handleScroll("left")}
+          className="scroll-btn left"
+          aria-label="Scroll left"
+          disabled={loading || safeBanners.length === 0}
+        >
+          ◀
+        </button>
+        <button
+          onClick={() => handleScroll("right")}
+          className="scroll-btn right"
+          aria-label="Scroll right"
+          disabled={loading || safeBanners.length === 0}
+        >
+          ▶
+        </button>
       </div>
 
       {/* Cards */}
-      <div className="banner-cards-scroll-wrapper" ref={scrollRef}>
+      <div className="banner-cards-scroll-wrapper" ref={scrollRef} aria-live="polite">
         {loading ? (
           Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="banner-card"><BannerSkeleton /></div>
+            <div key={idx} className="banner-card">
+              <BannerSkeleton />
+            </div>
           ))
         ) : error ? (
           <div className="banner-error">❌ {error.message || "Failed to load banners"}</div>
-        ) : banners.length === 0 ? (
-          <p className="banner-card-empty">📭 No banners available for <strong>{endpointKey}</strong>.</p>
+        ) : safeBanners.length === 0 ? (
+          <p className="banner-card-empty">
+            📭 No banners available for <strong>{endpointKey}</strong>.
+          </p>
         ) : (
-          banners.map((banner) => (
+          safeBanners.map((banner, idx) => (
             <div
-              key={banner.id || banner.url?.full || banner.label}
+              key={banner.id || banner.url?.full || banner.label || idx}
               className="banner-card"
               role="button"
               tabIndex={0}
@@ -84,16 +104,29 @@ const BannerCards = ({ endpointKey = "banners", title }) => {
 
       {/* Modal */}
       {previewBanner && (
-        <div className="banner-modal" onClick={() => setPreviewBanner(null)} role="dialog" aria-modal="true">
+        <div
+          className="banner-modal"
+          onClick={() => setPreviewBanner(null)}
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="banner-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-button" onClick={() => setPreviewBanner(null)} aria-label="Close preview">✖</button>
+            <button
+              className="close-button"
+              onClick={() => setPreviewBanner(null)}
+              aria-label="Close preview"
+            >
+              ✖
+            </button>
             <img
-              src={previewBanner.url?.full || placeholderImg}
-              alt={previewBanner.label || "Preview"}
+              src={previewBanner?.url?.full || placeholderImg}
+              alt={previewBanner?.label || "Preview"}
               className="modal-banner-image"
               onError={(e) => (e.currentTarget.src = placeholderImg)}
             />
-            {previewBanner.label && <p className="modal-banner-caption">{previewBanner.label}</p>}
+            {previewBanner?.label && (
+              <p className="modal-banner-caption">{previewBanner.label}</p>
+            )}
           </div>
         </div>
       )}

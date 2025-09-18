@@ -15,8 +15,17 @@ const VideoGallery = ({
   className,
   actions = [],
 }) => {
-  // ✅ Fetch videos from the backend
+  // Fetch videos from the backend
   const { data: videos = [], loading, error } = useFetcher("videos", endpointKey);
+
+  const hasVideos = Array.isArray(videos) && videos.length > 0;
+  const heroVideo = hasVideos ? videos[0] : { url: fallbackVideo };
+
+  const resolveVideoUrl = (video) =>
+    video?.url || video?.video_file?.url || video?.video_file || fallbackVideo;
+
+  const resolvePoster = (video) =>
+    video?.thumbnail?.url || video?.thumbnail || "";
 
   if (loading) {
     return (
@@ -34,9 +43,6 @@ const VideoGallery = ({
     );
   }
 
-  const hasVideos = videos.length > 0;
-  const heroVideo = hasVideos ? videos[0] : { url: fallbackVideo };
-
   return (
     <section className={`video-gallery ${className || ""}`}>
       {title && <h2>{title}</h2>}
@@ -44,7 +50,7 @@ const VideoGallery = ({
       {showHero ? (
         <div className="hero-video-wrapper">
           <video
-            src={heroVideo.url || heroVideo.video_file?.url || heroVideo.video_file || fallbackVideo}
+            src={resolveVideoUrl(heroVideo)}
             autoPlay={autoPlay}
             loop={loop}
             muted={!allowMuteToggle}
@@ -70,8 +76,8 @@ const VideoGallery = ({
             <div key={video.id || idx} className="video-card">
               <video
                 controls
-                src={video.video_file?.url || video.video_file || fallbackVideo}
-                poster={video.thumbnail?.url || video.thumbnail}
+                src={resolveVideoUrl(video)}
+                poster={resolvePoster(video)}
               />
               {video.title && <h3>{video.title}</h3>}
               {video.description && <p>{video.description}</p>}
@@ -89,7 +95,7 @@ const VideoGallery = ({
 };
 
 VideoGallery.propTypes = {
-  endpointKey: PropTypes.string,      // ✅ matches the key in useFetcher (e.g. "all")
+  endpointKey: PropTypes.string,
   fallbackVideo: PropTypes.string.isRequired,
   title: PropTypes.string,
   showHero: PropTypes.bool,
@@ -97,7 +103,13 @@ VideoGallery.propTypes = {
   loop: PropTypes.bool,
   allowMuteToggle: PropTypes.bool,
   className: PropTypes.string,
-  actions: PropTypes.array,
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      onClick: PropTypes.func.isRequired,
+      className: PropTypes.string,
+    })
+  ),
 };
 
 export default VideoGallery;
