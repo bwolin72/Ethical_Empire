@@ -5,8 +5,6 @@ import "../../pdfjs-setup"; // Worker setup must be imported first
 import "pdfjs-dist/web/pdf_viewer.css";
 import "./FlipbookViewer.css";
 
-import brochure from "../../assets/files/brochure.pdf";
-
 const FlipbookViewer = () => {
   const viewerRef = useRef(null);
   const leftPageRef = useRef(null);
@@ -44,7 +42,8 @@ const FlipbookViewer = () => {
         const page = await pdfDoc.getPage(pageNum);
         const containerWidth = viewerRef.current?.clientWidth || 800;
         const containerHeight = viewerRef.current?.clientHeight || 600;
-        const perPageWidth = containerWidth > 700 ? (containerWidth - 20) / 2 : containerWidth - 40;
+        const perPageWidth =
+          containerWidth > 700 ? (containerWidth - 20) / 2 : containerWidth - 40;
 
         const viewportUnscaled = page.getViewport({ scale: 1 });
         const scaleX = perPageWidth / viewportUnscaled.width;
@@ -141,7 +140,9 @@ const FlipbookViewer = () => {
   useEffect(() => {
     const loadPdf = async () => {
       try {
-        const loadingTask = getDocument({ url: brochure });
+        const loadingTask = getDocument({
+          url: `${process.env.PUBLIC_URL}/files/brochure.pdf`,
+        });
         const doc = await loadingTask.promise;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
