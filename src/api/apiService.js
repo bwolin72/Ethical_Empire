@@ -1,45 +1,61 @@
 // src/api/apiService.js
-import baseURL from "./baseURL";
+import axiosInstance from './axiosInstance';
+import baseURL from './baseURL';
 
-// ---- Grouped endpoints (organized for devs) ----
+/**
+ * Each API group below exposes functions that
+ * directly return axios promises.
+ * This is compatible with useFetcher’s
+ * apiGroup[endpointKey](params) call pattern.
+ */
 export const API_ENDPOINTS = {
   media: {
-    all: `${baseURL}/media/all/`,
-    about: `${baseURL}/media/about/`,
-    banners: `${baseURL}/media/banners/`,
-    home: `${baseURL}/media/home/`,
-    featured: `${baseURL}/media/featured/`,
-    user: `${baseURL}/media/user/`,
-    vendor: `${baseURL}/media/vendor/`,
+    all: (params = {}) => axiosInstance.get(`${baseURL}/media/all/`, { params }),
+    about: (params = {}) => axiosInstance.get(`${baseURL}/media/about/`, { params }),
+    banners: (params = {}) => axiosInstance.get(`${baseURL}/media/banners/`, { params }),
+    home: (params = {}) => axiosInstance.get(`${baseURL}/media/home/`, { params }),
+    featured: (params = {}) => axiosInstance.get(`${baseURL}/media/featured/`, { params }),
+    user: (params = {}) => axiosInstance.get(`${baseURL}/media/user/`, { params }),
+    vendor: (params = {}) => axiosInstance.get(`${baseURL}/media/vendor/`, { params }),
   },
 
   videos: {
-    all: `${baseURL}/videos/videos/`,
-    toggleActive: (id) => `${baseURL}/videos/videos/${id}/toggle_active/`,
-    toggleFeatured: (id) => `${baseURL}/videos/videos/${id}/toggle_featured/`,
+    all: (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/`, { params }),
+    toggleActive: (id) =>
+      axiosInstance.post(`${baseURL}/videos/videos/${id}/toggle_active/`),
+    toggleFeatured: (id) =>
+      axiosInstance.post(`${baseURL}/videos/videos/${id}/toggle_featured/`),
   },
 
   services: {
-    all: `${baseURL}/services/`,
-    detail: (slug) => `${baseURL}/services/${slug}/`,
+    all: (params = {}) => axiosInstance.get(`${baseURL}/services/`, { params }),
+    detail: (slug, params = {}) =>
+      axiosInstance.get(`${baseURL}/services/${slug}/`, { params }),
   },
 
   reviews: {
-    all: `${baseURL}/reviews/`,
-    admin: `${baseURL}/reviews/admin/`,
-    approve: (id) => `${baseURL}/reviews/${id}/approve/`,
-    delete: (id) => `${baseURL}/reviews/${id}/delete/`,
-    reply: (id) => `${baseURL}/reviews/${id}/reply/`,
+    all: (params = {}) => axiosInstance.get(`${baseURL}/reviews/`, { params }),
+    admin: (params = {}) => axiosInstance.get(`${baseURL}/reviews/admin/`, { params }),
+    approve: (id) =>
+      axiosInstance.post(`${baseURL}/reviews/${id}/approve/`),
+    delete: (id) =>
+      axiosInstance.delete(`${baseURL}/reviews/${id}/delete/`),
+    reply: (id, payload) =>
+      axiosInstance.post(`${baseURL}/reviews/${id}/reply/`, payload),
   },
 
   promotions: {
-    all: `${baseURL}/promotions/`,
-    active: `${baseURL}/promotions/active/`,
-    detail: (id) => `${baseURL}/promotions/${id}/`,
+    all: (params = {}) => axiosInstance.get(`${baseURL}/promotions/`, { params }),
+    active: (params = {}) => axiosInstance.get(`${baseURL}/promotions/active/`, { params }),
+    detail: (id, params = {}) =>
+      axiosInstance.get(`${baseURL}/promotions/${id}/`, { params }),
   },
 };
 
-// ---- Flat aliases for useFetcher ----
+/**
+ * Optional: simple aliases if you need quick direct imports
+ * (still return axios promises)
+ */
 export const FLAT_ENDPOINTS = {
   media: API_ENDPOINTS.media.all,
   banners: API_ENDPOINTS.media.banners,
@@ -50,6 +66,5 @@ export const FLAT_ENDPOINTS = {
   promotions: API_ENDPOINTS.promotions.all,
 };
 
-// ---- Default export for backwards compatibility ----
 const apiService = { API_ENDPOINTS, FLAT_ENDPOINTS };
 export default apiService;
