@@ -122,3 +122,12 @@
 .dark .faq-icon.open {
   stroke: var(--color-accent-gold);
 }
+.faq-title {
+  /* existing styles… */
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  /* OR give it a light background */
+  background: rgba(255,255,255,0.6);
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
