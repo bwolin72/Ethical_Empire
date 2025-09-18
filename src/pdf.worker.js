@@ -1,7 +1,8 @@
 /* eslint-disable import/no-webpack-loader-syntax */
-import { GlobalWorkerOptions } from "pdfjs-dist";
+import { GlobalWorkerOptions } from "pdfjs-dist/build/pdf";
 
-// ✅ Tell pdf.js to use its own bundled worker (v5+ uses .mjs)
-import worker from "pdfjs-dist/build/pdf.worker.min.mjs";
-
-GlobalWorkerOptions.workerSrc = worker;
+// ✅ Use new URL so CRA + Webpack handle it
+GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+);
