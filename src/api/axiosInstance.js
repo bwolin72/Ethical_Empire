@@ -1,6 +1,6 @@
 // src/api/axiosInstance.js
 import axios from "axios";
-import * as Sentry from "@sentry/react"; // 👈 add Sentry
+import * as Sentry from "@sentry/react";
 import baseURL from "./baseURL";
 import { applyCommonRequestHeaders, devLog as rawDevLog } from "./axiosCommon";
 import { logoutHelper } from "../utils/authUtils";
@@ -14,19 +14,19 @@ const devLog = (...args) => {
   }
 };
 
-// ===== Create axios instance =====
-const axiosInstance = axios.create({
-  baseURL,
-  timeout: 30000, // 30 seconds
-  withCredentials: true,
-});
-
 // ===== Storage Helper =====
 const getStorage = () => {
   const rememberStored = localStorage.getItem("remember");
   const remember = rememberStored === null ? true : rememberStored === "true";
   return remember ? localStorage : sessionStorage;
 };
+
+// ===== Axios Instance =====
+const axiosInstance = axios.create({
+  baseURL,
+  timeout: 30000,
+  withCredentials: true,
+});
 
 // ===== Refresh Token Queue =====
 let isRefreshing = false;
@@ -41,7 +41,7 @@ const onTokenRefreshed = (newAccess) => {
   refreshSubscribers = [];
 };
 
-// ===== Retry helper with exponential backoff + jitter =====
+// ===== Retry helper =====
 const retryWithBackoff = (fn, delay) =>
   new Promise((resolve) => setTimeout(() => resolve(fn()), delay));
 
@@ -49,16 +49,13 @@ const retryWithBackoff = (fn, delay) =>
 axiosInstance.interceptors.request.use(
   (config) => {
     config = applyCommonRequestHeaders(config, true);
-    devLog("[Request]", config.method?.toUpperCase(), config.url, config);
+    devLog("[Request]", config.method?.toUpperCase(), config.url);
 
     if (!config.metadata) config.metadata = { retryCount: 0 };
 
     const storage = getStorage();
     const token = storage.getItem("access");
-
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
+    if (token) config.headers["Authorization"] = `Bearer ${token}`;
 
     return config;
   },
@@ -71,7 +68,7 @@ axiosInstance.interceptors.request.use(
 // ===== Response Interceptor =====
 axiosInstance.interceptors.response.use(
   (response) => {
-    devLog("[Response]", response.status, response.config.url, response.data);
+    devLog("[Response]", response.status, response.config.url);
     return response;
   },
   async (error) => {
@@ -83,11 +80,10 @@ axiosInstance.interceptors.response.use(
     const status = error.response?.status;
     const storage = getStorage();
     const refreshToken = storage.getItem("refresh");
-    const accessToken = storage.getItem("access");
 
     devLog("[Error]", status, originalRequest?.url);
 
-    // ===== Network error (no response at all) =====
+    // === Network Errors ===
     if (!error.response) {
       devLog("[Network Error]", error.message);
 
@@ -97,17 +93,12 @@ axiosInstance.interceptors.response.use(
           500 * 2 ** (originalRequest.metadata.retryCount - 1) +
           Math.random() * 200;
 
-        devLog(
-          `[Retry:Network] Attempt ${originalRequest.metadata.retryCount} after ${delay}ms → ${originalRequest.url}`
-        );
-
         return retryWithBackoff(
           () => axiosInstance({ ...originalRequest }),
           delay
         );
       }
 
-      // Report to Sentry
       Sentry.captureException(error, {
         tags: { type: "network" },
         extra: { url: originalRequest.url },
@@ -116,19 +107,17 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // ===== Timeout =====
+    // === Timeout ===
     if (error.code === "ECONNABORTED") {
-      devLog("[Timeout Error]", error.message);
       Sentry.captureException(error, { tags: { type: "timeout" } });
       return Promise.reject(error);
     }
 
-    // ===== Token Refresh on 401 =====
+    // === Token Refresh on 401 ===
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       if (!refreshToken) {
-        devLog("[Token] No refresh token found!");
         logoutHelper();
         return Promise.reject(error);
       }
@@ -147,8 +136,6 @@ axiosInstance.interceptors.response.use(
       }
 
       isRefreshing = true;
-      devLog("[Token] Access expired, attempting refresh...");
-
       try {
         const refreshUrl =
           process.env.REACT_APP_API_REFRESH_URL ||
@@ -161,43 +148,32 @@ axiosInstance.interceptors.response.use(
         );
 
         const newAccess = data.access;
-        if (!newAccess) {
-          throw new Error("Refresh succeeded but no access token returned");
-        }
+        if (!newAccess) throw new Error("No access token returned");
 
-        devLog("[Token] Refresh successful. New access stored.");
         storage.setItem("access", newAccess);
         onTokenRefreshed(newAccess);
 
         originalRequest.headers["Authorization"] = `Bearer ${newAccess}`;
         return axiosInstance({ ...originalRequest });
       } catch (refreshError) {
-        devLog("[Token Refresh Failed]", refreshError);
         onTokenRefreshed(null);
         logoutHelper();
-
-        // Send to Sentry
         Sentry.captureException(refreshError, {
           tags: { type: "token-refresh" },
         });
-
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    // ===== Retry on 5xx errors =====
+    // === Retry on 5xx ===
     if (status >= 500 && status < 600) {
       if (originalRequest.metadata.retryCount < MAX_RETRIES) {
         originalRequest.metadata.retryCount += 1;
         const delay =
           500 * 2 ** (originalRequest.metadata.retryCount - 1) +
           Math.random() * 200;
-
-        devLog(
-          `[Retry:5xx] Attempt ${originalRequest.metadata.retryCount} after ${delay}ms → ${originalRequest.url}`
-        );
 
         return retryWithBackoff(
           () => axiosInstance({ ...originalRequest }),
@@ -206,13 +182,11 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // ===== Final fallback: logout on persistent 401 =====
+    // === Final fallback: 401 logout ===
     if (status === 401) {
-      devLog("[Auth] Final 401. Logging out.");
       logoutHelper();
     }
 
-    // Capture all other errors in Sentry
     Sentry.captureException(error, {
       tags: { type: "http-error" },
       extra: {
@@ -222,7 +196,6 @@ axiosInstance.interceptors.response.use(
       },
     });
 
-    devLog("[Response Error]", status, originalRequest?.url, error);
     return Promise.reject(error);
   }
 );
