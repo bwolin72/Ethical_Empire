@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import axiosInstance from "../api/axiosInstance";
+import axiosInstance from "../../api/axiosInstance";
 
 // API modules
-import mediaAPI from "../api/mediaAPI";
-import videosAPI from "../api/videosAPI";
-import promotionsAPI from "../api/promotionsAPI";
-import reviewsAPI from "../api/reviewsAPI";
-import newsletterAPI from "../api/newsletterAPI";
-import invoicesAPI from "../api/invoicesAPI";
-import bookingAPI from "../api/bookingAPI";
-import authAPI from "../api/authAPI";
-import messagingAPI from "../api/messagingAPI";
-import contactAPI from "../api/contactAPI";
-import serviceAPI from "../api/servicesAPI";
-import workerAPI from "../api/workerAPI";
+import mediaAPI from "../../api/mediaAPI";
+import videosAPI from "../../api/videosAPI";
+import promotionsAPI from "../../api/promotionsAPI";
+import reviewsAPI from "../../api/reviewsAPI";
+import newsletterAPI from "../../api/newsletterAPI";
+import invoicesAPI from "../../api/invoicesAPI";
+import bookingAPI from "../../api/bookingAPI";
+import authAPI from "../../api/authAPI";
+import messagingAPI from "../../api/messagingAPI";
+import contactAPI from "../../api/contactAPI";
+import serviceAPI from "../../api/servicesAPI";
+import workerAPI from "../../api/workerAPI";
 
 const API_MAP = {
   media: mediaAPI,
