@@ -1,85 +1,38 @@
 // src/api/services/mediaService.js
 import axiosInstance from "../axiosInstance";
 import publicAxios from "../publicAxios";
+import endpointMap from "./endpointMap";
 
-const MEDIA_BASE = "/media";
+const MEDIA_BASE = endpointMap.media.all; // "media"
+
+// helper to build a standard + active variant
+const makeEndpoint = (endpoint) => ({
+  get: (params = {}) => publicAxios.get(`/${endpoint}/`, { params }),
+  active: (params = {}) =>
+    publicAxios.get(`/${endpoint}/`, { params: { is_active: true, ...params } }),
+});
 
 const mediaService = {
   /* ------------------ PUBLIC ENDPOINTS ------------------ */
+  list: (params = {}) =>
+    publicAxios.get(`/${MEDIA_BASE}/`, { params }),
 
-  async list(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/`, { params });
-    return data;
-  },
+  stats: () =>
+    publicAxios.get(`/${endpointMap.analytics.stats}/`),
 
-  async listBanners(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/banners/`, { params });
-    return data;
-  },
-
-  async listFeatured(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/featured/`, { params });
-    return data;
-  },
-
-  async listVendor(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/vendor/`, { params });
-    return data;
-  },
-
-  async listPartner(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/partner/`, { params });
-    return data;
-  },
-
-  async listUser(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/user/`, { params });
-    return data;
-  },
-
-  async listHome(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/home/`, { params });
-    return data;
-  },
-
-  async listAbout(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/about/`, { params });
-    return data;
-  },
-
-  async listDecor(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/decor/`, { params });
-    return data;
-  },
-
-  async listLiveBand(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/live-band/`, { params });
-    return data;
-  },
-
-  async listCatering(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/catering/`, { params });
-    return data;
-  },
-
-  async listMediaHosting(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/media-hosting/`, { params });
-    return data;
-  },
-
-  async listPartnerVendorDashboard(params = {}) {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/partner-vendor-dashboard/`, { params });
-    return data;
-  },
-
-  async stats() {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/stats/`);
-    return data;
-  },
+  // auto-generate endpoints from endpointMap
+  ...Object.keys(endpointMap.media).reduce((acc, key) => {
+    if (key === "all") return acc; // skip base
+    const endpoint = endpointMap.media[key];
+    acc[key] = (params = {}) =>
+      publicAxios.get(`/${endpoint}/`, { params });
+    acc[`${key}Active`] = (params = {}) =>
+      publicAxios.get(`/${endpoint}/`, { params: { is_active: true, ...params } });
+    return acc;
+  }, {}),
 
   /* ------------------ ADMIN ENDPOINTS ------------------ */
-
-  async upload(files, extra = {}) {
+  upload: (files, extra = {}) => {
     const formData = new FormData();
     [...files].forEach((file) => formData.append("media", file));
 
@@ -91,56 +44,37 @@ const mediaService = {
       }
     });
 
-    const { data } = await axiosInstance.post(`${MEDIA_BASE}/upload/`, formData, {
+    return axiosInstance.post(`/${MEDIA_BASE}/upload/`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return data;
   },
 
-  async update(id, payload) {
-    const { data } = await axiosInstance.patch(`${MEDIA_BASE}/${id}/update/`, payload);
-    return data;
-  },
+  update: (id, payload) =>
+    axiosInstance.patch(`/${MEDIA_BASE}/${id}/update/`, payload),
 
-  async toggleActive(id) {
-    const { data } = await axiosInstance.patch(`${MEDIA_BASE}/${id}/toggle/`);
-    return data;
-  },
+  toggleActive: (id) =>
+    axiosInstance.patch(`/${MEDIA_BASE}/${id}/toggle/`),
 
-  async toggleFeatured(id) {
-    const { data } = await axiosInstance.patch(`${MEDIA_BASE}/${id}/toggle/featured/`);
-    return data;
-  },
+  toggleFeatured: (id) =>
+    axiosInstance.patch(`/${MEDIA_BASE}/${id}/toggle/featured/`),
 
-  async softDelete(id) {
-    const { data } = await axiosInstance.delete(`${MEDIA_BASE}/${id}/delete/`);
-    return data;
-  },
+  softDelete: (id) =>
+    axiosInstance.delete(`/${MEDIA_BASE}/${id}/delete/`),
 
-  async restore(id) {
-    const { data } = await axiosInstance.post(`${MEDIA_BASE}/${id}/restore/`);
-    return data;
-  },
+  restore: (id) =>
+    axiosInstance.post(`/${MEDIA_BASE}/${id}/restore/`),
 
-  async listAll(params = {}) {
-    const { data } = await axiosInstance.get(`${MEDIA_BASE}/all/`, { params });
-    return data;
-  },
+  listAll: (params = {}) =>
+    axiosInstance.get(`/${MEDIA_BASE}/all/`, { params }),
 
-  async listArchived(params = {}) {
-    const { data } = await axiosInstance.get(`${MEDIA_BASE}/archived/`, { params });
-    return data;
-  },
+  listArchived: (params = {}) =>
+    axiosInstance.get(`/${MEDIA_BASE}/archived/`, { params }),
 
-  async reorder(orderArray) {
-    const { data } = await axiosInstance.post(`${MEDIA_BASE}/reorder/`, orderArray);
-    return data;
-  },
+  reorder: (orderArray) =>
+    axiosInstance.post(`/${MEDIA_BASE}/reorder/`, orderArray),
 
-  async debugProto() {
-    const { data } = await publicAxios.get(`${MEDIA_BASE}/debug/proto/`);
-    return data;
-  },
+  debugProto: () =>
+    publicAxios.get(`/${MEDIA_BASE}/debug/proto/`),
 };
 
 export default mediaService;
