@@ -1,37 +1,33 @@
-import axiosInstance from "./axiosInstance";
+// src/api/mediaAPI.js
+import mediaService from "./services/mediaService";
 
 const mediaAPI = {
-  // ---- Public lists ----
-  list: (params = {}) => axiosInstance.get("/media/", { params }),
-  banners: (params = {}) => axiosInstance.get("/media/banners/", { params }),
-  featured: (params = {}) => axiosInstance.get("/media/featured/", { params }),
+  // Public
+  list: (params) => mediaService.list(params),
+  banners: (params) => mediaService.listBanners(params),
+  featured: (params) => mediaService.listFeatured(params),
+  vendor: (params) => mediaService.listVendor(params),
+  partner: (params) => mediaService.listPartner(params),
+  user: (params) => mediaService.listUser(params),
+  home: (params) => mediaService.listHome(params),
+  about: (params) => mediaService.listAbout(params),
+  decor: (params) => mediaService.listDecor(params),
+  liveBand: (params) => mediaService.listLiveBand(params),
+  catering: (params) => mediaService.listCatering(params),
+  mediaHosting: (params) => mediaService.listMediaHosting(params),
+  partnerVendorDashboard: (params) => mediaService.listPartnerVendorDashboard(params),
+  stats: () => mediaService.stats(),
 
-  // ---- Endpoint-specific lists ----
-  vendor: () => axiosInstance.get("/media/vendor/"),
-  partner: () => axiosInstance.get("/media/partner/"),
-  user: () => axiosInstance.get("/media/user/"),
-  home: () => axiosInstance.get("/media/home/"),
-  about: () => axiosInstance.get("/media/about/"),
-  decor: () => axiosInstance.get("/media/decor/"),
-  liveBand: () => axiosInstance.get("/media/live-band/"),
-  catering: () => axiosInstance.get("/media/catering/"),
-  mediaHosting: () => axiosInstance.get("/media/media-hosting/"),
-  partnerVendorDashboard: () => axiosInstance.get("/media/partner-vendor-dashboard/"),
-
-  // ---- Admin only ----
-  upload: (formData) =>
-    axiosInstance.post("/media/upload/", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
-  all: (params = {}) => axiosInstance.get("/media/all/", { params }),
-  update: (id, payload) => axiosInstance.patch(`/media/${id}/update/`, payload),
-  toggle: (id) => axiosInstance.patch(`/media/${id}/toggle/`),
-  toggleFeatured: (id) => axiosInstance.patch(`/media/${id}/toggle/featured/`),
-  delete: (id) => axiosInstance.delete(`/media/${id}/delete/`),
-  restore: (id) => axiosInstance.post(`/media/${id}/restore/`),
-  archived: (params = {}) => axiosInstance.get("/media/archived/", { params }),
-  reorder: (payload) => axiosInstance.post("/media/reorder/", payload),
-  stats: () => axiosInstance.get("/media/stats/"),
+  // Admin
+  upload: (files, extra) => mediaService.upload(files, extra),
+  update: (id, payload) => mediaService.update(id, payload),
+  toggle: (id) => mediaService.toggleActive(id),
+  toggleFeatured: (id) => mediaService.toggleFeatured(id),
+  delete: (id) => mediaService.softDelete(id),
+  restore: (id) => mediaService.restore(id),
+  all: (params) => mediaService.listAll(params),
+  archived: (params) => mediaService.listArchived(params),
+  reorder: (payload) => mediaService.reorder(payload),
 };
 
 export default mediaAPI;
