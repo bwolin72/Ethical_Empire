@@ -1,9 +1,8 @@
-// src/components/user/UserPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 
-import { useProfile } from "../context/ProfileContext"; // ✅ Shared profile context
+import { useProfile } from "../../context/ProfileContext";
 import apiService from "../../api/apiService";
 
 // Components
@@ -11,14 +10,13 @@ import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import FadeInSection from "../FadeInSection";
 import ProfileAvatar from "./ProfileAvatar";
-import NewsletterSignup from "./NewsLetterSignup"; // ✅ Centralized newsletter signup
-import Reviews from "./Reviews"; // ✅ Unified reviews section
+import NewsletterSignup from "./NewsLetterSignup";
+import Reviews from "./Reviews";
 
 // Styles
 import "react-toastify/dist/ReactToastify.css";
 import "./UserPage.css";
 
-// ✅ Local static services
 const services = [
   { title: "Live Band", desc: "Experience live music with Asaase Band.", icon: "🎸" },
   { title: "Catering", desc: "Delicious catering for your events.", icon: "🍽️" },
@@ -39,7 +37,6 @@ const UserPage = () => {
 
   const navigate = useNavigate();
 
-  // ✅ Normalize API responses
   const extractList = (res) => {
     if (!res) return [];
     const payload = res.data ?? res;
@@ -52,23 +49,22 @@ const UserPage = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-    const { signal } = controller;
 
     const fetchData = async () => {
       setLoading(true);
       try {
         const [mediaRes, reviewsRes, promoRes, videosRes] = await Promise.all([
-          apiService.media?.user?.({ signal }) ??
-            apiService.media?.getAllMedia?.({ signal }) ??
-            Promise.resolve({ data: [] }),
+          apiService.media?.user?.({ signal: controller.signal }) ??
+            apiService.media?.getAllMedia?.({ signal: controller.signal }) ??
+            { data: [] },
 
-          apiService.reviews?.list?.({ signal }) ?? Promise.resolve({ data: [] }),
+          apiService.reviews?.list?.({ signal: controller.signal }) ?? { data: [] },
 
-          apiService.promotions?.active?.({ signal }) ??
-            apiService.promotions?.list?.({ signal }) ??
-            Promise.resolve({ data: [] }),
+          apiService.promotions?.active?.({ signal: controller.signal }) ??
+            apiService.promotions?.list?.({ signal: controller.signal }) ??
+            { data: [] },
 
-          apiService.videos?.list?.({ signal }) ?? Promise.resolve({ data: [] }),
+          apiService.videos?.list?.({ signal: controller.signal }) ?? { data: [] },
         ]);
 
         setMedia(extractList(mediaRes));
@@ -89,20 +85,15 @@ const UserPage = () => {
     return () => controller.abort();
   }, []);
 
-  // ✅ Toggle dark mode
   const toggleDarkMode = () => {
     const newMode = !darkMode;
     setDarkMode(newMode);
     localStorage.setItem("darkMode", newMode);
   };
 
-  // ✅ Get featured video
   const featuredVideo =
-    Array.isArray(videos) && videos.find(
-      (item) =>
-        (item.is_featured || item.featured) &&
-        (item.file || item.url || item.video_url)
-    );
+    Array.isArray(videos) &&
+    videos.find((item) => (item.is_featured || item.featured) && (item.file || item.url || item.video_url));
 
   return (
     <div className={`userpage-container ${darkMode ? "dark" : ""}`}>
@@ -112,11 +103,7 @@ const UserPage = () => {
       <header className="userpage-header">
         <h2>Welcome {profile?.name || "Ethical Empire"}</h2>
         <div className="header-right">
-          <button
-            onClick={toggleDarkMode}
-            className="dark-toggle"
-            aria-label="Toggle dark mode"
-          >
+          <button onClick={toggleDarkMode} className="dark-toggle" aria-label="Toggle dark mode">
             {darkMode ? "☀️ Light" : "🌙 Dark"}
           </button>
         </div>
@@ -130,7 +117,7 @@ const UserPage = () => {
           style={{ cursor: "pointer", textAlign: "center" }}
           role="button"
           tabIndex={0}
-          onKeyPress={(e) => (e.key === "Enter" ? navigate("/account") : null)}
+          onKeyPress={(e) => e.key === "Enter" && navigate("/account")}
           aria-label="Go to account profile"
         >
           <ProfileAvatar profile={profile} onProfileUpdate={updateProfile} />
@@ -142,7 +129,6 @@ const UserPage = () => {
 
       <p className="intro-text">It's a great day to explore our services!</p>
 
-      {/* Loader */}
       {loading ? (
         <p className="loading-text">Loading...</p>
       ) : (
@@ -152,10 +138,7 @@ const UserPage = () => {
             <FadeInSection>
               <div className="asaase-card">
                 <video controls width="100%" preload="metadata">
-                  <source
-                    src={featuredVideo.file || featuredVideo.video_url || featuredVideo.url}
-                    type="video/mp4"
-                  />
+                  <source src={featuredVideo.file || featuredVideo.video_url || featuredVideo.url} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
               </div>
@@ -173,7 +156,7 @@ const UserPage = () => {
           </FadeInSection>
 
           {/* Promotions */}
-          {Array.isArray(promotions) && promotions.length > 0 && (
+          {promotions.length > 0 && (
             <section>
               <h3>Special Offers</h3>
               <div className="promotions-grid">
@@ -191,9 +174,7 @@ const UserPage = () => {
                       <h4>{promo.title}</h4>
                       <p>{promo.description}</p>
                       {promo.discount_percentage && (
-                        <p className="promo-discount">
-                          Discount: {promo.discount_percentage}%
-                        </p>
+                        <p className="promo-discount">Discount: {promo.discount_percentage}%</p>
                       )}
                       <p className="promo-valid">
                         Valid: {promo.valid_from} to {promo.valid_to}
@@ -209,23 +190,22 @@ const UserPage = () => {
           <section>
             <h3>Our Services</h3>
             <div className="services-grid">
-              {Array.isArray(services) &&
-                services.map((s, i) => (
-                  <FadeInSection key={i}>
-                    <div className="service-card">
-                      <div className="icon">{s.icon}</div>
-                      <h4>{s.title}</h4>
-                      <p>{s.desc}</p>
-                    </div>
-                  </FadeInSection>
-                ))}
+              {services.map((s, i) => (
+                <FadeInSection key={i}>
+                  <div className="service-card">
+                    <div className="icon">{s.icon}</div>
+                    <h4>{s.title}</h4>
+                    <p>{s.desc}</p>
+                  </div>
+                </FadeInSection>
+              ))}
             </div>
           </section>
 
           {/* Media */}
           <section>
             <h3>Your Media Gallery</h3>
-            {Array.isArray(media) && media.length > 0 ? (
+            {media.length > 0 ? (
               <div className="gallery-grid">
                 {media.map((item, idx) => (
                   <FadeInSection key={idx}>
@@ -239,11 +219,7 @@ const UserPage = () => {
           </section>
 
           {/* Reviews */}
-          {Array.isArray(reviews) && reviews.length > 0 ? (
-            <Reviews reviews={reviews} />
-          ) : (
-            <p className="empty-text">No reviews yet.</p>
-          )}
+          {reviews.length > 0 ? <Reviews reviews={reviews} /> : <p className="empty-text">No reviews yet.</p>}
 
           {/* Newsletter */}
           <section>
