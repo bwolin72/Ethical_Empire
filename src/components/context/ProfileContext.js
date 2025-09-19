@@ -1,5 +1,4 @@
-// src/context/ProfileContext.js
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import authAPI from "../../api/authAPI";
 
 // Create Profile Context
@@ -7,19 +6,20 @@ const ProfileContext = createContext();
 
 // Provider Component
 export const ProfileProvider = ({ children }) => {
-  const [profile, setProfile] = useState(null); // stores user profile
-  const [loading, setLoading] = useState(true); // indicates loading state
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // authentication status
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Helper: get stored token
-  const getStoredToken = () => {
+  // Safely get token from localStorage
+  const getStoredToken = useCallback(() => {
     try {
       const session = JSON.parse(localStorage.getItem("session")) || {};
       return session.access || null;
-    } catch {
+    } catch (err) {
+      console.warn("⚠️ Failed to parse session from localStorage:", err);
       return null;
     }
-  };
+  }, []);
 
   // Fetch profile if token exists
   useEffect(() => {
@@ -37,7 +37,7 @@ export const ProfileProvider = ({ children }) => {
         setProfile(res?.data ?? null);
         setIsAuthenticated(true);
       } catch (err) {
-        console.error("Error fetching profile:", err);
+        console.error("❌ Error fetching profile:", err);
         setProfile(null);
         setIsAuthenticated(false);
       } finally {
@@ -46,7 +46,7 @@ export const ProfileProvider = ({ children }) => {
     };
 
     fetchProfile();
-  }, []);
+  }, [getStoredToken]);
 
   // Update profile locally
   const updateProfile = (data) => {
