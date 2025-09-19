@@ -1,29 +1,34 @@
 // src/components/whatever/AccountProfile.jsx
 import React, { useEffect, useState, useCallback } from "react";
-import apiService from "../../api/apiService";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { logoutHelper } from "../../utils/logoutHelper";
 import { FaStar } from "react-icons/fa";
+import apiService from "../../api/apiService";
+import { logoutHelper } from "../../utils/logoutHelper";
+
 import "react-toastify/dist/ReactToastify.css";
 import "./AccountProfile.css";
 
 const StarRating = ({ rating, setRating }) => (
-  <div className="star-rating">
-    {[...Array(5)].map((_, i) => (
-      <FaStar
-        key={i}
-        onClick={() => setRating(i + 1)}
-        color={i < rating ? "#FFD700" : "#ccc"}
-        style={{ cursor: "pointer", fontSize: "1.2rem" }}
-        role="button"
-        tabIndex={0}
-        aria-label={`Rate ${i + 1} star${i > 0 ? "s" : ""}`}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") setRating(i + 1);
-        }}
-      />
-    ))}
+  <div className="star-rating" role="radiogroup" aria-label="Star rating">
+    {[...Array(5)].map((_, i) => {
+      const value = i + 1;
+      return (
+        <FaStar
+          key={i}
+          onClick={() => setRating(value)}
+          color={i < rating ? "#FFD700" : "#ccc"}
+          style={{ cursor: "pointer", fontSize: "1.2rem" }}
+          role="radio"
+          aria-checked={rating === value}
+          tabIndex={0}
+          aria-label={`${value} star${value > 1 ? "s" : ""}`}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") setRating(value);
+          }}
+        />
+      );
+    })}
   </div>
 );
 
@@ -44,6 +49,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
+  // Load profile if not passed in
   useEffect(() => {
     if (externalProfile) {
       setProfileImage(externalProfile.profile_image_url || "");
@@ -51,7 +57,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
 
     const controller = new AbortController();
-    let mounted = true;
 
     const fetchData = async () => {
       try {
@@ -61,8 +66,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
           apiService.auth.currentUserRole(),
         ]);
 
-        if (!mounted) return;
-
         if (profileRes?.data) {
           setProfile(profileRes.data);
           setProfileImage(profileRes.data.profile_image_url || "");
@@ -71,30 +74,28 @@ const AccountProfile = ({ profile: externalProfile }) => {
         if (roleRes?.data) setRoleInfo(roleRes.data);
       } catch (err) {
         if (!controller.signal.aborted) {
-          console.error("Error loading profile data:", err);
+          console.error("[AccountProfile] Failed to load profile data:", err);
           toast.error("Failed to load profile.");
         }
       } finally {
-        if (mounted) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     fetchData();
-
-    return () => {
-      mounted = false;
-      controller.abort();
-    };
+    return () => controller.abort();
   }, [externalProfile]);
 
+  // Utility to get initials
   const getInitials = useCallback((name) => {
     if (!name) return "?";
     const parts = name.trim().split(" ");
     return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
   }, []);
 
+  // Upload new image
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     if (!CLOUDINARY_UPLOAD_PRESET || !CLOUDINARY_CLOUD_NAME) {
@@ -123,20 +124,23 @@ const AccountProfile = ({ profile: externalProfile }) => {
       );
       const uploadData = await uploadRes.json();
 
-      if (!uploadData.secure_url) throw new Error("Upload failed");
+      if (!uploadData.secure_url) throw new Error("No secure URL returned from Cloudinary.");
 
       await apiService.auth.updateProfile({ profile_image_url: uploadData.secure_url });
 
       setProfileImage(uploadData.secure_url);
-      setProfile((prev) => (prev ? { ...prev, profile_image_url: uploadData.secure_url } : prev));
+      setProfile((prev) =>
+        prev ? { ...prev, profile_image_url: uploadData.secure_url } : prev
+      );
 
       toast.success("Profile picture updated!");
     } catch (err) {
-      console.error(err);
+      console.error("[AccountProfile] Upload failed:", err);
       toast.error("Upload failed.");
     }
   };
 
+  // Submit review
   const handleReviewSubmit = async () => {
     if (!review.trim() || !reviewService) {
       toast.warn("Please fill in all fields.");
@@ -155,23 +159,25 @@ const AccountProfile = ({ profile: externalProfile }) => {
       setReviewService("");
       setReviewRating(5);
     } catch (err) {
-      console.error("Review submit failed:", err);
+      console.error("[AccountProfile] Review submit failed:", err);
       toast.error("Failed to submit review.");
     }
   };
 
+  // Logout
   const handleLogout = async () => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     try {
       await apiService.auth.logout();
     } catch (e) {
-      console.warn("logout endpoint error:", e);
+      console.warn("[AccountProfile] Logout endpoint error:", e);
     } finally {
       await logoutHelper();
     }
   };
 
+  // Close button handler
   const handleClose = () => {
     const role = (roleInfo?.role || "").toLowerCase();
     const paths = {
@@ -216,6 +222,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   return (
     <div className="account-profile-container" role="main" aria-label="Account Profile">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+
       <button className="close-btn" onClick={handleClose} aria-label="Close profile">
         ✖
       </button>
@@ -228,7 +235,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           ) : (
             <div className="profile-initials">{getInitials(profile?.name)}</div>
           )}
-          <label className="upload-button" htmlFor="profile-image-upload" tabIndex={0}>
+          <label className="upload-button" htmlFor="profile-image-upload">
             Upload Picture
             <input
               id="profile-image-upload"
@@ -242,9 +249,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
         {/* User info */}
         <section className="user-info">
-          <h3>@{profile?.name}</h3>
-          <p><strong>Name:</strong> {profile?.name}</p>
-          <p><strong>Email:</strong> {profile?.email}</p>
+          <h3>@{profile?.name || "Unknown User"}</h3>
+          <p><strong>Name:</strong> {profile?.name || "N/A"}</p>
+          <p><strong>Email:</strong> {profile?.email || "N/A"}</p>
           <p><strong>Phone:</strong> {profile?.phone || "N/A"}</p>
           {roleInfo?.role && <p><strong>Role:</strong> {roleInfo.role}</p>}
           <div className="button-group">
@@ -259,8 +266,13 @@ const AccountProfile = ({ profile: externalProfile }) => {
           {bookings.length > 0 ? (
             bookings.map((bk) => (
               <article key={bk.id} className="booking-card">
-                <p><strong>Service:</strong> {bk.service_type}</p>
-                <p><strong>Date:</strong> {new Date(bk.event_date).toLocaleDateString()}</p>
+                <p><strong>Service:</strong> {bk.service_type || "N/A"}</p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {bk.event_date
+                    ? new Date(bk.event_date).toLocaleDateString()
+                    : "N/A"}
+                </p>
                 <p><strong>Status:</strong> {renderBookingStatus(bk.status)}</p>
               </article>
             ))
@@ -300,14 +312,19 @@ const AccountProfile = ({ profile: externalProfile }) => {
               "MC/Host",
               "Sound Setup",
             ].map((service) => (
-              <option key={service} value={service}>{service}</option>
+              <option key={service} value={service}>
+                {service}
+              </option>
             ))}
           </select>
           <label>Rating</label>
           <StarRating rating={reviewRating} setRating={setReviewRating} />
-          <button className="btn" onClick={handleReviewSubmit}>Submit Review</button>
+          <button className="btn" onClick={handleReviewSubmit}>
+            Submit Review
+          </button>
         </section>
 
+        {/* Logout */}
         <button
           className="btn danger"
           onClick={handleLogout}
