@@ -1,4 +1,3 @@
-// src/components/home/EethmHome.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FadeInSection from "../FadeInSection";
@@ -20,25 +19,35 @@ const EethmHome = () => {
   const navigate = useNavigate();
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // Fetch data
-  const { data: videos = [], loading: videosLoading, error: videosError } = useFetcher("videos", "all");
-  const { data: promotions = [], loading: promoLoading, error: promoError } = useFetcher("promotions", "all");
-  const { data: reviews = [], loading: reviewLoading, error: reviewError } = useFetcher("reviews", "all");
-  const { data: media = [], loading: mediaLoading, error: mediaError } = useFetcher("media", "all");
+  // ✅ Fetch only items flagged for the homepage / active
+  const { data: videos = [],    loading: videosLoading, error: videosError } =
+    useFetcher("videos", "home");
 
-  // Normalize hero video
-  const heroVideo = videos.length > 0 
-    ? videos[0] 
+  const { data: promotions = [], loading: promoLoading, error: promoError } =
+    useFetcher("promotions", "active");
+
+  const { data: reviews = [],   loading: reviewLoading, error: reviewError } =
+    useFetcher("reviews", "all"); // all reviews are fine
+
+  const { data: media = [],     loading: mediaLoading, error: mediaError } =
+    useFetcher("media", "home");
+
+  // ✅ Hero video: first home-video or fallback
+  const heroVideo = videos.length > 0
+    ? videos[0]
     : { url: { full: LOCAL_FALLBACK_VIDEO }, file_type: "video/mp4" };
 
-  // Merge gallery items safely with fallback
+  // ✅ Merge gallery items (videos + media) safely
   const galleryItems = [...videos, ...media]
-    .filter(Boolean) // remove null/undefined
-    .map(item => item?.url ? item : null) // ensure item has url
+    .filter(Boolean)
+    .map(item => (item?.url ? item : null))
     .filter(Boolean);
 
   if (galleryItems.length === 0) {
-    galleryItems.push({ url: { full: LOCAL_FALLBACK_IMAGE }, file_type: "image/jpeg" });
+    galleryItems.push({
+      url: { full: LOCAL_FALLBACK_IMAGE },
+      file_type: "image/jpeg"
+    });
   }
 
   return (
@@ -64,6 +73,7 @@ const EethmHome = () => {
       {/* ===== HIGHLIGHT BANNERS ===== */}
       <FadeInSection>
         <section className="banners-hero-wrap">
+          {/* BannerCards internally fetches banners */}
           <BannerCards endpointKey="banners" title="Highlights" type="banner" />
         </section>
       </FadeInSection>
@@ -80,7 +90,9 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="promotions-section">
           <h2>Special Offers</h2>
-          {promoLoading ? <p>Loading promotions…</p> : promotions.length ? (
+          {promoLoading ? (
+            <p>Loading promotions…</p>
+          ) : promotions.length ? (
             <div className="promotions-grid">
               {promotions.map((p, idx) => (
                 <article key={p.id ?? `promo-${idx}`} className="promotion-card">
@@ -93,7 +105,11 @@ const EethmHome = () => {
                 </article>
               ))}
             </div>
-          ) : promoError ? <p className="error-text">{promoError}</p> : <p className="muted-text">No promotions.</p>}
+          ) : promoError ? (
+            <p className="error-text">{promoError}</p>
+          ) : (
+            <p className="muted-text">No promotions.</p>
+          )}
         </section>
       </FadeInSection>
 
@@ -103,7 +119,13 @@ const EethmHome = () => {
           <h2>Our Media Library</h2>
           {mediaLoading && <p>Loading media…</p>}
           {mediaError && <p className="error-text">{mediaError}</p>}
-          <MediaCards endpointKey="all" resourceType="media" fullWidth={false} isActive isFeatured={false} />
+          <MediaCards
+            endpointKey="home"
+            resourceType="media"
+            fullWidth={false}
+            isActive
+            isFeatured={false}
+          />
         </section>
       </FadeInSection>
 
@@ -120,7 +142,9 @@ const EethmHome = () => {
       <FadeInSection>
         <section className="reviews-section">
           <h2>What Our Clients Say</h2>
-          {reviewLoading ? <p>Loading reviews…</p> : reviews.length ? (
+          {reviewLoading ? (
+            <p>Loading reviews…</p>
+          ) : reviews.length ? (
             <div className="reviews-container">
               {reviews.map((r, idx) => (
                 <div key={r.id ?? `review-${idx}`} className="review-card">
@@ -129,15 +153,32 @@ const EethmHome = () => {
                 </div>
               ))}
             </div>
-          ) : reviewError ? <p className="error-text">{reviewError}</p> : <p className="muted-text">No reviews.</p>}
+          ) : reviewError ? (
+            <p className="error-text">{reviewError}</p>
+          ) : (
+            <p className="muted-text">No reviews.</p>
+          )}
         </section>
       </FadeInSection>
 
       {/* ===== NEWSLETTER MODAL ===== */}
       {showNewsletterForm && (
-        <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
-          <div className="newsletter-modal" onClick={(e) => e.stopPropagation()} role="dialog">
-            <button className="newsletter-close-btn" onClick={() => setShowNewsletterForm(false)} type="button">&times;</button>
+        <div
+          className="newsletter-modal-backdrop"
+          onClick={() => setShowNewsletterForm(false)}
+        >
+          <div
+            className="newsletter-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+          >
+            <button
+              className="newsletter-close-btn"
+              onClick={() => setShowNewsletterForm(false)}
+              type="button"
+            >
+              &times;
+            </button>
             <NewsletterSignup />
           </div>
         </div>
