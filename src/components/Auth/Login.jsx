@@ -7,7 +7,6 @@ import "react-toastify/dist/ReactToastify.css";
 import authAPI from "../../api/authAPI";
 import { useAuth } from "../context/AuthContext";
 import logo from "../../assets/logo.png";
-import "../../styles/password.css";               // ✅ global password styles
 import PasswordInput from "../common/PasswordInput"; // ✅ common component
 import "./Auth.css";
 
