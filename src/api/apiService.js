@@ -2,199 +2,240 @@ import axiosInstance from "./axiosInstance";
 import publicAxios from "./publicAxios";
 
 /**
- * All backend API endpoints, grouped by feature.
- * Public endpoints → publicAxios
- * Auth-required endpoints → axiosInstance
- *
- * axiosInstance & publicAxios already have baseURL = https://api.eethmghmultimedia.com/api
- * so we only provide the relative path.
+ * Utility to convert snake_case or camelCase keys into kebab-case.
  */
-export const API_ENDPOINTS = {
+const toKebab = (str) =>
+  str.replace(/([a-z])([A-Z])/g, "$1-$2").replace(/_/g, "-").toLowerCase();
+
+/**
+ * Normalize request config → separates params & signal properly.
+ */
+const normalizeConfig = (config = {}) => {
+  const { params = {}, signal, ...rest } = config;
+  return { params, signal, ...rest };
+};
+
+/**
+ * Helper wrappers to avoid duplicating { params } logic.
+ */
+const withPublicGet = (url) => (config = {}) =>
+  publicAxios.get(url, normalizeConfig(config));
+
+const withAuthGet = (url) => (config = {}) =>
+  axiosInstance.get(url, normalizeConfig(config));
+
+const withPublicPost = (url) => (payload, config = {}) =>
+  publicAxios.post(url, payload, normalizeConfig(config));
+
+const withAuthPost = (url) => (payload, config = {}) =>
+  axiosInstance.post(url, payload, normalizeConfig(config));
+
+/**
+ * Recursively adds kebab-case aliases to API_ENDPOINTS objects.
+ */
+const addKebabAliases = (obj) => {
+  if (typeof obj !== "object" || obj === null) return obj;
+
+  const newObj = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (typeof value === "function") {
+      newObj[key] = value;
+      const kebab = toKebab(key);
+      if (kebab !== key) newObj[kebab] = value;
+    } else {
+      newObj[key] = addKebabAliases(value);
+      const kebab = toKebab(key);
+      if (kebab !== key) newObj[kebab] = newObj[key];
+    }
+  }
+  return newObj;
+};
+
+/**
+ * All backend API endpoints.
+ */
+const RAW_ENDPOINTS = {
   // ------------------- Media (public) -------------------
   media: {
-    all:      (params = {}) => publicAxios.get("/media/all/", { params }),
-    about:    (params = {}) => publicAxios.get("/media/about/", { params }),
-    banners:  (params = {}) => publicAxios.get("/media/banners/", { params }),
-    home:     (params = {}) => publicAxios.get("/media/home/", { params }),
-    featured: (params = {}) => publicAxios.get("/media/featured/", { params }),
-    user:     (params = {}) => publicAxios.get("/media/user/", { params }),
-    vendor:   (params = {}) => publicAxios.get("/media/vendor/", { params }),
-    partner:  (params = {}) => publicAxios.get("/media/partner/", { params }),
-    decor:    (params = {}) => publicAxios.get("/media/decor/", { params }),
-    liveBand: (params = {}) => publicAxios.get("/media/live-band/", { params }),
-    catering: (params = {}) => publicAxios.get("/media/catering/", { params }),
-    hosting:  (params = {}) => publicAxios.get("/media/media-hosting/", { params }),
+    all: withPublicGet("/media/all/"),
+    about: withPublicGet("/media/about/"),
+    banners: withPublicGet("/media/banners/"),
+    home: withPublicGet("/media/home/"),
+    featured: withPublicGet("/media/featured/"),
+    user: withPublicGet("/media/user/"),
+    vendor: withPublicGet("/media/vendor/"),
+    partner: withPublicGet("/media/partner/"),
+    decor: withPublicGet("/media/decor/"),
+    liveBand: withPublicGet("/media/live-band/"),
+    catering: withPublicGet("/media/catering/"),
+    mediaHosting: withPublicGet("/media/media-hosting/"),
   },
 
   // ------------------- Videos -------------------
   videos: {
-    // Core list / detail (public)
-    all:    (params = {}) => publicAxios.get("/videos/videos/", { params }),
-    detail: (id, params = {}) => publicAxios.get(`/videos/videos/${id}/`, { params }),
+    all: withPublicGet("/videos/videos/"),
+    detail: (id, config = {}) =>
+      publicAxios.get(`/videos/videos/${id}/`, normalizeConfig(config)),
 
-    // Toggle actions (require auth)
-    toggleActive:   (id) => axiosInstance.post(`/videos/videos/${id}/toggle_active/`),
+    toggleActive: (id) => axiosInstance.post(`/videos/videos/${id}/toggle_active/`),
     toggleFeatured: (id) => axiosInstance.post(`/videos/videos/${id}/toggle_featured/`),
 
-    // Endpoint-specific lists (public)
-    home:             (params = {}) => publicAxios.get("/videos/videos/home/", { params }),
-    about:            (params = {}) => publicAxios.get("/videos/videos/about/", { params }),
-    decor:            (params = {}) => publicAxios.get("/videos/videos/decor/", { params }),
-    live_band:        (params = {}) => publicAxios.get("/videos/videos/live_band/", { params }),
-    catering:         (params = {}) => publicAxios.get("/videos/videos/catering/", { params }),
-    media_hosting:    (params = {}) => publicAxios.get("/videos/videos/media_hosting/", { params }),
-    user:             (params = {}) => publicAxios.get("/videos/videos/user/", { params }),
-    vendor:           (params = {}) => publicAxios.get("/videos/videos/vendor/", { params }),
-    partner:          (params = {}) => publicAxios.get("/videos/videos/partner/", { params }),
-    partner_dashboard:(params = {}) => publicAxios.get("/videos/videos/partner_dashboard/", { params }),
-    agency_dashboard: (params = {}) => publicAxios.get("/videos/videos/agency_dashboard/", { params }),
-
-    // Frontend-friendly aliases (kebab-case)
-    "live-band":       (params = {}) => publicAxios.get("/videos/videos/live_band/", { params }),
-    "media-hosting":   (params = {}) => publicAxios.get("/videos/videos/media_hosting/", { params }),
-    "partner-dashboard": (params = {}) => publicAxios.get("/videos/videos/partner_dashboard/", { params }),
-    "agency-dashboard":  (params = {}) => publicAxios.get("/videos/videos/agency_dashboard/", { params }),
+    home: withPublicGet("/videos/videos/home/"),
+    about: withPublicGet("/videos/videos/about/"),
+    decor: withPublicGet("/videos/videos/decor/"),
+    live_band: withPublicGet("/videos/videos/live_band/"),
+    catering: withPublicGet("/videos/videos/catering/"),
+    media_hosting: withPublicGet("/videos/videos/media_hosting/"),
+    user: withPublicGet("/videos/videos/user/"),
+    vendor: withPublicGet("/videos/videos/vendor/"),
+    partner: withPublicGet("/videos/videos/partner/"),
+    partner_dashboard: withPublicGet("/videos/videos/partner_dashboard/"),
+    agency_dashboard: withPublicGet("/videos/videos/agency_dashboard/"),
   },
 
-  // ------------------- Services (public) -------------------
+  // ------------------- Services -------------------
   services: {
-    all:    (params = {}) => publicAxios.get("/services/", { params }),
-    detail: (slug, params = {}) => publicAxios.get(`/services/${slug}/`, { params }),
+    all: withPublicGet("/services/"),
+    detail: (slug, config = {}) =>
+      publicAxios.get(`/services/${slug}/`, normalizeConfig(config)),
   },
 
-  // ------------------- Reviews (public to list, auth to moderate) -------------------
+  // ------------------- Reviews -------------------
   reviews: {
-    all:     (params = {}) => publicAxios.get("/reviews/", { params }),
-    admin:   (params = {}) => axiosInstance.get("/reviews/admin/", { params }),
+    all: withPublicGet("/reviews/"),
+    admin: withAuthGet("/reviews/admin/"),
     approve: (id) => axiosInstance.post(`/reviews/${id}/approve/`),
-    reply:   (id, payload) => axiosInstance.post(`/reviews/${id}/reply/`, payload),
-    delete:  (id) => axiosInstance.delete(`/reviews/${id}/delete/`),
+    reply: (id, payload) => axiosInstance.post(`/reviews/${id}/reply/`, payload),
+    delete: (id) => axiosInstance.delete(`/reviews/${id}/delete/`),
   },
 
-  // ------------------- Promotions (public) -------------------
+  // ------------------- Promotions -------------------
   promotions: {
-    all:    (params = {}) => publicAxios.get("/promotions/", { params }),
-    active: (params = {}) => publicAxios.get("/promotions/active/", { params }),
-    detail: (id, params = {}) => publicAxios.get(`/promotions/${id}/`, { params }),
+    all: withPublicGet("/promotions/"),
+    active: withPublicGet("/promotions/active/"),
+    detail: (id, config = {}) =>
+      publicAxios.get(`/promotions/${id}/`, normalizeConfig(config)),
   },
 
-  // ------------------- Contact (public) -------------------
+  // ------------------- Contact -------------------
   contact: {
-    send: (payload) => publicAxios.post("/contact/send/", payload),
+    send: withPublicPost("/contact/send/"),
   },
 
-  // ------------------- Invoices (auth) -------------------
+  // ------------------- Invoices -------------------
   invoices: {
-    list:   (params = {}) => axiosInstance.get("/invoices/", { params }),
+    list: withAuthGet("/invoices/"),
     detail: (id) => axiosInstance.get(`/invoices/${id}/`),
   },
 
-  // ------------------- Legal / Consents (auth) -------------------
+  // ------------------- Legal -------------------
   legal: {
-    create:     (payload) => axiosInstance.post("/legal/consents/", payload),
+    create: withAuthPost("/legal/consents/"),
     myConsents: () => axiosInstance.get("/legal/consents/me/"),
-    all:        () => axiosInstance.get("/legal/consents/all/"),
-    detail:     (id) => axiosInstance.get(`/legal/consents/${id}/`),
-    revoke:     (id) => axiosInstance.post(`/legal/consents/${id}/revoke/`),
+    all: () => axiosInstance.get("/legal/consents/all/"),
+    detail: (id) => axiosInstance.get(`/legal/consents/${id}/`),
+    revoke: (id) => axiosInstance.post(`/legal/consents/${id}/revoke/`),
   },
 
-  // ------------------- Messaging (auth) -------------------
+  // ------------------- Messaging -------------------
   messaging: {
-    list:       (params = {}) => axiosInstance.get("/messages/", { params }),
-    create:     (payload) => axiosInstance.post("/messages/", payload),
-    detail:     (id) => axiosInstance.get(`/messages/${id}/`),
-    update:     (id, payload) => axiosInstance.put(`/messages/${id}/`, payload),
-    delete:     (id) => axiosInstance.delete(`/messages/${id}/`),
-    markRead:   (id) => axiosInstance.patch(`/messages/${id}/mark-read/`),
+    list: withAuthGet("/messages/"),
+    create: withAuthPost("/messages/"),
+    detail: (id) => axiosInstance.get(`/messages/${id}/`),
+    update: (id, payload) => axiosInstance.put(`/messages/${id}/`, payload),
+    delete: (id) => axiosInstance.delete(`/messages/${id}/`),
+    markRead: (id) => axiosInstance.patch(`/messages/${id}/mark-read/`),
     markUnread: (id) => axiosInstance.patch(`/messages/${id}/mark-unread/`),
-    unread:     () => axiosInstance.get("/messages/unread/"),
+    unread: () => axiosInstance.get("/messages/unread/"),
   },
 
   // ------------------- Newsletter -------------------
-  // Public actions like subscribe/confirm/unsubscribe use publicAxios
-  // Admin actions (list, logs, send, delete) require auth
   newsletter: {
-    subscribe:          (payload) => publicAxios.post("/newsletter/subscribe/", payload),
-    confirm:            (payload) => publicAxios.post("/newsletter/confirm/", payload),
-    unsubscribe:        (payload) => publicAxios.post("/newsletter/unsubscribe/", payload),
-    resubscribe:        (payload) => publicAxios.post("/newsletter/resubscribe/", payload),
-    resendConfirmation: (payload) => publicAxios.post("/newsletter/resend-confirmation/", payload),
+    subscribe: withPublicPost("/newsletter/subscribe/"),
+    confirm: withPublicPost("/newsletter/confirm/"),
+    unsubscribe: withPublicPost("/newsletter/unsubscribe/"),
+    resubscribe: withPublicPost("/newsletter/resubscribe/"),
+    resendConfirmation: withPublicPost("/newsletter/resend-confirmation/"),
 
-    list:   (params = {}) => axiosInstance.get("/newsletter/list/", { params }),
-    count:  () => axiosInstance.get("/newsletter/count/"),
-    logs:   (params = {}) => axiosInstance.get("/newsletter/logs/", { params }),
-    send:   (payload) => axiosInstance.post("/newsletter/send/", payload),
-    delete: (id)      => axiosInstance.delete(`/newsletter/delete/${id}/`),
+    list: withAuthGet("/newsletter/list/"),
+    count: () => axiosInstance.get("/newsletter/count/"),
+    logs: withAuthGet("/newsletter/logs/"),
+    send: withAuthPost("/newsletter/send/"),
+    delete: (id) => axiosInstance.delete(`/newsletter/delete/${id}/`),
   },
 
-  // ------------------- Accounts & Auth (auth for most) -------------------
+  // ------------------- Accounts -------------------
   accounts: {
-    register:        (payload) => publicAxios.post("/accounts/register/", payload),
-    verifyEmail:     (uid, token) => publicAxios.get(`/accounts/verify-email/${uid}/${token}/`),
-    login:           (payload) => publicAxios.post("/accounts/login/", payload),
-    logout:          () => axiosInstance.post("/accounts/profile/logout/"),
-    verifyOtp:       (payload) => publicAxios.post("/accounts/verify-otp/", payload),
-    resendOtp:       (payload) => publicAxios.post("/accounts/resend-otp/", payload),
-    profile:         () => axiosInstance.get("/accounts/profile/"),
-    changePassword:  (payload) => axiosInstance.post("/accounts/profile/change-password/", payload),
-    currentRole:     () => axiosInstance.get("/accounts/profile/role/"),
-    roleChoices:     () => publicAxios.get("/accounts/role-choices/"),
-    workerCategories:() => publicAxios.get("/accounts/worker-categories/"),
-    vendorProfile:   () => axiosInstance.get("/accounts/profile/vendor/"),
-    partnerProfile:  () => axiosInstance.get("/accounts/profile/partner/"),
-    resetPassword:   (payload) => publicAxios.post("/accounts/reset-password/", payload),
+    register: withPublicPost("/accounts/register/"),
+    verifyEmail: (uid, token) =>
+      publicAxios.get(`/accounts/verify-email/${uid}/${token}/`),
+    login: withPublicPost("/accounts/login/"),
+    logout: () => axiosInstance.post("/accounts/profile/logout/"),
+    verifyOtp: withPublicPost("/accounts/verify-otp/"),
+    resendOtp: withPublicPost("/accounts/resend-otp/"),
+    profile: withAuthGet("/accounts/profile/"),
+    changePassword: withAuthPost("/accounts/profile/change-password/"),
+    currentRole: withAuthGet("/accounts/profile/role/"),
+    roleChoices: withPublicGet("/accounts/role-choices/"),
+    workerCategories: withPublicGet("/accounts/worker-categories/"),
+    vendorProfile: withAuthGet("/accounts/profile/vendor/"),
+    partnerProfile: withAuthGet("/accounts/profile/partner/"),
+    resetPassword: withPublicPost("/accounts/reset-password/"),
     resetPasswordConfirm: (uidb64, token, payload) =>
-        publicAxios.post(`/accounts/reset-password-confirm/${uidb64}/${token}/`, payload),
+      publicAxios.post(`/accounts/reset-password-confirm/${uidb64}/${token}/`, payload),
 
-    // JWT
-    token:        (payload) => publicAxios.post("/accounts/token/", payload),
-    tokenRefresh: (payload) => publicAxios.post("/accounts/token/refresh/", payload),
-    tokenVerify:  (payload) => publicAxios.post("/accounts/token/verify/", payload),
+    token: withPublicPost("/accounts/token/"),
+    tokenRefresh: withPublicPost("/accounts/token/refresh/"),
+    tokenVerify: withPublicPost("/accounts/token/verify/"),
 
-    // --- Admin only ---
     admin: {
-      inviteWorker:      (payload) => axiosInstance.post("/accounts/admin/invite-worker/", payload),
-      validateInvite:    (uid, token) => axiosInstance.get(`/accounts/admin/worker/validate-invite/${uid}/${token}/`),
-      completeInvite:    (payload) => axiosInstance.post("/accounts/admin/worker/complete-invite/", payload),
-      internalRegister:  (payload) => axiosInstance.post("/accounts/admin/internal-register/", payload),
-      profileByEmail:    (payload) => axiosInstance.post("/accounts/admin/profile-by-email/", payload),
-      deleteByEmail:     (payload) => axiosInstance.post("/accounts/admin/delete-by-email/", payload),
-      resetPassword:     (payload) => axiosInstance.post("/accounts/admin/reset-password/", payload),
-      resendWelcome:     (payload) => axiosInstance.post("/accounts/admin/resend-welcome-email/", payload),
-      sendMessage:       (payload) => axiosInstance.post("/accounts/admin/send-message/", payload),
-      sendOffer:         (payload) => axiosInstance.post("/accounts/admin/special-offer/", payload),
-      users:             (params = {}) => axiosInstance.get("/accounts/admin/users/", { params }),
+      inviteWorker: withAuthPost("/accounts/admin/invite-worker/"),
+      validateInvite: (uid, token) =>
+        axiosInstance.get(`/accounts/admin/worker/validate-invite/${uid}/${token}/`),
+      completeInvite: withAuthPost("/accounts/admin/worker/complete-invite/"),
+      internalRegister: withAuthPost("/accounts/admin/internal-register/"),
+      profileByEmail: withAuthPost("/accounts/admin/profile-by-email/"),
+      deleteByEmail: withAuthPost("/accounts/admin/delete-by-email/"),
+      resetPassword: withAuthPost("/accounts/admin/reset-password/"),
+      resendWelcome: withAuthPost("/accounts/admin/resend-welcome-email/"),
+      sendMessage: withAuthPost("/accounts/admin/send-message/"),
+      sendOffer: withAuthPost("/accounts/admin/special-offer/"),
+      users: withAuthGet("/accounts/admin/users/"),
     },
   },
 
-  // ------------------- Analytics (auth) -------------------
+  // ------------------- Analytics -------------------
   analytics: {
-    log:   (payload) => axiosInstance.post("/analytics/log/", payload),
-    stats: (params = {}) => axiosInstance.get("/analytics/stats/", { params }),
+    log: withAuthPost("/analytics/log/"),
+    stats: withAuthGet("/analytics/stats/"),
   },
 
   // ------------------- Bookings -------------------
   bookings: {
-    public:      (params = {}) => publicAxios.get("/bookings/", { params }),
-    create:      (payload) => publicAxios.post("/bookings/submit/", payload),
-    user:        () => axiosInstance.get("/bookings/user/"),
-    userHistory: () => axiosInstance.get("/bookings/user/history/"),
-    updateDelete:(pk, payload) => axiosInstance.put(`/bookings/${pk}/`, payload),
-    delete:      (pk) => axiosInstance.delete(`/bookings/${pk}/`),
-    invoice:     (pk) => axiosInstance.get(`/bookings/invoice/${pk}/`),
+    public: withPublicGet("/bookings/"),
+    create: withPublicPost("/bookings/submit/"),
+    user: withAuthGet("/bookings/user/"),
+    userHistory: withAuthGet("/bookings/user/history/"),
+    updateDelete: (pk, payload) => axiosInstance.put(`/bookings/${pk}/`, payload),
+    delete: (pk) => axiosInstance.delete(`/bookings/${pk}/`),
+    invoice: (pk) => axiosInstance.get(`/bookings/invoice/${pk}/`),
 
     admin: {
-      list:      (params = {}) => axiosInstance.get("/bookings/bookings-admin/bookings/", { params }),
-      updateStatus: (pk, payload) => axiosInstance.post(`/bookings/bookings-admin/bookings/${pk}/status/`, payload),
-      delete:    (pk) => axiosInstance.delete(`/bookings/bookings-admin/bookings/${pk}/delete/`),
-      update:    (pk, payload) => axiosInstance.put(`/bookings/bookings-admin/bookings/${pk}/update/`, payload),
+      list: withAuthGet("/bookings/bookings-admin/bookings/"),
+      updateStatus: (pk, payload) =>
+        axiosInstance.post(`/bookings/bookings-admin/bookings/${pk}/status/`, payload),
+      delete: (pk) =>
+        axiosInstance.delete(`/bookings/bookings-admin/bookings/${pk}/delete/`),
+      update: (pk, payload) =>
+        axiosInstance.put(`/bookings/bookings-admin/bookings/${pk}/update/`, payload),
     },
   },
 };
 
-/**
- * Optional flat aliases for quick importing.
- */
+// Add kebab-case aliases automatically
+export const API_ENDPOINTS = addKebabAliases(RAW_ENDPOINTS);
+
+// Optional flat aliases
 export const FLAT_ENDPOINTS = {
   "media.user": API_ENDPOINTS.media.user,
   "media.vendor": API_ENDPOINTS.media.vendor,
