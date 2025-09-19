@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../styles/password.css';
+import './password.css';
 
 export default function PasswordInput({
   value,
