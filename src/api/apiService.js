@@ -44,13 +44,15 @@ export const API_ENDPOINTS = {
 
 // Optional flat aliases for any code that imports them directly
 export const FLAT_ENDPOINTS = {
-  media:      API_ENDPOINTS.media.all,
+  media:      API_ENDPOINTS.media.toggle_featured,
   banners:    API_ENDPOINTS.media.banners,
-  about:      API_ENDPOINTS.media.about,
-  videos:     API_ENDPOINTS.videos.all,
-  services:   API_ENDPOINTS.services.all,
-  reviews:    API_ENDPOINTS.reviews.all,
-  promotions: API_ENDPOINTS.promotions.all,
+  about:      API_ENDPOINTS.media.toggle_active,
+  videos:     API_ENDPOINTS.videos,
+  videos:     API_ENDPOINTS.videos.toggle_active,
+  videos:     API_ENDPOINTS.videos.toggle_featured,
+  services:   API_ENDPOINTS.services,
+  reviews:    API_ENDPOINTS.reviews,
+  promotions: API_ENDPOINTS.promotions,
 };
 
 const apiService = { API_ENDPOINTS, FLAT_ENDPOINTS };
