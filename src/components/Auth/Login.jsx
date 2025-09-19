@@ -3,11 +3,12 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 import authAPI from "../../api/authAPI";
 import { useAuth } from "../context/AuthContext";
 import logo from "../../assets/logo.png";
+import "../../styles/password.css";               // ✅ global password styles
+import PasswordInput from "../common/PasswordInput"; // ✅ common component
 import "./Auth.css";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -16,7 +17,6 @@ const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -25,7 +25,7 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /** Redirect user by role */
+  /* ---------------- Role-based redirect ---------------- */
   const redirectByRole = useCallback(
     (role) => {
       const routes = {
@@ -40,14 +40,14 @@ const Login = () => {
     [navigate]
   );
 
-  /** Dark mode */
+  /* ---------------- Dark mode toggle ---------------- */
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  /** Auto redirect if logged in */
+  /* ---------------- Auto redirect if already logged in ---------------- */
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -160,6 +160,7 @@ const Login = () => {
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
+            {/* Email */}
             <div className="input-group">
               <label>Email</label>
               <input
@@ -177,31 +178,21 @@ const Login = () => {
               )}
             </div>
 
-            <div className="input-group password-field">
+            {/* ✅ Password uses the shared component */}
+            <div className="input-group">
               <label>Password</label>
-              <input
-                type={showPassword ? "text" : "password"}
+              <PasswordInput
                 name="password"
                 placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
-                className={formErrors.password ? "input-error" : ""}
-                disabled={loading}
-                required
               />
-              <button
-                type="button"
-                className="password-toggle"
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                onClick={() => setShowPassword((prev) => !prev)}
-              >
-                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-              </button>
               {formErrors.password && (
                 <small className="error-text">{formErrors.password}</small>
               )}
             </div>
 
+            {/* Terms */}
             <label className="terms-checkbox">
               <input
                 type="checkbox"

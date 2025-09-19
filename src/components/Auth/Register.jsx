@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import authAPI from "../../api/authAPI";
+import PasswordInput from "../../components/common/PasswordInput";
 import logo from "../../assets/logo.png";
 import "./Auth.css";
 
@@ -36,7 +36,6 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
 
   useEffect(() => {
@@ -51,13 +50,6 @@ const Register = () => {
   }, [searchParams]);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-  const getPasswordStrength = (password) => {
-    if (password.length < 6) return "Weak";
-    if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8)
-      return "Strong";
-    return "Medium";
-  };
 
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -85,14 +77,15 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const cleanValue = DOMPurify.sanitize(value);
-
-    if (name === "password") setPasswordStrength(getPasswordStrength(cleanValue));
-
-    if (type === "checkbox") setForm((prev) => ({ ...prev, [name]: checked }));
-    else setForm((prev) => ({ ...prev, [name]: cleanValue }));
+    if (type === "checkbox") {
+      setForm((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: cleanValue }));
+    }
   };
 
-  const handlePhoneChange = (value) => setForm((prev) => ({ ...prev, phone: value }));
+  const handlePhoneChange = (value) =>
+    setForm((prev) => ({ ...prev, phone: value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -190,7 +183,10 @@ const Register = () => {
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h2>Ethical Multimedia GH</h2>
-          <p>Empowering creatives, vendors, and partners with ethical, community-driven technology.</p>
+          <p>
+            Empowering creatives, vendors, and partners with ethical,
+            community-driven technology.
+          </p>
           <button className="toggle-theme-btn" onClick={toggleDarkMode}>
             {darkMode ? "🌙 Dark Mode" : "☀️ Light Mode"}
           </button>
@@ -299,44 +295,25 @@ const Register = () => {
               </select>
             </div>
 
-            {/* Password */}
-            <div className="input-group password-field">
+            {/* Passwords using shared component */}
+            <div className="input-group">
               <label>Password</label>
-              <input
-                type={passwordVisible ? "text" : "password"}
+              <PasswordInput
                 name="password"
                 value={form.password}
                 onChange={handleChange}
+                showStrength
+                onStrengthChange={setPasswordStrength}
               />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setPasswordVisible((v) => !v)}
-              >
-                {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-              </button>
-              <div
-                className={`password-strength ${passwordStrength.toLowerCase()}`}
-              >
-                Strength: {passwordStrength}
-              </div>
             </div>
 
-            <div className="input-group password-field">
+            <div className="input-group">
               <label>Confirm Password</label>
-              <input
-                type={passwordVisible ? "text" : "password"}
+              <PasswordInput
                 name="password2"
                 value={form.password2}
                 onChange={handleChange}
               />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setPasswordVisible((v) => !v)}
-              >
-                {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-              </button>
             </div>
 
             {/* Terms */}
