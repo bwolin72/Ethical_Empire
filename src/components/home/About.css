@@ -1,9 +1,9 @@
 /* src/components/pages/About.css
-   Clean rewrite to align with About.jsx structure
+   Matches About.jsx sections directly
    Uses theme tokens from src/components/styles/variables.css
 */
 
-.about-container {
+.about-page {
   padding: 2rem;
   background: var(--color-page, #f5f5f5);
   color: var(--color-neutral-dark);
@@ -13,169 +13,71 @@
 }
 
 /* =========================
-   HERO
+   HERO SECTION
    ========================= */
-.about-hero {
+.about-hero-section {
   position: relative;
   margin-bottom: 2rem;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  min-height: clamp(28vh, 40vh, 50vh);
+  min-height: clamp(28vh, 38vh, 45vh);
   background: #000;
   box-shadow: var(--shadow-lg);
 }
-.about-hero video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.about-hero .hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.6));
-}
-.about-hero .hero-copy {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  padding: 1.5rem;
-  color: var(--color-white);
-}
-.hero-title {
-  font-family: var(--font-accent);
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  color: var(--color-accent-gold);
-  margin-bottom: .5rem;
-  text-shadow: 0 6px 20px rgba(0,0,0,0.45);
-}
-.hero-subtitle {
-  font-size: clamp(.9rem, 1.6vw, 1.1rem);
-  color: var(--color-neutral-light);
-  max-width: 65ch;
-  margin: 0 auto 1rem;
-}
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: .75rem;
-}
-
-/* Buttons */
-.btn {
-  padding: 10px 20px;
-  border-radius: var(--radius-sm);
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), filter var(--transition-fast);
-}
-.btn-primary {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
-}
-.btn-ghost {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.25);
-  color: var(--color-white);
-}
-.btn:hover { transform: translateY(-3px); }
 
 /* =========================
-   SECTION TITLES
+   INFO SECTION
    ========================= */
-.section-heading {
-  text-align: center;
-  font-family: var(--font-accent);
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: .75rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.subtext {
-  text-align: center;
-  font-size: 1.15rem;
-  color: var(--color-secondary);
-  max-width: 70ch;
-  margin: 0 auto 2rem;
-}
-
-/* =========================
-   SERVICES
-   ========================= */
-.service-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;
+.about-info-section {
   margin: 3rem auto;
-  max-width: 1100px;
-}
-.service-card {
-  background: var(--color-white);
-  padding: 2rem;
-  border: 1px solid rgba(0,0,0,0.05);
-  border-radius: 1.25rem;
+  max-width: 900px;
   text-align: center;
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
-.service-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: var(--shadow-md);
+.about-info-section h2 {
+  font-size: 2rem;
+  font-family: var(--font-accent);
+  color: var(--color-primary);
+  margin-bottom: 1rem;
 }
-.service-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-secondary);
-}
-.service-desc {
-  margin-top: .5rem;
-  font-size: 1rem;
-  color: var(--color-neutral);
+.about-info-section p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: var(--color-neutral-dark);
 }
 
 /* =========================
-   GALLERY
+   BANNERS SECTION
    ========================= */
-.gallery-showcase {
+.about-banners-section {
   margin: 4rem auto;
-  max-width: 1200px;
-  padding: 0 1rem;
+  text-align: center;
 }
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-.gallery-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-md);
-  background: var(--color-neutral-light);
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-}
-.gallery-card img,
-.gallery-card video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--transition-fast);
-}
-.gallery-card:hover img,
-.gallery-card:hover video {
-  transform: scale(1.05);
+.about-banners-section h2 {
+  font-size: 2rem;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
 }
 
 /* =========================
-   TEAM
+   SERVICES SECTION
    ========================= */
-.team-section { margin-top: 4rem; }
+.about-services-section {
+  margin: 4rem auto;
+  text-align: center;
+}
+.about-services-section h2 {
+  font-size: 2rem;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+}
+
+/* =========================
+   TEAM SECTION
+   ========================= */
+.about-team-section {
+  margin: 4rem auto;
+  text-align: center;
+}
 .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -183,113 +85,91 @@
   margin-top: 2rem;
   justify-items: center;
 }
-.team-member {
+.team-card {
   text-align: center;
 }
-.team-member img {
+.team-card img {
   width: 140px;
   height: 140px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: var(--shadow-sm);
 }
-.team-member h4 {
+.team-card h3 {
   margin-top: 1rem;
-  color: var(--color-primary);
   font-weight: 700;
+  color: var(--color-primary);
 }
-.team-role,
-.team-bio {
-  font-size: .95rem;
+.team-card p {
+  font-size: 0.95rem;
   color: var(--color-neutral);
 }
 
 /* =========================
-   TESTIMONIALS
+   PARTNERS SECTION
    ========================= */
-.testimonial-carousel {
-  margin-top: 3rem;
+.about-partners-section {
+  margin: 4rem auto;
   text-align: center;
 }
-.carousel-wrapper {
+.partners-logos {
   display: flex;
-  gap: 1.25rem;
   flex-wrap: wrap;
+  gap: 1.5rem;
   justify-content: center;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
-.testimonial-slide {
-  max-width: 300px;
-  padding: 1.25rem;
-  border-radius: .75rem;
-  font-style: italic;
-  background: linear-gradient(180deg, #f4f1eb, #fff);
-  border-left: 4px solid var(--color-accent-gold);
+.partner-logo {
+  padding: 1rem 2rem;
+  background: var(--color-white);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+  font-weight: 600;
 }
 
 /* =========================
-   CTA
+   MEDIA SECTION
    ========================= */
-.sticky-cta-bar {
-  position: sticky;
-  top: 0;
-  z-index: 999;
-  padding: .75rem;
+.about-media-section {
+  margin: 4rem auto;
   text-align: center;
-  font-weight: 700;
-  background: var(--color-primary);
-  color: var(--color-white);
 }
-.sticky-cta-bar a {
-  color: var(--color-accent-gold);
-  text-decoration: none;
-}
-.cta-section {
-  margin: 5rem auto 2rem;
-  padding: 2.5rem 2rem;
-  text-align: center;
-  border-radius: var(--radius-xl);
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
-  box-shadow: var(--shadow-lg);
-}
-.cta-button {
-  margin-top: 1.5rem;
-  padding: .85rem 2rem;
-  font-weight: 700;
-  border-radius: 999px;
-  background: var(--color-white);
+.about-media-section h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
   color: var(--color-primary);
-  text-decoration: none;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
 }
-.cta-button:hover {
-  background: var(--color-accent-green);
-  color: var(--color-white);
-  transform: translateY(-3px);
+
+/* =========================
+   GALLERY SECTION
+   ========================= */
+.about-gallery-section {
+  margin: 4rem auto;
+  text-align: center;
+}
+.about-gallery-section h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: var(--color-primary);
 }
 
 /* =========================
    RESPONSIVE
    ========================= */
 @media (max-width: 900px) {
-  .hero-title { font-size: 1.5rem; }
-  .hero-subtitle { font-size: .9rem; }
-  .service-grid { gap: 1rem; }
+  .about-info-section h2,
+  .about-banners-section h2,
+  .about-services-section h2,
+  .about-team-section h2,
+  .about-partners-section h2,
+  .about-media-section h2,
+  .about-gallery-section h2 {
+    font-size: 1.6rem;
+  }
 }
 @media (max-width: 420px) {
-  .hero-title { font-size: 1.25rem; }
-  .team-member img { width: 110px; height: 110px; }
-  .service-card { padding: 1.25rem; }
-}
-
-/* =========================
-   FOCUS STATES
-   ========================= */
-a:focus,
-button:focus,
-.service-card:focus {
-  outline: 3px solid rgba(212,175,55,0.25);
-  outline-offset: 3px;
+  .team-card img {
+    width: 110px;
+    height: 110px;
+  }
 }
