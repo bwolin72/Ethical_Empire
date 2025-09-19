@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import axiosInstance from "../api/axiosInstance";
 
 // API modules
-import mediaAPI from "../api/mediaAPI";
+import mediaService from "../api/services/mediaService";   // ✅ updated
 import videosAPI from "../api/videosAPI";
 import promotionsAPI from "../api/promotionsAPI";
 import reviewsAPI from "../api/reviewsAPI";
@@ -17,7 +17,7 @@ import serviceAPI from "../api/servicesAPI";
 import workerAPI from "../api/workerAPI";
 
 const API_MAP = {
-  media: mediaAPI,
+  media: mediaService,       // ✅ now using mediaService
   videos: videosAPI,
   promotions: promotionsAPI,
   reviews: reviewsAPI,
@@ -42,37 +42,33 @@ export default function useFetcher(
   let resourceType, endpointKey, params = {}, fetcherFn;
 
   // ---- Flexible argument parsing ----
-  // 1) function: useFetcher(() => apiFn(params), params?, options?)
   if (typeof resourceTypeOrEndpoint === "function") {
+    // 1) function: useFetcher(() => apiFn(params), params?, options?)
     fetcherFn = resourceTypeOrEndpoint;
     params = endpointKeyOrParams || {};
     options = paramsOrOptions || {};
-  }
-  // 2) dotted string: "media.listByPage"
-  else if (typeof resourceTypeOrEndpoint === "string" && resourceTypeOrEndpoint.includes(".")) {
+  } else if (typeof resourceTypeOrEndpoint === "string" && resourceTypeOrEndpoint.includes(".")) {
+    // 2) dotted string: "media.listByPage"
     const [r, e] = resourceTypeOrEndpoint.split(".");
     resourceType = r;
     endpointKey = e || DEFAULT_ENDPOINT;
 
-    // Support tuple-style args: ["home", { is_active: true }]
     if (Array.isArray(endpointKeyOrParams)) {
       const [first, second] = endpointKeyOrParams;
-      params = { ...second, __subArg: first }; // keep special arg
+      params = { ...second, __subArg: first };
       options = paramsOrOptions || {};
     } else {
       params = endpointKeyOrParams || {};
       options = paramsOrOptions || {};
     }
-  }
-  // 3) two-arg string form: useFetcher("media", "about", params?)
-  else if (typeof resourceTypeOrEndpoint === "string") {
+  } else if (typeof resourceTypeOrEndpoint === "string") {
+    // 3) two-arg string form: useFetcher("media", "about", params?)
     resourceType = resourceTypeOrEndpoint;
     endpointKey = endpointKeyOrParams || DEFAULT_ENDPOINT;
     params = paramsOrOptions || {};
     options = options || {};
-  }
-  // 4) object form
-  else if (resourceTypeOrEndpoint && typeof resourceTypeOrEndpoint === "object") {
+  } else if (resourceTypeOrEndpoint && typeof resourceTypeOrEndpoint === "object") {
+    // 4) object form
     if (typeof resourceTypeOrEndpoint.fetcher === "function") {
       fetcherFn = resourceTypeOrEndpoint.fetcher;
       resourceType = resourceTypeOrEndpoint.resourceType;
@@ -105,7 +101,7 @@ export default function useFetcher(
   const mountedRef = useRef(true);
   useEffect(() => () => (mountedRef.current = false), []);
 
-  // helper to extract array items from axios/res
+  // ---- helpers ----
   const extractItems = (res) => {
     if (!res) return [];
     if (Array.isArray(res?.data)) return res.data;
@@ -133,7 +129,7 @@ export default function useFetcher(
     is_featured: true,
   });
 
-  // fetchData: either calls provided fetcherFn or API_MAP[resourceType][endpointKey]
+  // ---- fetch function ----
   const fetchData = useCallback(async () => {
     if (!fetcherFn && (!resourceType || !endpointKey)) {
       const msg = "[useFetcher] Missing resourceType/endpoint or fetcher function";
@@ -205,7 +201,7 @@ export default function useFetcher(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resourceType, endpointKey, fallback, fetcherFn, JSON.stringify(params)]);
 
-  // ---- CRUD helpers (only valid when resourceType is known) ----
+  // ---- CRUD helpers ----
   const ensureResource = () => {
     if (!resourceType) throw new Error("[useFetcher] CRUD requires a resourceType string");
   };
