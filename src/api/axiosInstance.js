@@ -3,7 +3,7 @@ import axios from "axios";
 import * as Sentry from "@sentry/react";
 import baseURL from "./baseURL";
 import { applyCommonRequestHeaders, devLog as rawDevLog } from "./axiosCommon";
-import { logoutHelper } from "../utils/authUtils";
+import { logoutHelper } from "../utils/logoutHelper"; // ✅ updated import
 
 const MAX_RETRIES = 2;
 
