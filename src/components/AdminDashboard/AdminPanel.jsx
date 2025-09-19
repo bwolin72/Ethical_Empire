@@ -23,21 +23,33 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProfile, setShowProfile] = useState(false);
   const [profileData, setProfileData] = useState(null);
+  const [profileError, setProfileError] = useState(null);
 
+  // 🔄 Always fetch fresh profile data when modal opens
   useEffect(() => {
-    if (!profileData && showProfile) {
+    if (showProfile) {
       axiosInstance
         .get('/accounts/profiles/profile/')
-        .then((res) => setProfileData(res.data))
+        .then((res) => {
+          setProfileData(res.data);
+          setProfileError(null);
+        })
         .catch((err) => {
           console.error('Failed to load profile', err);
+          setProfileError('Could not load profile. Please try again later.');
         });
     }
-  }, [showProfile, profileData]);
+  }, [showProfile]);
 
-  const getInitials = (name) => {
+  // 🅰️ Generate initials from profile/user safely
+  const getInitials = (profile, user) => {
+    let name = profile?.name || user?.name || '';
+    if (!name && user) {
+      name = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+    }
     if (!name) return '?';
-    const parts = name.trim().split(' ');
+
+    const parts = name.split(' ').filter(Boolean);
     return parts.length > 1
       ? parts[0][0].toUpperCase() + parts[1][0].toUpperCase()
       : parts[0][0].toUpperCase();
@@ -48,59 +60,97 @@ const AdminPanel = () => {
       <aside className="admin-sidebar">
         <div className="sidebar-header">
           <h2>Admin Panel</h2>
-          <div className="admin-profile-icon" onClick={() => setShowProfile(true)}>
+          <div
+            className="admin-profile-icon"
+            onClick={() => setShowProfile(true)}
+          >
             {profileData?.profile_image ? (
               <img src={profileData.profile_image} alt="Profile" />
             ) : (
-              <span>{getInitials(profileData?.name || user?.name)}</span>
+              <span>{getInitials(profileData, user)}</span>
             )}
           </div>
         </div>
 
         <ul>
-          <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>
+          <li
+            className={activeTab === 'dashboard' ? 'active' : ''}
+            onClick={() => setActiveTab('dashboard')}
+          >
             Dashboard
           </li>
-          <li className={activeTab === 'booking' ? 'active' : ''} onClick={() => setActiveTab('booking')}>
+          <li
+            className={activeTab === 'booking' ? 'active' : ''}
+            onClick={() => setActiveTab('booking')}
+          >
             Booking Management
           </li>
-          <li className={activeTab === 'invoice' ? 'active' : ''} onClick={() => setActiveTab('invoice')}>
+          <li
+            className={activeTab === 'invoice' ? 'active' : ''}
+            onClick={() => setActiveTab('invoice')}
+          >
             Invoice Generation
           </li>
-          <li className={activeTab === 'media' ? 'active' : ''} onClick={() => setActiveTab('media')}>
+          <li
+            className={activeTab === 'media' ? 'active' : ''}
+            onClick={() => setActiveTab('media')}
+          >
             Media Management
           </li>
-          <li className={activeTab === 'video' ? 'active' : ''} onClick={() => setActiveTab('video')}>
+          <li
+            className={activeTab === 'video' ? 'active' : ''}
+            onClick={() => setActiveTab('video')}
+          >
             Video Upload
           </li>
-          <li className={activeTab === 'services' ? 'active' : ''} onClick={() => setActiveTab('services')}>
+          <li
+            className={activeTab === 'services' ? 'active' : ''}
+            onClick={() => setActiveTab('services')}
+          >
             Services Manager {/* ✅ NEW tab */}
           </li>
-          <li className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>
+          <li
+            className={activeTab === 'reviews' ? 'active' : ''}
+            onClick={() => setActiveTab('reviews')}
+          >
             Reviews
           </li>
-          <li className={activeTab === 'newsletter' ? 'active' : ''} onClick={() => setActiveTab('newsletter')}>
+          <li
+            className={activeTab === 'newsletter' ? 'active' : ''}
+            onClick={() => setActiveTab('newsletter')}
+          >
             Newsletter Manager
           </li>
-          <li className={activeTab === 'promotions' ? 'active' : ''} onClick={() => setActiveTab('promotions')}>
+          <li
+            className={activeTab === 'promotions' ? 'active' : ''}
+            onClick={() => setActiveTab('promotions')}
+          >
             Promotions Manager
           </li>
-          <li className={activeTab === 'roles' ? 'active' : ''} onClick={() => setActiveTab('roles')}>
+          <li
+            className={activeTab === 'roles' ? 'active' : ''}
+            onClick={() => setActiveTab('roles')}
+          >
             User Role Manager
           </li>
-          <li className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
+          <li
+            className={activeTab === 'analytics' ? 'active' : ''}
+            onClick={() => setActiveTab('analytics')}
+          >
             Analytics
           </li>
         </ul>
       </aside>
 
       <section className="admin-content">
-        {activeTab === 'dashboard' && <AdminDashboard setActiveTab={setActiveTab} />}
+        {activeTab === 'dashboard' && (
+          <AdminDashboard setActiveTab={setActiveTab} />
+        )}
         {activeTab === 'booking' && <BookingManagement />}
         {activeTab === 'invoice' && <InvoiceGeneration />}
         {activeTab === 'media' && <MediaManagement />}
         {activeTab === 'video' && <VideoUpload />}
-        {activeTab === 'services' && <ServicesAdmin />} {/* ✅ Render ServicesAdmin */}
+        {activeTab === 'services' && <ServicesAdmin />}
         {activeTab === 'reviews' && <ReviewsManagement />}
         {activeTab === 'newsletter' && <NewsletterAdminPage />}
         {activeTab === 'promotions' && <AdminPromotions />}
@@ -110,9 +160,16 @@ const AdminPanel = () => {
 
       {showProfile && (
         <div className="profile-modal">
-          <div className="profile-overlay" onClick={() => setShowProfile(false)}></div>
+          <div
+            className="profile-overlay"
+            onClick={() => setShowProfile(false)}
+          ></div>
           <div className="profile-content">
-            <AccountProfile profile={profileData} />
+            {profileError ? (
+              <p className="error-message">{profileError}</p>
+            ) : (
+              <AccountProfile profile={profileData} />
+            )}
           </div>
         </div>
       )}
