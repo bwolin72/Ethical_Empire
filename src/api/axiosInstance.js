@@ -79,6 +79,7 @@ axiosInstance.interceptors.response.use(
 
     const status = error.response?.status;
     const storage = getStorage();
+    const accessToken = storage.getItem("access");
     const refreshToken = storage.getItem("refresh");
 
     devLog("[Error]", status, originalRequest?.url);
@@ -117,11 +118,20 @@ axiosInstance.interceptors.response.use(
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
+      // 🚩 Guest request (no access token): ignore logout
+      if (!accessToken) {
+        devLog("[Auth] 401 for guest request → ignoring.");
+        return Promise.reject(error);
+      }
+
+      // 🚩 Logged-in but no refresh token → invalid session → logout
       if (!refreshToken) {
+        devLog("[Auth] 401 with token but no refresh → logging out.");
         logoutHelper();
         return Promise.reject(error);
       }
 
+      // 🚩 Queue if refresh already in progress
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           subscribeTokenRefresh((newAccess) => {
@@ -135,6 +145,7 @@ axiosInstance.interceptors.response.use(
         });
       }
 
+      // 🚩 Perform token refresh
       isRefreshing = true;
       try {
         const refreshUrl =
@@ -182,11 +193,17 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // === Final fallback: 401 logout ===
+    // === Final fallback: 401 logout only if token exists ===
     if (status === 401) {
-      logoutHelper();
+      if (accessToken) {
+        devLog("[Auth] Final 401 with token → logging out.");
+        logoutHelper();
+      } else {
+        devLog("[Auth] Final 401 for guest → no action.");
+      }
     }
 
+    // === Capture all other errors ===
     Sentry.captureException(error, {
       tags: { type: "http-error" },
       extra: {
