@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 
-import { useProfile } from "../../context/ProfileContext";
+import { useProfile } from "../context/ProfileContext";
 import apiService from "../../api/apiService";
 
 // Components
