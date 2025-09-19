@@ -1,15 +1,15 @@
 // src/hooks/useAuth.js
 import { useState, useEffect, useCallback } from "react";
 import axiosInstance from "../api/axiosInstance";
-import { logoutHelper } from "../utils/authUtils";
+import { logoutHelper, clearSession } from "../utils/authUtils";
 
 const useAuth = () => {
   const [user, setUser] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load user from storage and validate with backend
   useEffect(() => {
-    const storage = localStorage.getItem("remember") === "false" ? sessionStorage : localStorage;
+    const storage =
+      localStorage.getItem("remember") === "false" ? sessionStorage : localStorage;
     const accessToken = storage.getItem("access");
 
     // Preload stored user
@@ -18,21 +18,23 @@ const useAuth = () => {
 
     if (!accessToken) {
       setIsLoaded(true);
-      return;
+      return; // guest mode
     }
 
-    // Fetch profile
+    // Fetch profile if token exists
     axiosInstance
-      .get("/accounts/profile/") // uses axiosInstance baseURL
+      .get("/accounts/profile/")
       .then((res) => {
-        setUser(res.data); // must include role
+        setUser(res.data);
         storage.setItem("user", JSON.stringify(res.data));
       })
       .catch((err) => {
         console.error("🔒 Failed to fetch profile:", err?.response?.data || err.message);
+
+        // ❌ Don’t force redirect, just clear storage
+        clearSession();
         setUser(null);
         storage.removeItem("user");
-        logoutHelper(); // clear invalid tokens
       })
       .finally(() => {
         setIsLoaded(true);
@@ -48,7 +50,7 @@ const useAuth = () => {
   }, []);
 
   const logout = useCallback(() => {
-    logoutHelper();
+    clearSession(); // ✅ only clear, no auto-redirect
     setUser(null);
   }, []);
 
