@@ -7,9 +7,9 @@ const AUTH_KEYS = ["access", "refresh", "user", "remember"];
 
 /**
  * Logs out the user by:
- * 1. Attempting a server-side logout using access token
+ * 1. Attempting a server-side logout if access token is present
  * 2. Clearing both localStorage and sessionStorage
- * 3. Redirecting to /login after 600ms
+ * 3. Redirecting to /login after a short delay
  */
 export const logoutHelper = async () => {
   const access =
@@ -20,10 +20,10 @@ export const logoutHelper = async () => {
     if (access) {
       // Attempt backend logout via authAPI
       await authAPI.logout();
-      toast.success("✅ You have been logged out from the server.");
       didServerLogout = true;
+      console.log("[Logout] Server logout successful.");
     } else {
-      console.log("[Logout] No token found, skipping server logout.");
+      console.log("[Logout] No access token found, skipping server logout.");
     }
   } catch (err) {
     console.warn(
@@ -32,7 +32,7 @@ export const logoutHelper = async () => {
       err?.response?.data
     );
     if (!didServerLogout) {
-      toast.error("⚠️ Server logout failed. Logging out locally.");
+      toast.error("⚠️ Could not log out from server. Logging out locally.");
     }
   } finally {
     // Clear stored auth/session data
@@ -41,6 +41,7 @@ export const logoutHelper = async () => {
       sessionStorage.removeItem(key);
     });
 
+    // Show unified logout toast
     toast.success("👋 You have been logged out.");
 
     // Redirect if not already on the login page
