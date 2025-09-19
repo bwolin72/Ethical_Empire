@@ -1,154 +1,222 @@
-// src/pages/About/About.js
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback, useRef } from "react";
+import axiosInstance from "../api/axiosInstance";
 
-import BannerCards from "../context/BannerCards";
-import GalleryWrapper from "../gallery/GalleryWrapper";
-import MediaCards from "../context/MediaCards";
-import MediaGallery from "../gallery/MediaGallery";
-import VideoGallery from "../videos/VideoGallery";
+// API modules
+import mediaAPI from "../api/mediaAPI";
+import videosAPI from "../api/videosAPI";
+import promotionsAPI from "../api/promotionsAPI";
+import reviewsAPI from "../api/reviewsAPI";
+import newsletterAPI from "../api/newsletterAPI";
+import invoicesAPI from "../api/invoicesAPI";
+import bookingAPI from "../api/bookingAPI";
+import authAPI from "../api/authAPI";
+import messagingAPI from "../api/messagingAPI";
+import contactAPI from "../api/contactAPI";
+import serviceAPI from "../api/servicesAPI";
+import workerAPI from "../api/workerAPI";
 
-import useFetcher from "../../hooks/useFetcher";
-import { API_ENDPOINTS } from "../../api/apiService";
+const API_MAP = {
+  media: mediaAPI,
+  videos: videosAPI,
+  promotions: promotionsAPI,
+  reviews: reviewsAPI,
+  newsletter: newsletterAPI,
+  invoices: invoicesAPI,
+  bookings: bookingAPI,
+  auth: authAPI,
+  messaging: messagingAPI,
+  contact: contactAPI,
+  services: serviceAPI,
+  workers: workerAPI,
+};
 
-import EuniceImg from "../../assets/team/eunice.png";
-import JosephImg from "../../assets/team/joseph.jpg";
+const DEFAULT_ENDPOINT = "list";
 
-import "./About.css";
+export default function useFetcher(
+  resourceTypeOrEndpoint,
+  endpointKeyOrParams,
+  paramsOrOptions = {},
+  options = {}
+) {
+  let resourceType, endpointKey, params = {}, fetcherFn;
 
-// ── Local fallbacks ─────────────────────────────────────────────
-const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
+  // ---- Flexible argument parsing ----
+  if (typeof resourceTypeOrEndpoint === "function") {
+    fetcherFn = resourceTypeOrEndpoint;
+    params = endpointKeyOrParams || {};
+    options = paramsOrOptions || {};
+  } else if (typeof resourceTypeOrEndpoint === "string" && resourceTypeOrEndpoint.includes(".")) {
+    const [r, e] = resourceTypeOrEndpoint.split(".");
+    resourceType = r;
+    endpointKey = e || DEFAULT_ENDPOINT;
+    params = endpointKeyOrParams || {};
+    options = paramsOrOptions || {};
+  } else if (typeof resourceTypeOrEndpoint === "string") {
+    resourceType = resourceTypeOrEndpoint;
+    endpointKey = endpointKeyOrParams || DEFAULT_ENDPOINT;
+    params = paramsOrOptions || {};
+    options = options || {};
+  } else if (resourceTypeOrEndpoint && typeof resourceTypeOrEndpoint === "object") {
+    if (typeof resourceTypeOrEndpoint.fetcher === "function") {
+      fetcherFn = resourceTypeOrEndpoint.fetcher;
+      resourceType = resourceTypeOrEndpoint.resourceType;
+      params = endpointKeyOrParams || {};
+      options = paramsOrOptions || {};
+    } else if (resourceTypeOrEndpoint.resourceType) {
+      resourceType = resourceTypeOrEndpoint.resourceType;
+      endpointKey = resourceTypeOrEndpoint.key || DEFAULT_ENDPOINT;
+      params = endpointKeyOrParams || {};
+      options = paramsOrOptions || {};
+    } else {
+      throw new Error("[useFetcher] Invalid arguments provided");
+    }
+  } else {
+    throw new Error("[useFetcher] Invalid arguments provided");
+  }
 
-const TEAM = [
-  {
-    id: "team-eunice",
-    name: "Eunice",
-    role: "Operations & Client Relations",
-    image: EuniceImg,
-    bio: "Ensures smooth coordination and a top-notch client experience.",
-  },
-  {
-    id: "team-joseph",
-    name: "Joseph",
-    role: "Creative Lead",
-    image: JosephImg,
-    bio: "Creative direction across music, visuals and live events.",
-  },
-];
+  const {
+    notify,
+    successMessages = {},
+    errorMessages = {},
+    transform,
+    fallback = true,
+  } = options;
 
-export default function About() {
-  const navigate = useNavigate();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // ✅ Fetch hero video
-  const { data: heroVideos = [] } = useFetcher(() => API_ENDPOINTS.media.about());
-  const heroVideo = heroVideos.length
-    ? heroVideos[0]
-    : { url: LOCAL_FALLBACK_VIDEO };
+  const mountedRef = useRef(true);
+  useEffect(() => () => (mountedRef.current = false), []);
 
-  // ✅ Fetch client reviews
-  const { data: reviews = [], error: reviewError } = useFetcher(() =>
-    API_ENDPOINTS.reviews.all()
-  );
+  const extractItems = (res) => {
+    if (!res) return [];
+    if (Array.isArray(res?.data)) return res.data;
+    if (Array.isArray(res?.data?.results)) return res.data.results;
+    return [];
+  };
 
-  return (
-    <div className="about-container">
-      {/* ── Sticky CTA ────────────────────────────── */}
-      <motion.div
-        className="sticky-cta-bar"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-      >
-        <Link to="/bookings" className="sticky-cta-link">
-          Let’s Talk
-        </Link>
-      </motion.div>
+  const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
+  const FALLBACK_BANNER_PATH = "/mock/banner-1.png";
 
-      {/* ── Hero Banner / Video ───────────────────── */}
-      <section className="about-hero">
-        <VideoGallery
-          videos={[heroVideo]}
-          fallbackVideo={LOCAL_FALLBACK_VIDEO}
-          showHero
-          autoPlay
-          loop
-          allowMuteToggle
-          title="Eethmgh Multimedia"
-          subtitle="Crafting unforgettable experiences across music, visuals, and events."
-          actions={[
-            {
-              label: "Book a Service",
-              onClick: () => navigate("/bookings"),
-              className: "btn-primary",
-            },
-            {
-              label: "Why Choose Us",
-              onClick: () =>
-                document.getElementById("why-us")?.scrollIntoView(),
-              className: "btn-ghost",
-            },
-          ]}
-        />
-      </section>
+  const fallbackVideoObject = () => ({
+    id: "fallback-video",
+    title: "Fallback Hero Video",
+    url: FALLBACK_VIDEO_PATH,
+    is_active: true,
+    is_featured: true,
+  });
 
-      {/* ── Intro Text ────────────────────────────── */}
-      <section className="intro text-center">
-        <h2 className="section-heading">Who We Are</h2>
-        <p className="subtext">
-          We don’t just offer services — we deliver lasting impressions.
-        </p>
-      </section>
+  const fallbackBannerObject = () => ({
+    id: "fallback-banner",
+    label: "Fallback Banner",
+    type: "image",
+    url: { full: FALLBACK_BANNER_PATH, thumb: FALLBACK_BANNER_PATH },
+    is_active: true,
+    is_featured: true,
+  });
 
-      {/* ── Visual Stories / Banners ──────────────── */}
-      <BannerCards
-        endpointKey={() => API_ENDPOINTS.media.banners()}
-        title="Explore Our Visual Stories"
-      />
+  const fetchData = useCallback(async () => {
+    if (!fetcherFn && (!resourceType || !endpointKey)) {
+      const msg = "[useFetcher] Missing resourceType/endpoint or fetcher function";
+      console.error(msg);
+      if (mountedRef.current) {
+        setError({ message: msg });
+        setLoading(false);
+      }
+      return;
+    }
 
-      {/* ── Services Grid ─────────────────────────── */}
-      <section className="service-grid" id="why-us">
-        <h2 className="section-heading">What We Do</h2>
-        <div className="service-grid-inner">
-          <MediaCards
-            endpointKey={() => API_ENDPOINTS.services.all()}
-            resourceType="services"
-          />
-        </div>
-      </section>
+    setLoading(true);
+    setError(null);
 
-      {/* ── Gallery Showcase ──────────────────────── */}
-      <section className="gallery-showcase">
-        <h2 className="section-heading">Gallery</h2>
-        <GalleryWrapper endpointKey={() => API_ENDPOINTS.media.home()} />
-      </section>
+    try {
+      let res;
+      if (fetcherFn) {
+        res = await fetcherFn(params || {});
+      } else {
+        const apiGroup = API_MAP[resourceType];
+        if (!apiGroup || typeof apiGroup[endpointKey] !== "function") {
+          const msg = `Unknown endpoint: ${resourceType}.${endpointKey}`;
+          console.error("[useFetcher]", msg);
+          if (mountedRef.current) {
+            setError({ message: msg });
+            setLoading(false);
+          }
+          return;
+        }
+        res = await apiGroup[endpointKey](params || {});
+      }
 
-      {/* ── Team Section ──────────────────────────── */}
-      <section className="team-section">
-        <h2 className="section-heading">Meet Our Team</h2>
-        <div className="team-grid">
-          {TEAM.map((member) => (
-            <article key={member.id} className="team-member">
-              <div className="team-photo-wrap">
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="team-photo"
-                />
-              </div>
-              <h3 className="team-name">{member.name}</h3>
-              <p className="team-role">{member.role}</p>
-              <p className="team-bio">{member.bio}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      let items = extractItems(res);
+      const rt = resourceType || options.resourceType;
+      if (fallback && (!items || items.length === 0)) {
+        if (rt === "videos") items = [fallbackVideoObject()];
+        if (rt === "media") items = [fallbackBannerObject()];
+      }
 
-      {/* ── Testimonials Carousel ─────────────────── */}
-      <section className="testimonial-carousel">
-        <h2 className="section-heading">What Our Clients Say</h2>
-        {reviewError && <p className="error-text">{reviewError}</p>}
-        <MediaGallery items={reviews} type="carousel" />
-      </section>
-    </div>
-  );
+      if (mountedRef.current) {
+        setData(typeof transform === "function" ? transform(items) : items);
+      }
+    } catch (err) {
+      console.error("[useFetcher] API request failed:", err);
+      const normalizedError = {
+        message: err?.response?.data?.detail || err?.message,
+        status: err?.response?.status || null,
+        data: err?.response?.data || null,
+      };
+      if (mountedRef.current) {
+        setError(normalizedError);
+        setData([]);
+      }
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [resourceType, endpointKey, fallback, fetcherFn, transform, options.resourceType]);
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resourceType, endpointKey, fallback, fetcherFn]);
+
+  const ensureResource = () => {
+    if (!resourceType) throw new Error("[useFetcher] CRUD requires a resourceType string");
+  };
+
+  const post = async (payload) => {
+    ensureResource();
+    try {
+      const res = await axiosInstance.post(`/${resourceType}/`, payload);
+      notify?.("success", successMessages.post || "Created successfully.");
+      await fetchData();
+      return res;
+    } catch (err) {
+      notify?.("error", errorMessages.post || "Create failed.");
+      throw err;
+    }
+  };
+
+  const patch = async (id, payload) => {
+    ensureResource();
+    try {
+      const res = await axiosInstance.patch(`/${resourceType}/${id}/`, payload);
+      await fetchData();
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const remove = async (id) => {
+    ensureResource();
+    try {
+      const res = await axiosInstance.delete(`/${resourceType}/${id}/`);
+      await fetchData();
+      return res;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  return { data, loading, error, refetch: fetchData, post, patch, remove };
 }

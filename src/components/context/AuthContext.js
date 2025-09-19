@@ -11,6 +11,9 @@ import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../../api/axiosInstance';
 import toast from 'react-hot-toast';
 
+// ------------------------------
+// Constants & Helpers
+// ------------------------------
 const AuthContext = createContext();
 
 const AUTH_KEYS = {
@@ -20,101 +23,130 @@ const AUTH_KEYS = {
   REMEMBER: 'remember',
 };
 
+const VALID_ROLES = ['admin', 'user', 'vendor', 'partner'];
+
+const normalizeRole = (role) => role?.trim().toLowerCase();
+const isValidRole = (role) => VALID_ROLES.includes(normalizeRole(role));
+
+// ------------------------------
+// Provider
+// ------------------------------
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
+
+  // Refs for timers and callbacks
   const refreshTimer = useRef(null);
   const refreshAccessTokenRef = useRef(null);
 
+  // State
   const [auth, setAuth] = useState({ access: null, refresh: null, user: null });
   const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState(false);
 
-  const clearSession = () => {
+  // ------------------------------
+  // Session Management
+  // ------------------------------
+  const clearSession = useCallback(() => {
     clearTimeout(refreshTimer.current);
     Object.values(AUTH_KEYS).forEach((key) => {
       localStorage.removeItem(key);
       sessionStorage.removeItem(key);
     });
-  };
+  }, []);
 
-  const logout = useCallback((reason = 'manual') => {
-    console.warn(`[Auth] Logging out. Reason: ${reason}`);
-    clearSession();
-    setAuth({ access: null, refresh: null, user: null });
-    setReady(true);
-    navigate('/login', { replace: true });
-  }, [navigate]);
+  const logout = useCallback(
+    (reason = 'manual') => {
+      console.warn(`[Auth] Logging out. Reason: ${reason}`);
+      clearSession();
+      setAuth({ access: null, refresh: null, user: null });
+      setReady(true);
+      navigate('/login', { replace: true });
+    },
+    [navigate, clearSession]
+  );
 
-  const scheduleTokenRefresh = useCallback((accessToken, refreshToken) => {
-    try {
-      const decoded = jwtDecode(accessToken);
-      const exp = decoded.exp * 1000;
-      const now = Date.now();
-      const delay = exp - now - 60000;
+  // ------------------------------
+  // Token Refresh
+  // ------------------------------
+  const scheduleTokenRefresh = useCallback(
+    (accessToken, refreshToken) => {
+      try {
+        const { exp } = jwtDecode(accessToken);
+        const delay = exp * 1000 - Date.now() - 60_000; // refresh 1 min before expiry
+        console.log('[Auth] Next refresh in', delay / 1000, 'seconds');
 
-      console.log('[Auth] Scheduling token refresh in', delay / 1000, 'seconds');
-
-      if (delay <= 0) {
-        refreshAccessTokenRef.current?.(refreshToken);
-      } else {
         clearTimeout(refreshTimer.current);
-        refreshTimer.current = setTimeout(() => {
+        if (delay <= 0) {
           refreshAccessTokenRef.current?.(refreshToken);
-        }, delay);
+        } else {
+          refreshTimer.current = setTimeout(
+            () => refreshAccessTokenRef.current?.(refreshToken),
+            delay
+          );
+        }
+      } catch {
+        logout('token_decode_failed');
       }
-    } catch (err) {
-      logout('token_decode_failed');
-    }
-  }, [logout]);
+    },
+    [logout]
+  );
 
-  const refreshAccessToken = useCallback(async (refreshToken) => {
-    if (!refreshToken) return logout('missing_refresh_token');
+  const refreshAccessToken = useCallback(
+    async (refreshToken) => {
+      if (!refreshToken) return logout('missing_refresh_token');
 
-    try {
-      const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
-      const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
+      try {
+        const refreshUrl =
+          process.env.REACT_APP_API_REFRESH_URL || '/accounts/token/refresh/';
+        const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
 
-      const newAccess = data.access;
-      if (!newAccess) throw new Error('No access token returned');
+        const newAccess = data.access;
+        if (!newAccess) throw new Error('No access token returned');
 
-      const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
-      const storage = remember ? localStorage : sessionStorage;
-      storage.setItem(AUTH_KEYS.ACCESS, newAccess);
+        const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
+        const storage = remember ? localStorage : sessionStorage;
+        storage.setItem(AUTH_KEYS.ACCESS, newAccess);
 
-      setAuth((prev) => ({ ...prev, access: newAccess }));
-      scheduleTokenRefresh(newAccess, refreshToken);
-    } catch (err) {
-      console.error('[Auth] Token refresh failed:', err);
-      toast.error('Session expired, please log in again.');
-      logout('refresh_failed');
-    }
-  }, [logout, scheduleTokenRefresh]);
+        setAuth((prev) => ({ ...prev, access: newAccess }));
+        scheduleTokenRefresh(newAccess, refreshToken);
+      } catch (err) {
+        console.error('[Auth] Token refresh failed:', err);
+        toast.error('Session expired, please log in again.');
+        logout('refresh_failed');
+      }
+    },
+    [logout, scheduleTokenRefresh]
+  );
 
   useEffect(() => {
     refreshAccessTokenRef.current = refreshAccessToken;
   }, [refreshAccessToken]);
 
-  const login = useCallback(({ access, refresh, user, remember = true }) => {
-    if (!access || !refresh || !user) return logout('invalid_login_data');
+  // ------------------------------
+  // Login / Update
+  // ------------------------------
+  const login = useCallback(
+    ({ access, refresh, user, remember = true }) => {
+      if (!access || !refresh || !user) return logout('invalid_login_data');
 
-    // Normalize and validate role
-    const normalizedRole = user?.role?.trim().toLowerCase();
-    if (!user.email || !normalizedRole || !['admin', 'user', 'vendor', 'partner'].includes(normalizedRole)) {
-      return logout('invalid_user_role');
-    }
+      const role = normalizeRole(user.role);
+      if (!user.email || !isValidRole(role)) return logout('invalid_user_role');
 
-    const cleanUser = { ...user, role: normalizedRole };
-    const storage = remember ? localStorage : sessionStorage;
-    localStorage.setItem(AUTH_KEYS.REMEMBER, remember ? 'true' : 'false');
-    storage.setItem(AUTH_KEYS.ACCESS, access);
-    storage.setItem(AUTH_KEYS.REFRESH, refresh);
-    storage.setItem(AUTH_KEYS.USER, JSON.stringify(cleanUser));
+      const cleanUser = { ...user, role };
+      const storage = remember ? localStorage : sessionStorage;
+      localStorage.setItem(AUTH_KEYS.REMEMBER, remember ? 'true' : 'false');
 
-    console.log('[Auth] Logged in user role:', normalizedRole);
-    setAuth({ access, refresh, user: cleanUser });
-    scheduleTokenRefresh(access, refresh);
-    setReady(true);
-  }, [logout, scheduleTokenRefresh]);
+      storage.setItem(AUTH_KEYS.ACCESS, access);
+      storage.setItem(AUTH_KEYS.REFRESH, refresh);
+      storage.setItem(AUTH_KEYS.USER, JSON.stringify(cleanUser));
+
+      console.log('[Auth] Logged in user role:', role);
+      setAuth({ access, refresh, user: cleanUser });
+      scheduleTokenRefresh(access, refresh);
+      setReady(true);
+    },
+    [logout, scheduleTokenRefresh]
+  );
 
   const update = useCallback(({ access, refresh, user }) => {
     const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
@@ -131,14 +163,17 @@ export const AuthProvider = ({ children }) => {
         updated.refresh = refresh;
       }
       if (user !== undefined) {
-        const normalizedRole = user?.role?.trim().toLowerCase();
-        updated.user = { ...user, role: normalizedRole };
+        const role = normalizeRole(user.role);
+        updated.user = { ...user, role };
         storage.setItem(AUTH_KEYS.USER, JSON.stringify(updated.user));
       }
       return updated;
     });
   }, []);
 
+  // ------------------------------
+  // Initial Session Load
+  // ------------------------------
   useEffect(() => {
     const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === 'true';
     const storage = remember ? localStorage : sessionStorage;
@@ -148,9 +183,9 @@ export const AuthProvider = ({ children }) => {
     const userRaw = storage.getItem(AUTH_KEYS.USER);
 
     console.log('[Auth] Initializing session from storage...');
-    console.log('[Auth] Storage:', { access, refresh, userRaw, remember });
+    console.log('[Auth] Stored values:', { access, refresh, userRaw, remember });
 
-    const tryInitialize = async () => {
+    const init = async () => {
       if (!access || !refresh || !userRaw) {
         console.warn('[Auth] No valid stored session found');
         setLoading(false);
@@ -160,14 +195,12 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const user = JSON.parse(userRaw);
-        const normalizedRole = user?.role?.trim().toLowerCase();
-        if (!user.email || !normalizedRole || !['admin', 'user', 'vendor', 'partner'].includes(normalizedRole)) {
-          return logout('invalid_user_data');
-        }
+        const role = normalizeRole(user.role);
+        if (!user.email || !isValidRole(role)) return logout('invalid_user_data');
 
-        const cleanUser = { ...user, role: normalizedRole };
-        const decoded = jwtDecode(access);
-        const isExpired = decoded.exp * 1000 < Date.now();
+        const cleanUser = { ...user, role };
+        const { exp } = jwtDecode(access);
+        const isExpired = exp * 1000 < Date.now();
 
         setAuth({ access, refresh, user: cleanUser });
 
@@ -187,10 +220,13 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    tryInitialize();
+    init();
   }, [refreshAccessToken, scheduleTokenRefresh, logout]);
 
-  const isAuthenticated = !!auth?.access && !!auth?.user;
+  // ------------------------------
+  // Expose Context
+  // ------------------------------
+  const isAuthenticated = !!auth.access && !!auth.user;
 
   return (
     <AuthContext.Provider
@@ -209,4 +245,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Hook
 export const useAuth = () => useContext(AuthContext);
