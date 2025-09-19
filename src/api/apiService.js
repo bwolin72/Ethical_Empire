@@ -1,209 +1,210 @@
-import axiosInstance from './axiosInstance';
-import baseURL from './baseURL';
+import axiosInstance from "./axiosInstance";
+import publicAxios from "./publicAxios";
 
 /**
- * All backend API endpoints, grouped by feature
- * and with helper methods returning axios promises.
+ * All backend API endpoints, grouped by feature.
+ * Public endpoints → publicAxios
+ * Auth-required endpoints → axiosInstance
+ *
+ * axiosInstance & publicAxios already have baseURL = https://api.eethmghmultimedia.com/api
+ * so we only provide the relative path.
  */
 export const API_ENDPOINTS = {
-  // ------------------- Media -------------------
+  // ------------------- Media (public) -------------------
   media: {
-    all:      (params = {}) => axiosInstance.get(`${baseURL}/media/all/`, { params }),
-    about:    (params = {}) => axiosInstance.get(`${baseURL}/media/about/`, { params }),
-    banners:  (params = {}) => axiosInstance.get(`${baseURL}/media/banners/`, { params }),
-    home:     (params = {}) => axiosInstance.get(`${baseURL}/media/home/`, { params }),
-    featured: (params = {}) => axiosInstance.get(`${baseURL}/media/featured/`, { params }),
-    user:     (params = {}) => axiosInstance.get(`${baseURL}/media/user/`, { params }),
-    vendor:   (params = {}) => axiosInstance.get(`${baseURL}/media/vendor/`, { params }),
-    partner:  (params = {}) => axiosInstance.get(`${baseURL}/media/partner/`, { params }),
-    decor:    (params = {}) => axiosInstance.get(`${baseURL}/media/decor/`, { params }),
-    liveBand: (params = {}) => axiosInstance.get(`${baseURL}/media/live-band/`, { params }),
-    catering: (params = {}) => axiosInstance.get(`${baseURL}/media/catering/`, { params }),
-    hosting:  (params = {}) => axiosInstance.get(`${baseURL}/media/media-hosting/`, { params }),
+    all:      (params = {}) => publicAxios.get("/media/all/", { params }),
+    about:    (params = {}) => publicAxios.get("/media/about/", { params }),
+    banners:  (params = {}) => publicAxios.get("/media/banners/", { params }),
+    home:     (params = {}) => publicAxios.get("/media/home/", { params }),
+    featured: (params = {}) => publicAxios.get("/media/featured/", { params }),
+    user:     (params = {}) => publicAxios.get("/media/user/", { params }),
+    vendor:   (params = {}) => publicAxios.get("/media/vendor/", { params }),
+    partner:  (params = {}) => publicAxios.get("/media/partner/", { params }),
+    decor:    (params = {}) => publicAxios.get("/media/decor/", { params }),
+    liveBand: (params = {}) => publicAxios.get("/media/live-band/", { params }),
+    catering: (params = {}) => publicAxios.get("/media/catering/", { params }),
+    hosting:  (params = {}) => publicAxios.get("/media/media-hosting/", { params }),
   },
 
   // ------------------- Videos -------------------
-videos: {
-  // ── Core list / detail ──────────────────────────────
-  all:    (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/`, { params }),
-  detail: (id, params = {}) =>
-          axiosInstance.get(`${baseURL}/videos/videos/${id}/`, { params }),
+  videos: {
+    // Core list / detail (public)
+    all:    (params = {}) => publicAxios.get("/videos/videos/", { params }),
+    detail: (id, params = {}) => publicAxios.get(`/videos/videos/${id}/`, { params }),
 
-  // ── Toggle actions (require auth) ───────────────────
-  toggleActive:   (id) =>
-          axiosInstance.post(`${baseURL}/videos/videos/${id}/toggle_active/`),
-  toggleFeatured: (id) =>
-          axiosInstance.post(`${baseURL}/videos/videos/${id}/toggle_featured/`),
+    // Toggle actions (require auth)
+    toggleActive:   (id) => axiosInstance.post(`/videos/videos/${id}/toggle_active/`),
+    toggleFeatured: (id) => axiosInstance.post(`/videos/videos/${id}/toggle_featured/`),
 
-  // ── Endpoint-specific lists (public) ────────────────
-  home:             (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/home/`,            { params }),
-  about:            (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/about/`,           { params }),
-  decor:            (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/decor/`,           { params }),
-  live_band:        (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/live_band/`,       { params }),
-  catering:         (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/catering/`,        { params }),
-  media_hosting:    (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/media_hosting/`,   { params }),
-  user:             (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/user/`,            { params }),
-  vendor:           (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/vendor/`,          { params }),
-  partner:          (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/partner/`,         { params }),
-  partner_dashboard:(params = {}) => axiosInstance.get(`${baseURL}/videos/videos/partner_dashboard/`, { params }),
-  agency_dashboard: (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/agency_dashboard/`,  { params }),
+    // Endpoint-specific lists (public)
+    home:             (params = {}) => publicAxios.get("/videos/videos/home/", { params }),
+    about:            (params = {}) => publicAxios.get("/videos/videos/about/", { params }),
+    decor:            (params = {}) => publicAxios.get("/videos/videos/decor/", { params }),
+    live_band:        (params = {}) => publicAxios.get("/videos/videos/live_band/", { params }),
+    catering:         (params = {}) => publicAxios.get("/videos/videos/catering/", { params }),
+    media_hosting:    (params = {}) => publicAxios.get("/videos/videos/media_hosting/", { params }),
+    user:             (params = {}) => publicAxios.get("/videos/videos/user/", { params }),
+    vendor:           (params = {}) => publicAxios.get("/videos/videos/vendor/", { params }),
+    partner:          (params = {}) => publicAxios.get("/videos/videos/partner/", { params }),
+    partner_dashboard:(params = {}) => publicAxios.get("/videos/videos/partner_dashboard/", { params }),
+    agency_dashboard: (params = {}) => publicAxios.get("/videos/videos/agency_dashboard/", { params }),
 
-  // ── Frontend-friendly aliases (kebab-case) ──────────
-  "live-band":     (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/live_band/`,     { params }),
-  "media-hosting": (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/media_hosting/`, { params }),
-  "partner-dashboard": (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/partner_dashboard/`, { params }),
-  "agency-dashboard":  (params = {}) => axiosInstance.get(`${baseURL}/videos/videos/agency_dashboard/`,  { params }),
-},
+    // Frontend-friendly aliases (kebab-case)
+    "live-band":       (params = {}) => publicAxios.get("/videos/videos/live_band/", { params }),
+    "media-hosting":   (params = {}) => publicAxios.get("/videos/videos/media_hosting/", { params }),
+    "partner-dashboard": (params = {}) => publicAxios.get("/videos/videos/partner_dashboard/", { params }),
+    "agency-dashboard":  (params = {}) => publicAxios.get("/videos/videos/agency_dashboard/", { params }),
+  },
 
-
-  // ------------------- Services -------------------
+  // ------------------- Services (public) -------------------
   services: {
-    all:    (params = {}) => axiosInstance.get(`${baseURL}/services/`, { params }),
-    detail: (slug, params = {}) => axiosInstance.get(`${baseURL}/services/${slug}/`, { params }),
+    all:    (params = {}) => publicAxios.get("/services/", { params }),
+    detail: (slug, params = {}) => publicAxios.get(`/services/${slug}/`, { params }),
   },
 
-  // ------------------- Reviews -------------------
+  // ------------------- Reviews (public to list, auth to moderate) -------------------
   reviews: {
-    all:     (params = {}) => axiosInstance.get(`${baseURL}/reviews/`, { params }),
-    admin:   (params = {}) => axiosInstance.get(`${baseURL}/reviews/admin/`, { params }),
-    approve: (id) => axiosInstance.post(`${baseURL}/reviews/${id}/approve/`),
-    reply:   (id, payload) => axiosInstance.post(`${baseURL}/reviews/${id}/reply/`, payload),
-    delete:  (id) => axiosInstance.delete(`${baseURL}/reviews/${id}/delete/`),
+    all:     (params = {}) => publicAxios.get("/reviews/", { params }),
+    admin:   (params = {}) => axiosInstance.get("/reviews/admin/", { params }),
+    approve: (id) => axiosInstance.post(`/reviews/${id}/approve/`),
+    reply:   (id, payload) => axiosInstance.post(`/reviews/${id}/reply/`, payload),
+    delete:  (id) => axiosInstance.delete(`/reviews/${id}/delete/`),
   },
 
-  // ------------------- Promotions -------------------
+  // ------------------- Promotions (public) -------------------
   promotions: {
-    all:    (params = {}) => axiosInstance.get(`${baseURL}/promotions/`, { params }),
-    active: (params = {}) => axiosInstance.get(`${baseURL}/promotions/active/`, { params }),
-    detail: (id, params = {}) => axiosInstance.get(`${baseURL}/promotions/${id}/`, { params }),
+    all:    (params = {}) => publicAxios.get("/promotions/", { params }),
+    active: (params = {}) => publicAxios.get("/promotions/active/", { params }),
+    detail: (id, params = {}) => publicAxios.get(`/promotions/${id}/`, { params }),
   },
 
-  // ------------------- Contact -------------------
+  // ------------------- Contact (public) -------------------
   contact: {
-    send: (payload) => axiosInstance.post(`${baseURL}/contact/send/`, payload),
+    send: (payload) => publicAxios.post("/contact/send/", payload),
   },
 
-  // ------------------- Invoices -------------------
+  // ------------------- Invoices (auth) -------------------
   invoices: {
-    list:   (params = {}) => axiosInstance.get(`${baseURL}/invoices/`, { params }),
-    detail: (id) => axiosInstance.get(`${baseURL}/invoices/${id}/`),
+    list:   (params = {}) => axiosInstance.get("/invoices/", { params }),
+    detail: (id) => axiosInstance.get(`/invoices/${id}/`),
   },
 
-  // ------------------- Legal / Consents -------------------
+  // ------------------- Legal / Consents (auth) -------------------
   legal: {
-    create:     (payload) => axiosInstance.post(`${baseURL}/legal/consents/`, payload),
-    myConsents: () => axiosInstance.get(`${baseURL}/legal/consents/me/`),
-    all:        () => axiosInstance.get(`${baseURL}/legal/consents/all/`),
-    detail:     (id) => axiosInstance.get(`${baseURL}/legal/consents/${id}/`),
-    revoke:     (id) => axiosInstance.post(`${baseURL}/legal/consents/${id}/revoke/`),
+    create:     (payload) => axiosInstance.post("/legal/consents/", payload),
+    myConsents: () => axiosInstance.get("/legal/consents/me/"),
+    all:        () => axiosInstance.get("/legal/consents/all/"),
+    detail:     (id) => axiosInstance.get(`/legal/consents/${id}/`),
+    revoke:     (id) => axiosInstance.post(`/legal/consents/${id}/revoke/`),
   },
 
-  // ------------------- Messaging -------------------
+  // ------------------- Messaging (auth) -------------------
   messaging: {
-    list:       (params = {}) => axiosInstance.get(`${baseURL}/messages/`, { params }),
-    create:     (payload) => axiosInstance.post(`${baseURL}/messages/`, payload),
-    detail:     (id) => axiosInstance.get(`${baseURL}/messages/${id}/`),
-    update:     (id, payload) => axiosInstance.put(`${baseURL}/messages/${id}/`, payload),
-    delete:     (id) => axiosInstance.delete(`${baseURL}/messages/${id}/`),
-    markRead:   (id) => axiosInstance.patch(`${baseURL}/messages/${id}/mark-read/`),
-    markUnread: (id) => axiosInstance.patch(`${baseURL}/messages/${id}/mark-unread/`),
-    unread:     () => axiosInstance.get(`${baseURL}/messages/unread/`),
+    list:       (params = {}) => axiosInstance.get("/messages/", { params }),
+    create:     (payload) => axiosInstance.post("/messages/", payload),
+    detail:     (id) => axiosInstance.get(`/messages/${id}/`),
+    update:     (id, payload) => axiosInstance.put(`/messages/${id}/`, payload),
+    delete:     (id) => axiosInstance.delete(`/messages/${id}/`),
+    markRead:   (id) => axiosInstance.patch(`/messages/${id}/mark-read/`),
+    markUnread: (id) => axiosInstance.patch(`/messages/${id}/mark-unread/`),
+    unread:     () => axiosInstance.get("/messages/unread/"),
   },
 
   // ------------------- Newsletter -------------------
+  // Public actions like subscribe/confirm/unsubscribe use publicAxios
+  // Admin actions (list, logs, send, delete) require auth
   newsletter: {
-    subscribe:           (payload) => axiosInstance.post(`${baseURL}/newsletter/subscribe/`, payload),
-    confirm:             (payload) => axiosInstance.post(`${baseURL}/newsletter/confirm/`, payload),
-    unsubscribe:         (payload) => axiosInstance.post(`${baseURL}/newsletter/unsubscribe/`, payload),
-    resubscribe:         (payload) => axiosInstance.post(`${baseURL}/newsletter/resubscribe/`, payload),
-    resendConfirmation:  (payload) => axiosInstance.post(`${baseURL}/newsletter/resend-confirmation/`, payload),
-    list:                (params = {}) => axiosInstance.get(`${baseURL}/newsletter/list/`, { params }),
-    count:               () => axiosInstance.get(`${baseURL}/newsletter/count/`),
-    logs:                (params = {}) => axiosInstance.get(`${baseURL}/newsletter/logs/`, { params }),
-    send:                (payload) => axiosInstance.post(`${baseURL}/newsletter/send/`, payload),
-    delete:              (id) => axiosInstance.delete(`${baseURL}/newsletter/delete/${id}/`),
+    subscribe:          (payload) => publicAxios.post("/newsletter/subscribe/", payload),
+    confirm:            (payload) => publicAxios.post("/newsletter/confirm/", payload),
+    unsubscribe:        (payload) => publicAxios.post("/newsletter/unsubscribe/", payload),
+    resubscribe:        (payload) => publicAxios.post("/newsletter/resubscribe/", payload),
+    resendConfirmation: (payload) => publicAxios.post("/newsletter/resend-confirmation/", payload),
+
+    list:   (params = {}) => axiosInstance.get("/newsletter/list/", { params }),
+    count:  () => axiosInstance.get("/newsletter/count/"),
+    logs:   (params = {}) => axiosInstance.get("/newsletter/logs/", { params }),
+    send:   (payload) => axiosInstance.post("/newsletter/send/", payload),
+    delete: (id)      => axiosInstance.delete(`/newsletter/delete/${id}/`),
   },
 
-  // ------------------- Accounts & Auth -------------------
+  // ------------------- Accounts & Auth (auth for most) -------------------
   accounts: {
-    register:        (payload) => axiosInstance.post(`${baseURL}/accounts/register/`, payload),
-    verifyEmail:     (uid, token) => axiosInstance.get(`${baseURL}/accounts/verify-email/${uid}/${token}/`),
-    login:           (payload) => axiosInstance.post(`${baseURL}/accounts/login/`, payload),
-    logout:          () => axiosInstance.post(`${baseURL}/accounts/profile/logout/`),
-    verifyOtp:       (payload) => axiosInstance.post(`${baseURL}/accounts/verify-otp/`, payload),
-    resendOtp:       (payload) => axiosInstance.post(`${baseURL}/accounts/resend-otp/`, payload),
-    profile:         () => axiosInstance.get(`${baseURL}/accounts/profile/`),
-    changePassword:  (payload) => axiosInstance.post(`${baseURL}/accounts/profile/change-password/`, payload),
-    currentRole:     () => axiosInstance.get(`${baseURL}/accounts/profile/role/`),
-    roleChoices:     () => axiosInstance.get(`${baseURL}/accounts/role-choices/`),
-    workerCategories:() => axiosInstance.get(`${baseURL}/accounts/worker-categories/`),
-    vendorProfile:   () => axiosInstance.get(`${baseURL}/accounts/profile/vendor/`),
-    partnerProfile:  () => axiosInstance.get(`${baseURL}/accounts/profile/partner/`),
-    resetPassword:   (payload) => axiosInstance.post(`${baseURL}/accounts/reset-password/`, payload),
+    register:        (payload) => publicAxios.post("/accounts/register/", payload),
+    verifyEmail:     (uid, token) => publicAxios.get(`/accounts/verify-email/${uid}/${token}/`),
+    login:           (payload) => publicAxios.post("/accounts/login/", payload),
+    logout:          () => axiosInstance.post("/accounts/profile/logout/"),
+    verifyOtp:       (payload) => publicAxios.post("/accounts/verify-otp/", payload),
+    resendOtp:       (payload) => publicAxios.post("/accounts/resend-otp/", payload),
+    profile:         () => axiosInstance.get("/accounts/profile/"),
+    changePassword:  (payload) => axiosInstance.post("/accounts/profile/change-password/", payload),
+    currentRole:     () => axiosInstance.get("/accounts/profile/role/"),
+    roleChoices:     () => publicAxios.get("/accounts/role-choices/"),
+    workerCategories:() => publicAxios.get("/accounts/worker-categories/"),
+    vendorProfile:   () => axiosInstance.get("/accounts/profile/vendor/"),
+    partnerProfile:  () => axiosInstance.get("/accounts/profile/partner/"),
+    resetPassword:   (payload) => publicAxios.post("/accounts/reset-password/", payload),
     resetPasswordConfirm: (uidb64, token, payload) =>
-        axiosInstance.post(`${baseURL}/accounts/reset-password-confirm/${uidb64}/${token}/`, payload),
+        publicAxios.post(`/accounts/reset-password-confirm/${uidb64}/${token}/`, payload),
 
     // JWT
-    token:          (payload) => axiosInstance.post(`${baseURL}/accounts/token/`, payload),
-    tokenRefresh:   (payload) => axiosInstance.post(`${baseURL}/accounts/token/refresh/`, payload),
-    tokenVerify:    (payload) => axiosInstance.post(`${baseURL}/accounts/token/verify/`, payload),
+    token:        (payload) => publicAxios.post("/accounts/token/", payload),
+    tokenRefresh: (payload) => publicAxios.post("/accounts/token/refresh/", payload),
+    tokenVerify:  (payload) => publicAxios.post("/accounts/token/verify/", payload),
 
     // --- Admin only ---
     admin: {
-      inviteWorker:      (payload) => axiosInstance.post(`${baseURL}/accounts/admin/invite-worker/`, payload),
-      validateInvite:    (uid, token) => axiosInstance.get(`${baseURL}/accounts/admin/worker/validate-invite/${uid}/${token}/`),
-      completeInvite:    (payload) => axiosInstance.post(`${baseURL}/accounts/admin/worker/complete-invite/`, payload),
-      internalRegister:  (payload) => axiosInstance.post(`${baseURL}/accounts/admin/internal-register/`, payload),
-      profileByEmail:    (payload) => axiosInstance.post(`${baseURL}/accounts/admin/profile-by-email/`, payload),
-      deleteByEmail:     (payload) => axiosInstance.post(`${baseURL}/accounts/admin/delete-by-email/`, payload),
-      resetPassword:     (payload) => axiosInstance.post(`${baseURL}/accounts/admin/reset-password/`, payload),
-      resendWelcome:     (payload) => axiosInstance.post(`${baseURL}/accounts/admin/resend-welcome-email/`, payload),
-      sendMessage:       (payload) => axiosInstance.post(`${baseURL}/accounts/admin/send-message/`, payload),
-      sendOffer:         (payload) => axiosInstance.post(`${baseURL}/accounts/admin/special-offer/`, payload),
-      users:             (params = {}) => axiosInstance.get(`${baseURL}/accounts/admin/users/`, { params }),
+      inviteWorker:      (payload) => axiosInstance.post("/accounts/admin/invite-worker/", payload),
+      validateInvite:    (uid, token) => axiosInstance.get(`/accounts/admin/worker/validate-invite/${uid}/${token}/`),
+      completeInvite:    (payload) => axiosInstance.post("/accounts/admin/worker/complete-invite/", payload),
+      internalRegister:  (payload) => axiosInstance.post("/accounts/admin/internal-register/", payload),
+      profileByEmail:    (payload) => axiosInstance.post("/accounts/admin/profile-by-email/", payload),
+      deleteByEmail:     (payload) => axiosInstance.post("/accounts/admin/delete-by-email/", payload),
+      resetPassword:     (payload) => axiosInstance.post("/accounts/admin/reset-password/", payload),
+      resendWelcome:     (payload) => axiosInstance.post("/accounts/admin/resend-welcome-email/", payload),
+      sendMessage:       (payload) => axiosInstance.post("/accounts/admin/send-message/", payload),
+      sendOffer:         (payload) => axiosInstance.post("/accounts/admin/special-offer/", payload),
+      users:             (params = {}) => axiosInstance.get("/accounts/admin/users/", { params }),
     },
   },
 
-  // ------------------- Analytics -------------------
+  // ------------------- Analytics (auth) -------------------
   analytics: {
-    log:   (payload) => axiosInstance.post(`${baseURL}/analytics/log/`, payload),
-    stats: (params = {}) => axiosInstance.get(`${baseURL}/analytics/stats/`, { params }),
+    log:   (payload) => axiosInstance.post("/analytics/log/", payload),
+    stats: (params = {}) => axiosInstance.get("/analytics/stats/", { params }),
   },
 
   // ------------------- Bookings -------------------
   bookings: {
-    public:      (params = {}) => axiosInstance.get(`${baseURL}/bookings/`, { params }),
-    create:      (payload) => axiosInstance.post(`${baseURL}/bookings/submit/`, payload),
-    user:        () => axiosInstance.get(`${baseURL}/bookings/user/`),
-    userHistory: () => axiosInstance.get(`${baseURL}/bookings/user/history/`),
-    updateDelete:(pk, payload) => axiosInstance.put(`${baseURL}/bookings/${pk}/`, payload),
-    delete:      (pk) => axiosInstance.delete(`${baseURL}/bookings/${pk}/`),
-    invoice:     (pk) => axiosInstance.get(`${baseURL}/bookings/invoice/${pk}/`),
+    public:      (params = {}) => publicAxios.get("/bookings/", { params }),
+    create:      (payload) => publicAxios.post("/bookings/submit/", payload),
+    user:        () => axiosInstance.get("/bookings/user/"),
+    userHistory: () => axiosInstance.get("/bookings/user/history/"),
+    updateDelete:(pk, payload) => axiosInstance.put(`/bookings/${pk}/`, payload),
+    delete:      (pk) => axiosInstance.delete(`/bookings/${pk}/`),
+    invoice:     (pk) => axiosInstance.get(`/bookings/invoice/${pk}/`),
 
     admin: {
-      list:      (params = {}) => axiosInstance.get(`${baseURL}/bookings/bookings-admin/bookings/`, { params }),
-      updateStatus: (pk, payload) => axiosInstance.post(`${baseURL}/bookings/bookings-admin/bookings/${pk}/status/`, payload),
-      delete:    (pk) => axiosInstance.delete(`${baseURL}/bookings/bookings-admin/bookings/${pk}/delete/`),
-      update:    (pk, payload) => axiosInstance.put(`${baseURL}/bookings/bookings-admin/bookings/${pk}/update/`, payload),
+      list:      (params = {}) => axiosInstance.get("/bookings/bookings-admin/bookings/", { params }),
+      updateStatus: (pk, payload) => axiosInstance.post(`/bookings/bookings-admin/bookings/${pk}/status/`, payload),
+      delete:    (pk) => axiosInstance.delete(`/bookings/bookings-admin/bookings/${pk}/delete/`),
+      update:    (pk, payload) => axiosInstance.put(`/bookings/bookings-admin/bookings/${pk}/update/`, payload),
     },
   },
 };
 
 /**
  * Optional flat aliases for quick importing.
- * Keys are dotted paths like "bookings.user.history".
  */
 export const FLAT_ENDPOINTS = {
-  'media.user': API_ENDPOINTS.media.user,
-  'media.vendor': API_ENDPOINTS.media.vendor,
-  'videos.all': API_ENDPOINTS.videos.all,
-  'services.all': API_ENDPOINTS.services.all,
-  'reviews.all': API_ENDPOINTS.reviews.all,
-  'promotions.active': API_ENDPOINTS.promotions.active,
-  'newsletter.subscribe': API_ENDPOINTS.newsletter.subscribe,
-  'accounts.login': API_ENDPOINTS.accounts.login,
-  'bookings.user.history': API_ENDPOINTS.bookings.userHistory,
-  // …add any other frequently used single calls here
+  "media.user": API_ENDPOINTS.media.user,
+  "media.vendor": API_ENDPOINTS.media.vendor,
+  "videos.all": API_ENDPOINTS.videos.all,
+  "services.all": API_ENDPOINTS.services.all,
+  "reviews.all": API_ENDPOINTS.reviews.all,
+  "promotions.active": API_ENDPOINTS.promotions.active,
+  "newsletter.subscribe": API_ENDPOINTS.newsletter.subscribe,
+  "accounts.login": API_ENDPOINTS.accounts.login,
+  "bookings.user.history": API_ENDPOINTS.bookings.userHistory,
 };
 
 const apiService = { API_ENDPOINTS, FLAT_ENDPOINTS };
