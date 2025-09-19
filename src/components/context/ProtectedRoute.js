@@ -8,8 +8,9 @@ import SplashScreen from "../ui/SplashScreen";
  * A wrapper for routes that require authentication and optional role-based access.
  *
  * @param {Array} roles - Optional array of allowed user roles ['admin', 'user', 'vendor', 'partner']
+ * @param {String} guestRedirect - Path to redirect if unauthenticated (default: /login)
  */
-const ProtectedRoute = ({ roles = [] }) => {
+const ProtectedRoute = ({ roles = [], guestRedirect = "/login" }) => {
   const { auth, isAuthenticated, loading, ready } = useAuth();
   const user = auth?.user || {};
   const userRole = (user?.role || "").toLowerCase();
@@ -30,8 +31,10 @@ const ProtectedRoute = ({ roles = [] }) => {
 
   // Not logged in
   if (!isAuthenticated) {
-    console.warn("[ProtectedRoute] Not authenticated. Redirecting to login.");
-    return <Navigate to="/login" replace />;
+    console.warn(
+      `[ProtectedRoute] Not authenticated. Redirecting to ${guestRedirect}`
+    );
+    return <Navigate to={guestRedirect} replace />;
   }
 
   // Role-based access control

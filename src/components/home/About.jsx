@@ -1,3 +1,4 @@
+// src/pages/About/About.js
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -16,8 +17,8 @@ import JosephImg from "../../assets/team/joseph.jpg";
 
 import "./About.css";
 
+// ── Local fallbacks ─────────────────────────────────────────────
 const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
-const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 
 const TEAM = [
   {
@@ -39,15 +40,15 @@ const TEAM = [
 export default function About() {
   const navigate = useNavigate();
 
-  // ✅ Hero video (media.about endpoint)
-  const { data: heroVideos = [] } = useFetcher(API_ENDPOINTS.media.about);
+  // ✅ Fetch hero video
+  const { data: heroVideos = [] } = useFetcher(() => API_ENDPOINTS.media.about());
   const heroVideo = heroVideos.length
     ? heroVideos[0]
     : { url: LOCAL_FALLBACK_VIDEO };
 
-  // ✅ Reviews
-  const { data: reviews = [], error: reviewError } = useFetcher(
-    API_ENDPOINTS.reviews.all
+  // ✅ Fetch client reviews
+  const { data: reviews = [], error: reviewError } = useFetcher(() =>
+    API_ENDPOINTS.reviews.all()
   );
 
   return (
@@ -72,7 +73,7 @@ export default function About() {
           autoPlay
           loop
           allowMuteToggle
-          title="Ethical Multimedia GH"
+          title="Eethmgh Multimedia"
           subtitle="Crafting unforgettable experiences across music, visuals, and events."
           actions={[
             {
@@ -100,16 +101,16 @@ export default function About() {
 
       {/* ── Visual Stories / Banners ──────────────── */}
       <BannerCards
-        endpointKey={API_ENDPOINTS.media.banners}   // ✅ fixed
+        endpointKey={() => API_ENDPOINTS.media.banners()}
         title="Explore Our Visual Stories"
       />
 
-      {/* ── Services Grid ────── */}
+      {/* ── Services Grid ─────────────────────────── */}
       <section className="service-grid" id="why-us">
         <h2 className="section-heading">What We Do</h2>
         <div className="service-grid-inner">
           <MediaCards
-            endpointKey={API_ENDPOINTS.services.all}   // ✅ fixed
+            endpointKey={() => API_ENDPOINTS.services.all()}
             resourceType="services"
           />
         </div>
@@ -118,7 +119,7 @@ export default function About() {
       {/* ── Gallery Showcase ──────────────────────── */}
       <section className="gallery-showcase">
         <h2 className="section-heading">Gallery</h2>
-        <GalleryWrapper endpointKey={API_ENDPOINTS.media.home} /> {/* ✅ fixed */}
+        <GalleryWrapper endpointKey={() => API_ENDPOINTS.media.home()} />
       </section>
 
       {/* ── Team Section ──────────────────────────── */}
@@ -146,7 +147,7 @@ export default function About() {
       <section className="testimonial-carousel">
         <h2 className="section-heading">What Our Clients Say</h2>
         {reviewError && <p className="error-text">{reviewError}</p>}
-        <MediaGallery items={reviews.length ? reviews : []} type="carousel" />
+        <MediaGallery items={reviews} type="carousel" />
       </section>
     </div>
   );
