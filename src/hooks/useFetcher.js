@@ -1,89 +1,30 @@
-// src/hooks/useFetcher.js
 import { useState, useEffect, useCallback, useRef } from "react";
+import apiService from "../api/apiService";      // <-- single entry
 import axiosInstance from "../api/axiosInstance";
-
-// API modules
-import mediaService from "../api/services/mediaService";   // ✅ updated
-import videosAPI from "../api/videosAPI";
-import promotionsAPI from "../api/promotionsAPI";
-import reviewsAPI from "../api/reviewsAPI";
-import newsletterAPI from "../api/newsletterAPI";
-import invoicesAPI from "../api/invoicesAPI";
-import bookingAPI from "../api/bookingAPI";
-import authAPI from "../api/authAPI";
-import messagingAPI from "../api/messagingAPI";
-import contactAPI from "../api/contactAPI";
-import serviceAPI from "../api/servicesAPI";
-import workerAPI from "../api/workerAPI";
-
-const API_MAP = {
-  media: mediaService,       // ✅ now using mediaService
-  videos: videosAPI,
-  promotions: promotionsAPI,
-  reviews: reviewsAPI,
-  newsletter: newsletterAPI,
-  invoices: invoicesAPI,
-  bookings: bookingAPI,
-  auth: authAPI,
-  messaging: messagingAPI,
-  contact: contactAPI,
-  services: serviceAPI,
-  workers: workerAPI,
-};
 
 const DEFAULT_ENDPOINT = "list";
 
-export default function useFetcher(
-  resourceTypeOrEndpoint,
-  endpointKeyOrParams,
-  paramsOrOptions = {},
-  options = {}
-) {
-  let resourceType, endpointKey, params = {}, fetcherFn;
+export default function useFetcher(resourcePath, paramsOrOptions = {}, options = {}) {
+  /**
+   * resourcePath can be:
+   *  - string: "media.list" or "services.about"
+   *  - function: custom fetcher: () => axiosInstance.get(...)
+   */
 
-  // ---- Flexible argument parsing ----
-  if (typeof resourceTypeOrEndpoint === "function") {
-    // 1) function: useFetcher(() => apiFn(params), params?, options?)
-    fetcherFn = resourceTypeOrEndpoint;
-    params = endpointKeyOrParams || {};
-    options = paramsOrOptions || {};
-  } else if (typeof resourceTypeOrEndpoint === "string" && resourceTypeOrEndpoint.includes(".")) {
-    // 2) dotted string: "media.listByPage"
-    const [r, e] = resourceTypeOrEndpoint.split(".");
-    resourceType = r;
-    endpointKey = e || DEFAULT_ENDPOINT;
+  let fetcherFn, resourceKey = "", params = {};
 
-    if (Array.isArray(endpointKeyOrParams)) {
-      const [first, second] = endpointKeyOrParams;
-      params = { ...second, __subArg: first };
-      options = paramsOrOptions || {};
-    } else {
-      params = endpointKeyOrParams || {};
-      options = paramsOrOptions || {};
-    }
-  } else if (typeof resourceTypeOrEndpoint === "string") {
-    // 3) two-arg string form: useFetcher("media", "about", params?)
-    resourceType = resourceTypeOrEndpoint;
-    endpointKey = endpointKeyOrParams || DEFAULT_ENDPOINT;
+  if (typeof resourcePath === "function") {
+    fetcherFn = resourcePath;
     params = paramsOrOptions || {};
     options = options || {};
-  } else if (resourceTypeOrEndpoint && typeof resourceTypeOrEndpoint === "object") {
-    // 4) object form
-    if (typeof resourceTypeOrEndpoint.fetcher === "function") {
-      fetcherFn = resourceTypeOrEndpoint.fetcher;
-      resourceType = resourceTypeOrEndpoint.resourceType;
-      params = endpointKeyOrParams || {};
-      options = paramsOrOptions || {};
-    } else if (resourceTypeOrEndpoint.resourceType) {
-      resourceType = resourceTypeOrEndpoint.resourceType;
-      endpointKey = resourceTypeOrEndpoint.key || DEFAULT_ENDPOINT;
-      params = endpointKeyOrParams || {};
-      options = paramsOrOptions || {};
-    } else {
-      throw new Error("[useFetcher] Invalid arguments provided");
-    }
+  } else if (typeof resourcePath === "string") {
+    resourceKey = resourcePath.includes(".")
+      ? resourcePath
+      : `${resourcePath}.${DEFAULT_ENDPOINT}`;
+    params = paramsOrOptions || {};
+    options = options || {};
   } else {
-    throw new Error("[useFetcher] Invalid arguments provided");
+    throw new Error("[useFetcher] Invalid arguments");
   }
 
   const {
@@ -97,11 +38,10 @@ export default function useFetcher(
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const mountedRef = useRef(true);
+
   useEffect(() => () => (mountedRef.current = false), []);
 
-  // ---- helpers ----
   const extractItems = (res) => {
     if (!res) return [];
     if (Array.isArray(res?.data)) return res.data;
@@ -109,72 +49,30 @@ export default function useFetcher(
     return [];
   };
 
-  const FALLBACK_VIDEO_PATH = "/mock/hero-video.mp4";
-  const FALLBACK_BANNER_PATH = "/mock/banner-1.png";
-
-  const fallbackVideoObject = () => ({
-    id: "fallback-video",
-    title: "Fallback Hero Video",
-    url: FALLBACK_VIDEO_PATH,
-    is_active: true,
-    is_featured: true,
-  });
-
-  const fallbackBannerObject = () => ({
-    id: "fallback-banner",
-    label: "Fallback Banner",
-    type: "image",
-    url: { full: FALLBACK_BANNER_PATH, thumb: FALLBACK_BANNER_PATH },
-    is_active: true,
-    is_featured: true,
-  });
-
-  // ---- fetch function ----
   const fetchData = useCallback(async () => {
-    if (!fetcherFn && (!resourceType || !endpointKey)) {
-      const msg = "[useFetcher] Missing resourceType/endpoint or fetcher function";
-      console.error(msg);
-      if (mountedRef.current) {
-        setError({ message: msg });
-        setLoading(false);
-      }
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
     try {
       let res;
       if (fetcherFn) {
-        res = await fetcherFn(params || {});
+        res = await fetcherFn(params);
       } else {
-        const apiGroup = API_MAP[resourceType];
-        if (!apiGroup || typeof apiGroup[endpointKey] !== "function") {
-          const msg = `Unknown endpoint: ${resourceType}.${endpointKey}`;
-          console.error("[useFetcher]", msg);
-          if (mountedRef.current) {
-            setError({ message: msg });
-            setLoading(false);
-          }
-          return;
+        const apiCall = apiService[resourceKey];
+        if (typeof apiCall !== "function") {
+          throw new Error(`Unknown API endpoint: ${resourceKey}`);
         }
-
-        // Handle sub-arg like listByPage("home", {is_active:true})
-        if (params?.__subArg !== undefined) {
-          const { __subArg, ...rest } = params;
-          res = await apiGroup[endpointKey](__subArg, rest);
-        } else {
-          res = await apiGroup[endpointKey](params || {});
-        }
+        res = await apiCall(params);
       }
 
       let items = extractItems(res);
 
-      const rt = resourceType || options.resourceType;
       if (fallback && (!items || items.length === 0)) {
-        if (rt === "videos") items = [fallbackVideoObject()];
-        if (rt === "media") items = [fallbackBannerObject()];
+        // Example fallback objects if desired
+        if (resourceKey.startsWith("videos"))
+          items = [{ id: "fallback-video", url: "/mock/hero-video.mp4" }];
+        if (resourceKey.startsWith("media"))
+          items = [{ id: "fallback-banner", url: "/mock/banner-1.png" }];
       }
 
       if (mountedRef.current) {
@@ -194,22 +92,18 @@ export default function useFetcher(
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, [resourceType, endpointKey, fallback, fetcherFn, transform, options.resourceType, params]);
+  }, [fetcherFn, resourceKey, fallback, transform, params]);
 
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resourceType, endpointKey, fallback, fetcherFn, JSON.stringify(params)]);
+  }, [resourceKey, JSON.stringify(params)]);
 
   // ---- CRUD helpers ----
-  const ensureResource = () => {
-    if (!resourceType) throw new Error("[useFetcher] CRUD requires a resourceType string");
-  };
-
   const post = async (payload) => {
-    ensureResource();
+    if (!resourceKey) throw new Error("[useFetcher] post() needs resourceKey");
     try {
-      const res = await axiosInstance.post(`/${resourceType}/`, payload);
+      const res = await axiosInstance.post(`/${resourceKey.split(".")[0]}/`, payload);
       notify?.("success", successMessages.post || "Created successfully.");
       await fetchData();
       return res;
@@ -220,25 +114,15 @@ export default function useFetcher(
   };
 
   const patch = async (id, payload) => {
-    ensureResource();
-    try {
-      const res = await axiosInstance.patch(`/${resourceType}/${id}/`, payload);
-      await fetchData();
-      return res;
-    } catch (err) {
-      throw err;
-    }
+    const res = await axiosInstance.patch(`/${resourceKey.split(".")[0]}/${id}/`, payload);
+    await fetchData();
+    return res;
   };
 
   const remove = async (id) => {
-    ensureResource();
-    try {
-      const res = await axiosInstance.delete(`/${resourceType}/${id}/`);
-      await fetchData();
-      return res;
-    } catch (err) {
-      throw err;
-    }
+    const res = await axiosInstance.delete(`/${resourceKey.split(".")[0]}/${id}/`);
+    await fetchData();
+    return res;
   };
 
   return { data, loading, error, refetch: fetchData, post, patch, remove };
