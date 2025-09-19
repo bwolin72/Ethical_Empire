@@ -1,6 +1,5 @@
-// src/components/ProfileAvatar.jsx
 import React, { useRef } from "react";
-import apiService from "../../api/apiService"; // centralized services
+import apiService from "../../api/apiService";
 import "./ProfileAvatar.css";
 
 const ProfileAvatar = ({ profile, onProfileUpdate }) => {
@@ -9,30 +8,32 @@ const ProfileAvatar = ({ profile, onProfileUpdate }) => {
   const name = profile?.name || "Guest";
   const email = profile?.email || "";
 
-  const handleClick = () => {
-    fileInputRef.current.click();
-  };
+  const handleClick = () => fileInputRef.current?.click();
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    if (!process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || !process.env.REACT_APP_CLOUDINARY_CLOUD_NAME) {
+      console.error("❌ Cloudinary config missing in env.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET);
 
-    const cloudName = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
-    const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    const uploadUrl = `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`;
 
     try {
       const res = await fetch(uploadUrl, { method: "POST", body: formData });
       const data = await res.json();
 
-      if (data.secure_url) {
-        await updateProfileImage(data.secure_url);
-      }
+      if (!data.secure_url) throw new Error("Upload failed: no secure_url");
+
+      await updateProfileImage(data.secure_url);
     } catch (err) {
-      console.error("Upload failed", err);
+      console.error("❌ Upload failed:", err);
     }
   };
 
@@ -41,7 +42,7 @@ const ProfileAvatar = ({ profile, onProfileUpdate }) => {
       await apiService.auth.updateProfile({ profile_image_url: url });
       if (onProfileUpdate) onProfileUpdate({ ...profile, profile_image_url: url });
     } catch (err) {
-      console.error("Profile update failed", err);
+      console.error("❌ Profile update failed:", err);
     }
   };
 
@@ -50,7 +51,7 @@ const ProfileAvatar = ({ profile, onProfileUpdate }) => {
       await apiService.auth.updateProfile({ profile_image_url: null });
       if (onProfileUpdate) onProfileUpdate({ ...profile, profile_image_url: null });
     } catch (err) {
-      console.error("Failed to remove image", err);
+      console.error("❌ Failed to remove image:", err);
     }
   };
 
@@ -63,7 +64,7 @@ const ProfileAvatar = ({ profile, onProfileUpdate }) => {
 
   return (
     <div className="profile-avatar">
-      <div className="avatar-box" onClick={handleClick}>
+      <div className="avatar-box" onClick={handleClick} role="button" tabIndex={0}>
         {imageUrl ? (
           <img src={imageUrl} alt="Profile" className="avatar-image" />
         ) : (
