@@ -48,27 +48,34 @@ export default function useFetcher(
     params = endpointKeyOrParams || {};
     options = paramsOrOptions || {};
   }
-  // 2) dotted single string: "media.about"
+  // 2) dotted string: "media.listByPage"
   else if (typeof resourceTypeOrEndpoint === "string" && resourceTypeOrEndpoint.includes(".")) {
     const [r, e] = resourceTypeOrEndpoint.split(".");
     resourceType = r;
     endpointKey = e || DEFAULT_ENDPOINT;
-    params = endpointKeyOrParams || {};
-    options = paramsOrOptions || {};
+
+    // Support tuple-style args: ["home", { is_active: true }]
+    if (Array.isArray(endpointKeyOrParams)) {
+      const [first, second] = endpointKeyOrParams;
+      params = { ...second, __subArg: first }; // keep special arg
+      options = paramsOrOptions || {};
+    } else {
+      params = endpointKeyOrParams || {};
+      options = paramsOrOptions || {};
+    }
   }
-  // 3) two-arg string form: useFetcher('media','about', params?)
+  // 3) two-arg string form: useFetcher("media", "about", params?)
   else if (typeof resourceTypeOrEndpoint === "string") {
     resourceType = resourceTypeOrEndpoint;
     endpointKey = endpointKeyOrParams || DEFAULT_ENDPOINT;
     params = paramsOrOptions || {};
     options = options || {};
   }
-  // 4) object forms:
-  //    { fetcher: fn, resourceType?: 'media' } or { resourceType: 'media', key: 'about' }
+  // 4) object form
   else if (resourceTypeOrEndpoint && typeof resourceTypeOrEndpoint === "object") {
     if (typeof resourceTypeOrEndpoint.fetcher === "function") {
       fetcherFn = resourceTypeOrEndpoint.fetcher;
-      resourceType = resourceTypeOrEndpoint.resourceType; // optional
+      resourceType = resourceTypeOrEndpoint.resourceType;
       params = endpointKeyOrParams || {};
       options = paramsOrOptions || {};
     } else if (resourceTypeOrEndpoint.resourceType) {
@@ -144,7 +151,6 @@ export default function useFetcher(
     try {
       let res;
       if (fetcherFn) {
-        // call provided fetcher function (ensure components pass stable functions where possible)
         res = await fetcherFn(params || {});
       } else {
         const apiGroup = API_MAP[resourceType];
@@ -157,12 +163,18 @@ export default function useFetcher(
           }
           return;
         }
-        res = await apiGroup[endpointKey](params || {});
+
+        // Handle sub-arg like listByPage("home", {is_active:true})
+        if (params?.__subArg !== undefined) {
+          const { __subArg, ...rest } = params;
+          res = await apiGroup[endpointKey](__subArg, rest);
+        } else {
+          res = await apiGroup[endpointKey](params || {});
+        }
       }
 
       let items = extractItems(res);
 
-      // apply simple fallbacks only if resourceType is known (or options.resourceType provided)
       const rt = resourceType || options.resourceType;
       if (fallback && (!items || items.length === 0)) {
         if (rt === "videos") items = [fallbackVideoObject()];
@@ -186,14 +198,12 @@ export default function useFetcher(
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-    // Note: intentionally not depending on params object's identity here to avoid accidental loops
-    // if you want automatic re-fetch on params change, either pass stable params or call refetch manually.
-  }, [resourceType, endpointKey, fallback, fetcherFn, transform, options.resourceType]);
+  }, [resourceType, endpointKey, fallback, fetcherFn, transform, options.resourceType, params]);
 
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resourceType, endpointKey, fallback, fetcherFn]);
+  }, [resourceType, endpointKey, fallback, fetcherFn, JSON.stringify(params)]);
 
   // ---- CRUD helpers (only valid when resourceType is known) ----
   const ensureResource = () => {
