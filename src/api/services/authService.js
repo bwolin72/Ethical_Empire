@@ -2,42 +2,49 @@ import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import API from "../authAPI";
 
-// === Token Helpers ===
+// ===== TOKEN KEYS =====
 const TOKEN_KEY = "access";
 const REFRESH_KEY = "refresh";
+const REMEMBER_KEY = "remember";
 
-const saveTokens = ({ access, refresh }) => {
-  if (access) localStorage.setItem(TOKEN_KEY, access);
-  if (refresh) localStorage.setItem(REFRESH_KEY, refresh);
+// ===== TOKEN HELPERS =====
+const getStorage = () => {
+  const remember = localStorage.getItem(REMEMBER_KEY) === "true";
+  return remember ? localStorage : sessionStorage;
+};
 
-  axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${access}`;
+const saveTokens = ({ access, refresh, remember = true }) => {
+  const storage = remember ? localStorage : sessionStorage;
+  if (access) storage.setItem(TOKEN_KEY, access);
+  if (refresh) storage.setItem(REFRESH_KEY, refresh);
+  storage.setItem(REMEMBER_KEY, remember ? "true" : "false");
+  axiosInstance.defaults.headers.common["Authorization"] = access ? `Bearer ${access}` : "";
 };
 
 const clearTokens = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(REFRESH_KEY);
+  localStorage.removeItem(REMEMBER_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(REFRESH_KEY);
   delete axiosInstance.defaults.headers.common["Authorization"];
 };
 
-const getAccessToken = () => localStorage.getItem(TOKEN_KEY);
-const getRefreshToken = () => localStorage.getItem(REFRESH_KEY);
+const getAccessToken = () => getStorage().getItem(TOKEN_KEY);
+const getRefreshToken = () => getStorage().getItem(REFRESH_KEY);
 
-// Attach token if exists at load
-const initToken = () => {
+// Initialize axios Authorization header on load
+(() => {
   const token = getAccessToken();
-  if (token) {
-    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  }
-};
-initToken();
+  if (token) axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+})();
 
+// ===== AUTH SERVICE =====
 const authService = {
   // ===== AUTH =====
-  login: async (data) => {
-    const response = await publicAxios.post(API.login, data, {
-      withCredentials: true,
-    });
-    saveTokens(response.data);
+  login: async (data, remember = true) => {
+    const response = await publicAxios.post(API.login, data, { withCredentials: true });
+    saveTokens({ ...response.data, remember });
     return response;
   },
 
@@ -49,12 +56,12 @@ const authService = {
     }
   },
 
-  googleLogin: async (data) => {
+  googleLogin: async (data, remember = true) => {
     const response = await publicAxios.post(API.googleLogin, data, {
-      withCredentials: true, // ✅ crucial for CORS + cookies
+      withCredentials: true,
       headers: { "Content-Type": "application/json" },
     });
-    saveTokens(response.data);
+    saveTokens({ ...response.data, remember });
     return response;
   },
 
@@ -85,8 +92,7 @@ const authService = {
   getToken: (data) => publicAxios.post(API.token, data),
   refreshToken: async () => {
     const refresh = getRefreshToken();
-    if (!refresh) throw new Error("No refresh token");
-
+    if (!refresh) throw new Error("No refresh token found");
     const response = await publicAxios.post(API.tokenRefresh, { refresh });
     saveTokens({ access: response.data.access, refresh });
     return response;
@@ -100,8 +106,7 @@ const authService = {
   verifyOtpEmail: (data) => publicAxios.post(API.verifyOtpEmail, data, { withCredentials: true }),
   resendOtp: (data) => publicAxios.post(API.resendOtp, data, { withCredentials: true }),
   resendOtpEmail: (data) => publicAxios.post(API.resendOtpEmail, data, { withCredentials: true }),
-  resendWelcomeEmail: (data) =>
-    axiosInstance.post(API.resendWelcomeEmail, data),
+  resendWelcomeEmail: (data) => axiosInstance.post(API.resendWelcomeEmail, data),
 
   // ===== ADMIN =====
   listUsers: (params) => axiosInstance.get(API.adminListUsers, { params }),
@@ -110,21 +115,16 @@ const authService = {
     publicAxios.get(API.adminValidateWorkerInvite(uidOrUidb64, token), { withCredentials: true }),
   adminCompleteWorkerInvite: (data) =>
     publicAxios.post(API.adminCompleteWorkerInvite, data, { withCredentials: true }),
-  adminResetPassword: (data) =>
-    axiosInstance.post(API.adminResetPassword, data),
-  adminProfileByEmail: (data) =>
-    axiosInstance.post(API.adminProfileByEmail, data),
-  adminDeleteByEmail: (data) =>
-    axiosInstance.post(API.adminDeleteByEmail, data),
-  adminSendMessage: (data) =>
-    axiosInstance.post(API.adminSendMessage, data),
-  adminSpecialOffer: (data) =>
-    axiosInstance.post(API.adminSpecialOffer, data),
+  adminResetPassword: (data) => axiosInstance.post(API.adminResetPassword, data),
+  adminProfileByEmail: (data) => axiosInstance.post(API.adminProfileByEmail, data),
+  adminDeleteByEmail: (data) => axiosInstance.post(API.adminDeleteByEmail, data),
+  adminSendMessage: (data) => axiosInstance.post(API.adminSendMessage, data),
+  adminSpecialOffer: (data) => axiosInstance.post(API.adminSpecialOffer, data),
 
   // ===== WORKERS =====
   workerCategories: () => axiosInstance.get(API.workerCategories),
 
-  // ===== PUBLIC TOKEN HELPERS =====
+  // ===== TOKEN HELPERS =====
   saveTokens,
   clearTokens,
   getAccessToken,

@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import authService from "../../api/services/authService"; // JWT endpoints
+import authService from "../../api/services/authService";
 import { useAuth } from "../context/AuthContext";
 import logo from "../../assets/logo.png";
 import PasswordInput from "../common/PasswordInput";
@@ -24,7 +24,7 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /** Role-based redirect */
+  // Role-based redirect
   const redirectByRole = useCallback(
     (role) => {
       const routes = {
@@ -39,14 +39,14 @@ const Login = () => {
     [navigate]
   );
 
-  /** Dark mode toggle */
+  // Load dark mode preference
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  /** Auto redirect if already logged in */
+  // Auto redirect if already logged in
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -74,47 +74,56 @@ const Login = () => {
     if (!form.password.trim()) errors.password = "Please enter your password.";
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
     setFormErrors(errors);
-    if (Object.keys(errors).length > 0) toast.error("Please fix the highlighted errors.");
+    if (Object.keys(errors).length > 0)
+      toast.error("Please fix the highlighted errors.");
     return Object.keys(errors).length === 0;
   };
 
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
+    if (!data) return "Something went wrong.";
     if (typeof data === "string") return data;
     if (Array.isArray(data)) return data[0];
-    if (typeof data === "object") return data.message || data.detail || "Login failed.";
-    return "Something went wrong.";
+    if (typeof data === "object") {
+      if (data.detail) return data.detail;
+      if (data.message) return data.message;
+      if (data.errors) {
+        // Nested field errors
+        return Object.values(data.errors)
+          .flat()
+          .join(" ");
+      }
+    }
+    return "Login failed.";
   };
 
-  /** Common login success handler */
-  const handleLoginSuccess = async ({ access, refresh }) => {
+  const handleLoginSuccess = async (data) => {
+    const { access, refresh, user: apiUser } = data;
+
     if (!access || !refresh) {
       toast.error("Invalid login response.");
       return;
     }
 
-    // Save tokens in authService
+    // Save tokens
     authService.saveTokens({ access, refresh });
 
-    // Fetch user profile
-    let userProfile;
-    try {
-      const res = await authService.getProfile();
-      userProfile = res.data;
-    } catch {
-      toast.error("Failed to fetch user profile.");
-      return;
+    let userProfile = apiUser;
+    if (!userProfile) {
+      try {
+        const res = await authService.getProfile();
+        userProfile = res.data;
+      } catch {
+        toast.error("Failed to fetch user profile.");
+        return;
+      }
     }
 
-    // Update AuthContext
     login({ access, refresh, user: userProfile, remember: rememberMe });
-
-    // Redirect by role
     redirectByRole(userProfile.role);
     toast.success(`Welcome, ${userProfile.name || "User"} 🎉`);
   };
 
-  /** Email/password login */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -131,16 +140,14 @@ const Login = () => {
     }
   };
 
-  /** Google login */
   const handleGoogleSuccess = async (response) => {
     const { credential } = response;
     if (!credential) return toast.error("Google login failed.");
 
     setLoading(true);
     try {
-      const res = await authService.googleLogin({ credential });
+      const res = await authService.googleLogin({ credential, remember: rememberMe });
       if (!res?.data) throw new Error("Invalid server response");
-
       await handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -177,7 +184,9 @@ const Login = () => {
                 required
                 autoComplete="email"
               />
-              {formErrors.email && <small className="error-text">{formErrors.email}</small>}
+              {formErrors.email && (
+                <small className="error-text">{formErrors.email}</small>
+              )}
             </div>
 
             <div className="input-group">
@@ -188,8 +197,11 @@ const Login = () => {
                 value={form.password}
                 onChange={handleChange}
                 autoComplete="current-password"
+                disabled={loading}
               />
-              {formErrors.password && <small className="error-text">{formErrors.password}</small>}
+              {formErrors.password && (
+                <small className="error-text">{formErrors.password}</small>
+              )}
             </div>
 
             <label className="terms-checkbox">
@@ -198,9 +210,12 @@ const Login = () => {
                 checked={acceptedTerms}
                 onChange={() => setAcceptedTerms((prev) => !prev)}
               />
-              I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
+              I accept <Link to="/terms">Terms</Link> &{" "}
+              <Link to="/privacy">Privacy</Link>
             </label>
-            {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
+            {formErrors.terms && (
+              <small className="error-text">{formErrors.terms}</small>
+            )}
 
             <div className="auth-options">
               <label className="remember-me">
@@ -216,14 +231,22 @@ const Login = () => {
               </Link>
             </div>
 
-            <button type="submit" className="auth-submit-btn" disabled={loading}>
+            <button
+              type="submit"
+              className="auth-submit-btn"
+              disabled={loading || !acceptedTerms}
+            >
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
           <div className="social-login">
             <p>Or sign in with Google:</p>
-            <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => toast.error("Google login failed")} />
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => toast.error("Google login failed")}
+              disabled={loading}
+            />
           </div>
 
           <p className="register-prompt">

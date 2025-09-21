@@ -16,31 +16,18 @@ const ProtectedRoute = ({ roles = [], guestRedirect = "/login" }) => {
   const userRole = (auth?.user?.role || "").toLowerCase();
   const allowedRoles = roles.map((r) => r.toLowerCase());
 
-  // Debug snapshot
-  console.log("[ProtectedRoute] Snapshot:", {
-    loading,
-    ready,
-    isAuthenticated,
-    userRole,
-    allowedRoles,
-  });
-
   // Wait until AuthContext is ready
   if (loading || !ready) return <SplashScreen />;
 
-  // User not authenticated
-  if (!isAuthenticated) {
-    console.warn(`[ProtectedRoute] Not authenticated. Redirecting to ${guestRedirect}`);
-    return <Navigate to={guestRedirect} replace />;
-  }
+  // Redirect if not authenticated
+  if (!isAuthenticated) return <Navigate to={guestRedirect} replace />;
 
   // Role-based access control
   if (allowedRoles.length && !allowedRoles.includes(userRole)) {
-    console.warn(`[ProtectedRoute] Access denied. Role "${userRole}" is not allowed.`);
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // All checks passed, render nested route
+  // All checks passed, render nested routes
   return <Outlet />;
 };
 
