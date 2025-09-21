@@ -5,49 +5,42 @@ import SplashScreen from "../ui/SplashScreen";
 
 /**
  * ProtectedRoute
- * A wrapper for routes that require authentication and optional role-based access.
+ * Ensures routes are accessible only by authenticated users,
+ * with optional role-based access control.
  *
- * @param {Array} roles - Optional array of allowed user roles ['admin', 'user', 'vendor', 'partner']
- * @param {String} guestRedirect - Path to redirect if unauthenticated (default: /login)
+ * @param {Array} roles - Array of allowed roles, e.g., ['admin', 'user', 'vendor', 'partner']
+ * @param {String} guestRedirect - Path to redirect if not authenticated (default: "/login")
  */
 const ProtectedRoute = ({ roles = [], guestRedirect = "/login" }) => {
   const { auth, isAuthenticated, loading, ready } = useAuth();
-  const user = auth?.user || {};
-  const userRole = (user?.role || "").toLowerCase();
+  const userRole = (auth?.user?.role || "").toLowerCase();
   const allowedRoles = roles.map((r) => r.toLowerCase());
 
+  // Debug snapshot
   console.log("[ProtectedRoute] Snapshot:", {
     loading,
     ready,
     isAuthenticated,
-    user,
+    userRole,
     allowedRoles,
   });
 
-  // Wait until context is ready
-  if (loading || !ready) {
-    return <SplashScreen />;
-  }
+  // Wait until AuthContext is ready
+  if (loading || !ready) return <SplashScreen />;
 
-  // Not logged in
+  // User not authenticated
   if (!isAuthenticated) {
-    console.warn(
-      `[ProtectedRoute] Not authenticated. Redirecting to ${guestRedirect}`
-    );
+    console.warn(`[ProtectedRoute] Not authenticated. Redirecting to ${guestRedirect}`);
     return <Navigate to={guestRedirect} replace />;
   }
 
   // Role-based access control
-  if (allowedRoles.length > 0) {
-    if (!userRole || !allowedRoles.includes(userRole)) {
-      console.warn(
-        `[ProtectedRoute] Access denied. Role "${userRole}" is not allowed.`
-      );
-      return <Navigate to="/unauthorized" replace />;
-    }
+  if (allowedRoles.length && !allowedRoles.includes(userRole)) {
+    console.warn(`[ProtectedRoute] Access denied. Role "${userRole}" is not allowed.`);
+    return <Navigate to="/unauthorized" replace />;
   }
 
-  // All checks passed
+  // All checks passed, render nested route
   return <Outlet />;
 };
 

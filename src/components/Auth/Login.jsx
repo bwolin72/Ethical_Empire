@@ -1,4 +1,3 @@
-// src/pages/auth/Login.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useNavigate, Link } from "react-router-dom";
@@ -25,7 +24,7 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /* ---------- Role-based redirect ---------- */
+  /** Role-based redirect */
   const redirectByRole = useCallback(
     (role) => {
       const routes = {
@@ -40,14 +39,14 @@ const Login = () => {
     [navigate]
   );
 
-  /* ---------- Dark mode toggle ---------- */
+  /** Dark mode toggle */
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  /* ---------- Auto redirect if already logged in ---------- */
+  /** Auto redirect if already logged in */
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -87,27 +86,22 @@ const Login = () => {
     return "Something went wrong.";
   };
 
-  /* ---------- Common login success handler ---------- */
-  const handleLoginSuccess = async (data) => {
-    console.log("Login response data:", data);
-
-    const access = data.access;
-    const refresh = data.refresh;
-
+  /** Common login success handler */
+  const handleLoginSuccess = async ({ access, refresh }) => {
     if (!access || !refresh) {
       toast.error("Invalid login response.");
       return;
     }
 
-    // Save tokens
+    // Save tokens in authService
     authService.saveTokens({ access, refresh });
 
-    // Fetch user profile to get role
+    // Fetch user profile
     let userProfile;
     try {
       const res = await authService.getProfile();
       userProfile = res.data;
-    } catch (err) {
+    } catch {
       toast.error("Failed to fetch user profile.");
       return;
     }
@@ -115,12 +109,12 @@ const Login = () => {
     // Update AuthContext
     login({ access, refresh, user: userProfile, remember: rememberMe });
 
-    // Navigate based on role
+    // Redirect by role
     redirectByRole(userProfile.role);
     toast.success(`Welcome, ${userProfile.name || "User"} 🎉`);
   };
 
-  /* ---------- Normal email/password login ---------- */
+  /** Email/password login */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -137,7 +131,7 @@ const Login = () => {
     }
   };
 
-  /* ---------- Google login ---------- */
+  /** Google login */
   const handleGoogleSuccess = async (response) => {
     const { credential } = response;
     if (!credential) return toast.error("Google login failed.");
@@ -147,12 +141,7 @@ const Login = () => {
       const res = await authService.googleLogin({ credential });
       if (!res?.data) throw new Error("Invalid server response");
 
-      // Handle login and navigate
       await handleLoginSuccess(res.data);
-
-      // Explicit fallback redirect just in case
-      const userRole = res.data.user?.role;
-      if (userRole) redirectByRole(userRole);
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {
@@ -234,10 +223,7 @@ const Login = () => {
 
           <div className="social-login">
             <p>Or sign in with Google:</p>
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => toast.error("Google login failed")}
-            />
+            <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => toast.error("Google login failed")} />
           </div>
 
           <p className="register-prompt">
