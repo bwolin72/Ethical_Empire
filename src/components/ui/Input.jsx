@@ -1,15 +1,7 @@
 // src/components/ui/Input.jsx
-
 import React from 'react';
-import './Input.css';
+import './ui.css';
 
-const Input = ({ className = '', ...props }) => {
-  return (
-    <input
-      {...props}
-      className={`custom-input ${className}`}
-    />
-  );
+export const Input = ({ className = '', ...props }) => {
+  return <input className={`input ${className}`} {...props} />;
 };
-
-export { Input };

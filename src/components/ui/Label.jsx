@@ -1,5 +1,6 @@
+// src/components/ui/Label.jsx
 import React from 'react';
-import './label.css';
+import './ui.css';
 
 export const Label = ({ htmlFor, children, className = '' }) => {
   return (

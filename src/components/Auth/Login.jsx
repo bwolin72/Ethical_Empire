@@ -87,9 +87,20 @@ const Login = () => {
     return "Something went wrong.";
   };
 
+  /* ---------- Handle Login Success ---------- */
   const handleLoginSuccess = (data) => {
-    const { access, refresh, user } = data;
-    if (!access || !refresh || !user) {
+    console.log("Login response data:", data); // Debug log
+
+    // Support both nested "user" or top-level keys
+    const access = data.access;
+    const refresh = data.refresh;
+    const user = data.user || {
+      name: data.name,
+      email: data.email,
+      role: data.role,
+    };
+
+    if (!access || !refresh || !user?.role) {
       toast.error("Invalid login response.");
       return;
     }
@@ -111,7 +122,6 @@ const Login = () => {
 
     setLoading(true);
     try {
-      // ✅ Use authService.login for JWT endpoint
       const res = await authService.login(form);
       handleLoginSuccess(res.data);
     } catch (err) {
@@ -141,7 +151,6 @@ const Login = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
-        {/* Left Branding Panel */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h2>EETHM_GH</h2>
@@ -151,7 +160,6 @@ const Login = () => {
           </button>
         </div>
 
-        {/* Right Form Panel */}
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
@@ -187,8 +195,7 @@ const Login = () => {
                 checked={acceptedTerms}
                 onChange={() => setAcceptedTerms((prev) => !prev)}
               />
-              I accept <Link to="/terms">Terms</Link> &{" "}
-              <Link to="/privacy">Privacy</Link>
+              I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
             </label>
             {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
 

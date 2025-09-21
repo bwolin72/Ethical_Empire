@@ -1,6 +1,6 @@
 // src/components/ui/FloatingWhatsAppButton.jsx
 import React from 'react';
-import './FloatingWhatsAppButton.css';
+import './ui.css';
 
 const FloatingWhatsAppButton = () => {
   return (
@@ -12,7 +12,7 @@ const FloatingWhatsAppButton = () => {
       aria-label="Chat on WhatsApp"
     >
       <svg
-        xmlns="http://www.w3.org/2000/svg"  // ✅ fixed
+        xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         className="whatsapp-icon"
       >

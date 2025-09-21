@@ -1,13 +1,14 @@
+// src/components/ui/Checkbox.jsx
 import React from 'react';
-import './Checkbox.css';
+import './ui.css';
 
-export const Checkbox = ({ checked, onCheckedChange }) => {
+export const Checkbox = ({ checked, onCheckedChange, className = '' }) => {
   return (
     <input
       type="checkbox"
       checked={checked}
       onChange={onCheckedChange}
-      className="w-5 h-5 accent-blue-600"
+      className={`custom-checkbox ${className}`}
     />
   );
 };

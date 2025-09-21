@@ -1,11 +1,7 @@
+// src/components/ui/Textarea.jsx
 import React from 'react';
-import './Textarea.css';
+import './ui.css';
 
 export const Textarea = ({ className = '', ...props }) => {
-  return (
-    <textarea
-      className={`border p-2 rounded-md w-full ${className}`}
-      {...props}
-    />
-  );
+  return <textarea className={`textarea ${className}`} {...props} />;
 };

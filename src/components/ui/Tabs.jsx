@@ -1,16 +1,13 @@
 // src/components/ui/Tabs.jsx
-
 import React from 'react';
+import './ui.css';
 
-// Tabs root component
 export const Tabs = ({ children, defaultValue, onValueChange, className }) => {
   const [value, setValue] = React.useState(defaultValue);
 
   const handleChange = (val) => {
     setValue(val);
-    if (typeof onValueChange === 'function') {
-      onValueChange(val);
-    }
+    if (typeof onValueChange === 'function') onValueChange(val);
   };
 
   return (
@@ -27,12 +24,10 @@ export const Tabs = ({ children, defaultValue, onValueChange, className }) => {
   );
 };
 
-// Container for tab triggers
 export const TabsList = ({ children, className }) => (
   <div className={className}>{children}</div>
 );
 
-// A single tab trigger button
 export const TabsTrigger = ({ value, children, selectedValue, onSelect, className }) => (
   <button
     type="button"
@@ -44,7 +39,6 @@ export const TabsTrigger = ({ value, children, selectedValue, onSelect, classNam
   </button>
 );
 
-// Content rendered only if selected
 export const TabsContent = ({ value, selectedValue, children }) => {
   if (value !== selectedValue) return null;
   return <div>{children}</div>;

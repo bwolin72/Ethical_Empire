@@ -1,7 +1,7 @@
 // src/components/splash/SplashScreen.jsx
-import React, { useEffect } from "react";
-import logo from "../../assets/logo.png";
-import "./SplashScreen.css"; // make sure this imports your styles
+import React, { useEffect } from 'react';
+import logo from '../../assets/logo.png';
+import '../styles/ui.css'; // unified CSS for animations and layout
 
 const SplashScreen = ({ onFinish }) => {
   useEffect(() => {
@@ -12,24 +12,9 @@ const SplashScreen = ({ onFinish }) => {
   return (
     <div className="splash-screen">
       <div className="splash-content">
-        {/* Logo */}
-        <img
-          src={logo}
-          alt="Ethical Multimedia GH Logo"
-          className="splash-logo-img animate-pulse"
-        />
-
-        {/* Company Name */}
-        <h1 className="splash-company-name animate-fade-in-up">
-          Ethical Multimedia GH
-        </h1>
-
-        {/* Tagline */}
-        <p className="splash-service animate-fade-in-up delay-200">
-          Creative Event Experiences
-        </p>
-
-        {/* Loader dots */}
+        <img src={logo} alt="Ethical Multimedia GH Logo" className="splash-logo-img animate-pulse" />
+        <h1 className="splash-company-name animate-fade-in-up">Ethical Multimedia GH</h1>
+        <p className="splash-service animate-fade-in-up delay-200">Creative Event Experiences</p>
         <div className="splash-loader">
           <span></span>
           <span></span>
