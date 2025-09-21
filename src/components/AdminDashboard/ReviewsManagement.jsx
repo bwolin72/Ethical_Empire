@@ -10,21 +10,17 @@ const ReviewsManagement = () => {
   const [replyMap, setReplyMap] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // Fetch all reviews on mount
   useEffect(() => {
     fetchReviews();
   }, []);
 
-  // === Fetch Reviews ===
   const fetchReviews = async () => {
     const toastId = toast.loading("Loading reviews...");
     setLoading(true);
     try {
-      const data = await reviewService.getAllReviewsAdmin();
-      const reviewsData = Array.isArray(data)
-        ? data
-        : Array.isArray(data?.results)
-        ? data.results
-        : [];
+      const res = await reviewService.getAllReviewsAdmin(); // Matches ReviewAdminListAPIView
+      const reviewsData = Array.isArray(res.data) ? res.data : [];
       setReviews(reviewsData);
 
       toast.update(toastId, {
@@ -33,35 +29,35 @@ const ReviewsManagement = () => {
         isLoading: false,
         autoClose: 2000,
       });
-    } catch (error) {
-      console.error("❌ Failed to load reviews:", error);
+    } catch (err) {
+      console.error("❌ Failed to fetch reviews:", err);
       toast.update(toastId, {
         render: "❌ Failed to load reviews",
         type: "error",
         isLoading: false,
         autoClose: 2000,
       });
+      setReviews([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // === Delete Review ===
-  const handleDelete = async (id) => {
-    const toastId = toast.loading("Deleting review...");
+  const handleApprove = async (id) => {
+    const toastId = toast.loading("Approving review...");
     try {
-      await reviewService.deleteReview(id);
+      await reviewService.approveReview(id); // Matches ReviewApprovalAPIView
       toast.update(toastId, {
-        render: "🗑️ Review deleted.",
+        render: "✅ Review approved",
         type: "success",
         isLoading: false,
         autoClose: 2000,
       });
       fetchReviews();
-    } catch (error) {
-      console.error("❌ Failed to delete review:", error);
+    } catch (err) {
+      console.error("❌ Failed to approve review:", err);
       toast.update(toastId, {
-        render: "❌ Failed to delete review.",
+        render: "❌ Failed to approve review",
         type: "error",
         isLoading: false,
         autoClose: 2000,
@@ -69,29 +65,27 @@ const ReviewsManagement = () => {
     }
   };
 
-  // === Reply to Review ===
   const handleReply = async (id) => {
-    const reply = replyMap[id];
-    if (!reply?.trim()) {
+    const replyText = replyMap[id];
+    if (!replyText || !replyText.trim()) {
       toast.warning("⚠️ Reply cannot be empty.");
       return;
     }
-
     const toastId = toast.loading("Sending reply...");
     try {
-      await reviewService.replyToReview(id, reply);
+      await reviewService.replyToReview(id, { reply: replyText }); // Matches ReviewReplyAPIView
       toast.update(toastId, {
-        render: "✅ Reply sent.",
+        render: "✅ Reply sent",
         type: "success",
         isLoading: false,
         autoClose: 2000,
       });
       setReplyMap((prev) => ({ ...prev, [id]: "" }));
       fetchReviews();
-    } catch (error) {
-      console.error("❌ Failed to send reply:", error);
+    } catch (err) {
+      console.error("❌ Failed to send reply:", err);
       toast.update(toastId, {
-        render: "❌ Failed to send reply.",
+        render: "❌ Failed to send reply",
         type: "error",
         isLoading: false,
         autoClose: 2000,
@@ -99,22 +93,21 @@ const ReviewsManagement = () => {
     }
   };
 
-  // === Approve Review ===
-  const handleApprove = async (id) => {
-    const toastId = toast.loading("Approving review...");
+  const handleDelete = async (id) => {
+    const toastId = toast.loading("Deleting review...");
     try {
-      await reviewService.approveReview(id);
+      await reviewService.deleteReview(id); // Matches ReviewDeleteAPIView
       toast.update(toastId, {
-        render: "✅ Review approved.",
+        render: "🗑️ Review deleted",
         type: "success",
         isLoading: false,
         autoClose: 2000,
       });
       fetchReviews();
-    } catch (error) {
-      console.error("❌ Failed to approve review:", error);
+    } catch (err) {
+      console.error("❌ Failed to delete review:", err);
       toast.update(toastId, {
-        render: "❌ Failed to approve review.",
+        render: "❌ Failed to delete review",
         type: "error",
         isLoading: false,
         autoClose: 2000,
@@ -122,7 +115,6 @@ const ReviewsManagement = () => {
     }
   };
 
-  // === Reply input state ===
   const handleReplyChange = (id, value) => {
     setReplyMap((prev) => ({ ...prev, [id]: value }));
   };
@@ -137,50 +129,32 @@ const ReviewsManagement = () => {
       ) : reviews.length === 0 ? (
         <p className="review-message">No reviews available.</p>
       ) : (
-        reviews.map((review) => (
-          <div className="review-card" key={review.id}>
-            <p>
-              <strong>Service:</strong> {review.service_display || review.service}
-            </p>
-            <p>
-              <strong>Rating:</strong> {review.rating} ⭐
-            </p>
-            <p>
-              <strong>Comment:</strong> "{review.comment}"
-            </p>
-            <p className="review-author">
-              <strong>By:</strong> {review.user_email}
-            </p>
-            <p>
-              <strong>Submitted:</strong>{" "}
-              {new Date(review.created_at).toLocaleString()}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              {review.approved ? "✅ Approved" : "❌ Pending Approval"}
-            </p>
+        reviews.map((r) => (
+          <div className="review-card" key={r.id}>
+            <p><strong>Service:</strong> {r.service_display || r.service}</p>
+            <p><strong>Rating:</strong> {r.rating} ⭐</p>
+            <p><strong>Comment:</strong> "{r.comment}"</p>
+            <p className="review-author"><strong>By:</strong> {r.user_email}</p>
+            <p><strong>Submitted:</strong> {new Date(r.created_at).toLocaleString()}</p>
+            <p><strong>Status:</strong> {r.approved ? "✅ Approved" : "❌ Pending"}</p>
 
-            {review.reply && (
-              <p className="review-reply">
-                <strong>Admin Reply:</strong> {review.reply}
-              </p>
-            )}
+            {r.reply && <p className="review-reply"><strong>Admin Reply:</strong> {r.reply}</p>}
 
-            {!review.approved && (
-              <button className="approve-btn" onClick={() => handleApprove(review.id)}>
+            {!r.approved && (
+              <button className="approve-btn" onClick={() => handleApprove(r.id)}>
                 ✅ Approve
               </button>
             )}
 
             <textarea
               placeholder="Type your reply..."
-              value={replyMap[review.id] || ""}
-              onChange={(e) => handleReplyChange(review.id, e.target.value)}
+              value={replyMap[r.id] || ""}
+              onChange={(e) => handleReplyChange(r.id, e.target.value)}
             />
 
             <div className="review-actions">
-              <button onClick={() => handleReply(review.id)}>💬 Reply</button>
-              <button onClick={() => handleDelete(review.id)}>🗑️ Delete</button>
+              <button onClick={() => handleReply(r.id)}>💬 Reply</button>
+              <button onClick={() => handleDelete(r.id)}>🗑️ Delete</button>
             </div>
           </div>
         ))

@@ -7,7 +7,7 @@ import "./decor.css";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
 import BannerCards from "../context/BannerCards";
-import useFetcher from "../../hooks/useFetcher"; // ✅ unified data hook
+import useFetcher from "../../hooks/useFetcher";
 import apiService from "../../api/apiService";
 import Services from "../home/Services";
 
@@ -35,7 +35,7 @@ const getMediaUrl = (m) => {
 export default function DecorServicePage() {
   const navigate = useNavigate();
 
-  // === Hero: First try banner images ===
+  // === Hero: Banner images
   const { data: bannerRaw, loading: bannerLoading } = useFetcher(
     "media",
     "banner",
@@ -43,7 +43,7 @@ export default function DecorServicePage() {
     { resource: "media" }
   );
 
-  // === Fallback video if no banner ===
+  // === Fallback video if no banner
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
     "decor",
@@ -70,9 +70,7 @@ export default function DecorServicePage() {
     setLoadingTestimonials(true);
     try {
       const res = await apiService.getReviews({ category: "decor" });
-      setTestimonials(
-        Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
-      );
+      setTestimonials(Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []);
     } catch (err) {
       console.error("Error loading reviews:", err);
       setTestimonials([]);
@@ -85,16 +83,15 @@ export default function DecorServicePage() {
     fetchTestimonials();
   }, [fetchTestimonials]);
 
-  // --- Determine fallback video ---
+  // --- Determine fallback video
   useEffect(() => {
     const videos = toArray(videosRaw);
-    if (videos.length === 0) {
+    if (!videos.length) {
       if (!videoLoading) setVideoUrl(null);
       return;
     }
     const featured = videos.find((v) => v?.is_featured) ?? videos[0];
-    const src = getMediaUrl(featured);
-    setVideoUrl(src || null);
+    setVideoUrl(getMediaUrl(featured) || null);
   }, [videosRaw, videoLoading]);
 
   const toggleMute = () => {
@@ -110,9 +107,9 @@ export default function DecorServicePage() {
 
   return (
     <div className="decor-page-container">
-      {/* ----------------- HERO ----------------- */}
+      {/* === Hero Section === */}
       <section className="banner-section" aria-label="Hero">
-        {bannerItems.length > 0 && !bannerLoading ? (
+        {bannerItems.length && !bannerLoading ? (
           <BannerCards items={bannerItems} title="Decor Showcases" />
         ) : videoUrl && !videoLoading ? (
           <div className="video-wrapper">
@@ -124,10 +121,7 @@ export default function DecorServicePage() {
               loop
               muted={isMuted}
               playsInline
-              onError={() => {
-                console.warn("Hero video failed, no banner or video available");
-                setVideoUrl(null);
-              }}
+              onError={() => setVideoUrl(null)}
             />
             <button
               className="mute-button"
@@ -138,15 +132,13 @@ export default function DecorServicePage() {
             </button>
           </div>
         ) : bannerLoading || videoLoading ? (
-          <div className="video-placeholder" aria-hidden="true">
-            <div className="video-skeleton" />
-          </div>
+          <div className="video-skeleton" />
         ) : (
           <p className="muted-text">No hero media available.</p>
         )}
       </section>
 
-      {/* ----------------- CTA ----------------- */}
+      {/* === CTA === */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -157,17 +149,17 @@ export default function DecorServicePage() {
         </motion.button>
       </section>
 
-      {/* ----------------- Decor Services ----------------- */}
+      {/* === Decor Services === */}
       <section className="section">
-        <h2 className="section-title">Our Decor Services</h2>
-        <p className="section-description">
+        <h2>Our Decor Services</h2>
+        <p>
           From elegant floral arrangements to immersive lighting, explore the
           services that bring your event to life.
         </p>
         <Services />
       </section>
 
-      {/* ----------------- Venue Transformation ----------------- */}
+      {/* === Venue Transformation === */}
       <section className="section creative-layout" aria-labelledby="transform-heading">
         <div className="creative-text">
           <h3 id="transform-heading">Transform Your Venue</h3>
@@ -180,64 +172,53 @@ export default function DecorServicePage() {
         <div className="creative-media">
           {mediaLoading ? (
             Array.from({ length: 2 }).map((_, i) => <MediaSkeleton key={i} />)
-          ) : mediaCards.length > 0 ? (
-            mediaCards.slice(0, 2).map((m, idx) => (
-              <MediaCard key={m.id ?? m._id ?? m.url ?? idx} media={m} />
-            ))
+          ) : mediaCards.length ? (
+            mediaCards.slice(0, 2).map((m, idx) => <MediaCard key={m.id ?? m._id ?? idx} media={m} />)
           ) : (
             <p className="muted-text">No media available.</p>
           )}
         </div>
       </section>
 
-      {/* ----------------- Gallery ----------------- */}
+      {/* === Decor Gallery === */}
       <section className="section">
-        <h2 className="section-title">Decor Highlights</h2>
-        <p className="section-description">
+        <h2>Decor Highlights</h2>
+        <p>
           Every event is a canvas—we decorate with purpose, elegance, and
           emotion. Discover the beauty of our decor setups in the gallery below.
         </p>
         <div className="card-grid">
           {mediaLoading ? (
             Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-          ) : mediaCards.length > 0 ? (
-            mediaCards.slice(0, 6).map((m, idx) => (
-              <MediaCard key={m.id ?? m._id ?? m.url ?? idx} media={m} />
-            ))
+          ) : mediaCards.length ? (
+            mediaCards.slice(0, 6).map((m, idx) => <MediaCard key={m.id ?? m._id ?? idx} media={m} />)
           ) : (
             <p className="muted-text">No decor media available at the moment.</p>
           )}
         </div>
       </section>
 
-      {/* ----------------- Testimonials ----------------- */}
+      {/* === Testimonials === */}
       <section className="section" aria-live="polite">
-        <h2 className="section-title">Client Impressions</h2>
+        <h2>Client Impressions</h2>
         <div className="testimonial-grid">
-          {loadingTestimonials ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="testimonial-card shimmer">
-                <div className="testimonial-text">Loading review...</div>
-                <div className="testimonial-user">Loading...</div>
-              </div>
-            ))
-          ) : testimonials.length > 0 ? (
-            testimonials.slice(0, 6).map((r, idx) => (
-              <div
-                key={r.id ?? r._id ?? r.message ?? idx}
-                className="testimonial-card"
-              >
-                <p className="testimonial-text">
-                  {r.message ? `"${r.message}"` : '"No comment provided."'}
-                </p>
-                <p className="testimonial-user">
-                  — {r.user?.username || "Anonymous"}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="muted-text">No reviews yet.</p>
-          )}
+          {loadingTestimonials
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="testimonial-card shimmer">
+                  <div className="testimonial-text">Loading review...</div>
+                  <div className="testimonial-user">Loading...</div>
+                </div>
+              ))
+            : testimonials.length
+            ? testimonials.slice(0, 6).map((r, idx) => (
+                <div key={r.id ?? r._id ?? idx} className="testimonial-card">
+                  <p className="testimonial-text">
+                    {r.message ? `"${r.message}"` : '"No comment provided."'}
+                  </p>
+                  <p className="testimonial-user">— {r.user?.username || "Anonymous"}</p>
+                </div>
+              ))
+            : <p className="muted-text">No reviews yet.</p>}
         </div>
       </section>
     </div>

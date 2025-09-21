@@ -1,3 +1,4 @@
+// src/components/services/LiveBandServicePage.jsx
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -10,16 +11,19 @@ import Services from "../home/Services";
 import useFetcher from "../../hooks/useFetcher";
 import apiService from "../../api/apiService";
 
+// --- Helpers ---
 const toArray = (payload) =>
   Array.isArray(payload?.data) ? payload.data :
   Array.isArray(payload) ? payload : [];
 
-const getMediaUrl = (m) => m?.url?.full || m?.video_url || m?.file_url || "";
+const getMediaUrl = (m) =>
+  m?.url?.full || m?.video_url || m?.file_url || "";
 
 const LiveBandServicePage = () => {
   const navigate = useNavigate();
 
-  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
+  // --- Media & Videos ---
+  const { data: mediaRaw, loading: mediaLoading } = useFetcher(
     "media",
     "liveband",
     { is_active: true },
@@ -32,37 +36,21 @@ const LiveBandServicePage = () => {
     { resource: "videos" }
   );
 
-  const [testimonials, setTestimonials] = useState([]);
-  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+  const mediaCards = toArray(mediaRaw);
 
-  const fetchTestimonials = useCallback(async () => {
-    setLoadingTestimonials(true);
-    try {
-      const res = await apiService.getReviews({ category: "liveband" });
-      setTestimonials(Array.isArray(res?.data) ? res.data : []);
-    } catch {
-      setTestimonials([]);
-    } finally {
-      setLoadingTestimonials(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTestimonials();
-  }, [fetchTestimonials]);
-
+  // --- Hero Video ---
   const [videoUrl, setVideoUrl] = useState(null);
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     const videos = toArray(videosRaw);
-    if (videos.length === 0) {
+    if (!videos.length) {
       if (!videoLoading) setVideoUrl(null);
       return;
     }
-    const src = getMediaUrl(videos.find((v) => v?.is_featured) ?? videos[0]);
-    setVideoUrl(src || null);
+    const featured = videos.find((v) => v?.is_featured) ?? videos[0];
+    setVideoUrl(getMediaUrl(featured) || null);
   }, [videosRaw, videoLoading]);
 
   const toggleMute = () => {
@@ -73,11 +61,30 @@ const LiveBandServicePage = () => {
     });
   };
 
-  const mediaCards = toArray(mediaCardsRaw);
+  // --- Testimonials ---
+  const [testimonials, setTestimonials] = useState([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+
+  const fetchTestimonials = useCallback(async () => {
+    setLoadingTestimonials(true);
+    try {
+      const res = await apiService.getReviews({ category: "liveband" });
+      setTestimonials(Array.isArray(res?.data) ? res.data : []);
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+      setTestimonials([]);
+    } finally {
+      setLoadingTestimonials(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, [fetchTestimonials]);
 
   return (
     <div className="liveband-page-container">
-      {/* Hero */}
+      {/* === Hero Section === */}
       <section className="banner-section" aria-label="Hero">
         {videoUrl && !videoLoading ? (
           <div className="video-wrapper">
@@ -95,17 +102,21 @@ const LiveBandServicePage = () => {
               className="mute-button"
               onClick={toggleMute}
               aria-pressed={!isMuted}
+              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
           </div>
         ) : videoLoading ? (
-          <div className="video-placeholder" />
+          <div className="video-placeholder">
+            <div className="video-skeleton" />
+          </div>
         ) : (
           <BannerCards endpoint="liveband" title="Live Band Showcases" />
         )}
       </section>
 
+      {/* === CTA Section === */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -116,11 +127,13 @@ const LiveBandServicePage = () => {
         </motion.button>
       </section>
 
+      {/* === Services === */}
       <section className="section">
         <h2 className="section-title">Our Live Band Services</h2>
         <Services />
       </section>
 
+      {/* === Media Gallery === */}
       <section className="section">
         <h2 className="section-title">Band Highlights</h2>
         <div className="card-grid">
@@ -128,22 +141,35 @@ const LiveBandServicePage = () => {
             ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
             : mediaCards.length > 0
             ? mediaCards.slice(0, 6).map((m, i) => (
-                <MediaCard key={m.id ?? i} media={m} />
+                <MediaCard key={m.id ?? m._id ?? m.url ?? i} media={m} />
               ))
             : <p className="muted-text">No live band media available.</p>}
         </div>
       </section>
 
-      <section className="section">
+      {/* === Testimonials === */}
+      <section className="section" aria-live="polite">
         <h2 className="section-title">Client Impressions</h2>
         <div className="testimonial-grid">
           {loadingTestimonials
-            ? <p>Loading reviews…</p>
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="testimonial-card shimmer">
+                  <div className="testimonial-text">Loading review…</div>
+                  <div className="testimonial-user">Loading…</div>
+                </div>
+              ))
             : testimonials.length > 0
             ? testimonials.slice(0, 6).map((r, i) => (
-                <div key={r.id ?? i} className="testimonial-card">
-                  <p>"{r.message || r.comment}"</p>
-                  <p>— {r.user?.username || "Anonymous"}</p>
+                <div
+                  key={r.id ?? r._id ?? r.message ?? i}
+                  className="testimonial-card"
+                >
+                  <p className="testimonial-text">
+                    "{r.message || r.comment || 'No comment provided.'}"
+                  </p>
+                  <p className="testimonial-user">
+                    — {r.user?.username || "Anonymous"}
+                  </p>
                 </div>
               ))
             : <p className="muted-text">No reviews yet.</p>}

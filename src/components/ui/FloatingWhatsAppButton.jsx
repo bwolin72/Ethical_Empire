@@ -1,6 +1,7 @@
 // src/components/ui/FloatingWhatsAppButton.jsx
 import React from 'react';
 import '../styles/ui.css';
+import './FloatingWhatsAppButton.css'; // We'll add extra styles here
 
 const FloatingWhatsAppButton = () => {
   return (

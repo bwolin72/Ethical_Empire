@@ -1,6 +1,6 @@
 // frontend/src/components/pages/CateringPage.jsx
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import "./catering.custom.css";
+import "../styles/ui.css"; // uses all your unified styles
 import { Card, CardContent } from "../ui/Card";
 import { motion } from "framer-motion";
 import publicAxios from "../../api/publicAxios";
@@ -17,20 +17,17 @@ import {
   FaAppleAlt,
   FaSeedling,
 } from "react-icons/fa";
-import Services from "../home/Services"; // ✅ reuse global Services
+import Services from "../home/Services";
 
 const CateringPage = () => {
   const navigate = useNavigate();
 
-  // ------------------ State ------------------
   const [testimonials, setTestimonials] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
-
-  const [videoUrl, setVideoUrl] = useState(""); // hero video (if any)
+  const [videoUrl, setVideoUrl] = useState("");
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
-  // ------------------ Static Data ------------------
   const cateringServices = [
     "Traditional Ghanaian Buffet",
     "Continental Plated Meals",
@@ -64,14 +61,16 @@ const CateringPage = () => {
     "Cocktail Receptions",
   ];
 
-  // ------------------ Data Fetching ------------------
   const fetchReviews = useCallback(async () => {
     setLoadingReviews(true);
     try {
       const { data } = await publicAxios.get("/reviews/");
-      setTestimonials(Array.isArray(data) ? data : []);
+      const approved = Array.isArray(data)
+        ? data.filter((r) => r.approved)
+        : [];
+      setTestimonials(approved);
     } catch (err) {
-      console.error("Error loading reviews:", err);
+      console.error(err);
       setTestimonials([]);
     } finally {
       setLoadingReviews(false);
@@ -84,14 +83,11 @@ const CateringPage = () => {
         "/videos/?endpoint=CateringPage&is_active=true"
       );
       if (Array.isArray(data) && data.length > 0) {
-        const first = data.find((v) => v?.is_featured) ?? data[0];
-        // try the most common video field names
+        const first = data.find((v) => v.is_featured) || data[0];
         setVideoUrl(first.video_url || first.url?.full || "");
-      } else {
-        setVideoUrl("");
       }
     } catch (err) {
-      console.error("Video fetch error:", err);
+      console.error(err);
       setVideoUrl("");
     }
   }, []);
@@ -101,44 +97,34 @@ const CateringPage = () => {
     fetchHeroVideo();
   }, [fetchReviews, fetchHeroVideo]);
 
-  // ------------------ UI Helpers ------------------
   const toggleMute = () => {
     setIsMuted((prev) => {
       const next = !prev;
-      if (videoRef.current) {
-        try {
-          videoRef.current.muted = next;
-        } catch (_) {}
-      }
+      if (videoRef.current) videoRef.current.muted = next;
       return next;
     });
   };
 
-  // ------------------ Render ------------------
   return (
     <div className="catering-page-container">
-      {/* === Hero Section: Video or Banner === */}
+      {/* Hero Section */}
       <section className="catering-banners" aria-label="Hero">
         {videoUrl ? (
           <div className="video-wrapper">
             <video
               ref={videoRef}
               src={videoUrl}
-              className="hero-video"
+              className="hero-video card"
               autoPlay
               loop
               muted={isMuted}
               playsInline
-              onError={() => {
-                console.warn("Hero video failed to load, falling back to BannerCards");
-                setVideoUrl("");
-              }}
+              onError={() => setVideoUrl("")}
             />
             <button
-              className="mute-button"
+              className="btn btn-secondary mute-button"
               onClick={toggleMute}
               aria-pressed={!isMuted}
-              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
@@ -148,46 +134,46 @@ const CateringPage = () => {
         )}
       </section>
 
-      {/* === CTA === */}
+      {/* CTA */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
-          className="cta-button"
+          className="btn btn-primary"
           onClick={() => navigate("/bookings")}
         >
           Request a Custom Quote
         </motion.button>
       </section>
 
-      {/* === Catering Services === */}
+      {/* Catering Services */}
       <section className="section services-section">
         <h2>Our Catering Services</h2>
         <div className="card-grid">
           {cateringServices.map((service, i) => (
             <motion.div key={i} whileHover={{ scale: 1.03 }}>
               <Card className="card">
-                <CardContent className="card-content">{service}</CardContent>
+                <CardContent>{service}</CardContent>
               </Card>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* === Event Types === */}
+      {/* Event Types */}
       <section className="section event-types-section">
         <h2>We Cater For</h2>
         <div className="card-grid">
           {eventTypes.map((event, i) => (
             <motion.div key={i} whileHover={{ scale: 1.03 }}>
               <Card className="card">
-                <CardContent className="card-content">{event}</CardContent>
+                <CardContent>{event}</CardContent>
               </Card>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* === Creative Catering Media === */}
+      {/* Creative Media */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
@@ -205,50 +191,48 @@ const CateringPage = () => {
               We blend Ghanaian heritage with Western flair to deliver diverse,
               mouthwatering culinary experiences. From live jollof bars and suya
               grills to cocktail canapé platters, our fusion offerings are
-              tailored to elevate your event and wow every guest—local or
-              international.
+              tailored to elevate your event and wow every guest.
             </p>
           </div>
         </div>
       </section>
 
-      {/* === Dietary Options === */}
+      {/* Dietary Options */}
       <section className="section dietary-section">
         <h2>Dietary Options</h2>
-        <div className="dietary-grid">
+        <div className="card-grid">
           {dietarySuggestions.map(({ label, icon }, i) => (
             <motion.div
               key={i}
-              className="dietary-card"
+              className="card dietary-card"
               whileHover={{ scale: 1.08 }}
             >
-              <span className="dietary-icon">{icon}</span>
-              {label}
+              <span className="dietary-icon">{icon}</span> {label}
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* === Testimonials === */}
+      {/* Testimonials */}
       <section className="section testimonial-section" aria-live="polite">
         <h2>What Clients Say</h2>
-        <div className="testimonial-grid">
+        <div className="card-grid">
           {loadingReviews
             ? [...Array(3)].map((_, i) => (
-                <div key={i} className="testimonial-card skeleton shimmer">
-                  <div className="testimonial-message">Loading review...</div>
+                <div key={i} className="card testimonial-card skeleton shimmer">
+                  <div className="testimonial-text">Loading review...</div>
                   <div className="testimonial-user">Loading...</div>
                 </div>
               ))
-            : testimonials.slice(0, 6).map((review, i) => (
-                <motion.div key={review?.id || i} whileHover={{ scale: 1.02 }}>
-                  <Card className="testimonial-card">
+            : testimonials.slice(0, 6).map((review) => (
+                <motion.div key={review.id} whileHover={{ scale: 1.02 }}>
+                  <Card className="testimonial-card card">
                     <CardContent>
                       <p className="testimonial-text">
-                        "{review.message || "No message provided."}"
+                        "{review.comment || "No comment provided."}"
                       </p>
                       <p className="testimonial-user">
-                        — {review.user?.username || "Anonymous"}
+                        — {review.user_email || "Anonymous"}
                       </p>
                     </CardContent>
                   </Card>
@@ -257,7 +241,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* === Other Services === */}
+      {/* Other Services */}
       <section className="section other-services-section">
         <h2>Explore More of Our Services</h2>
         <Services />

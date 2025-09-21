@@ -14,7 +14,7 @@ const BookingManagement = () => {
   const [editBooking, setEditBooking] = useState(null);
   const bookingsPerPage = 10;
 
-  // Fetch bookings
+  // === Fetch bookings ===
   const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
@@ -43,7 +43,7 @@ const BookingManagement = () => {
     }
   }, [search, sortBy]);
 
-  // Fetch services
+  // === Fetch services ===
   const fetchServices = useCallback(async () => {
     try {
       const res = await serviceService.getServices();
@@ -59,11 +59,11 @@ const BookingManagement = () => {
     fetchServices();
   }, [fetchBookings, fetchServices]);
 
-  // Edit booking
+  // === Edit booking ===
   const handleEdit = (booking) => {
     setEditBooking({
       ...booking,
-      serviceIds: booking.services.map((s) => s.id), // ✅ track selected IDs separately
+      serviceIds: booking.services.map((s) => s.id),
       event_date: booking.event_date || '',
     });
   };
@@ -86,7 +86,6 @@ const BookingManagement = () => {
 
   const saveEdit = async () => {
     try {
-      // ✅ backend expects { add_service_ids } or full { services: [{id}, ...] }
       await bookingService.update(editBooking.id, {
         name: editBooking.name,
         email: editBooking.email,
@@ -94,14 +93,9 @@ const BookingManagement = () => {
         address: editBooking.address,
         message: editBooking.message,
         event_date: editBooking.event_date,
-        add_service_ids: editBooking.serviceIds, // ✅ match backend field
+        add_service_ids: editBooking.serviceIds,
+        status: editBooking.status,
       });
-
-      if (['approved', 'rejected', 'completed'].includes(editBooking.status)) {
-        await bookingService.adminUpdateStatus(editBooking.id, {
-          status: editBooking.status,
-        });
-      }
 
       setEditBooking(null);
       fetchBookings();
@@ -121,7 +115,7 @@ const BookingManagement = () => {
     }
   };
 
-  // Pagination
+  // === Pagination ===
   const indexOfLast = currentPage * bookingsPerPage;
   const indexOfFirst = indexOfLast - bookingsPerPage;
   const currentBookings = bookings.slice(indexOfFirst, indexOfLast);
@@ -136,6 +130,7 @@ const BookingManagement = () => {
     <div className="booking-management">
       <h2>Booking Management</h2>
 
+      {/* Controls */}
       <div className="controls">
         <input
           type="text"
@@ -149,6 +144,7 @@ const BookingManagement = () => {
         </select>
       </div>
 
+      {/* Table */}
       <div className="table-responsive">
         <table className="booking-table">
           <thead>
@@ -167,7 +163,7 @@ const BookingManagement = () => {
           </thead>
           <tbody>
             {currentBookings.map((b) => (
-              <tr key={b.id}>
+              <tr key={b.id} className={b.status === 'completed' ? 'completed-row' : ''}>
                 <td>{b.name}</td>
                 <td>{b.email}</td>
                 <td>{b.phone}</td>
@@ -180,8 +176,12 @@ const BookingManagement = () => {
                   <span className={statusClass(b.status)}>{b.status}</span>
                 </td>
                 <td>
-                  <button onClick={() => handleEdit(b)}>✏️</button>
-                  <button onClick={() => deleteBooking(b.id)} className="delete-btn">
+                  <button onClick={() => handleEdit(b)} title="Edit booking">✏️</button>
+                  <button
+                    onClick={() => deleteBooking(b.id)}
+                    className="delete-btn"
+                    title="Delete booking"
+                  >
                     🗑
                   </button>
                 </td>
@@ -191,6 +191,7 @@ const BookingManagement = () => {
         </table>
       </div>
 
+      {/* Pagination */}
       <div className="pagination">
         {Array.from({ length: totalPages }, (_, i) => (
           <button
@@ -203,6 +204,7 @@ const BookingManagement = () => {
         ))}
       </div>
 
+      {/* Modal */}
       {editBooking && (
         <div className="modal">
           <div className="modal-content">

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 
 import FadeInSection from "../FadeInSection";
 import Services from "./Services";
@@ -14,6 +13,7 @@ import useFetcher from "../../hooks/useFetcher";
 import apiService from "../../api/apiService";
 import "./EethmHome.css";
 
+// --- Helpers ---
 const toArray = (payload) => {
   if (!payload) return [];
   if (Array.isArray(payload)) return payload;
@@ -44,7 +44,7 @@ const EethmHome = () => {
   const navigate = useNavigate();
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // === Fetch hero videos ===
+  // --- Fetch hero videos and media cards ---
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
     "home",
@@ -59,22 +59,18 @@ const EethmHome = () => {
     { resource: "media" }
   );
 
-  // === Client reviews ===
+  // --- Reviews ---
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
 
   const fetchReviews = useCallback(async () => {
     setLoadingReviews(true);
     try {
-      if (typeof apiService.getReviews !== "function") {
-        console.warn("apiService.getReviews not found. Reviews will be empty.");
-        setReviews([]);
-        return;
-      }
+      if (typeof apiService.getReviews !== "function") return setReviews([]);
       const res = await apiService.getReviews();
       setReviews(Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []);
     } catch (err) {
-      console.error("Error loading reviews:", err);
+      console.error("Error fetching reviews:", err);
       setReviews([]);
     } finally {
       setLoadingReviews(false);
@@ -85,17 +81,14 @@ const EethmHome = () => {
     fetchReviews();
   }, [fetchReviews]);
 
-  // === Video handling ===
+  // --- Hero video ---
   const [videoUrl, setVideoUrl] = useState(null);
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     const videos = toArray(videosRaw);
-    if (videos.length === 0) {
-      if (!videoLoading) setVideoUrl(null);
-      return;
-    }
+    if (!videos.length && !videoLoading) return setVideoUrl(null);
     const featured = videos.find((v) => v?.is_featured) ?? videos[0];
     setVideoUrl(getMediaUrl(featured) || null);
   }, [videosRaw, videoLoading]);
@@ -124,22 +117,15 @@ const EethmHome = () => {
               loop
               muted={isMuted}
               playsInline
-              onError={() => {
-                console.warn("Hero video failed to load, fallback to BannerCards");
-                setVideoUrl(null);
-              }}
+              onError={() => setVideoUrl(null)}
             />
             <div className="overlay-gradient" />
             <div className="overlay-content">
               <h1 className="hero-title">Welcome to Eethm_GH</h1>
               <p className="hero-subtitle">Experience our ministrations and highlights</p>
               <div className="hero-buttons">
-                <button className="btn-primary" onClick={() => navigate("/bookings")}>
-                  Book Now
-                </button>
-                <button className="btn-secondary" onClick={() => setShowNewsletterForm(true)}>
-                  📩 Subscribe
-                </button>
+                <button className="btn-primary" onClick={() => navigate("/bookings")}>Book Now</button>
+                <button className="btn-secondary" onClick={() => setShowNewsletterForm(true)}>📩 Subscribe</button>
               </div>
             </div>
             <button
@@ -176,10 +162,10 @@ const EethmHome = () => {
             {mediaLoading
               ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
               : mediaCards.length > 0
-              ? mediaCards.slice(0, 6).map((media, idx) => (
-                  <MediaCard key={media.id ?? media._id ?? media.url ?? idx} media={media} />
-                ))
-              : <p className="muted-text">No media available at the moment.</p>}
+                ? mediaCards.slice(0, 6).map((media, idx) => (
+                    <MediaCard key={media.id ?? media._id ?? media.url ?? idx} media={media} />
+                  ))
+                : <p className="muted-text">No media available at the moment.</p>}
           </div>
         </section>
       </FadeInSection>
@@ -194,12 +180,14 @@ const EethmHome = () => {
                 <div key={i} className="review-card skeleton" />
               ))}
             </div>
-          ) : reviews.length > 0 ? (
+          ) : reviews.length ? (
             <div className="reviews-container">
               {reviews.slice(0, 6).map((r, idx) => (
                 <div key={r.id ?? r._id ?? idx} className="review-card">
                   <p className="review-text">"{r.comment || r.message}"</p>
                   <p className="review-author">— {r.name || r.user?.username || "Anonymous"}</p>
+                  {r.rating && <p className="review-rating">⭐ {r.rating}/5</p>}
+                  {r.reply && <p className="review-reply"><strong>Reply:</strong> {r.reply}</p>}
                 </div>
               ))}
             </div>
@@ -211,22 +199,9 @@ const EethmHome = () => {
 
       {/* NEWSLETTER MODAL */}
       {showNewsletterForm && (
-        <div
-          className="newsletter-modal-backdrop"
-          onClick={() => setShowNewsletterForm(false)}
-        >
-          <div
-            className="newsletter-modal"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-          >
-            <button
-              className="newsletter-close-btn"
-              onClick={() => setShowNewsletterForm(false)}
-              type="button"
-            >
-              &times;
-            </button>
+        <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
+          <div className="newsletter-modal" onClick={(e) => e.stopPropagation()} role="dialog">
+            <button className="newsletter-close-btn" onClick={() => setShowNewsletterForm(false)}>&times;</button>
             <NewsletterSignup />
           </div>
         </div>

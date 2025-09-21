@@ -1,8 +1,9 @@
 /* ======================================================
-   🌐 Media Hosting Styles — Fully Synced with JSX
-   Includes refinements for Hero, Cards, Gallery & Testimonials
-   ====================================================== */
+   🌐 Media Hosting Page Styles — Fully Synced with JSX
+   Hero, Booking Form, Gallery, Testimonials, Dark Mode
+====================================================== */
 
+/* === Base === */
 .media-hosting-page {
   font-family: var(--font-main);
   background: var(--color-white);
@@ -17,7 +18,15 @@
   color: var(--color-white);
 }
 
-/* ---------- Hero Section ---------- */
+.media-hosting-page * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ======================================================
+   Hero Section
+====================================================== */
 .media-hosting-page .hero-banner {
   position: relative;
   width: 100%;
@@ -30,28 +39,17 @@
 }
 
 .media-hosting-page .hero-banner-image,
-.media-hosting-page .hero-banner-placeholder {
+.media-hosting-page .hero-banner-placeholder,
+.media-hosting-page .hero-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.media-hosting-page .hero-banner::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.6) 100%
-  );
-  z-index: 1;
-}
-
 .media-hosting-page .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(88, 28, 28, 0.5);
+  background: rgba(0,0,0,0.5);
   z-index: 2;
 }
 
@@ -59,7 +57,7 @@
   position: absolute;
   z-index: 3;
   color: var(--color-white);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0,0,0,0.5);
   padding: 1rem 2rem;
   font-size: 2.5rem;
   font-weight: bold;
@@ -68,7 +66,28 @@
   animation: fadeInDown var(--transition-slow);
 }
 
-/* ---------- Booking Form ---------- */
+/* Hero video mute button */
+.media-hosting-page .mute-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 3;
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.media-hosting-page .mute-button:hover {
+  transform: scale(1.1);
+}
+
+/* ======================================================
+   Booking Form
+====================================================== */
 .media-hosting-page .booking-form-section {
   padding: 2rem 1rem;
   background: var(--color-neutral-light);
@@ -79,7 +98,6 @@
   animation: fadeIn var(--transition-slow);
 }
 
-#bookingForm,
 .media-hosting-page .booking-form {
   display: flex;
   flex-direction: column;
@@ -87,24 +105,24 @@
 }
 
 .media-hosting-page .booking-form input,
+.media-hosting-page .booking-form textarea,
 .media-hosting-page .PhoneInput input {
   padding: 0.75rem 1rem;
   font-size: 1rem;
   border: 1px solid var(--color-disabled);
   border-radius: var(--radius-lg);
   outline: none;
+  transition: all 0.3s ease;
 }
 
 .media-hosting-page .booking-form input:focus,
+.media-hosting-page .booking-form textarea:focus,
 .media-hosting-page .PhoneInput input:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(88, 28, 28, 0.2);
+  box-shadow: 0 0 0 2px rgba(88,28,28,0.2);
 }
 
 .media-hosting-page .booking-form textarea {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--color-disabled);
-  border-radius: var(--radius-lg);
   min-height: 100px;
   resize: vertical;
 }
@@ -136,7 +154,9 @@
   margin: 1rem auto;
 }
 
-/* ---------- CTA ---------- */
+/* ======================================================
+   Call To Action
+====================================================== */
 .media-hosting-page .cta-section {
   text-align: center;
   margin: 2rem auto;
@@ -144,14 +164,14 @@
 
 .media-hosting-page .cta-button {
   background: var(--color-primary);
-  color: var(--color-white);
+  color: #fff;
   padding: 0.75rem 1.75rem;
   font-size: 1.1rem;
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
   animation: popIn var(--transition-slow);
-  transition: transform var(--transition-fast), background-color var(--transition-fast);
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .media-hosting-page .cta-button:hover {
@@ -159,7 +179,9 @@
   background: var(--color-primary-dark);
 }
 
-/* ---------- Sections ---------- */
+/* ======================================================
+   Sections & Typography
+====================================================== */
 .media-hosting-page .section {
   padding: 4rem 1rem;
   max-width: 1200px;
@@ -191,67 +213,56 @@
   border-radius: 2px;
 }
 
-.media-hosting-page .card-grid {
+/* ======================================================
+   Card & Media Grids
+====================================================== */
+.media-hosting-page .card-grid,
+.media-hosting-page .creative-media,
+.media-hosting-page .testimonial-grid {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 1rem;
+}
+
+.media-hosting-page .card-grid {
+  grid-template-columns: 1fr;
   margin-bottom: 2rem;
 }
 
 .media-hosting-page .service-card {
-  background: rgba(88, 28, 28, 0.7);
-  color: var(--color-white);
+  background: rgba(88,28,28,0.7);
+  color: #fff;
   padding: 1rem;
   border-radius: var(--radius-lg);
   text-align: center;
   font-weight: 500;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.media-hosting-page .service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(88,28,28,0.3);
+}
+
+.media-hosting-page .media-card,
 .media-hosting-page .card,
 .media-hosting-page .card-content {
-  padding: 1rem;
-  font-size: 1rem;
-  text-align: center;
-  border-radius: var(--radius-lg);
-  background: var(--color-white);
-  box-shadow: var(--shadow-md);
-}
-
-/* ---------- Creative Media (MediaCards & Gallery) ---------- */
-.media-hosting-page .creative-section {
-  padding: 2rem 1rem;
-}
-
-.media-hosting-page .creative-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.media-hosting-page .creative-media {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-.media-hosting-page .media-card {
   border-radius: var(--radius-lg);
   overflow: hidden;
-  cursor: pointer;
-  animation: zoomIn var(--transition-slow);
-  transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
+  background: var(--color-white);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.media-hosting-page .media-card:hover {
-  box-shadow: 0 8px 20px rgba(88, 28, 28, 0.3);
+.media-hosting-page .media-card:hover,
+.media-hosting-page .card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(88,28,28,0.3);
 }
 
 .media-hosting-page .media-card img {
   width: 100%;
   border-radius: var(--radius-lg);
-  transition: transform var(--transition-slow);
+  transition: transform 0.3s ease;
 }
 
 .media-hosting-page .media-card:hover img {
@@ -261,20 +272,12 @@
 .media-hosting-page .media-title {
   margin-top: 0.5rem;
   font-weight: 600;
+  text-align: center;
 }
 
-/* ---------- Testimonials ---------- */
-.media-hosting-page .testimonial-section h2 {
-  animation: fadeInUp var(--transition-slow);
-}
-
-.media-hosting-page .testimonial-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  padding: 0 1rem;
-}
-
+/* ======================================================
+   Testimonials
+====================================================== */
 .media-hosting-page .testimonial-card {
   position: relative;
   background: var(--color-neutral-light);
@@ -304,35 +307,16 @@
   color: var(--color-primary);
 }
 
-/* ---------- Video Hero ---------- */
-.media-hosting-page .video-wrapper {
-  position: relative;
-  overflow: hidden;
-  height: 400px;
-}
-
-.media-hosting-page .hero-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.media-hosting-page .mute-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 2;
-  background: rgba(0, 0, 0, 0.4);
-  color: white;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-/* ---------- Loading & Skeleton ---------- */
+/* ======================================================
+   Skeleton & Loading
+====================================================== */
 .media-hosting-page .shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 37%,
+    #f0f0f0 63%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -344,7 +328,9 @@
   margin-bottom: 1rem;
 }
 
-/* ---------- Dark Mode Inputs ---------- */
+/* ======================================================
+   Dark Mode Inputs
+====================================================== */
 .media-hosting-page.dark .booking-form input,
 .media-hosting-page.dark .booking-form textarea {
   background: var(--color-input-bg-dark);
@@ -352,7 +338,9 @@
   border-color: var(--color-border-dark);
 }
 
-/* ---------- Responsive ---------- */
+/* ======================================================
+   Responsive Breakpoints
+====================================================== */
 @media (min-width: 768px) {
   .media-hosting-page .card-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -389,22 +377,14 @@
   }
 }
 
-/* ---------- Animations ---------- */
+/* ======================================================
+   Animations
+====================================================== */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-5px); }
-  60% { transform: translateY(-3px); }
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-@keyframes zoomIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
+@keyframes bounce { 0%,20%,50%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-5px); } 60% { transform: translateY(-3px); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
