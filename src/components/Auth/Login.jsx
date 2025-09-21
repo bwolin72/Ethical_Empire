@@ -87,7 +87,7 @@ const Login = () => {
     return "Something went wrong.";
   };
 
-  /* ---------- Handle login with token-only backend ---------- */
+  /* ---------- Common login success handler ---------- */
   const handleLoginSuccess = async (data) => {
     console.log("Login response data:", data);
 
@@ -99,10 +99,10 @@ const Login = () => {
       return;
     }
 
-    // Save tokens first
+    // Save tokens
     authService.saveTokens({ access, refresh });
 
-    // Fetch user profile to get role, name, email
+    // Fetch user profile to get role
     let userProfile;
     try {
       const res = await authService.getProfile();
@@ -114,10 +114,13 @@ const Login = () => {
 
     // Update AuthContext
     login({ access, refresh, user: userProfile, remember: rememberMe });
-    toast.success(`Welcome, ${userProfile.name || "User"} 🎉`);
+
+    // Navigate based on role
     redirectByRole(userProfile.role);
+    toast.success(`Welcome, ${userProfile.name || "User"} 🎉`);
   };
 
+  /* ---------- Normal email/password login ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -134,15 +137,22 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async ({ credential }) => {
-    if (!credential) {
-      toast.error("Google login failed.");
-      return;
-    }
+  /* ---------- Google login ---------- */
+  const handleGoogleSuccess = async (response) => {
+    const { credential } = response;
+    if (!credential) return toast.error("Google login failed.");
+
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential });
+      if (!res?.data) throw new Error("Invalid server response");
+
+      // Handle login and navigate
       await handleLoginSuccess(res.data);
+
+      // Explicit fallback redirect just in case
+      const userRole = res.data.user?.role;
+      if (userRole) redirectByRole(userRole);
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {
