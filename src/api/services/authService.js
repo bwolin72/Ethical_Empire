@@ -1,3 +1,4 @@
+// src/api/services/authService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import API from "../authAPI";
@@ -117,6 +118,12 @@ const authService = {
 
   // ===== WORKERS =====
   workerCategories: () => axiosInstance.get(API.workerCategories),
+
+  // ===== PUBLIC TOKEN HELPERS =====
+  saveTokens,
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
 };
 
 export default authService;

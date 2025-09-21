@@ -89,7 +89,7 @@ const Login = () => {
 
   /* ---------- Handle login with token-only backend ---------- */
   const handleLoginSuccess = async (data) => {
-    console.log("Login response data:", data); // Debug log
+    console.log("Login response data:", data);
 
     const access = data.access;
     const refresh = data.refresh;
@@ -100,7 +100,7 @@ const Login = () => {
     }
 
     // Save tokens first
-    login({ access, refresh, user: null, remember: rememberMe });
+    authService.saveTokens({ access, refresh });
 
     // Fetch user profile to get role, name, email
     let userProfile;
@@ -112,6 +112,7 @@ const Login = () => {
       return;
     }
 
+    // Update AuthContext
     login({ access, refresh, user: userProfile, remember: rememberMe });
     toast.success(`Welcome, ${userProfile.name || "User"} 🎉`);
     redirectByRole(userProfile.role);
@@ -175,6 +176,7 @@ const Login = () => {
                 className={formErrors.email ? "input-error" : ""}
                 disabled={loading}
                 required
+                autoComplete="email"
               />
               {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
@@ -186,6 +188,7 @@ const Login = () => {
                 placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
+                autoComplete="current-password"
               />
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
