@@ -3,11 +3,61 @@ import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import API from "../authAPI";
 
+// === Token Helpers ===
+const TOKEN_KEY = "access";
+const REFRESH_KEY = "refresh";
+
+const saveTokens = ({ access, refresh }) => {
+  if (access) localStorage.setItem(TOKEN_KEY, access);
+  if (refresh) localStorage.setItem(REFRESH_KEY, refresh);
+
+  axiosInstance.defaults.headers.common[
+    "Authorization"
+  ] = `Bearer ${access}`;
+};
+
+const clearTokens = () => {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_KEY);
+  delete axiosInstance.defaults.headers.common["Authorization"];
+};
+
+const getAccessToken = () => localStorage.getItem(TOKEN_KEY);
+const getRefreshToken = () => localStorage.getItem(REFRESH_KEY);
+
+// Attach token if exists at load
+const initToken = () => {
+  const token = getAccessToken();
+  if (token) {
+    axiosInstance.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${token}`;
+  }
+};
+initToken();
+
 const authService = {
   // ===== AUTH =====
-  login: (data) => publicAxios.post(API.login, data),
-  logout: () => axiosInstance.post(API.logout),
-  googleLogin: (data) => publicAxios.post(API.googleLogin, data),
+  login: async (data) => {
+    const response = await publicAxios.post(API.login, data);
+    saveTokens(response.data);
+    return response;
+  },
+
+  logout: async () => {
+    try {
+      await axiosInstance.post(API.logout);
+    } finally {
+      clearTokens();
+    }
+  },
+
+  googleLogin: async (data) => {
+    const response = await publicAxios.post(API.googleLogin, data);
+    saveTokens(response.data);
+    return response;
+  },
+
   googleRegister: (data) => publicAxios.post(API.googleRegister, data),
 
   // ===== REGISTRATION =====
@@ -32,7 +82,14 @@ const authService = {
 
   // ===== TOKENS (JWT) =====
   getToken: (data) => publicAxios.post(API.token, data),
-  refreshToken: (data) => publicAxios.post(API.tokenRefresh, data),
+  refreshToken: async () => {
+    const refresh = getRefreshToken();
+    if (!refresh) throw new Error("No refresh token");
+
+    const response = await publicAxios.post(API.tokenRefresh, { refresh });
+    saveTokens({ access: response.data.access, refresh });
+    return response;
+  },
   verifyToken: (data) => publicAxios.post(API.tokenVerify, data),
 
   // ===== EMAIL / OTP =====
