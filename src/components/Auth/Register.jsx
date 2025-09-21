@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+// src/components/Auth/Register.jsx
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
@@ -7,7 +8,7 @@ import "react-phone-number-input/style.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import authAPI from "../../api/authAPI";
+import authService from "../../api/services/authService"; // ✅ switched to new service
 import PasswordInput from "../../components/common/PasswordInput";
 import logo from "../../assets/logo.png";
 import "./Auth.css";
@@ -130,14 +131,14 @@ const Register = () => {
 
     // Backend expects "name" not "full_name"
     const payload = { name: full_name, email, phone, dob, gender, password, password2 };
-    let requestFn = authAPI.register;
+    let requestFn = authService.register; // ✅ switched
 
     if (role === "worker") {
       if (!access_code.trim()) return toast.error("Access code is required.");
       if (!worker_category_id) return toast.error("Worker category is required.");
       payload.access_code = access_code;
       payload.worker_category_id = worker_category_id;
-      requestFn = authAPI.internalRegister; // POST /admin/internal-register/
+      requestFn = authService.internalRegister; // ✅ switched
     } else if (role === "vendor") {
       if (!company_name.trim()) return toast.error("Company name is required.");
       payload.company_name = company_name;
@@ -167,7 +168,7 @@ const Register = () => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
     try {
-      await authAPI.googleRegister({ credential });
+      await authService.googleRegister({ credential }); // ✅ switched
       toast.success("Google registration successful! Redirecting...");
       setTimeout(() => navigate("/login"), 3000);
     } catch (err) {

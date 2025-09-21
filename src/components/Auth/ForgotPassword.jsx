@@ -1,7 +1,7 @@
 // src/pages/auth/ForgotPassword.jsx
 import React, { useState } from "react";
 import "./ForgotResetPassword.css";
-import authService from "../../api/authService"; // ✅ match with your service export
+import authService from "../../api/services/authService";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DOMPurify from "dompurify";
-import authAPI from "../../api/authAPI";
+import authService from "../../api/services/authService"; // ✅ updated import
 import PasswordInput from "./PasswordInput";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -78,15 +78,18 @@ const PasswordForm = ({ mode = "forgot", showCurrent = false }) => {
 
     try {
       if (mode === "forgot") {
-        const response = await authAPI.resetPassword({ email });
+        const response = await authService.resetPassword({ email }); // ✅ updated
         setMessage(response?.data?.detail || "✅ Password reset email sent.");
         setEmail("");
       } else if (mode === "reset") {
-        await authAPI.resetPasswordConfirm(uid, token, { password: newPassword });
+        await authService.resetPasswordConfirm(uid, token, { password: newPassword }); // ✅ updated
         toast.success("✅ Password has been reset. Redirecting...");
         setTimeout(() => navigate("/login"), 2500);
       } else if (mode === "update") {
-        await authAPI.changePassword({ current_password: currentPassword, new_password: newPassword });
+        await authService.changePassword({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }); // ✅ updated
         toast.success("✅ Password changed successfully.");
         setCurrentPassword("");
         setNewPassword("");

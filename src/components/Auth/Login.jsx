@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import authService from "../../api/authService";       // ✅ fixed import
+import authService from "../../api/services/authService";
 import { useAuth } from "../context/AuthContext";
 import logo from "../../assets/logo.png";
 import PasswordInput from "../common/PasswordInput";   // ✅ shared password field

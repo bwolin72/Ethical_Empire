@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import './ForgotResetPassword.css';
 
-import authService from '../../api/authService';
+import authService from "../../api/services/authService";
 
 const ResetPassword = () => {
   const { uid, token } = useParams();
