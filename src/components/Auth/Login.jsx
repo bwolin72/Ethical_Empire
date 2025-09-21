@@ -24,7 +24,6 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  // Redirect user based on role
   const redirectByRole = useCallback(
     (role) => {
       const routes = {
@@ -39,14 +38,12 @@ const Login = () => {
     [navigate]
   );
 
-  // Load dark mode preference
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  // Auto redirect if already logged in
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -92,8 +89,11 @@ const Login = () => {
   };
 
   const handleLoginSuccess = async (data) => {
-    console.log("Login success data:", data); // debug
-    const { access, refresh, user: apiUser } = data;
+    console.log("Login success data:", data);
+
+    const { tokens, user: apiUser } = data;
+    const { access, refresh } = tokens || {};
+
     if (!access || !refresh || !apiUser) {
       toast.error("Invalid login response.");
       return;
@@ -103,11 +103,10 @@ const Login = () => {
 
     if (apiUser.role) {
       redirectByRole(apiUser.role);
-      toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
     } else {
-      navigate("/user"); // fallback
-      toast.success("Login successful!");
+      navigate("/user");
     }
+    toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
   };
 
   const handleSubmit = async (e) => {
@@ -131,7 +130,7 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential, remember: rememberMe });
-      console.log("Google login response:", res.data); // debug
+      console.log("Google login response:", res.data);
       await handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -181,9 +180,7 @@ const Login = () => {
                 autoComplete="current-password"
                 disabled={loading}
               />
-              {formErrors.password && (
-                <small className="error-text">{formErrors.password}</small>
-              )}
+              {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
             <label className="terms-checkbox">
