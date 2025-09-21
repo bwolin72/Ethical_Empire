@@ -1,4 +1,3 @@
-// src/api/services/authService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import API from "../authAPI";
@@ -35,29 +34,35 @@ initToken();
 const authService = {
   // ===== AUTH =====
   login: async (data) => {
-    const response = await publicAxios.post(API.login, data);
+    const response = await publicAxios.post(API.login, data, {
+      withCredentials: true,
+    });
     saveTokens(response.data);
     return response;
   },
 
   logout: async () => {
     try {
-      await axiosInstance.post(API.logout);
+      await axiosInstance.post(API.logout, {}, { withCredentials: true });
     } finally {
       clearTokens();
     }
   },
 
   googleLogin: async (data) => {
-    const response = await publicAxios.post(API.googleLogin, data);
+    const response = await publicAxios.post(API.googleLogin, data, {
+      withCredentials: true, // ✅ crucial for CORS + cookies
+      headers: { "Content-Type": "application/json" },
+    });
     saveTokens(response.data);
     return response;
   },
 
-  googleRegister: (data) => publicAxios.post(API.googleRegister, data),
+  googleRegister: async (data) =>
+    publicAxios.post(API.googleRegister, data, { withCredentials: true }),
 
   // ===== REGISTRATION =====
-  register: (data) => publicAxios.post(API.register, data),
+  register: (data) => publicAxios.post(API.register, data, { withCredentials: true }),
   internalRegister: (data) => publicAxios.post(API.internalRegister, data),
 
   // ===== PROFILE =====
@@ -70,11 +75,11 @@ const authService = {
   vendorProfile: () => axiosInstance.get(API.vendorProfile),
 
   // ===== PASSWORD RESET =====
-  resetPassword: (data) => publicAxios.post(API.resetPassword, data),
+  resetPassword: (data) => publicAxios.post(API.resetPassword, data, { withCredentials: true }),
   resetPasswordConfirm: (uid, token, data) =>
-    publicAxios.post(API.resetPasswordConfirm(uid, token), data),
+    publicAxios.post(API.resetPasswordConfirm(uid, token), data, { withCredentials: true }),
   resetPasswordConfirmUidb64: (uidb64, token, data) =>
-    publicAxios.post(API.resetPasswordConfirmUidb64(uidb64, token), data),
+    publicAxios.post(API.resetPasswordConfirmUidb64(uidb64, token), data, { withCredentials: true }),
 
   // ===== TOKENS (JWT) =====
   getToken: (data) => publicAxios.post(API.token, data),
@@ -90,11 +95,11 @@ const authService = {
 
   // ===== EMAIL / OTP =====
   verifyEmail: (uidOrUidb64, token) =>
-    publicAxios.get(API.verifyEmail(uidOrUidb64, token)),
-  verifyOtp: (data) => publicAxios.post(API.verifyOtp, data),
-  verifyOtpEmail: (data) => publicAxios.post(API.verifyOtpEmail, data),
-  resendOtp: (data) => publicAxios.post(API.resendOtp, data),
-  resendOtpEmail: (data) => publicAxios.post(API.resendOtpEmail, data),
+    publicAxios.get(API.verifyEmail(uidOrUidb64, token), { withCredentials: true }),
+  verifyOtp: (data) => publicAxios.post(API.verifyOtp, data, { withCredentials: true }),
+  verifyOtpEmail: (data) => publicAxios.post(API.verifyOtpEmail, data, { withCredentials: true }),
+  resendOtp: (data) => publicAxios.post(API.resendOtp, data, { withCredentials: true }),
+  resendOtpEmail: (data) => publicAxios.post(API.resendOtpEmail, data, { withCredentials: true }),
   resendWelcomeEmail: (data) =>
     axiosInstance.post(API.resendWelcomeEmail, data),
 
@@ -102,9 +107,9 @@ const authService = {
   listUsers: (params) => axiosInstance.get(API.adminListUsers, { params }),
   adminInviteWorker: (data) => axiosInstance.post(API.adminInviteWorker, data),
   adminValidateWorkerInvite: (uidOrUidb64, token) =>
-    publicAxios.get(API.adminValidateWorkerInvite(uidOrUidb64, token)),
+    publicAxios.get(API.adminValidateWorkerInvite(uidOrUidb64, token), { withCredentials: true }),
   adminCompleteWorkerInvite: (data) =>
-    publicAxios.post(API.adminCompleteWorkerInvite, data),
+    publicAxios.post(API.adminCompleteWorkerInvite, data, { withCredentials: true }),
   adminResetPassword: (data) =>
     axiosInstance.post(API.adminResetPassword, data),
   adminProfileByEmail: (data) =>

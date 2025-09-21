@@ -5,6 +5,10 @@ import { applyCommonRequestHeaders, devLog } from './axiosCommon';
 const publicAxios = axios.create({
   baseURL,
   timeout: 8000, // 8 seconds
+  withCredentials: true, // ✅ automatically include cookies
+  headers: {
+    'Content-Type': 'application/json', // ✅ default for JSON requests
+  },
 });
 
 publicAxios.interceptors.request.use(
@@ -25,7 +29,12 @@ publicAxios.interceptors.response.use(
     return response;
   },
   (error) => {
-    devLog('[Public Response Error]', error?.response?.status, error?.response?.config?.url, error);
+    devLog(
+      '[Public Response Error]',
+      error?.response?.status,
+      error?.response?.config?.url,
+      error
+    );
     return Promise.reject(error);
   }
 );

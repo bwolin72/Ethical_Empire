@@ -1,10 +1,10 @@
-/* === Banner Cards Component === */
+/* === Banner Cards Container === */
 .banner-cards-container {
   padding: 2rem 1rem;
   background-color: var(--color-white);
   font-family: var(--font-main);
   width: 100%;
-  max-width: 1200px; /* keeps layout centered on big screens */
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -13,6 +13,7 @@
   margin-bottom: 1rem;
   color: var(--color-neutral-dark);
   font-family: var(--font-accent);
+  text-align: center;
 }
 
 /* === Scrollable Row === */
@@ -21,19 +22,21 @@
   overflow-x: auto;
   gap: 1.5rem;
   scroll-snap-type: x mandatory;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 .banner-cards-scroll-wrapper::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
+  display: none;
 }
 
-/* === Banner Card (Hero Style) === */
+/* === Banner Card === */
 .banner-card {
   flex: 0 0 auto;
-  width: 90vw;              /* almost full viewport width */
-  max-width: 1000px;        /* but cap it on large screens */
+  width: 90vw;
+  max-width: 1000px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background-color: var(--color-neutral-light);
@@ -51,7 +54,7 @@
 /* === Banner Image === */
 .banner-img-wrapper {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16/9;
   width: 100%;
   overflow: hidden;
 }
@@ -66,7 +69,7 @@
 .banner-hover-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0,0,0,0.45);
   color: var(--color-white);
   opacity: 0;
   display: flex;
@@ -77,6 +80,7 @@
   transition: opacity var(--transition-fast);
   text-align: center;
   padding: 1rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
 }
 .banner-card:hover .banner-hover-overlay {
   opacity: 1;
@@ -105,12 +109,13 @@
   flex: 0 0 auto;
   width: 90vw;
   max-width: 1000px;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16/9;
   border-radius: var(--radius-lg);
   background: var(--color-neutral-light);
   position: relative;
   overflow: hidden;
 }
+
 .skeleton-box {
   width: 100%;
   height: 100%;
@@ -123,7 +128,7 @@
 .banner-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0,0,0,0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,11 +147,14 @@
 }
 
 .modal-banner-image {
-  width: 100%;
-  height: auto;
+  max-width: 100%;
   max-height: 80vh;
+  width: auto;
+  height: auto;
   object-fit: contain;
   border-radius: var(--radius-md);
+  display: block;
+  margin: 0 auto;
   background: var(--color-black);
 }
 
@@ -162,7 +170,7 @@
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0,0,0,0.6);
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-sm);
@@ -189,6 +197,7 @@
   cursor: pointer;
   transition: background var(--transition-fast);
 }
+
 .scroll-btn:hover {
   background-color: var(--color-accent-gold-dark);
 }
@@ -201,19 +210,11 @@
 
 /* === Responsive Breakpoints === */
 @media (max-width: 768px) {
-  .banner-card {
-    width: 95vw;
-  }
-  .banner-card-caption {
-    font-size: 1rem;
-  }
+  .banner-card { width: 95vw; }
+  .banner-card-caption { font-size: 1rem; }
 }
+
 @media (max-width: 480px) {
-  .banner-card {
-    width: 100%;
-    border-radius: var(--radius-md);
-  }
-  .banner-card-meta {
-    font-size: 0.8rem;
-  }
+  .banner-card { width: 100%; border-radius: var(--radius-md); aspect-ratio: 16/9; }
+  .banner-card-meta { font-size: 0.8rem; }
 }

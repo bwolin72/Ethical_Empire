@@ -1,16 +1,21 @@
 // src/api/services/reviewService.js
 // ------------------------------------------------------
 // Higher-level service functions that wrap reviewsAPI.
-// These can be used directly in React components or in React Query hooks.
+// Can be used in React components or React Query hooks.
 
 import reviewsAPI from '../reviewsAPI';
 
-export const reviewService = {
+const reviewService = {
   /**
    * Fetch all approved reviews for public display
+   * Optional category filter: { category: 'liveband' }
    */
-  async getApprovedReviews() {
+  async getApprovedReviews(params = {}) {
     const { data } = await reviewsAPI.listApproved();
+    // Filter by category if provided
+    if (params.category) {
+      return data.filter((r) => r.service === params.category);
+    }
     return data;
   },
 

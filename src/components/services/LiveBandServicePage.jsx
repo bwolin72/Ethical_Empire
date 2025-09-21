@@ -1,4 +1,3 @@
-// src/components/services/LiveBandServicePage.jsx
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +10,6 @@ import Services from "../home/Services";
 import useFetcher from "../../hooks/useFetcher";
 import apiService from "../../api/apiService";
 
-// --- Helpers ---
 const toArray = (payload) =>
   Array.isArray(payload?.data) ? payload.data :
   Array.isArray(payload) ? payload : [];
@@ -85,7 +83,7 @@ const LiveBandServicePage = () => {
   return (
     <div className="liveband-page-container">
       {/* === Hero Section === */}
-      <section className="banner-section" aria-label="Hero">
+      <section className="banner-section">
         {videoUrl && !videoLoading ? (
           <div className="video-wrapper">
             <video
@@ -102,7 +100,7 @@ const LiveBandServicePage = () => {
               className="mute-button"
               onClick={toggleMute}
               aria-pressed={!isMuted}
-              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+              aria-label={isMuted ? "Unmute video" : "Mute video"}
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
@@ -127,7 +125,7 @@ const LiveBandServicePage = () => {
         </motion.button>
       </section>
 
-      {/* === Services === */}
+      {/* === Services Section === */}
       <section className="section">
         <h2 className="section-title">Our Live Band Services</h2>
         <Services />
@@ -141,13 +139,13 @@ const LiveBandServicePage = () => {
             ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
             : mediaCards.length > 0
             ? mediaCards.slice(0, 6).map((m, i) => (
-                <MediaCard key={m.id ?? m._id ?? m.url ?? i} media={m} />
+                <MediaCard key={m.id ?? m._id ?? i} media={m} />
               ))
-            : <p className="muted-text">No live band media available.</p>}
+            : <p className="muted-text center-text">No live band media available.</p>}
         </div>
       </section>
 
-      {/* === Testimonials === */}
+      {/* === Testimonials Section === */}
       <section className="section" aria-live="polite">
         <h2 className="section-title">Client Impressions</h2>
         <div className="testimonial-grid">
@@ -160,10 +158,7 @@ const LiveBandServicePage = () => {
               ))
             : testimonials.length > 0
             ? testimonials.slice(0, 6).map((r, i) => (
-                <div
-                  key={r.id ?? r._id ?? r.message ?? i}
-                  className="testimonial-card"
-                >
+                <div key={r.id ?? r._id ?? i} className="testimonial-card">
                   <p className="testimonial-text">
                     "{r.message || r.comment || 'No comment provided.'}"
                   </p>
@@ -172,7 +167,7 @@ const LiveBandServicePage = () => {
                   </p>
                 </div>
               ))
-            : <p className="muted-text">No reviews yet.</p>}
+            : <p className="muted-text center-text">No reviews yet.</p>}
         </div>
       </section>
     </div>
