@@ -24,7 +24,7 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  // Redirect based on role
+  // Redirect user based on role
   const redirectByRole = useCallback(
     (role) => {
       const routes = {
@@ -74,8 +74,7 @@ const Login = () => {
     if (!form.password.trim()) errors.password = "Please enter your password.";
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
     setFormErrors(errors);
-    if (Object.keys(errors).length > 0)
-      toast.error("Please fix the highlighted errors.");
+    if (Object.keys(errors).length > 0) toast.error("Please fix the highlighted errors.");
     return Object.keys(errors).length === 0;
   };
 
@@ -93,15 +92,22 @@ const Login = () => {
   };
 
   const handleLoginSuccess = async (data) => {
+    console.log("Login success data:", data); // debug
     const { access, refresh, user: apiUser } = data;
-    if (!access || !refresh) {
+    if (!access || !refresh || !apiUser) {
       toast.error("Invalid login response.");
       return;
     }
 
     login({ access, refresh, user: apiUser, remember: rememberMe });
-    redirectByRole(apiUser.role);
-    toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
+
+    if (apiUser.role) {
+      redirectByRole(apiUser.role);
+      toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
+    } else {
+      navigate("/user"); // fallback
+      toast.success("Login successful!");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -120,14 +126,12 @@ const Login = () => {
     }
   };
 
-  // --- Google One Tap / OAuth Login ---
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
-
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential, remember: rememberMe });
-      if (!res?.data) throw new Error("Invalid server response");
+      console.log("Google login response:", res.data); // debug
       await handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -218,7 +222,7 @@ const Login = () => {
           <div className="social-login">
             <p>Or sign in with Google:</p>
             <GoogleLogin
-              onSuccess={(res) => handleGoogleCredential(res.credential)}
+              onSuccess={(res) => handleGoogleCredential(res?.credential)}
               onError={() => toast.error("Google login failed")}
               useOneTap
               disabled={loading}
