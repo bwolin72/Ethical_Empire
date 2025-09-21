@@ -24,7 +24,7 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  // Role-based redirect
+  // Redirect based on role
   const redirectByRole = useCallback(
     (role) => {
       const routes = {
@@ -39,7 +39,7 @@ const Login = () => {
     [navigate]
   );
 
-  // Load dark mode preference
+  // Dark mode preference
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
@@ -87,12 +87,7 @@ const Login = () => {
     if (typeof data === "object") {
       if (data.detail) return data.detail;
       if (data.message) return data.message;
-      if (data.errors) {
-        // Nested field errors
-        return Object.values(data.errors)
-          .flat()
-          .join(" ");
-      }
+      if (data.errors) return Object.values(data.errors).flat().join(" ");
     }
     return "Login failed.";
   };
@@ -105,23 +100,10 @@ const Login = () => {
       return;
     }
 
-    // Save tokens
-    authService.saveTokens({ access, refresh });
-
-    let userProfile = apiUser;
-    if (!userProfile) {
-      try {
-        const res = await authService.getProfile();
-        userProfile = res.data;
-      } catch {
-        toast.error("Failed to fetch user profile.");
-        return;
-      }
-    }
-
-    login({ access, refresh, user: userProfile, remember: rememberMe });
-    redirectByRole(userProfile.role);
-    toast.success(`Welcome, ${userProfile.name || "User"} 🎉`);
+    // Save tokens in AuthContext
+    login({ access, refresh, user: apiUser, remember: rememberMe });
+    redirectByRole(apiUser.role);
+    toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
   };
 
   const handleSubmit = async (e) => {
@@ -146,7 +128,10 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const res = await authService.googleLogin({ credential, remember: rememberMe });
+      const res = await authService.googleLogin({
+        credential,
+        remember: rememberMe,
+      });
       if (!res?.data) throw new Error("Invalid server response");
       await handleLoginSuccess(res.data);
     } catch (err) {
