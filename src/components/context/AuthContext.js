@@ -9,7 +9,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import toast from "react-hot-toast";
-import jwt_decode from "jwt-decode"; // ✅ Correct default import
+import { default as jwt_decode } from "jwt-decode"; // ✅ Correct import for CRA/Netlify
 
 // ===== Constants =====
 const AuthContext = createContext();
