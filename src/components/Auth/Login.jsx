@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import authService from "../../api/services/authService"; // ✅ uses JWT endpoints
+import authService from "../../api/services/authService"; // JWT endpoints
 import { useAuth } from "../context/AuthContext";
 import logo from "../../assets/logo.png";
 import PasswordInput from "../common/PasswordInput";
@@ -87,33 +87,34 @@ const Login = () => {
     return "Something went wrong.";
   };
 
-  /* ---------- Handle Login Success ---------- */
-  const handleLoginSuccess = (data) => {
+  /* ---------- Handle login with token-only backend ---------- */
+  const handleLoginSuccess = async (data) => {
     console.log("Login response data:", data); // Debug log
 
-    // Support both nested "user" or top-level keys
     const access = data.access;
     const refresh = data.refresh;
-    const user = data.user || {
-      name: data.name,
-      email: data.email,
-      role: data.role,
-    };
 
-    if (!access || !refresh || !user?.role) {
+    if (!access || !refresh) {
       toast.error("Invalid login response.");
       return;
     }
 
-    login({
-      access,
-      refresh,
-      user: { name: user.name, email: user.email, role: user.role },
-      remember: rememberMe,
-    });
+    // Save tokens first
+    login({ access, refresh, user: null, remember: rememberMe });
 
-    toast.success(`Welcome, ${user.name || "User"} 🎉`);
-    redirectByRole(user.role);
+    // Fetch user profile to get role, name, email
+    let userProfile;
+    try {
+      const res = await authService.getProfile();
+      userProfile = res.data;
+    } catch (err) {
+      toast.error("Failed to fetch user profile.");
+      return;
+    }
+
+    login({ access, refresh, user: userProfile, remember: rememberMe });
+    toast.success(`Welcome, ${userProfile.name || "User"} 🎉`);
+    redirectByRole(userProfile.role);
   };
 
   const handleSubmit = async (e) => {
@@ -123,7 +124,7 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await authService.login(form);
-      handleLoginSuccess(res.data);
+      await handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
       setForm((prev) => ({ ...prev, password: "" }));
@@ -140,7 +141,7 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential });
-      handleLoginSuccess(res.data);
+      await handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {
