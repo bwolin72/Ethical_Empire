@@ -1,201 +1,153 @@
-// src/components/services/LiveBandServicePage.jsx
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-import VideoGallery from "../videos/VideoGallery";
-import MediaCards from "../context/MediaCards";
+import BannerCards from "../context/BannerCards";
+import MediaCard from "../context/MediaCards";
+import MediaSkeleton from "../context/MediaSkeleton";
+import Services from "../home/Services";
+
+import useFetcher from "../../hooks/useFetcher";
 import apiService from "../../api/apiService";
 
-import "./liveband.css";
+const toArray = (payload) =>
+  Array.isArray(payload?.data) ? payload.data :
+  Array.isArray(payload) ? payload : [];
 
-// --- Animation Variants ---
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08 },
-  }),
-};
-
-// --- Helpers ---
-const asArray = (res) => {
-  if (!res) return [];
-  const data = res?.data ?? res;
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.results)) return data.results;
-  return [];
-};
-
-const safeFetch = async (fn) => {
-  try {
-    const res = await fn();
-    return asArray(res);
-  } catch (err) {
-    console.error(err);
-    return [];
-  }
-};
-
-const FALLBACK_VIDEO = "/videos/liveband-fallback.mp4";
+const getMediaUrl = (m) => m?.url?.full || m?.video_url || m?.file_url || "";
 
 const LiveBandServicePage = () => {
   const navigate = useNavigate();
 
-  const [heroVideo, setHeroVideo] = useState(FALLBACK_VIDEO);
+  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
+    "media",
+    "liveband",
+    { is_active: true },
+    { resource: "media" }
+  );
+  const { data: videosRaw, loading: videoLoading } = useFetcher(
+    "videos",
+    "liveband",
+    { is_active: true },
+    { resource: "videos" }
+  );
+
   const [testimonials, setTestimonials] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
 
-  // --- Fetch hero video + reviews ---
-  useEffect(() => {
-    let active = true;
-
-    const fetchContent = async () => {
-      setLoading(true);
-      try {
-        const [videosData, reviewsData] = await Promise.all([
-          safeFetch(() =>
-            apiService.getVideos({ endpoint: "LiveBandServicePage", is_active: true })
-          ),
-          safeFetch(apiService.getReviews),
-        ]);
-
-        // Hero video
-        const featuredVideo = videosData.find((v) => v?.is_featured) || videosData[0];
-        const videoUrl = featuredVideo?.video_file || featuredVideo?.video_url || FALLBACK_VIDEO;
-        if (active) setHeroVideo(videoUrl);
-
-        // Testimonials normalization
-        const normalizedReviews = reviewsData.map((r) => ({
-          id: r.id ?? r._id,
-          text: r.comment ?? r.message ?? r.text ?? "",
-          author:
-            r.user?.username ?? r.reviewer_name ?? r.name ?? "Anonymous",
-        }));
-        if (active) setTestimonials(normalizedReviews);
-      } catch (err) {
-        console.error("Failed to fetch live band content:", err);
-        if (active) setErrorMsg("Failed to load reviews or video.");
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-
-    fetchContent();
-    return () => { active = false; };
+  const fetchTestimonials = useCallback(async () => {
+    setLoadingTestimonials(true);
+    try {
+      const res = await apiService.getReviews({ category: "liveband" });
+      setTestimonials(Array.isArray(res?.data) ? res.data : []);
+    } catch {
+      setTestimonials([]);
+    } finally {
+      setLoadingTestimonials(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchTestimonials();
+  }, [fetchTestimonials]);
+
+  const [videoUrl, setVideoUrl] = useState(null);
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
+
+  useEffect(() => {
+    const videos = toArray(videosRaw);
+    if (videos.length === 0) {
+      if (!videoLoading) setVideoUrl(null);
+      return;
+    }
+    const src = getMediaUrl(videos.find((v) => v?.is_featured) ?? videos[0]);
+    setVideoUrl(src || null);
+  }, [videosRaw, videoLoading]);
+
+  const toggleMute = () => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      if (videoRef.current) videoRef.current.muted = next;
+      return next;
+    });
+  };
+
+  const mediaCards = toArray(mediaCardsRaw);
+
   return (
-    <div className="liveband-page">
-      {/* === Hero Section === */}
-      <section className="banner-section">
-        <VideoGallery
-          videos={[{ url: heroVideo }]}
-          fallbackVideo={FALLBACK_VIDEO}
-          showHero
-          autoPlay
-          loop
-          allowMuteToggle
-          title="Experience the Rhythm of Elegance"
-          subtitle="Professional Live Bands for Unforgettable Events"
-          actions={[
-            { label: "Book a Live Band", onClick: () => navigate("/bookings"), className: "btn-primary" },
-          ]}
-        />
-      </section>
-
-      {/* === Highlights Section === */}
-      <section className="section highlights-section">
-        <h2 className="section-title">Why Choose Our Live Band?</h2>
-        <div className="highlight-grid">
-          {[
-            { icon: "🎤", title: "Professional Vocalists", text: "Talented singers who adapt to any genre." },
-            { icon: "🎸", title: "Versatile Repertoire", text: "From Afrobeat & Highlife to Jazz, Gospel & Reggae." },
-            { icon: "🥁", title: "Dynamic Presence", text: "Energy that keeps your guests entertained all night." },
-          ].map((item, index) => (
-            <motion.div
-              key={item.title}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              custom={index}
-              viewport={{ once: true }}
-              className="highlight-card"
+    <div className="liveband-page-container">
+      {/* Hero */}
+      <section className="banner-section" aria-label="Hero">
+        {videoUrl && !videoLoading ? (
+          <div className="video-wrapper">
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              className="hero-video"
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+              onError={() => setVideoUrl(null)}
+            />
+            <button
+              className="mute-button"
+              onClick={toggleMute}
+              aria-pressed={!isMuted}
             >
-              <div className="highlight-icon">{item.icon}</div>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* === Creative Preview Section === */}
-      <section className="section creative-section">
-        <div className="creative-layout">
-          <div className="creative-text">
-            <h3 className="section-subtitle">Immersive Musical Moments</h3>
-            <p className="section-description">
-              Our live bands deliver timeless melodies and unmatched ambiance that elevate any event.
-            </p>
+              {isMuted ? "🔇" : "🔊"}
+            </button>
           </div>
-          <div className="creative-media">
-            <MediaCards endpoint="LiveBandServicePage" fullWidth={false} title="" />
-          </div>
-        </div>
+        ) : videoLoading ? (
+          <div className="video-placeholder" />
+        ) : (
+          <BannerCards endpoint="liveband" title="Live Band Showcases" />
+        )}
       </section>
 
-      {/* === Testimonials Section === */}
-      <section className="section testimonial-section" aria-live="polite">
-        <h2 className="section-title">Client Reviews</h2>
-        <div className="testimonial-grid">
-          {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="testimonial-card shimmer" />
-            ))
-          ) : errorMsg ? (
-            <p className="section-description center-text">{errorMsg}</p>
-          ) : testimonials.length > 0 ? (
-            testimonials.slice(0, 6).map((review, index) => (
-              <motion.div
-                key={review.id ?? index}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                custom={index}
-                viewport={{ once: true }}
-              >
-                <div className="testimonial-card">
-                  <p className="testimonial-text">"{review.text}"</p>
-                  <p className="testimonial-user">— {review.author}</p>
-                </div>
-              </motion.div>
-            ))
-          ) : (
-            <p className="section-description center-text">No client reviews available yet.</p>
-          )}
-        </div>
-      </section>
-
-      {/* === Full Media Gallery === */}
-      <section className="section media-gallery-section">
-        <h2 className="section-title">Full Gallery</h2>
-        <MediaCards endpoint="LiveBandServicePage" fullWidth={true} title="" />
-      </section>
-
-      {/* === Final CTA === */}
-      <section className="section final-cta">
-        <h2 className="section-title">Make Your Event Unforgettable</h2>
+      <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
           className="cta-button"
           onClick={() => navigate("/bookings")}
         >
-          Book the Live Band Today
+          Book Live Band
         </motion.button>
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Our Live Band Services</h2>
+        <Services />
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Band Highlights</h2>
+        <div className="card-grid">
+          {mediaLoading
+            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+            : mediaCards.length > 0
+            ? mediaCards.slice(0, 6).map((m, i) => (
+                <MediaCard key={m.id ?? i} media={m} />
+              ))
+            : <p className="muted-text">No live band media available.</p>}
+        </div>
+      </section>
+
+      <section className="section">
+        <h2 className="section-title">Client Impressions</h2>
+        <div className="testimonial-grid">
+          {loadingTestimonials
+            ? <p>Loading reviews…</p>
+            : testimonials.length > 0
+            ? testimonials.slice(0, 6).map((r, i) => (
+                <div key={r.id ?? i} className="testimonial-card">
+                  <p>"{r.message || r.comment}"</p>
+                  <p>— {r.user?.username || "Anonymous"}</p>
+                </div>
+              ))
+            : <p className="muted-text">No reviews yet.</p>}
+        </div>
       </section>
     </div>
   );

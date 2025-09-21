@@ -1,59 +1,122 @@
 // src/components/services/MediaHostingServicePage.jsx
-import React, { useEffect, useRef, useState } from "react";
-import BannerCards from "../context/BannerCards";
-import MediaCards from "../context/MediaCards";
-import "./MediaHostingServicePage.css";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import apiService from "../../api/apiService";
-import Services from "../home/Services";
+import "./MediaHostingServicePage.css";
 
-const MediaHostingServicePage = () => {
-  const [videoUrl, setVideoUrl] = useState("");
+import BannerCards from "../context/BannerCards";
+import MediaCards from "../context/MediaCards";
+import MediaSkeleton from "../context/MediaSkeleton";
+import Services from "../home/Services";
+import useFetcher from "../../hooks/useFetcher";       // ✅ unified hook
+import apiService from "../../api/apiService";         // ✅ for reviews
+
+// ---------- helpers ----------
+const toArray = (payload) =>
+  !payload ? [] : Array.isArray(payload) ? payload : Array.isArray(payload.data) ? payload.data : [];
+
+const getMediaUrl = (m) => {
+  if (!m) return "";
+  const cands = [
+    m.url?.full,
+    m.url,
+    m.video_url,
+    m.video_file,
+    m.file_url,
+    m.file,
+    m.src,
+    m.path,
+    m.secure_url,
+  ].filter((x) => typeof x === "string" && x.trim() !== "");
+  return cands[0] || "";
+};
+
+// ---------- component ----------
+export default function MediaHostingServicePage() {
+  const navigate = useNavigate();
+  const [videoUrl, setVideoUrl] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
-  const navigate = useNavigate();
 
-  // === Fetch Hero Video (fallback to banner if none) ===
-  useEffect(() => {
-    const fetchHeroVideo = async () => {
-      try {
-        const res = await apiService.getMedia("mediaHostingServicePage", {
-          is_active: true,
-          file_type: "video/",
-          page_size: 1,
-        });
+  // ---- Hero: first try banner ----
+  const { data: bannerRaw, loading: bannerLoading } = useFetcher(
+    "media",
+    "banner",
+    { category: "mediaHostingServicePage", is_active: true },
+    { resource: "media" }
+  );
 
-        const results = Array.isArray(res.data?.results)
-          ? res.data.results
-          : res.data;
+  // ---- Fallback video if no banner ----
+  const { data: videosRaw, loading: videoLoading } = useFetcher(
+    "videos",
+    "mediaHostingServicePage",
+    { is_active: true },
+    { resource: "videos" }
+  );
 
-        if (results.length > 0 && results[0].url?.full) {
-          setVideoUrl(results[0].url.full);
-        } else {
-          setVideoUrl(""); // fallback → banner only
-        }
-      } catch (error) {
-        console.error("Failed to load hero video:", error);
-        setVideoUrl(""); // fallback → banner only
-      }
-    };
+  // ---- Multimedia gallery cards ----
+  const { data: mediaRaw, loading: mediaLoading } = useFetcher(
+    "media",
+    "mediaHostingServicePage",
+    { is_active: true },
+    { resource: "media" }
+  );
 
-    fetchHeroVideo();
+  // ---- Client reviews ----
+  const [testimonials, setTestimonials] = useState([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+
+  const fetchTestimonials = useCallback(async () => {
+    setLoadingTestimonials(true);
+    try {
+      const res = await apiService.getReviews({ category: "mediaHostingServicePage" });
+      setTestimonials(
+        Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
+      );
+    } catch (err) {
+      console.error("Error loading reviews:", err);
+      setTestimonials([]);
+    } finally {
+      setLoadingTestimonials(false);
+    }
   }, []);
 
-  const toggleMute = () => {
-    setIsMuted((prev) => !prev);
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
+  useEffect(() => {
+    fetchTestimonials();
+  }, [fetchTestimonials]);
+
+  // ---- decide fallback video ----
+  useEffect(() => {
+    const vids = toArray(videosRaw);
+    if (vids.length === 0) {
+      if (!videoLoading) setVideoUrl(null);
+      return;
     }
+    const featured = vids.find((v) => v?.is_featured) ?? vids[0];
+    setVideoUrl(getMediaUrl(featured) || null);
+  }, [videosRaw, videoLoading]);
+
+  const toggleMute = () => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      if (videoRef.current) videoRef.current.muted = next;
+      return next;
+    });
   };
+
+  const bannerItems = toArray(bannerRaw);
+  const mediaItems = toArray(mediaRaw);
 
   return (
     <div className="media-hosting-page">
-      {/* === Hero Banner or Video === */}
-      <section className="hero-banner">
-        {videoUrl ? (
+      {/* ---------- HERO ---------- */}
+      <section className="hero-banner" aria-label="Hero">
+        {bannerItems.length > 0 && !bannerLoading ? (
+          <BannerCards
+            items={bannerItems}
+            title="Capture & Host with Ethical Precision"
+          />
+        ) : videoUrl && !videoLoading ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -68,20 +131,29 @@ const MediaHostingServicePage = () => {
               loop
               muted={isMuted}
               playsInline
+              onError={() => {
+                console.warn("Hero video failed, no banner or video available");
+                setVideoUrl(null);
+              }}
             />
-            <button className="mute-button" onClick={toggleMute}>
+            <button
+              className="mute-button"
+              onClick={toggleMute}
+              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+            >
               {isMuted ? "🔇" : "🔊"}
             </button>
           </motion.div>
+        ) : bannerLoading || videoLoading ? (
+          <div className="video-placeholder" aria-hidden="true">
+            <div className="video-skeleton" />
+          </div>
         ) : (
-          <BannerCards
-            endpoint="mediaHostingServicePage"
-            title="Capture & Host with Ethical Precision"
-          />
+          <p className="muted-text">No hero media available.</p>
         )}
       </section>
 
-      {/* === Overview Services Section === */}
+      {/* ---------- Overview Services ---------- */}
       <section className="section services-section">
         <motion.div
           initial={{ y: 40, opacity: 0 }}
@@ -99,7 +171,7 @@ const MediaHostingServicePage = () => {
         <Services />
       </section>
 
-      {/* === Creative Media Preview Section === */}
+      {/* ---------- Creative Media Preview ---------- */}
       <section className="section creative-section">
         <div className="creative-layout">
           <motion.div
@@ -114,7 +186,7 @@ const MediaHostingServicePage = () => {
             </h3>
             <p className="section-description">
               Whether it’s a corporate launch, private shoot, or public concert,
-              Ethical Multimedia ensures every moment is captured in stunning
+              Eethmgh Multimedia ensures every moment is captured in stunning
               clarity. From cinematic videography to detailed photography and
               reliable hosting — your memories and messages are in expert hands.
             </p>
@@ -127,18 +199,24 @@ const MediaHostingServicePage = () => {
             transition={{ duration: 0.7 }}
             viewport={{ once: true }}
           >
-            <MediaCards
-              endpoint="mediaHostingServicePage"
-              type="media"
-              limit={3}
-              fullWidth={false}
-              supportPreview={true}
-            />
+            {mediaLoading ? (
+              Array.from({ length: 3 }).map((_, i) => <MediaSkeleton key={i} />)
+            ) : mediaItems.length > 0 ? (
+              mediaItems.slice(0, 3).map((m, idx) => (
+                <MediaCards
+                  key={m.id ?? m._id ?? m.url ?? idx}
+                  media={m}
+                  supportPreview
+                />
+              ))
+            ) : (
+              <p className="muted-text">No preview media available.</p>
+            )}
           </motion.div>
         </div>
       </section>
 
-      {/* === Event Hosting Info === */}
+      {/* ---------- Event Hosting Info ---------- */}
       <section className="section event-hosting-section">
         <motion.div
           initial={{ y: 40, opacity: 0 }}
@@ -164,7 +242,7 @@ const MediaHostingServicePage = () => {
         </motion.div>
       </section>
 
-      {/* === Full Multimedia Gallery === */}
+      {/* ---------- Full Multimedia Gallery ---------- */}
       <section className="section gallery-section">
         <motion.div
           initial={{ opacity: 0 }}
@@ -174,16 +252,52 @@ const MediaHostingServicePage = () => {
         >
           <h2 className="section-title">Multimedia Gallery</h2>
         </motion.div>
-        <MediaCards
-          endpoint="mediaHostingServicePage"
-          type="media"
-          limit={6}
-          fullWidth={true}
-          supportPreview={true}
-        />
+        {mediaLoading ? (
+          Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+        ) : mediaItems.length > 0 ? (
+          mediaItems.slice(0, 6).map((m, idx) => (
+            <MediaCards
+              key={m.id ?? m._id ?? m.url ?? idx}
+              media={m}
+              supportPreview
+              fullWidth
+            />
+          ))
+        ) : (
+          <p className="muted-text">No multimedia content available.</p>
+        )}
+      </section>
+
+      {/* ---------- Client Impressions ---------- */}
+      <section className="section" aria-live="polite">
+        <h2 className="section-title">Client Impressions</h2>
+        <div className="testimonial-grid">
+          {loadingTestimonials ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="testimonial-card shimmer">
+                <div className="testimonial-text">Loading review...</div>
+                <div className="testimonial-user">Loading...</div>
+              </div>
+            ))
+          ) : testimonials.length > 0 ? (
+            testimonials.slice(0, 6).map((r, idx) => (
+              <div
+                key={r.id ?? r._id ?? r.message ?? idx}
+                className="testimonial-card"
+              >
+                <p className="testimonial-text">
+                  {r.message ? `"${r.message}"` : '"No comment provided."'}
+                </p>
+                <p className="testimonial-user">
+                  — {r.user?.username || "Anonymous"}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="muted-text">No reviews yet.</p>
+          )}
+        </div>
       </section>
     </div>
   );
-};
-
-export default MediaHostingServicePage;
+}

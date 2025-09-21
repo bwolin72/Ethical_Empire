@@ -1,5 +1,4 @@
 // frontend/src/components/pages/CateringPage.jsx
-
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import "./catering.custom.css";
 import { Card, CardContent } from "../ui/Card";
@@ -18,19 +17,20 @@ import {
   FaAppleAlt,
   FaSeedling,
 } from "react-icons/fa";
-
-// ✅ Reuse global Services
-import Services from "../home/Services";
+import Services from "../home/Services"; // ✅ reuse global Services
 
 const CateringPage = () => {
   const navigate = useNavigate();
+
+  // ------------------ State ------------------
   const [testimonials, setTestimonials] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [videoUrl, setVideoUrl] = useState(""); // video URL if available
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  const [videoUrl, setVideoUrl] = useState(""); // hero video (if any)
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
-  // === Sample Data ===
+  // ------------------ Static Data ------------------
   const cateringServices = [
     "Traditional Ghanaian Buffet",
     "Continental Plated Meals",
@@ -64,49 +64,61 @@ const CateringPage = () => {
     "Cocktail Receptions",
   ];
 
-  // === Fetch Testimonials ===
-  const fetchData = useCallback(async () => {
+  // ------------------ Data Fetching ------------------
+  const fetchReviews = useCallback(async () => {
+    setLoadingReviews(true);
     try {
       const { data } = await publicAxios.get("/reviews/");
       setTestimonials(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error loading testimonials:", error);
+    } catch (err) {
+      console.error("Error loading reviews:", err);
+      setTestimonials([]);
     } finally {
-      setLoading(false);
+      setLoadingReviews(false);
     }
   }, []);
 
-  // === Fetch Catering Page Video ===
-  const fetchVideo = useCallback(async () => {
+  const fetchHeroVideo = useCallback(async () => {
     try {
       const { data } = await axiosCommon.get(
         "/videos/?endpoint=CateringPage&is_active=true"
       );
       if (Array.isArray(data) && data.length > 0) {
-        setVideoUrl(data[0].video_url);
+        const first = data.find((v) => v?.is_featured) ?? data[0];
+        // try the most common video field names
+        setVideoUrl(first.video_url || first.url?.full || "");
+      } else {
+        setVideoUrl("");
       }
-    } catch (error) {
-      console.error("Video fetch error:", error);
+    } catch (err) {
+      console.error("Video fetch error:", err);
+      setVideoUrl("");
     }
   }, []);
 
   useEffect(() => {
-    fetchData();
-    fetchVideo();
-  }, [fetchData, fetchVideo]);
+    fetchReviews();
+    fetchHeroVideo();
+  }, [fetchReviews, fetchHeroVideo]);
 
-  // === Mute Toggle ===
+  // ------------------ UI Helpers ------------------
   const toggleMute = () => {
-    setIsMuted((prev) => !prev);
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-    }
+    setIsMuted((prev) => {
+      const next = !prev;
+      if (videoRef.current) {
+        try {
+          videoRef.current.muted = next;
+        } catch (_) {}
+      }
+      return next;
+    });
   };
 
+  // ------------------ Render ------------------
   return (
     <div className="catering-page-container">
-      {/* === Hero Section === */}
-      <section className="catering-banners">
+      {/* === Hero Section: Video or Banner === */}
+      <section className="catering-banners" aria-label="Hero">
         {videoUrl ? (
           <div className="video-wrapper">
             <video
@@ -117,10 +129,17 @@ const CateringPage = () => {
               loop
               muted={isMuted}
               playsInline
+              onError={() => {
+                console.warn("Hero video failed to load, falling back to BannerCards");
+                setVideoUrl("");
+              }}
+            />
+            <button
+              className="mute-button"
+              onClick={toggleMute}
+              aria-pressed={!isMuted}
+              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
             >
-              Your browser does not support the video tag.
-            </video>
-            <button className="mute-button" onClick={toggleMute}>
               {isMuted ? "🔇" : "🔊"}
             </button>
           </div>
@@ -211,10 +230,10 @@ const CateringPage = () => {
       </section>
 
       {/* === Testimonials === */}
-      <section className="section testimonial-section">
+      <section className="section testimonial-section" aria-live="polite">
         <h2>What Clients Say</h2>
         <div className="testimonial-grid">
-          {loading
+          {loadingReviews
             ? [...Array(3)].map((_, i) => (
                 <div key={i} className="testimonial-card skeleton shimmer">
                   <div className="testimonial-message">Loading review...</div>
