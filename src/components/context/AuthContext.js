@@ -7,9 +7,9 @@ import React, {
   useRef,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import jwtDecode from "jwt-decode";
 import axiosInstance from "../../api/axiosInstance";
 import toast from "react-hot-toast";
+import jwt_decode from "jwt-decode"; // ✅ Fixed import
 
 // ===== Constants =====
 const AuthContext = createContext();
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   const scheduleTokenRefresh = useCallback(
     (accessToken, refreshToken) => {
       try {
-        const { exp } = jwtDecode(accessToken);
+        const { exp } = jwt_decode(accessToken);
         const delay = exp * 1000 - Date.now() - 60_000;
         clearTimeout(refreshTimer.current);
 
@@ -181,7 +181,7 @@ export const AuthProvider = ({ children }) => {
         if (!user.email || !isValidRole(role)) return logout("invalid_user_data");
 
         const cleanUser = { ...user, role };
-        const { exp } = jwtDecode(access);
+        const { exp } = jwt_decode(access);
         const isExpired = exp * 1000 < Date.now();
 
         setAuth({ access, refresh, user: cleanUser, isAuthenticated: !isExpired });
