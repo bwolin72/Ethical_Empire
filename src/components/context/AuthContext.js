@@ -9,7 +9,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import toast from "react-hot-toast";
-import jwt_decode from "jwt-decode"; // ✅ Fixed import
+import { decode as jwt_decode } from "jwt-decode"; // ✅ Fixed import
 
 // ===== Constants =====
 const AuthContext = createContext();
