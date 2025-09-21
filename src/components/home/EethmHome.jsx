@@ -9,7 +9,6 @@ import NewsletterSignup from "../user/NewsLetterSignup";
 import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-import MediaGallery from "../gallery/MediaGallery";
 
 import useFetcher from "../../hooks/useFetcher";
 import apiService from "../../api/apiService";
@@ -24,6 +23,7 @@ const toArray = (payload) => {
 
 const getMediaUrl = (media) => {
   const candidates = [
+    media?.secure_url,
     media?.url?.full,
     media?.url,
     media?.video_url,
@@ -34,7 +34,6 @@ const getMediaUrl = (media) => {
     media?.path,
   ];
   const found = candidates.find((c) => typeof c === "string" && c.trim() !== "");
-  if (!found && media?.secure_url) return media.secure_url;
   if (!found && media?.public_id && media?.cloud_name) {
     return `https://res.cloudinary.com/${media.cloud_name}/image/upload/${media.public_id}`;
   }
@@ -45,13 +44,14 @@ const EethmHome = () => {
   const navigate = useNavigate();
   const [showNewsletterForm, setShowNewsletterForm] = useState(false);
 
-  // === Fetch hero media ===
+  // === Fetch hero videos ===
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
     "home",
     { is_active: true },
     { resource: "videos" }
   );
+
   const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
     "media",
     "home",
@@ -59,14 +59,19 @@ const EethmHome = () => {
     { resource: "media" }
   );
 
-  // === Client reviews (full set) ===
+  // === Client reviews ===
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);
 
   const fetchReviews = useCallback(async () => {
     setLoadingReviews(true);
     try {
-      const res = await apiService.getReviews(); // all reviews
+      if (typeof apiService.getReviews !== "function") {
+        console.warn("apiService.getReviews not found. Reviews will be empty.");
+        setReviews([]);
+        return;
+      }
+      const res = await apiService.getReviews();
       setReviews(Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []);
     } catch (err) {
       console.error("Error loading reviews:", err);
@@ -92,18 +97,13 @@ const EethmHome = () => {
       return;
     }
     const featured = videos.find((v) => v?.is_featured) ?? videos[0];
-    const src = getMediaUrl(featured);
-    setVideoUrl(src || null);
+    setVideoUrl(getMediaUrl(featured) || null);
   }, [videosRaw, videoLoading]);
 
   const toggleMute = () => {
     setIsMuted((prev) => {
       const next = !prev;
-      if (videoRef.current) {
-        try {
-          videoRef.current.muted = next;
-        } catch (_) {}
-      }
+      if (videoRef.current) videoRef.current.muted = next;
       return next;
     });
   };
@@ -112,23 +112,36 @@ const EethmHome = () => {
 
   return (
     <div className="eethm-home-page">
-      {/* === HERO / BANNER SECTION === */}
-      <section className="banner-section" aria-label="Hero">
+      {/* HERO SECTION */}
+      <section className="video-hero-section" aria-label="Hero">
         {videoUrl && !videoLoading ? (
-          <div className="video-wrapper">
+          <>
             <video
               ref={videoRef}
               src={videoUrl}
-              className="hero-video"
+              className="background-video"
               autoPlay
               loop
               muted={isMuted}
               playsInline
               onError={() => {
-                console.warn("Hero video failed to load, falling back to BannerCards");
+                console.warn("Hero video failed to load, fallback to BannerCards");
                 setVideoUrl(null);
               }}
             />
+            <div className="overlay-gradient" />
+            <div className="overlay-content">
+              <h1 className="hero-title">Welcome to Eethm_GH</h1>
+              <p className="hero-subtitle">Experience our ministrations and highlights</p>
+              <div className="hero-buttons">
+                <button className="btn-primary" onClick={() => navigate("/bookings")}>
+                  Book Now
+                </button>
+                <button className="btn-secondary" onClick={() => setShowNewsletterForm(true)}>
+                  📩 Subscribe
+                </button>
+              </div>
+            </div>
             <button
               className="mute-button"
               onClick={toggleMute}
@@ -137,7 +150,7 @@ const EethmHome = () => {
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
-          </div>
+          </>
         ) : videoLoading ? (
           <div className="video-placeholder" aria-hidden="true">
             <div className="video-skeleton" />
@@ -147,71 +160,56 @@ const EethmHome = () => {
         )}
       </section>
 
-      {/* === CTA Buttons === */}
-      <section className="cta-section">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          className="cta-button"
-          onClick={() => navigate("/bookings")}
-        >
-          Book Now
-        </motion.button>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          className="cta-button secondary"
-          onClick={() => setShowNewsletterForm(true)}
-        >
-          📩 Subscribe
-        </motion.button>
-      </section>
-
-      {/* === SERVICES === */}
+      {/* SERVICES */}
       <FadeInSection>
-        <section className="services-page">
+        <section className="content-section">
           <h2>Explore Eethm_GH Ministrations</h2>
           <Services />
         </section>
       </FadeInSection>
 
-      {/* === MEDIA HIGHLIGHTS === */}
+      {/* MEDIA HIGHLIGHTS */}
       <FadeInSection>
-        <section className="section">
-          <h2>Our Media Library</h2>
-          {mediaLoading
-            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaCards.length > 0
-            ? mediaCards.slice(0, 6).map((media, idx) => (
-                <MediaCard
-                  key={media.id ?? media._id ?? media.url ?? idx}
-                  media={media}
-                />
-              ))
-            : <p className="muted-text">No media available at the moment.</p>}
+        <section className="media-cards-container">
+          <h2 className="media-cards-title">Our Media Library</h2>
+          <div className="media-cards-scroll-wrapper">
+            {mediaLoading
+              ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+              : mediaCards.length > 0
+              ? mediaCards.slice(0, 6).map((media, idx) => (
+                  <MediaCard key={media.id ?? media._id ?? media.url ?? idx} media={media} />
+                ))
+              : <p className="muted-text">No media available at the moment.</p>}
+          </div>
         </section>
       </FadeInSection>
 
-      {/* === CLIENT REVIEWS === */}
+      {/* CLIENT REVIEWS */}
       <FadeInSection>
-        <section className="reviews-section">
+        <section className="content-section reviews-section">
           <h2>What Our Clients Say</h2>
-          {loadingReviews
-            ? <p>Loading reviews…</p>
-            : reviews.length > 0
-            ? (
-              <div className="reviews-container">
-                {reviews.slice(0,6).map((r, idx) => (
-                  <div key={r.id ?? r._id ?? idx} className="review-card">
-                    <p>"{r.comment || r.message}"</p>
-                    <p>— {r.name || r.user?.username || "Anonymous"}</p>
-                  </div>
-                ))}
-              </div>
-            )
-            : <p className="muted-text">No reviews yet.</p>}
+          {loadingReviews ? (
+            <div className="reviews-skeleton">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="review-card skeleton" />
+              ))}
+            </div>
+          ) : reviews.length > 0 ? (
+            <div className="reviews-container">
+              {reviews.slice(0, 6).map((r, idx) => (
+                <div key={r.id ?? r._id ?? idx} className="review-card">
+                  <p className="review-text">"{r.comment || r.message}"</p>
+                  <p className="review-author">— {r.name || r.user?.username || "Anonymous"}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="muted-text">No reviews yet.</p>
+          )}
         </section>
       </FadeInSection>
 
-      {/* === NEWSLETTER MODAL === */}
+      {/* NEWSLETTER MODAL */}
       {showNewsletterForm && (
         <div
           className="newsletter-modal-backdrop"
