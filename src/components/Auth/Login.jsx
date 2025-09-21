@@ -39,7 +39,7 @@ const Login = () => {
     [navigate]
   );
 
-  // Dark mode preference
+  // Load dark mode preference
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
@@ -94,13 +94,11 @@ const Login = () => {
 
   const handleLoginSuccess = async (data) => {
     const { access, refresh, user: apiUser } = data;
-
     if (!access || !refresh) {
       toast.error("Invalid login response.");
       return;
     }
 
-    // Save tokens in AuthContext
     login({ access, refresh, user: apiUser, remember: rememberMe });
     redirectByRole(apiUser.role);
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
@@ -122,16 +120,13 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (response) => {
-    const { credential } = response;
+  // --- Google One Tap / OAuth Login ---
+  const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
 
     setLoading(true);
     try {
-      const res = await authService.googleLogin({
-        credential,
-        remember: rememberMe,
-      });
+      const res = await authService.googleLogin({ credential, remember: rememberMe });
       if (!res?.data) throw new Error("Invalid server response");
       await handleLoginSuccess(res.data);
     } catch (err) {
@@ -169,9 +164,7 @@ const Login = () => {
                 required
                 autoComplete="email"
               />
-              {formErrors.email && (
-                <small className="error-text">{formErrors.email}</small>
-              )}
+              {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
 
             <div className="input-group">
@@ -195,12 +188,9 @@ const Login = () => {
                 checked={acceptedTerms}
                 onChange={() => setAcceptedTerms((prev) => !prev)}
               />
-              I accept <Link to="/terms">Terms</Link> &{" "}
-              <Link to="/privacy">Privacy</Link>
+              I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
             </label>
-            {formErrors.terms && (
-              <small className="error-text">{formErrors.terms}</small>
-            )}
+            {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
 
             <div className="auth-options">
               <label className="remember-me">
@@ -228,8 +218,9 @@ const Login = () => {
           <div className="social-login">
             <p>Or sign in with Google:</p>
             <GoogleLogin
-              onSuccess={handleGoogleSuccess}
+              onSuccess={(res) => handleGoogleCredential(res.credential)}
               onError={() => toast.error("Google login failed")}
+              useOneTap
               disabled={loading}
             />
           </div>
