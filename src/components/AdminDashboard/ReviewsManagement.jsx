@@ -1,7 +1,6 @@
 // src/components/admin/ReviewsManagement.jsx
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../../api/axiosInstance";
-import reviewsAPI from "../../api/reviewsAPI"; // ✅ API config
+import reviewService from "../../api/services/reviewService";
 import "./ReviewsManagement.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,13 +19,13 @@ const ReviewsManagement = () => {
     const toastId = toast.loading("Loading reviews...");
     setLoading(true);
     try {
-      const res = await axiosInstance.get(reviewsAPI.adminList);
-      const data = Array.isArray(res.data)
-        ? res.data
-        : Array.isArray(res.data?.results)
-        ? res.data.results
+      const data = await reviewService.getAllReviewsAdmin();
+      const reviewsData = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.results)
+        ? data.results
         : [];
-      setReviews(data);
+      setReviews(reviewsData);
 
       toast.update(toastId, {
         render: "✅ Reviews loaded",
@@ -51,7 +50,7 @@ const ReviewsManagement = () => {
   const handleDelete = async (id) => {
     const toastId = toast.loading("Deleting review...");
     try {
-      await axiosInstance.delete(reviewsAPI.delete(id));
+      await reviewService.deleteReview(id);
       toast.update(toastId, {
         render: "🗑️ Review deleted.",
         type: "success",
@@ -80,8 +79,7 @@ const ReviewsManagement = () => {
 
     const toastId = toast.loading("Sending reply...");
     try {
-      // ✅ must be POST, not PATCH
-      await axiosInstance.post(reviewsAPI.reply(id), { reply });
+      await reviewService.replyToReview(id, reply);
       toast.update(toastId, {
         render: "✅ Reply sent.",
         type: "success",
@@ -105,8 +103,7 @@ const ReviewsManagement = () => {
   const handleApprove = async (id) => {
     const toastId = toast.loading("Approving review...");
     try {
-      // ✅ must be POST, not PATCH
-      await axiosInstance.post(reviewsAPI.approve(id));
+      await reviewService.approveReview(id);
       toast.update(toastId, {
         render: "✅ Review approved.",
         type: "success",

@@ -10,7 +10,6 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import axiosInstance from '../../api/axiosInstance';
 import api from '../../api/services/analyticsService';
 import './AnalyticsDashboard.css';
 
@@ -22,8 +21,7 @@ const AnalyticsDashboard = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await axiosInstance.get(api.analytics.stats);
-        // Ensure the data structure is always an object
+        const res = await api.stats();   // ✅ use service directly
         setData(res?.data ?? {});
       } catch (err) {
         console.error('[AnalyticsDashboard] Fetch error:', err);
@@ -59,7 +57,6 @@ const AnalyticsDashboard = () => {
     { name: 'Page Views', value: total_visits },
   ];
 
-  // Filter chart data to ensure only valid entries
   const validChartData = Array.isArray(chart_data)
     ? chart_data.filter(entry => entry?.date && typeof entry?.visits === 'number')
     : [];

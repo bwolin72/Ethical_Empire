@@ -1,14 +1,5 @@
-// workerAPI.js
-// Low-level HTTP calls for the Workers / Tasks subsystem.
-// Uses your shared axios helpers.
-
 import axiosInstance from "./axiosInstance";
 import { handleRequest } from "./axiosCommon";
-
-/*
-  All endpoints in this module require authentication (IsAdminOrSelf).
-  Using axiosInstance ensures token/header handling is centralized.
-*/
 
 const base = {
   workers: "workers/",
@@ -19,7 +10,7 @@ const base = {
   stats: "stats/",
 };
 
-// ---------- Workers ----------
+// Workers
 export const workersAPI = {
   list: (params = {}) => handleRequest(axiosInstance.get(base.workers, { params })),
   retrieve: (id) => handleRequest(axiosInstance.get(`${base.workers}${id}/`)),
@@ -30,7 +21,7 @@ export const workersAPI = {
   delete: (id) => handleRequest(axiosInstance.delete(`${base.workers}${id}/`)),
 };
 
-// ---------- Tasks ----------
+// Tasks
 export const tasksAPI = {
   list: (params = {}) => handleRequest(axiosInstance.get(base.tasks, { params })),
   retrieve: (id) => handleRequest(axiosInstance.get(`${base.tasks}${id}/`)),
@@ -39,15 +30,15 @@ export const tasksAPI = {
   partialUpdate: (id, payload) => handleRequest(axiosInstance.patch(`${base.tasks}${id}/`, payload)),
   delete: (id) => handleRequest(axiosInstance.delete(`${base.tasks}${id}/`)),
 
-  // task actions
   start: (id) => handleRequest(axiosInstance.post(`${base.tasks}${id}/start/`)),
   pause: (id) => handleRequest(axiosInstance.post(`${base.tasks}${id}/pause/`)),
   resume: (id) => handleRequest(axiosInstance.post(`${base.tasks}${id}/resume/`)),
   complete: (id) => handleRequest(axiosInstance.post(`${base.tasks}${id}/complete/`)),
-  setProgress: (id, progress) => handleRequest(axiosInstance.post(`${base.tasks}${id}/progress/`, { progress })),
+  setProgress: (id, progress) =>
+    handleRequest(axiosInstance.post(`${base.tasks}${id}/progress/`, { progress })),
 };
 
-// ---------- Comments ----------
+// Comments
 export const commentsAPI = {
   list: (params = {}) => handleRequest(axiosInstance.get(base.comments, { params })),
   retrieve: (id) => handleRequest(axiosInstance.get(`${base.comments}${id}/`)),
@@ -56,7 +47,7 @@ export const commentsAPI = {
   delete: (id) => handleRequest(axiosInstance.delete(`${base.comments}${id}/`)),
 };
 
-// ---------- Notifications ----------
+// Notifications
 export const notificationsAPI = {
   list: (params = {}) => handleRequest(axiosInstance.get(base.notifications, { params })),
   retrieve: (id) => handleRequest(axiosInstance.get(`${base.notifications}${id}/`)),
@@ -64,7 +55,7 @@ export const notificationsAPI = {
   markRead: (id) => handleRequest(axiosInstance.post(`${base.notifications}${id}/read/`)),
 };
 
-// ---------- Calendar & Stats ----------
+// Calendar & Stats
 export const miscAPI = {
   calendar: (params = {}) => handleRequest(axiosInstance.get(base.calendar, { params })),
   stats: (params = {}) => handleRequest(axiosInstance.get(base.stats, { params })),

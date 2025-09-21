@@ -1,110 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { FaTrash, FaEnvelope, FaEye, FaPaperPlane } from 'react-icons/fa';
-import 'react-toastify/dist/ReactToastify.css';
-import styles from './NewsletterAdminPage.module.css';
-import newsletterService from '../../api/services/newsletterService';
+// src/pages/admin/NewsletterManagement.jsx
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import {
+  FaTrash,
+  FaEnvelope,
+  FaEye,
+  FaPaperPlane,
+} from "react-icons/fa";
+import "react-toastify/dist/ReactToastify.css";
+import styles from "./NewsletterAdminPage.module.css";
+import newsletterService from "../../api/services/newsletterService";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 const NewsletterManagement = () => {
-  const [subject, setSubject] = useState('');
-  const [content, setContent] = useState('');
-  const [recipientsCount, setRecipientsCount] = useState(0);
+  const [subject, setSubject] = useState("");
+  const [content, setContent] = useState("");
   const [previewMode, setPreviewMode] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [newsletterLog, setNewsletterLog] = useState([]);
-  const [subscribers, setSubscribers] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        const [logs, count, subs] = await Promise.all([
-          newsletterService.getLogs(),
-          newsletterService.getSubscriberCount(),
-          newsletterService.getSubscribers(),
-        ]);
+  const queryClient = useQueryClient();
 
-        setNewsletterLog(logs.data);
-        setRecipientsCount(count.data.count);
-        setSubscribers(subs.data);
-      } catch (error) {
-        toast.error('❌ Failed to load newsletter data');
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // === Queries ===
+  const {
+    data: newsletterLog = [],
+    isLoading: logsLoading,
+  } = useQuery({
+    queryKey: ["newsletterLogs"],
+    queryFn: newsletterService.getNewsletterLogs,
+  });
 
-    fetchAllData();
-  }, []);
+  const {
+    data: subscribers = [],
+    isLoading: subsLoading,
+  } = useQuery({
+    queryKey: ["subscribers"],
+    queryFn: newsletterService.getSubscribers,
+  });
 
-  const refreshLogs = async () => {
-    try {
-      const { data } = await newsletterService.getLogs();
-      setNewsletterLog(data);
-    } catch {
-      toast.error('❌ Failed to refresh logs');
-    }
-  };
+  const {
+    data: subscriberCount = 0,
+    isLoading: countLoading,
+  } = useQuery({
+    queryKey: ["subscriberCount"],
+    queryFn: newsletterService.getSubscriberCount,
+  });
 
-  const refreshSubscribers = async () => {
-    try {
-      const [subs, count] = await Promise.all([
-        newsletterService.getSubscribers(),
-        newsletterService.getSubscriberCount(),
-      ]);
-      setSubscribers(subs.data);
-      setRecipientsCount(count.data.count);
-    } catch {
-      toast.error('❌ Failed to refresh subscribers');
-    }
-  };
+  const loading = logsLoading || subsLoading || countLoading;
 
-  const handleSend = async (test = false) => {
+  // === Mutations ===
+  const sendMutation = useMutation({
+    mutationFn: ({ subject, html, test }) =>
+      newsletterService.sendNewsletter(subject, html, test),
+    onSuccess: (res, { test }) => {
+      toast.success(res.message || "✅ Newsletter sent");
+      if (!test) queryClient.invalidateQueries(["newsletterLogs"]);
+    },
+    onError: () => toast.error("❌ Failed to send newsletter"),
+  });
+
+  const resendConfirmationMutation = useMutation({
+    mutationFn: (email) => newsletterService.resendConfirmation(email),
+    onSuccess: (res, email) =>
+      toast.success(res.message || `✅ Confirmation email resent to ${email}`),
+    onError: (_, email) =>
+      toast.error(`❌ Failed to resend confirmation to ${email}`),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => newsletterService.deleteSubscriber(id),
+    onSuccess: (res) => {
+      toast.success(res.message || "✅ Subscriber deleted");
+      queryClient.invalidateQueries(["subscribers"]);
+      queryClient.invalidateQueries(["subscriberCount"]);
+    },
+    onError: () => toast.error("❌ Failed to delete subscriber"),
+  });
+
+  // === Handlers ===
+  const handleSend = (test = false) => {
     if (!subject.trim() || !content.trim()) {
-      toast.warn('⚠️ Subject and content are required');
+      toast.warn("⚠️ Subject and content are required");
       return;
     }
-
-    setSending(true);
-    try {
-      const { data } = await newsletterService.sendNewsletter({
-        subject,
-        html: content,
-        test,
-      });
-      toast.success(data.message || '✅ Newsletter sent');
-      if (!test) refreshLogs();
-    } catch (error) {
-      toast.error('❌ Failed to send newsletter');
-      console.error(error);
-    } finally {
-      setSending(false);
-    }
+    sendMutation.mutate({ subject, html: content, test });
   };
 
-  const handleResendConfirmation = async (email) => {
-    try {
-      await newsletterService.resendConfirmation({ email });
-      toast.success(`✅ Confirmation email resent to ${email}`);
-    } catch (error) {
-      toast.error(`❌ Failed to resend confirmation to ${email}`);
-      console.error(error);
-    }
+  const handleResendConfirmation = (email) => {
+    resendConfirmationMutation.mutate(email);
   };
 
-  const handleDeleteSubscriber = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this subscriber?')) return;
-    try {
-      await newsletterService.deleteSubscriber(id);
-      toast.success('✅ Subscriber deleted');
-      await refreshSubscribers();
-    } catch (error) {
-      toast.error('❌ Failed to delete subscriber');
-      console.error(error);
-    }
+  const handleDeleteSubscriber = (id) => {
+    if (!window.confirm("Are you sure you want to delete this subscriber?")) return;
+    deleteMutation.mutate(id);
   };
 
+  // === Loading state ===
   if (loading) {
     return <div className={styles.loading}>Loading newsletter data...</div>;
   }
@@ -133,23 +126,25 @@ const NewsletterManagement = () => {
 
         <div className={styles.newsletterActions}>
           <button type="button" onClick={() => setPreviewMode(!previewMode)}>
-            <FaEye /> {previewMode ? 'Back to Editor' : 'Preview Mode'}
+            <FaEye /> {previewMode ? "Back to Editor" : "Preview Mode"}
           </button>
           <button
             type="button"
             onClick={() => handleSend(true)}
-            disabled={sending}
+            disabled={sendMutation.isPending}
             className={styles.testButton}
           >
-            <FaEnvelope /> {sending ? 'Sending Test...' : 'Send Test Email'}
+            <FaEnvelope />{" "}
+            {sendMutation.isPending ? "Sending Test..." : "Send Test Email"}
           </button>
           <button
             type="button"
             onClick={() => handleSend()}
-            disabled={sending}
+            disabled={sendMutation.isPending}
             className={styles.sendButton}
           >
-            <FaPaperPlane /> {sending ? 'Sending...' : 'Send to Subscribers'}
+            <FaPaperPlane />{" "}
+            {sendMutation.isPending ? "Sending..." : "Send to Subscribers"}
           </button>
         </div>
 
@@ -164,7 +159,9 @@ const NewsletterManagement = () => {
       {/* Newsletter Logs */}
       <section className={styles.logSection}>
         <h3>📝 Sent Newsletters</h3>
-        <p>Total Active Recipients: <strong>{recipientsCount}</strong></p>
+        <p>
+          Total Active Recipients: <strong>{subscriberCount}</strong>
+        </p>
         <div className={styles.tableWrapper}>
           <table className={styles.logTable}>
             <thead>
@@ -203,10 +200,10 @@ const NewsletterManagement = () => {
             <tbody>
               {subscribers.map((sub) => {
                 const status = sub.unsubscribed
-                  ? 'Unsubscribed'
+                  ? "Unsubscribed"
                   : sub.confirmed
-                  ? 'Confirmed'
-                  : 'Unconfirmed';
+                  ? "Confirmed"
+                  : "Unconfirmed";
 
                 return (
                   <tr key={sub.id}>
@@ -215,14 +212,17 @@ const NewsletterManagement = () => {
                     <td>{new Date(sub.subscribed_at).toLocaleString()}</td>
                     <td>
                       {!sub.confirmed && (
-                        <button onClick={() => handleResendConfirmation(sub.email)} title="Resend Confirmation">
+                        <button
+                          onClick={() => handleResendConfirmation(sub.email)}
+                          title="Resend Confirmation"
+                        >
                           <FaEnvelope />
                         </button>
                       )}
                       <button
                         onClick={() => handleDeleteSubscriber(sub.id)}
                         title="Delete"
-                        style={{ marginLeft: '10px' }}
+                        style={{ marginLeft: "10px" }}
                       >
                         <FaTrash />
                       </button>

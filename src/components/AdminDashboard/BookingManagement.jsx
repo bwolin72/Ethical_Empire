@@ -46,7 +46,7 @@ const BookingManagement = () => {
   // Fetch services
   const fetchServices = useCallback(async () => {
     try {
-      const res = await serviceService.getServices(); // ✅ keep consistent
+      const res = await serviceService.getServices();
       const data = res?.data?.results || res?.data || [];
       setServices(data);
     } catch (err) {
@@ -63,7 +63,7 @@ const BookingManagement = () => {
   const handleEdit = (booking) => {
     setEditBooking({
       ...booking,
-      services: booking.services.map((s) => s.id), // ✅ ensure only IDs
+      serviceIds: booking.services.map((s) => s.id), // ✅ track selected IDs separately
       event_date: booking.event_date || '',
     });
   };
@@ -74,19 +74,19 @@ const BookingManagement = () => {
 
   const handleServiceToggle = (id) => {
     setEditBooking((prev) => {
-      const exists = prev.services.includes(id);
+      const exists = prev.serviceIds.includes(id);
       return {
         ...prev,
-        services: exists
-          ? prev.services.filter((sid) => sid !== id)
-          : [...prev.services, id],
+        serviceIds: exists
+          ? prev.serviceIds.filter((sid) => sid !== id)
+          : [...prev.serviceIds, id],
       };
     });
   };
 
   const saveEdit = async () => {
     try {
-      // ✅ send update with IDs only
+      // ✅ backend expects { add_service_ids } or full { services: [{id}, ...] }
       await bookingService.update(editBooking.id, {
         name: editBooking.name,
         email: editBooking.email,
@@ -94,7 +94,7 @@ const BookingManagement = () => {
         address: editBooking.address,
         message: editBooking.message,
         event_date: editBooking.event_date,
-        services: editBooking.services,
+        add_service_ids: editBooking.serviceIds, // ✅ match backend field
       });
 
       if (['approved', 'rejected', 'completed'].includes(editBooking.status)) {
@@ -256,7 +256,7 @@ const BookingManagement = () => {
                   <label key={service.id}>
                     <input
                       type="checkbox"
-                      checked={editBooking.services.includes(service.id)}
+                      checked={editBooking.serviceIds.includes(service.id)}
                       onChange={() => handleServiceToggle(service.id)}
                     />
                     {service.name}

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import './ForgotResetPassword.css';
+import './Auth.css';
 
 import authService from "../../api/services/authService";
 

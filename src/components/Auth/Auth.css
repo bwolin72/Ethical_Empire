@@ -109,7 +109,7 @@
   outline: none;
 }
 
-/* === Password Field === */
+/* === Password Field (toggle styled separately in password.css) === */
 .password-field {
   position: relative;
 }
@@ -119,20 +119,8 @@
   padding-right: 2.5rem; /* space for toggle button */
 }
 
-.password-toggle {
-  position: absolute;
-  top: 50%;
-  right: 0.75rem;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--color-neutral);
-  font-size: 1.1rem;
-}
-
-/* === Buttons === */
-.auth-form button {
+/* === Primary Action Button (Login / Register submit) === */
+.auth-form button[type="submit"] {
   background: var(--gradient-gold-burgundy);
   color: var(--color-white);
   padding: 0.85rem 2rem;
@@ -144,7 +132,7 @@
   transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 
-.auth-form button:hover {
+.auth-form button[type="submit"]:hover {
   transform: translateY(-3px);
   filter: brightness(1.05);
 }
@@ -219,7 +207,7 @@
 
   .auth-form input,
   .auth-form select,
-  .auth-form button {
+  .auth-form button[type="submit"] {
     font-size: 1rem;
   }
 
@@ -252,7 +240,7 @@
     gap: 1rem;
   }
 
-  .auth-form button {
+  .auth-form button[type="submit"] {
     padding: 0.75rem 1.25rem;
     font-size: 0.95rem;
   }
@@ -261,13 +249,172 @@
     padding-right: 1.8rem;
   }
 
-  .password-toggle {
-    right: 0.5rem;
-    font-size: 1rem;
-  }
-
   .toggle-theme-btn {
     font-size: 0.85rem;
     padding: 0.4rem 1rem;
+  }
+}
+
+/* ======================================================
+   Forgot / Reset Password
+   Shared styles for ForgotPassword.jsx & ResetPassword.jsx
+   ====================================================== */
+
+/* === Page Wrapper === */
+.forgot-password-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--color-bg-light);
+  font-family: var(--font-main);
+  padding: 2rem;
+}
+
+/* === Form === */
+.forgot-password-form {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.forgot-password-form h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+/* === Input Fields === */
+.forgot-password-form input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  background: var(--color-input-bg);
+  transition: border var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.forgot-password-form input:focus {
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  outline: none;
+}
+
+/* === Buttons === */
+.forgot-password-form button {
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  padding: 0.85rem 2rem;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.forgot-password-form button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.forgot-password-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* === Form Messages (Success & Error) === */
+.form-message {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.form-message.success {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.form-message.error {
+  background: var(--color-error-light);
+  color: var(--color-error-dark);
+}
+
+/* === Password Strength Indicator === */
+.password-strength {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: -0.5rem;
+}
+
+.password-strength.weak {
+  color: var(--color-error-dark);
+}
+
+.password-strength.medium {
+  color: var(--color-warning-dark);
+}
+
+.password-strength.strong {
+  color: var(--color-success-dark);
+}
+
+/* === Password Toggle (Eye Icon) === */
+.forgot-password-form .password-field {
+  position: relative;
+}
+
+.forgot-password-form .password-field input {
+  padding-right: 2.5rem; /* space for icon */
+}
+
+.forgot-password-form .password-field span {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--color-neutral);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+}
+
+/* ======================================================
+   ✅ Responsive Fixes
+   ====================================================== */
+@media (max-width: 480px) {
+  .forgot-password-form {
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+
+  .forgot-password-form h2 {
+    font-size: 1.25rem;
+  }
+
+  .forgot-password-form button {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .forgot-password-form .password-field input {
+    padding-right: 2rem;
+  }
+
+  .forgot-password-form .password-field span {
+    right: 0.5rem;
+    font-size: 1rem;
   }
 }

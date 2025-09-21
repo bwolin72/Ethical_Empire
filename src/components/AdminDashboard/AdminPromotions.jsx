@@ -1,38 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import axiosInstance from '../../api/axiosInstance';
-import api from '../../api/api';
-import './AdminPromotions.css';
+// src/components/AdminDashboard/AdminPromotions.jsx
+import React, { useEffect, useState } from "react";
+import promotionService from "../../api/services/promotionService";
+import "./AdminPromotions.css";
 
 const AdminPromotions = () => {
   const [promotions, setPromotions] = useState([]);
+  const [activePromotions, setActivePromotions] = useState([]);
   const [formData, setFormData] = useState({
-    title: '',
-    html_content: '',
-    start_time: '',
-    end_time: '',
+    title: "",
+    html_content: "",
+    start_time: "",
+    end_time: "",
     dismissible: true,
   });
   const [editId, setEditId] = useState(null);
   const [refresh, setRefresh] = useState(false);
 
+  // ==============================
+  // Fetch All + Active Promotions
+  // ==============================
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const res = await axiosInstance.get(api.promotions.list);
-        const data = res.data?.results || res.data; // handle pagination or direct list
-        setPromotions(Array.isArray(data) ? data : []);
+        const [allRes, activeRes] = await Promise.all([
+          promotionService.list(),
+          promotionService.active(),
+        ]);
+
+        const allData = allRes.data?.results || allRes.data;
+        const activeData = activeRes.data?.results || activeRes.data;
+
+        setPromotions(Array.isArray(allData) ? allData : []);
+        setActivePromotions(Array.isArray(activeData) ? activeData : []);
       } catch (err) {
-        console.error('[AdminPromotions] Fetch error:', err);
+        console.error("[AdminPromotions] Fetch error:", err);
       }
     };
     fetchPromotions();
   }, [refresh]);
 
+  // ==============================
+  // Handlers
+  // ==============================
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -40,14 +54,14 @@ const AdminPromotions = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axiosInstance.put(api.promotions.update(editId), formData);
+        await promotionService.update(editId, formData);
       } else {
-        await axiosInstance.post(api.promotions.create, formData);
+        await promotionService.create(formData);
       }
       resetForm();
       setRefresh((r) => !r);
     } catch (err) {
-      console.error('[AdminPromotions] Submit error:', err);
+      console.error("[AdminPromotions] Submit error:", err);
     }
   };
 
@@ -63,29 +77,34 @@ const AdminPromotions = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this promotion?')) return;
+    if (!window.confirm("Delete this promotion?")) return;
     try {
-      await axiosInstance.delete(api.promotions.delete(id));
+      await promotionService.remove(id);
       setRefresh((r) => !r);
     } catch (err) {
-      console.error('[AdminPromotions] Delete error:', err);
+      console.error("[AdminPromotions] Delete error:", err);
     }
   };
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      html_content: '',
-      start_time: '',
-      end_time: '',
+      title: "",
+      html_content: "",
+      start_time: "",
+      end_time: "",
       dismissible: true,
     });
     setEditId(null);
   };
 
+  // ==============================
+  // JSX
+  // ==============================
   return (
     <div className="admin-promotions">
-      <h2>{editId ? 'Edit Promotion' : 'Create New Promotion'}</h2>
+      <h2>{editId ? "✏️ Edit Promotion" : "➕ Create New Promotion"}</h2>
+
+      {/* Form */}
       <form className="promo-form" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -95,6 +114,7 @@ const AdminPromotions = () => {
           onChange={handleChange}
           required
         />
+
         <textarea
           name="html_content"
           placeholder="HTML Content"
@@ -102,6 +122,7 @@ const AdminPromotions = () => {
           onChange={handleChange}
           rows="5"
         />
+
         <label>
           Start Time:
           <input
@@ -112,6 +133,7 @@ const AdminPromotions = () => {
             required
           />
         </label>
+
         <label>
           End Time:
           <input
@@ -122,6 +144,7 @@ const AdminPromotions = () => {
             required
           />
         </label>
+
         <label className="checkbox">
           <input
             type="checkbox"
@@ -131,28 +154,62 @@ const AdminPromotions = () => {
           />
           Dismissible Popup
         </label>
-        <button type="submit">{editId ? 'Update' : 'Post'} Promotion</button>
-        {editId && <button type="button" onClick={resetForm}>Cancel Edit</button>}
+
+        <button type="submit">{editId ? "Update" : "Post"} Promotion</button>
+        {editId && (
+          <button type="button" onClick={resetForm}>
+            Cancel Edit
+          </button>
+        )}
       </form>
 
-      <h3>All Promotions</h3>
+      {/* Active Promotions */}
+      <h3>✅ Currently Active Promotions</h3>
+      <div className="promo-list active-promos">
+        {activePromotions.length ? (
+          activePromotions.map((promo) => (
+            <div key={promo.id} className="promo-card active">
+              <h4>{promo.title}</h4>
+              <div className="promo-time">
+                {new Date(promo.start_time).toLocaleString()} →{" "}
+                {new Date(promo.end_time).toLocaleString()}
+              </div>
+              <div
+                className="promo-preview"
+                dangerouslySetInnerHTML={{ __html: promo.html_content }}
+              />
+              <span className="active-badge">LIVE</span>
+            </div>
+          ))
+        ) : (
+          <p>No promotions are active right now.</p>
+        )}
+      </div>
+
+      {/* All Promotions */}
+      <h3>📋 All Promotions</h3>
       <div className="promo-list">
         {promotions.map((promo) => (
           <div key={promo.id} className="promo-card">
             <h4>{promo.title}</h4>
+
             <div className="promo-time">
-              {new Date(promo.start_time).toLocaleString()} → {new Date(promo.end_time).toLocaleString()}
+              {new Date(promo.start_time).toLocaleString()} →{" "}
+              {new Date(promo.end_time).toLocaleString()}
             </div>
+
             <div
               className="promo-preview"
               dangerouslySetInnerHTML={{ __html: promo.html_content }}
             />
+
             <div className="promo-meta">
-              <span>{promo.dismissible ? 'Dismissible' : 'Fixed'}</span>
-              <span className={`status ${promo.status?.toLowerCase() || ''}`}>
-                {promo.status || 'Unknown'}
+              <span>{promo.dismissible ? "Dismissible" : "Fixed"}</span>
+              <span className={`status ${promo.status?.toLowerCase() || ""}`}>
+                {promo.status || "Unknown"}
               </span>
             </div>
+
             <div className="promo-actions">
               <button onClick={() => handleEdit(promo)}>Edit</button>
               <button onClick={() => handleDelete(promo.id)}>Delete</button>

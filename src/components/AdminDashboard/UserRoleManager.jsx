@@ -1,6 +1,6 @@
 // src/components/admin/UserRoleManager.jsx
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import authAPI from "../../api/authAPI";
+import authService from "../../api/services/authService";
 import { Button } from "../ui/Button";
 import { Card, CardContent } from "../ui/Card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/Tabs";
@@ -28,14 +28,21 @@ const UserGrid = ({ users, selected, onToggleSelect, onToggleActive, loading }) 
         <Card key={id} className="urm-card">
           <CardContent className="urm-card-content">
             <div className="urm-check">
-              <Checkbox checked={selected.includes(id)} onCheckedChange={() => onToggleSelect(id)} />
+              <Checkbox
+                checked={selected.includes(id)}
+                onCheckedChange={() => onToggleSelect(id)}
+              />
             </div>
 
             <div className="urm-user">
               <h2 className="urm-user-name">{name}</h2>
               <p className="urm-user-email">{email}</p>
               <p className="urm-user-role">{(role || "").toUpperCase()}</p>
-              <p className={`urm-user-status ${is_active ? "urm-status--active" : "urm-status--inactive"}`}>
+              <p
+                className={`urm-user-status ${
+                  is_active ? "urm-status--active" : "urm-status--inactive"
+                }`}
+              >
                 {is_active ? "Active" : "Inactive"}
               </p>
             </div>
@@ -64,7 +71,7 @@ const UserRoleManager = () => {
   const fetchUsers = useCallback(async (role) => {
     setLoading(true);
     try {
-      const res = await authAPI.adminListUsers({ role });
+      const res = await authService.listUsers({ role });
       const list = Array.isArray(res?.data) ? res.data : res?.data?.results || [];
       setUsers(list.map((u) => ({ ...u, role: (u.role || "").toLowerCase() })));
     } catch (err) {
@@ -83,7 +90,9 @@ const UserRoleManager = () => {
   }, [activeTab, fetchUsers]);
 
   const toggleSelection = (id) => {
-    setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   };
 
   const handleDelete = async () => {
@@ -92,7 +101,7 @@ const UserRoleManager = () => {
     try {
       const emails = selected.map((id) => idToEmail.get(id)).filter(Boolean);
       if (!emails.length) return toast.warn("No emails found for selected users.");
-      await Promise.all(emails.map((email) => authAPI.deleteByEmail({ email })));
+      await Promise.all(emails.map((email) => authService.adminDeleteByEmail({ email })));
       toast.success("Users deleted.");
       setSelected([]);
       await fetchUsers(activeTab);
@@ -105,10 +114,11 @@ const UserRoleManager = () => {
   };
 
   const handleSendMsg = async () => {
-    if (!selected.length || !message.trim()) return toast.warn("Select users and enter a message.");
+    if (!selected.length || !message.trim())
+      return toast.warn("Select users and enter a message.");
     setSubmitting(true);
     try {
-      await authAPI.sendMessageToUsers({ ids: selected, message });
+      await authService.adminSendMessage({ ids: selected, message });
       toast.success("Message sent.");
       setMessage("");
     } catch (err) {
@@ -120,10 +130,11 @@ const UserRoleManager = () => {
   };
 
   const handleOffer = async () => {
-    if (!selected.length || !message.trim()) return toast.warn("Select users and enter an offer.");
+    if (!selected.length || !message.trim())
+      return toast.warn("Select users and enter an offer.");
     setSubmitting(true);
     try {
-      await authAPI.specialOffer({ ids: selected, message });
+      await authService.adminSpecialOffer({ ids: selected, message });
       toast.success("Offer sent.");
       setMessage("");
     } catch (err) {
@@ -138,7 +149,7 @@ const UserRoleManager = () => {
     if (!inviteEmail.trim()) return toast.warn("Enter worker email.");
     setSubmitting(true);
     try {
-      const res = await authAPI.adminInviteWorker({ email: inviteEmail });
+      const res = await authService.adminInviteWorker({ email: inviteEmail });
       const code = res?.data?.access_code;
       toast.success(code ? `Worker invited. Access code: ${code}` : "Worker invited.");
       setInviteEmail("");
@@ -154,7 +165,8 @@ const UserRoleManager = () => {
   const handleToggleActive = async (userId) => {
     setSubmitting(true);
     try {
-      await authAPI.toggleUserActive(userId);
+      // ⚠️ NOTE: Needs a real API endpoint in authService
+      await authService.toggleUserActive(userId);
       toast.success("User status updated.");
       await fetchUsers(activeTab);
     } catch (err) {
@@ -176,7 +188,11 @@ const UserRoleManager = () => {
       />
       <div className="urm-actions">
         <div className="urm-actions-row">
-          <Button onClick={handleDelete} disabled={submitting || !selected.length} className="urm-btn-danger">
+          <Button
+            onClick={handleDelete}
+            disabled={submitting || !selected.length}
+            className="urm-btn-danger"
+          >
             Delete Selected
           </Button>
         </div>
@@ -192,7 +208,9 @@ const UserRoleManager = () => {
             <TabsTrigger
               key={role.value}
               value={role.value}
-              className={`urm-tab ${activeTab === role.value ? "urm-tab--active" : ""}`}
+              className={`urm-tab ${
+                activeTab === role.value ? "urm-tab--active" : ""
+              }`}
             >
               {role.label}
             </TabsTrigger>

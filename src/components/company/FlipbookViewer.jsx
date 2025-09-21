@@ -1,4 +1,3 @@
-// src/components/company/FlipbookViewer.jsx
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import HTMLFlipBook from "react-pageflip";
 import pdfjsLib from "../../pdfjs-setup";
@@ -6,9 +5,8 @@ import "./FlipbookViewer.css";
 
 // -----------------------------
 // Individual Page Component
-// Lazy-load page canvas
 // -----------------------------
-const BookPage = React.forwardRef(({ pageNum, pdfDoc, containerWidth }, ref) => {
+const BookPage = React.forwardRef(({ pageNum, pdfDoc, width, height }, ref) => {
   const [canvasUrl, setCanvasUrl] = useState(null);
 
   const renderPage = useCallback(async () => {
@@ -16,32 +14,33 @@ const BookPage = React.forwardRef(({ pageNum, pdfDoc, containerWidth }, ref) => 
     try {
       const page = await pdfDoc.getPage(pageNum);
       const viewport = page.getViewport({ scale: 1 });
-      const scale = containerWidth / viewport.width; // scale to fit container
+
+      // Compute scale to fit both width & height
+      const scaleX = width / viewport.width;
+      const scaleY = height / viewport.height;
+      const scale = Math.min(scaleX, scaleY);
+
       const scaledViewport = page.getViewport({ scale });
       const canvas = document.createElement("canvas");
       canvas.width = scaledViewport.width;
       canvas.height = scaledViewport.height;
+
       const ctx = canvas.getContext("2d");
       await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
       setCanvasUrl(canvas.toDataURL());
     } catch (err) {
       console.error(`Error rendering page ${pageNum}:`, err);
     }
-  }, [pageNum, pdfDoc, containerWidth]);
+  }, [pageNum, pdfDoc, width, height]);
 
   useEffect(() => {
-    // Only render when component is mounted
     renderPage();
   }, [renderPage]);
 
   return (
     <div ref={ref} className="book-page">
       {canvasUrl ? (
-        <img
-          src={canvasUrl}
-          alt={`Page ${pageNum}`}
-          style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-        />
+        <img src={canvasUrl} alt={`Page ${pageNum}`} />
       ) : (
         <div className="page-placeholder">Loading...</div>
       )}
@@ -55,7 +54,8 @@ const BookPage = React.forwardRef(({ pageNum, pdfDoc, containerWidth }, ref) => 
 const FlipbookViewer = () => {
   const [pdfDoc, setPdfDoc] = useState(null);
   const [totalPages, setTotalPages] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(400);
+  const [flipWidth, setFlipWidth] = useState(400);
+  const [flipHeight, setFlipHeight] = useState(600);
 
   const flipbookRef = useRef();
 
@@ -63,9 +63,7 @@ const FlipbookViewer = () => {
   useEffect(() => {
     const loadPdf = async () => {
       try {
-        const loadingTask = pdfjsLib.getDocument(
-          `${process.env.PUBLIC_URL}/files/brochure.pdf`
-        );
+        const loadingTask = pdfjsLib.getDocument(`${process.env.PUBLIC_URL}/files/brochure.pdf`);
         const doc = await loadingTask.promise;
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
@@ -76,11 +74,14 @@ const FlipbookViewer = () => {
     loadPdf();
   }, []);
 
-  // Track container width for scaling
+  // Handle resizing
   useEffect(() => {
     const handleResize = () => {
       if (flipbookRef.current) {
-        setContainerWidth(flipbookRef.current.offsetWidth * 0.95); // 95% for padding
+        const width = flipbookRef.current.offsetWidth * 0.95;
+        const height = width * 1.5; // adjust aspect ratio
+        setFlipWidth(width);
+        setFlipHeight(height);
       }
     };
     handleResize();
@@ -94,13 +95,13 @@ const FlipbookViewer = () => {
 
       {pdfDoc ? (
         <HTMLFlipBook
-          width={400}
-          height={600}
-          size="stretch"
+          width={flipWidth}
+          height={flipHeight}
           minWidth={300}
-          maxWidth={800}
+          maxWidth={900}
           minHeight={400}
-          maxHeight={1000}
+          maxHeight={1200}
+          size="stretch"
           drawShadow={true}
           flippingTime={800}
           usePortrait={true}
@@ -115,7 +116,8 @@ const FlipbookViewer = () => {
               key={i}
               pageNum={i + 1}
               pdfDoc={pdfDoc}
-              containerWidth={containerWidth}
+              width={flipWidth / 2}  // each page width
+              height={flipHeight}     // each page height
             />
           ))}
         </HTMLFlipBook>

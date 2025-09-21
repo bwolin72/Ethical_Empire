@@ -7,16 +7,24 @@ import invoiceService from "../../api/services/invoiceService"; // ✅ new servi
 import "./InvoiceGeneration.css";
 
 const InvoiceGeneration = () => {
+  // ==============================
+  // State Management
+  // ==============================
   const [bookings, setBookings] = useState([]);
   const [services, setServices] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+
   const [paymentStatus, setPaymentStatus] = useState("none");
   const [creating, setCreating] = useState(false);
   const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
+
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ==============================
+  // Fetch Bookings & Services
+  // ==============================
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -29,6 +37,7 @@ const InvoiceGeneration = () => {
         const bookingsData = Array.isArray(bookingsRes.data)
           ? bookingsRes.data
           : bookingsRes.data?.results || [];
+
         const servicesData = Array.isArray(servicesRes.data)
           ? servicesRes.data
           : servicesRes.data?.results || [];
@@ -42,12 +51,16 @@ const InvoiceGeneration = () => {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
+  // ==============================
+  // Computed Values
+  // ==============================
   const booking = bookings.find((b) => b.id === selectedId);
 
-  const serviceList = booking?.services || []; // ✅ bookings already have services (IDs or names)
+  const serviceList = booking?.services || [];
   const total = serviceList.reduce((sum, id) => {
     const match = services.find((s) => s.id === id || s.name === id);
     return sum + (match ? parseFloat(match.price) : 0);
@@ -57,12 +70,25 @@ const InvoiceGeneration = () => {
     paymentStatus === "full" ? total : paymentStatus === "half" ? total / 2 : 0;
   const remaining = total - paid;
 
+  // ==============================
+  // Helpers
+  // ==============================
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
     const date = new Date(dateStr);
     return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
   };
 
+  const resetInvoiceState = () => {
+    setCreatedInvoiceId(null);
+    setPdfPreviewUrl(null);
+    setPaymentStatus("none");
+    setMessage("");
+  };
+
+  // ==============================
+  // Invoice Actions
+  // ==============================
   const createInvoice = async () => {
     if (!booking || !paymentStatus) return;
     setCreating(true);
@@ -102,6 +128,7 @@ const InvoiceGeneration = () => {
     try {
       const res = await invoiceService.download(createdInvoiceId);
       const blob = new Blob([res.data], { type: "application/pdf" });
+
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = `invoice_${booking?.name || "booking"}_${createdInvoiceId}.pdf`;
@@ -123,15 +150,12 @@ const InvoiceGeneration = () => {
     }
   };
 
-  const resetInvoiceState = () => {
-    setCreatedInvoiceId(null);
-    setPdfPreviewUrl(null);
-    setPaymentStatus("none");
-    setMessage("");
-  };
-
+  // ==============================
+  // Render
+  // ==============================
   return (
     <div className="invoice-container">
+      {/* MAIN CONTENT */}
       <motion.main
         className="invoice-main"
         initial={{ opacity: 0, y: 40 }}
@@ -150,6 +174,7 @@ const InvoiceGeneration = () => {
             <p><strong>Services:</strong> {serviceList.join(", ") || "N/A"}</p>
             <p><strong>Total:</strong> GHS {total.toFixed(2)}</p>
 
+            {/* Payment Options */}
             <div className="payment-options">
               {["none", "half", "full"].map((option) => (
                 <label key={option}>
@@ -168,6 +193,7 @@ const InvoiceGeneration = () => {
             <p><strong>Paid:</strong> GHS {paid.toFixed(2)}</p>
             <p><strong>Remaining:</strong> GHS {remaining.toFixed(2)}</p>
 
+            {/* Action Buttons */}
             <div className="invoice-actions">
               <button onClick={createInvoice} disabled={creating}>
                 {creating ? "Creating..." : "Create Invoice"}
@@ -180,8 +206,10 @@ const InvoiceGeneration = () => {
               </button>
             </div>
 
+            {/* Messages */}
             {message && <p className="message">{message}</p>}
 
+            {/* PDF Preview */}
             {pdfPreviewUrl && (
               <div className="pdf-preview">
                 <h4>Invoice Preview:</h4>
@@ -200,6 +228,7 @@ const InvoiceGeneration = () => {
         )}
       </motion.main>
 
+      {/* SIDEBAR */}
       <motion.aside
         className="invoice-sidebar"
         initial={{ opacity: 0, x: 40 }}

@@ -1,6 +1,6 @@
 // src/pages/auth/ForgotPassword.jsx
 import React, { useState } from "react";
-import "./ForgotResetPassword.css";
+import "./Auth.css";
 import authService from "../../api/services/authService";
 
 const ForgotPassword = () => {
