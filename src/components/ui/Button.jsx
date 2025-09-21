@@ -1,6 +1,6 @@
 // src/components/ui/Button.jsx
 import React from 'react';
-import './ui.css';
+import '../../styles/ui.css';
 
 export const Button = ({ children, className = '', ...props }) => {
   return (
