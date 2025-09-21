@@ -4,10 +4,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import authAPI from "../../api/authAPI";
+import authService from "../../api/authService";       // ✅ fixed import
 import { useAuth } from "../context/AuthContext";
 import logo from "../../assets/logo.png";
-import PasswordInput from "../common/PasswordInput"; // ✅ common component
+import PasswordInput from "../common/PasswordInput";   // ✅ shared password field
 import "./Auth.css";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -24,7 +24,7 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /* ---------------- Role-based redirect ---------------- */
+  /* ---------- Role-based redirect ---------- */
   const redirectByRole = useCallback(
     (role) => {
       const routes = {
@@ -39,14 +39,14 @@ const Login = () => {
     [navigate]
   );
 
-  /* ---------------- Dark mode toggle ---------------- */
+  /* ---------- Dark mode toggle ---------- */
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  /* ---------------- Auto redirect if already logged in ---------------- */
+  /* ---------- Auto redirect if already logged in ---------- */
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -74,10 +74,7 @@ const Login = () => {
     if (!form.password.trim()) errors.password = "Please enter your password.";
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
     setFormErrors(errors);
-
-    if (Object.keys(errors).length > 0) {
-      toast.error("Please fix the highlighted errors.");
-    }
+    if (Object.keys(errors).length > 0) toast.error("Please fix the highlighted errors.");
     return Object.keys(errors).length === 0;
   };
 
@@ -85,9 +82,7 @@ const Login = () => {
     const data = err?.response?.data;
     if (typeof data === "string") return data;
     if (Array.isArray(data)) return data[0];
-    if (typeof data === "object") {
-      return data.message || data.detail || "Login failed.";
-    }
+    if (typeof data === "object") return data.message || data.detail || "Login failed.";
     return "Something went wrong.";
   };
 
@@ -115,7 +110,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const res = await authAPI.login(form);
+      const res = await authService.login(form);          // ✅ use authService
       handleLoginSuccess(res.data);
     } catch (err) {
       const msg = extractErrorMessage(err);
@@ -133,7 +128,7 @@ const Login = () => {
     }
     setLoading(true);
     try {
-      const res = await authAPI.googleLogin({ credential });
+      const res = await authService.googleLogin({ credential }); // ✅ use authService
       handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -159,7 +154,6 @@ const Login = () => {
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            {/* Email */}
             <div className="input-group">
               <label>Email</label>
               <input
@@ -172,12 +166,9 @@ const Login = () => {
                 disabled={loading}
                 required
               />
-              {formErrors.email && (
-                <small className="error-text">{formErrors.email}</small>
-              )}
+              {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
 
-            {/* ✅ Password uses the shared component */}
             <div className="input-group">
               <label>Password</label>
               <PasswordInput
@@ -186,12 +177,9 @@ const Login = () => {
                 value={form.password}
                 onChange={handleChange}
               />
-              {formErrors.password && (
-                <small className="error-text">{formErrors.password}</small>
-              )}
+              {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
-            {/* Terms */}
             <label className="terms-checkbox">
               <input
                 type="checkbox"
@@ -201,9 +189,7 @@ const Login = () => {
               I accept <Link to="/terms">Terms</Link> &{" "}
               <Link to="/privacy">Privacy</Link>
             </label>
-            {formErrors.terms && (
-              <small className="error-text">{formErrors.terms}</small>
-            )}
+            {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
 
             <div className="auth-options">
               <label className="remember-me">

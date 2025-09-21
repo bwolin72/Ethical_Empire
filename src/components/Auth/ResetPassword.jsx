@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import './ForgotResetPassword.css';
 
-import authAPI from '../../api/authAPI';
+import authService from '../../api/authService';
 
 const ResetPassword = () => {
   const { uid, token } = useParams();
@@ -66,7 +66,7 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      await authAPI.resetPasswordConfirm(uid, token, { password: newPassword });
+      await authService.resetPasswordConfirm(uid, token, { password: newPassword });
 
       setMessage('✅ Password has been reset successfully. Redirecting to login...');
       setTimeout(() => navigate('/login'), 3000);

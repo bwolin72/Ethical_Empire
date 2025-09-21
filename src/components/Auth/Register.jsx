@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import DOMPurify from "dompurify";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import authAPI from "../../api/authAPI";
@@ -30,7 +30,7 @@ const Register = () => {
     worker_category_id: "",
     company_name: "",
     agency_name: "",
-    role: "USER",
+    role: "user",
     acceptTerms: false,
   });
 
@@ -38,19 +38,31 @@ const Register = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
 
+  /* ---------------- Dark mode ---------------- */
   useEffect(() => {
-    const savedDark = localStorage.getItem("darkMode") === "true";
-    setDarkMode(savedDark);
-    document.body.classList.toggle("dark", savedDark);
+    const saved = localStorage.getItem("darkMode") === "true";
+    setDarkMode(saved);
+    document.body.classList.toggle("dark", saved);
+  }, []);
 
+  /* ---------------- Prefill worker code from URL ---------------- */
+  useEffect(() => {
     const urlCode = searchParams.get("code");
     if (urlCode) {
-      setForm((prev) => ({ ...prev, access_code: urlCode, role: "WORKER" }));
+      setForm((prev) => ({ ...prev, access_code: urlCode, role: "worker" }));
     }
   }, [searchParams]);
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const toggleDarkMode = () => {
+    const updated = !darkMode;
+    setDarkMode(updated);
+    document.body.classList.toggle("dark", updated);
+    localStorage.setItem("darkMode", updated);
+    toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
+  };
 
+  /* ---------------- Helpers ---------------- */
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   const extractErrorMessage = (err) => {
@@ -58,15 +70,13 @@ const Register = () => {
     if (!data) return "Unexpected error. Please try again.";
     if (data.errors && typeof data.errors === "object") {
       return Object.entries(data.errors)
-        .map(([field, messages]) => `${capitalize(field)}: ${messages.join(" ")}`)
+        .map(([field, msgs]) => `${capitalize(field)}: ${msgs.join(" ")}`)
         .join("\n");
     }
     if (typeof data === "object") {
       return Object.entries(data)
-        .map(([field, messages]) =>
-          `${capitalize(field)}: ${
-            Array.isArray(messages) ? messages.join(" ") : messages
-          }`
+        .map(([field, msgs]) =>
+          `${capitalize(field)}: ${Array.isArray(msgs) ? msgs.join(" ") : msgs}`
         )
         .join("\n");
     }
@@ -74,14 +84,14 @@ const Register = () => {
     return "An error occurred. Please check your input.";
   };
 
+  /* ---------------- Handlers ---------------- */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     const cleanValue = DOMPurify.sanitize(value);
-    if (type === "checkbox") {
-      setForm((prev) => ({ ...prev, [name]: checked }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: cleanValue }));
-    }
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : cleanValue,
+    }));
   };
 
   const handlePhoneChange = (value) =>
@@ -89,6 +99,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.acceptTerms) {
       toast.error("❌ You must accept Terms & Privacy Policy.");
       return;
@@ -117,23 +128,22 @@ const Register = () => {
     if (!password) return toast.error("Password is required.");
     if (password !== password2) return toast.error("Passwords do not match.");
 
+    // Backend expects "name" not "full_name"
     const payload = { name: full_name, email, phone, dob, gender, password, password2 };
     let requestFn = authAPI.register;
 
-    if (role === "WORKER") {
+    if (role === "worker") {
       if (!access_code.trim()) return toast.error("Access code is required.");
       if (!worker_category_id) return toast.error("Worker category is required.");
       payload.access_code = access_code;
       payload.worker_category_id = worker_category_id;
-      requestFn = authAPI.internalRegister;
-    } else if (role === "VENDOR") {
+      requestFn = authAPI.internalRegister; // POST /admin/internal-register/
+    } else if (role === "vendor") {
       if (!company_name.trim()) return toast.error("Company name is required.");
       payload.company_name = company_name;
-      requestFn = authAPI.register;
-    } else if (role === "PARTNER") {
+    } else if (role === "partner") {
       if (!agency_name.trim()) return toast.error("Agency name is required.");
       payload.agency_name = agency_name;
-      requestFn = authAPI.register;
     }
 
     setLoading(true);
@@ -167,26 +177,15 @@ const Register = () => {
     }
   };
 
-  const toggleDarkMode = () => {
-    const updated = !darkMode;
-    setDarkMode(updated);
-    document.body.classList.toggle("dark", updated);
-    localStorage.setItem("darkMode", updated);
-  };
-
+  /* ---------------- UI ---------------- */
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
-        <ToastContainer position="top-right" autoClose={4000} />
-
         {/* Left Branding Panel */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
-          <h2>Ethical Multimedia GH</h2>
-          <p>
-            Empowering creatives, vendors, and partners with ethical,
-            community-driven technology.
-          </p>
+          <h2>Eethmgh Multimedia</h2>
+          <p>Empowering creatives, vendors & partners with technology.</p>
           <button className="toggle-theme-btn" onClick={toggleDarkMode}>
             {darkMode ? "🌙 Dark Mode" : "☀️ Light Mode"}
           </button>
@@ -200,23 +199,19 @@ const Register = () => {
             <div className="input-group">
               <label>Account Type</label>
               <select name="role" value={form.role} onChange={handleChange}>
-                <option value="USER">Regular User</option>
-                <option value="WORKER">Worker</option>
-                <option value="VENDOR">Vendor</option>
-                <option value="PARTNER">Partner</option>
+                <option value="user">Regular User</option>
+                <option value="worker">Worker</option>
+                <option value="vendor">Vendor</option>
+                <option value="partner">Partner</option>
               </select>
             </div>
 
             {/* Conditional Fields */}
-            {form.role === "WORKER" && (
+            {form.role === "worker" && (
               <>
                 <div className="input-group">
                   <label>Access Code</label>
-                  <input
-                    name="access_code"
-                    value={form.access_code}
-                    onChange={handleChange}
-                  />
+                  <input name="access_code" value={form.access_code} onChange={handleChange} />
                 </div>
                 <div className="input-group">
                   <label>Worker Category ID</label>
@@ -229,61 +224,35 @@ const Register = () => {
                 </div>
               </>
             )}
-            {form.role === "VENDOR" && (
+            {form.role === "vendor" && (
               <div className="input-group">
                 <label>Company Name</label>
-                <input
-                  name="company_name"
-                  value={form.company_name}
-                  onChange={handleChange}
-                />
+                <input name="company_name" value={form.company_name} onChange={handleChange} />
               </div>
             )}
-            {form.role === "PARTNER" && (
+            {form.role === "partner" && (
               <div className="input-group">
                 <label>Agency Name</label>
-                <input
-                  name="agency_name"
-                  value={form.agency_name}
-                  onChange={handleChange}
-                />
+                <input name="agency_name" value={form.agency_name} onChange={handleChange} />
               </div>
             )}
 
             {/* Common Fields */}
             <div className="input-group">
               <label>Full Name</label>
-              <input
-                name="full_name"
-                value={form.full_name}
-                onChange={handleChange}
-              />
+              <input name="full_name" value={form.full_name} onChange={handleChange} />
             </div>
             <div className="input-group">
               <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-              />
+              <input type="email" name="email" value={form.email} onChange={handleChange} />
             </div>
             <div className="input-group">
               <label>Phone</label>
-              <PhoneInput
-                defaultCountry="GH"
-                value={form.phone}
-                onChange={handlePhoneChange}
-              />
+              <PhoneInput defaultCountry="GH" value={form.phone} onChange={handlePhoneChange} />
             </div>
             <div className="input-group">
               <label>Date of Birth</label>
-              <input
-                type="date"
-                name="dob"
-                value={form.dob}
-                onChange={handleChange}
-              />
+              <input type="date" name="dob" value={form.dob} onChange={handleChange} />
             </div>
             <div className="input-group">
               <label>Gender</label>
@@ -295,7 +264,7 @@ const Register = () => {
               </select>
             </div>
 
-            {/* Passwords using shared component */}
+            {/* Passwords */}
             <div className="input-group">
               <label>Password</label>
               <PasswordInput
@@ -306,7 +275,6 @@ const Register = () => {
                 onStrengthChange={setPasswordStrength}
               />
             </div>
-
             <div className="input-group">
               <label>Confirm Password</label>
               <PasswordInput

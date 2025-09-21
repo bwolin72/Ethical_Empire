@@ -1,34 +1,35 @@
 // src/pages/auth/ForgotPassword.jsx
-import React, { useState } from 'react';
-import './ForgotResetPassword.css';
-import authAPI from '../../api/authAPI';
+import React, { useState } from "react";
+import "./ForgotResetPassword.css";
+import authService from "../../api/authService"; // ✅ match with your service export
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
     setLoading(true);
 
     try {
-      const response = await authAPI.resetPassword({ email });
+      // ✅ Call authService instead of authAPI
+      const response = await authService.resetPassword({ email });
 
       setMessage(
         response?.data?.detail ||
-          'Password reset email sent. Please check your inbox.'
+          "Password reset email sent. Please check your inbox."
       );
-      setEmail('');
+      setEmail("");
     } catch (err) {
-      console.error('Password reset error:', err);
+      console.error("Password reset error:", err);
       setError(
         err.response?.data?.detail ||
           err.response?.data?.error ||
-          'An error occurred. Please try again.'
+          "An error occurred. Please try again."
       );
     } finally {
       setLoading(false);
@@ -64,7 +65,7 @@ const ForgotPassword = () => {
         />
 
         <button type="submit" disabled={loading}>
-          {loading ? 'Sending...' : 'Send Reset Email'}
+          {loading ? "Sending..." : "Send Reset Email"}
         </button>
       </form>
     </div>

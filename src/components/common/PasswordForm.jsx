@@ -1,0 +1,176 @@
+// src/components/common/PasswordForm.jsx
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import DOMPurify from "dompurify";
+import authAPI from "../../api/authAPI";
+import PasswordInput from "./PasswordInput";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../styles/PasswordForm.css";
+
+/**
+ * Props:
+ * - mode: "forgot" | "reset" | "update"
+ * - showCurrent?: boolean (for update mode)
+ */
+const PasswordForm = ({ mode = "forgot", showCurrent = false }) => {
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+
+  // States
+  const [email, setEmail] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  // Reset-only params
+  const uid = params.get("uid");
+  const token = params.get("token");
+
+  useEffect(() => {
+    if (mode === "reset" && (!uid || !token)) {
+      toast.error("❌ Missing reset credentials.");
+      navigate("/reset-password");
+    }
+  }, [mode, uid, token, navigate]);
+
+  const getPasswordStrength = (password) => {
+    if (password.length < 6) return "Weak";
+    if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8)
+      return "Strong";
+    return "Medium";
+  };
+
+  const handlePasswordChange = (setter) => (e) => {
+    const cleanValue = DOMPurify.sanitize(e.target.value);
+    setter(cleanValue);
+    if (setter === setNewPassword) setPasswordStrength(getPasswordStrength(cleanValue));
+  };
+
+  const extractErrorMessage = (err) => {
+    const data = err?.response?.data;
+    if (!data) return "Unexpected error. Please try again.";
+    if (data.detail) return data.detail;
+    if (data.error) return data.error;
+    if (typeof data === "string") return data;
+    return JSON.stringify(data);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage("");
+    setError("");
+
+    // Mode-specific validation
+    if (mode === "forgot" && !email) return toast.warn("⚠️ Please enter your email.");
+    if ((mode === "reset" || mode === "update") && !newPassword)
+      return toast.warn("⚠️ Please enter a new password.");
+    if ((mode === "reset" || mode === "update") && newPassword !== confirmPassword)
+      return toast.error("❌ Passwords do not match.");
+    if (mode === "update" && showCurrent && !currentPassword)
+      return toast.warn("⚠️ Please enter your current password.");
+
+    setLoading(true);
+
+    try {
+      if (mode === "forgot") {
+        const response = await authAPI.resetPassword({ email });
+        setMessage(response?.data?.detail || "✅ Password reset email sent.");
+        setEmail("");
+      } else if (mode === "reset") {
+        await authAPI.resetPasswordConfirm(uid, token, { password: newPassword });
+        toast.success("✅ Password has been reset. Redirecting...");
+        setTimeout(() => navigate("/login"), 2500);
+      } else if (mode === "update") {
+        await authAPI.changePassword({ current_password: currentPassword, new_password: newPassword });
+        toast.success("✅ Password changed successfully.");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err) {
+      const backendError = extractErrorMessage(err);
+      toast.error(backendError);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="password-form-container">
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
+      <form className="password-form" onSubmit={handleSubmit}>
+        <h2>
+          {mode === "forgot" && "Forgot Password"}
+          {mode === "reset" && "Reset Password"}
+          {mode === "update" && "Change Password"}
+        </h2>
+
+        {message && <p className="form-message success">{message}</p>}
+        {error && <p className="form-message error">{error}</p>}
+
+        {mode === "forgot" && (
+          <input
+            type="email"
+            placeholder="Enter your registered email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        )}
+
+        {mode === "update" && showCurrent && (
+          <PasswordInput
+            label="Current Password"
+            value={currentPassword}
+            onChange={handlePasswordChange(setCurrentPassword)}
+            placeholder="Current Password"
+            name="current-password"
+          />
+        )}
+
+        {(mode === "reset" || mode === "update") && (
+          <>
+            <PasswordInput
+              label="New Password"
+              value={newPassword}
+              onChange={handlePasswordChange(setNewPassword)}
+              placeholder="New Password"
+              name="new-password"
+            />
+
+            {newPassword && (
+              <div className={`password-strength ${passwordStrength.toLowerCase()}`}>
+                Password Strength: {passwordStrength}
+              </div>
+            )}
+
+            <PasswordInput
+              label="Confirm New Password"
+              value={confirmPassword}
+              onChange={handlePasswordChange(setConfirmPassword)}
+              placeholder="Confirm New Password"
+              name="confirm-password"
+            />
+          </>
+        )}
+
+        <button type="submit" className="btn" disabled={loading}>
+          {loading
+            ? "Submitting..."
+            : mode === "forgot"
+            ? "Send Reset Email"
+            : mode === "reset"
+            ? "Reset Password"
+            : "Update Password"}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default PasswordForm;
