@@ -1,6 +1,6 @@
 // src/components/ui/Tabs.jsx
 import React from 'react';
-import './ui.css';
+import '../styles/ui.css';
 
 export const Tabs = ({ children, defaultValue, onValueChange, className }) => {
   const [value, setValue] = React.useState(defaultValue);

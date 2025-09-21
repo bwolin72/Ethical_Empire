@@ -1,6 +1,6 @@
 // src/components/ui/Checkbox.jsx
 import React from 'react';
-import './ui.css';
+import '../styles/ui.css';
 
 export const Checkbox = ({ checked, onCheckedChange, className = '' }) => {
   return (
