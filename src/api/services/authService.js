@@ -1,7 +1,7 @@
 // src/api/authService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
-import API from "./authAPI";
+import API from "../authAPI";
 
 const authService = {
   // ===== AUTH =====
