@@ -1,7 +1,6 @@
-// src/api/authService.js
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
-import API from "../authAPI";
+import API from "./authAPI";
 
 // === Token Helpers ===
 const TOKEN_KEY = "access";
@@ -11,9 +10,7 @@ const saveTokens = ({ access, refresh }) => {
   if (access) localStorage.setItem(TOKEN_KEY, access);
   if (refresh) localStorage.setItem(REFRESH_KEY, refresh);
 
-  axiosInstance.defaults.headers.common[
-    "Authorization"
-  ] = `Bearer ${access}`;
+  axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${access}`;
 };
 
 const clearTokens = () => {
@@ -29,9 +26,7 @@ const getRefreshToken = () => localStorage.getItem(REFRESH_KEY);
 const initToken = () => {
   const token = getAccessToken();
   if (token) {
-    axiosInstance.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${token}`;
+    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 };
 initToken();

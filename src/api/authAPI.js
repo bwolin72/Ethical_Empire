@@ -1,12 +1,11 @@
-// src/api/authAPI.js
 import baseURL from "./baseURL";
 
 const API = {
   // ===== AUTH =====
-  login: `${baseURL}/accounts/login/`,
-  logout: `${baseURL}/accounts/profile/logout/`,
-  googleLogin: `${baseURL}/accounts/google-login/`,       // new
-  googleRegister: `${baseURL}/accounts/google-register/`, // new
+  login: `${baseURL}/accounts/token/`,                  // JWT login
+  logout: `${baseURL}/accounts/profile/logout/`,       // session logout
+  googleLogin: `${baseURL}/accounts/google-auth/`,
+  googleRegister: `${baseURL}/accounts/google-auth/`,
 
   // ===== REGISTRATION =====
   register: `${baseURL}/accounts/register/`,
@@ -24,9 +23,9 @@ const API = {
   // ===== PASSWORD RESET =====
   resetPassword: `${baseURL}/accounts/reset-password/`,
   resetPasswordConfirm: (uid, token) =>
-    `${baseURL}/accounts/reset-password-confirm/${uid}/${token}/`, // alias uid
+    `${baseURL}/accounts/reset-password-confirm/${uid}/${token}/`,
   resetPasswordConfirmUidb64: (uidb64, token) =>
-    `${baseURL}/accounts/reset-password-confirm/${uidb64}/${token}/`, // backend naming
+    `${baseURL}/accounts/reset-password-confirm/${uidb64}/${token}/`,
 
   // ===== TOKENS (JWT) =====
   token: `${baseURL}/accounts/token/`,

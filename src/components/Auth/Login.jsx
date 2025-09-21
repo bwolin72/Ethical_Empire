@@ -1,13 +1,14 @@
+// src/pages/auth/Login.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import authService from "../../api/services/authService";
+import authService from "../../api/services/authService"; // ✅ uses JWT endpoints
 import { useAuth } from "../context/AuthContext";
 import logo from "../../assets/logo.png";
-import PasswordInput from "../common/PasswordInput";   // ✅ shared password field
+import PasswordInput from "../common/PasswordInput";
 import "./Auth.css";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -110,11 +111,11 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const res = await authService.login(form);          // ✅ use authService
+      // ✅ Use authService.login for JWT endpoint
+      const res = await authService.login(form);
       handleLoginSuccess(res.data);
     } catch (err) {
-      const msg = extractErrorMessage(err);
-      toast.error(msg);
+      toast.error(extractErrorMessage(err));
       setForm((prev) => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
@@ -128,7 +129,7 @@ const Login = () => {
     }
     setLoading(true);
     try {
-      const res = await authService.googleLogin({ credential }); // ✅ use authService
+      const res = await authService.googleLogin({ credential });
       handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
