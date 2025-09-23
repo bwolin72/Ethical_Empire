@@ -1,19 +1,26 @@
-/* ===============================
-   🌟 Navbar Styles (Themed)
-   =============================== */
+/* Navbar container + effect */
 .navbar {
   position: sticky;
   top: 0;
   width: 100%;
   z-index: 1000;
-  background: rgba(31, 41, 55, 0.85); /* matches --color-neutral-dark */
+  background: rgba(31, 41, 55, 0.85);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   animation: fade-in-up 0.6s var(--transition-fast) both;
   box-shadow: var(--shadow-md);
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+.navbar.hide { transform: translateY(-100%); opacity: 0; }
+.navbar.show { transform: translateY(0); opacity: 1; }
+
+/* fade-in-up keyframes (was referenced in original) */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Navbar Container */
+/* Navbar inner container */
 .navbar-container {
   max-width: 1300px;
   margin: 0 auto;
@@ -24,9 +31,7 @@
   font-family: var(--font-main);
 }
 
-/* ===============================
-   🔰 Logo
-   =============================== */
+/* Logo */
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -34,16 +39,8 @@
   text-decoration: none;
   transition: transform var(--transition-fast);
 }
-
-.navbar-logo:hover {
-  transform: scale(1.05);
-}
-
-.logo-img {
-  height: 42px;
-  width: auto;
-}
-
+.navbar-logo:hover { transform: scale(1.05); }
+.logo-img { height: 42px; width: auto; }
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
@@ -52,9 +49,7 @@
   font-family: var(--font-accent);
 }
 
-/* ===============================
-   📱 Mobile Menu Icon
-   =============================== */
+/* Menu icon */
 .menu-icon {
   font-size: 2rem;
   background: none;
@@ -64,20 +59,15 @@
   display: none;
   transition: transform var(--transition-fast);
 }
-
-.menu-icon:hover {
-  transform: rotate(90deg);
-}
-
+.menu-icon:hover { transform: rotate(8deg); }
+.menu-icon.open { transform: rotate(90deg); }
 .menu-icon:focus-visible {
   outline: 2px solid var(--color-accent-gold);
   outline-offset: 3px;
   border-radius: var(--radius-sm);
 }
 
-/* ===============================
-   📂 Navigation Menu
-   =============================== */
+/* Nav menu (desktop) */
 .nav-menu {
   display: flex;
   list-style: none;
@@ -86,13 +76,8 @@
   transition: all var(--transition-slow);
 }
 
-.nav-item {
-  position: relative;
-}
-
-/* ===============================
-   🔗 Nav Links
-   =============================== */
+/* Nav items and links */
+.nav-item { position: relative; }
 .nav-links {
   color: var(--color-white);
   text-decoration: none;
@@ -101,18 +86,20 @@
   position: relative;
   transition: color var(--transition-fast);
 }
+.nav-links:hover { color: var(--color-accent-gold); }
 
-.nav-links:hover {
-  color: var(--color-accent-gold);
-}
+/* active state */
+.nav-links.active { color: var(--color-accent-gold); }
+.nav-links.active::after { width: 100%; }
 
+/* focus */
 .nav-links:focus-visible {
   outline: 2px solid var(--color-accent-gold);
   outline-offset: 4px;
   border-radius: var(--radius-sm);
 }
 
-/* Underline Animation */
+/* underline animation */
 .nav-links::after {
   content: '';
   position: absolute;
@@ -124,18 +111,10 @@
   transition: all var(--transition-fast);
   transform: translateX(-50%);
 }
+.nav-links:hover::after { width: 100%; }
 
-.nav-links:hover::after {
-  width: 100%;
-}
-
-/* ===============================
-   ⬇️ Dropdown
-   =============================== */
-.dropdown {
-  position: relative;
-}
-
+/* Dropdown basics */
+.dropdown { position: relative; }
 .dropdown-toggle {
   background: none;
   border: none;
@@ -147,22 +126,17 @@
   align-items: center;
   gap: 0.3rem;
 }
-
 .dropdown-toggle:focus-visible {
   outline: 2px solid var(--color-accent-gold);
   outline-offset: 4px;
   border-radius: var(--radius-sm);
 }
 
-.caret {
-  transition: transform var(--transition-fast);
-}
+/* caret */
+.caret { transition: transform var(--transition-fast); }
+.caret.rotated { transform: rotate(180deg); }
 
-.caret.rotated {
-  transform: rotate(180deg);
-}
-
-/* Dropdown Menu */
+/* Dropdown menu */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -180,36 +154,29 @@
   z-index: 999;
   padding: 0.25rem 0;
 }
-
 .dropdown-menu.active {
   opacity: 1;
   transform: translateY(0);
   visibility: visible;
 }
 
-.dropdown:hover .dropdown-menu.desktop {
-  opacity: 1;
-  transform: translateY(0);
-  visibility: visible;
-}
+/* Desktop hover also shows dropdown */
+.dropdown:hover .dropdown-menu.desktop { opacity: 1; transform: translateY(0); visibility: visible; }
 
-/* Dropdown Items */
+/* Dropdown items */
 .dropdown-item {
   padding: 0.75rem 1rem;
   cursor: pointer;
   color: var(--color-white);
   transition: background var(--transition-fast), padding-left var(--transition-fast);
 }
-
 .dropdown-item:hover,
 .dropdown-item:focus-visible {
-  background: rgba(212, 175, 55, 0.15); /* gold tint */
+  background: rgba(212, 175, 55, 0.15);
   padding-left: 1.25rem;
 }
 
-/* ===============================
-   🚪 Logout Button
-   =============================== */
+/* Logout button */
 .logout-btn {
   border: 1px solid var(--color-accent-gold);
   padding: 0.4rem 0.8rem;
@@ -219,26 +186,14 @@
   font-weight: 500;
   transition: all var(--transition-fast);
 }
+.logout-btn:hover { background: var(--color-accent-gold); color: var(--color-black); }
+.logout-btn:focus-visible { outline: 2px solid var(--color-accent-gold); outline-offset: 3px; }
 
-.logout-btn:hover {
-  background: var(--color-accent-gold);
-  color: var(--color-black);
-}
-
-.logout-btn:focus-visible {
-  outline: 2px solid var(--color-accent-gold);
-  outline-offset: 3px;
-}
-
-/* ===============================
-   📱 Responsive
-   =============================== */
+/* Mobile */
 @media screen and (max-width: 960px) {
-  .menu-icon {
-    display: block;
-  }
-
-  .nav-menu {
+  .menu-icon { display: block; }
+  .nav-menu { display: none; } /* hide default desktop nav */
+  .nav-menu.mobile {
     position: absolute;
     top: 70px;
     right: -100%;
@@ -252,16 +207,8 @@
     opacity: 0;
     transition: all var(--transition-slow);
   }
-
-  .nav-menu.active {
-    right: 0;
-    opacity: 1;
-  }
-
-  .dropdown-menu.desktop {
-    display: none;
-  }
-
+  .nav-menu.mobile.active { right: 0; opacity: 1; display:flex; }
+  .dropdown-menu.desktop { display: none; }
   .dropdown-menu.mobile {
     position: static;
     background: transparent;
@@ -271,13 +218,10 @@
     transform: none;
     padding-left: 1rem;
   }
-
-  .dropdown-menu.mobile:not(.active) {
-    display: none;
-  }
+  .dropdown-menu.mobile:not(.active) { display: none; }
 }
 
-/* Accessibility - reduce motion */
+/* reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .navbar,
   .navbar-logo,
@@ -290,63 +234,4 @@
     transition: none !important;
     animation: none !important;
   }
-}
-/* ensure desktop nav is visible when rendered */
-.nav-menu {
-  display: flex;
-  list-style: none;
-  gap: 1.5rem;
-  align-items: center;
-}
-
-/* mobile-specific */
-.nav-menu.mobile {
-  position: absolute;
-  top: 70px;
-  right: -100%;
-  width: 100%;
-  height: calc(100vh - 70px);
-  background: var(--color-neutral-dark);
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 2rem 1.5rem;
-  gap: 1.5rem;
-  opacity: 0;
-  transition: all var(--transition-slow);
-}
-
-/* when AnimatePresence mounts, we use .active to slide in */
-.nav-menu.mobile.active {
-  right: 0;
-  opacity: 1;
-}
-
-/* keep dropdown desktop logic using :hover */
-.dropdown:hover .dropdown-menu.desktop {
-  opacity: 1;
-  transform: translateY(0);
-  visibility: visible;
-}
-
-/* mobile dropdown uses .active */
-.dropdown-menu.mobile {
-  display: none; /* hidden unless .active */
-}
-.dropdown-menu.mobile.active {
-  display: block;
-  padding-left: 1rem;
-}
-/* Scroll hide/show animation */
-.navbar {
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-}
-
-.navbar.hide {
-  transform: translateY(-100%);
-  opacity: 0;
-}
-
-.navbar.show {
-  transform: translateY(0);
-  opacity: 1;
 }
