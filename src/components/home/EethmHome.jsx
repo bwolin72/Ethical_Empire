@@ -177,6 +177,7 @@ const EethmHome = () => {
           title="What Our Clients Say"
           description="Here’s what people think about our services"
         >
+          {/* Only show approved reviews, hide form on homepage */}
           <Reviews limit={6} hideForm={true} />
         </ReviewsLayout>
       </FadeInSection>
