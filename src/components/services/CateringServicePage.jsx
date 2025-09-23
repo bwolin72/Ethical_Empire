@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import "../styles/ui.css"; // unified styles
 import { Card, CardContent } from "../ui/Card";
 import { motion } from "framer-motion";
 import axiosCommon from "../../api/axiosCommon";
