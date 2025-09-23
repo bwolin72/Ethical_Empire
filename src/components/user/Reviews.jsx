@@ -15,6 +15,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  // ✅ Match Django SERVICE_CHOICES exactly
   const SERVICE_OPTIONS = [
     "Live Band",
     "DJ",
@@ -35,8 +36,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const res = await reviewService.getReviews();
-      let data = res.data;
+      let data = await reviewService.getApprovedReviews();
 
       if (limit) {
         data = data.slice(0, limit);
@@ -60,7 +60,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
     setError("");
 
     try {
-      await reviewService.createReview(formData);
+      await reviewService.submitReview(formData);
       setFormData({ service: "", rating: "", comment: "" });
       fetchReviews();
     } catch (err) {
@@ -146,7 +146,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
           {reviews.map((review) => (
             <Card key={review.id}>
               <CardContent>
-                <p className="font-semibold">{review.service_display}</p>
+                <p className="font-semibold">{review.service}</p>
                 <p className="text-yellow-600">Rating: {review.rating}/5</p>
                 <p className="mt-2">{review.comment}</p>
                 <p className="text-sm text-gray-500 mt-2">
