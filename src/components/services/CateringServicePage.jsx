@@ -19,6 +19,7 @@ import Services from "../home/Services";
 import FadeInSection from "../FadeInSection";
 import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
+import "./catering.custom.css";
 
 const CateringPage = () => {
   const navigate = useNavigate();
