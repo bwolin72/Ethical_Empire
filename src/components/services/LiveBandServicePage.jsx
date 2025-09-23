@@ -11,7 +11,7 @@ import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
 
 import useFetcher from "../../hooks/useFetcher";
-import "./liveband.css"
+import "./liveband.css";
 
 const toArray = (payload) =>
   Array.isArray(payload?.data) ? payload.data :
