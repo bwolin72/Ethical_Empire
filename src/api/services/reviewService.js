@@ -1,36 +1,50 @@
 import reviewsAPI from "../reviewsAPI";
 
 const reviewService = {
-  // Fetch approved reviews
+  /**
+   * Fetch approved reviews from backend.
+   * Optionally filter by category/service.
+   */
   async getApprovedReviews(params = {}) {
-    const data = await reviewsAPI.listApproved();
+    const response = await reviewsAPI.listApproved(); // axios response
+    let data = Array.isArray(response.data) ? response.data : [];
+
     if (params.category) {
-      return data.filter((r) => r.service === params.category);
+      data = data.filter(r => r.service === params.category);
     }
     return data;
   },
 
-  // Submit a new review
+  /**
+   * Submit a new review.
+   * Review is unapproved until admin approves.
+   */
   async submitReview(reviewData) {
-    const data = await reviewsAPI.create(reviewData);
-    return data;
+    const response = await reviewsAPI.create(reviewData);
+    return response.data;
   },
 
-  // Admin-only functions
+  /**
+   * Admin-only functions
+   */
   async getAllReviewsAdmin() {
-    return await reviewsAPI.listAllAdmin();
+    const response = await reviewsAPI.listAllAdmin();
+    return response.data;
   },
 
   async approveReview(id) {
-    return await reviewsAPI.approve(id);
+    const response = await reviewsAPI.approve(id);
+    return response.data;
   },
 
   async replyToReview(id, reply) {
-    return await reviewsAPI.reply(id, reply);
+    const response = await reviewsAPI.reply(id, reply);
+    return response.data;
   },
 
   async deleteReview(id) {
-    return await reviewsAPI.delete(id);
+    const response = await reviewsAPI.delete(id);
+    return response.data;
   },
 };
 
