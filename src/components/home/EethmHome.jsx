@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FadeInSection from "../FadeInSection";
@@ -10,7 +10,9 @@ import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
 
 import useFetcher from "../../hooks/useFetcher";
-import apiService from "../../api/apiService";
+import Reviews from "../user/Reviews";
+import ReviewsLayout from "../user/ReviewsLayout";
+
 import "./EethmHome.css";
 
 // --- Helpers ---
@@ -59,28 +61,6 @@ const EethmHome = () => {
     { resource: "media" }
   );
 
-  // --- Reviews ---
-  const [reviews, setReviews] = useState([]);
-  const [loadingReviews, setLoadingReviews] = useState(true);
-
-  const fetchReviews = useCallback(async () => {
-    setLoadingReviews(true);
-    try {
-      if (typeof apiService.getReviews !== "function") return setReviews([]);
-      const res = await apiService.getReviews();
-      setReviews(Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []);
-    } catch (err) {
-      console.error("Error fetching reviews:", err);
-      setReviews([]);
-    } finally {
-      setLoadingReviews(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchReviews();
-  }, [fetchReviews]);
-
   // --- Hero video ---
   const [videoUrl, setVideoUrl] = useState(null);
   const videoRef = useRef(null);
@@ -122,17 +102,31 @@ const EethmHome = () => {
             <div className="overlay-gradient" />
             <div className="overlay-content">
               <h1 className="hero-title">Welcome to Eethm_GH</h1>
-              <p className="hero-subtitle">Experience our ministrations and highlights</p>
+              <p className="hero-subtitle">
+                Experience our ministrations and highlights
+              </p>
               <div className="hero-buttons">
-                <button className="btn-primary" onClick={() => navigate("/bookings")}>Book Now</button>
-                <button className="btn-secondary" onClick={() => setShowNewsletterForm(true)}>📩 Subscribe</button>
+                <button
+                  className="btn-primary"
+                  onClick={() => navigate("/bookings")}
+                >
+                  Book Now
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => setShowNewsletterForm(true)}
+                >
+                  📩 Subscribe
+                </button>
               </div>
             </div>
             <button
               className="mute-button"
               onClick={toggleMute}
               aria-pressed={!isMuted}
-              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+              aria-label={
+                isMuted ? "Unmute background video" : "Mute background video"
+              }
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
@@ -160,48 +154,50 @@ const EethmHome = () => {
           <h2 className="media-cards-title">Our Media Library</h2>
           <div className="media-cards-scroll-wrapper">
             {mediaLoading
-              ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-              : mediaCards.length > 0
-                ? mediaCards.slice(0, 6).map((media, idx) => (
-                    <MediaCard key={media.id ?? media._id ?? media.url ?? idx} media={media} />
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <MediaSkeleton key={i} />
+                ))
+              : mediaCards.length > 0 ? (
+                  mediaCards.slice(0, 6).map((media, idx) => (
+                    <MediaCard
+                      key={media.id ?? media._id ?? media.url ?? idx}
+                      media={media}
+                    />
                   ))
-                : <p className="muted-text">No media available at the moment.</p>}
+                ) : (
+                  <p className="muted-text">No media available at the moment.</p>
+                )}
           </div>
         </section>
       </FadeInSection>
 
       {/* CLIENT REVIEWS */}
       <FadeInSection>
-        <section className="content-section reviews-section">
-          <h2>What Our Clients Say</h2>
-          {loadingReviews ? (
-            <div className="reviews-skeleton">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="review-card skeleton" />
-              ))}
-            </div>
-          ) : reviews.length ? (
-            <div className="reviews-container">
-              {reviews.slice(0, 6).map((r, idx) => (
-                <div key={r.id ?? r._id ?? idx} className="review-card">
-                  <p className="review-text">"{r.comment || r.message}"</p>
-                  <p className="review-author">— {r.name || r.user?.username || "Anonymous"}</p>
-                  {r.rating && <p className="review-rating">⭐ {r.rating}/5</p>}
-                  {r.reply && <p className="review-reply"><strong>Reply:</strong> {r.reply}</p>}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="muted-text">No reviews yet.</p>
-          )}
-        </section>
+        <ReviewsLayout
+          title="What Our Clients Say"
+          description="Here’s what people think about our services"
+        >
+          <Reviews limit={6} hideForm={true} />
+        </ReviewsLayout>
       </FadeInSection>
 
       {/* NEWSLETTER MODAL */}
       {showNewsletterForm && (
-        <div className="newsletter-modal-backdrop" onClick={() => setShowNewsletterForm(false)}>
-          <div className="newsletter-modal" onClick={(e) => e.stopPropagation()} role="dialog">
-            <button className="newsletter-close-btn" onClick={() => setShowNewsletterForm(false)}>&times;</button>
+        <div
+          className="newsletter-modal-backdrop"
+          onClick={() => setShowNewsletterForm(false)}
+        >
+          <div
+            className="newsletter-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+          >
+            <button
+              className="newsletter-close-btn"
+              onClick={() => setShowNewsletterForm(false)}
+            >
+              &times;
+            </button>
             <NewsletterSignup />
           </div>
         </div>
