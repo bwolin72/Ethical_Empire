@@ -1,7 +1,7 @@
 import axiosInstance from "./axiosInstance";
 import publicAxios from "./publicAxios";
 
-const REVIEWS_BASE = "/api/reviews/";
+const REVIEWS_BASE = "/reviews/";
 
 const reviewsAPI = {
   // ---- Public ----
