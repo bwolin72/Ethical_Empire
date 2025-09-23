@@ -1,6 +1,6 @@
 import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
-import API from "./authAPI";
+import API from "../authAPI";
 
 // ===== TOKEN KEYS =====
 const TOKEN_KEY = "access";
