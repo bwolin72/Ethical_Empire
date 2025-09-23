@@ -34,7 +34,8 @@ const Reviews = ({ limit = null, hideForm = false }) => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      let data = await reviewService.getApprovedReviews(); // already an array
+      let data = await reviewService.getApprovedReviews();
+      if (!Array.isArray(data)) data = [];
       if (limit) data = data.slice(0, limit);
       setReviews(data);
     } catch (err) {
@@ -67,6 +68,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
 
   return (
     <div className="reviews-component">
+      {/* Optional review form */}
       {!hideForm && (
         <Card className="mb-6">
           <CardContent>
@@ -125,6 +127,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
         </Card>
       )}
 
+      {/* Reviews list */}
       <h2 className="text-lg font-semibold mb-3">Approved Reviews</h2>
       {loading ? (
         <p>Loading reviews...</p>
