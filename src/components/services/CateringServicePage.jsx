@@ -1,9 +1,7 @@
-// frontend/src/components/pages/CateringPage.jsx
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import "../styles/ui.css"; // uses all your unified styles
+import "../styles/ui.css"; // unified styles
 import { Card, CardContent } from "../ui/Card";
 import { motion } from "framer-motion";
-import publicAxios from "../../api/publicAxios";
 import axiosCommon from "../../api/axiosCommon";
 import MediaCards from "../context/MediaCards";
 import BannerCards from "../context/BannerCards";
@@ -18,12 +16,13 @@ import {
   FaSeedling,
 } from "react-icons/fa";
 import Services from "../home/Services";
+import FadeInSection from "../FadeInSection";
+import Reviews from "../user/Reviews";
+import ReviewsLayout from "../user/ReviewsLayout";
 
 const CateringPage = () => {
   const navigate = useNavigate();
 
-  const [testimonials, setTestimonials] = useState([]);
-  const [loadingReviews, setLoadingReviews] = useState(true);
   const [videoUrl, setVideoUrl] = useState("");
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
@@ -61,22 +60,7 @@ const CateringPage = () => {
     "Cocktail Receptions",
   ];
 
-  const fetchReviews = useCallback(async () => {
-    setLoadingReviews(true);
-    try {
-      const { data } = await publicAxios.get("/reviews/");
-      const approved = Array.isArray(data)
-        ? data.filter((r) => r.approved)
-        : [];
-      setTestimonials(approved);
-    } catch (err) {
-      console.error(err);
-      setTestimonials([]);
-    } finally {
-      setLoadingReviews(false);
-    }
-  }, []);
-
+  // ===== Fetch hero video =====
   const fetchHeroVideo = useCallback(async () => {
     try {
       const { data } = await axiosCommon.get(
@@ -93,9 +77,8 @@ const CateringPage = () => {
   }, []);
 
   useEffect(() => {
-    fetchReviews();
     fetchHeroVideo();
-  }, [fetchReviews, fetchHeroVideo]);
+  }, [fetchHeroVideo]);
 
   const toggleMute = () => {
     setIsMuted((prev) => {
@@ -213,33 +196,15 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="section testimonial-section" aria-live="polite">
-        <h2>What Clients Say</h2>
-        <div className="card-grid">
-          {loadingReviews
-            ? [...Array(3)].map((_, i) => (
-                <div key={i} className="card testimonial-card skeleton shimmer">
-                  <div className="testimonial-text">Loading review...</div>
-                  <div className="testimonial-user">Loading...</div>
-                </div>
-              ))
-            : testimonials.slice(0, 6).map((review) => (
-                <motion.div key={review.id} whileHover={{ scale: 1.02 }}>
-                  <Card className="testimonial-card card">
-                    <CardContent>
-                      <p className="testimonial-text">
-                        "{review.comment || "No comment provided."}"
-                      </p>
-                      <p className="testimonial-user">
-                        — {review.user_email || "Anonymous"}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-        </div>
-      </section>
+      {/* ===== CLIENT REVIEWS ===== */}
+      <FadeInSection>
+        <ReviewsLayout
+          title="What Our Clients Say"
+          description="Here’s what people think about our services"
+        >
+          <Reviews limit={6} hideForm={true} />
+        </ReviewsLayout>
+      </FadeInSection>
 
       {/* Other Services */}
       <section className="section other-services-section">
