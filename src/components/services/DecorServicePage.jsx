@@ -1,41 +1,51 @@
-// src/components/services/DecorServicePage.jsx
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import "./decor.css";
 
+import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-import BannerCards from "../context/BannerCards";
-import useFetcher from "../../hooks/useFetcher";
-import apiService from "../../api/apiService";
 import Services from "../home/Services";
+import Reviews from "../user/Reviews";
+import ReviewsLayout from "../user/ReviewsLayout";
 
-// ------------------ helpers ------------------
-const toArray = (payload) =>
-  !payload ? [] : Array.isArray(payload) ? payload : Array.isArray(payload.data) ? payload.data : [];
+import useFetcher from "../../hooks/useFetcher";
+import "./decor.css";
 
-const getMediaUrl = (m) => {
-  if (!m) return "";
-  const candidates = [
-    m.url?.full,
-    m.url,
-    m.video_url,
-    m.video_file,
-    m.file_url,
-    m.file,
-    m.src,
-    m.path,
-    m.secure_url,
-  ].filter((c) => typeof c === "string" && c.trim() !== "");
-  return candidates[0] || "";
+// --- Helpers ---
+const toArray = (payload) => {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.data)) return payload.data;
+  return [];
 };
 
-// ------------------ component ------------------
+const getMediaUrl = (m) => {
+  const candidates = [
+    m?.secure_url,
+    m?.url?.full,
+    m?.url,
+    m?.video_url,
+    m?.video_file,
+    m?.file_url,
+    m?.file,
+    m?.src,
+    m?.path,
+  ];
+  const found = candidates.find((c) => typeof c === "string" && c.trim() !== "");
+  return found || "";
+};
+
 export default function DecorServicePage() {
   const navigate = useNavigate();
 
-  // === Hero: Banner images
+  // --- Hero media: prefer videos, else fall back to banners ---
+  const { data: videosRaw, loading: videoLoading } = useFetcher(
+    "videos",
+    "decor",
+    { is_active: true },
+    { resource: "videos" }
+  );
   const { data: bannerRaw, loading: bannerLoading } = useFetcher(
     "media",
     "banner",
@@ -43,18 +53,7 @@ export default function DecorServicePage() {
     { resource: "media" }
   );
 
-  // === Fallback video if no banner
-  const { data: videosRaw, loading: videoLoading } = useFetcher(
-    "videos",
-    "decor",
-    { is_active: true },
-    { resource: "videos" }
-  );
-  const [videoUrl, setVideoUrl] = useState(null);
-  const videoRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(true);
-
-  // Decor gallery media
+  // --- Decor gallery media ---
   const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
     "media",
     "decor",
@@ -62,34 +61,14 @@ export default function DecorServicePage() {
     { resource: "media" }
   );
 
-  // Testimonials
-  const [testimonials, setTestimonials] = useState([]);
-  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
+  // --- Hero video playback control ---
+  const [videoUrl, setVideoUrl] = useState(null);
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
 
-  const fetchTestimonials = useCallback(async () => {
-    setLoadingTestimonials(true);
-    try {
-      const res = await apiService.getReviews({ category: "decor" });
-      setTestimonials(Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []);
-    } catch (err) {
-      console.error("Error loading reviews:", err);
-      setTestimonials([]);
-    } finally {
-      setLoadingTestimonials(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTestimonials();
-  }, [fetchTestimonials]);
-
-  // --- Determine fallback video
   useEffect(() => {
     const videos = toArray(videosRaw);
-    if (!videos.length) {
-      if (!videoLoading) setVideoUrl(null);
-      return;
-    }
+    if (!videos.length && !videoLoading) return setVideoUrl(null);
     const featured = videos.find((v) => v?.is_featured) ?? videos[0];
     setVideoUrl(getMediaUrl(featured) || null);
   }, [videosRaw, videoLoading]);
@@ -107,12 +86,10 @@ export default function DecorServicePage() {
 
   return (
     <div className="decor-page-container">
-      {/* === Hero Section === */}
+      {/* === HERO SECTION === */}
       <section className="banner-section" aria-label="Hero">
-        {bannerItems.length && !bannerLoading ? (
-          <BannerCards items={bannerItems} title="Decor Showcases" />
-        ) : videoUrl && !videoLoading ? (
-          <div className="video-wrapper">
+        {videoUrl && !videoLoading ? (
+          <>
             <video
               ref={videoRef}
               src={videoUrl}
@@ -130,11 +107,11 @@ export default function DecorServicePage() {
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
-          </div>
-        ) : bannerLoading || videoLoading ? (
-          <div className="video-skeleton" />
+          </>
+        ) : bannerItems.length && !bannerLoading ? (
+          <BannerCards items={bannerItems} title="Decor Showcases" />
         ) : (
-          <p className="muted-text">No hero media available.</p>
+          <div className="video-skeleton" />
         )}
       </section>
 
@@ -149,78 +126,67 @@ export default function DecorServicePage() {
         </motion.button>
       </section>
 
-      {/* === Decor Services === */}
+      {/* === DECOR SERVICES === */}
       <section className="section">
         <h2>Our Decor Services</h2>
         <p>
-          From elegant floral arrangements to immersive lighting, explore the
-          services that bring your event to life.
+          From elegant floral arrangements to immersive lighting,
+          explore the services that bring your event to life.
         </p>
         <Services />
       </section>
 
-      {/* === Venue Transformation === */}
+      {/* === VENUE TRANSFORMATION === */}
       <section className="section creative-layout" aria-labelledby="transform-heading">
         <div className="creative-text">
           <h3 id="transform-heading">Transform Your Venue</h3>
           <p>
-            Eethmgh Multimedia creates immersive, elegant decor tailored to your
-            theme. From romantic weddings to vibrant cultural events, we handle
-            every detail—so your space becomes unforgettable.
+            Eethmgh Multimedia creates immersive, elegant decor tailored to your theme.
+            From romantic weddings to vibrant cultural events, we handle every detail—
+            so your space becomes unforgettable.
           </p>
         </div>
         <div className="creative-media">
           {mediaLoading ? (
             Array.from({ length: 2 }).map((_, i) => <MediaSkeleton key={i} />)
           ) : mediaCards.length ? (
-            mediaCards.slice(0, 2).map((m, idx) => <MediaCard key={m.id ?? m._id ?? idx} media={m} />)
+            mediaCards.slice(0, 2).map((m, idx) => (
+              <MediaCard key={m.id ?? m._id ?? idx} media={m} />
+            ))
           ) : (
             <p className="muted-text">No media available.</p>
           )}
         </div>
       </section>
 
-      {/* === Decor Gallery === */}
+      {/* === DECOR GALLERY === */}
       <section className="section">
         <h2>Decor Highlights</h2>
         <p>
-          Every event is a canvas—we decorate with purpose, elegance, and
-          emotion. Discover the beauty of our decor setups in the gallery below.
+          Every event is a canvas—we decorate with purpose, elegance,
+          and emotion. Discover the beauty of our decor setups in the gallery below.
         </p>
         <div className="card-grid">
           {mediaLoading ? (
             Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
           ) : mediaCards.length ? (
-            mediaCards.slice(0, 6).map((m, idx) => <MediaCard key={m.id ?? m._id ?? idx} media={m} />)
+            mediaCards.slice(0, 6).map((m, idx) => (
+              <MediaCard key={m.id ?? m._id ?? idx} media={m} />
+            ))
           ) : (
             <p className="muted-text">No decor media available at the moment.</p>
           )}
         </div>
       </section>
 
-      {/* === Testimonials === */}
-      <section className="section" aria-live="polite">
-        <h2>Client Impressions</h2>
-        <div className="testimonial-grid">
-          {loadingTestimonials
-            ? Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="testimonial-card shimmer">
-                  <div className="testimonial-text">Loading review...</div>
-                  <div className="testimonial-user">Loading...</div>
-                </div>
-              ))
-            : testimonials.length
-            ? testimonials.slice(0, 6).map((r, idx) => (
-                <div key={r.id ?? r._id ?? idx} className="testimonial-card">
-                  <p className="testimonial-text">
-                    {r.message ? `"${r.message}"` : '"No comment provided."'}
-                  </p>
-                  <p className="testimonial-user">— {r.user?.username || "Anonymous"}</p>
-                </div>
-              ))
-            : <p className="muted-text">No reviews yet.</p>}
-        </div>
-      </section>
+      {/* === CLIENT REVIEWS (matches EethmHome pattern) === */}
+      <ReviewsLayout
+        title="Client Impressions"
+        description="Here’s what people think about our Decor services"
+      >
+        {/* limit to first 6 reviews, no form on service page */}
+        <Reviews limit={6} hideForm={true} category="decor" />
+      </ReviewsLayout>
     </div>
   );
 }
