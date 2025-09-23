@@ -1,47 +1,36 @@
 import reviewsAPI from "../reviewsAPI";
 
 const reviewService = {
-  /**
-   * Fetch approved reviews for public display.
-   * Optional filter: { category: "liveband" }
-   */
+  // Fetch approved reviews
   async getApprovedReviews(params = {}) {
-    const { data } = await reviewsAPI.listApproved();
+    const data = await reviewsAPI.listApproved();
     if (params.category) {
       return data.filter((r) => r.service === params.category);
     }
     return data;
   },
 
-  /**
-   * Submit a new review (current logged-in user).
-   * Review is unapproved until admin approves.
-   */
+  // Submit a new review
   async submitReview(reviewData) {
-    const { data } = await reviewsAPI.create(reviewData);
+    const data = await reviewsAPI.create(reviewData);
     return data;
   },
 
-  // -------- Admin Only --------
-
+  // Admin-only functions
   async getAllReviewsAdmin() {
-    const { data } = await reviewsAPI.listAllAdmin();
-    return data;
+    return await reviewsAPI.listAllAdmin();
   },
 
   async approveReview(id) {
-    const { data } = await reviewsAPI.approve(id);
-    return data;
+    return await reviewsAPI.approve(id);
   },
 
   async replyToReview(id, reply) {
-    const { data } = await reviewsAPI.reply(id, reply);
-    return data;
+    return await reviewsAPI.reply(id, reply);
   },
 
   async deleteReview(id) {
-    const { data } = await reviewsAPI.delete(id);
-    return data;
+    return await reviewsAPI.delete(id);
   },
 };
 
