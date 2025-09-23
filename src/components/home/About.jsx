@@ -13,6 +13,9 @@ import useFetcher from "../../hooks/useFetcher";
 import josephImg from "../../assets/team/joseph.jpg";
 import euniceImg from "../../assets/team/eunice.png";
 
+import Reviews from "../user/Reviews";
+import ReviewsLayout from "../user/ReviewsLayout";
+
 import "./About.css";
 
 const LOCAL_FALLBACK_VIDEO = "/mock/hero-video.mp4";
@@ -132,7 +135,6 @@ const About = () => {
         <section className="about-partners-section">
           <h2>Our Partners</h2>
           <div className="partners-logos">
-            {/* Replace with actual partner logos */}
             <div className="partner-logo">Partner 1</div>
             <div className="partner-logo">Partner 2</div>
             <div className="partner-logo">Partner 3</div>
@@ -163,6 +165,16 @@ const About = () => {
           {videosError && <p className="error-text">{videosError}</p>}
           <MediaGallery items={galleryItems} />
         </section>
+      </FadeInSection>
+
+      {/* ===== CLIENT REVIEWS ===== */}
+      <FadeInSection>
+        <ReviewsLayout
+          title="What Our Clients Say"
+          description="Here’s what people think about our services"
+        >
+          <Reviews limit={6} hideForm={true} />
+        </ReviewsLayout>
       </FadeInSection>
     </div>
   );
