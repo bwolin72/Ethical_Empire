@@ -128,7 +128,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
       )}
 
       {/* Reviews list */}
-      <h2 className="text-lg font-semibold mb-3">Approved Reviews</h2>
+      <h2 className="text-lg font-semibold mb-3">Client Reviews</h2>
       {loading ? (
         <p>Loading reviews...</p>
       ) : reviews.length === 0 ? (
