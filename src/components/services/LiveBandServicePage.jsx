@@ -6,9 +6,11 @@ import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
 import Services from "../home/Services";
+import FadeInSection from "../FadeInSection";
+import Reviews from "../user/Reviews";
+import ReviewsLayout from "../user/ReviewsLayout";
 
 import useFetcher from "../../hooks/useFetcher";
-import apiService from "../../api/apiService";
 
 const toArray = (payload) =>
   Array.isArray(payload?.data) ? payload.data :
@@ -58,27 +60,6 @@ const LiveBandServicePage = () => {
       return next;
     });
   };
-
-  // --- Testimonials ---
-  const [testimonials, setTestimonials] = useState([]);
-  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
-
-  const fetchTestimonials = useCallback(async () => {
-    setLoadingTestimonials(true);
-    try {
-      const res = await apiService.getReviews({ category: "liveband" });
-      setTestimonials(Array.isArray(res?.data) ? res.data : []);
-    } catch (err) {
-      console.error("Error fetching reviews:", err);
-      setTestimonials([]);
-    } finally {
-      setLoadingTestimonials(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTestimonials();
-  }, [fetchTestimonials]);
 
   return (
     <div className="liveband-page-container">
@@ -145,31 +126,16 @@ const LiveBandServicePage = () => {
         </div>
       </section>
 
-      {/* === Testimonials Section === */}
-      <section className="section" aria-live="polite">
-        <h2 className="section-title">Client Impressions</h2>
-        <div className="testimonial-grid">
-          {loadingTestimonials
-            ? Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="testimonial-card shimmer">
-                  <div className="testimonial-text">Loading review…</div>
-                  <div className="testimonial-user">Loading…</div>
-                </div>
-              ))
-            : testimonials.length > 0
-            ? testimonials.slice(0, 6).map((r, i) => (
-                <div key={r.id ?? r._id ?? i} className="testimonial-card">
-                  <p className="testimonial-text">
-                    "{r.message || r.comment || 'No comment provided.'}"
-                  </p>
-                  <p className="testimonial-user">
-                    — {r.user?.username || "Anonymous"}
-                  </p>
-                </div>
-              ))
-            : <p className="muted-text center-text">No reviews yet.</p>}
-        </div>
-      </section>
+      {/* === Client Reviews (EethmHome style) === */}
+      <FadeInSection>
+        <ReviewsLayout
+          title="Client Impressions"
+          description="Here’s what people think about our live band performances"
+        >
+          {/* ✅ unified reviews fetch; no direct apiService call needed */}
+          <Reviews limit={6} hideForm={true} category="liveband" />
+        </ReviewsLayout>
+      </FadeInSection>
     </div>
   );
 };
