@@ -90,7 +90,7 @@ const CateringPage = () => {
 
   return (
     <div className="catering-page-container">
-      {/* Hero Section */}
+      {/* === HERO SECTION === */}
       <section className="catering-banners" aria-label="Hero">
         {videoUrl ? (
           <div className="video-wrapper">
@@ -117,7 +117,7 @@ const CateringPage = () => {
         )}
       </section>
 
-      {/* CTA */}
+      {/* === CTA === */}
       <section className="cta-section">
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -128,7 +128,7 @@ const CateringPage = () => {
         </motion.button>
       </section>
 
-      {/* Catering Services */}
+      {/* === CATERING SERVICES === */}
       <section className="section services-section">
         <h2>Our Catering Services</h2>
         <div className="card-grid">
@@ -142,7 +142,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Event Types */}
+      {/* === EVENT TYPES === */}
       <section className="section event-types-section">
         <h2>We Cater For</h2>
         <div className="card-grid">
@@ -156,7 +156,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Creative Media */}
+      {/* === CREATIVE MEDIA === */}
       <section className="section creative-section">
         <div className="creative-layout">
           <div className="creative-media">
@@ -180,7 +180,7 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* Dietary Options */}
+      {/* === DIETARY OPTIONS === */}
       <section className="section dietary-section">
         <h2>Dietary Options</h2>
         <div className="card-grid">
@@ -196,17 +196,18 @@ const CateringPage = () => {
         </div>
       </section>
 
-      {/* ===== CLIENT REVIEWS ===== */}
+      {/* === CLIENT REVIEWS (EethmHome pattern) === */}
       <FadeInSection>
         <ReviewsLayout
           title="What Our Clients Say"
-          description="Here’s what people think about our services"
+          description="Here’s what people think about our catering services"
         >
-          <Reviews limit={6} hideForm={true} />
+          {/* fetch only catering-related reviews; hide review form on this page */}
+          <Reviews limit={6} hideForm={true} category="catering" />
         </ReviewsLayout>
       </FadeInSection>
 
-      {/* Other Services */}
+      {/* === OTHER SERVICES === */}
       <section className="section other-services-section">
         <h2>Explore More of Our Services</h2>
         <Services />
