@@ -1,6 +1,6 @@
 // src/admin/BlogAdmin.jsx
 import React, { useEffect, useState } from "react";
-import BlogService from "../api/services/blogService";
+import BlogService from "../../api/services/blogService";
 import { Button } from "../ui/Button";
 import { Card, CardContent } from "../ui/Card";
 import { Trash, Edit, Save, Check, ChevronRight } from "lucide-react";
