@@ -2,6 +2,8 @@ import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import SplashScreen from "../ui/SplashScreen";
+import { toast } from "react-toastify";
+import { roleRoutes } from "../../routes/roleRoutes";
 
 /**
  * ProtectedRoute
@@ -20,11 +22,18 @@ const ProtectedRoute = ({ roles = [], guestRedirect = "/login" }) => {
   if (loading || !ready) return <SplashScreen />;
 
   // Redirect if not authenticated
-  if (!isAuthenticated) return <Navigate to={guestRedirect} replace />;
+  if (!isAuthenticated) {
+    toast.info("You must login to access this page.");
+    return <Navigate to={guestRedirect} replace />;
+  }
 
   // Role-based access control
   if (allowedRoles.length && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/unauthorized" replace />;
+    toast.warn("Access denied: insufficient permissions.");
+
+    // Optional: redirect to their dashboard if defined
+    const dashboardPath = roleRoutes[userRole] || "/unauthorized";
+    return <Navigate to={dashboardPath} replace />;
   }
 
   // All checks passed, render nested routes

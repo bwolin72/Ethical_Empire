@@ -9,6 +9,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import "./components/styles/variables.css";
 import "./pdfjs-setup"; // PDF.js Worker Setup
@@ -19,6 +21,7 @@ import Footer from "./components/footer/Footer";
 import SplashScreen from "./components/ui/SplashScreen";
 import PromotionPopup from "./components/home/PromotionPopup";
 import FloatingWhatsAppButton from "./components/ui/FloatingWhatsAppButton";
+import FloatingSocialHubButton from "./components/ui/FloatingSocialHubButton";
 
 // Pages - Home & Static
 import EethmHome from "./components/home/EethmHome";
@@ -76,16 +79,25 @@ import ProtectedRoute from "./components/context/ProtectedRoute";
 // Auth Service
 import authService from "./api/services/authService";
 
+// Role routes
+import { roleRoutes } from "./routes/roleRoutes";
+
 // ==============================
-// Homepage
+// Homepage Wrapper
 // ==============================
 const EethmHomePage = () => {
   const navigate = useNavigate();
+
+  const handleBookingClick = () => {
+    toast.info("Please login or create an account to continue booking.");
+    navigate("/login");
+  };
+
   return (
     <div className="home-page">
       <EethmHome />
       <div className="booking-toggle">
-        <button className="booking-button" onClick={() => navigate("/bookings")}>
+        <button className="booking-button" onClick={handleBookingClick}>
           Create Booking
         </button>
       </div>
@@ -107,45 +119,40 @@ const ConnectRedirect = () => {
       try {
         const res = await authService.getProfile();
         if (!isMounted) return;
+
         const role = res?.data?.role?.trim()?.toLowerCase() || "";
-        switch (role) {
-          case "admin":
-            navigate("/admin", { replace: true });
-            break;
-          case "user":
-            navigate("/user", { replace: true });
-            break;
-          case "vendor":
-            navigate("/vendor-profile", { replace: true });
-            break;
-          case "partner":
-            navigate("/partner-dashboard", { replace: true });
-            break;
-          case "worker":
-            navigate("/worker-dashboard", { replace: true });
-            break;
-          default:
-            navigate("/unauthorized", { replace: true });
+        if (role && roleRoutes[role]) {
+          navigate(roleRoutes[role], { replace: true });
+        } else {
+          toast.error("Unauthorized access.");
+          navigate("/unauthorized", { replace: true });
         }
       } catch (err) {
         console.error(err);
         if (!isMounted) return;
-        if (err.response?.status === 401) navigate("/", { replace: true });
-        else navigate("/login", { replace: true });
+        if (err.response?.status === 401) {
+          toast.warn("Please login to continue.");
+          navigate("/login", { replace: true });
+        } else {
+          toast.error("Unable to connect. Please try again.");
+          navigate("/login", { replace: true });
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
     checkUserRole();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
   return loading ? <div className="loading-screen">Redirecting...</div> : null;
 };
 
 // ==============================
-// Scroll on Route Change
+// Scroll Reset on Route Change
 // ==============================
 const ScrollAndRefresh = () => {
   const location = useLocation();
@@ -235,7 +242,7 @@ const AppRoutes = () => {
 };
 
 // ==============================
-// App With Splash
+// App With Splash + Floating Buttons
 // ==============================
 const AppWithSplash = () => {
   const [splashVisible, setSplashVisible] = useState(true);
@@ -256,6 +263,8 @@ const AppWithSplash = () => {
       <Footer />
       <PromotionPopup />
       <FloatingWhatsAppButton />
+      <FloatingSocialHubButton />
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 };
