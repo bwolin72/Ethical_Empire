@@ -19,7 +19,6 @@ const blogLinks = [
 ];
 
 function Navbar() {
-  // SSR-safe initial mobile detection
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth <= 960 : false
   );
@@ -33,7 +32,8 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef(null);
-  /* 📜 Hide/Show on scroll */
+
+  /* Hide/Show on scroll */
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
@@ -52,28 +52,28 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* 📱 Track window resize */
+  /* Track window resize */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 960);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /* 🔐 Check login */
+  /* Check login */
   useEffect(() => {
     const access = localStorage.getItem("access") || sessionStorage.getItem("access");
     const refresh = localStorage.getItem("refresh") || sessionStorage.getItem("refresh");
     setIsLoggedIn(!!(access && refresh));
   }, [location]);
 
-  /* 🔄 Close menus on route change */
+  /* Close menus on route change */
   useEffect(() => {
     setMenuOpen(false);
     setServicesOpen(false);
     setBlogOpen(false);
   }, [location]);
 
-  /* 🖱️ Close on outside click or Esc */
+  /* Close on outside click or Esc */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
@@ -115,20 +115,21 @@ function Navbar() {
 
   const handleDropdownItemClick = (path) => {
     navigate(path);
-    setDropdownOpen(false);
-    setMenuOpen(false);
+    setMenuOpen(false);        // close mobile menu
+    setServicesOpen(false);    // also close dropdowns
+    setBlogOpen(false);
   };
 
   return (
     <nav className={`navbar ${showNavbar ? "show" : "hide"}`} ref={navRef}>
       <div className="navbar-container">
         {/* Logo */}
-        <Link to="/" className="navbar-logo" onClick={() => { setMenuOpen(false); setDropdownOpen(false); }}>
+        <Link to="/" className="navbar-logo" onClick={handleNavClick}>
           <img src={logo} alt="EETHM Logo" className="logo-img" />
           <span className="logo-text">EETHM_GH</span>
         </Link>
 
-        {/* Hamburger */}
+        {/* Hamburger icon */}
         <button
           type="button"
           className={`menu-icon ${menuOpen ? "open" : ""}`}
@@ -139,7 +140,7 @@ function Navbar() {
           {menuOpen ? "✖" : "☰"}
         </button>
 
-        {/* 🖥️ Desktop Menu */}
+        {/* Desktop Menu */}
         {!isMobile && (
           <ul className="nav-menu">
             <li><Link to="/bookings" className="nav-links" onClick={handleNavClick}>Bookings</Link></li>
@@ -152,7 +153,8 @@ function Navbar() {
               onMouseEnter={() => setServicesOpen(true)}
               onMouseLeave={() => setServicesOpen(false)}
             >
-              <button className="nav-links dropdown-toggle" onClick={!isMobile ? () => navigate("/services") : toggleServices}>
+              <button className="nav-links dropdown-toggle"
+                      onClick={!isMobile ? () => navigate("/services") : toggleServices}>
                 Services <span className={`caret ${servicesOpen ? "rotated" : ""}`}>▼</span>
               </button>
               <ul className={`dropdown-menu desktop ${servicesOpen ? "active" : ""}`}>
@@ -166,13 +168,14 @@ function Navbar() {
 
             <li><Link to="/contact" className="nav-links" onClick={handleNavClick}>Contact</Link></li>
 
-            {/* ✅ Blog Dropdown */}
+            {/* Blog Dropdown */}
             <li
               className="nav-item dropdown"
               onMouseEnter={() => setBlogOpen(true)}
               onMouseLeave={() => setBlogOpen(false)}
             >
-              <button className="nav-links dropdown-toggle" onClick={!isMobile ? () => navigate("/blog") : toggleBlog}>
+              <button className="nav-links dropdown-toggle"
+                      onClick={!isMobile ? () => navigate("/blog") : toggleBlog}>
                 Blog <span className={`caret ${blogOpen ? "rotated" : ""}`}>▼</span>
               </button>
               <ul className={`dropdown-menu desktop ${blogOpen ? "active" : ""}`}>
@@ -197,11 +200,11 @@ function Navbar() {
           </ul>
         )}
 
-        {/* 📱 Mobile Menu */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {isMobile && menuOpen && (
             <motion.ul
-              className={`nav-menu mobile ${menuOpen ? "active" : ""}`}
+              className="nav-menu mobile"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -211,7 +214,7 @@ function Navbar() {
               <li><Link to="/flipbook" onClick={handleNavClick}>Our Profile</Link></li>
               <li><Link to="/about" onClick={handleNavClick}>About</Link></li>
 
-              {/* Services (Mobile) */}
+              {/* Services Mobile */}
               <li className="dropdown">
                 <button className="nav-links dropdown-toggle" onClick={toggleServices}>
                   Services <span className={`caret ${servicesOpen ? "rotated" : ""}`}>▼</span>
@@ -225,7 +228,7 @@ function Navbar() {
 
               <li><Link to="/contact" onClick={handleNavClick}>Contact</Link></li>
 
-              {/* ✅ Blog (Mobile) */}
+              {/* Blog Mobile */}
               <li className="dropdown">
                 <button className="nav-links dropdown-toggle" onClick={toggleBlog}>
                   Blog <span className={`caret ${blogOpen ? "rotated" : ""}`}>▼</span>
