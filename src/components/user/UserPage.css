@@ -391,3 +391,18 @@ body {
     grid-template-columns: 1fr;
   }
 }
+.userpage-container .header-right .profile-icon {
+  position: relative;
+}
+
+.userpage-container .header-right .unread-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--color-danger);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 50%;
+}

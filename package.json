@@ -48,6 +48,7 @@
     "react-pageflip": "^2.0.3",
     "react-phone-input-2": "^2.15.1",
     "react-phone-number-input": "^3.4.12",
+    "react-qr-code": "^2.0.18",
     "react-router-dom": "^7.6.1",
     "react-scripts": "^5.0.1",
     "react-select": "^5.10.2",

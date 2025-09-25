@@ -1,10 +1,13 @@
+/* PartnerVendorDashboard.css — using variables.css */
 
+/* === Dashboard Container === */
 .dashboard-container {
   display: flex;
   font-family: var(--font-main);
-  background-color: var(--color-white);
-  color: var(--color-neutral);
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
   min-height: 100vh;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 /* === Sidebar === */
@@ -12,14 +15,15 @@
   width: 250px;
   background: var(--gradient-gold-burgundy);
   color: var(--color-white);
-  padding: 2rem 1rem;
+  padding: var(--space-lg, 2rem) 1rem;
   box-shadow: var(--shadow-lg);
   border-right: 2px solid var(--color-primary-dark);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 
 .sidebar h2 {
   font-size: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg, 2rem);
   font-family: var(--font-accent);
   color: var(--color-accent-gold-light);
 }
@@ -30,7 +34,7 @@
 }
 
 .sidebar nav ul li {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-md, 1rem);
 }
 
 .sidebar nav ul li a {
@@ -44,16 +48,17 @@
   color: var(--color-accent-gold);
 }
 
-/* === Main Content === */
+/* === Main Content Area === */
 .dashboard-main {
   flex-grow: 1;
-  padding: 2rem;
+  padding: var(--space-lg, 2rem);
   animation: fade-in-up 0.5s ease;
+  transition: padding var(--transition-fast);
 }
 
 .dashboard-main h1 {
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-lg, 2rem);
   color: var(--color-primary-dark);
 }
 
@@ -62,41 +67,16 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-lg, 2rem);
 }
-
-.video-scroll {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding: 1rem 0;
-}
-
-.video-card {
-  min-width: 300px;
-  max-width: 320px;
-  flex-shrink: 0;
-}
-
-.video-desc {
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  color: #444;
-}
-
-.avatar-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
 
 .dashboard-cards .card {
   background: var(--color-white);
-  border: 1px solid var(--color-neutral-light);
+  border: 1px solid var(--color-border-light);
   box-shadow: var(--shadow-md);
   border-radius: var(--radius-md);
   padding: 1rem;
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .dashboard-cards h2 {
@@ -111,39 +91,74 @@
   color: var(--color-primary-dark);
 }
 
+/* === Video Gallery === */
+.video-scroll {
+  display: flex;
+  gap: var(--space-md, 1rem);
+  overflow-x: auto;
+  padding: 1rem 0;
+}
+
+.video-card {
+  min-width: 300px;
+  max-width: 320px;
+  flex-shrink: 0;
+}
+
+.video-card video {
+  width: 100%;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.video-desc {
+  font-size: var(--font-sm, 0.875rem);
+  margin-top: 0.5rem;
+  color: var(--color-neutral-dark);
+}
+
+/* === Avatar Wrapper === */
+.avatar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md, 1rem);
+}
+
 /* === Chart Section === */
 .chart-section {
-  background: var(--color-neutral-light);
-  padding: 1.5rem;
+  background: var(--color-service-bg-light);
+  padding: var(--space-lg, 1.5rem);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-lg, 2rem);
+  transition: background var(--transition-fast);
 }
 
 .chart-section h2 {
   font-size: 1.25rem;
-  color: var(--color-white);
+  color: var(--color-text-light);
   margin-bottom: 1rem;
 }
 
 /* === Profile Summary === */
 .profile-summary {
   background: var(--color-accent-green-light);
-  padding: 1.5rem;
+  padding: var(--space-lg, 1.5rem);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   color: var(--color-white);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .profile-summary h2 {
   font-size: 1.25rem;
-  color: var(--color-white);
   margin-bottom: 1rem;
+  color: var(--color-white);
 }
 
 .profile-summary p {
   margin: 0.25rem 0;
-  font-size: 1rem;
+  font-size: var(--font-md, 1rem);
 }
 
 /* === Responsive Design === */
@@ -165,4 +180,27 @@
   .dashboard-cards {
     grid-template-columns: 1fr;
   }
+}
+
+/* === Dark Mode Overrides === */
+.dark .dashboard-container {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.dark .dashboard-main h1,
+.dark .dashboard-cards p {
+  color: var(--color-text-dark);
+}
+
+.dark .chart-section {
+  background: var(--color-service-bg-dark);
+}
+
+.dark .sidebar h2 {
+  color: var(--color-accent-gold);
+}
+
+.dark .sidebar nav ul li a:hover {
+  color: var(--color-accent-gold-light);
 }

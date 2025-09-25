@@ -10,7 +10,10 @@ function Footer() {
     { to: "/services", label: "Services" },
     { to: "/contact", label: "Contact" },
     { to: "/unsubscribe", label: "Unsubscribe" },
-    { to: "/faq", label: "FAQ" }, // ✅ Added FAQ link
+    { to: "/faq", label: "FAQ" }, // ✅ Existing FAQ link
+    { to: "/blog", label: "Blog" }, // ✅ New Blog main page
+    { to: "/blog/articles", label: "Articles" }, // ✅ New Articles page
+    { to: "/blog/latest", label: "Latest" }, // ✅ New Latest page
   ];
 
   const legalLinks = [
@@ -21,7 +24,6 @@ function Footer() {
   return (
     <footer className="footer">
       <div className="footer-container">
-        
         {/* Company Info */}
         <div className="footer-section">
           <h3>Ethical Empire</h3>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
+// Admin Modules
 import AdminDashboard from './AdminDashboard';
 import BookingManagement from './BookingManagement';
 import InvoiceGeneration from './InvoiceGeneration';
@@ -10,12 +11,18 @@ import AdminPromotions from './AdminPromotions';
 import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import VideoUpload from './VideoUpload';
-import ServicesAdmin from './ServicesAdmin'; // ✅ NEW
+import ServicesAdmin from './ServicesAdmin';
 
+// Messaging
+import Messaging from '../messaging/messaging';
+import { MessageCircle } from 'lucide-react';
+
+// Auth & API
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../../api/axiosInstance';
 import AccountProfile from '../user/AccountProfile';
 
+// Styles
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -25,7 +32,7 @@ const AdminPanel = () => {
   const [profileData, setProfileData] = useState(null);
   const [profileError, setProfileError] = useState(null);
 
-  // 🔄 Always fetch fresh profile data when modal opens
+  // Fetch profile when modal opens
   useEffect(() => {
     if (showProfile) {
       axiosInstance
@@ -41,7 +48,7 @@ const AdminPanel = () => {
     }
   }, [showProfile]);
 
-  // 🅰️ Generate initials from profile/user safely
+  // Generate initials safely
   const getInitials = (profile, user) => {
     let name = profile?.name || user?.name || '';
     if (!name && user) {
@@ -57,6 +64,7 @@ const AdminPanel = () => {
 
   return (
     <div className="admin-panel">
+      {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="sidebar-header">
           <h2>Admin Panel</h2>
@@ -73,79 +81,48 @@ const AdminPanel = () => {
         </div>
 
         <ul>
-          <li
-            className={activeTab === 'dashboard' ? 'active' : ''}
-            onClick={() => setActiveTab('dashboard')}
-          >
+          <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>
             Dashboard
           </li>
-          <li
-            className={activeTab === 'booking' ? 'active' : ''}
-            onClick={() => setActiveTab('booking')}
-          >
+          <li className={activeTab === 'booking' ? 'active' : ''} onClick={() => setActiveTab('booking')}>
             Booking Management
           </li>
-          <li
-            className={activeTab === 'invoice' ? 'active' : ''}
-            onClick={() => setActiveTab('invoice')}
-          >
+          <li className={activeTab === 'invoice' ? 'active' : ''} onClick={() => setActiveTab('invoice')}>
             Invoice Generation
           </li>
-          <li
-            className={activeTab === 'media' ? 'active' : ''}
-            onClick={() => setActiveTab('media')}
-          >
+          <li className={activeTab === 'media' ? 'active' : ''} onClick={() => setActiveTab('media')}>
             Media Management
           </li>
-          <li
-            className={activeTab === 'video' ? 'active' : ''}
-            onClick={() => setActiveTab('video')}
-          >
+          <li className={activeTab === 'video' ? 'active' : ''} onClick={() => setActiveTab('video')}>
             Video Upload
           </li>
-          <li
-            className={activeTab === 'services' ? 'active' : ''}
-            onClick={() => setActiveTab('services')}
-          >
-            Services Manager {/* ✅ NEW tab */}
+          <li className={activeTab === 'services' ? 'active' : ''} onClick={() => setActiveTab('services')}>
+            Services Manager
           </li>
-          <li
-            className={activeTab === 'reviews' ? 'active' : ''}
-            onClick={() => setActiveTab('reviews')}
-          >
+          <li className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>
             Reviews
           </li>
-          <li
-            className={activeTab === 'newsletter' ? 'active' : ''}
-            onClick={() => setActiveTab('newsletter')}
-          >
+          <li className={activeTab === 'newsletter' ? 'active' : ''} onClick={() => setActiveTab('newsletter')}>
             Newsletter Manager
           </li>
-          <li
-            className={activeTab === 'promotions' ? 'active' : ''}
-            onClick={() => setActiveTab('promotions')}
-          >
+          <li className={activeTab === 'promotions' ? 'active' : ''} onClick={() => setActiveTab('promotions')}>
             Promotions Manager
           </li>
-          <li
-            className={activeTab === 'roles' ? 'active' : ''}
-            onClick={() => setActiveTab('roles')}
-          >
+          <li className={activeTab === 'roles' ? 'active' : ''} onClick={() => setActiveTab('roles')}>
             User Role Manager
           </li>
-          <li
-            className={activeTab === 'analytics' ? 'active' : ''}
-            onClick={() => setActiveTab('analytics')}
-          >
+          <li className={activeTab === 'analytics' ? 'active' : ''} onClick={() => setActiveTab('analytics')}>
             Analytics
+          </li>
+          <li className={activeTab === 'messaging' ? 'active' : ''} onClick={() => setActiveTab('messaging')}>
+            Messaging <MessageCircle size={16} style={{ marginLeft: '6px' }} />
           </li>
         </ul>
       </aside>
 
+      {/* Content Area */}
       <section className="admin-content">
-        {activeTab === 'dashboard' && (
-          <AdminDashboard setActiveTab={setActiveTab} />
-        )}
+        {activeTab === 'dashboard' && <AdminDashboard setActiveTab={setActiveTab} />}
         {activeTab === 'booking' && <BookingManagement />}
         {activeTab === 'invoice' && <InvoiceGeneration />}
         {activeTab === 'media' && <MediaManagement />}
@@ -156,14 +133,13 @@ const AdminPanel = () => {
         {activeTab === 'promotions' && <AdminPromotions />}
         {activeTab === 'roles' && <UserRoleManager />}
         {activeTab === 'analytics' && <AnalyticsDashboard />}
+        {activeTab === 'messaging' && <Messaging />}
       </section>
 
+      {/* Profile Modal */}
       {showProfile && (
         <div className="profile-modal">
-          <div
-            className="profile-overlay"
-            onClick={() => setShowProfile(false)}
-          ></div>
+          <div className="profile-overlay" onClick={() => setShowProfile(false)}></div>
           <div className="profile-content">
             {profileError ? (
               <p className="error-message">{profileError}</p>

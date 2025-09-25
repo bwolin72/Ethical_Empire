@@ -13,75 +13,78 @@ const services = [
   { label: "Media & Event Hosting", path: "/services/media-hosting" },
 ];
 
+const blogLinks = [
+  { label: "Articles", path: "/blog/articles" },
+  { label: "Latest", path: "/blog/latest" },
+];
+
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const [blogOpen, setBlogOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 960);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(true); // new state
-  const lastScrollY = useRef(0);
+  const [showNavbar, setShowNavbar] = useState(true);
 
+  const lastScrollY = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef(null);
 
-  // Handle scroll up/down to hide/show navbar
+  /* 📜 Hide/Show on scroll */
   useEffect(() => {
     let ticking = false;
-
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          if (currentScrollY > lastScrollY.current + 10) {
-            setShowNavbar(false); // scroll down
-          } else if (currentScrollY < lastScrollY.current - 10) {
-            setShowNavbar(true); // scroll up
-          }
+          if (currentScrollY > lastScrollY.current + 10) setShowNavbar(false);
+          else if (currentScrollY < lastScrollY.current - 10) setShowNavbar(true);
           lastScrollY.current = currentScrollY;
           ticking = false;
         });
         ticking = true;
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Track window resize for mobile layout
+  /* 📱 Track window resize */
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 960);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Check login status
+  /* 🔐 Check login */
   useEffect(() => {
     const access = localStorage.getItem("access") || sessionStorage.getItem("access");
     const refresh = localStorage.getItem("refresh") || sessionStorage.getItem("refresh");
     setIsLoggedIn(!!(access && refresh));
   }, [location]);
 
-  // Close menus on navigation change
+  /* 🔄 Close menus on route change */
   useEffect(() => {
     setMenuOpen(false);
-    setDropdownOpen(false);
+    setServicesOpen(false);
+    setBlogOpen(false);
   }, [location]);
 
-  // Close menus on outside click or Escape key
+  /* 🖱️ Close on outside click or Esc */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
         setMenuOpen(false);
-        setDropdownOpen(false);
+        setServicesOpen(false);
+        setBlogOpen(false);
       }
     };
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setMenuOpen(false);
-        setDropdownOpen(false);
+        setServicesOpen(false);
+        setBlogOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -93,10 +96,12 @@ function Navbar() {
   }, []);
 
   const toggleMenu = useCallback(() => setMenuOpen((prev) => !prev), []);
-  const toggleDropdown = useCallback(() => setDropdownOpen((prev) => !prev), []);
+  const toggleServices = useCallback(() => setServicesOpen((prev) => !prev), []);
+  const toggleBlog = useCallback(() => setBlogOpen((prev) => !prev), []);
   const handleNavClick = () => {
     setMenuOpen(false);
-    setDropdownOpen(false);
+    setServicesOpen(false);
+    setBlogOpen(false);
   };
 
   const handleLogout = async () => {
@@ -106,29 +111,13 @@ function Navbar() {
     navigate("/login");
   };
 
-  const handleServicesClick = () => {
-    if (isMobile) toggleDropdown();
-    else navigate("/services");
-  };
-
   const handleDropdownItemClick = (path) => {
     navigate(path);
     handleNavClick();
   };
 
-  const handleDropdownItemKeyDown = (e, path) => {
-    if (["Enter", " "].includes(e.key)) {
-      e.preventDefault();
-      handleDropdownItemClick(path);
-    }
-  };
-
   return (
-    <nav
-      className={`navbar ${showNavbar ? "show" : "hide"}`}
-      aria-label="Main navigation"
-      ref={navRef}
-    >
+    <nav className={`navbar ${showNavbar ? "show" : "hide"}`} ref={navRef}>
       <div className="navbar-container">
         {/* Logo */}
         <Link to="/" className="navbar-logo" onClick={handleNavClick}>
@@ -136,136 +125,123 @@ function Navbar() {
           <span className="logo-text">EETHM_GH</span>
         </Link>
 
-        {/* Mobile Hamburger */}
+        {/* Hamburger */}
         <button
           type="button"
           className={`menu-icon ${menuOpen ? "open" : ""}`}
           onClick={toggleMenu}
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
-          aria-controls="primary-navigation"
         >
           {menuOpen ? "✖" : "☰"}
         </button>
 
-        {/* Desktop nav */}
+        {/* 🖥️ Desktop Menu */}
         {!isMobile && (
-          <ul id="primary-navigation" className="nav-menu" role="menubar">
-            <li className="nav-item" role="none">
-              <Link to="/bookings" className={`nav-links ${location.pathname === "/bookings" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Bookings</Link>
-            </li>
-            <li className="nav-item" role="none">
-              <Link to="/flipbook" className={`nav-links ${location.pathname === "/flipbook" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Our Profile</Link>
-            </li>
-            <li className="nav-item" role="none">
-              <Link to="/about" className={`nav-links ${location.pathname === "/about" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">About</Link>
-            </li>
+          <ul className="nav-menu">
+            <li><Link to="/bookings" className="nav-links" onClick={handleNavClick}>Bookings</Link></li>
+            <li><Link to="/flipbook" className="nav-links" onClick={handleNavClick}>Our Profile</Link></li>
+            <li><Link to="/about" className="nav-links" onClick={handleNavClick}>About</Link></li>
 
-            <li className="nav-item dropdown" role="none"
-                onMouseEnter={() => setDropdownOpen(true)}
-                onMouseLeave={() => setDropdownOpen(false)}
+            {/* Services Dropdown */}
+            <li
+              className="nav-item dropdown"
+              onMouseEnter={() => setServicesOpen(true)}
+              onMouseLeave={() => setServicesOpen(false)}
             >
-              <button
-                type="button"
-                className="nav-links dropdown-toggle"
-                onClick={handleServicesClick}
-                aria-haspopup="true"
-                aria-expanded={dropdownOpen}
-              >
-                Services <span className={`caret ${dropdownOpen ? "rotated" : ""}`}>▼</span>
+              <button className="nav-links dropdown-toggle" onClick={!isMobile ? () => navigate("/services") : toggleServices}>
+                Services <span className={`caret ${servicesOpen ? "rotated" : ""}`}>▼</span>
               </button>
-
-              <ul className={`dropdown-menu desktop`} role="menu" aria-label="Services submenu">
+              <ul className={`dropdown-menu desktop ${servicesOpen ? "active" : ""}`}>
                 {services.map(({ label, path }) => (
-                  <li key={path} className="dropdown-item" role="menuitem" tabIndex={0}
-                      onClick={() => handleDropdownItemClick(path)}
-                      onKeyDown={(e) => handleDropdownItemKeyDown(e, path)}
-                  >
+                  <li key={path} className="dropdown-item" onClick={() => handleDropdownItemClick(path)}>
                     {label}
                   </li>
                 ))}
               </ul>
             </li>
 
-            <li className="nav-item" role="none">
-              <Link to="/contact" className={`nav-links ${location.pathname === "/contact" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Contact</Link>
+            <li><Link to="/contact" className="nav-links" onClick={handleNavClick}>Contact</Link></li>
+
+            {/* ✅ Blog Dropdown */}
+            <li
+              className="nav-item dropdown"
+              onMouseEnter={() => setBlogOpen(true)}
+              onMouseLeave={() => setBlogOpen(false)}
+            >
+              <button className="nav-links dropdown-toggle" onClick={!isMobile ? () => navigate("/blog") : toggleBlog}>
+                Blog <span className={`caret ${blogOpen ? "rotated" : ""}`}>▼</span>
+              </button>
+              <ul className={`dropdown-menu desktop ${blogOpen ? "active" : ""}`}>
+                {blogLinks.map(({ label, path }) => (
+                  <li key={path} className="dropdown-item" onClick={() => handleDropdownItemClick(path)}>
+                    {label}
+                  </li>
+                ))}
+              </ul>
             </li>
-            <li className="nav-item" role="none">
-              <Link to="/connect" className={`nav-links ${location.pathname === "/connect" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Connect With Us</Link>
-            </li>
-            {/* FAQ right corner */}
-            <li className="nav-item" role="none">
-              <Link to="/faq" className={`nav-links ${location.pathname === "/faq" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">FAQ</Link>
-            </li>
-            <li className="nav-item" role="none">
+
+            <li><Link to="/connect" className="nav-links" onClick={handleNavClick}>Connect With Us</Link></li>
+            <li><Link to="/faq" className="nav-links" onClick={handleNavClick}>FAQ</Link></li>
+
+            <li>
               {isLoggedIn ? (
-                <button type="button" onClick={handleLogout} className="nav-links logout-btn" role="menuitem">Logout</button>
+                <button className="nav-links logout-btn" onClick={handleLogout}>Logout</button>
               ) : (
-                <Link to="/login" className={`nav-links ${location.pathname === "/login" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Login</Link>
+                <Link to="/login" className="nav-links" onClick={handleNavClick}>Login</Link>
               )}
             </li>
           </ul>
         )}
 
-        {/* Mobile nav via AnimatePresence */}
+        {/* 📱 Mobile Menu */}
         <AnimatePresence>
           {isMobile && menuOpen && (
             <motion.ul
-              id="primary-navigation"
               className={`nav-menu mobile ${menuOpen ? "active" : ""}`}
-              role="menubar"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <li className="nav-item" role="none">
-                <Link to="/bookings" className={`nav-links ${location.pathname === "/bookings" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Bookings</Link>
-              </li>
-              <li className="nav-item" role="none">
-                <Link to="/flipbook" className={`nav-links ${location.pathname === "/flipbook" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Our Profile</Link>
-              </li>
-              <li className="nav-item" role="none">
-                <Link to="/about" className={`nav-links ${location.pathname === "/about" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">About</Link>
-              </li>
+              <li><Link to="/bookings" onClick={handleNavClick}>Bookings</Link></li>
+              <li><Link to="/flipbook" onClick={handleNavClick}>Our Profile</Link></li>
+              <li><Link to="/about" onClick={handleNavClick}>About</Link></li>
 
-              <li className="nav-item dropdown" role="none">
-                <button
-                  type="button"
-                  className="nav-links dropdown-toggle"
-                  onClick={toggleDropdown}
-                  aria-haspopup="true"
-                  aria-expanded={dropdownOpen}
-                >
-                  Services <span className={`caret ${dropdownOpen ? "rotated" : ""}`}>▼</span>
+              {/* Services (Mobile) */}
+              <li className="dropdown">
+                <button className="nav-links dropdown-toggle" onClick={toggleServices}>
+                  Services <span className={`caret ${servicesOpen ? "rotated" : ""}`}>▼</span>
                 </button>
-
-                <ul className={`dropdown-menu mobile ${dropdownOpen ? "active" : ""}`} role="menu" aria-label="Services submenu">
+                <ul className={`dropdown-menu mobile ${servicesOpen ? "active" : ""}`}>
                   {services.map(({ label, path }) => (
-                    <li key={path} className="dropdown-item" role="menuitem" tabIndex={0}
-                        onClick={() => handleDropdownItemClick(path)}
-                        onKeyDown={(e) => handleDropdownItemKeyDown(e, path)}
-                    >
-                      {label}
-                    </li>
+                    <li key={path} onClick={() => handleDropdownItemClick(path)}>{label}</li>
                   ))}
                 </ul>
               </li>
 
-              <li className="nav-item" role="none">
-                <Link to="/contact" className={`nav-links ${location.pathname === "/contact" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Contact</Link>
+              <li><Link to="/contact" onClick={handleNavClick}>Contact</Link></li>
+
+              {/* ✅ Blog (Mobile) */}
+              <li className="dropdown">
+                <button className="nav-links dropdown-toggle" onClick={toggleBlog}>
+                  Blog <span className={`caret ${blogOpen ? "rotated" : ""}`}>▼</span>
+                </button>
+                <ul className={`dropdown-menu mobile ${blogOpen ? "active" : ""}`}>
+                  {blogLinks.map(({ label, path }) => (
+                    <li key={path} onClick={() => handleDropdownItemClick(path)}>{label}</li>
+                  ))}
+                </ul>
               </li>
-              <li className="nav-item" role="none">
-                <Link to="/connect" className={`nav-links ${location.pathname === "/connect" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Connect With Us</Link>
-              </li>
-              <li className="nav-item" role="none">
-                <Link to="/faq" className={`nav-links ${location.pathname === "/faq" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">FAQ</Link>
-              </li>
-              <li className="nav-item" role="none">
+
+              <li><Link to="/connect" onClick={handleNavClick}>Connect With Us</Link></li>
+              <li><Link to="/faq" onClick={handleNavClick}>FAQ</Link></li>
+
+              <li>
                 {isLoggedIn ? (
-                  <button type="button" onClick={handleLogout} className="nav-links logout-btn" role="menuitem">Logout</button>
+                  <button className="nav-links logout-btn" onClick={handleLogout}>Logout</button>
                 ) : (
-                  <Link to="/login" className={`nav-links ${location.pathname === "/login" ? "active" : ""}`} onClick={handleNavClick} role="menuitem">Login</Link>
+                  <Link to="/login" onClick={handleNavClick}>Login</Link>
                 )}
               </li>
             </motion.ul>

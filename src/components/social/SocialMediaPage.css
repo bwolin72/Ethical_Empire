@@ -1,0 +1,118 @@
+/* ======================================================
+   🌐 Social Media Page Styles
+   Connect with Eethm_GH Multimedia
+   ====================================================== */
+
+.social-page {
+  min-height: 100vh;
+  background: var(--color-bg-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: var(--font-main);
+  animation: fade-in-up 0.8s var(--transition-fast) both;
+}
+
+.social-page h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--color-primary-dark);
+  text-align: center;
+  font-family: var(--font-accent);
+}
+
+/* === Social Grid === */
+.social-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 640px;
+}
+
+@media (min-width: 768px) {
+  .social-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* === Card Styles === */
+.social-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  background: var(--color-white);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  cursor: pointer;
+}
+
+.social-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.social-card .social-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.social-card .social-info h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-neutral-dark);
+}
+
+/* === Visit Button === */
+.social-card a {
+  display: inline-block;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.social-card a:hover {
+  transform: scale(1.05);
+  background: var(--gradient-navy-gold);
+}
+
+/* === QR Section === */
+.qr-section {
+  margin-top: 2.5rem;
+  background: var(--color-white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  max-width: 360px;
+  animation: fade-in 1s ease-out both;
+}
+
+.qr-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-primary-dark);
+}
+
+.qr-section p {
+  margin-top: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--color-neutral-light);
+}
+
+/* === Hover Color Overrides for Each Platform === */
+.social-card.facebook { background: rgba(24, 119, 242, 0.08); }
+.social-card.tiktok { background: rgba(0, 0, 0, 0.05); }
+.social-card.youtube { background: rgba(255, 0, 0, 0.08); }
+.social-card.whatsapp { background: rgba(37, 211, 102, 0.08); }

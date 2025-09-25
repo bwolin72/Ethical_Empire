@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { MessageCircle } from "lucide-react";
 
 import { useProfile } from "../context/ProfileContext";
 import apiService from "../../api/apiService";
@@ -34,6 +35,7 @@ const UserPage = () => {
   const [reviews, setReviews] = useState([]);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const navigate = useNavigate();
 
@@ -47,30 +49,32 @@ const UserPage = () => {
     return [];
   };
 
+  // Fetch user data
   useEffect(() => {
     const controller = new AbortController();
 
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [mediaRes, reviewsRes, promoRes, videosRes] = await Promise.all([
+        const [mediaRes, reviewsRes, promoRes, videosRes, messagesRes] = await Promise.all([
           apiService.media?.user?.({ signal: controller.signal }) ??
-            apiService.media?.getAllMedia?.({ signal: controller.signal }) ??
-            { data: [] },
+            apiService.media?.getAllMedia?.({ signal: controller.signal }) ?? { data: [] },
 
           apiService.reviews?.list?.({ signal: controller.signal }) ?? { data: [] },
 
           apiService.promotions?.active?.({ signal: controller.signal }) ??
-            apiService.promotions?.list?.({ signal: controller.signal }) ??
-            { data: [] },
+            apiService.promotions?.list?.({ signal: controller.signal }) ?? { data: [] },
 
           apiService.videos?.list?.({ signal: controller.signal }) ?? { data: [] },
+
+          apiService.messages?.unreadCount?.({ signal: controller.signal }) ?? { data: 0 },
         ]);
 
         setMedia(extractList(mediaRes));
         setReviews(extractList(reviewsRes));
         setPromotions(extractList(promoRes));
         setVideos(extractList(videosRes));
+        setUnreadCount(messagesRes.data ?? 0);
       } catch (err) {
         if (err?.name !== "CanceledError") {
           console.error("❌ UserPage load error:", err);
@@ -105,6 +109,15 @@ const UserPage = () => {
         <div className="header-right">
           <button onClick={toggleDarkMode} className="dark-toggle" aria-label="Toggle dark mode">
             {darkMode ? "☀️ Light" : "🌙 Dark"}
+          </button>
+
+          <button
+            onClick={() => navigate("/messaging")}
+            className="profile-icon"
+            aria-label="Go to messages"
+          >
+            <MessageCircle size={22} />
+            {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
           </button>
         </div>
       </header>

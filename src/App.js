@@ -70,10 +70,17 @@ import DecorServicePage from "./components/services/DecorServicePage";
 import MediaHostingServicePage from "./components/services/MediaHostingServicePage";
 
 // ==============================
-// Other Pages
+// New / Other Pages
 // ==============================
 import FlipbookViewer from "./components/company/FlipbookViewer";
 import DebugWrapper from "./components/debug/DebugWrapper";
+
+// ==============================
+// New imports: Blog, Messaging, SocialHub
+// ==============================
+import Blog from "./components/blog/Blog";
+import Messaging from "./components/messaging/messaging";
+import SocialHub from "./components/social/SocialHub";
 
 // ==============================
 // Context & Auth
@@ -196,6 +203,11 @@ const AppRoutes = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/flipbook" element={<FlipbookViewer />} />
+
+      {/* New public routes */}
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/messaging" element={<Messaging />} />
+      <Route path="/social" element={<SocialHub />} />
 
       {/* Service Pages */}
       <Route path="/services/live-band" element={<LiveBandServicePage />} />
