@@ -1,57 +1,51 @@
 // src/components/services/MediaHostingServicePage.jsx
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import "./MediaHostingServicePage.css";
+
+import FadeInSection from "../FadeInSection";
+import Services from "../home/Services";
 
 import BannerCards from "../context/BannerCards";
-import MediaCards from "../context/MediaCards";
+import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-import Services from "../home/Services";
+
 import useFetcher from "../../hooks/useFetcher";
-import apiService from "../../api/apiService";
+import Reviews from "../user/Reviews";
+import ReviewsLayout from "../user/ReviewsLayout";
 
-// ---------- Helpers ----------
-const toArray = (payload) =>
-  !payload
-    ? []
-    : Array.isArray(payload)
-    ? payload
-    : Array.isArray(payload.data)
-    ? payload.data
-    : [];
+import "./MediaHostingServicePage.css";
 
-const getMediaUrl = (m) => {
-  if (!m) return "";
-  const cands = [
-    m.url?.full,
-    m.url,
-    m.video_url,
-    m.video_file,
-    m.file_url,
-    m.file,
-    m.src,
-    m.path,
-    m.secure_url,
-  ].filter((x) => typeof x === "string" && x.trim() !== "");
-  return cands[0] || "";
+// --- Helpers (same approach as EethmHome) ---
+const toArray = (payload) => {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.data)) return payload.data;
+  return [];
 };
 
-// ---------- Component ----------
+const getMediaUrl = (media) => {
+  const candidates = [
+    media?.secure_url,
+    media?.url?.full,
+    media?.url,
+    media?.video_url,
+    media?.video_file,
+    media?.file_url,
+    media?.file,
+    media?.src,
+    media?.path,
+  ];
+  const found = candidates.find((c) => typeof c === "string" && c.trim() !== "");
+  if (!found && media?.public_id && media?.cloud_name) {
+    return `https://res.cloudinary.com/${media.cloud_name}/image/upload/${media.public_id}`;
+  }
+  return found || "";
+};
+
 export default function MediaHostingServicePage() {
   const navigate = useNavigate();
-  const [videoUrl, setVideoUrl] = useState(null);
-  const [isMuted, setIsMuted] = useState(true);
-  const videoRef = useRef(null);
 
-  // ---- Fetch Banner, Videos, Media ----
-  const { data: bannerRaw, loading: bannerLoading } = useFetcher(
-    "media",
-    "banner",
-    { category: "mediaHostingServicePage", is_active: true },
-    { resource: "media" }
-  );
-
+  // --- Fetch hero videos, banners and media cards (pattern matches EethmHome) ---
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
     "mediaHostingServicePage",
@@ -59,41 +53,29 @@ export default function MediaHostingServicePage() {
     { resource: "videos" }
   );
 
-  const { data: mediaRaw, loading: mediaLoading } = useFetcher(
+  const { data: bannerRaw, loading: bannerLoading } = useFetcher(
+    "media",
+    "banner",
+    { category: "mediaHostingServicePage", is_active: true },
+    { resource: "media" }
+  );
+
+  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
     "media",
     "mediaHostingServicePage",
     { is_active: true },
     { resource: "media" }
   );
 
-  // ---- Client Reviews ----
-  const [testimonials, setTestimonials] = useState([]);
-  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
-
-  const fetchTestimonials = useCallback(async () => {
-    setLoadingTestimonials(true);
-    try {
-      const res = await apiService.getReviews({ category: "mediaHostingServicePage" });
-      setTestimonials(Array.isArray(res?.data) ? res.data : []);
-    } catch {
-      setTestimonials([]);
-    } finally {
-      setLoadingTestimonials(false);
-    }
-  }, []);
+  // --- Hero video playback ---
+  const [videoUrl, setVideoUrl] = useState(null);
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
-    fetchTestimonials();
-  }, [fetchTestimonials]);
-
-  // ---- Determine Hero Video ----
-  useEffect(() => {
-    const vids = toArray(videosRaw);
-    if (vids.length === 0) {
-      if (!videoLoading) setVideoUrl(null);
-      return;
-    }
-    const featured = vids.find((v) => v?.is_featured) ?? vids[0];
+    const videos = toArray(videosRaw);
+    if (!videos.length && !videoLoading) return setVideoUrl(null);
+    const featured = videos.find((v) => v?.is_featured) ?? videos[0];
     setVideoUrl(getMediaUrl(featured) || null);
   }, [videosRaw, videoLoading]);
 
@@ -106,116 +88,117 @@ export default function MediaHostingServicePage() {
   };
 
   const bannerItems = toArray(bannerRaw);
-  const mediaItems = toArray(mediaRaw);
+  const mediaCards = toArray(mediaCardsRaw);
 
   return (
     <div className="media-hosting-page-container">
-      {/* ---------- HERO ---------- */}
-      <section className="hero-banner" aria-label="Hero">
-        {bannerItems.length > 0 && !bannerLoading ? (
-          <BannerCards items={bannerItems} title="Capture & Host with Ethical Precision" />
-        ) : videoUrl && !videoLoading ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="video-wrapper"
-          >
+      {/* HERO SECTION */}
+      <section className="video-hero-section" aria-label="Hero">
+        {videoUrl && !videoLoading ? (
+          <>
             <video
               ref={videoRef}
               src={videoUrl}
-              className="hero-video"
+              className="background-video"
               autoPlay
               loop
               muted={isMuted}
               playsInline
               onError={() => setVideoUrl(null)}
             />
+            <div className="overlay-gradient" />
+            <div className="overlay-content">
+              <h1 className="hero-title">Media Hosting & Multimedia</h1>
+              <p className="hero-subtitle">
+                Capture, host and stream — professionally and reliably.
+              </p>
+              <div className="hero-buttons">
+                <button className="btn-primary" onClick={() => navigate("/bookings")}>
+                  Book Now
+                </button>
+                <button className="btn-secondary" onClick={() => navigate("/contact")}>
+                  Contact Us
+                </button>
+              </div>
+            </div>
             <button
               className="mute-button"
               onClick={toggleMute}
-              aria-label={isMuted ? "Unmute video" : "Mute video"}
+              aria-pressed={!isMuted}
+              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
-          </motion.div>
-        ) : bannerLoading || videoLoading ? (
-          <div className="video-placeholder">
+          </>
+        ) : videoLoading ? (
+          <div className="video-placeholder" aria-hidden="true">
             <div className="video-skeleton" />
           </div>
         ) : (
-          <p className="muted-text">No hero media available.</p>
+          <BannerCards endpoint="mediaHostingServicePage" title="Capture & Host with Ethical Precision" />
         )}
       </section>
 
-      {/* ---------- Services ---------- */}
-      <section className="section services-section">
-        <motion.div initial={{ y: 40, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ duration: 0.7 }} viewport={{ once: true }}>
-          <h2 className="section-title">Our Multimedia & Hosting Services</h2>
-          <p className="section-description">
-            From professional photography to full-scale event hosting, explore our multimedia services designed to capture, share, and elevate your moments with precision.
+      {/* SERVICES */}
+      <FadeInSection>
+        <section className="content-section">
+          <h2>Our Multimedia & Hosting Services</h2>
+          <p className="muted-text">
+            From event coverage to streaming and secure hosting, we provide end-to-end multimedia solutions.
           </p>
-        </motion.div>
-        <Services />
-      </section>
+          <Services />
+        </section>
+      </FadeInSection>
 
-      {/* ---------- Creative Media ---------- */}
-      <section className="section creative-section">
-        <div className="creative-layout">
-          <motion.div className="creative-text" initial={{ x: -40, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} transition={{ duration: 0.7 }} viewport={{ once: true }}>
-            <h3 className="section-subtitle">Visual Storytelling & Professional Coverage</h3>
-            <p className="section-description">
-              Whether it’s a corporate launch, private shoot, or public concert, Eethmgh Multimedia ensures every moment is captured in stunning clarity. From cinematic videography to detailed photography and reliable hosting — your memories and messages are in expert hands.
-            </p>
-          </motion.div>
-          <motion.div className="creative-media" initial={{ x: 40, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} transition={{ duration: 0.7 }} viewport={{ once: true }}>
-            {mediaLoading ? Array.from({ length: 3 }).map((_, i) => <MediaSkeleton key={i} />) : mediaItems.length > 0 ? mediaItems.slice(0, 3).map((m, idx) => <MediaCards key={m.id ?? m._id ?? m.url ?? idx} media={m} supportPreview />) : <p className="muted-text">No preview media available.</p>}
-          </motion.div>
-        </div>
-      </section>
+      {/* CREATIVE PREVIEW / MEDIA CARDS */}
+      <FadeInSection>
+        <section className="media-cards-container">
+          <h2 className="media-cards-title">Multimedia Preview</h2>
+          <div className="media-cards-scroll-wrapper">
+            {mediaLoading
+              ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+              : mediaCards.length > 0 ? (
+                  mediaCards.slice(0, 6).map((media, idx) => (
+                    <MediaCard
+                      key={media.id ?? media._id ?? media.url ?? idx}
+                      media={media}
+                    />
+                  ))
+                ) : (
+                  <p className="muted-text">No media available at the moment.</p>
+                )}
+          </div>
+        </section>
+      </FadeInSection>
 
-      {/* ---------- Event Hosting ---------- */}
-      <section className="section event-hosting-section">
-        <motion.div initial={{ y: 40, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-          <h2 className="section-title">Host Your Event with Us</h2>
-          <p className="section-description">
-            Need a location for your next shoot, seminar, or celebration? We provide fully equipped event spaces with lighting, seating, sound, and ambiance — ready for recording, streaming, or staging your unforgettable moment.
-          </p>
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="cta-button" onClick={() => navigate("/bookings")}>
-            Book a Venue
-          </motion.button>
-        </motion.div>
-      </section>
+      {/* MULTIMEDIA GALLERY */}
+      <FadeInSection>
+        <section className="gallery-section">
+          <h2>Multimedia Gallery</h2>
+          <div className="card-grid">
+            {mediaLoading
+              ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+              : mediaCards.length > 0 ? (
+                  mediaCards.slice(0, 6).map((m, idx) => (
+                    <MediaCard key={m.id ?? m._id ?? idx} media={m} />
+                  ))
+                ) : (
+                  <p className="muted-text">No multimedia content available.</p>
+                )}
+          </div>
+        </section>
+      </FadeInSection>
 
-      {/* ---------- Multimedia Gallery ---------- */}
-      <section className="section gallery-section">
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 0.8 }} viewport={{ once: true }}>
-          <h2 className="section-title">Multimedia Gallery</h2>
-        </motion.div>
-        {mediaLoading ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />) : mediaItems.length > 0 ? mediaItems.slice(0, 6).map((m, idx) => <MediaCards key={m.id ?? m._id ?? m.url ?? idx} media={m} supportPreview fullWidth />) : <p className="muted-text">No multimedia content available.</p>}
-      </section>
-
-      {/* ---------- Client Impressions / Reviews ---------- */}
-      <section className="section testimonial-section" aria-live="polite">
-        <h2 className="section-title">Client Impressions</h2>
-        <div className="testimonial-grid">
-          {loadingTestimonials
-            ? Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="testimonial-card shimmer">
-                  <div className="testimonial-text">Loading review...</div>
-                  <div className="testimonial-user">Loading...</div>
-                </div>
-              ))
-            : testimonials.length > 0
-            ? testimonials.slice(0, 6).map((r, idx) => (
-                <div key={r.id ?? r._id ?? idx} className="testimonial-card">
-                  <p className="testimonial-text">{r.message ? `"${r.message}"` : '"No comment provided."'}</p>
-                  <p className="testimonial-user">— {r.user?.username || "Anonymous"}</p>
-                </div>
-              ))
-            : <p className="muted-text">No reviews yet.</p>}
-        </div>
-      </section>
+      {/* CLIENT REVIEWS — matches EethmHome pattern */}
+      <FadeInSection>
+        <ReviewsLayout
+          title="Client Impressions"
+          description="Here’s what people think about our multimedia & hosting services"
+        >
+          {/* show approved reviews for this category, hide form on service pages */}
+          <Reviews limit={6} hideForm={true} category="mediaHostingServicePage" />
+        </ReviewsLayout>
+      </FadeInSection>
     </div>
   );
 }

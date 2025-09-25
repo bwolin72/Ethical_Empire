@@ -1,67 +1,42 @@
-// src/api/services/reviewService.js
-// ------------------------------------------------------
-// Higher-level service functions that wrap reviewsAPI.
-// Can be used in React components or React Query hooks.
-
-import reviewsAPI from '../reviewsAPI';
+import reviewsAPI from "../reviewsAPI";
 
 const reviewService = {
-  /**
-   * Fetch all approved reviews for public display
-   * Optional category filter: { category: 'liveband' }
-   */
+  // Fetch approved reviews, handle paginated response
   async getApprovedReviews(params = {}) {
-    const { data } = await reviewsAPI.listApproved();
-    // Filter by category if provided
+    const response = await reviewsAPI.listApproved(); // axios response
+    let data = Array.isArray(response.data?.results) ? response.data.results : [];
+
     if (params.category) {
-      return data.filter((r) => r.service === params.category);
+      data = data.filter(r => r.service === params.category);
     }
     return data;
   },
 
-  /**
-   * Submit a new review as the current logged-in user
-   * @param {{service:string,rating:number,comment:string}} reviewData
-   */
+  // Submit a new review
   async submitReview(reviewData) {
-    const { data } = await reviewsAPI.create(reviewData);
-    return data;
+    const response = await reviewsAPI.create(reviewData);
+    return response.data;
   },
 
-  /**
-   * Admin: get every review (approved & pending)
-   */
+  // Admin-only functions
   async getAllReviewsAdmin() {
-    const { data } = await reviewsAPI.listAllAdmin();
-    return data;
+    const response = await reviewsAPI.listAllAdmin();
+    return response.data.results || [];
   },
 
-  /**
-   * Admin: approve a pending review
-   * @param {number|string} id
-   */
   async approveReview(id) {
-    const { data } = await reviewsAPI.approve(id);
-    return data;
+    const response = await reviewsAPI.approve(id);
+    return response.data;
   },
 
-  /**
-   * Admin: add or update reply to a review
-   * @param {number|string} id
-   * @param {string} reply
-   */
   async replyToReview(id, reply) {
-    const { data } = await reviewsAPI.reply(id, reply);
-    return data;
+    const response = await reviewsAPI.reply(id, reply);
+    return response.data;
   },
 
-  /**
-   * Admin: delete a review
-   * @param {number|string} id
-   */
   async deleteReview(id) {
-    const { data } = await reviewsAPI.delete(id);
-    return data;
+    const response = await reviewsAPI.delete(id);
+    return response.data;
   },
 };
 

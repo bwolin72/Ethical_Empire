@@ -1,5 +1,5 @@
 // src/components/nav/Navbar.jsx
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { logoutHelper } from "../../utils/logoutHelper";
@@ -19,10 +19,13 @@ const blogLinks = [
 ];
 
 function Navbar() {
+  // SSR-safe initial mobile detection
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth <= 960 : false
+  );
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [blogOpen, setBlogOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 960);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
 
@@ -30,7 +33,6 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const navRef = useRef(null);
-
   /* 📜 Hide/Show on scroll */
   useEffect(() => {
     let ticking = false;
@@ -107,20 +109,21 @@ function Navbar() {
   const handleLogout = async () => {
     await logoutHelper();
     setIsLoggedIn(false);
-    handleNavClick();
+    setMenuOpen(false);
     navigate("/login");
   };
 
   const handleDropdownItemClick = (path) => {
     navigate(path);
-    handleNavClick();
+    setDropdownOpen(false);
+    setMenuOpen(false);
   };
 
   return (
     <nav className={`navbar ${showNavbar ? "show" : "hide"}`} ref={navRef}>
       <div className="navbar-container">
         {/* Logo */}
-        <Link to="/" className="navbar-logo" onClick={handleNavClick}>
+        <Link to="/" className="navbar-logo" onClick={() => { setMenuOpen(false); setDropdownOpen(false); }}>
           <img src={logo} alt="EETHM Logo" className="logo-img" />
           <span className="logo-text">EETHM_GH</span>
         </Link>

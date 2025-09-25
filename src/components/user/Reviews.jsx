@@ -27,7 +27,6 @@ const Reviews = ({ limit = null, hideForm = false }) => {
     "Sound Setup",
   ];
 
-  // Fetch approved reviews
   useEffect(() => {
     fetchReviews();
   }, []);
@@ -35,13 +34,9 @@ const Reviews = ({ limit = null, hideForm = false }) => {
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const res = await reviewService.getReviews();
-      let data = res.data;
-
-      if (limit) {
-        data = data.slice(0, limit);
-      }
-
+      let data = await reviewService.getApprovedReviews();
+      if (!Array.isArray(data)) data = [];
+      if (limit) data = data.slice(0, limit);
       setReviews(data);
     } catch (err) {
       console.error("Error fetching reviews:", err);
@@ -60,7 +55,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
     setError("");
 
     try {
-      await reviewService.createReview(formData);
+      await reviewService.submitReview(formData);
       setFormData({ service: "", rating: "", comment: "" });
       fetchReviews();
     } catch (err) {
@@ -73,13 +68,12 @@ const Reviews = ({ limit = null, hideForm = false }) => {
 
   return (
     <div className="reviews-component">
-      {/* Review Form (optional) */}
+      {/* Optional review form */}
       {!hideForm && (
         <Card className="mb-6">
           <CardContent>
             <h2 className="text-lg font-semibold mb-3">Leave a Review</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Service dropdown */}
               <div>
                 <label className="block text-sm font-medium">Service</label>
                 <select
@@ -98,7 +92,6 @@ const Reviews = ({ limit = null, hideForm = false }) => {
                 </select>
               </div>
 
-              {/* Rating */}
               <div>
                 <label className="block text-sm font-medium">Rating (1–5)</label>
                 <input
@@ -113,7 +106,6 @@ const Reviews = ({ limit = null, hideForm = false }) => {
                 />
               </div>
 
-              {/* Comment */}
               <div>
                 <label className="block text-sm font-medium">Comment</label>
                 <textarea
@@ -135,8 +127,8 @@ const Reviews = ({ limit = null, hideForm = false }) => {
         </Card>
       )}
 
-      {/* Reviews List */}
-      <h2 className="text-lg font-semibold mb-3">Approved Reviews</h2>
+      {/* Reviews list */}
+      <h2 className="text-lg font-semibold mb-3">Client Reviews</h2>
       {loading ? (
         <p>Loading reviews...</p>
       ) : reviews.length === 0 ? (
@@ -146,7 +138,7 @@ const Reviews = ({ limit = null, hideForm = false }) => {
           {reviews.map((review) => (
             <Card key={review.id}>
               <CardContent>
-                <p className="font-semibold">{review.service_display}</p>
+                <p className="font-semibold">{review.service}</p>
                 <p className="text-yellow-600">Rating: {review.rating}/5</p>
                 <p className="mt-2">{review.comment}</p>
                 <p className="text-sm text-gray-500 mt-2">

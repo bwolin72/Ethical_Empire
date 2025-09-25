@@ -1,38 +1,36 @@
 import baseURL from "./baseURL";
 
 const API = {
-  // ===== AUTH =====
-  login: `${baseURL}/accounts/token/`,                  // JWT login
-  logout: `${baseURL}/accounts/profile/logout/`,       // session logout
+  // AUTH
+  login: `${baseURL}/accounts/token/`,
+  logout: `${baseURL}/accounts/profile/logout/`,
   googleLogin: `${baseURL}/accounts/google-auth/`,
   googleRegister: `${baseURL}/accounts/google-auth/`,
 
-  // ===== REGISTRATION =====
+  // REGISTRATION
   register: `${baseURL}/accounts/register/`,
   internalRegister: `${baseURL}/accounts/admin/internal-register/`,
 
-  // ===== PROFILE =====
+  // PROFILE
   profile: `${baseURL}/accounts/profile/`,
-  profilesProfile: `${baseURL}/accounts/profiles/profile/`, // alias
+  profilesProfile: `${baseURL}/accounts/profiles/profile/`,
   changePassword: `${baseURL}/accounts/profile/change-password/`,
   currentUserRole: `${baseURL}/accounts/profile/role/`,
   roleChoices: `${baseURL}/accounts/role-choices/`,
   vendorProfile: `${baseURL}/accounts/profile/vendor/`,
   partnerProfile: `${baseURL}/accounts/profile/partner/`,
 
-  // ===== PASSWORD RESET =====
+  // PASSWORD RESET
   resetPassword: `${baseURL}/accounts/reset-password/`,
   resetPasswordConfirm: (uid, token) =>
     `${baseURL}/accounts/reset-password-confirm/${uid}/${token}/`,
-  resetPasswordConfirmUidb64: (uidb64, token) =>
-    `${baseURL}/accounts/reset-password-confirm/${uidb64}/${token}/`,
 
-  // ===== TOKENS (JWT) =====
+  // JWT TOKENS
   token: `${baseURL}/accounts/token/`,
   tokenRefresh: `${baseURL}/accounts/token/refresh/`,
   tokenVerify: `${baseURL}/accounts/token/verify/`,
 
-  // ===== EMAIL / OTP =====
+  // EMAIL / OTP
   verifyEmail: (uidOrUidb64, token) =>
     `${baseURL}/accounts/verify-email/${uidOrUidb64}/${token}/`,
   verifyOtp: `${baseURL}/accounts/verify-otp/`,
@@ -41,7 +39,7 @@ const API = {
   resendOtpEmail: `${baseURL}/accounts/resend-otp/email/`,
   resendWelcomeEmail: `${baseURL}/accounts/admin/resend-welcome-email/`,
 
-  // ===== ADMIN =====
+  // ADMIN
   adminListUsers: `${baseURL}/accounts/admin/users/`,
   adminInviteWorker: `${baseURL}/accounts/admin/invite-worker/`,
   adminValidateWorkerInvite: (uidOrUidb64, token) =>
@@ -53,7 +51,7 @@ const API = {
   adminSendMessage: `${baseURL}/accounts/admin/send-message/`,
   adminSpecialOffer: `${baseURL}/accounts/admin/special-offer/`,
 
-  // ===== WORKERS =====
+  // WORKERS
   workerCategories: `${baseURL}/accounts/worker-categories/`,
 };
 
