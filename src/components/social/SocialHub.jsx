@@ -1,3 +1,4 @@
+// src/components/social/SocialHub.jsx
 import React from "react";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
@@ -9,65 +10,63 @@ const socialLinks = [
   {
     name: "Facebook",
     url: "https://www.facebook.com/share/16nQGbE7Zk/",
-    icon: <Facebook className="w-6 h-6 text-blue-600" />,
-    color: "bg-blue-100",
+    icon: <Facebook className="social-icon facebook" />,
+    colorClass: "social-card-facebook",
   },
   {
     name: "TikTok",
     url: "https://www.tiktok.com/@eethm_gh?_t=ZM-8zwTexRZBbn&_r=1",
-    icon: <Music className="w-6 h-6 text-black" />,
-    color: "bg-gray-100",
+    icon: <Music className="social-icon tiktok" />,
+    colorClass: "social-card-tiktok",
   },
   {
     name: "YouTube",
     url: "https://www.youtube.com/@ethicalmultimediagh",
-    icon: <Youtube className="w-6 h-6 text-red-600" />,
-    color: "bg-red-100",
+    icon: <Youtube className="social-icon youtube" />,
+    colorClass: "social-card-youtube",
   },
   {
     name: "WhatsApp",
     url: "https://wa.me/+233552988735",
-    icon: <Phone className="w-6 h-6 text-green-600" />,
-    color: "bg-green-100",
+    icon: <Phone className="social-icon whatsapp" />,
+    colorClass: "social-card-whatsapp",
   },
 ];
 
-export default function SocialMediaPage() {
+// Reusable Social Card
+function SocialCard({ link }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Connect with Eethm_GH Multimedia
-      </h1>
+    <Card className={`social-card ${link.colorClass}`}>
+      <CardContent className="social-card-content">
+        <div className="social-card-left">
+          {link.icon}
+          <h2 className="social-card-name">{link.name}</h2>
+        </div>
+        <Button asChild>
+          <a href={link.url} target="_blank" rel="noopener noreferrer">
+            Visit
+          </a>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
 
-      {/* Social Links Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+export default function SocialHub() {
+  return (
+    <div className="social-hub-container">
+      <h1 className="social-hub-title">Connect with Eethm_GH Multimedia</h1>
+
+      <div className="social-cards-grid">
         {socialLinks.map((link, index) => (
-          <Card
-            key={index}
-            className={`flex items-center justify-between p-4 shadow-md rounded-2xl ${link.color}`}
-          >
-            <div className="flex items-center gap-3">
-              {link.icon}
-              <h2 className="text-lg font-semibold">{link.name}</h2>
-            </div>
-            <Button asChild>
-              <a href={link.url} target="_blank" rel="noopener noreferrer">
-                Visit
-              </a>
-            </Button>
-          </Card>
+          <SocialCard key={index} link={link} />
         ))}
       </div>
 
-      {/* Linktree QR Section */}
-      <div className="mt-10 p-6 bg-white rounded-2xl shadow-lg text-center">
-        <h2 className="text-xl font-semibold mb-4">Scan Our Linktree</h2>
-        <QRCode
-          value="https://linktr.ee/ethicalmultimediagh"
-          size={160}
-          fgColor="#000000"
-        />
-        <p className="mt-2 text-gray-600">All our links in one place</p>
+      <div className="qr-section">
+        <h2 className="qr-title">Scan Our Linktree</h2>
+        <QRCode value="https://linktr.ee/ethicalmultimediagh" size={160} fgColor="#000000" />
+        <p className="qr-note">All our links in one place</p>
       </div>
     </div>
   );
