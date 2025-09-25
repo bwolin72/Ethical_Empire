@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
-import { Facebook, Twitter, Linkedin, Share2 } from "lucide-react";
 import BlogService from "../../api/services/blogService";
+import SocialHub from "../social/SocialHub"; // <-- new import
 import "./blog.css";
 
 // ==========================
@@ -47,8 +47,8 @@ export function BlogList() {
     .filter((p) => !categorySlug || p.category?.slug === categorySlug);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Blog Hub</h1>
+    <div className="blog-container">
+      <h1 className="blog-title">Blog Hub</h1>
 
       {/* Search */}
       <input
@@ -56,11 +56,11 @@ export function BlogList() {
         placeholder="Search posts..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full p-2 border rounded-lg mb-6"
+        className="blog-search-input"
       />
 
       {/* Categories */}
-      <div className="flex gap-3 flex-wrap mb-6">
+      <div className="blog-categories">
         <Button asChild variant={!categorySlug ? "primary" : "outline"}>
           <Link to="/blog">All</Link>
         </Button>
@@ -76,28 +76,34 @@ export function BlogList() {
       </div>
 
       {/* Posts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="blog-posts-grid">
         {filteredPosts.length === 0 && (
-          <p className="col-span-full text-center text-gray-500">No posts found.</p>
+          <p className="no-posts">No posts found.</p>
         )}
         {filteredPosts.map((post) => (
-          <Card key={post.id} className="shadow-md rounded-2xl">
+          <Card key={post.id} className="blog-post-card">
             {post.featured_image && (
               <img
                 src={post.featured_image}
                 alt={post.title}
-                className="w-full h-56 object-cover rounded-t-2xl"
+                className="blog-post-image"
               />
             )}
-            <CardContent className="p-4">
-              <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-              <p className="text-gray-600 mb-4">{post.content.slice(0, 120)}...</p>
+            <CardContent className="blog-post-content">
+              <h2 className="blog-post-title">{post.title}</h2>
+              <p className="blog-post-excerpt">{post.content.slice(0, 120)}...</p>
               <Button asChild>
                 <Link to={`/blog/${post.slug}`}>Read More</Link>
               </Button>
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Social Hub Section */}
+      <div className="blog-social-section">
+        <h2>Connect with Us</h2>
+        <SocialHub />
       </div>
     </div>
   );
@@ -151,26 +157,29 @@ export function BlogDetail() {
   if (!post) return <p className="text-center p-6">Post not found.</p>;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
-      <p className="text-gray-500 mb-4">
+    <div className="blog-detail-container">
+      <h1 className="blog-detail-title">{post.title}</h1>
+      <p className="blog-detail-meta">
         {new Date(post.created_at).toLocaleDateString()} | {post.category?.name}
       </p>
       {post.featured_image && (
-        <img src={post.featured_image} alt={post.title} className="w-full rounded-lg mb-6" />
+        <img src={post.featured_image} alt={post.title} className="blog-detail-image" />
       )}
-      <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: post.content }} />
+      <div
+        className="blog-detail-content"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
 
       {/* YouTube */}
       {post.youtube_url && (
-        <div className="mb-6">
+        <div className="blog-media">
           <iframe
             width="100%"
             height="400"
             src={post.youtube_url.replace("watch?v=", "embed/")}
             title="YouTube video"
             allowFullScreen
-            className="rounded-lg"
+            className="blog-iframe"
           />
         </div>
       )}
@@ -186,60 +195,30 @@ export function BlogDetail() {
         </blockquote>
       )}
 
-      {/* Share Buttons */}
-      <div className="flex gap-3 mb-6">
-        <Button asChild variant="outline">
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Facebook className="w-5 h-5" /> Share
-          </a>
-        </Button>
-        <Button asChild variant="outline">
-          <a
-            href={`https://twitter.com/intent/tweet?url=${window.location.href}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Twitter className="w-5 h-5" /> Tweet
-          </a>
-        </Button>
-        <Button asChild variant="outline">
-          <a
-            href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Linkedin className="w-5 h-5" /> LinkedIn
-          </a>
-        </Button>
-        <Button asChild variant="outline">
-          <a href={window.location.href} target="_blank" rel="noopener noreferrer">
-            <Share2 className="w-5 h-5" /> Copy Link
-          </a>
-        </Button>
+      {/* Social Hub Section */}
+      <div className="blog-social-section">
+        <h2>Connect with Us</h2>
+        <SocialHub />
       </div>
 
       {/* Comments */}
-      <div className="mt-10">
-        <h2 className="text-xl font-bold mb-4">Comments</h2>
-        <form onSubmit={handleCommentSubmit} className="mb-6">
+      <div className="blog-comments">
+        <h2>Comments</h2>
+        <form onSubmit={handleCommentSubmit} className="comment-form">
           <textarea
             value={commentContent}
             onChange={(e) => setCommentContent(e.target.value)}
             placeholder="Write a comment..."
-            className="w-full p-3 border rounded-lg mb-2"
+            className="comment-textarea"
           />
           <Button type="submit">Post Comment</Button>
         </form>
 
-        {comments.length === 0 && <p className="text-gray-500">No comments yet.</p>}
+        {comments.length === 0 && <p className="no-comments">No comments yet.</p>}
         {comments.map((c) => (
-          <div key={c.id} className="border-b py-3">
-            <p className="font-semibold">{c.user || c.guest_name || "Guest"}</p>
-            <p>{c.content}</p>
+          <div key={c.id} className="comment-item">
+            <p className="comment-user">{c.user || c.guest_name || "Guest"}</p>
+            <p className="comment-content">{c.content}</p>
           </div>
         ))}
       </div>
