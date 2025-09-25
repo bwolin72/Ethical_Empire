@@ -13,18 +13,14 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./components/styles/variables.css";
 import "./pdfjs-setup"; // PDF.js Worker Setup
 
-// ==============================
 // Layout & UI
-// ==============================
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import SplashScreen from "./components/ui/SplashScreen";
 import PromotionPopup from "./components/home/PromotionPopup";
 import FloatingWhatsAppButton from "./components/ui/FloatingWhatsAppButton";
 
-// ==============================
 // Pages - Home & Static
-// ==============================
 import EethmHome from "./components/home/EethmHome";
 import About from "./components/home/About";
 import Services from "./components/home/Services";
@@ -35,9 +31,7 @@ import Terms from "./components/legal/Terms";
 import Privacy from "./components/legal/Privacy";
 import FAQ from "./components/legal/FAQ";
 
-// ==============================
-// Pages - Auth & Profile
-// ==============================
+// Auth & Profile
 import Register from "./components/Auth/Register";
 import Login from "./components/Auth/Login";
 import ForgotPassword from "./components/Auth/ForgotPassword";
@@ -48,9 +42,7 @@ import UpdatePassword from "./components/user/UpdatePassword";
 import ConfirmPasswordChange from "./components/user/ConfirmPasswordChange";
 import AccountProfile from "./components/user/AccountProfile";
 
-// ==============================
-// Pages - Dashboard & Forms
-// ==============================
+// Dashboard & Forms
 import AdminPanel from "./components/AdminDashboard/AdminPanel";
 import UserPage from "./components/user/UserPage";
 import BookingForm from "./components/Queries/BookingForm";
@@ -61,30 +53,22 @@ import PartnerProfilePage from "./components/agency/PartnerProfilePage";
 import AgencyDashboard from "./components/agency/AgencyDashboard";
 import WorkerDashboard from "./components/worker/WorkerDashboard";
 
-// ==============================
-// Pages - Services
-// ==============================
+// Services
 import LiveBandServicePage from "./components/services/LiveBandServicePage";
 import CateringServicePage from "./components/services/CateringServicePage";
 import DecorServicePage from "./components/services/DecorServicePage";
 import MediaHostingServicePage from "./components/services/MediaHostingServicePage";
 
-// ==============================
 // New / Other Pages
-// ==============================
 import FlipbookViewer from "./components/company/FlipbookViewer";
 import DebugWrapper from "./components/debug/DebugWrapper";
 
-// ==============================
-// New imports: Blog, Messaging, SocialHub
-// ==============================
-import Blog from "./components/blog/Blog";
+// Blog & Messaging
+import { BlogList, BlogDetail } from "./components/blog/Blog";
 import Messaging from "./components/messaging/messaging";
 import SocialHub from "./components/social/SocialHub";
 
-// ==============================
 // Context & Auth
-// ==============================
 import { AuthProvider } from "./components/context/AuthContext";
 import { ProfileProvider } from "./components/context/ProfileContext";
 import ProtectedRoute from "./components/context/ProtectedRoute";
@@ -93,20 +77,15 @@ import ProtectedRoute from "./components/context/ProtectedRoute";
 import authService from "./api/services/authService";
 
 // ==============================
-// Homepage - Public Access
+// Homepage
 // ==============================
 const EethmHomePage = () => {
   const navigate = useNavigate();
-
-  const handleBookingClick = () => {
-    navigate("/bookings"); // ProtectedRoute will guard bookings
-  };
-
   return (
     <div className="home-page">
       <EethmHome />
       <div className="booking-toggle">
-        <button className="booking-button" onClick={handleBookingClick}>
+        <button className="booking-button" onClick={() => navigate("/bookings")}>
           Create Booking
         </button>
       </div>
@@ -115,7 +94,7 @@ const EethmHomePage = () => {
 };
 
 // ==============================
-// Role-Based Redirect Handler
+// Role-Based Redirect
 // ==============================
 const ConnectRedirect = () => {
   const navigate = useNavigate();
@@ -128,8 +107,7 @@ const ConnectRedirect = () => {
       try {
         const res = await authService.getProfile();
         if (!isMounted) return;
-
-        const role = res?.data?.role?.trim?.()?.toLowerCase() || "";
+        const role = res?.data?.role?.trim()?.toLowerCase() || "";
         switch (role) {
           case "admin":
             navigate("/admin", { replace: true });
@@ -150,25 +128,17 @@ const ConnectRedirect = () => {
             navigate("/unauthorized", { replace: true });
         }
       } catch (err) {
-        console.error("Failed to determine role:", err);
+        console.error(err);
         if (!isMounted) return;
-
-        if (err.response?.status === 401) {
-          // Guest user → back to homepage
-          navigate("/", { replace: true });
-        } else {
-          // Other unexpected error → go to login
-          navigate("/login", { replace: true });
-        }
+        if (err.response?.status === 401) navigate("/", { replace: true });
+        else navigate("/login", { replace: true });
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
     checkUserRole();
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [navigate]);
 
   return loading ? <div className="loading-screen">Redirecting...</div> : null;
@@ -187,14 +157,13 @@ const ScrollAndRefresh = () => {
 };
 
 // ==============================
-// App Routes
+// Routes
 // ==============================
 const AppRoutes = () => {
   const location = useLocation();
-
   return (
     <Routes key={location.pathname}>
-      {/* Public Routes */}
+      {/* Public */}
       <Route path="/" element={<EethmHomePage />} />
       <Route path="/about" element={<About />} />
       <Route path="/services" element={<Services />} />
@@ -204,8 +173,11 @@ const AppRoutes = () => {
       <Route path="/faq" element={<FAQ />} />
       <Route path="/flipbook" element={<FlipbookViewer />} />
 
-      {/* New public routes */}
-      <Route path="/blog" element={<Blog />} />
+      {/* Blog */}
+      <Route path="/blog" element={<BlogList />} />
+      <Route path="/blog/:slug" element={<BlogDetail />} />
+
+      {/* Messaging / Social */}
       <Route path="/messaging" element={<Messaging />} />
       <Route path="/social" element={<SocialHub />} />
 
@@ -219,7 +191,7 @@ const AppRoutes = () => {
       <Route path="/newsletter" element={<NewsletterSignup />} />
       <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-      {/* Auth Routes */}
+      {/* Auth */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -255,29 +227,24 @@ const AppRoutes = () => {
         <Route path="/admin" element={<AdminPanel />} />
       </Route>
 
-      {/* Unauthorized */}
+      {/* Unauthorized / Catch-all */}
       <Route path="/unauthorized" element={<div className="unauthorized">Access Denied</div>} />
-
-      {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
 
 // ==============================
-// App With Splash Screen
+// App With Splash
 // ==============================
 const AppWithSplash = () => {
   const [splashVisible, setSplashVisible] = useState(true);
-
   useEffect(() => {
-    const splashTimer = setTimeout(() => setSplashVisible(false), 2000);
-    return () => clearTimeout(splashTimer);
+    const timer = setTimeout(() => setSplashVisible(false), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
-  if (splashVisible) {
-    return <SplashScreen onFinish={() => setSplashVisible(false)} />;
-  }
+  if (splashVisible) return <SplashScreen onFinish={() => setSplashVisible(false)} />;
 
   return (
     <div className="App">
@@ -294,7 +261,7 @@ const AppWithSplash = () => {
 };
 
 // ==============================
-// Root App Component
+// Root App
 // ==============================
 function App() {
   return (
