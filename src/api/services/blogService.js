@@ -2,102 +2,98 @@
 import axiosInstance from "../axiosInstance";
 import baseURL from "../baseURL";
 
-// Create Axios instance for blog endpoints
+// Axios instance for blog endpoints
 const blogAPI = axiosInstance.create({
   baseURL: `${baseURL}/blog`, // Matches Django /blog/ prefix
 });
 
+// Utility to ensure response is always an array
+const normalizeArray = (data) => {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (data.results && Array.isArray(data.results)) return data.results;
+  return [];
+};
+
 // ==========================
-// POSTS - Public & Admin
+// POSTS
 // ==========================
+export const getPosts = async (params = {}) => {
+  const res = await blogAPI.get("/posts/", { params });
+  return normalizeArray(res.data);
+};
 
-// Get all posts (public: published only, admin: all)
-export const getPosts = (params = {}) =>
-  blogAPI.get("/posts/", { params }).then((res) => res.data);
+export const getPostDetail = async (slug) => {
+  const res = await blogAPI.get(`/posts/${slug}/`);
+  return res.data || null;
+};
 
-// Get post detail by slug
-export const getPostDetail = (slug) =>
-  blogAPI.get(`/posts/${slug}/`).then((res) => res.data);
-
-// Create a new post (admin)
 export const createPost = (data, token) =>
   blogAPI.post("/posts/", data, {
     headers: { Authorization: `Token ${token}` },
   });
 
-// Update post by slug (admin)
 export const updatePost = (slug, data, token) =>
   blogAPI.put(`/posts/${slug}/`, data, {
     headers: { Authorization: `Token ${token}` },
   });
 
-// Delete post by slug (admin)
 export const deletePost = (slug, token) =>
   blogAPI.delete(`/posts/${slug}/`, {
     headers: { Authorization: `Token ${token}` },
   });
 
 // ==========================
-// COMMENTS - Public & Auth
+// COMMENTS
 // ==========================
-
-// List approved comments for a post
-export const getComments = (slug) => {
-  if (!slug || slug === "latest" || slug === "articles") {
-    // Prevent invalid requests for list endpoints
-    return Promise.resolve([]);
-  }
-  return blogAPI.get(`/posts/${slug}/comments/`).then((res) => res.data);
+export const getComments = async (slug) => {
+  if (!slug || slug === "latest" || slug === "articles") return [];
+  const res = await blogAPI.get(`/posts/${slug}/comments/`);
+  return normalizeArray(res.data);
 };
 
-// Add a comment to a post (public or authenticated)
-export const addComment = (slug, data) => {
+export const addComment = async (slug, data) => {
   if (!slug || slug === "latest" || slug === "articles") {
     return Promise.reject(
       new Error("Cannot add comment to list endpoints (latest/articles).")
     );
   }
-  return blogAPI.post(`/posts/${slug}/comments/`, data).then((res) => res.data);
+  const res = await blogAPI.post(`/posts/${slug}/comments/`, data);
+  return res.data || null;
 };
 
 // ==========================
-// CATEGORIES - Public & Admin
+// CATEGORIES
 // ==========================
+export const getCategories = async () => {
+  const res = await blogAPI.get("/categories/");
+  return normalizeArray(res.data);
+};
 
-// List all categories
-export const getCategories = () =>
-  blogAPI.get("/categories/").then((res) => res.data);
-
-// Create a new category (admin)
 export const createCategory = (data, token) =>
   blogAPI.post("/categories/", data, {
     headers: { Authorization: `Token ${token}` },
   });
 
-// Update category by slug (admin)
 export const updateCategory = (slug, data, token) =>
   blogAPI.put(`/categories/${slug}/`, data, {
     headers: { Authorization: `Token ${token}` },
   });
 
-// Delete category by slug (admin)
 export const deleteCategory = (slug, token) =>
   blogAPI.delete(`/categories/${slug}/`, {
     headers: { Authorization: `Token ${token}` },
   });
 
-// Aggregate all methods for easier imports
+// Aggregate all methods
 const BlogService = {
-  // Posts
   getPosts,
   getPostDetail,
   createPost,
   updatePost,
   deletePost,
-  // Comments
   getComments,
   addComment,
-  // Categories
   getCategories,
   createCategory,
   updateCategory,
