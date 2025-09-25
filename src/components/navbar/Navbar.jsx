@@ -1,4 +1,3 @@
-// src/components/nav/Navbar.jsx
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,9 +18,7 @@ const blogLinks = [
 ];
 
 function Navbar() {
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" ? window.innerWidth <= 960 : false
-  );
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth <= 960 : false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [blogOpen, setBlogOpen] = useState(false);
@@ -33,15 +30,14 @@ function Navbar() {
   const navigate = useNavigate();
   const navRef = useRef(null);
 
-  /* Hide/Show on scroll */
+  // Hide/Show navbar on scroll
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          if (currentScrollY > lastScrollY.current + 10) setShowNavbar(false);
-          else if (currentScrollY < lastScrollY.current - 10) setShowNavbar(true);
+          setShowNavbar(currentScrollY < lastScrollY.current - 10 || currentScrollY < 50);
           lastScrollY.current = currentScrollY;
           ticking = false;
         });
@@ -52,28 +48,28 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* Track window resize */
+  // Track window resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 960);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /* Check login */
+  // Check login status
   useEffect(() => {
     const access = localStorage.getItem("access") || sessionStorage.getItem("access");
     const refresh = localStorage.getItem("refresh") || sessionStorage.getItem("refresh");
     setIsLoggedIn(!!(access && refresh));
   }, [location]);
 
-  /* Close menus on route change */
+  // Close menus on route change
   useEffect(() => {
     setMenuOpen(false);
     setServicesOpen(false);
     setBlogOpen(false);
   }, [location]);
 
-  /* Close on outside click or Esc */
+  // Close on outside click or Esc
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
@@ -115,10 +111,17 @@ function Navbar() {
 
   const handleDropdownItemClick = (path) => {
     navigate(path);
-    setMenuOpen(false);        // close mobile menu
-    setServicesOpen(false);    // also close dropdowns
+    setMenuOpen(false);
+    setServicesOpen(false);
     setBlogOpen(false);
   };
+
+  const mobileMenuVariants = {
+    hidden: { scaleY: 0, opacity: 0 },
+    visible: { scaleY: 1, opacity: 1 },
+  };
+
+  const isBlogActive = (path) => location.pathname.startsWith(path);
 
   return (
     <nav className={`navbar ${showNavbar ? "show" : "hide"}`} ref={navRef}>
@@ -129,7 +132,7 @@ function Navbar() {
           <span className="logo-text">EETHM_GH</span>
         </Link>
 
-        {/* Hamburger icon */}
+        {/* Hamburger */}
         <button
           type="button"
           className={`menu-icon ${menuOpen ? "open" : ""}`}
@@ -153,8 +156,7 @@ function Navbar() {
               onMouseEnter={() => setServicesOpen(true)}
               onMouseLeave={() => setServicesOpen(false)}
             >
-              <button className="nav-links dropdown-toggle"
-                      onClick={!isMobile ? () => navigate("/services") : toggleServices}>
+              <button className="nav-links dropdown-toggle" onClick={() => navigate("/services")}>
                 Services <span className={`caret ${servicesOpen ? "rotated" : ""}`}>▼</span>
               </button>
               <ul className={`dropdown-menu desktop ${servicesOpen ? "active" : ""}`}>
@@ -174,13 +176,19 @@ function Navbar() {
               onMouseEnter={() => setBlogOpen(true)}
               onMouseLeave={() => setBlogOpen(false)}
             >
-              <button className="nav-links dropdown-toggle"
-                      onClick={!isMobile ? () => navigate("/blog") : toggleBlog}>
+              <button
+                className={`nav-links dropdown-toggle ${isBlogActive("/blog") ? "active" : ""}`}
+                onClick={() => navigate("/blog")}
+              >
                 Blog <span className={`caret ${blogOpen ? "rotated" : ""}`}>▼</span>
               </button>
               <ul className={`dropdown-menu desktop ${blogOpen ? "active" : ""}`}>
                 {blogLinks.map(({ label, path }) => (
-                  <li key={path} className="dropdown-item" onClick={() => handleDropdownItemClick(path)}>
+                  <li
+                    key={path}
+                    className={`dropdown-item ${isBlogActive(path) ? "active" : ""}`}
+                    onClick={() => handleDropdownItemClick(path)}
+                  >
                     {label}
                   </li>
                 ))}
@@ -205,10 +213,11 @@ function Navbar() {
           {isMobile && menuOpen && (
             <motion.ul
               className="nav-menu mobile"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={mobileMenuVariants}
+              style={{ transformOrigin: "top" }}
             >
               <li><Link to="/bookings" onClick={handleNavClick}>Bookings</Link></li>
               <li><Link to="/flipbook" onClick={handleNavClick}>Our Profile</Link></li>
@@ -235,7 +244,13 @@ function Navbar() {
                 </button>
                 <ul className={`dropdown-menu mobile ${blogOpen ? "active" : ""}`}>
                   {blogLinks.map(({ label, path }) => (
-                    <li key={path} onClick={() => handleDropdownItemClick(path)}>{label}</li>
+                    <li
+                      key={path}
+                      className={isBlogActive(path) ? "active" : ""}
+                      onClick={() => handleDropdownItemClick(path)}
+                    >
+                      {label}
+                    </li>
                   ))}
                 </ul>
               </li>

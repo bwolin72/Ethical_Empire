@@ -1,6 +1,5 @@
-// src/components/blog/Blog.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Facebook, Twitter, Linkedin, Share2 } from "lucide-react";
@@ -11,6 +10,8 @@ import "./blog.css";
 // Blog List Page
 // ==========================
 export function BlogList() {
+  const { categorySlug } = useParams(); // optional category filter
+  const location = useLocation();
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
@@ -33,10 +34,15 @@ export function BlogList() {
       }
     }
     fetchData();
-  }, []);
+  }, [location]);
 
   if (loading) return <p className="text-center p-6">Loading...</p>;
   if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
+
+  // Filter by search and category
+  const filteredPosts = posts
+    .filter((p) => p.title.toLowerCase().includes(search.toLowerCase()))
+    .filter((p) => !categorySlug || p.category?.slug === categorySlug);
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -53,8 +59,15 @@ export function BlogList() {
 
       {/* Categories */}
       <div className="flex gap-3 flex-wrap mb-6">
+        <Button asChild variant={!categorySlug ? "primary" : "outline"}>
+          <Link to="/blog">All</Link>
+        </Button>
         {categories.map((cat) => (
-          <Button key={cat.id} asChild>
+          <Button
+            key={cat.id}
+            asChild
+            variant={categorySlug === cat.slug ? "primary" : "outline"}
+          >
             <Link to={`/blog/category/${cat.slug}`}>{cat.name}</Link>
           </Button>
         ))}
@@ -62,24 +75,25 @@ export function BlogList() {
 
       {/* Posts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {posts
-          .filter((p) => p.title.toLowerCase().includes(search.toLowerCase()))
-          .map((post) => (
-            <Card key={post.id} className="shadow-md rounded-2xl">
-              <img
-                src={post.featured_image}
-                alt={post.title}
-                className="w-full h-56 object-cover rounded-t-2xl"
-              />
-              <CardContent className="p-4">
-                <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-                <p className="text-gray-600 mb-4">{post.content.slice(0, 120)}...</p>
-                <Button asChild>
-                  <Link to={`/blog/${post.slug}`}>Read More</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+        {filteredPosts.length === 0 && (
+          <p className="col-span-full text-center text-gray-500">No posts found.</p>
+        )}
+        {filteredPosts.map((post) => (
+          <Card key={post.id} className="shadow-md rounded-2xl">
+            <img
+              src={post.featured_image}
+              alt={post.title}
+              className="w-full h-56 object-cover rounded-t-2xl"
+            />
+            <CardContent className="p-4">
+              <h2 className="text-xl font-bold mb-2">{post.title}</h2>
+              <p className="text-gray-600 mb-4">{post.content.slice(0, 120)}...</p>
+              <Button asChild>
+                <Link to={`/blog/${post.slug}`}>Read More</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
@@ -140,7 +154,7 @@ export function BlogDetail() {
       <img src={post.featured_image} alt={post.title} className="w-full rounded-lg mb-6" />
       <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: post.content }} />
 
-      {/* Social Media Embeds */}
+      {/* Social Media */}
       {post.youtube_url && (
         <div className="mb-6">
           <iframe
@@ -166,29 +180,17 @@ export function BlogDetail() {
       {/* Share Buttons */}
       <div className="flex gap-3 mb-6">
         <Button asChild variant="outline">
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`} target="_blank" rel="noopener noreferrer">
             <Facebook className="w-5 h-5" /> Share
           </a>
         </Button>
         <Button asChild variant="outline">
-          <a
-            href={`https://twitter.com/intent/tweet?url=${window.location.href}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={`https://twitter.com/intent/tweet?url=${window.location.href}`} target="_blank" rel="noopener noreferrer">
             <Twitter className="w-5 h-5" /> Tweet
           </a>
         </Button>
         <Button asChild variant="outline">
-          <a
-            href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`} target="_blank" rel="noopener noreferrer">
             <Linkedin className="w-5 h-5" /> LinkedIn
           </a>
         </Button>
@@ -212,6 +214,7 @@ export function BlogDetail() {
           <Button type="submit">Post Comment</Button>
         </form>
 
+        {comments?.length === 0 && <p className="text-gray-500">No comments yet.</p>}
         {comments?.map((c, i) => (
           <div key={i} className="border-b py-3">
             <p className="font-semibold">{c.user || "Guest"}</p>
@@ -223,7 +226,4 @@ export function BlogDetail() {
   );
 }
 
-// ==========================
-// Named Exports
-// ==========================
 export { BlogList, BlogDetail };
