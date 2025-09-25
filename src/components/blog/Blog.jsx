@@ -225,5 +225,3 @@ export function BlogDetail() {
     </div>
   );
 }
-
-export { BlogList, BlogDetail };
