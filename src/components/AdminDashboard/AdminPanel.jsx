@@ -13,7 +13,7 @@ import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import VideoUpload from './VideoUpload';
 import ServicesAdmin from './ServicesAdmin';
-import BlogAdmin from './BlogAdmin'; // <-- BlogAdmin included
+import { BlogAdmin } from './BlogAdmin';
 
 // Messaging
 import Messaging from '../messaging/messaging';
