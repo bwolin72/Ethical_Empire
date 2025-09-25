@@ -42,12 +42,23 @@ export const deletePost = (slug, token) =>
 // ==========================
 
 // List approved comments for a post
-export const getComments = (slug) =>
-  blogAPI.get(`/posts/${slug}/comments/`).then((res) => res.data);
+export const getComments = (slug) => {
+  if (!slug || slug === "latest" || slug === "articles") {
+    // Prevent invalid requests for list endpoints
+    return Promise.resolve([]);
+  }
+  return blogAPI.get(`/posts/${slug}/comments/`).then((res) => res.data);
+};
 
 // Add a comment to a post (public or authenticated)
-export const addComment = (slug, data) =>
-  blogAPI.post(`/posts/${slug}/comments/`, data).then((res) => res.data);
+export const addComment = (slug, data) => {
+  if (!slug || slug === "latest" || slug === "articles") {
+    return Promise.reject(
+      new Error("Cannot add comment to list endpoints (latest/articles).")
+    );
+  }
+  return blogAPI.post(`/posts/${slug}/comments/`, data).then((res) => res.data);
+};
 
 // ==========================
 // CATEGORIES - Public & Admin
