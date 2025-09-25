@@ -4,14 +4,14 @@ import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
 import BlogService from "../../api/services/blogService";
-import SocialHub from "../social/SocialHub"; // <-- new import
+import SocialHub from "../social/SocialHub"; // Social section
 import "./blog.css";
 
 // ==========================
 // Blog List Page
 // ==========================
 export function BlogList() {
-  const { categorySlug } = useParams(); // optional category filter
+  const { categorySlug } = useParams();
   const location = useLocation();
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -24,10 +24,10 @@ export function BlogList() {
       setLoading(true);
       try {
         const fetchedPosts = await BlogService.getPosts();
-        setPosts(fetchedPosts);
+        setPosts(Array.isArray(fetchedPosts) ? fetchedPosts : []);
 
         const fetchedCategories = await BlogService.getCategories();
-        setCategories(fetchedCategories);
+        setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
       } catch (err) {
         console.error("Failed to fetch blog data:", err);
         setError("Unable to load blog data.");
@@ -41,9 +41,9 @@ export function BlogList() {
   if (loading) return <p className="text-center p-6">Loading...</p>;
   if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
 
-  // Filter by search and category
+  // Filter posts safely
   const filteredPosts = posts
-    .filter((p) => p.title.toLowerCase().includes(search.toLowerCase()))
+    .filter((p) => typeof p.title === "string" && p.title.toLowerCase().includes(search.toLowerCase()))
     .filter((p) => !categorySlug || p.category?.slug === categorySlug);
 
   return (
@@ -77,21 +77,15 @@ export function BlogList() {
 
       {/* Posts */}
       <div className="blog-posts-grid">
-        {filteredPosts.length === 0 && (
-          <p className="no-posts">No posts found.</p>
-        )}
+        {filteredPosts.length === 0 && <p className="no-posts">No posts found.</p>}
         {filteredPosts.map((post) => (
           <Card key={post.id} className="blog-post-card">
             {post.featured_image && (
-              <img
-                src={post.featured_image}
-                alt={post.title}
-                className="blog-post-image"
-              />
+              <img src={post.featured_image} alt={post.title} className="blog-post-image" />
             )}
             <CardContent className="blog-post-content">
               <h2 className="blog-post-title">{post.title}</h2>
-              <p className="blog-post-excerpt">{post.content.slice(0, 120)}...</p>
+              <p className="blog-post-excerpt">{post.content?.slice(0, 120)}...</p>
               <Button asChild>
                 <Link to={`/blog/${post.slug}`}>Read More</Link>
               </Button>
@@ -100,7 +94,7 @@ export function BlogList() {
         ))}
       </div>
 
-      {/* Social Hub Section */}
+      {/* Social Hub */}
       <div className="blog-social-section">
         <h2>Connect with Us</h2>
         <SocialHub />
@@ -125,10 +119,10 @@ export function BlogDetail() {
       setLoading(true);
       try {
         const fetchedPost = await BlogService.getPostDetail(slug);
-        setPost(fetchedPost);
+        setPost(fetchedPost || null);
 
         const fetchedComments = await BlogService.getComments(slug);
-        setComments(fetchedComments);
+        setComments(Array.isArray(fetchedComments) ? fetchedComments : []);
       } catch (err) {
         console.error("Failed to fetch post data:", err);
         setError("Unable to load post details.");
@@ -146,7 +140,7 @@ export function BlogDetail() {
       await BlogService.addComment(slug, { content: commentContent });
       setCommentContent("");
       const refreshedComments = await BlogService.getComments(slug);
-      setComments(refreshedComments);
+      setComments(Array.isArray(refreshedComments) ? refreshedComments : []);
     } catch (err) {
       console.error("Failed to post comment:", err);
     }
@@ -195,7 +189,7 @@ export function BlogDetail() {
         </blockquote>
       )}
 
-      {/* Social Hub Section */}
+      {/* Social Hub */}
       <div className="blog-social-section">
         <h2>Connect with Us</h2>
         <SocialHub />
