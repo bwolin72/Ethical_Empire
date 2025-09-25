@@ -1,3 +1,4 @@
+// src/components/blog/Blog.js
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
@@ -20,6 +21,7 @@ export function BlogList() {
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       try {
         const fetchedPosts = await BlogService.getPosts();
         setPosts(fetchedPosts);
@@ -80,11 +82,13 @@ export function BlogList() {
         )}
         {filteredPosts.map((post) => (
           <Card key={post.id} className="shadow-md rounded-2xl">
-            <img
-              src={post.featured_image}
-              alt={post.title}
-              className="w-full h-56 object-cover rounded-t-2xl"
-            />
+            {post.featured_image && (
+              <img
+                src={post.featured_image}
+                alt={post.title}
+                className="w-full h-56 object-cover rounded-t-2xl"
+              />
+            )}
             <CardContent className="p-4">
               <h2 className="text-xl font-bold mb-2">{post.title}</h2>
               <p className="text-gray-600 mb-4">{post.content.slice(0, 120)}...</p>
@@ -131,6 +135,7 @@ export function BlogDetail() {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
+    if (!commentContent.trim()) return;
     try {
       await BlogService.addComment(slug, { content: commentContent });
       setCommentContent("");
@@ -151,10 +156,12 @@ export function BlogDetail() {
       <p className="text-gray-500 mb-4">
         {new Date(post.created_at).toLocaleDateString()} | {post.category?.name}
       </p>
-      <img src={post.featured_image} alt={post.title} className="w-full rounded-lg mb-6" />
+      {post.featured_image && (
+        <img src={post.featured_image} alt={post.title} className="w-full rounded-lg mb-6" />
+      )}
       <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: post.content }} />
 
-      {/* Social Media */}
+      {/* YouTube */}
       {post.youtube_url && (
         <div className="mb-6">
           <iframe
@@ -167,6 +174,8 @@ export function BlogDetail() {
           />
         </div>
       )}
+
+      {/* TikTok */}
       {post.tiktok_url && (
         <blockquote
           className="tiktok-embed"
@@ -180,17 +189,29 @@ export function BlogDetail() {
       {/* Share Buttons */}
       <div className="flex gap-3 mb-6">
         <Button asChild variant="outline">
-          <a href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`} target="_blank" rel="noopener noreferrer">
+          <a
+            href={`https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Facebook className="w-5 h-5" /> Share
           </a>
         </Button>
         <Button asChild variant="outline">
-          <a href={`https://twitter.com/intent/tweet?url=${window.location.href}`} target="_blank" rel="noopener noreferrer">
+          <a
+            href={`https://twitter.com/intent/tweet?url=${window.location.href}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Twitter className="w-5 h-5" /> Tweet
           </a>
         </Button>
         <Button asChild variant="outline">
-          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`} target="_blank" rel="noopener noreferrer">
+          <a
+            href={`https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Linkedin className="w-5 h-5" /> LinkedIn
           </a>
         </Button>
@@ -214,10 +235,10 @@ export function BlogDetail() {
           <Button type="submit">Post Comment</Button>
         </form>
 
-        {comments?.length === 0 && <p className="text-gray-500">No comments yet.</p>}
-        {comments?.map((c, i) => (
-          <div key={i} className="border-b py-3">
-            <p className="font-semibold">{c.user || "Guest"}</p>
+        {comments.length === 0 && <p className="text-gray-500">No comments yet.</p>}
+        {comments.map((c) => (
+          <div key={c.id} className="border-b py-3">
+            <p className="font-semibold">{c.user || c.guest_name || "Guest"}</p>
             <p>{c.content}</p>
           </div>
         ))}

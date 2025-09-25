@@ -1,3 +1,4 @@
+// src/admin/AdminPanel.jsx
 import React, { useEffect, useState } from 'react';
 
 // Admin Modules
@@ -12,6 +13,7 @@ import UserRoleManager from './UserRoleManager';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import VideoUpload from './VideoUpload';
 import ServicesAdmin from './ServicesAdmin';
+import BlogAdmin from './BlogAdmin'; // <-- BlogAdmin included
 
 // Messaging
 import Messaging from '../messaging/messaging';
@@ -84,6 +86,9 @@ const AdminPanel = () => {
           <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}>
             Dashboard
           </li>
+          <li className={activeTab === 'blog' ? 'active' : ''} onClick={() => setActiveTab('blog')}>
+            Blog Admin
+          </li>
           <li className={activeTab === 'booking' ? 'active' : ''} onClick={() => setActiveTab('booking')}>
             Booking Management
           </li>
@@ -123,6 +128,7 @@ const AdminPanel = () => {
       {/* Content Area */}
       <section className="admin-content">
         {activeTab === 'dashboard' && <AdminDashboard setActiveTab={setActiveTab} />}
+        {activeTab === 'blog' && <BlogAdmin />} {/* BlogAdmin included */}
         {activeTab === 'booking' && <BookingManagement />}
         {activeTab === 'invoice' && <InvoiceGeneration />}
         {activeTab === 'media' && <MediaManagement />}

@@ -1,0 +1,135 @@
+/* ======================================================
+   🎨 Admin Dashboard Enhancements
+   Sticky Header, Search/Filter & Collapsible Comments
+   ====================================================== */
+
+/* === Sticky Header === */
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: var(--color-white);
+  padding: 1rem 2rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dark .admin-header {
+  background-color: var(--color-neutral-dark);
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* === Search & Filter Bar === */
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.admin-filters input[type="text"],
+.admin-filters select {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+  background-color: var(--color-input-bg);
+  transition: all var(--transition-fast);
+}
+
+.dark .admin-filters input,
+.dark .admin-filters select {
+  border-color: var(--color-border-dark);
+  background-color: var(--color-input-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.admin-filters button {
+  padding: 0.5rem 1rem;
+}
+
+/* === Collapsible Comments === */
+.comment-wrapper {
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  background-color: var(--color-service-bg-light);
+  transition: all var(--transition-fast);
+}
+
+.dark .comment-wrapper {
+  border-color: var(--color-border-dark);
+  background-color: var(--color-service-bg-dark);
+}
+
+.comment-header {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  background: var(--color-primary-light);
+  color: var(--color-white);
+}
+
+.comment-header:hover {
+  background: var(--color-primary-dark);
+}
+
+.comment-content {
+  padding: 0.75rem 1rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.comment-wrapper.open .comment-content {
+  display: flex;
+}
+
+/* === Comment Reply === */
+.comment-content .reply {
+  border-left: 2px solid var(--color-primary);
+  padding-left: 0.75rem;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+}
+
+.dark .comment-content .reply {
+  color: var(--color-text-dark);
+}
+
+/* === Toggle Icon === */
+.comment-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: transform var(--transition-fast);
+}
+
+.comment-wrapper.open .comment-toggle {
+  transform: rotate(90deg);
+}
+
+/* === Responsive Admin Layout === */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .admin-filters {
+    flex-direction: column;
+  }
+}
