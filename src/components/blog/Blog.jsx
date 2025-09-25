@@ -1,5 +1,4 @@
-// D:\New folder\ethical_empire\frontend\src\components\blog\Blog.jsx
-
+// src/components/blog/Blog.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
@@ -8,24 +7,36 @@ import { Facebook, Twitter, Linkedin, Share2 } from "lucide-react";
 import BlogService from "../../api/services/blogService";
 import "./blog.css";
 
-//
+// ==========================
 // Blog List Page
-//
+// ==========================
 export function BlogList() {
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
-      const fetchedPosts = await BlogService.getPosts();
-      setPosts(fetchedPosts);
+      try {
+        const fetchedPosts = await BlogService.getPosts();
+        setPosts(fetchedPosts);
 
-      const fetchedCategories = await BlogService.getCategories();
-      setCategories(fetchedCategories);
+        const fetchedCategories = await BlogService.getCategories();
+        setCategories(fetchedCategories);
+      } catch (err) {
+        console.error("Failed to fetch blog data:", err);
+        setError("Unable to load blog data.");
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, []);
+
+  if (loading) return <p className="text-center p-6">Loading...</p>;
+  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -52,9 +63,7 @@ export function BlogList() {
       {/* Posts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {posts
-          .filter((p) =>
-            p.title.toLowerCase().includes(search.toLowerCase())
-          )
+          .filter((p) => p.title.toLowerCase().includes(search.toLowerCase()))
           .map((post) => (
             <Card key={post.id} className="shadow-md rounded-2xl">
               <img
@@ -64,9 +73,7 @@ export function BlogList() {
               />
               <CardContent className="p-4">
                 <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-                <p className="text-gray-600 mb-4">
-                  {post.content.slice(0, 120)}...
-                </p>
+                <p className="text-gray-600 mb-4">{post.content.slice(0, 120)}...</p>
                 <Button asChild>
                   <Link to={`/blog/${post.slug}`}>Read More</Link>
                 </Button>
@@ -78,52 +85,60 @@ export function BlogList() {
   );
 }
 
-//
+// ==========================
 // Blog Detail Page
-//
+// ==========================
 export function BlogDetail() {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentContent, setCommentContent] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchData() {
-      const fetchedPost = await BlogService.getPostDetail(slug);
-      setPost(fetchedPost);
+      setLoading(true);
+      try {
+        const fetchedPost = await BlogService.getPostDetail(slug);
+        setPost(fetchedPost);
 
-      const fetchedComments = await BlogService.getComments(slug);
-      setComments(fetchedComments);
+        const fetchedComments = await BlogService.getComments(slug);
+        setComments(fetchedComments);
+      } catch (err) {
+        console.error("Failed to fetch post data:", err);
+        setError("Unable to load post details.");
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, [slug]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    await BlogService.addComment(slug, { content: commentContent });
-    setCommentContent("");
-    const refreshedComments = await BlogService.getComments(slug);
-    setComments(refreshedComments);
+    try {
+      await BlogService.addComment(slug, { content: commentContent });
+      setCommentContent("");
+      const refreshedComments = await BlogService.getComments(slug);
+      setComments(refreshedComments);
+    } catch (err) {
+      console.error("Failed to post comment:", err);
+    }
   };
 
-  if (!post) return <p className="text-center p-6">Loading...</p>;
+  if (loading) return <p className="text-center p-6">Loading...</p>;
+  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
+  if (!post) return <p className="text-center p-6">Post not found.</p>;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
       <p className="text-gray-500 mb-4">
-        {new Date(post.created_at).toLocaleDateString()} |{" "}
-        {post.category?.name}
+        {new Date(post.created_at).toLocaleDateString()} | {post.category?.name}
       </p>
-      <img
-        src={post.featured_image}
-        alt={post.title}
-        className="w-full rounded-lg mb-6"
-      />
-      <div
-        className="prose max-w-none mb-6"
-        dangerouslySetInnerHTML={{ __html: post.content }}
-      />
+      <img src={post.featured_image} alt={post.title} className="w-full rounded-lg mb-6" />
+      <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: post.content }} />
 
       {/* Social Media Embeds */}
       {post.youtube_url && (
@@ -178,11 +193,7 @@ export function BlogDetail() {
           </a>
         </Button>
         <Button asChild variant="outline">
-          <a
-            href={window.location.href}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={window.location.href} target="_blank" rel="noopener noreferrer">
             <Share2 className="w-5 h-5" /> Copy Link
           </a>
         </Button>
@@ -201,7 +212,7 @@ export function BlogDetail() {
           <Button type="submit">Post Comment</Button>
         </form>
 
-        {comments.map((c, i) => (
+        {comments?.map((c, i) => (
           <div key={i} className="border-b py-3">
             <p className="font-semibold">{c.user || "Guest"}</p>
             <p>{c.content}</p>
@@ -212,4 +223,7 @@ export function BlogDetail() {
   );
 }
 
-export default { BlogList, BlogDetail };
+// ==========================
+// Named Exports
+// ==========================
+export { BlogList, BlogDetail };
