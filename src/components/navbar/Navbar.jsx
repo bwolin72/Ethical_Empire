@@ -243,7 +243,7 @@ export default function Navbar() {
                       {items.map(({ label: itemLabel, path: itemPath }) => (
                         <li
                           key={itemPath}
-                          className={isActive(itemPath) ? "active" : ""}
+                          className={`dropdown-item ${isActive(itemPath) ? "active" : ""}`}
                           onClick={() => handleDropdownItemClick(itemPath)}
                         >
                           {itemLabel}
@@ -255,7 +255,7 @@ export default function Navbar() {
                   <li key={path}>
                     <Link
                       to={path}
-                      className={isActive(path) ? "active" : ""}
+                      className={`nav-links ${isActive(path) ? "active" : ""}`}
                       onClick={handleNavClick}
                     >
                       {label}
@@ -271,7 +271,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to="/login"
-                    className={isActive("/login") ? "active" : ""}
+                    className={`nav-links ${isActive("/login") ? "active" : ""}`}
                     onClick={handleNavClick}
                   >
                     Login
