@@ -20,8 +20,7 @@ const blogLinks = [
 export default function Navbar() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 960);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
-  const [blogOpen, setBlogOpen] = useState(false);
+  const [dropdown, setDropdown] = useState({ services: false, blog: false });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
 
@@ -55,27 +54,24 @@ export default function Navbar() {
     setIsLoggedIn(Boolean(access && refresh));
   }, [location]);
 
-  // --- Close menus when route changes ---
+  // --- Close menus on route change ---
   useEffect(() => {
     setMenuOpen(false);
-    setServicesOpen(false);
-    setBlogOpen(false);
+    setDropdown({ services: false, blog: false });
   }, [location]);
 
-  // --- Close on click outside or ESC ---
+  // --- Click outside or ESC to close ---
   useEffect(() => {
     const clickOutside = (e) => {
       if (navRef.current && !navRef.current.contains(e.target)) {
         setMenuOpen(false);
-        setServicesOpen(false);
-        setBlogOpen(false);
+        setDropdown({ services: false, blog: false });
       }
     };
     const escHandler = (e) => {
       if (e.key === "Escape") {
         setMenuOpen(false);
-        setServicesOpen(false);
-        setBlogOpen(false);
+        setDropdown({ services: false, blog: false });
       }
     };
     document.addEventListener("mousedown", clickOutside);
@@ -88,12 +84,14 @@ export default function Navbar() {
 
   // --- Helpers ---
   const toggleMenu = useCallback(() => setMenuOpen((p) => !p), []);
-  const toggleServices = useCallback(() => setServicesOpen((p) => !p), []);
-  const toggleBlog = useCallback(() => setBlogOpen((p) => !p), []);
+  const toggleDropdown = useCallback(
+    (type) => setDropdown((prev) => ({ ...prev, [type]: !prev[type] })),
+    []
+  );
+
   const handleNavClick = () => {
     setMenuOpen(false);
-    setServicesOpen(false);
-    setBlogOpen(false);
+    setDropdown({ services: false, blog: false });
   };
 
   const handleLogout = async () => {
@@ -115,6 +113,28 @@ export default function Navbar() {
     hidden: { scaleY: 0, opacity: 0 },
     visible: { scaleY: 1, opacity: 1 },
   };
+
+  // --- Shared Nav Links ---
+  const navLinks = [
+    { label: "Bookings", path: "/bookings" },
+    { label: "Our Profile", path: "/flipbook" },
+    { label: "About", path: "/about" },
+    {
+      label: "Services",
+      section: "services",
+      items: services,
+      basePath: "/services",
+    },
+    { label: "Contact", path: "/contact" },
+    {
+      label: "Blog",
+      section: "blog",
+      items: blogLinks,
+      basePath: "/blog",
+    },
+    { label: "Connect With Us", path: "/connect" },
+    { label: "FAQ", path: "/faq" },
+  ];
 
   return (
     <nav ref={navRef} className={`navbar ${showNavbar ? "show" : "hide"}`}>
@@ -138,67 +158,59 @@ export default function Navbar() {
         {/* Desktop Menu */}
         {!isMobile && (
           <ul className="nav-menu">
-            <li><Link to="/bookings" className={`nav-links ${isActive("/bookings") ? "active" : ""}`} onClick={handleNavClick}>Bookings</Link></li>
-            <li><Link to="/flipbook" className={`nav-links ${isActive("/flipbook") ? "active" : ""}`} onClick={handleNavClick}>Our Profile</Link></li>
-            <li><Link to="/about" className={`nav-links ${isActive("/about") ? "active" : ""}`} onClick={handleNavClick}>About</Link></li>
-
-            {/* Services */}
-            <li
-              className="nav-item dropdown"
-              onMouseEnter={() => setServicesOpen(true)}
-              onMouseLeave={() => setServicesOpen(false)}
-            >
-              <button className={`nav-links dropdown-toggle ${isSectionActive("/services") ? "active" : ""}`} onClick={() => navigate("/services")}>
-                Services <span className={`caret ${servicesOpen ? "rotated" : ""}`}>▼</span>
-              </button>
-              <ul className={`dropdown-menu desktop ${servicesOpen ? "active" : ""}`}>
-                {services.map(({ label, path }) => (
-                  <li
-                    key={path}
-                    className={`dropdown-item ${isActive(path) ? "active" : ""}`}
-                    onClick={() => handleDropdownItemClick(path)}
+            {navLinks.map(({ label, path, section, items, basePath }) =>
+              section ? (
+                <li
+                  key={section}
+                  className="nav-item dropdown"
+                  onMouseEnter={() => setDropdown((d) => ({ ...d, [section]: true }))}
+                  onMouseLeave={() => setDropdown((d) => ({ ...d, [section]: false }))}
+                >
+                  <button
+                    className={`nav-links dropdown-toggle ${
+                      isSectionActive(basePath) ? "active" : ""
+                    }`}
+                    onClick={() => navigate(basePath)}
+                  >
+                    {label} <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
+                  </button>
+                  <ul className={`dropdown-menu desktop ${dropdown[section] ? "active" : ""}`}>
+                    {items.map(({ label: itemLabel, path: itemPath }) => (
+                      <li
+                        key={itemPath}
+                        className={`dropdown-item ${isActive(itemPath) ? "active" : ""}`}
+                        onClick={() => handleDropdownItemClick(itemPath)}
+                      >
+                        {itemLabel}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ) : (
+                <li key={path}>
+                  <Link
+                    to={path}
+                    className={`nav-links ${isActive(path) ? "active" : ""}`}
+                    onClick={handleNavClick}
                   >
                     {label}
-                  </li>
-                ))}
-              </ul>
-            </li>
-
-            <li><Link to="/contact" className={`nav-links ${isActive("/contact") ? "active" : ""}`} onClick={handleNavClick}>Contact</Link></li>
-
-            {/* Blog */}
-            <li
-              className="nav-item dropdown"
-              onMouseEnter={() => setBlogOpen(true)}
-              onMouseLeave={() => setBlogOpen(false)}
-            >
-              <button
-                className={`nav-links dropdown-toggle ${isSectionActive("/blog") ? "active" : ""}`}
-                onClick={() => navigate("/blog")}
-              >
-                Blog <span className={`caret ${blogOpen ? "rotated" : ""}`}>▼</span>
-              </button>
-              <ul className={`dropdown-menu desktop ${blogOpen ? "active" : ""}`}>
-                {blogLinks.map(({ label, path }) => (
-                  <li
-                    key={path}
-                    className={`dropdown-item ${isActive(path) ? "active" : ""}`}
-                    onClick={() => handleDropdownItemClick(path)}
-                  >
-                    {label}
-                  </li>
-                ))}
-              </ul>
-            </li>
-
-            <li><Link to="/connect" className={`nav-links ${isActive("/connect") ? "active" : ""}`} onClick={handleNavClick}>Connect With Us</Link></li>
-            <li><Link to="/faq" className={`nav-links ${isActive("/faq") ? "active" : ""}`} onClick={handleNavClick}>FAQ</Link></li>
-
+                  </Link>
+                </li>
+              )
+            )}
             <li>
               {isLoggedIn ? (
-                <button className="nav-links logout-btn" onClick={handleLogout}>Logout</button>
+                <button className="nav-links logout-btn" onClick={handleLogout}>
+                  Logout
+                </button>
               ) : (
-                <Link to="/login" className={`nav-links ${isActive("/login") ? "active" : ""}`} onClick={handleNavClick}>Login</Link>
+                <Link
+                  to="/login"
+                  className={`nav-links ${isActive("/login") ? "active" : ""}`}
+                  onClick={handleNavClick}
+                >
+                  Login
+                </Link>
               )}
             </li>
           </ul>
@@ -215,50 +227,55 @@ export default function Navbar() {
               variants={mobileVariants}
               style={{ transformOrigin: "top" }}
             >
-              <li><Link to="/bookings" className={isActive("/bookings") ? "active" : ""} onClick={handleNavClick}>Bookings</Link></li>
-              <li><Link to="/flipbook" className={isActive("/flipbook") ? "active" : ""} onClick={handleNavClick}>Our Profile</Link></li>
-              <li><Link to="/about" className={isActive("/about") ? "active" : ""} onClick={handleNavClick}>About</Link></li>
-
-              {/* Services */}
-              <li className="dropdown">
-                <button className={`nav-links dropdown-toggle ${isSectionActive("/services") ? "active" : ""}`} onClick={toggleServices}>
-                  Services <span className={`caret ${servicesOpen ? "rotated" : ""}`}>▼</span>
-                </button>
-                <ul className={`dropdown-menu mobile ${servicesOpen ? "active" : ""}`}>
-                  {services.map(({ label, path }) => (
-                    <li key={path} className={isActive(path) ? "active" : ""} onClick={() => handleDropdownItemClick(path)}>{label}</li>
-                  ))}
-                </ul>
-              </li>
-
-              <li><Link to="/contact" className={isActive("/contact") ? "active" : ""} onClick={handleNavClick}>Contact</Link></li>
-
-              {/* Blog */}
-              <li className="dropdown">
-                <button className={`nav-links dropdown-toggle ${isSectionActive("/blog") ? "active" : ""}`} onClick={toggleBlog}>
-                  Blog <span className={`caret ${blogOpen ? "rotated" : ""}`}>▼</span>
-                </button>
-                <ul className={`dropdown-menu mobile ${blogOpen ? "active" : ""}`}>
-                  {blogLinks.map(({ label, path }) => (
-                    <li
-                      key={path}
+              {navLinks.map(({ label, path, section, items, basePath }) =>
+                section ? (
+                  <li key={section} className="dropdown">
+                    <button
+                      className={`nav-links dropdown-toggle ${
+                        isSectionActive(basePath) ? "active" : ""
+                      }`}
+                      onClick={() => toggleDropdown(section)}
+                    >
+                      {label}{" "}
+                      <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
+                    </button>
+                    <ul className={`dropdown-menu mobile ${dropdown[section] ? "active" : ""}`}>
+                      {items.map(({ label: itemLabel, path: itemPath }) => (
+                        <li
+                          key={itemPath}
+                          className={isActive(itemPath) ? "active" : ""}
+                          onClick={() => handleDropdownItemClick(itemPath)}
+                        >
+                          {itemLabel}
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ) : (
+                  <li key={path}>
+                    <Link
+                      to={path}
                       className={isActive(path) ? "active" : ""}
-                      onClick={() => handleDropdownItemClick(path)}
+                      onClick={handleNavClick}
                     >
                       {label}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-
-              <li><Link to="/connect" className={isActive("/connect") ? "active" : ""} onClick={handleNavClick}>Connect With Us</Link></li>
-              <li><Link to="/faq" className={isActive("/faq") ? "active" : ""} onClick={handleNavClick}>FAQ</Link></li>
-
+                    </Link>
+                  </li>
+                )
+              )}
               <li>
                 {isLoggedIn ? (
-                  <button className="nav-links logout-btn" onClick={handleLogout}>Logout</button>
+                  <button className="nav-links logout-btn" onClick={handleLogout}>
+                    Logout
+                  </button>
                 ) : (
-                  <Link to="/login" className={isActive("/login") ? "active" : ""} onClick={handleNavClick}>Login</Link>
+                  <Link
+                    to="/login"
+                    className={isActive("/login") ? "active" : ""}
+                    onClick={handleNavClick}
+                  >
+                    Login
+                  </Link>
                 )}
               </li>
             </motion.ul>
