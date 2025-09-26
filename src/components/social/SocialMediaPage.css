@@ -1,9 +1,9 @@
 /* ======================================================
-   🌐 Social Media Page Styles
-   Connect with Eethm_GH Multimedia
+   🌐 Social Hub Page Styles
+   Using Global Theme Variables
    ====================================================== */
 
-.social-page {
+.social-hub-container {
   min-height: 100vh;
   background: var(--color-bg-light);
   display: flex;
@@ -13,9 +13,10 @@
   padding: 2rem;
   font-family: var(--font-main);
   animation: fade-in-up 0.8s var(--transition-fast) both;
+  color: var(--color-text-light);
 }
 
-.social-page h1 {
+.social-hub-title {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
@@ -24,8 +25,8 @@
   font-family: var(--font-accent);
 }
 
-/* === Social Grid === */
-.social-grid {
+/* === Social Cards Grid === */
+.social-cards-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
@@ -34,7 +35,7 @@
 }
 
 @media (min-width: 768px) {
-  .social-grid {
+  .social-cards-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
@@ -57,13 +58,20 @@
   box-shadow: var(--shadow-lg);
 }
 
-.social-card .social-info {
+.social-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.social-card-left {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.social-card .social-info h2 {
+.social-card-name {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-neutral-dark);
@@ -98,21 +106,51 @@
   animation: fade-in 1s ease-out both;
 }
 
-.qr-section h2 {
+.qr-title {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--color-primary-dark);
 }
 
-.qr-section p {
+.qr-note {
   margin-top: 0.75rem;
   font-size: 0.95rem;
   color: var(--color-neutral-light);
 }
 
-/* === Hover Color Overrides for Each Platform === */
-.social-card.facebook { background: rgba(24, 119, 242, 0.08); }
-.social-card.tiktok { background: rgba(0, 0, 0, 0.05); }
-.social-card.youtube { background: rgba(255, 0, 0, 0.08); }
-.social-card.whatsapp { background: rgba(37, 211, 102, 0.08); }
+/* === Platform-specific Backgrounds === */
+.social-card-facebook { background: rgba(24, 119, 242, 0.08); }
+.social-card-tiktok { background: rgba(0, 0, 0, 0.05); }
+.social-card-youtube { background: rgba(255, 0, 0, 0.08); }
+.social-card-whatsapp { background: rgba(37, 211, 102, 0.08); }
+
+/* === Icon Styling === */
+.social-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  color: var(--color-primary-dark);
+}
+
+/* === Dark Mode Overrides === */
+.dark .social-hub-container {
+  background: var(--color-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.dark .social-card {
+  background: var(--color-service-bg-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.dark .social-card-name,
+.dark .social-icon {
+  color: var(--color-text-dark);
+}
+
+.dark .qr-section {
+  background: var(--color-service-bg-dark);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text-dark);
+}

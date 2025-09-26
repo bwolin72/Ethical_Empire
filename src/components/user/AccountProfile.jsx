@@ -220,6 +220,14 @@ const AccountProfile = ({ profile: externalProfile }) => {
     );
   };
 
+  // -------- Review Services (dynamic + static) --------
+  const bookedServices = [...new Set(bookings.map(b => b.service_type).filter(Boolean))];
+  const staticServices = [
+    "Live Band", "DJ", "Photography", "Videography", "Catering",
+    "Event Planning", "Lighting", "MC/Host", "Sound Setup"
+  ];
+  const reviewServices = Array.from(new Set([...bookedServices, ...staticServices]));
+
   if (loading) return <div className="skeleton-loader">Loading profile...</div>;
 
   return (
@@ -302,10 +310,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
             onChange={(e) => setReviewService(e.target.value)}
           >
             <option value="">Select Service</option>
-            {[
-              "Live Band", "DJ", "Photography", "Videography", "Catering",
-              "Event Planning", "Lighting", "MC/Host", "Sound Setup"
-            ].map((service) => (
+            {reviewServices.map((service) => (
               <option key={service} value={service}>{service}</option>
             ))}
           </select>

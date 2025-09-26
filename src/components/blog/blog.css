@@ -1,21 +1,23 @@
 /* ======================================================
-   🎨 Blog Components Styling
+   🎨 Blog Page Styling
+   Using Theme Variables from variables.css
    Applies to BlogList & BlogDetail
-   Using theme variables from variables.css
    ====================================================== */
 
-/* === Global Container Styling === */
-.blog-container {
+/* === Global Containers === */
+.blog-container,
+.blog-detail-container {
   padding: 2rem;
-  max-width: 80rem; /* 1280px */
+  max-width: 80rem;
   margin: 0 auto;
   font-family: var(--font-main);
   color: var(--color-text-light);
   background: var(--color-bg-light);
 }
 
-/* === Section Headings === */
-.blog-container h1 {
+/* === Headings === */
+.blog-title,
+.blog-detail-title {
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 1.5rem;
@@ -23,15 +25,15 @@
   font-family: var(--font-accent);
 }
 
-.blog-container h2 {
+.blog-social-section h2 {
   font-size: 1.25rem;
-  font-weight: bold;
-  margin-bottom: 0.75rem;
-  color: var(--color-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-primary-dark);
 }
 
 /* === Search Input === */
-.blog-search {
+.blog-search-input {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid var(--color-border-light);
@@ -41,13 +43,13 @@
   transition: border var(--transition-fast);
 }
 
-.blog-search:focus {
+.blog-search-input:focus {
   outline: none;
   border-color: var(--color-accent-gold);
   box-shadow: 0 0 0 2px var(--color-accent-gold-light);
 }
 
-/* === Categories Row === */
+/* === Categories === */
 .blog-categories {
   display: flex;
   flex-wrap: wrap;
@@ -58,11 +60,9 @@
 .blog-categories a {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: var(--color-secondary);
-  color: var(--color-white);
   border-radius: var(--radius-sm);
-  text-decoration: none;
   font-size: 0.9rem;
+  text-decoration: none;
   transition: background var(--transition-fast);
 }
 
@@ -70,21 +70,26 @@
   background: var(--color-secondary-dark);
 }
 
+.blog-categories a.primary {
+  background: var(--color-secondary);
+  color: var(--color-white);
+}
+
 /* === Posts Grid === */
-.blog-posts {
+.blog-posts-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
 @media (min-width: 768px) {
-  .blog-posts {
+  .blog-posts-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 /* === Post Card === */
-.blog-post {
+.blog-post-card {
   background: var(--color-white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
@@ -92,14 +97,14 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.blog-post:hover {
+.blog-post-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
 
-.blog-post img {
+.blog-post-image {
   width: 100%;
-  height: 14rem; /* 224px */
+  height: 14rem;
   object-fit: cover;
 }
 
@@ -107,12 +112,20 @@
   padding: 1rem;
 }
 
-.blog-post-content p {
+.blog-post-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary-dark);
+}
+
+.blog-post-excerpt {
   color: var(--color-neutral-light);
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
+/* === Read More Button === */
 .blog-post-content a {
   display: inline-block;
   padding: 0.5rem 1rem;
@@ -128,17 +141,11 @@
   opacity: 0.85;
 }
 
-/* === Blog Detail Page === */
-.blog-detail {
-  padding: 2rem;
-  max-width: 60rem; /* 960px */
-  margin: 0 auto;
-  background: var(--color-bg-light);
-}
-
-.blog-detail h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+/* === Blog Detail === */
+.blog-detail-image {
+  width: 100%;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
 }
 
 .blog-detail-meta {
@@ -147,52 +154,19 @@
   margin-bottom: 1rem;
 }
 
-.blog-detail img {
-  width: 100%;
-  border-radius: var(--radius-md);
-  margin-bottom: 1.5rem;
-}
-
-.blog-detail .prose {
+.blog-detail-content {
   color: var(--color-text-light);
   line-height: 1.75;
   margin-bottom: 2rem;
 }
 
-/* === Social Media Embeds === */
-.blog-detail iframe,
-.blog-detail blockquote {
+/* === Media Embeds === */
+.blog-media iframe,
+.blog-media blockquote {
   width: 100%;
   border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
   border: none;
-}
-
-/* === Share Buttons === */
-.blog-share {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.blog-share a {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  color: var(--color-neutral);
-  background: var(--color-white);
-  font-size: 0.9rem;
-  text-decoration: none;
-  transition: background var(--transition-fast), border var(--transition-fast);
-}
-
-.blog-share a:hover {
-  border-color: var(--color-accent-gold);
-  background: var(--color-accent-gold-light);
-  color: var(--color-black);
 }
 
 /* === Comments Section === */
@@ -204,11 +178,11 @@
   margin-bottom: 1rem;
 }
 
-.blog-comments form {
+.comment-form {
   margin-bottom: 1.5rem;
 }
 
-.blog-comments textarea {
+.comment-textarea {
   width: 100%;
   padding: 1rem;
   border: 1px solid var(--color-border-light);
@@ -220,7 +194,7 @@
   resize: vertical;
 }
 
-.blog-comments textarea:focus {
+.comment-textarea:focus {
   outline: none;
   border-color: var(--color-accent-gold);
   box-shadow: 0 0 0 2px var(--color-accent-gold-light);
@@ -241,16 +215,54 @@
   background: var(--color-primary-dark);
 }
 
-.blog-comment {
+/* === Individual Comment === */
+.comment-item {
   border-bottom: 1px solid var(--color-border-light);
   padding: 0.75rem 0;
 }
 
-.blog-comment p {
-  margin: 0.25rem 0;
-}
-
-.blog-comment .author {
+.comment-user {
   font-weight: bold;
   color: var(--color-primary);
+}
+
+.comment-content {
+  margin: 0.25rem 0 0;
+  color: var(--color-neutral-dark);
+}
+
+/* === Empty States === */
+.no-posts,
+.no-comments {
+  text-align: center;
+  padding: 1rem;
+  color: var(--color-neutral-light);
+}
+
+/* === Dark Mode Overrides === */
+.dark .blog-container,
+.dark .blog-detail-container {
+  background: var(--color-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.dark .blog-post-card,
+.dark .blog-detail-image,
+.dark .blog-media iframe,
+.dark .blog-media blockquote {
+  background: var(--color-service-bg-dark);
+}
+
+.dark .blog-post-title,
+.dark .comment-user {
+  color: var(--color-accent-gold);
+}
+
+.dark .blog-post-excerpt,
+.dark .comment-content,
+.dark .blog-detail-content,
+.dark .blog-detail-meta,
+.dark .no-posts,
+.dark .no-comments {
+  color: var(--color-text-dark);
 }

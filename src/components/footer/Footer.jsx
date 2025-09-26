@@ -1,7 +1,9 @@
+// src/components/footer/Footer.jsx
 import React from "react";
 import { Link } from "react-router-dom";
-import { Mail, Phone, MessageCircle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import NewsLetterSignup from "../user/NewsLetterSignup";
+import SocialHub from "../social/SocialHub"; // import social hub
 import "./Footer.css";
 
 function Footer() {
@@ -10,10 +12,10 @@ function Footer() {
     { to: "/services", label: "Services" },
     { to: "/contact", label: "Contact" },
     { to: "/unsubscribe", label: "Unsubscribe" },
-    { to: "/faq", label: "FAQ" }, // ✅ Existing FAQ link
-    { to: "/blog", label: "Blog" }, // ✅ New Blog main page
-    { to: "/blog/articles", label: "Articles" }, // ✅ New Articles page
-    { to: "/blog/latest", label: "Latest" }, // ✅ New Latest page
+    { to: "/faq", label: "FAQ" },
+    { to: "/blog", label: "Blog" },
+    { to: "/blog/articles", label: "Articles" },
+    { to: "/blog/latest", label: "Latest" },
   ];
 
   const legalLinks = [
@@ -57,29 +59,11 @@ function Footer() {
           </ul>
         </nav>
 
-        {/* Contact Info */}
-        <address className="footer-section">
-          <h4>Contact Us</h4>
-          <p>
-            <Mail size={16} />{" "}
-            <a href="mailto:info@eethmghmultimedia.com">
-              info@eethmghmultimedia.com
-            </a>
-          </p>
-          <p>
-            <MessageCircle size={16} />{" "}
-            <a
-              href="https://wa.me/233552988735"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              +233 55 298 8735
-            </a>
-          </p>
-          <p>
-            <Phone size={16} /> <a href="tel:+233553424865">+233 55 342 4865</a>
-          </p>
-        </address>
+        {/* Contact & Social (via SocialHub) */}
+        <div className="footer-section">
+          <h4>Contact & Social</h4>
+          <SocialHub showAddress={false} showContact={true} showSocial={true} />
+        </div>
 
         {/* Newsletter Signup */}
         <div className="footer-section newsletter">
@@ -89,9 +73,7 @@ function Footer() {
 
       {/* Footer Bottom */}
       <div className="footer-bottom">
-        <p>
-          &copy; {new Date().getFullYear()} Ethical Empire. All rights reserved.
-        </p>
+        <p>&copy; {new Date().getFullYear()} Ethical Empire. All rights reserved.</p>
       </div>
     </footer>
   );

@@ -4,23 +4,14 @@ import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 import { toast, ToastContainer } from "react-toastify";
-import {
-  FaCalendarAlt,
-  FaWhatsapp,
-  FaPhoneAlt,
-  FaMapMarkerAlt,
-  FaInstagram,
-  FaLinkedin,
-  FaTwitter,
-  FaFacebookF,
-  FaUsers,
-  FaRegListAlt,
-} from "react-icons/fa";
+import { FaCalendarAlt, FaPhoneAlt, FaMapMarkerAlt, FaUsers } from "react-icons/fa";
 
 import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import bookingService from "../../api/services/bookingService";
 import serviceService from "../../api/services/serviceService";
+
+import SocialHub from "../social/SocialHub"; // social hub instead of direct icons
 
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-input-2/lib/style.css";
@@ -51,18 +42,20 @@ const BookingForm = () => {
   const [servicesList, setServicesList] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(true);
 
+  // Booking history
+  const [bookingHistory, setBookingHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
   // Fetch services
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const res = await serviceService.getServices();
-        const data = res?.data;
-
         let normalized = [];
+        const data = res?.data;
         if (Array.isArray(data)) normalized = data;
         else if (Array.isArray(data?.results)) normalized = data.results;
         else if (Array.isArray(data?.data)) normalized = data.data;
-
         setServicesList(normalized);
       } catch (err) {
         toast.error("Failed to fetch services.", { autoClose: 3000 });
@@ -71,7 +64,6 @@ const BookingForm = () => {
         setServicesLoading(false);
       }
     };
-
     fetchServices();
   }, []);
 
@@ -86,10 +78,25 @@ const BookingForm = () => {
     }
   }, [user]);
 
-  // Input handlers
+  // Fetch booking history
+  useEffect(() => {
+    const fetchBookingHistory = async () => {
+      try {
+        if (user?.email) {
+          const res = await bookingService.getUserBookings(user.email);
+          setBookingHistory(Array.isArray(res?.data) ? res.data : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch booking history:", err);
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+    fetchBookingHistory();
+  }, [user]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
     if (type === "checkbox") {
       const id = parseInt(value, 10);
       setFormData((prev) => ({
@@ -127,7 +134,6 @@ const BookingForm = () => {
     });
   };
 
-  // Submit booking
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -205,7 +211,6 @@ const BookingForm = () => {
     } catch (err) {
       const response = err?.response?.data;
       let msg = "Error occurred submitting form.";
-
       if (response) {
         if (typeof response === "string") msg = response;
         else if (Array.isArray(response)) msg = response.join(" ");
@@ -214,7 +219,6 @@ const BookingForm = () => {
           msg = Array.isArray(first) ? first[0] : first?.toString() || msg;
         }
       }
-
       toast.error(msg, { autoClose: 4000 });
       console.error("Booking submit error:", err);
     } finally {
@@ -227,7 +231,7 @@ const BookingForm = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
 
       <div className="booking-container">
-        {/* === Left Form === */}
+        {/* === Left Form Panel === */}
         <div className="booking-form-panel">
           <div className="form-header">
             <img src={logo} alt="Ethical Multimedia Logo" className="logo" />
@@ -238,7 +242,6 @@ const BookingForm = () => {
           <form onSubmit={handleSubmit} className="form-content" noValidate>
             <h3>Event Booking Form</h3>
 
-            {/* Personal Info */}
             {["name", "email", "venue_name", "address"].map((id) => (
               <div key={id} className="input-group">
                 <label htmlFor={id}>{id.replace("_", " ")}</label>
@@ -253,17 +256,12 @@ const BookingForm = () => {
               </div>
             ))}
 
-            {/* Country & Region */}
             <div className="input-group">
               <label>Country</label>
               <CountryDropdown
                 value={formData.country}
                 onChange={(val) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    country: val,
-                    state_or_region: "",
-                  }))
+                  setFormData((prev) => ({ ...prev, country: val, state_or_region: "" }))
                 }
               />
             </div>
@@ -273,13 +271,10 @@ const BookingForm = () => {
               <RegionDropdown
                 country={formData.country}
                 value={formData.state_or_region}
-                onChange={(val) =>
-                  setFormData((prev) => ({ ...prev, state_or_region: val }))
-                }
+                onChange={(val) => setFormData((prev) => ({ ...prev, state_or_region: val }))}
               />
             </div>
 
-            {/* Phone */}
             <div className="input-group">
               <label>Phone Number</label>
               <PhoneInput
@@ -293,15 +288,9 @@ const BookingForm = () => {
               />
             </div>
 
-            {/* Event Details */}
             <div className="input-group">
               <label>Event Type</label>
-              <select
-                name="event_type"
-                value={formData.event_type}
-                onChange={handleChange}
-                required
-              >
+              <select name="event_type" value={formData.event_type} onChange={handleChange} required>
                 <option value="">-- Select Event Type --</option>
                 <option value="Wedding">Wedding</option>
                 <option value="Corporate">Corporate</option>
@@ -326,7 +315,6 @@ const BookingForm = () => {
               </div>
             </div>
 
-            {/* Event Date */}
             <div className="input-group">
               <label>Event Date</label>
               <div className="datepicker-wrapper">
@@ -342,7 +330,6 @@ const BookingForm = () => {
               </div>
             </div>
 
-            {/* Services */}
             <div className="input-group">
               <label>Services</label>
               <div className="checkbox-group">
@@ -367,7 +354,6 @@ const BookingForm = () => {
               </div>
             </div>
 
-            {/* Notes */}
             <div className="input-group">
               <label>Additional Notes</label>
               <textarea
@@ -382,16 +368,9 @@ const BookingForm = () => {
               {isSubmitting ? "Submitting..." : "Submit Booking"}
             </button>
           </form>
-
-          {/* Trust Section */}
-          <div className="trust-section">
-            <p>✔️ Over 100 successful events hosted</p>
-            <p>✔️ Secure & private booking process</p>
-            <p>✔️ Licensed GHAMRO Partner</p>
-          </div>
         </div>
 
-        {/* === Right Info (Booking Summary & Contact) === */}
+        {/* === Right Panel === */}
         <div className="booking-brand-panel">
           <div className="brand-content">
             <h3>Booking Summary</h3>
@@ -404,20 +383,9 @@ const BookingForm = () => {
 
             <h3>Operation Manager</h3>
             <p><strong>Name:</strong> Mrs. Eunice Chai</p>
-            <p>
-              <strong>Email:</strong>{" "}
-              <a href="mailto:info@eethmghmultimedia.com">
-                info@eethmghmultimedia.com
-              </a>
-            </p>
-            <p><strong>Phone:</strong>{" "}
-              <a href="tel:+233559241828">+233 55 924 1828</a>
-            </p>
-            <p><strong>WhatsApp:</strong>{" "}
-              <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">
-                +233 55 298 8735
-              </a>
-            </p>
+            <p><strong>Email:</strong> <a href="mailto:info@eethmghmultimedia.com">info@eethmghmultimedia.com</a></p>
+            <p><strong>Phone:</strong> <a href="tel:+233559241828">+233 55 924 1828</a></p>
+            <p><strong>WhatsApp:</strong> <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">+233 55 298 8735</a></p>
 
             <div className="location-block">
               <h3>Headquarters</h3>
@@ -426,27 +394,29 @@ const BookingForm = () => {
             </div>
 
             <div className="contact-buttons">
-              <a href="https://wa.me/233553424865" className="whatsapp" target="_blank" rel="noopener noreferrer">
-                <FaWhatsapp /> WhatsApp
-              </a>
-              <a href="tel:+233559241828" className="phone">
-                <FaPhoneAlt /> Call Now
-              </a>
+              <a href="https://wa.me/233553424865" className="whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+              <a href="tel:+233559241828" className="phone">Call Now</a>
             </div>
 
-            <div className="social-media-links">
-              <a href="https://www.instagram.com/ethicalmultimedia" target="_blank" rel="noopener noreferrer">
-                <FaInstagram />
-              </a>
-              <a href="https://www.linkedin.com/in/ethical-empire/" target="_blank" rel="noopener noreferrer">
-                <FaLinkedin />
-              </a>
-              <a href="https://x.com/EeTHm_Gh" target="_blank" rel="noopener noreferrer">
-                <FaTwitter />
-              </a>
-              <a href="https://www.facebook.com/16nQGbE7Zk/" target="_blank" rel="noopener noreferrer">
-                <FaFacebookF />
-              </a>
+            {/* Social Hub Component */}
+            <SocialHub />
+
+            {/* Booking History */}
+            <div className="booking-history">
+              <h3>Your Booking History</h3>
+              {historyLoading ? (
+                <p>Loading history...</p>
+              ) : bookingHistory.length === 0 ? (
+                <p>No previous bookings.</p>
+              ) : (
+                <ul>
+                  {bookingHistory.map((b) => (
+                    <li key={b.id}>
+                      <strong>{b.event_type}</strong> on {new Date(b.event_date).toDateString()} – {b.guests} guests
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
