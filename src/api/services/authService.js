@@ -4,17 +4,25 @@
 const authService = {
   /**
    * Login:
-   * POST API.login → expects { tokens: {access, refresh}, user }
-   * Returns { tokens, user }
+   * POST API.login → usually returns { tokens: {access, refresh}, user }
+   * Sometimes may only return { user } (if pending verification)
    */
   login: async (credentials, remember = true) => {
     const res = await publicAxios.post(API.login, credentials, { withCredentials: true });
 
-    const { tokens, user } = res.data || {};
-    const { access, refresh } = tokens || {};
+    let tokens = { access: null, refresh: null };
+    let user = null;
 
-    if (access && refresh) {
-      saveTokens({ access, refresh, remember });
+    if (res.data.tokens) {
+      tokens = res.data.tokens;
+      user = res.data.user || null;
+      const { access, refresh } = tokens;
+      if (access && refresh) {
+        saveTokens({ access, refresh, remember });
+      }
+    } else {
+      // fallback if backend returns only { user }
+      user = res.data.user || res.data;
     }
 
     return { tokens, user };
@@ -46,16 +54,24 @@ const authService = {
   register: async (data, remember = true) => {
     const res = await publicAxios.post(API.register, data, { withCredentials: true });
 
-    // assume backend returns the same shape as login
-    const { tokens, user } = res.data || {};
-    const { access, refresh } = tokens || {};
+    let tokens = { access: null, refresh: null };
+    let user = null;
 
-    if (access && refresh) {
-      saveTokens({ access, refresh, remember });
+    if (res.data.tokens) {
+      tokens = res.data.tokens;
+      user = res.data.user || null;
+      const { access, refresh } = tokens;
+      if (access && refresh) {
+        saveTokens({ access, refresh, remember });
+      }
+    } else {
+      // fallback if backend returns only { user }
+      user = res.data.user || res.data;
     }
 
     return { tokens, user };
   },
+
   internalRegister: (data) => publicAxios.post(API.internalRegister, data),
 
   /* ---------- Profile & Roles ---------- */
