@@ -2,7 +2,7 @@ import baseURL from "./baseURL";
 
 const API = {
   // AUTH
-  login: `${baseURL}/accounts/token/`,
+  login: `${baseURL}/accounts/login/`,          // ✅ switched here
   logout: `${baseURL}/accounts/profile/logout/`,
   googleLogin: `${baseURL}/accounts/google-auth/`,
   googleRegister: `${baseURL}/accounts/google-auth/`,

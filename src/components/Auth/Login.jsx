@@ -5,9 +5,11 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import authService from "../../api/services/authService";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../components/context/AuthContext";
+import { roleRoutes } from "../../routes/roleRoutes";
+
 import logo from "../../assets/logo.png";
-import PasswordInput from "../common/PasswordInput";
+import PasswordInput from "../../components/common/PasswordInput";
 import "./Auth.css";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -24,26 +26,23 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
+  /** Redirect user to the correct dashboard by role */
   const redirectByRole = useCallback(
     (role) => {
-      const routes = {
-        admin: "/admin",
-        worker: "/worker",
-        user: "/user",
-        vendor: "/vendor-profile",
-        partner: "/partner-profile",
-      };
-      navigate(routes[role] || "/user", { replace: true });
+      const path = roleRoutes[role?.toLowerCase()] || roleRoutes.user;
+      navigate(path, { replace: true });
     },
     [navigate]
   );
 
+  /** Load dark mode preference on mount */
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
+  /** Auto-redirect if already logged in */
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -65,13 +64,14 @@ const Login = () => {
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  /** Simple form validation */
   const validateForm = () => {
     const errors = {};
     if (!form.email.trim()) errors.email = "Please enter your email.";
     if (!form.password.trim()) errors.password = "Please enter your password.";
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
     setFormErrors(errors);
-    if (Object.keys(errors).length > 0) toast.error("Please fix the highlighted errors.");
+    if (Object.keys(errors).length) toast.error("Please fix the highlighted errors.");
     return Object.keys(errors).length === 0;
   };
 
@@ -88,9 +88,8 @@ const Login = () => {
     return "Login failed.";
   };
 
+  /** Common success handler for email & Google login */
   const handleLoginSuccess = async (data) => {
-    console.log("Login success data:", data);
-
     const { tokens, user: apiUser } = data;
     const { access, refresh } = tokens || {};
 
@@ -100,12 +99,7 @@ const Login = () => {
     }
 
     login({ access, refresh, user: apiUser, remember: rememberMe });
-
-    if (apiUser.role) {
-      redirectByRole(apiUser.role);
-    } else {
-      navigate("/user");
-    }
+    redirectByRole(apiUser.role);
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
   };
 
@@ -115,7 +109,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const res = await authService.login(form);
+      const res = await authService.login(form); // must call /account/login
       await handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -130,7 +124,6 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential, remember: rememberMe });
-      console.log("Google login response:", res.data);
       await handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -142,6 +135,7 @@ const Login = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
+        {/* Brand side */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h2>EETHM_GH</h2>
@@ -151,8 +145,10 @@ const Login = () => {
           </button>
         </div>
 
+        {/* Form side */}
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
+
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <div className="input-group">
               <label>Email</label>

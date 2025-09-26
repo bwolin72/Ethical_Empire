@@ -2,16 +2,16 @@ import publicAxios from "../publicAxios";
 import axiosInstance from "../axiosInstance";
 import API from "../authAPI";
 
-// ============================
-// TOKEN KEYS
-// ============================
+/* ============================
+   TOKEN KEYS
+============================ */
 const TOKEN_KEY = "access";
 const REFRESH_KEY = "refresh";
 const REMEMBER_KEY = "remember";
 
-// ============================
-// STORAGE HELPERS
-// ============================
+/* ============================
+   STORAGE HELPERS
+============================ */
 const getStorage = () =>
   localStorage.getItem(REMEMBER_KEY) === "true" ? localStorage : sessionStorage;
 
@@ -21,17 +21,17 @@ const saveTokens = ({ access, refresh, remember = true }) => {
   if (refresh) storage.setItem(REFRESH_KEY, refresh);
   storage.setItem(REMEMBER_KEY, remember ? "true" : "false");
 
-  // keep axiosInstance always up-to-date
+  // keep axiosInstance Authorization header up-to-date
   axiosInstance.defaults.headers.common["Authorization"] = access
     ? `Bearer ${access}`
     : "";
 };
 
 const clearTokens = () => {
-  [localStorage, sessionStorage].forEach((storage) => {
-    storage.removeItem(TOKEN_KEY);
-    storage.removeItem(REFRESH_KEY);
-    storage.removeItem(REMEMBER_KEY);
+  [localStorage, sessionStorage].forEach((s) => {
+    s.removeItem(TOKEN_KEY);
+    s.removeItem(REFRESH_KEY);
+    s.removeItem(REMEMBER_KEY);
   });
   delete axiosInstance.defaults.headers.common["Authorization"];
 };
@@ -39,45 +39,48 @@ const clearTokens = () => {
 const getAccessToken = () => getStorage().getItem(TOKEN_KEY);
 const getRefreshToken = () => getStorage().getItem(REFRESH_KEY);
 
-// Initialize Authorization header on app load
+// Initialise Authorization header when app loads
 (() => {
   const token = getAccessToken();
-  if (token) axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  if (token) {
+    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  }
 })();
 
-// ============================
-// AUTH SERVICE
-// ============================
+/* ============================
+   AUTH SERVICE
+============================ */
 const authService = {
   /**
-   * Login: 1) Obtain JWT tokens from /token/, 2) Fetch user profile
-   * Returns { tokens: {access, refresh}, user: {...profile...} }
+   * Login:
+   * POST API.login  → expects { access, refresh, ...userFields }
+   * Returns { tokens: {access, refresh}, user }
    */
   login: async (credentials, remember = true) => {
-    // Step 1 – get tokens
-    const tokenRes = await publicAxios.post(API.token, credentials, { withCredentials: true });
-    const { access, refresh } = tokenRes.data;
-    saveTokens({ access, refresh, remember });
+    const res = await publicAxios.post(API.login, credentials, { withCredentials: true });
 
-    // Step 2 – fetch profile using the access token
-    const profileRes = await axiosInstance.get(API.profilesProfile);
+    // ⚠️ Your backend should return { access, refresh, ...user }
+    const { access, refresh, ...user } = res.data;
+
+    saveTokens({ access, refresh, remember });
 
     return {
       tokens: { access, refresh },
-      user: profileRes.data,
+      user,
     };
   },
 
   logout: async () => {
     try {
-      // optional: call backend logout if you have one
-      if (API.logout) await axiosInstance.post(API.logout, {}, { withCredentials: true });
+      if (API.logout) {
+        await axiosInstance.post(API.logout, {}, { withCredentials: true });
+      }
     } finally {
       clearTokens();
     }
   },
 
-  // Google auth flows (unchanged)
+  /* ---------- Google auth ---------- */
   googleLogin: async (data, remember = true) => {
     const res = await publicAxios.post(API.googleLogin, data, {
       withCredentials: true,
@@ -89,11 +92,11 @@ const authService = {
   googleRegister: (data) =>
     publicAxios.post(API.googleRegister, data, { withCredentials: true }),
 
-  // Registration
+  /* ---------- Registration ---------- */
   register: (data) => publicAxios.post(API.register, data, { withCredentials: true }),
   internalRegister: (data) => publicAxios.post(API.internalRegister, data),
 
-  // Profile & Roles
+  /* ---------- Profile & Roles ---------- */
   getProfile: () => axiosInstance.get(API.profilesProfile),
   updateProfile: (data) => axiosInstance.patch(API.profilesProfile, data),
   changePassword: (data) => axiosInstance.post(API.changePassword, data),
@@ -102,12 +105,12 @@ const authService = {
   partnerProfile: () => axiosInstance.get(API.partnerProfile),
   vendorProfile: () => axiosInstance.get(API.vendorProfile),
 
-  // Password Reset
+  /* ---------- Password Reset ---------- */
   resetPassword: (data) => publicAxios.post(API.resetPassword, data, { withCredentials: true }),
   resetPasswordConfirm: (uid, token, data) =>
     publicAxios.post(API.resetPasswordConfirm(uid, token), data, { withCredentials: true }),
 
-  // JWT Utilities
+  /* ---------- JWT Utilities ---------- */
   refreshToken: async () => {
     const refresh = getRefreshToken();
     if (!refresh) throw new Error("No refresh token found");
@@ -117,7 +120,7 @@ const authService = {
   },
   verifyToken: (data) => publicAxios.post(API.tokenVerify, data),
 
-  // Email / OTP
+  /* ---------- Email / OTP ---------- */
   verifyEmail: (uidOrUidb64, token) =>
     publicAxios.get(API.verifyEmail(uidOrUidb64, token), { withCredentials: true }),
   verifyOtp: (data) => publicAxios.post(API.verifyOtp, data, { withCredentials: true }),
@@ -126,7 +129,7 @@ const authService = {
   resendOtpEmail: (data) => publicAxios.post(API.resendOtpEmail, data, { withCredentials: true }),
   resendWelcomeEmail: (data) => axiosInstance.post(API.resendWelcomeEmail, data),
 
-  // Admin Utilities
+  /* ---------- Admin ---------- */
   listUsers: (params) => axiosInstance.get(API.adminListUsers, { params }),
   adminInviteWorker: (data) => axiosInstance.post(API.adminInviteWorker, data),
   adminValidateWorkerInvite: (uidOrUidb64, token) =>
@@ -139,10 +142,10 @@ const authService = {
   adminSendMessage: (data) => axiosInstance.post(API.adminSendMessage, data),
   adminSpecialOffer: (data) => axiosInstance.post(API.adminSpecialOffer, data),
 
-  // Worker
+  /* ---------- Worker ---------- */
   workerCategories: () => axiosInstance.get(API.workerCategories),
 
-  // Token Helpers exposed for manual use
+  /* ---------- Token Helpers ---------- */
   saveTokens,
   clearTokens,
   getAccessToken,
