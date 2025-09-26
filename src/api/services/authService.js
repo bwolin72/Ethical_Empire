@@ -1,73 +1,23 @@
-import publicAxios from "../publicAxios";
-import axiosInstance from "../axiosInstance";
-import API from "../authAPI";
-
-/* ============================
-   TOKEN KEYS
-============================ */
-const TOKEN_KEY = "access";
-const REFRESH_KEY = "refresh";
-const REMEMBER_KEY = "remember";
-
-/* ============================
-   STORAGE HELPERS
-============================ */
-const getStorage = () =>
-  localStorage.getItem(REMEMBER_KEY) === "true" ? localStorage : sessionStorage;
-
-const saveTokens = ({ access, refresh, remember = true }) => {
-  const storage = remember ? localStorage : sessionStorage;
-  if (access) storage.setItem(TOKEN_KEY, access);
-  if (refresh) storage.setItem(REFRESH_KEY, refresh);
-  storage.setItem(REMEMBER_KEY, remember ? "true" : "false");
-
-  // keep axiosInstance Authorization header up-to-date
-  axiosInstance.defaults.headers.common["Authorization"] = access
-    ? `Bearer ${access}`
-    : "";
-};
-
-const clearTokens = () => {
-  [localStorage, sessionStorage].forEach((s) => {
-    s.removeItem(TOKEN_KEY);
-    s.removeItem(REFRESH_KEY);
-    s.removeItem(REMEMBER_KEY);
-  });
-  delete axiosInstance.defaults.headers.common["Authorization"];
-};
-
-const getAccessToken = () => getStorage().getItem(TOKEN_KEY);
-const getRefreshToken = () => getStorage().getItem(REFRESH_KEY);
-
-// Initialise Authorization header when app loads
-(() => {
-  const token = getAccessToken();
-  if (token) {
-    axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  }
-})();
-
 /* ============================
    AUTH SERVICE
 ============================ */
 const authService = {
   /**
    * Login:
-   * POST API.login  → expects { access, refresh, ...userFields }
-   * Returns { tokens: {access, refresh}, user }
+   * POST API.login → expects { tokens: {access, refresh}, user }
+   * Returns { tokens, user }
    */
   login: async (credentials, remember = true) => {
     const res = await publicAxios.post(API.login, credentials, { withCredentials: true });
 
-    // ⚠️ Your backend should return { access, refresh, ...user }
-    const { access, refresh, ...user } = res.data;
+    const { tokens, user } = res.data || {};
+    const { access, refresh } = tokens || {};
 
-    saveTokens({ access, refresh, remember });
+    if (access && refresh) {
+      saveTokens({ access, refresh, remember });
+    }
 
-    return {
-      tokens: { access, refresh },
-      user,
-    };
+    return { tokens, user };
   },
 
   logout: async () => {
@@ -93,7 +43,19 @@ const authService = {
     publicAxios.post(API.googleRegister, data, { withCredentials: true }),
 
   /* ---------- Registration ---------- */
-  register: (data) => publicAxios.post(API.register, data, { withCredentials: true }),
+  register: async (data, remember = true) => {
+    const res = await publicAxios.post(API.register, data, { withCredentials: true });
+
+    // assume backend returns the same shape as login
+    const { tokens, user } = res.data || {};
+    const { access, refresh } = tokens || {};
+
+    if (access && refresh) {
+      saveTokens({ access, refresh, remember });
+    }
+
+    return { tokens, user };
+  },
   internalRegister: (data) => publicAxios.post(API.internalRegister, data),
 
   /* ---------- Profile & Roles ---------- */
