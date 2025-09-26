@@ -107,3 +107,26 @@
   .nav-btn { padding: 10px 12px; font-size: 18px; }
   .page-indicator { font-size: 0.85rem; }
 }
+
+.download-container {
+  text-align: center;
+  margin: 15px 0;
+}
+
+.download-btn {
+  background: #0d6efd;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.download-btn:hover {
+  background: #0b5ed7;
+  transform: translateY(-2px);
+}
+
