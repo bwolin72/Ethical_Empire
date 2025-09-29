@@ -60,10 +60,12 @@ function normalizeAuthResponse(res, remember) {
 const authService = {
   // ------------------- LOGIN -------------------
   login: async (credentials, remember = true) => {
-    // Escape special characters to prevent backend 500s
+    // Include all required fields for backend validation
     const safeCredentials = {
       email: String(credentials.email || "").trim(),
       password: String(credentials.password || ""),
+      role: String(credentials.role || "").trim(),
+      accessCode: String(credentials.accessCode || "").trim(),
     };
 
     const res = await publicAxios.post(API.login, safeCredentials, {
