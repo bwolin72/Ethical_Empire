@@ -413,6 +413,27 @@
     padding-right: 2rem;
   }
 
+   /* ======================================================
+   ✨ Access Code Animation
+   ====================================================== */
+.access-code-field {
+  opacity: 0;
+  transform: translateY(-5px);
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
   .forgot-password-form .password-field span {
     right: 0.5rem;
     font-size: 1rem;
