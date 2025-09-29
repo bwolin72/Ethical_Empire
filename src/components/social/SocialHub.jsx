@@ -3,7 +3,7 @@ import React from "react";
 import { Card } from "../ui/Card";
 import { Facebook, Youtube, Music, Phone } from "lucide-react";
 import QRCode from "react-qr-code";
-import "./SocialHub.css"; // make sure filename matches
+import "./SocialMediaPage.css"; // make sure filename matches
 
 const socialLinks = [
   {
