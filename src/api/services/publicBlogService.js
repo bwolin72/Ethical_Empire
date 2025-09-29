@@ -1,8 +1,6 @@
-// src/api/services/publicBlogService.js
 import publicAxios from "../publicAxios";
 import baseURL from "../baseURL";
 
-// Base URL for blog endpoints
 const API_URL = `${baseURL}/blog`;
 
 // -------------------------
@@ -16,7 +14,7 @@ const normalizeArray = (data) => {
 };
 
 // -------------------------
-// POSTS
+// POSTS (Public)
 // -------------------------
 export const getPosts = async (params = {}) => {
   const res = await publicAxios.get(`${API_URL}/posts/`, { params });
@@ -28,20 +26,18 @@ export const getPostDetail = async (slug) => {
   return res.data || null;
 };
 
-// Fetch latest 5 published posts
 export const getLatestPosts = async () => {
   const res = await publicAxios.get(`${API_URL}/posts/latest/`);
   return normalizeArray(res.data);
 };
 
-// Fetch all published articles
 export const getAllArticles = async () => {
   const res = await publicAxios.get(`${API_URL}/posts/articles/`);
   return normalizeArray(res.data);
 };
 
 // -------------------------
-// COMMENTS
+// COMMENTS (Public)
 // -------------------------
 export const getComments = async (slug) => {
   if (!slug || slug === "latest" || slug === "articles") return [];
@@ -49,8 +45,13 @@ export const getComments = async (slug) => {
   return normalizeArray(res.data);
 };
 
+export const addComment = async (slug, data) => {
+  const res = await publicAxios.post(`${API_URL}/posts/${slug}/comments/`, data);
+  return res.data || null;
+};
+
 // -------------------------
-// CATEGORIES
+// CATEGORIES (Public)
 // -------------------------
 export const getCategories = async () => {
   const res = await publicAxios.get(`${API_URL}/categories/`);
@@ -58,20 +59,20 @@ export const getCategories = async () => {
 };
 
 // -------------------------
-// SOCIAL POSTS  ✅ NEW
+// SOCIAL POSTS (Public)
 // -------------------------
 export const getSocialPosts = async () => {
   const res = await publicAxios.get(`${API_URL}/social-posts/`);
   return normalizeArray(res.data);
 };
 
-// -------------------------
 export default {
   getPosts,
   getPostDetail,
   getLatestPosts,
   getAllArticles,
   getComments,
+  addComment,
   getCategories,
-  getSocialPosts, // ✅ Add this
+  getSocialPosts,
 };
