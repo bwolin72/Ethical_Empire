@@ -43,6 +43,12 @@ export const deletePost = (slug, token) =>
     headers: { Authorization: `Token ${token}` },
   });
 
+// Trigger social sync for a post
+export const syncPostSocial = (slug, token) =>
+  blogAPI.post(`/posts/${slug}/sync-social/`, null, {
+    headers: { Authorization: `Token ${token}` },
+  });
+
 // ==========================
 // COMMENTS
 // ==========================
@@ -85,13 +91,16 @@ export const deleteCategory = (slug, token) =>
     headers: { Authorization: `Token ${token}` },
   });
 
-// Aggregate all methods
+// ==========================
+// EXPORT AGGREGATE
+// ==========================
 const BlogService = {
   getPosts,
   getPostDetail,
   createPost,
   updatePost,
   deletePost,
+  syncPostSocial,
   getComments,
   addComment,
   getCategories,
