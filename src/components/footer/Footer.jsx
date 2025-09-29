@@ -1,9 +1,7 @@
-// src/components/footer/Footer.jsx
 import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import NewsLetterSignup from "../user/NewsLetterSignup";
-import SocialHub from "../social/SocialHub"; // import social hub
 import "./Footer.css";
 
 function Footer() {
@@ -44,6 +42,12 @@ function Footer() {
                 </Link>
               </li>
             ))}
+            {/* Social Hub as a link instead of inline display */}
+            <li>
+              <Link to="/social">
+                Social Hub <ArrowRight size={14} />
+              </Link>
+            </li>
           </ul>
         </nav>
 
@@ -59,14 +63,9 @@ function Footer() {
           </ul>
         </nav>
 
-        {/* Contact & Social (via SocialHub) */}
-        <div className="footer-section">
-          <h4>Contact & Social</h4>
-          <SocialHub showAddress={false} showContact={true} showSocial={true} />
-        </div>
-
         {/* Newsletter Signup */}
         <div className="footer-section newsletter">
+          <h4>Stay Updated</h4>
           <NewsLetterSignup />
         </div>
       </div>
