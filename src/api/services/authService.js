@@ -2,8 +2,9 @@
    AUTH SERVICE (self-contained)
 ============================ */
 
-import { publicAxios, axiosInstance } from '../axiosInstance';
+import axiosInstance  from '../axiosInstance';
 import API from '../authAPI'; // all endpoint URLs
+import publicAxios from '../publicAxios',
 
 /* ---------- Token Helpers ---------- */
 function saveTokens({ access, refresh, remember }) {
