@@ -1,9 +1,7 @@
-// src/api/services/blogService.js
-import axiosInstance from "../axiosInstance"; // Authenticated axios
-import publicAxios from "../publicAxios";    // Public access axios
+import axiosInstance from "../axiosInstance";
+import publicAxios from "../publicAxios";
 import baseURL from "../baseURL";
 
-// Base URLs
 const API_URL = `${baseURL}/blog`;
 
 // -------------------------
@@ -29,7 +27,7 @@ export const getPostDetail = async (slug) => {
   return res.data || null;
 };
 
-// Admin actions (require token)
+// Admin CRUD
 export const createPost = (data) =>
   axiosInstance.post(`${API_URL}/posts/`, data).then((res) => res.data);
 
@@ -54,7 +52,7 @@ export const addComment = async (slug, data) => {
 };
 
 // -------------------------
-// SOCIAL SYNC
+// SOCIAL SYNC (Admin Only)
 // -------------------------
 export const syncSocialPost = async (slug) => {
   const res = await axiosInstance.post(`${API_URL}/posts/${slug}/sync-social/`);
@@ -80,7 +78,7 @@ export const deleteCategory = (slug) =>
   axiosInstance.delete(`${API_URL}/categories/${slug}/`).then((res) => res.data);
 
 // -------------------------
-// Social Accounts (Admin only)
+// SOCIAL ACCOUNTS (Admin Only)
 // -------------------------
 export const getSocialAccounts = () =>
   axiosInstance.get(`${API_URL}/social-accounts/`).then((res) => res.data);
@@ -95,11 +93,11 @@ export const deleteSocialAccount = (id) =>
   axiosInstance.delete(`${API_URL}/social-accounts/${id}/`).then((res) => res.data);
 
 // -------------------------
-// Social Posts (Read-only, Admin)
+// SOCIAL POSTS (Read-only Admin)
+// -------------------------
 export const getSocialPosts = () =>
   axiosInstance.get(`${API_URL}/social-posts/`).then((res) => res.data);
 
-// -------------------------
 export default {
   getPosts,
   getPostDetail,
