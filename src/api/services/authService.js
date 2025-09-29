@@ -1,6 +1,6 @@
 import axiosInstance from "../axiosInstance"; // Authenticated axios
 import publicAxios from "../publicAxios";     // Public access axios
-import API from "./authAPI";
+import API from "../authAPI";
 
 /* ---------- Token Helpers ---------- */
 function saveTokens({ access, refresh, remember }) {
