@@ -4,7 +4,7 @@
 
 import axiosInstance  from '../axiosInstance';
 import API from '../authAPI'; // all endpoint URLs
-import publicAxios from '../publicAxios',
+import publicAxios from '../publicAxios';
 
 /* ---------- Token Helpers ---------- */
 function saveTokens({ access, refresh, remember }) {
