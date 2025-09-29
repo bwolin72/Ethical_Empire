@@ -18,8 +18,8 @@ const Login = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    access_code: "",
     role: "",
+    accessCode: "",
   });
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /** Redirect user to the correct dashboard by role */
+  /** Redirect user by role */
   const redirectByRole = useCallback(
     (role) => {
       const path = roleRoutes[role?.toLowerCase()] || roleRoutes.user;
@@ -47,7 +47,7 @@ const Login = () => {
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  /** Redirect if already logged in */
+  /** Auto redirect if logged in */
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -55,7 +55,14 @@ const Login = () => {
     }
   }, [ready, user, redirectByRole]);
 
-  /** Form input change */
+  const toggleDarkMode = () => {
+    const updated = !darkMode;
+    setDarkMode(updated);
+    document.body.classList.toggle("dark", updated);
+    localStorage.setItem("darkMode", updated);
+    toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -67,15 +74,11 @@ const Login = () => {
     const errors = {};
     if (!form.email.trim()) errors.email = "Please enter your email.";
     if (!form.password.trim()) errors.password = "Please enter your password.";
-    if (!form.role.trim()) errors.role = "Please select your role.";
-    if (
-      ["worker", "admin"].includes(form.role.toLowerCase()) &&
-      !form.access_code.trim()
-    ) {
-      errors.access_code = "Access code is required for Admin/Worker.";
+    if (!form.role) errors.role = "Please select your role.";
+    if ((form.role === "admin" || form.role === "worker") && !form.accessCode.trim()) {
+      errors.accessCode = "Please enter your access code.";
     }
-    if (!acceptedTerms)
-      errors.terms = "You must accept Terms & Privacy.";
+    if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
 
     setFormErrors(errors);
     if (Object.keys(errors).length) toast.error("Please fix the highlighted errors.");
@@ -91,29 +94,29 @@ const Login = () => {
       if (data.detail) return data.detail;
       if (data.message) return data.message;
       if (data.errors) return Object.values(data.errors).flat().join(" ");
-      if (data.error && data.error.includes("access code"))
-        return "Invalid access code.";
     }
     return "Login failed.";
   };
 
-  /** Successful login handler */
+  /** Handle successful login */
   const handleLoginSuccess = async (data) => {
     const { tokens, user: apiUser } = data;
     const { access, refresh } = tokens || {};
+
     if (!access || !refresh || !apiUser) {
       toast.error("Invalid login response.");
       return;
     }
+
     login({ access, refresh, user: apiUser, remember: rememberMe });
     redirectByRole(apiUser.role);
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
   };
 
-  /** Submit login */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+
     setLoading(true);
     try {
       const res = await authService.login(form);
@@ -130,10 +133,7 @@ const Login = () => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
     try {
-      const res = await authService.googleLogin({
-        credential,
-        remember: rememberMe,
-      });
+      const res = await authService.googleLogin({ credential, remember: rememberMe });
       await handleLoginSuccess(res.data);
     } catch (err) {
       toast.error(extractErrorMessage(err));
@@ -142,32 +142,43 @@ const Login = () => {
     }
   };
 
-  const toggleDarkMode = () => {
-    const updated = !darkMode;
-    setDarkMode(updated);
-    document.body.classList.toggle("dark", updated);
-    localStorage.setItem("darkMode", updated);
-  };
-
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
-        {/* Left Brand Panel */}
-        <div className="auth-brand-panel artistic-bg">
+        {/* Left Panel */}
+        <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
-          <h2 className="brand-title">EETHM_GH</h2>
-          <p className="brand-subtitle">Your Trusted Digital Hub in Ghana</p>
+          <h1>EETHM_GH</h1>
+          <p>Your Trusted Digital Hub in Ghana</p>
           <button className="toggle-theme-btn" onClick={toggleDarkMode}>
             {darkMode ? "🌙 Dark Mode" : "☀️ Light Mode"}
           </button>
         </div>
 
-        {/* Right Form Panel */}
-        <div className="auth-form-panel elegant-form">
+        {/* Form Panel */}
+        <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
-          <p className="form-subtitle">Login to continue your experience</p>
 
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
+            {/* Role Selector */}
+            <div className="input-group">
+              <label>Login As</label>
+              <select
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+                disabled={loading}
+                className={formErrors.role ? "input-error" : ""}
+              >
+                <option value="">Select role</option>
+                <option value="user">User</option>
+                <option value="worker">Worker</option>
+                <option value="admin">Admin</option>
+              </select>
+              {formErrors.role && <small className="error-text">{formErrors.role}</small>}
+            </div>
+
+            {/* Email */}
             <div className="input-group">
               <label>Email</label>
               <input
@@ -176,15 +187,14 @@ const Login = () => {
                 placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange}
-                disabled={loading}
                 className={formErrors.email ? "input-error" : ""}
-                required
+                disabled={loading}
+                autoComplete="email"
               />
-              {formErrors.email && (
-                <small className="error-text">{formErrors.email}</small>
-              )}
+              {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
 
+            {/* Password */}
             <div className="input-group">
               <label>Password</label>
               <PasswordInput
@@ -194,65 +204,40 @@ const Login = () => {
                 onChange={handleChange}
                 disabled={loading}
               />
-              {formErrors.password && (
-                <small className="error-text">{formErrors.password}</small>
-              )}
+              {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
-            {/* 🧩 Role Selection */}
-            <div className="input-group">
-              <label>Select Role</label>
-              <select
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                disabled={loading}
-                className={formErrors.role ? "input-error" : ""}
-              >
-                <option value="">-- Choose your role --</option>
-                <option value="vendor">Vendor</option>
-                <option value="worker">Worker</option>
-                <option value="admin">Admin</option>
-                <option value="client">Client</option>
-                <option value="user">Normal User</option>
-              </select>
-              {formErrors.role && (
-                <small className="error-text">{formErrors.role}</small>
-              )}
-            </div>
-
-            {/* 🔐 Dynamic Access Code */}
-            {["worker", "admin"].includes(form.role.toLowerCase()) && (
-              <div className="input-group fade-in">
+            {/* Access Code (dynamic) */}
+            {(form.role === "admin" || form.role === "worker") && (
+              <div className="input-group">
                 <label>Access Code</label>
                 <input
                   type="text"
-                  name="access_code"
+                  name="accessCode"
                   placeholder="Enter your access code"
-                  value={form.access_code}
+                  value={form.accessCode}
                   onChange={handleChange}
+                  className={formErrors.accessCode ? "input-error" : ""}
                   disabled={loading}
-                  className={formErrors.access_code ? "input-error" : ""}
                 />
-                {formErrors.access_code && (
-                  <small className="error-text">{formErrors.access_code}</small>
+                {formErrors.accessCode && (
+                  <small className="error-text">{formErrors.accessCode}</small>
                 )}
               </div>
             )}
 
+            {/* Terms */}
             <label className="terms-checkbox">
               <input
                 type="checkbox"
                 checked={acceptedTerms}
                 onChange={() => setAcceptedTerms((prev) => !prev)}
               />
-              I accept <Link to="/terms">Terms</Link> &{" "}
-              <Link to="/privacy">Privacy</Link>
+              I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
             </label>
-            {formErrors.terms && (
-              <small className="error-text">{formErrors.terms}</small>
-            )}
+            {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
 
+            {/* Options */}
             <div className="auth-options">
               <label className="remember-me">
                 <input
@@ -267,15 +252,13 @@ const Login = () => {
               </Link>
             </div>
 
-            <button
-              type="submit"
-              className="auth-submit-btn gradient-btn"
-              disabled={loading || !acceptedTerms}
-            >
+            {/* Submit */}
+            <button type="submit" className="auth-submit-btn" disabled={loading || !acceptedTerms}>
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
+          {/* Google Login */}
           <div className="social-login">
             <p>Or sign in with Google:</p>
             <GoogleLogin
@@ -286,6 +269,7 @@ const Login = () => {
             />
           </div>
 
+          {/* Register Link */}
           <p className="register-prompt">
             Don’t have an account? <Link to="/register">Register</Link>
           </p>
