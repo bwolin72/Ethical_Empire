@@ -1,10 +1,9 @@
-// src/components/blog/Blog.js
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
-import BlogService from "../../api/services/blogService";
-import SocialHub from "../social/SocialHub"; // Social section
+import PublicBlogService from "../../api/services/publicBlogService";
+import SocialHub from "../social/SocialHub"; // Social media section
 import "./blog.css";
 
 // ==========================
@@ -13,8 +12,10 @@ import "./blog.css";
 export function BlogList() {
   const { categorySlug } = useParams();
   const location = useLocation();
+
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [socialPosts, setSocialPosts] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,11 +24,17 @@ export function BlogList() {
     async function fetchData() {
       setLoading(true);
       try {
-        const fetchedPosts = await BlogService.getPosts();
+        // Fetch posts (latest)
+        const fetchedPosts = await PublicBlogService.getLatestPosts();
         setPosts(Array.isArray(fetchedPosts) ? fetchedPosts : []);
 
-        const fetchedCategories = await BlogService.getCategories();
+        // Fetch all categories
+        const fetchedCategories = await PublicBlogService.getCategories();
         setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
+
+        // Fetch social media posts
+        const fetchedSocialPosts = await PublicBlogService.getSocialPosts();
+        setSocialPosts(Array.isArray(fetchedSocialPosts) ? fetchedSocialPosts : []);
       } catch (err) {
         console.error("Failed to fetch blog data:", err);
         setError("Unable to load blog data.");
@@ -41,7 +48,6 @@ export function BlogList() {
   if (loading) return <p className="text-center p-6">Loading...</p>;
   if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
 
-  // Filter posts safely
   const filteredPosts = posts
     .filter((p) => typeof p.title === "string" && p.title.toLowerCase().includes(search.toLowerCase()))
     .filter((p) => !categorySlug || p.category?.slug === categorySlug);
@@ -94,10 +100,10 @@ export function BlogList() {
         ))}
       </div>
 
-      {/* Social Hub */}
-      <div className="blog-social-section">
-        <h2>Connect with Us</h2>
-        <SocialHub />
+      {/* Social Media Posts */}
+      <div className="blog-social-posts">
+        <h2>Latest on Social Media</h2>
+        <SocialHub socialPosts={socialPosts} />
       </div>
     </div>
   );
@@ -111,6 +117,7 @@ export function BlogDetail() {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentContent, setCommentContent] = useState("");
+  const [socialPosts, setSocialPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -118,11 +125,17 @@ export function BlogDetail() {
     async function fetchData() {
       setLoading(true);
       try {
-        const fetchedPost = await BlogService.getPostDetail(slug);
+        // Fetch post detail
+        const fetchedPost = await PublicBlogService.getPostDetail(slug);
         setPost(fetchedPost || null);
 
-        const fetchedComments = await BlogService.getComments(slug);
+        // Fetch comments
+        const fetchedComments = await PublicBlogService.getComments(slug);
         setComments(Array.isArray(fetchedComments) ? fetchedComments : []);
+
+        // Fetch social media posts related to this post
+        const fetchedSocialPosts = await PublicBlogService.getSocialPosts(slug);
+        setSocialPosts(Array.isArray(fetchedSocialPosts) ? fetchedSocialPosts : []);
       } catch (err) {
         console.error("Failed to fetch post data:", err);
         setError("Unable to load post details.");
@@ -137,9 +150,9 @@ export function BlogDetail() {
     e.preventDefault();
     if (!commentContent.trim()) return;
     try {
-      await BlogService.addComment(slug, { content: commentContent });
+      await PublicBlogService.addComment(slug, { content: commentContent });
       setCommentContent("");
-      const refreshedComments = await BlogService.getComments(slug);
+      const refreshedComments = await PublicBlogService.getComments(slug);
       setComments(Array.isArray(refreshedComments) ? refreshedComments : []);
     } catch (err) {
       console.error("Failed to post comment:", err);
@@ -164,7 +177,7 @@ export function BlogDetail() {
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
 
-      {/* YouTube */}
+      {/* Embedded media */}
       {post.youtube_url && (
         <div className="blog-media">
           <iframe
@@ -177,8 +190,6 @@ export function BlogDetail() {
           />
         </div>
       )}
-
-      {/* TikTok */}
       {post.tiktok_url && (
         <blockquote
           className="tiktok-embed"
@@ -192,7 +203,7 @@ export function BlogDetail() {
       {/* Social Hub */}
       <div className="blog-social-section">
         <h2>Connect with Us</h2>
-        <SocialHub />
+        <SocialHub socialPosts={socialPosts} />
       </div>
 
       {/* Comments */}
