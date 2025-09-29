@@ -58,6 +58,14 @@ export const getCategories = async () => {
 };
 
 // -------------------------
+// SOCIAL POSTS  ✅ NEW
+// -------------------------
+export const getSocialPosts = async () => {
+  const res = await publicAxios.get(`${API_URL}/social-posts/`);
+  return normalizeArray(res.data);
+};
+
+// -------------------------
 export default {
   getPosts,
   getPostDetail,
@@ -65,4 +73,5 @@ export default {
   getAllArticles,
   getComments,
   getCategories,
+  getSocialPosts, // ✅ Add this
 };
