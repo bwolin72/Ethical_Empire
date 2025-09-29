@@ -52,7 +52,7 @@ const addKebabAliases = (obj) => {
 };
 
 /**
- * All backend API endpoints.
+ * Full backend API endpoints including blog.
  */
 const RAW_ENDPOINTS = {
   // ------------------- Media (public) -------------------
@@ -76,21 +76,43 @@ const RAW_ENDPOINTS = {
     all: withPublicGet("/videos/videos/"),
     detail: (id, config = {}) =>
       publicAxios.get(`/videos/videos/${id}/`, normalizeConfig(config)),
-
     toggleActive: (id) => axiosInstance.post(`/videos/videos/${id}/toggle_active/`),
     toggleFeatured: (id) => axiosInstance.post(`/videos/videos/${id}/toggle_featured/`),
-
     home: withPublicGet("/videos/videos/home/"),
     about: withPublicGet("/videos/videos/about/"),
     decor: withPublicGet("/videos/videos/decor/"),
-    live_band: withPublicGet("/videos/videos/live_band/"),
+    liveBand: withPublicGet("/videos/videos/live_band/"),
     catering: withPublicGet("/videos/videos/catering/"),
-    media_hosting: withPublicGet("/videos/videos/media_hosting/"),
+    mediaHosting: withPublicGet("/videos/videos/media_hosting/"),
     user: withPublicGet("/videos/videos/user/"),
     vendor: withPublicGet("/videos/videos/vendor/"),
     partner: withPublicGet("/videos/videos/partner/"),
-    partner_dashboard: withPublicGet("/videos/videos/partner_dashboard/"),
-    agency_dashboard: withPublicGet("/videos/videos/agency_dashboard/"),
+    partnerDashboard: withPublicGet("/videos/videos/partner_dashboard/"),
+    agencyDashboard: withPublicGet("/videos/videos/agency_dashboard/"),
+  },
+
+  // ------------------- Blog -------------------
+  blog: {
+    posts: {
+      list: withPublicGet("/posts/"),
+      detail: (slug) => publicAxios.get(`/posts/${slug}/`),
+      latest: withPublicGet("/posts/latest/"),
+      allArticles: withPublicGet("/posts/articles/"),
+      comments: (slug) => publicAxios.get(`/posts/${slug}/comments/`),
+      createComment: (slug, payload) =>
+        publicAxios.post(`/posts/${slug}/comments/`, payload),
+      syncSocial: (slug) => axiosInstance.post(`/posts/${slug}/sync-social/`),
+    },
+    categories: {
+      list: withPublicGet("/categories/"),
+      detail: (slug) => publicAxios.get(`/categories/${slug}/`),
+    },
+    socialPosts: {
+      list: withPublicGet("/social-posts/"),
+    },
+    socialAccounts: {
+      list: withAuthGet("/social-accounts/"),
+    },
   },
 
   // ------------------- Services -------------------
@@ -156,7 +178,6 @@ const RAW_ENDPOINTS = {
     unsubscribe: withPublicPost("/newsletter/unsubscribe/"),
     resubscribe: withPublicPost("/newsletter/resubscribe/"),
     resendConfirmation: withPublicPost("/newsletter/resend-confirmation/"),
-
     list: withAuthGet("/newsletter/list/"),
     count: () => axiosInstance.get("/newsletter/count/"),
     logs: withAuthGet("/newsletter/logs/"),
@@ -167,8 +188,6 @@ const RAW_ENDPOINTS = {
   // ------------------- Accounts -------------------
   accounts: {
     register: withPublicPost("/accounts/register/"),
-    verifyEmail: (uid, token) =>
-      publicAxios.get(`/accounts/verify-email/${uid}/${token}/`),
     login: withPublicPost("/accounts/login/"),
     logout: () => axiosInstance.post("/accounts/profile/logout/"),
     verifyOtp: withPublicPost("/accounts/verify-otp/"),
@@ -183,7 +202,6 @@ const RAW_ENDPOINTS = {
     resetPassword: withPublicPost("/accounts/reset-password/"),
     resetPasswordConfirm: (uidb64, token, payload) =>
       publicAxios.post(`/accounts/reset-password-confirm/${uidb64}/${token}/`, payload),
-
     token: withPublicPost("/accounts/token/"),
     tokenRefresh: withPublicPost("/accounts/token/refresh/"),
     tokenVerify: withPublicPost("/accounts/token/verify/"),
@@ -235,7 +253,7 @@ const RAW_ENDPOINTS = {
 // Add kebab-case aliases automatically
 export const API_ENDPOINTS = addKebabAliases(RAW_ENDPOINTS);
 
-// Optional flat aliases
+// Optional flat aliases for quick access
 export const FLAT_ENDPOINTS = {
   "media.user": API_ENDPOINTS.media.user,
   "media.vendor": API_ENDPOINTS.media.vendor,
