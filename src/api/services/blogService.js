@@ -1,13 +1,14 @@
 // src/api/services/blogService.js
-import axiosInstance from "../axiosInstance";
+import axiosInstance from "../axiosInstance"; // Authenticated axios
+import publicAxios from "../publicAxios";    // Public access axios
 import baseURL from "../baseURL";
 
-// Axios instance for blog endpoints
-const blogAPI = axiosInstance.create({
-  baseURL: `${baseURL}/blog`, // Matches Django /blog/ prefix
-});
+// Base URLs
+const API_URL = `${baseURL}/blog`;
 
-// Utility to ensure response is always an array
+// -------------------------
+// Helper
+// -------------------------
 const normalizeArray = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
@@ -15,98 +16,106 @@ const normalizeArray = (data) => {
   return [];
 };
 
-// ==========================
+// -------------------------
 // POSTS
-// ==========================
+// -------------------------
 export const getPosts = async (params = {}) => {
-  const res = await blogAPI.get("/posts/", { params });
+  const res = await publicAxios.get(`${API_URL}/posts/`, { params });
   return normalizeArray(res.data);
 };
 
 export const getPostDetail = async (slug) => {
-  const res = await blogAPI.get(`/posts/${slug}/`);
+  const res = await publicAxios.get(`${API_URL}/posts/${slug}/`);
   return res.data || null;
 };
 
-export const createPost = (data, token) =>
-  blogAPI.post("/posts/", data, {
-    headers: { Authorization: `Token ${token}` },
-  });
+// Admin actions (require token)
+export const createPost = (data) =>
+  axiosInstance.post(`${API_URL}/posts/`, data).then((res) => res.data);
 
-export const updatePost = (slug, data, token) =>
-  blogAPI.put(`/posts/${slug}/`, data, {
-    headers: { Authorization: `Token ${token}` },
-  });
+export const updatePost = (slug, data) =>
+  axiosInstance.put(`${API_URL}/posts/${slug}/`, data).then((res) => res.data);
 
-export const deletePost = (slug, token) =>
-  blogAPI.delete(`/posts/${slug}/`, {
-    headers: { Authorization: `Token ${token}` },
-  });
+export const deletePost = (slug) =>
+  axiosInstance.delete(`${API_URL}/posts/${slug}/`).then((res) => res.data);
 
-// Trigger social sync for a post
-export const syncPostSocial = (slug, token) =>
-  blogAPI.post(`/posts/${slug}/sync-social/`, null, {
-    headers: { Authorization: `Token ${token}` },
-  });
-
-// ==========================
+// -------------------------
 // COMMENTS
-// ==========================
+// -------------------------
 export const getComments = async (slug) => {
   if (!slug || slug === "latest" || slug === "articles") return [];
-  const res = await blogAPI.get(`/posts/${slug}/comments/`);
+  const res = await publicAxios.get(`${API_URL}/posts/${slug}/comments/`);
   return normalizeArray(res.data);
 };
 
 export const addComment = async (slug, data) => {
-  if (!slug || slug === "latest" || slug === "articles") {
-    return Promise.reject(
-      new Error("Cannot add comment to list endpoints (latest/articles).")
-    );
-  }
-  const res = await blogAPI.post(`/posts/${slug}/comments/`, data);
+  const res = await publicAxios.post(`${API_URL}/posts/${slug}/comments/`, data);
   return res.data || null;
 };
 
-// ==========================
+// -------------------------
+// SOCIAL SYNC
+// -------------------------
+export const syncSocialPost = async (slug) => {
+  const res = await axiosInstance.post(`${API_URL}/posts/${slug}/sync-social/`);
+  return res.data;
+};
+
+// -------------------------
 // CATEGORIES
-// ==========================
+// -------------------------
 export const getCategories = async () => {
-  const res = await blogAPI.get("/categories/");
+  const res = await publicAxios.get(`${API_URL}/categories/`);
   return normalizeArray(res.data);
 };
 
-export const createCategory = (data, token) =>
-  blogAPI.post("/categories/", data, {
-    headers: { Authorization: `Token ${token}` },
-  });
+// Admin category actions
+export const createCategory = (data) =>
+  axiosInstance.post(`${API_URL}/categories/`, data).then((res) => res.data);
 
-export const updateCategory = (slug, data, token) =>
-  blogAPI.put(`/categories/${slug}/`, data, {
-    headers: { Authorization: `Token ${token}` },
-  });
+export const updateCategory = (slug, data) =>
+  axiosInstance.put(`${API_URL}/categories/${slug}/`, data).then((res) => res.data);
 
-export const deleteCategory = (slug, token) =>
-  blogAPI.delete(`/categories/${slug}/`, {
-    headers: { Authorization: `Token ${token}` },
-  });
+export const deleteCategory = (slug) =>
+  axiosInstance.delete(`${API_URL}/categories/${slug}/`).then((res) => res.data);
 
-// ==========================
-// EXPORT AGGREGATE
-// ==========================
-const BlogService = {
+// -------------------------
+// Social Accounts (Admin only)
+// -------------------------
+export const getSocialAccounts = () =>
+  axiosInstance.get(`${API_URL}/social-accounts/`).then((res) => res.data);
+
+export const createSocialAccount = (data) =>
+  axiosInstance.post(`${API_URL}/social-accounts/`, data).then((res) => res.data);
+
+export const updateSocialAccount = (id, data) =>
+  axiosInstance.put(`${API_URL}/social-accounts/${id}/`, data).then((res) => res.data);
+
+export const deleteSocialAccount = (id) =>
+  axiosInstance.delete(`${API_URL}/social-accounts/${id}/`).then((res) => res.data);
+
+// -------------------------
+// Social Posts (Read-only, Admin)
+export const getSocialPosts = () =>
+  axiosInstance.get(`${API_URL}/social-posts/`).then((res) => res.data);
+
+// -------------------------
+export default {
   getPosts,
   getPostDetail,
   createPost,
   updatePost,
   deletePost,
-  syncPostSocial,
   getComments,
   addComment,
+  syncSocialPost,
   getCategories,
   createCategory,
   updateCategory,
   deleteCategory,
+  getSocialAccounts,
+  createSocialAccount,
+  updateSocialAccount,
+  deleteSocialAccount,
+  getSocialPosts,
 };
-
-export default BlogService;
