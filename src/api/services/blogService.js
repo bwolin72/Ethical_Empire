@@ -1,3 +1,4 @@
+// src/api/services/blogService.js
 import axiosInstance from "../axiosInstance";
 import publicAxios from "../publicAxios";
 import baseURL from "../baseURL";
@@ -5,7 +6,7 @@ import baseURL from "../baseURL";
 const API_URL = `${baseURL}/blog`;
 
 // -------------------------
-// Helper
+// Helper to normalize paginated or raw arrays
 // -------------------------
 const normalizeArray = (data) => {
   if (!data) return [];
@@ -23,6 +24,7 @@ export const getPosts = async (params = {}) => {
 };
 
 export const getPostDetail = async (slug) => {
+  if (!slug) return null;
   const res = await publicAxios.get(`${API_URL}/posts/${slug}/`);
   return res.data || null;
 };
@@ -98,6 +100,9 @@ export const deleteSocialAccount = (id) =>
 export const getSocialPosts = () =>
   axiosInstance.get(`${API_URL}/social-posts/`).then((res) => res.data);
 
+// -------------------------
+// Export all
+// -------------------------
 export default {
   getPosts,
   getPostDetail,
