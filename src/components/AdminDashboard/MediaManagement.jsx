@@ -21,7 +21,7 @@ const endpointsList = [
   { label: "Partner Vendor Dashboard", value: "PartnerVendorDashboard" },
 ];
 
-const MAX_FILE_SIZE_MB = 100; // match backend
+const MAX_FILE_SIZE_MB = 100;
 const ACCEPTED_FILE_TYPES = ["image/", "video/", "application/pdf", "application/msword", "text/"];
 
 function SortableMediaCard({ item, toggleActive, toggleFeatured, deleteMedia, setPreviewItem }) {
@@ -71,6 +71,7 @@ const MediaManagement = () => {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
+  // Fetch media from backend based on mediaType
   const fetchMedia = useCallback(async () => {
     try {
       let res;
@@ -163,14 +164,29 @@ const MediaManagement = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <h2>Media Management ({mediaType})</h2>
 
+      {/* Media Type Switch */}
+      <div className="media-type-switch">
+        {["media", "banner", "featured"].map(type => (
+          <button
+            key={type}
+            className={mediaType === type ? "active-switch" : ""}
+            onClick={() => setMediaType(type)}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </button>
+        ))}
+      </div>
+
       {/* Controls */}
       <div className="media-controls">
         <input type="file" multiple accept="image/*,video/*,application/pdf,application/msword,text/*" onChange={handleFileChange} />
         <input type="text" placeholder="Enter media label" value={label} onChange={(e) => setLabel(e.target.value)} />
         <input type="text" placeholder="Search media..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-        <select multiple value={selectedEndpoints} onChange={(e) => setSelectedEndpoints(Array.from(e.target.selectedOptions, opt => opt.value))}>
-          {endpointsList.map(ep => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
-        </select>
+        {mediaType === "media" && (
+          <select multiple value={selectedEndpoints} onChange={(e) => setSelectedEndpoints(Array.from(e.target.selectedOptions, opt => opt.value))}>
+            {endpointsList.map(ep => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
+          </select>
+        )}
         <button onClick={handleUpload} disabled={uploading || !files.length}>{uploading ? `Uploading ${uploadProgress}%...` : "Upload"}</button>
       </div>
 
