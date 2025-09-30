@@ -1,17 +1,12 @@
 // src/api/services/messagingService.js
-import messagingAPI from "../messagingAPI";
+import messagingAPI from "../messagingAPI"; // Axios instance or similar
 
 const messagingService = {
-  /**
-   * 📩 Fetch all messages
-   * Handles both paginated (DRF default) and non-paginated responses safely.
-   * Optionally accepts filters.
-   */
-  async fetchMessages(filters = {}) {
+  // ---------------- Fetch all messages ----------------
+  async fetchMessages() {
     try {
-      const res = await messagingAPI.listMessages(filters);
-
-      // ✅ Handle DRF pagination: return array (data.results) or full data
+      const res = await messagingAPI.get("/messages/");
+      // DRF may paginate
       const data = res?.data || [];
       return Array.isArray(data) ? data : data?.results || [];
     } catch (error) {
@@ -20,12 +15,10 @@ const messagingService = {
     }
   },
 
-  /**
-   * 📥 Fetch only unread messages
-   */
-  async fetchUnread(filters = {}) {
+  // ---------------- Fetch unread messages ----------------
+  async fetchUnread() {
     try {
-      const res = await messagingAPI.listUnread(filters);
+      const res = await messagingAPI.get("/messages/unread/");
       const data = res?.data || [];
       return Array.isArray(data) ? data : data?.results || [];
     } catch (error) {
@@ -34,12 +27,10 @@ const messagingService = {
     }
   },
 
-  /**
-   * 🔍 Retrieve a single message by ID
-   */
+  // ---------------- Fetch single message ----------------
   async fetchMessage(id) {
     try {
-      const res = await messagingAPI.getMessage(id);
+      const res = await messagingAPI.get(`/messages/${id}/`);
       return res?.data;
     } catch (error) {
       console.error(`Error fetching message ${id}:`, error);
@@ -47,12 +38,12 @@ const messagingService = {
     }
   },
 
-  /**
-   * ✉️ Send a new message (supports attachments)
-   */
+  // ---------------- Send / create message ----------------
   async sendMessage(formData) {
     try {
-      const res = await messagingAPI.createMessage(formData);
+      const res = await messagingAPI.post("/messages/", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       return res?.data;
     } catch (error) {
       console.error("Error sending message:", error);
@@ -60,12 +51,10 @@ const messagingService = {
     }
   },
 
-  /**
-   * 🛠️ Update an existing message
-   */
+  // ---------------- Update message ----------------
   async updateMessage(id, payload) {
     try {
-      const res = await messagingAPI.updateMessage(id, payload);
+      const res = await messagingAPI.put(`/messages/${id}/`, payload);
       return res?.data;
     } catch (error) {
       console.error(`Error updating message ${id}:`, error);
@@ -73,12 +62,20 @@ const messagingService = {
     }
   },
 
-  /**
-   * 🗑️ Delete a message
-   */
+  async partialUpdateMessage(id, payload) {
+    try {
+      const res = await messagingAPI.patch(`/messages/${id}/`, payload);
+      return res?.data;
+    } catch (error) {
+      console.error(`Error patching message ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // ---------------- Delete message ----------------
   async removeMessage(id) {
     try {
-      await messagingAPI.deleteMessage(id);
+      await messagingAPI.delete(`/messages/${id}/`);
       return true;
     } catch (error) {
       console.error(`Error deleting message ${id}:`, error);
@@ -86,12 +83,10 @@ const messagingService = {
     }
   },
 
-  /**
-   * ✅ Mark message as read
-   */
+  // ---------------- Mark as read ----------------
   async markAsRead(id) {
     try {
-      const res = await messagingAPI.markRead(id);
+      const res = await messagingAPI.patch(`/messages/${id}/mark-read/`);
       return res?.data;
     } catch (error) {
       console.error(`Error marking message ${id} as read:`, error);
@@ -99,12 +94,10 @@ const messagingService = {
     }
   },
 
-  /**
-   * ❌ Mark message as unread
-   */
+  // ---------------- Mark as unread ----------------
   async markAsUnread(id) {
     try {
-      const res = await messagingAPI.markUnread(id);
+      const res = await messagingAPI.patch(`/messages/${id}/mark-unread/`);
       return res?.data;
     } catch (error) {
       console.error(`Error marking message ${id} as unread:`, error);
