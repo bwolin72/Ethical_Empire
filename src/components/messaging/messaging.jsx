@@ -50,60 +50,50 @@ export default function MessagesPage({ currentUser }) {
     { value: "yard", label: "Yard" },
   ];
 
-  // --------- Role checks (robust/fallback-friendly) ----------
+  // ---------- Role checks ----------
   const normalizeRole = (r) =>
     typeof r === "string" && r ? r.trim().toLowerCase() : "";
 
   const roleStr = normalizeRole(currentUser?.role);
-  const isAdmin = roleStr === "admin" || currentUser?.is_staff || currentUser?.is_superuser;
+  const isAdmin =
+    roleStr === "admin" || currentUser?.is_staff || currentUser?.is_superuser;
   const isWorker = roleStr === "worker" || Boolean(currentUser?.is_worker);
   const isVendor = roleStr === "vendor" || Boolean(currentUser?.is_vendor);
   const isPartner = roleStr === "partner" || Boolean(currentUser?.is_partner);
-  const isAuthenticated = Boolean(currentUser && (currentUser.id || currentUser.pk || currentUser.email));
+  const isAuthenticated = Boolean(
+    currentUser && (currentUser.id || currentUser.pk || currentUser.email)
+  );
 
-  // helper to detect if the current user is the sender of a message
   const isSender = (msg) => {
     if (!currentUser) return false;
     const uid = String(currentUser?.id ?? currentUser?.pk ?? "");
-    // msg.sender may be an id or object
-    if (msg?.sender === undefined || msg?.sender === null) {
-      if (msg?.sender_name && uid) {
-        // can't reliably detect by name — fallback false
-        return false;
-      }
-      return false;
-    }
     if (typeof msg.sender === "object") {
       return String(msg.sender?.id ?? msg.sender?.pk ?? "") === uid;
     }
-    // primitive id
     return String(msg.sender) === uid;
   };
 
-  // --------- Fetch messages & unread count ----------
-  async function fetchMessages() {
+  // ---------- Fetch messages ----------
+  const fetchMessages = async () => {
     try {
       setLoading(true);
       setError(null);
       const data = await messagingService.fetchMessages();
-      // data is either [] or { results: [] } (paginated)
-      const messageList = Array.isArray(data) ? data : data?.results || [];
-      setMessages(messageList);
+      setMessages(Array.isArray(data) ? data : data?.results || []);
     } catch (err) {
       console.error("Error fetching messages:", err);
       setError("Failed to load messages");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  async function fetchUnreadCountAndMaybeNotify({ notifyWhenNew = true } = {}) {
+  const fetchUnreadCountAndNotify = async ({ notifyNew = true } = {}) => {
     try {
       const data = await messagingService.fetchUnread();
       const list = Array.isArray(data) ? data : data?.results || [];
       const count = list.length || 0;
-      // compare with previous
-      if (notifyWhenNew && count > (unreadRef.current || 0)) {
+      if (notifyNew && count > unreadRef.current) {
         toast.info(`You have ${count} unread message${count > 1 ? "s" : ""}`);
       }
       setUnreadCount(count);
@@ -113,32 +103,24 @@ export default function MessagesPage({ currentUser }) {
       console.error("Error fetching unread count:", err);
       return 0;
     }
-  }
+  };
 
-  // initial load
   useEffect(() => {
-    if (!isAuthenticated) {
-      setMessages([]);
-      setUnreadCount(0);
-      return;
-    }
+    if (!isAuthenticated) return;
     fetchMessages();
-    fetchUnreadCountAndMaybeNotify({ notifyWhenNew: false });
+    fetchUnreadCountAndNotify({ notifyNew: false });
 
-    // start polling for unread count every 30s
-    // NOTE: server enforces permissions; polling is only for UI notifications
     pollIntervalRef.current = setInterval(() => {
-      fetchUnreadCountAndMaybeNotify({ notifyWhenNew: true });
+      fetchUnreadCountAndNotify({ notifyNew: true });
     }, 30000);
 
     return () => {
-      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      clearInterval(pollIntervalRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]); // re-run when user changes
+  }, [currentUser]);
 
-  // --------- Form handlers ----------
-  function handleChange(e) {
+  // ---------- Form handlers ----------
+  const handleChange = (e) => {
     const { name, value, files, type, checked } = e.target;
     if (files) {
       const file = files[0];
@@ -148,14 +130,13 @@ export default function MessagesPage({ currentUser }) {
       }
       setFormData((prev) => ({ ...prev, [name]: file }));
     } else if (type === "checkbox") {
-      // generic checkbox fallback (not used for rental categories)
       setFormData((prev) => ({ ...prev, [name]: checked ? value : "" }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-  }
+  };
 
-  function handleCategoryToggle(category) {
+  const handleCategoryToggle = (category) => {
     setFormData((prev) => {
       const exists = prev.rental_categories.includes(category);
       return {
@@ -165,9 +146,9 @@ export default function MessagesPage({ currentUser }) {
           : [...prev.rental_categories, category],
       };
     });
-  }
+  };
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
@@ -175,7 +156,6 @@ export default function MessagesPage({ currentUser }) {
       setError("You must be signed in to send a message.");
       return;
     }
-
     if (formData.service_type === "rental" && formData.rental_categories.length === 0) {
       setError("Please select at least one rental category.");
       return;
@@ -186,7 +166,6 @@ export default function MessagesPage({ currentUser }) {
       Object.entries(formData).forEach(([key, val]) => {
         if (val === null || val === "") return;
         if (Array.isArray(val)) {
-          if (val.length === 0) return;
           val.forEach((v) => fd.append("rental_categories", v));
         } else {
           fd.append(key, val);
@@ -208,78 +187,68 @@ export default function MessagesPage({ currentUser }) {
         vendor_agency_name: "",
         equipment_list: "",
       });
-      // refresh UI
       await fetchMessages();
-      await fetchUnreadCountAndMaybeNotify({ notifyWhenNew: false });
+      await fetchUnreadCountAndNotify({ notifyNew: false });
     } catch (err) {
       console.error("Error sending message:", err);
       setError("Failed to send message");
     }
-  }
+  };
 
-  // --------- Actions: delete, mark read/unread ----------
-  async function handleDelete(id, msg) {
-    // frontend permission check: only admin or sender
+  // ---------- Actions ----------
+  const handleDelete = async (id, msg) => {
     if (!(isAdmin || isSender(msg))) {
       setError("You don't have permission to delete this message.");
       return;
     }
     if (!window.confirm("Delete this message?")) return;
+
     try {
       await messagingService.removeMessage(id);
       toast.success("Message deleted.");
       fetchMessages();
-      fetchUnreadCountAndMaybeNotify({ notifyWhenNew: false });
+      fetchUnreadCountAndNotify({ notifyNew: false });
     } catch (err) {
-      console.error("Error deleting message:", err);
+      console.error(err);
       setError("Failed to delete message");
     }
-  }
+  };
 
-  async function handleMarkRead(id, msg) {
-    if (!(isAdmin || isSender(msg))) {
-      setError("You don't have permission to change read status.");
-      return;
-    }
+  const handleMarkRead = async (id, msg) => {
+    if (!(isAdmin || isSender(msg))) return;
     try {
       await messagingService.markAsRead(id);
       fetchMessages();
-      fetchUnreadCountAndMaybeNotify({ notifyWhenNew: false });
+      fetchUnreadCountAndNotify({ notifyNew: false });
     } catch (err) {
-      console.error("Error marking read:", err);
+      console.error(err);
       setError("Failed to mark as read");
     }
-  }
+  };
 
-  async function handleMarkUnread(id, msg) {
-    if (!(isAdmin || isSender(msg))) {
-      setError("You don't have permission to change read status.");
-      return;
-    }
+  const handleMarkUnread = async (id, msg) => {
+    if (!(isAdmin || isSender(msg))) return;
     try {
       await messagingService.markAsUnread(id);
       fetchMessages();
-      fetchUnreadCountAndMaybeNotify({ notifyWhenNew: false });
+      fetchUnreadCountAndNotify({ notifyNew: false });
     } catch (err) {
-      console.error("Error marking unread:", err);
+      console.error(err);
       setError("Failed to mark as unread");
     }
-  }
+  };
 
-  // ---------- UI permission helpers ----------
-  const canSendMessage = isAuthenticated; // all signed-in users can send (backend enforces)
+  // ---------- Render helpers ----------
+  const canSendMessage = isAuthenticated;
   const showPartnerFields = isPartner || isAdmin;
   const showVendorFields = isVendor || isAdmin;
   const showEquipmentField = isWorker || isAdmin || isVendor;
 
-  // ---------- Render ----------
   if (!isAuthenticated) {
     return (
       <div className="messaging-page">
         <ToastContainer position="top-right" autoClose={5000} />
-        <div className="messaging-header">
-          <h1>Messages</h1>
-        </div>
+        <h1>Messages</h1>
         <p>You must sign in to view and send messages.</p>
       </div>
     );
@@ -288,29 +257,16 @@ export default function MessagesPage({ currentUser }) {
   return (
     <div className="messaging-page">
       <ToastContainer position="top-right" autoClose={5000} />
-
       <div className="messaging-header">
         <h1>Messages</h1>
-
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Button onClick={() => setShowForm((s) => !s)}>
             <Plus className="icon" /> New Message
           </Button>
-
-          {/* Unread badge */}
           <div className="unread-badge" title={`${unreadCount} unread`}>
-            {unreadCount > 0 ? (
-              <Button size="sm" variant="ghost" onClick={() => {
-                // open unread list by refetching with ?is_read=false if you want — here we just focus UI
-                fetchMessages();
-              }}>
-                <strong>{unreadCount}</strong> unread
-              </Button>
-            ) : (
-              <Button size="sm" variant="ghost" disabled>
-                0 unread
-              </Button>
-            )}
+            <Button size="sm" variant="ghost" onClick={fetchMessages}>
+              <strong>{unreadCount}</strong> unread
+            </Button>
           </div>
         </div>
       </div>
@@ -318,7 +274,6 @@ export default function MessagesPage({ currentUser }) {
       {error && <p className="error-text">{error}</p>}
       {loading && <Loader2 className="loading-spinner" />}
 
-      {/* Form for new message (only for authenticated users) */}
       {showForm && canSendMessage && (
         <form onSubmit={handleSubmit} className="message-form">
           <Input
@@ -365,7 +320,6 @@ export default function MessagesPage({ currentUser }) {
             </div>
           )}
 
-          {/* Conditionally show partner/vendor/equipment fields depending on role */}
           {showPartnerFields && (
             <>
               <Input
@@ -417,11 +371,10 @@ export default function MessagesPage({ currentUser }) {
         </form>
       )}
 
-      {/* Messages list */}
       <div className="messages-list">
-        {Array.isArray(messages) && messages.length > 0 ? (
+        {messages.length > 0 ? (
           messages.map((msg) => {
-            const sender = msg?.sender_name || msg?.sender_email || "Unknown Sender";
+            const sender = msg.sender_name || msg.sender_email || "Unknown";
             const allowModify = isAdmin || isSender(msg);
             return (
               <Card key={msg.id} className="message-card">
@@ -432,8 +385,6 @@ export default function MessagesPage({ currentUser }) {
                       <Button size="sm" variant="ghost" onClick={() => setSelectedMessage(msg)}>
                         <Eye className="icon" />
                       </Button>
-
-                      {/* Delete visible only to admin or sender */}
                       {allowModify && (
                         <Button size="sm" variant="ghost" onClick={() => handleDelete(msg.id, msg)}>
                           <Trash2 className="icon" />
@@ -441,9 +392,7 @@ export default function MessagesPage({ currentUser }) {
                       )}
                     </div>
                   </div>
-
                   <p>{msg.message?.slice(0, 100)}...</p>
-
                   <div className="message-status">
                     {msg.is_read ? (
                       <span className="status-read">
@@ -454,8 +403,6 @@ export default function MessagesPage({ currentUser }) {
                         <XCircle className="icon" /> Unread
                       </span>
                     )}
-
-                    {/* Mark read/unread buttons (admin or sender only) */}
                     {allowModify && !msg.is_read && (
                       <Button size="sm" variant="outline" onClick={() => handleMarkRead(msg.id, msg)}>
                         Mark Read
@@ -467,8 +414,15 @@ export default function MessagesPage({ currentUser }) {
                       </Button>
                     )}
                   </div>
-
                   <p className="message-meta">From: {sender}</p>
+                  {msg.rental_categories_display?.length > 0 && (
+                    <p>Categories: {msg.rental_categories_display.join(", ")}</p>
+                  )}
+                  {msg.attachment_url && (
+                    <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer">
+                      View Attachment
+                    </a>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -478,25 +432,17 @@ export default function MessagesPage({ currentUser }) {
         )}
       </div>
 
-      {/* Modal / Preview for selected message */}
       {selectedMessage && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>{selectedMessage.subject}</h2>
-            <p className="modal-message">{selectedMessage.message}</p>
+            <p>{selectedMessage.message}</p>
             {selectedMessage.attachment_url && (
-              <a
-                href={selectedMessage.attachment_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="attachment-link"
-              >
+              <a href={selectedMessage.attachment_url} target="_blank" rel="noopener noreferrer">
                 View Attachment
               </a>
             )}
-            <div className="modal-footer">
-              <Button onClick={() => setSelectedMessage(null)}>Close</Button>
-            </div>
+            <Button onClick={() => setSelectedMessage(null)}>Close</Button>
           </div>
         </div>
       )}
