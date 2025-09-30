@@ -47,6 +47,12 @@ function SortableMediaCard({ item, toggleActive, toggleFeatured, deleteMedia, se
       <p className="media-label"><strong>{item.label || "No Label"}</strong></p>
       <p className="media-meta">Uploaded by: {item.uploaded_by || "—"}</p>
       <p className="media-meta">Date: {new Date(item.uploaded_at).toLocaleString()}</p>
+      {/* Display associated endpoints */}
+      {item.endpoints && item.endpoints.length > 0 && (
+        <p className="media-meta">
+          Endpoints: {item.endpoints.join(", ")}
+        </p>
+      )}
       <div className="media-actions">
         <p>Status: {item.is_active ? "✅ Active" : "❌ Inactive"}</p>
         {"is_featured" in item && <p>Featured: {item.is_featured ? "⭐ Yes" : "—"}</p>}
@@ -59,10 +65,10 @@ function SortableMediaCard({ item, toggleActive, toggleFeatured, deleteMedia, se
 }
 
 const MediaManagement = () => {
-  const [mediaType, setMediaType] = useState("media"); // media | banner | featured
+  const [mediaType, setMediaType] = useState("media");
   const [selectedEndpoints, setSelectedEndpoints] = useState(["EethmHome"]);
-  const [files, setFiles] = useState([]);
   const [uploadedItems, setUploadedItems] = useState([]);
+  const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,15 +77,21 @@ const MediaManagement = () => {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
-  const fetchMedia = useCallback(async () => {
+  const fetchMedia = useCallback(async (endpoints = selectedEndpoints) => {
     try {
-      let res;
-      if (mediaType === "featured") res = await mediaAPI.featured({ endpoint: selectedEndpoints[0] });
-      else if (mediaType === "banner") res = await mediaAPI.banners({ endpoint: selectedEndpoints[0] });
-      else res = await mediaAPI.all({ endpoint: selectedEndpoints[0] });
+      let allItems = [];
+      for (const endpoint of endpoints) {
+        let res;
+        if (mediaType === "featured") res = await mediaAPI.featured({ endpoint });
+        else if (mediaType === "banner") res = await mediaAPI.banners({ endpoint });
+        else res = await mediaAPI.all({ endpoint });
 
-      const items = Array.isArray(res?.data) ? res.data : res?.data?.results ?? [];
-      setUploadedItems(items);
+        const items = Array.isArray(res?.data) ? res.data : res?.data?.results ?? [];
+        // Add endpoint info to each item for display
+        const itemsWithEndpoint = items.map(i => ({ ...i, endpoints: [endpoint] }));
+        allItems = [...allItems, ...itemsWithEndpoint];
+      }
+      setUploadedItems(allItems);
     } catch (err) {
       console.error("fetchMedia error:", err);
       toast.error("Failed to load media.", { autoClose: 4000 });
@@ -90,7 +102,7 @@ const MediaManagement = () => {
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
-    const invalidFiles = selected.filter(file => 
+    const invalidFiles = selected.filter(file =>
       !ACCEPTED_FILE_TYPES.some(type => file.type.startsWith(type)) || file.size > MAX_FILE_SIZE_MB * 1024 * 1024
     );
     if (invalidFiles.length) {
@@ -144,7 +156,7 @@ const MediaManagement = () => {
   };
 
   const handleDragEnd = async (event) => {
-    if (mediaType !== "media") return; // Only media can be reordered
+    if (mediaType !== "media") return;
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const oldIndex = uploadedItems.findIndex(i => i.id === active.id);
@@ -171,15 +183,19 @@ const MediaManagement = () => {
         <button className={mediaType === "featured" ? "active" : ""} onClick={() => setMediaType("featured")}>Featured</button>
       </div>
 
-      {/* Controls */}
+      {/* Endpoint filter and Show All */}
+      <div className="endpoint-controls">
+        <select multiple value={selectedEndpoints} onChange={(e) => setSelectedEndpoints(Array.from(e.target.selectedOptions, opt => opt.value))}>
+          {endpointsList.map(ep => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
+        </select>
+        <button onClick={() => fetchMedia(endpointsList.map(ep => ep.value))}>Show All</button>
+      </div>
+
+      {/* Upload & Search */}
       <div className="media-controls">
         <input type="file" multiple accept="image/*,video/*,application/pdf,application/msword,text/*" onChange={handleFileChange} />
         <input type="text" placeholder="Enter media label" value={label} onChange={(e) => setLabel(e.target.value)} />
         <input type="text" placeholder="Search media..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-        {/* Endpoint selection always visible */}
-        <select multiple value={selectedEndpoints} onChange={(e) => setSelectedEndpoints(Array.from(e.target.selectedOptions, opt => opt.value))}>
-          {endpointsList.map(ep => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
-        </select>
         <button onClick={handleUpload} disabled={uploading || !files.length}>
           {uploading ? `Uploading ${uploadProgress}%...` : "Upload"}
         </button>
