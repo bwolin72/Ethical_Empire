@@ -3,9 +3,9 @@ import React from "react";
 import { Card } from "../ui/Card";
 import { Facebook, Youtube, Music, Phone } from "lucide-react";
 import QRCode from "react-qr-code";
-import "./SocialMediaPage.css"; // make sure filename matches
+import "./SocialMediaPage.css";
 
-const socialLinks = [
+const staticLinks = [
   {
     name: "Facebook",
     url: "https://www.facebook.com/share/16nQGbE7Zk/",
@@ -44,26 +44,25 @@ function SocialCard({ link }) {
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`Open ${link.name} in new tab`}
       >
         <div className="social-card-left">
           <span className={`social-icon-wrapper ${link.key}`}>
             {React.cloneElement(link.icon, { "aria-hidden": true })}
           </span>
-
           <div className="social-card-meta">
             <div className="social-card-name">{link.name}</div>
             <div className="social-card-sub">{link.subtitle}</div>
           </div>
         </div>
-
         <span className="social-cta">Visit</span>
       </a>
     </Card>
   );
 }
 
-export default function SocialHub() {
+export default function SocialHub({ socialPosts = [] }) {
+  const hasFetchedContent = Array.isArray(socialPosts) && socialPosts.length > 0;
+
   return (
     <main className="social-hub-container">
       <h1 className="social-hub-title">Connect with Eethm_GH Multimedia</h1>
@@ -72,14 +71,42 @@ export default function SocialHub() {
       </p>
 
       <div className="social-grid">
-        {/* left: cards grid */}
+        {/* Left: links */}
         <div className="social-cards-grid" aria-live="polite">
-          {socialLinks.map((s) => (
+          {staticLinks.map((s) => (
             <SocialCard key={s.key} link={s} />
           ))}
         </div>
 
-        {/* right: QR / linktree panel */}
+        {/* Right: Fetched content */}
+        <div className="social-fetched-posts">
+          <h3>Latest Social Updates</h3>
+          {hasFetchedContent ? (
+            socialPosts.map((post, i) => (
+              <Card key={post.id || i} className="social-post-card">
+                {post.image && (
+                  <img
+                    src={post.image}
+                    alt={post.caption?.slice(0, 40) || "Social media post"}
+                    className="social-post-image"
+                  />
+                )}
+                <div className="social-post-content">
+                  <p>{post.caption || post.text || "No description"}</p>
+                  {post.url && (
+                    <a href={post.url} target="_blank" rel="noopener noreferrer">
+                      View Post
+                    </a>
+                  )}
+                </div>
+              </Card>
+            ))
+          ) : (
+            <p className="no-social-posts">No recent posts available.</p>
+          )}
+        </div>
+
+        {/* QR */}
         <aside className="qr-section" aria-label="Linktree QR code">
           <div className="qr-title">Scan Our Linktree</div>
           <QRCode
