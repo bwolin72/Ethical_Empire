@@ -1,5 +1,5 @@
 // src/api/mediaAPI.js
-import axiosInstance from "../axiosInstance";
+import axiosInstance from "./axiosInstance";
 
 const mediaAPI = {
   // Fetch all media with optional query params
