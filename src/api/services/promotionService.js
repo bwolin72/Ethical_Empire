@@ -1,19 +1,16 @@
-// src/api/services/promotionService.js
-
-import apiInstance from "../axiosInstance";
-import publicAxios from "../publicAxios";
 import promotionsAPI from "../promotionsAPI";
 
 const promotionService = {
-  // Public GET
-  list: (params) => publicAxios.get(promotionsAPI.list(), { params }),
-  active: (params) => publicAxios.get(promotionsAPI.active(), { params }),
-  detail: (id) => publicAxios.get(promotionsAPI.detail(id)),
+  // ---- Public ----
+  list: (params) => promotionsAPI.list(params),
+  active: (params) => promotionsAPI.active(params),
+  detail: (id) => promotionsAPI.detail(id),
 
-  // Authenticated CRUD
-  create: (data) => apiInstance.post(promotionsAPI.create(), data),
-  update: (id, data) => apiInstance.patch(promotionsAPI.update(id), data),
-  remove: (id) => apiInstance.delete(promotionsAPI.delete(id)),
+  // ---- Admin ----
+  create: (data) => promotionsAPI.create(data),
+  update: (id, data) => promotionsAPI.update(id, data),
+  patch: (id, data) => promotionsAPI.patch(id, data),
+  remove: (id) => promotionsAPI.delete(id),
 };
 
 export default promotionService;
