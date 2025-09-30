@@ -75,7 +75,7 @@ const Login = () => {
     if (!form.email.trim()) errors.email = "Please enter your email.";
     if (!form.password.trim()) errors.password = "Please enter your password.";
     if (!form.role) errors.role = "Please select your role.";
-    if ((form.role === "admin" || form.role === "worker") && !form.accessCode.trim()) {
+    if (form.role === "worker" && !form.accessCode.trim()) {
       errors.accessCode = "Please enter your access code.";
     }
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
@@ -119,8 +119,8 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const res = await authService.login(form);
-      await handleLoginSuccess(res.data);
+      const res = await authService.login(form, rememberMe);
+      await handleLoginSuccess(res);
     } catch (err) {
       toast.error(extractErrorMessage(err));
       setForm((prev) => ({ ...prev, password: "" }));
@@ -134,7 +134,7 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential, remember: rememberMe });
-      await handleLoginSuccess(res.data);
+      await handleLoginSuccess(res);
     } catch (err) {
       toast.error(extractErrorMessage(err));
     } finally {
@@ -174,6 +174,8 @@ const Login = () => {
                 <option value="user">User</option>
                 <option value="worker">Worker</option>
                 <option value="admin">Admin</option>
+                <option value="vendor">Vendor</option>
+                <option value="partner">Partner</option>
               </select>
               {formErrors.role && <small className="error-text">{formErrors.role}</small>}
             </div>
@@ -207,8 +209,8 @@ const Login = () => {
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
-            {/* Access Code (dynamic) */}
-            {(form.role === "admin" || form.role === "worker") && (
+            {/* Access Code (only WORKER role) */}
+            {form.role === "worker" && (
               <div className="input-group">
                 <label>Access Code</label>
                 <input
