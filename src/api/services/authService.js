@@ -17,17 +17,11 @@ function clearTokens() {
 }
 
 function getAccessToken() {
-  return (
-    localStorage.getItem("access_token") ||
-    sessionStorage.getItem("access_token")
-  );
+  return localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
 }
 
 function getRefreshToken() {
-  return (
-    localStorage.getItem("refresh_token") ||
-    sessionStorage.getItem("refresh_token")
-  );
+  return localStorage.getItem("refresh_token") || sessionStorage.getItem("refresh_token");
 }
 
 /* ---------- Normalize backend auth responses ---------- */
@@ -39,12 +33,8 @@ function normalizeAuthResponse(res, remember) {
     tokens = res.data.tokens;
     user = res.data.user || null;
   } else {
-    // Sometimes backend returns tokens directly
     if (res?.data?.access || res?.data?.refresh) {
-      tokens = {
-        access: res.data.access,
-        refresh: res.data.refresh,
-      };
+      tokens = { access: res.data.access, refresh: res.data.refresh };
     }
     user = res?.data?.user || res?.data || null;
   }
@@ -60,12 +50,11 @@ function normalizeAuthResponse(res, remember) {
 const authService = {
   // ------------------- LOGIN -------------------
   login: async (credentials, remember = true) => {
-    // Include all required fields for backend validation
     const safeCredentials = {
       email: String(credentials.email || "").trim(),
       password: String(credentials.password || ""),
       role: String(credentials.role || "").trim(),
-      accessCode: String(credentials.accessCode || "").trim(),
+      access_code: String(credentials.accessCode || "").trim(), // backend expects snake_case
     };
 
     const res = await publicAxios.post(API.login, safeCredentials, {
@@ -79,9 +68,7 @@ const authService = {
   // ------------------- LOGOUT -------------------
   logout: async () => {
     try {
-      if (API.logout) {
-        await axiosInstance.post(API.logout, {}, { withCredentials: true });
-      }
+      if (API.logout) await axiosInstance.post(API.logout, {}, { withCredentials: true });
     } finally {
       clearTokens();
     }
@@ -89,27 +76,18 @@ const authService = {
 
   // ------------------- GOOGLE AUTH -------------------
   googleLogin: async (data, remember = true) => {
-    const res = await publicAxios.post(API.googleLogin, data, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    });
+    const res = await publicAxios.post(API.googleLogin, data, { withCredentials: true });
     return normalizeAuthResponse(res, remember);
   },
 
   googleRegister: async (data, remember = true) => {
-    const res = await publicAxios.post(API.googleRegister, data, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    });
+    const res = await publicAxios.post(API.googleRegister, data, { withCredentials: true });
     return normalizeAuthResponse(res, remember);
   },
 
   // ------------------- REGISTRATION -------------------
   register: async (data, remember = true) => {
-    const res = await publicAxios.post(API.register, data, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    });
+    const res = await publicAxios.post(API.register, data, { withCredentials: true });
     return normalizeAuthResponse(res, remember);
   },
 
@@ -129,9 +107,7 @@ const authService = {
     publicAxios.post(API.resetPassword, data, { withCredentials: true }),
 
   resetPasswordConfirm: (uid, token, data) =>
-    publicAxios.post(API.resetPasswordConfirm(uid, token), data, {
-      withCredentials: true,
-    }),
+    publicAxios.post(API.resetPasswordConfirm(uid, token), data, { withCredentials: true }),
 
   // ------------------- JWT UTILITIES -------------------
   refreshToken: async () => {
@@ -144,22 +120,16 @@ const authService = {
   verifyToken: (data) => publicAxios.post(API.tokenVerify, data),
 
   // ------------------- OTP -------------------
-  verifyOtp: (data) =>
-    publicAxios.post(API.verifyOtp, data, { withCredentials: true }),
-  resendOtp: (data) =>
-    publicAxios.post(API.resendOtp, data, { withCredentials: true }),
+  verifyOtp: (data) => publicAxios.post(API.verifyOtp, data, { withCredentials: true }),
+  resendOtp: (data) => publicAxios.post(API.resendOtp, data, { withCredentials: true }),
 
   // ------------------- ADMIN -------------------
   listUsers: (params) => axiosInstance.get(API.adminListUsers, { params }),
   adminInviteWorker: (data) => axiosInstance.post(API.adminInviteWorker, data),
   adminValidateWorkerInvite: (uid, token) =>
-    publicAxios.get(API.adminValidateWorkerInvite(uid, token), {
-      withCredentials: true,
-    }),
+    publicAxios.get(API.adminValidateWorkerInvite(uid, token), { withCredentials: true }),
   adminCompleteWorkerInvite: (data) =>
-    publicAxios.post(API.adminCompleteWorkerInvite, data, {
-      withCredentials: true,
-    }),
+    publicAxios.post(API.adminCompleteWorkerInvite, data, { withCredentials: true }),
   adminResetPassword: (data) => axiosInstance.post(API.adminResetPassword, data),
   adminProfileByEmail: (data) => axiosInstance.post(API.adminProfileByEmail, data),
   adminDeleteByEmail: (data) => axiosInstance.post(API.adminDeleteByEmail, data),
