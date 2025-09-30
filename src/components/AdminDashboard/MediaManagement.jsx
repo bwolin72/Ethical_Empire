@@ -19,7 +19,7 @@ import { CSS } from "@dnd-kit/utilities";
 import mediaAPI from "../../api/mediaAPI";
 import "./MediaManagement.css";
 
-// ✅ Updated endpoints to match backend choices exactly
+// ✅ Updated endpoints to match backend choices
 const endpoints = [
   { label: "Home", value: "EethmHome" },
   { label: "User Page", value: "UserPage" },
@@ -51,10 +51,12 @@ function SortableMediaCard({
   const renderPreview = (url) => {
     if (!url) return <span>Broken link</span>;
     const ext = url.split(".").pop().toLowerCase();
-    if (["mp4", "webm"].includes(ext))
+    if (["mp4", "webm", "ogg"].includes(ext)) {
       return <video src={url} controls className="media-preview" />;
-    if (["jpg", "jpeg", "png", "webp"].includes(ext))
+    }
+    if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) {
       return <img src={url} alt="preview" className="media-preview" />;
+    }
     return (
       <a href={url} target="_blank" rel="noreferrer">
         Open File
@@ -115,21 +117,31 @@ const MediaManagement = () => {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
+  // ✅ Improved fetchMedia
   const fetchMedia = useCallback(async () => {
     try {
       let res;
-      const endpoint = selectedEndpoints[0];
+      const endpointKey = selectedEndpoints[0];
 
       if (mediaType === "featured") {
         res = await mediaAPI.featured();
       } else if (mediaType === "banner") {
         res = await mediaAPI.banners();
+      } else if (typeof mediaAPI[endpointKey] === "function") {
+        res = await mediaAPI[endpointKey]();
+      } else if (typeof mediaAPI.list === "function") {
+        res = await mediaAPI.list({ endpoint: endpointKey });
       } else {
-        res = await mediaAPI[endpoint]();
+        throw new Error(`No API handler for ${endpointKey}`);
       }
 
-      setUploadedItems(Array.isArray(res.data) ? res.data : []);
-    } catch {
+      const items = Array.isArray(res?.data)
+        ? res.data
+        : res?.data?.results ?? res?.data?.items ?? [];
+
+      setUploadedItems(items);
+    } catch (err) {
+      console.error("fetchMedia error:", err);
       toast.error("Failed to load media.", { autoClose: 4000 });
       setUploadedItems([]);
     }
@@ -367,7 +379,15 @@ const MediaManagement = () => {
               Close
             </button>
             <h3>Preview</h3>
-            <img src={previewItem.url?.full} alt="preview" className="media-preview" />
+            {(() => {
+              const url = previewItem.url?.full || previewItem.url?.thumb;
+              if (!url) return <span>No preview available</span>;
+              const ext = url.split(".").pop().toLowerCase();
+              if (["mp4", "webm", "ogg"].includes(ext)) {
+                return <video src={url} controls className="media-preview" />;
+              }
+              return <img src={url} alt="preview" className="media-preview" />;
+            })()}
           </div>
         </div>
       )}
