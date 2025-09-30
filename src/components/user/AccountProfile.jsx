@@ -1,8 +1,8 @@
-// src/components/user/AccountProfile.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
+import { ProfileService } from "../../services/profileService";
 import apiService from "../../api/apiService";
 import { logoutHelper } from "../../utils/logoutHelper";
 
@@ -19,7 +19,7 @@ const StarRating = ({ rating, setRating }) => (
           key={i}
           onClick={() => setRating(value)}
           color={i < rating ? "#FFD700" : "#ccc"}
-          style={{ cursor: "pointer", fontSize: "1.2rem" }}
+          style={{ cursor: "pointer", fontSize: "1.5rem" }}
           role="radio"
           aria-checked={rating === value}
           tabIndex={0}
@@ -51,7 +51,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
-  // -------- Load Profile if not passed in --------
+  // -------- Load profile if not passed in --------
   useEffect(() => {
     if (externalProfile) {
       setProfileImage(externalProfile.profile_image_url || "");
@@ -63,9 +63,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
     const fetchData = async () => {
       try {
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
-          apiService.auth.getProfile(),
-          apiService.bookings.getUserBookings(),
-          apiService.auth.currentUserRole(),
+          ProfileService.get(),
+          apiService.bookings.user(),
+          ProfileService.currentRole(),
         ]);
 
         if (profileRes?.data) {
@@ -138,7 +138,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       const uploadData = await uploadRes.json();
       if (!uploadData.secure_url) throw new Error("No secure URL returned from Cloudinary.");
 
-      await apiService.auth.updateProfile({ profile_image_url: uploadData.secure_url });
+      await ProfileService.update({ profile_image_url: uploadData.secure_url });
 
       setProfileImage(uploadData.secure_url);
       setProfile((prev) => prev ? { ...prev, profile_image_url: uploadData.secure_url } : prev);
@@ -176,7 +176,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     try {
-      await apiService.auth.logout();
+      await apiService.accounts.logout();
     } catch (e) {
       console.warn("[AccountProfile] Logout endpoint error:", e);
     } finally {
@@ -220,7 +220,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
     );
   };
 
-  // -------- Review Services (dynamic + static) --------
   const bookedServices = [...new Set(bookings.map(b => b.service_type).filter(Boolean))];
   const staticServices = [
     "Live Band", "DJ", "Photography", "Videography", "Catering",
@@ -239,7 +238,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       </button>
 
       <div className="account-profile">
-        {/* Profile header */}
+        {/* Profile Header */}
         <div className="account-header">
           {profileImage ? (
             <img src={profileImage} alt="Profile" className="profile-image" />
@@ -258,7 +257,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
           </label>
         </div>
 
-        {/* User info */}
+        {/* User Info */}
         <section className="user-info">
           <h3>@{profile?.name || "Unknown User"}</h3>
           <p><strong>Name:</strong> {profile?.name || "N/A"}</p>
