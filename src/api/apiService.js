@@ -52,7 +52,7 @@ const addKebabAliases = (obj) => {
 };
 
 /**
- * Full backend API endpoints including blog.
+ * Full backend API endpoints.
  */
 const RAW_ENDPOINTS = {
   // ------------------- Media (public) -------------------
@@ -192,16 +192,25 @@ const RAW_ENDPOINTS = {
     logout: () => axiosInstance.post("/accounts/profile/logout/"),
     verifyOtp: withPublicPost("/accounts/verify-otp/"),
     resendOtp: withPublicPost("/accounts/resend-otp/"),
+
+    // Profile
     profile: withAuthGet("/accounts/profile/"),
+    updateProfile: (payload) => axiosInstance.put("/accounts/profile/", payload),
     changePassword: withAuthPost("/accounts/profile/change-password/"),
     currentRole: withAuthGet("/accounts/profile/role/"),
+
     roleChoices: withPublicGet("/accounts/role-choices/"),
     workerCategories: withPublicGet("/accounts/worker-categories/"),
+
     vendorProfile: withAuthGet("/accounts/profile/vendor/"),
     partnerProfile: withAuthGet("/accounts/profile/partner/"),
+
     resetPassword: withPublicPost("/accounts/reset-password/"),
     resetPasswordConfirm: (uidb64, token, payload) =>
-      publicAxios.post(`/accounts/reset-password-confirm/${uidb64}/${token}/`, payload),
+      publicAxios.post(
+        `/accounts/reset-password-confirm/${uidb64}/${token}/`,
+        payload
+      ),
     token: withPublicPost("/accounts/token/"),
     tokenRefresh: withPublicPost("/accounts/token/refresh/"),
     tokenVerify: withPublicPost("/accounts/token/verify/"),
