@@ -1,15 +1,44 @@
-/* === Account/Profile Page === */
+/* ======================================================
+   Account Profile Page Styling
+   Uses Global Theme Variables
+   ====================================================== */
+
 .account-profile-container {
   background-color: var(--color-white);
   color: var(--color-neutral-dark);
   padding: 60px 20px;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 850px;
+  margin: 40px auto;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   font-family: var(--font-main);
+  animation: fade-in 0.6s ease-out both;
+  position: relative;
 }
 
+/* -------- Close Button -------- */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: var(--color-accent-gold);
+  color: var(--color-white);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.close-btn:hover {
+  background-color: var(--color-accent-gold-dark);
+  transform: scale(1.1);
+}
+
+/* -------- Header & Profile Image -------- */
 .account-header {
   display: flex;
   flex-direction: column;
@@ -17,90 +46,291 @@
   margin-bottom: 30px;
 }
 
-.account-header h2 {
-  font-size: 2rem;
-  color: var(--color-secondary);
-  margin-bottom: 10px;
-}
-
-.account-profile-container .profile-image {
-  width: 150px;
-  height: 150px;
+.profile-image {
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   object-fit: cover;
   border: 4px solid var(--color-accent-gold);
   margin-bottom: 15px;
   box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
 }
 
-.account-profile-container .profile-info {
-  font-size: 1rem;
-  color: var(--color-neutral);
-  margin-bottom: 20px;
-  text-align: center;
+.profile-image:hover {
+  transform: scale(1.05);
 }
 
-.account-profile-container .profile-info p {
-  margin: 8px 0;
+.profile-initials {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  font-size: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  box-shadow: var(--shadow-sm);
+  text-transform: uppercase;
 }
 
-.account-profile-container .profile-info strong {
-  color: var(--color-primary);
-}
-
-.account-profile-container .upload-section {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.account-profile-container .upload-button {
-  padding: 10px 20px;
+/* -------- Upload Button -------- */
+.upload-button {
+  padding: 10px 22px;
   background-color: var(--color-primary);
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-md);
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
-.account-profile-container .upload-button:hover {
+.upload-button:hover {
   background-color: var(--color-primary-dark);
+  transform: scale(1.05);
 }
 
-.account-profile-container .file-input {
+/* -------- User Info -------- */
+.user-info {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.user-info h3 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  color: var(--color-secondary);
+}
+
+.user-info p {
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
+.user-info strong {
+  color: var(--color-primary);
+}
+
+.button-group {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.button-group button {
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  transition: all var(--transition-fast);
+}
+
+.button-group button:hover {
+  background-color: var(--color-secondary-dark);
+  transform: scale(1.05);
+}
+
+/* -------- Bookings Section -------- */
+.booking-section {
+  margin-bottom: 30px;
+}
+
+.booking-section h4 {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  color: var(--color-primary);
+}
+
+.booking-card {
+  background-color: var(--color-service-bg-light);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.booking-card:hover {
+  transform: translateY(-2px);
+}
+
+.empty-bookings {
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.empty-bookings img {
+  width: 120px;
+  margin-bottom: 12px;
+}
+
+/* -------- Review Section -------- */
+.review-section {
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.review-section label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--color-secondary-dark);
+}
+
+.review-section textarea,
+.review-section select {
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+  font-size: 1rem;
+  font-family: var(--font-main);
+  width: 100%;
+  resize: none;
+  transition: border-color var(--transition-fast);
+}
+
+.review-section textarea:focus,
+.review-section select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.review-section .btn {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 10px 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all var(--transition-fast);
+}
+
+.review-section .btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: scale(1.05);
+}
+
+/* -------- Logout Button -------- */
+.btn.danger {
+  background-color: var(--color-error);
+  color: var(--color-white);
+  padding: 10px 22px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
   margin-top: 10px;
-  font-size: 0.9rem;
-  color: var(--color-neutral-dark);
 }
 
-.account-profile-container .success-message {
-  margin-top: 15px;
-  color: var(--color-success);
-  font-weight: bold;
+.btn.danger:hover {
+  background-color: #b91c1c;
+  transform: scale(1.05);
 }
 
-.account-profile-container .error-message {
-  margin-top: 15px;
-  color: var(--color-error);
-  font-weight: bold;
+/* -------- Star Rating -------- */
+.star-rating {
+  display: flex;
+  gap: 5px;
+  margin: 5px 0 10px;
 }
 
+/* -------- Skeleton Loader -------- */
+.skeleton-loader {
+  text-align: center;
+  font-size: 1.2rem;
+  color: var(--color-muted);
+  padding: 40px 0;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* -------- Responsive -------- */
 @media (max-width: 768px) {
   .account-profile-container {
     padding: 40px 15px;
   }
 
-  .account-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .account-profile-container .profile-info {
-    font-size: 0.95rem;
-  }
-
-  .account-profile-container .profile-image {
+  .profile-image,
+  .profile-initials {
     width: 120px;
     height: 120px;
+    font-size: 2rem;
   }
+
+  .user-info h3 {
+    font-size: 1.4rem;
+  }
+
+  .booking-card {
+    padding: 10px 12px;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+/* -------- Profile Initials Hover & Pulse -------- */
+.profile-initials {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: pulse 2.5s infinite ease-in-out;
+}
+
+.profile-initials:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+}
+
+/* -------- Bookings Card Hover -------- */
+.booking-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-card:hover {
+  transform: translateY(-5px) rotateZ(-1deg) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* -------- Buttons Hover Pop -------- */
+.button-group button,
+.review-section .btn,
+.upload-button,
+.btn.danger {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color var(--transition-fast);
+}
+
+.button-group button:hover,
+.review-section .btn:hover,
+.upload-button:hover,
+.btn.danger:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* -------- Star Rating Hover Glow -------- */
+.star-rating svg {
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.star-rating svg:hover,
+.star-rating svg:hover ~ svg {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 4px #FFD700);
+}
+
+/* -------- Pulse Animation Keyframes (already in theme) -------- */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+  100% { transform: scale(1); opacity: 1; }
 }
