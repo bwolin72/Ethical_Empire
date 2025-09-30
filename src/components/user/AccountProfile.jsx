@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
-import { ProfileService } from "../../services/profileService";
+import { ProfileService } from "../../api/services/profileService";
 import apiService from "../../api/apiService";
 import { logoutHelper } from "../../utils/logoutHelper";
 
