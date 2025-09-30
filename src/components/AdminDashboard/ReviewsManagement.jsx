@@ -19,8 +19,9 @@ const ReviewsManagement = () => {
     const toastId = toast.loading("Loading reviews...");
     setLoading(true);
     try {
-      const res = await reviewService.getAllReviewsAdmin(); // Matches ReviewAdminListAPIView
-      const reviewsData = Array.isArray(res.data) ? res.data : [];
+      const res = await reviewService.getAllReviewsAdmin();
+      // Correctly get reviews from res.data.results
+      const reviewsData = Array.isArray(res.data.results) ? res.data.results : [];
       setReviews(reviewsData);
 
       toast.update(toastId, {
@@ -46,7 +47,7 @@ const ReviewsManagement = () => {
   const handleApprove = async (id) => {
     const toastId = toast.loading("Approving review...");
     try {
-      await reviewService.approveReview(id); // Matches ReviewApprovalAPIView
+      await reviewService.approveReview(id);
       toast.update(toastId, {
         render: "✅ Review approved",
         type: "success",
@@ -73,7 +74,7 @@ const ReviewsManagement = () => {
     }
     const toastId = toast.loading("Sending reply...");
     try {
-      await reviewService.replyToReview(id, { reply: replyText }); // Matches ReviewReplyAPIView
+      await reviewService.replyToReview(id, { reply: replyText });
       toast.update(toastId, {
         render: "✅ Reply sent",
         type: "success",
@@ -96,7 +97,7 @@ const ReviewsManagement = () => {
   const handleDelete = async (id) => {
     const toastId = toast.loading("Deleting review...");
     try {
-      await reviewService.deleteReview(id); // Matches ReviewDeleteAPIView
+      await reviewService.deleteReview(id);
       toast.update(toastId, {
         render: "🗑️ Review deleted",
         type: "success",
