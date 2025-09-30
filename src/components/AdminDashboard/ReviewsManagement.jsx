@@ -10,7 +10,7 @@ const ReviewsManagement = () => {
   const queryClient = useQueryClient();
   const [replyMap, setReplyMap] = useState({});
 
-  // Fetch reviews
+  // Fetch all reviews
   const { data: reviews = [], isLoading } = useQuery(
     ["reviews"],
     async () => {
@@ -25,7 +25,7 @@ const ReviewsManagement = () => {
     }
   );
 
-  // Approve mutation
+  // Approve review
   const approveMutation = useMutation(
     (id) => reviewService.approveReview(id),
     {
@@ -40,7 +40,7 @@ const ReviewsManagement = () => {
     }
   );
 
-  // Reply mutation
+  // Reply to review
   const replyMutation = useMutation(
     ({ id, reply }) => reviewService.replyToReview(id, { reply }),
     {
@@ -56,17 +56,20 @@ const ReviewsManagement = () => {
     }
   );
 
-  // Delete mutation
-  const deleteMutation = useMutation((id) => reviewService.deleteReview(id), {
-    onSuccess: () => {
-      toast.success("🗑️ Review deleted");
-      queryClient.invalidateQueries(["reviews"]);
-    },
-    onError: (err) => {
-      console.error("❌ Failed to delete review:", err);
-      toast.error("❌ Failed to delete review");
-    },
-  });
+  // Delete review
+  const deleteMutation = useMutation(
+    (id) => reviewService.deleteReview(id),
+    {
+      onSuccess: () => {
+        toast.success("🗑️ Review deleted");
+        queryClient.invalidateQueries(["reviews"]);
+      },
+      onError: (err) => {
+        console.error("❌ Failed to delete review:", err);
+        toast.error("❌ Failed to delete review");
+      },
+    }
+  );
 
   const handleReplyChange = (id, value) => {
     setReplyMap((prev) => ({ ...prev, [id]: value }));
