@@ -1,123 +1,84 @@
 // src/components/admin/ReviewsManagement.jsx
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import reviewService from "../../api/services/reviewService";
-import "./ReviewsManagement.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./ReviewsManagement.css";
 
 const ReviewsManagement = () => {
-  const [reviews, setReviews] = useState([]);
+  const queryClient = useQueryClient();
   const [replyMap, setReplyMap] = useState({});
-  const [loading, setLoading] = useState(false);
 
-  // Fetch all reviews on mount
-  useEffect(() => {
-    fetchReviews();
-  }, []);
-
-  const fetchReviews = async () => {
-    const toastId = toast.loading("Loading reviews...");
-    setLoading(true);
-    try {
+  // Fetch reviews
+  const { data: reviews = [], isLoading } = useQuery(
+    ["reviews"],
+    async () => {
       const res = await reviewService.getAllReviewsAdmin();
-      // Correctly get reviews from res.data.results
-      const reviewsData = Array.isArray(res.data.results) ? res.data.results : [];
-      setReviews(reviewsData);
-
-      toast.update(toastId, {
-        render: "✅ Reviews loaded",
-        type: "success",
-        isLoading: false,
-        autoClose: 2000,
-      });
-    } catch (err) {
-      console.error("❌ Failed to fetch reviews:", err);
-      toast.update(toastId, {
-        render: "❌ Failed to load reviews",
-        type: "error",
-        isLoading: false,
-        autoClose: 2000,
-      });
-      setReviews([]);
-    } finally {
-      setLoading(false);
+      return res?.data?.results || [];
+    },
+    {
+      onError: (err) => {
+        console.error("❌ Failed to fetch reviews:", err);
+        toast.error("❌ Failed to load reviews");
+      },
     }
-  };
+  );
 
-  const handleApprove = async (id) => {
-    const toastId = toast.loading("Approving review...");
-    try {
-      await reviewService.approveReview(id);
-      toast.update(toastId, {
-        render: "✅ Review approved",
-        type: "success",
-        isLoading: false,
-        autoClose: 2000,
-      });
-      fetchReviews();
-    } catch (err) {
-      console.error("❌ Failed to approve review:", err);
-      toast.update(toastId, {
-        render: "❌ Failed to approve review",
-        type: "error",
-        isLoading: false,
-        autoClose: 2000,
-      });
+  // Approve mutation
+  const approveMutation = useMutation(
+    (id) => reviewService.approveReview(id),
+    {
+      onSuccess: () => {
+        toast.success("✅ Review approved");
+        queryClient.invalidateQueries(["reviews"]);
+      },
+      onError: (err) => {
+        console.error("❌ Failed to approve review:", err);
+        toast.error("❌ Failed to approve review");
+      },
     }
-  };
+  );
 
-  const handleReply = async (id) => {
-    const replyText = replyMap[id];
-    if (!replyText || !replyText.trim()) {
-      toast.warning("⚠️ Reply cannot be empty.");
-      return;
+  // Reply mutation
+  const replyMutation = useMutation(
+    ({ id, reply }) => reviewService.replyToReview(id, { reply }),
+    {
+      onSuccess: (_, { id }) => {
+        toast.success("✅ Reply sent");
+        setReplyMap((prev) => ({ ...prev, [id]: "" }));
+        queryClient.invalidateQueries(["reviews"]);
+      },
+      onError: (err) => {
+        console.error("❌ Failed to send reply:", err);
+        toast.error("❌ Failed to send reply");
+      },
     }
-    const toastId = toast.loading("Sending reply...");
-    try {
-      await reviewService.replyToReview(id, { reply: replyText });
-      toast.update(toastId, {
-        render: "✅ Reply sent",
-        type: "success",
-        isLoading: false,
-        autoClose: 2000,
-      });
-      setReplyMap((prev) => ({ ...prev, [id]: "" }));
-      fetchReviews();
-    } catch (err) {
-      console.error("❌ Failed to send reply:", err);
-      toast.update(toastId, {
-        render: "❌ Failed to send reply",
-        type: "error",
-        isLoading: false,
-        autoClose: 2000,
-      });
-    }
-  };
+  );
 
-  const handleDelete = async (id) => {
-    const toastId = toast.loading("Deleting review...");
-    try {
-      await reviewService.deleteReview(id);
-      toast.update(toastId, {
-        render: "🗑️ Review deleted",
-        type: "success",
-        isLoading: false,
-        autoClose: 2000,
-      });
-      fetchReviews();
-    } catch (err) {
+  // Delete mutation
+  const deleteMutation = useMutation((id) => reviewService.deleteReview(id), {
+    onSuccess: () => {
+      toast.success("🗑️ Review deleted");
+      queryClient.invalidateQueries(["reviews"]);
+    },
+    onError: (err) => {
       console.error("❌ Failed to delete review:", err);
-      toast.update(toastId, {
-        render: "❌ Failed to delete review",
-        type: "error",
-        isLoading: false,
-        autoClose: 2000,
-      });
-    }
-  };
+      toast.error("❌ Failed to delete review");
+    },
+  });
 
   const handleReplyChange = (id, value) => {
     setReplyMap((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleReply = (id) => {
+    const reply = replyMap[id]?.trim();
+    if (!reply) {
+      toast.warning("⚠️ Reply cannot be empty.");
+      return;
+    }
+    replyMutation.mutate({ id, reply });
   };
 
   return (
@@ -125,7 +86,7 @@ const ReviewsManagement = () => {
       <ToastContainer position="top-right" autoClose={2000} />
       <h2>Reviews Management</h2>
 
-      {loading ? (
+      {isLoading ? (
         <p className="review-message">Loading reviews...</p>
       ) : reviews.length === 0 ? (
         <p className="review-message">No reviews available.</p>
@@ -142,7 +103,7 @@ const ReviewsManagement = () => {
             {r.reply && <p className="review-reply"><strong>Admin Reply:</strong> {r.reply}</p>}
 
             {!r.approved && (
-              <button className="approve-btn" onClick={() => handleApprove(r.id)}>
+              <button className="approve-btn" onClick={() => approveMutation.mutate(r.id)}>
                 ✅ Approve
               </button>
             )}
@@ -155,7 +116,7 @@ const ReviewsManagement = () => {
 
             <div className="review-actions">
               <button onClick={() => handleReply(r.id)}>💬 Reply</button>
-              <button onClick={() => handleDelete(r.id)}>🗑️ Delete</button>
+              <button onClick={() => deleteMutation.mutate(r.id)}>🗑️ Delete</button>
             </div>
           </div>
         ))
