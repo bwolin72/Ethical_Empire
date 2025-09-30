@@ -59,7 +59,7 @@ function SortableMediaCard({ item, toggleActive, toggleFeatured, deleteMedia, se
 }
 
 const MediaManagement = () => {
-  const [mediaType, setMediaType] = useState("media");
+  const [mediaType, setMediaType] = useState("media"); // media | banner | featured
   const [selectedEndpoints, setSelectedEndpoints] = useState(["EethmHome"]);
   const [files, setFiles] = useState([]);
   const [uploadedItems, setUploadedItems] = useState([]);
@@ -71,12 +71,11 @@ const MediaManagement = () => {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
-  // Fetch media from backend based on mediaType
   const fetchMedia = useCallback(async () => {
     try {
       let res;
-      if (mediaType === "featured") res = await mediaAPI.featured();
-      else if (mediaType === "banner") res = await mediaAPI.banners();
+      if (mediaType === "featured") res = await mediaAPI.featured({ endpoint: selectedEndpoints[0] });
+      else if (mediaType === "banner") res = await mediaAPI.banners({ endpoint: selectedEndpoints[0] });
       else res = await mediaAPI.all({ endpoint: selectedEndpoints[0] });
 
       const items = Array.isArray(res?.data) ? res.data : res?.data?.results ?? [];
@@ -145,6 +144,7 @@ const MediaManagement = () => {
   };
 
   const handleDragEnd = async (event) => {
+    if (mediaType !== "media") return; // Only media can be reordered
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const oldIndex = uploadedItems.findIndex(i => i.id === active.id);
@@ -164,17 +164,11 @@ const MediaManagement = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       <h2>Media Management ({mediaType})</h2>
 
-      {/* Media Type Switch */}
-      <div className="media-type-switch">
-        {["media", "banner", "featured"].map(type => (
-          <button
-            key={type}
-            className={mediaType === type ? "active-switch" : ""}
-            onClick={() => setMediaType(type)}
-          >
-            {type.charAt(0).toUpperCase() + type.slice(1)}
-          </button>
-        ))}
+      {/* Media type tabs */}
+      <div className="media-type-tabs">
+        <button className={mediaType === "media" ? "active" : ""} onClick={() => setMediaType("media")}>Media</button>
+        <button className={mediaType === "banner" ? "active" : ""} onClick={() => setMediaType("banner")}>Banners</button>
+        <button className={mediaType === "featured" ? "active" : ""} onClick={() => setMediaType("featured")}>Featured</button>
       </div>
 
       {/* Controls */}
@@ -182,21 +176,32 @@ const MediaManagement = () => {
         <input type="file" multiple accept="image/*,video/*,application/pdf,application/msword,text/*" onChange={handleFileChange} />
         <input type="text" placeholder="Enter media label" value={label} onChange={(e) => setLabel(e.target.value)} />
         <input type="text" placeholder="Search media..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-        {mediaType === "media" && (
-          <select multiple value={selectedEndpoints} onChange={(e) => setSelectedEndpoints(Array.from(e.target.selectedOptions, opt => opt.value))}>
-            {endpointsList.map(ep => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
-          </select>
-        )}
-        <button onClick={handleUpload} disabled={uploading || !files.length}>{uploading ? `Uploading ${uploadProgress}%...` : "Upload"}</button>
+        {/* Endpoint selection always visible */}
+        <select multiple value={selectedEndpoints} onChange={(e) => setSelectedEndpoints(Array.from(e.target.selectedOptions, opt => opt.value))}>
+          {endpointsList.map(ep => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
+        </select>
+        <button onClick={handleUpload} disabled={uploading || !files.length}>
+          {uploading ? `Uploading ${uploadProgress}%...` : "Upload"}
+        </button>
       </div>
 
-      {/* List */}
+      {/* Media list */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={uploadedItems.map(item => item.id)} strategy={verticalListSortingStrategy}>
           <div className="media-list">
-            {uploadedItems.filter(item => item.label?.toLowerCase().includes(searchQuery.toLowerCase())).map(item =>
-              <SortableMediaCard key={item.id} item={item} toggleActive={toggleActive} toggleFeatured={toggleFeatured} deleteMedia={deleteMedia} setPreviewItem={setPreviewItem} />
-            )}
+            {uploadedItems
+              .filter(item => item.label?.toLowerCase().includes(searchQuery.toLowerCase()))
+              .map(item => (
+                <SortableMediaCard
+                  key={item.id}
+                  item={item}
+                  toggleActive={toggleActive}
+                  toggleFeatured={toggleFeatured}
+                  deleteMedia={deleteMedia}
+                  setPreviewItem={setPreviewItem}
+                />
+              ))
+            }
           </div>
         </SortableContext>
       </DndContext>
