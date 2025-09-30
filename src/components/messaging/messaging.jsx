@@ -21,6 +21,7 @@ export default function MessagesPage({ currentUser }) {
   const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showForm, setShowForm] = useState(false);
+
   const [formData, setFormData] = useState({
     subject: "",
     message: "",
@@ -53,8 +54,12 @@ export default function MessagesPage({ currentUser }) {
     try {
       setLoading(true);
       const data = await messagingService.fetchMessages();
-      setMessages(data);
+
+      // ✅ FIX: Handle both array and paginated object formats
+      const messageList = Array.isArray(data) ? data : data?.results || [];
+      setMessages(messageList);
     } catch (err) {
+      console.error("Error fetching messages:", err);
       setError("Failed to load messages");
     } finally {
       setLoading(false);
@@ -125,6 +130,7 @@ export default function MessagesPage({ currentUser }) {
       });
       fetchMessages();
     } catch (err) {
+      console.error("Error sending message:", err);
       setError("Failed to send message");
     }
   }
@@ -169,6 +175,7 @@ export default function MessagesPage({ currentUser }) {
       {error && <p className="error-text">{error}</p>}
       {loading && <Loader2 className="loading-spinner" />}
 
+      {/* ✅ Form for new message */}
       {showForm && (
         <form onSubmit={handleSubmit} className="message-form">
           <Input
@@ -258,49 +265,55 @@ export default function MessagesPage({ currentUser }) {
         </form>
       )}
 
+      {/* ✅ Safe rendering of message list */}
       <div className="messages-list">
-        {messages.map((msg) => (
-          <Card key={msg.id} className="message-card">
-            <CardContent>
-              <div className="message-header">
-                <h2>{msg.subject}</h2>
-                <div className="message-actions">
-                  <Button size="sm" variant="ghost" onClick={() => setSelectedMessage(msg)}>
-                    <Eye className="icon" />
-                  </Button>
-                  {isAdmin && (
-                    <Button size="sm" variant="ghost" onClick={() => handleDelete(msg.id)}>
-                      <Trash2 className="icon" />
+        {Array.isArray(messages) && messages.length > 0 ? (
+          messages.map((msg) => (
+            <Card key={msg.id} className="message-card">
+              <CardContent>
+                <div className="message-header">
+                  <h2>{msg.subject}</h2>
+                  <div className="message-actions">
+                    <Button size="sm" variant="ghost" onClick={() => setSelectedMessage(msg)}>
+                      <Eye className="icon" />
                     </Button>
-                  )}
+                    {isAdmin && (
+                      <Button size="sm" variant="ghost" onClick={() => handleDelete(msg.id)}>
+                        <Trash2 className="icon" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <p>{msg.message.slice(0, 100)}...</p>
-              <div className="message-status">
-                {msg.is_read ? (
-                  <span className="status-read">
-                    <CheckCircle className="icon" /> Read
-                  </span>
-                ) : (
-                  <span className="status-unread">
-                    <XCircle className="icon" /> Unread
-                  </span>
-                )}
-                <Button size="sm" variant="outline" onClick={() => handleMarkRead(msg.id)}>
-                  Mark Read
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handleMarkUnread(msg.id)}>
-                  Mark Unread
-                </Button>
-              </div>
-              <p className="message-meta">
-                From: {msg.sender_name || msg.sender_email}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+                <p>{msg.message?.slice(0, 100)}...</p>
+                <div className="message-status">
+                  {msg.is_read ? (
+                    <span className="status-read">
+                      <CheckCircle className="icon" /> Read
+                    </span>
+                  ) : (
+                    <span className="status-unread">
+                      <XCircle className="icon" /> Unread
+                    </span>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => handleMarkRead(msg.id)}>
+                    Mark Read
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => handleMarkUnread(msg.id)}>
+                    Mark Unread
+                  </Button>
+                </div>
+                <p className="message-meta">
+                  From: {msg.sender_name || msg.sender_email || "Unknown Sender"}
+                </p>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <p>No messages found.</p>
+        )}
       </div>
 
+      {/* ✅ Modal for selected message */}
       {selectedMessage && (
         <div className="modal-overlay">
           <div className="modal-content">
