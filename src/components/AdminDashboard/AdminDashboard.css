@@ -1,156 +1,172 @@
-:root {
-  --deep-burgundy: #5a1a01;
-  --royal-navy: #001f3f;
-  --muted-gold: #c1a264;
-  --forest-green: #2d572c;
-  --charcoal-gray: #333333;
-  --light-bg: #f9f9f9;
-  --white: #ffffff;
-  --box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
+/* ======================================================
+   📊 Admin Dashboard — Modernized Styling
+   Uses global variables from variables.css
+   ====================================================== */
 
 /* === Dashboard Layout === */
-.admin-dashboard-preview {
+.admin-dashboard {
   padding: 2rem 1rem;
-  background-color: var(--light-bg);
+  background-color: var(--color-bg-light);
   min-height: 100vh;
+  font-family: var(--font-main);
+  color: var(--color-text-light);
 }
 
-.overview-grid {
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-family: var(--font-accent);
+}
+
+/* === Grid Layout === */
+.dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
 /* === Card Styling === */
-.overview-card {
-  background-color: var(--white);
-  border-left: 5px solid var(--deep-burgundy);
+.dashboard-card {
+  background-color: var(--color-white);
+  border-left: 5px solid var(--color-primary);
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: var(--box-shadow);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  animation: fade-in-up 0.5s ease both;
 }
 
-.overview-card:hover {
+.dashboard-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-lg);
 }
 
-.overview-card h2 {
-  color: var(--deep-burgundy);
+.dashboard-card h2 {
+  color: var(--color-primary-dark);
   font-size: 1.3rem;
   margin-bottom: 0.75rem;
+  font-family: var(--font-accent);
 }
 
-.overview-card p {
-  color: var(--charcoal-gray);
+.dashboard-card p {
+  color: var(--color-neutral);
   font-size: 1rem;
   margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+/* === Error State === */
+.error {
+  color: var(--color-error);
+  font-weight: 600;
 }
 
 /* === Buttons === */
-.overview-card button {
-  background-color: var(--forest-green);
-  color: var(--white);
+.dashboard-card button {
+  background: var(--color-accent-green);
+  color: var(--color-white);
   border: none;
   padding: 0.6rem 1rem;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
   align-self: flex-start;
 }
 
-.overview-card button:hover {
-  background-color: var(--deep-burgundy);
+.dashboard-card button:hover {
+  background-color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
-/* === Video Nav Buttons === */
-.video-nav {
+/* === Video Navigation Buttons === */
+.video-controls {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
-.video-nav button {
-  background-color: var(--royal-navy);
-  color: var(--white);
+.video-controls button {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
   padding: 0.4rem 0.8rem;
   font-size: 0.9rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
 }
 
-.video-nav button:hover {
-  background-color: var(--muted-gold);
-  color: var(--charcoal-gray);
+.video-controls button:hover {
+  background-color: var(--color-accent-gold);
+  color: var(--color-neutral-dark);
 }
 
-/* === Media Table === */
-.media-table {
+/* === Media Stats Table === */
+.media-stats {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1rem;
   font-size: 0.9rem;
 }
 
-.media-table th,
-.media-table td {
+.media-stats td {
   padding: 0.6rem;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-neutral);
 }
 
-.media-table th {
-  background-color: var(--muted-gold);
-  color: var(--charcoal-gray);
+.media-stats td:first-child {
   font-weight: 600;
+  color: var(--color-secondary-dark);
 }
 
-.media-table td {
-  color: var(--charcoal-gray);
-}
-
+/* === Responsive === */
 @media (max-width: 768px) {
-  .overview-card h2 {
+  .dashboard-card h2 {
     font-size: 1.15rem;
   }
 
-  .overview-card p,
-  .overview-card button {
+  .dashboard-card p,
+  .dashboard-card button {
     font-size: 0.95rem;
   }
 
-  .video-nav button {
+  .video-controls button {
     font-size: 0.85rem;
     padding: 0.3rem 0.7rem;
   }
 
-  .media-table th,
-  .media-table td {
+  .media-stats td {
     padding: 0.5rem;
     font-size: 0.85rem;
   }
 }
 
 @media (max-width: 480px) {
-  .overview-grid {
+  .dashboard-grid {
     grid-template-columns: 1fr;
   }
 
-  .overview-card {
+  .dashboard-card {
     padding: 1.2rem;
   }
 
-  .overview-card h2 {
+  .dashboard-card h2 {
     font-size: 1.1rem;
   }
 
-  .overview-card button {
+  .dashboard-card button {
     width: 100%;
     text-align: center;
   }
