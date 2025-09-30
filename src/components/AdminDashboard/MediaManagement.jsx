@@ -24,6 +24,7 @@ const endpointsList = [
 const MAX_FILE_SIZE_MB = 100;
 const ACCEPTED_FILE_TYPES = ["image/", "video/", "application/pdf", "application/msword", "text/"];
 
+// -------------------- Sortable Media Card --------------------
 function SortableMediaCard({ item, toggleActive, toggleFeatured, deleteMedia, setPreviewItem }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
@@ -31,8 +32,10 @@ function SortableMediaCard({ item, toggleActive, toggleFeatured, deleteMedia, se
   const renderPreview = (url) => {
     if (!url) return <span>Broken link</span>;
     const ext = url.split(".").pop().toLowerCase();
-    if (["mp4", "webm", "ogg"].includes(ext)) return <video src={url} controls className="media-preview" />;
-    if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) return <img src={url} alt="preview" className="media-preview" />;
+    if (["mp4", "webm", "ogg"].includes(ext))
+      return <video src={url} controls className="media-preview" />;
+    if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext))
+      return <img src={url} alt="preview" className="media-preview" />;
     return <a href={url} target="_blank" rel="noreferrer">Open File</a>;
   };
 
@@ -47,23 +50,32 @@ function SortableMediaCard({ item, toggleActive, toggleFeatured, deleteMedia, se
       <p className="media-label"><strong>{item.label || "No Label"}</strong></p>
       <p className="media-meta">Uploaded by: {item.uploaded_by || "—"}</p>
       <p className="media-meta">Date: {new Date(item.uploaded_at).toLocaleString()}</p>
-      {/* Display associated endpoints */}
+      {/* Endpoints as badges */}
       {item.endpoints && item.endpoints.length > 0 && (
-        <p className="media-meta">
-          Endpoints: {item.endpoints.join(", ")}
-        </p>
+        <div className="media-endpoints">
+          {item.endpoints.map(ep => (
+            <span key={ep} className="endpoint-badge">{ep}</span>
+          ))}
+        </div>
       )}
       <div className="media-actions">
         <p>Status: {item.is_active ? "✅ Active" : "❌ Inactive"}</p>
         {"is_featured" in item && <p>Featured: {item.is_featured ? "⭐ Yes" : "—"}</p>}
-        <button onClick={() => toggleActive(item.id)}>{item.is_active ? "Deactivate" : "Activate"}</button>
-        {"is_featured" in item && <button onClick={() => toggleFeatured(item.id)}>{item.is_featured ? "Unset Featured" : "Set as Featured"}</button>}
+        <button onClick={() => toggleActive(item.id)}>
+          {item.is_active ? "Deactivate" : "Activate"}
+        </button>
+        {"is_featured" in item && (
+          <button onClick={() => toggleFeatured(item.id)}>
+            {item.is_featured ? "Unset Featured" : "Set as Featured"}
+          </button>
+        )}
         <button onClick={() => deleteMedia(item.id)}>Delete</button>
       </div>
     </div>
   );
 }
 
+// -------------------- Main Component --------------------
 const MediaManagement = () => {
   const [mediaType, setMediaType] = useState("media");
   const [selectedEndpoints, setSelectedEndpoints] = useState(["EethmHome"]);
@@ -77,6 +89,7 @@ const MediaManagement = () => {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
+  // -------------------- Fetch Media --------------------
   const fetchMedia = useCallback(async (endpoints = selectedEndpoints) => {
     try {
       let allItems = [];
@@ -87,8 +100,8 @@ const MediaManagement = () => {
         else res = await mediaAPI.all({ endpoint });
 
         const items = Array.isArray(res?.data) ? res.data : res?.data?.results ?? [];
-        // Add endpoint info to each item for display
-        const itemsWithEndpoint = items.map(i => ({ ...i, endpoints: [endpoint] }));
+        // attach endpoint info
+        const itemsWithEndpoint = items.map(i => ({ ...i, endpoints: i.endpoints || [endpoint] }));
         allItems = [...allItems, ...itemsWithEndpoint];
       }
       setUploadedItems(allItems);
@@ -100,13 +113,16 @@ const MediaManagement = () => {
 
   useEffect(() => { fetchMedia(); }, [fetchMedia]);
 
+  // -------------------- File Upload --------------------
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
     const invalidFiles = selected.filter(file =>
       !ACCEPTED_FILE_TYPES.some(type => file.type.startsWith(type)) || file.size > MAX_FILE_SIZE_MB * 1024 * 1024
     );
     if (invalidFiles.length) {
-      invalidFiles.forEach(file => toast.warn(`${file.name} ${file.size > MAX_FILE_SIZE_MB*1024*1024 ? "exceeds 100MB" : "invalid type"}`, { autoClose: 5000 }));
+      invalidFiles.forEach(file =>
+        toast.warn(`${file.name} ${file.size > MAX_FILE_SIZE_MB*1024*1024 ? "exceeds 100MB" : "invalid type"}`, { autoClose: 5000 })
+      );
       return;
     }
     setFiles(selected);
@@ -133,6 +149,7 @@ const MediaManagement = () => {
     }
   };
 
+  // -------------------- Toggle Active / Featured --------------------
   const toggleActive = async (id) => {
     try {
       const { data } = await mediaAPI.toggle(id);
@@ -146,15 +163,24 @@ const MediaManagement = () => {
       const { data } = await mediaAPI.toggleFeatured(id);
       setUploadedItems(prev => prev.map(item => item.id === id ? { ...item, is_featured: data.is_featured } : item));
       toast.info(data.is_featured ? "Marked as featured." : "Unmarked.", { autoClose: 2500 });
-    } catch { toast.error("Feature toggle failed.", { autoClose: 3000 }); }
+    } catch (err) {
+      if (err.response?.status === 403)
+        toast.error("You don’t have permission to toggle featured.", { autoClose: 4000 });
+      else toast.error("Feature toggle failed.", { autoClose: 3000 });
+    }
   };
 
+  // -------------------- Delete Media --------------------
   const deleteMedia = async (id) => {
     if (!window.confirm("Delete this media?")) return;
-    try { await mediaAPI.delete(id); setUploadedItems(prev => prev.filter(item => item.id !== id)); toast.success("Media deleted.", { autoClose: 3000 }); }
-    catch { toast.error("Deletion failed.", { autoClose: 3000 }); }
+    try {
+      await mediaAPI.delete(id);
+      setUploadedItems(prev => prev.filter(item => item.id !== id));
+      toast.success("Media deleted.", { autoClose: 3000 });
+    } catch { toast.error("Deletion failed.", { autoClose: 3000 }); }
   };
 
+  // -------------------- Drag & Drop --------------------
   const handleDragEnd = async (event) => {
     if (mediaType !== "media") return;
     const { active, over } = event;
@@ -183,7 +209,7 @@ const MediaManagement = () => {
         <button className={mediaType === "featured" ? "active" : ""} onClick={() => setMediaType("featured")}>Featured</button>
       </div>
 
-      {/* Endpoint filter and Show All */}
+      {/* Endpoint filter + Show All */}
       <div className="endpoint-controls">
         <select multiple value={selectedEndpoints} onChange={(e) => setSelectedEndpoints(Array.from(e.target.selectedOptions, opt => opt.value))}>
           {endpointsList.map(ep => <option key={ep.value} value={ep.value}>{ep.label}</option>)}
@@ -206,7 +232,10 @@ const MediaManagement = () => {
         <SortableContext items={uploadedItems.map(item => item.id)} strategy={verticalListSortingStrategy}>
           <div className="media-list">
             {uploadedItems
-              .filter(item => item.label?.toLowerCase().includes(searchQuery.toLowerCase()))
+              .filter(item =>
+                item.label?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.endpoints.some(ep => ep.toLowerCase().includes(searchQuery.toLowerCase()))
+              )
               .map(item => (
                 <SortableMediaCard
                   key={item.id}
@@ -222,20 +251,32 @@ const MediaManagement = () => {
         </SortableContext>
       </DndContext>
 
-      {/* Preview */}
-      {previewItem && <div className="preview-overlay" onClick={() => setPreviewItem(null)}>
-        <div className="preview-content" onClick={e => e.stopPropagation()}>
-          <button onClick={() => setPreviewItem(null)} className="close-button">Close</button>
-          <h3>Preview</h3>
-          {(() => {
-            const url = previewItem.url?.full || previewItem.url?.thumb;
-            if (!url) return <span>No preview available</span>;
-            const ext = url.split(".").pop().toLowerCase();
-            if (["mp4", "webm", "ogg"].includes(ext)) return <video src={url} controls className="media-preview" />;
-            return <img src={url} alt="preview" className="media-preview" />;
-          })()}
+      {/* Preview Overlay */}
+      {previewItem && (
+        <div className="preview-overlay" onClick={() => setPreviewItem(null)}>
+          <div className="preview-content" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setPreviewItem(null)} className="close-button">Close</button>
+            <h3>Preview</h3>
+            {(() => {
+              const url = previewItem.url?.full || previewItem.url?.thumb;
+              if (!url) return <span>No preview available</span>;
+              const ext = url.split(".").pop().toLowerCase();
+              return (
+                <div>
+                  {["mp4", "webm", "ogg"].includes(ext) ? (
+                    <video src={url} controls className="media-preview" />
+                  ) : (
+                    <img src={url} alt="preview" className="media-preview" />
+                  )}
+                  <div style={{ marginTop: "8px" }}>
+                    <a href={url} download className="download-button">Download</a>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
         </div>
-      </div>}
+      )}
     </div>
   );
 };
