@@ -1,53 +1,116 @@
-// D:\New folder\ethical_empire\frontend\src\api\services\messagingService.js
-import messagingAPI from '../messagingAPI';
+// src/api/services/messagingService.js
+import messagingAPI from "../messagingAPI";
 
 const messagingService = {
-  // List all messages (optionally filtered)
+  /**
+   * 📩 Fetch all messages
+   * Handles both paginated (DRF default) and non-paginated responses safely.
+   * Optionally accepts filters.
+   */
   async fetchMessages(filters = {}) {
-    const res = await messagingAPI.listMessages(filters);
-    return res.data;
+    try {
+      const res = await messagingAPI.listMessages(filters);
+
+      // ✅ Handle DRF pagination: return array (data.results) or full data
+      const data = res?.data || [];
+      return Array.isArray(data) ? data : data?.results || [];
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      throw error;
+    }
   },
 
-  // List unread messages
+  /**
+   * 📥 Fetch only unread messages
+   */
   async fetchUnread(filters = {}) {
-    const res = await messagingAPI.listUnread(filters);
-    return res.data;
+    try {
+      const res = await messagingAPI.listUnread(filters);
+      const data = res?.data || [];
+      return Array.isArray(data) ? data : data?.results || [];
+    } catch (error) {
+      console.error("Error fetching unread messages:", error);
+      throw error;
+    }
   },
 
-  // Retrieve a single message by ID
+  /**
+   * 🔍 Retrieve a single message by ID
+   */
   async fetchMessage(id) {
-    const res = await messagingAPI.getMessage(id);
-    return res.data;
+    try {
+      const res = await messagingAPI.getMessage(id);
+      return res?.data;
+    } catch (error) {
+      console.error(`Error fetching message ${id}:`, error);
+      throw error;
+    }
   },
 
-  // Send a new message (FormData supports attachment)
+  /**
+   * ✉️ Send a new message (supports attachments)
+   */
   async sendMessage(formData) {
-    const res = await messagingAPI.createMessage(formData);
-    return res.data;
+    try {
+      const res = await messagingAPI.createMessage(formData);
+      return res?.data;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      throw error;
+    }
   },
 
-  // Update an existing message
+  /**
+   * 🛠️ Update an existing message
+   */
   async updateMessage(id, payload) {
-    const res = await messagingAPI.updateMessage(id, payload);
-    return res.data;
+    try {
+      const res = await messagingAPI.updateMessage(id, payload);
+      return res?.data;
+    } catch (error) {
+      console.error(`Error updating message ${id}:`, error);
+      throw error;
+    }
   },
 
-  // Delete a message
+  /**
+   * 🗑️ Delete a message
+   */
   async removeMessage(id) {
-    await messagingAPI.deleteMessage(id);
+    try {
+      await messagingAPI.deleteMessage(id);
+      return true;
+    } catch (error) {
+      console.error(`Error deleting message ${id}:`, error);
+      throw error;
+    }
   },
 
-  // Mark a message as read
+  /**
+   * ✅ Mark message as read
+   */
   async markAsRead(id) {
-    const res = await messagingAPI.markRead(id);
-    return res.data;
+    try {
+      const res = await messagingAPI.markRead(id);
+      return res?.data;
+    } catch (error) {
+      console.error(`Error marking message ${id} as read:`, error);
+      throw error;
+    }
   },
 
-  // Mark a message as unread
+  /**
+   * ❌ Mark message as unread
+   */
   async markAsUnread(id) {
-    const res = await messagingAPI.markUnread(id);
-    return res.data;
-  }
+    try {
+      const res = await messagingAPI.markUnread(id);
+      return res?.data;
+    } catch (error) {
+      console.error(`Error marking message ${id} as unread:`, error);
+      throw error;
+    }
+  },
 };
 
 export default messagingService;
