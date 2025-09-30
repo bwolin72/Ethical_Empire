@@ -1,111 +1,136 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import bookingService from '../../api/services/bookingService';
-import videoService from '../../api/services/videoService';
-import invoiceService from '../../api/services/invoiceService';
-import mediaService from '../../api/services/mediaService';
-import reviewService from '../../api/services/reviewService';
-import newsletterService from '../../api/services/newsletterService';
-import analyticsService from '../../api/services/analyticsService';
-import './AdminDashboard.css';
+import React, { useEffect, useState, useCallback } from "react";
+import bookingService from "../../api/services/bookingService";
+import videoService from "../../api/services/videoService";
+import invoiceService from "../../api/services/invoiceService";
+import mediaService from "../../api/services/mediaService";
+import reviewService from "../../api/services/reviewService";
+import newsletterService from "../../api/services/newsletterService";
+import analyticsService from "../../api/services/analyticsService";
+import "./AdminDashboard.css";
 
 const AdminDashboard = ({ setActiveTab }) => {
+  // ==== STATE ====
+  const [bookings, setBookings] = useState({ active: 0 });
+  const [videos, setVideos] = useState([]);
+  const [invoices, setInvoices] = useState({ pending: 0 });
   const [mediaStats, setMediaStats] = useState({});
   const [reviewCount, setReviewCount] = useState(0);
   const [newsletterStats, setNewsletterStats] = useState({ posts: 0, subscribers: 0 });
   const [analytics, setAnalytics] = useState({ visits: 0, users: 0 });
-  const [bookings, setBookings] = useState({ active: 0 });
-  const [videos, setVideos] = useState([]);
-  const [invoices, setInvoices] = useState({ pending: 0 });
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
-  // Fetch Bookings
+  // Loading & error states
+  const [loading, setLoading] = useState({});
+  const [error, setError] = useState({});
+
+  const setLoadingState = (key, value) => setLoading((prev) => ({ ...prev, [key]: value }));
+  const setErrorState = (key, value) => setError((prev) => ({ ...prev, [key]: value }));
+
+  // ==== FETCHERS ====
+
   const fetchBookings = async () => {
+    setLoadingState("bookings", true);
+    setErrorState("bookings", null);
     try {
       const res = await bookingService.list();
       const data = Array.isArray(res.data) ? res.data : [];
-      const activeCount = data.filter(b => b.status?.toLowerCase() === 'active').length;
+      const activeCount = data.filter((b) => b.status?.toLowerCase() === "active").length;
       setBookings({ active: activeCount });
     } catch (err) {
-      console.error('Failed to fetch bookings:', err);
-      setBookings({ active: 0 });
+      console.error("Bookings error:", err);
+      setErrorState("bookings", "Failed to fetch bookings");
+    } finally {
+      setLoadingState("bookings", false);
     }
   };
 
-  // Fetch Videos
   const fetchVideos = async () => {
+    setLoadingState("videos", true);
+    setErrorState("videos", null);
     try {
-      const res = await videoService.list();
-      setVideos(Array.isArray(res.data) ? res.data : []);
+      const res = await videoService.getAll();
+      setVideos(Array.isArray(res) ? res : []);
     } catch (err) {
-      console.error('Failed to fetch videos:', err);
-      setVideos([]);
+      console.error("Videos error:", err);
+      setErrorState("videos", "Failed to fetch videos");
+    } finally {
+      setLoadingState("videos", false);
     }
   };
 
-  // Fetch Invoices
   const fetchInvoices = async () => {
+    setLoadingState("invoices", true);
+    setErrorState("invoices", null);
     try {
-      const res = await invoiceService.list();
-      const data = Array.isArray(res.data) ? res.data : [];
-      const pendingCount = data.filter(inv => inv.status?.toLowerCase() === 'pending').length;
+      const res = await invoiceService.fetchInvoices();
+      const data = Array.isArray(res) ? res : [];
+      const pendingCount = data.filter((inv) => inv.status?.toLowerCase() === "pending").length;
       setInvoices({ pending: pendingCount });
     } catch (err) {
-      console.error('Failed to fetch invoices:', err);
-      setInvoices({ pending: 0 });
+      console.error("Invoices error:", err);
+      setErrorState("invoices", "Failed to fetch invoices");
+    } finally {
+      setLoadingState("invoices", false);
     }
   };
 
-  // Fetch Media Stats
   const fetchMediaStats = async () => {
+    setLoadingState("media", true);
+    setErrorState("media", null);
     try {
       const res = await mediaService.list();
       if (Array.isArray(res.data)) {
         setMediaStats({ totalMediaItems: res.data.length });
-      } else if (res.data && typeof res.data === 'object') {
+      } else if (res.data && typeof res.data === "object") {
         const safeStats = {};
         for (const [key, value] of Object.entries(res.data)) {
-          safeStats[key] = typeof value === 'object' ? JSON.stringify(value) : value;
+          safeStats[key] = typeof value === "object" ? JSON.stringify(value) : value;
         }
         setMediaStats(safeStats);
       } else {
         setMediaStats({});
       }
     } catch (err) {
-      console.error('Failed to fetch media stats:', err);
-      setMediaStats({});
+      console.error("Media error:", err);
+      setErrorState("media", "Failed to fetch media stats");
+    } finally {
+      setLoadingState("media", false);
     }
   };
 
-  // Fetch Reviews
-  const fetchReviewCount = async () => {
+  const fetchReviews = async () => {
+    setLoadingState("reviews", true);
+    setErrorState("reviews", null);
     try {
-      const res = await reviewService.list();
-      setReviewCount(Array.isArray(res.data) ? res.data.length : 0);
+      const res = await reviewService.getAllReviewsAdmin();
+      setReviewCount(Array.isArray(res) ? res.length : 0);
     } catch (err) {
-      console.error('Failed to fetch reviews:', err);
-      setReviewCount(0);
+      console.error("Reviews error:", err);
+      setErrorState("reviews", "Failed to fetch reviews");
+    } finally {
+      setLoadingState("reviews", false);
     }
   };
 
-  // Fetch Newsletter Stats
   const fetchNewsletterStats = async () => {
+    setLoadingState("newsletter", true);
+    setErrorState("newsletter", null);
     try {
-      const res = await newsletterService.logs();
-      const postsCount = Array.isArray(res.data?.posts)
-        ? res.data.posts.length
-        : Array.isArray(res.data)
-        ? res.data.length
-        : 0;
-      const subscriberCount = res.data?.subscriber_count || 0;
-      setNewsletterStats({ posts: postsCount, subscribers: subscriberCount });
+      const logs = await newsletterService.getNewsletterLogs();
+      const subscriberCount = await newsletterService.getSubscriberCount();
+      const postsCount = Array.isArray(logs) ? logs.length : 0;
+      setNewsletterStats({ posts: postsCount, subscribers: subscriberCount || 0 });
     } catch (err) {
-      console.error('Failed to fetch newsletter stats:', err);
-      setNewsletterStats({ posts: 0, subscribers: 0 });
+      console.error("Newsletter error:", err);
+      setErrorState("newsletter", "Failed to fetch newsletter stats");
+    } finally {
+      setLoadingState("newsletter", false);
     }
   };
 
-  // Fetch Analytics
   const fetchAnalytics = async () => {
+    setLoadingState("analytics", true);
+    setErrorState("analytics", null);
     try {
       const res = await analyticsService.site();
       setAnalytics({
@@ -113,18 +138,20 @@ const AdminDashboard = ({ setActiveTab }) => {
         users: res.data?.unique_users || 0,
       });
     } catch (err) {
-      console.error('Failed to fetch analytics:', err);
-      setAnalytics({ visits: 0, users: 0 });
+      console.error("Analytics error:", err);
+      setErrorState("analytics", "Failed to fetch analytics");
+    } finally {
+      setLoadingState("analytics", false);
     }
   };
 
-  // Fetch all
+  // ==== MASTER FETCH ====
   const fetchAllDashboardData = useCallback(() => {
     fetchBookings();
     fetchVideos();
     fetchInvoices();
     fetchMediaStats();
-    fetchReviewCount();
+    fetchReviews();
     fetchNewsletterStats();
     fetchAnalytics();
   }, []);
@@ -133,33 +160,45 @@ const AdminDashboard = ({ setActiveTab }) => {
     fetchAllDashboardData();
   }, [fetchAllDashboardData]);
 
+  // ==== VIDEO NAVIGATION ====
   const handlePrevVideo = () => {
-    setCurrentVideoIndex(prev => (prev - 1 + videos.length) % videos.length);
+    setCurrentVideoIndex((prev) => (prev - 1 + videos.length) % videos.length);
   };
-
   const handleNextVideo = () => {
-    setCurrentVideoIndex(prev => (prev + 1) % videos.length);
+    setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
   };
 
   return (
-    <div className="admin-dashboard-preview">
-      <h1 className="dashboard-heading">Admin Dashboard</h1>
-      <div className="overview-grid">
+    <div className="admin-dashboard">
+      <header className="dashboard-header">
+        <h1>Admin Dashboard</h1>
+      </header>
 
-        {/* Bookings */}
-        <div className="overview-card">
-          <h2>Bookings</h2>
-          <p>{bookings.active} active bookings</p>
-          <button onClick={() => setActiveTab?.('booking')}>Learn More</button>
-        </div>
+      <main className="dashboard-grid">
+        {/* BOOKINGS */}
+        <section className="dashboard-card">
+          <h2>📅 Bookings</h2>
+          {loading.bookings ? (
+            <p>Loading bookings...</p>
+          ) : error.bookings ? (
+            <p className="error">{error.bookings}</p>
+          ) : (
+            <p>{bookings.active} active bookings</p>
+          )}
+          <button onClick={() => setActiveTab?.("booking")}>View Bookings</button>
+        </section>
 
-        {/* Videos */}
-        <div className="overview-card">
-          <h2>Videos</h2>
-          {videos.length > 0 ? (
+        {/* VIDEOS */}
+        <section className="dashboard-card">
+          <h2>🎥 Videos</h2>
+          {loading.videos ? (
+            <p>Loading videos...</p>
+          ) : error.videos ? (
+            <p className="error">{error.videos}</p>
+          ) : videos.length > 0 ? (
             <>
-              <p>Currently showing: {videos[currentVideoIndex]?.title || 'Untitled Video'}</p>
-              <div className="video-nav">
+              <p>Currently showing: {videos[currentVideoIndex]?.title}</p>
+              <div className="video-controls">
                 <button onClick={handlePrevVideo}>Prev</button>
                 <button onClick={handleNextVideo}>Next</button>
               </div>
@@ -167,27 +206,31 @@ const AdminDashboard = ({ setActiveTab }) => {
           ) : (
             <p>No videos available</p>
           )}
-          <button onClick={() => setActiveTab?.('video')}>Learn More</button>
-        </div>
+          <button onClick={() => setActiveTab?.("video")}>Manage Videos</button>
+        </section>
 
-        {/* Invoices */}
-        <div className="overview-card">
-          <h2>Invoices</h2>
-          <p>{invoices.pending} invoices pending</p>
-          <button onClick={() => setActiveTab?.('invoice')}>Learn More</button>
-        </div>
+        {/* INVOICES */}
+        <section className="dashboard-card">
+          <h2>🧾 Invoices</h2>
+          {loading.invoices ? (
+            <p>Loading invoices...</p>
+          ) : error.invoices ? (
+            <p className="error">{error.invoices}</p>
+          ) : (
+            <p>{invoices.pending} invoices pending</p>
+          )}
+          <button onClick={() => setActiveTab?.("invoice")}>View Invoices</button>
+        </section>
 
-        {/* Media */}
-        <div className="overview-card">
-          <h2>Media Management</h2>
-          {mediaStats && Object.keys(mediaStats).length > 0 ? (
-            <table className="media-table">
-              <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th>Count</th>
-                </tr>
-              </thead>
+        {/* MEDIA */}
+        <section className="dashboard-card">
+          <h2>📁 Media</h2>
+          {loading.media ? (
+            <p>Loading media stats...</p>
+          ) : error.media ? (
+            <p className="error">{error.media}</p>
+          ) : Object.keys(mediaStats).length > 0 ? (
+            <table className="media-stats">
               <tbody>
                 {Object.entries(mediaStats).map(([key, value]) => (
                   <tr key={key}>
@@ -198,33 +241,54 @@ const AdminDashboard = ({ setActiveTab }) => {
               </tbody>
             </table>
           ) : (
-            <p>Loading media data...</p>
+            <p>No media data available</p>
           )}
-          <button onClick={() => setActiveTab?.('media')}>Learn More</button>
-        </div>
+          <button onClick={() => setActiveTab?.("media")}>Manage Media</button>
+        </section>
 
-        {/* Reviews */}
-        <div className="overview-card">
-          <h2>Reviews</h2>
-          <p>{reviewCount} reviews submitted</p>
-          <button onClick={() => setActiveTab?.('reviews')}>Learn More</button>
-        </div>
+        {/* REVIEWS */}
+        <section className="dashboard-card">
+          <h2>⭐ Reviews</h2>
+          {loading.reviews ? (
+            <p>Loading reviews...</p>
+          ) : error.reviews ? (
+            <p className="error">{error.reviews}</p>
+          ) : (
+            <p>{reviewCount} reviews submitted</p>
+          )}
+          <button onClick={() => setActiveTab?.("reviews")}>Manage Reviews</button>
+        </section>
 
-        {/* Newsletter */}
-        <div className="overview-card">
-          <h2>Newsletter</h2>
-          <p>{newsletterStats.posts} posts • {newsletterStats.subscribers} subscribers</p>
-          <button onClick={() => setActiveTab?.('newsletter')}>Learn More</button>
-        </div>
+        {/* NEWSLETTER */}
+        <section className="dashboard-card">
+          <h2>📬 Newsletter</h2>
+          {loading.newsletter ? (
+            <p>Loading newsletter stats...</p>
+          ) : error.newsletter ? (
+            <p className="error">{error.newsletter}</p>
+          ) : (
+            <p>
+              {newsletterStats.posts} posts • {newsletterStats.subscribers} subscribers
+            </p>
+          )}
+          <button onClick={() => setActiveTab?.("newsletter")}>View Newsletter</button>
+        </section>
 
-        {/* Analytics */}
-        <div className="overview-card">
-          <h2>Analytics</h2>
-          <p>{analytics.visits} visits • {analytics.users} users</p>
-          <button onClick={() => setActiveTab?.('analytics')}>View Analytics</button>
-        </div>
-
-      </div>
+        {/* ANALYTICS */}
+        <section className="dashboard-card">
+          <h2>📊 Analytics</h2>
+          {loading.analytics ? (
+            <p>Loading analytics...</p>
+          ) : error.analytics ? (
+            <p className="error">{error.analytics}</p>
+          ) : (
+            <p>
+              {analytics.visits} visits • {analytics.users} users
+            </p>
+          )}
+          <button onClick={() => setActiveTab?.("analytics")}>View Analytics</button>
+        </section>
+      </main>
     </div>
   );
 };
