@@ -12,6 +12,8 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // <-- React Query
+
 import "./components/styles/variables.css";
 import "./pdfjs-setup"; // PDF.js Worker Setup
 
@@ -273,16 +275,20 @@ const AppWithSplash = () => {
 // Root App
 // ==============================
 function App() {
+  const queryClient = new QueryClient(); // <-- Create React Query client
+
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-      <Router>
-        <AuthProvider>
-          <ProfileProvider>
-            <AppWithSplash />
-          </ProfileProvider>
-          <DebugWrapper />
-        </AuthProvider>
-      </Router>
+      <QueryClientProvider client={queryClient}> {/* <-- Wrap app */}
+        <Router>
+          <AuthProvider>
+            <ProfileProvider>
+              <AppWithSplash />
+            </ProfileProvider>
+            <DebugWrapper />
+          </AuthProvider>
+        </Router>
+      </QueryClientProvider>
     </GoogleOAuthProvider>
   );
 }
