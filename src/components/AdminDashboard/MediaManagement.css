@@ -1,21 +1,16 @@
-:root {
-  --deep-burgundy: #5a1a01;
-  --royal-navy: #001f3f;
-  --muted-gold: #c1a264;
-  --forest-green: #2d572c;
-  --charcoal-gray: #333333;
-  --light-bg: #f9f9f9;
-  --white: #ffffff;
-  --box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-}
+/* ======================================================
+   MediaManagement Responsive Styles
+   ====================================================== */
 
-/* === Dashboard Layout === */
+/* === Layout === */
 .admin-dashboard-preview {
   padding: 2rem 1rem;
-  background-color: var(--light-bg);
+  background-color: var(--color-bg-light);
   min-height: 100vh;
+  font-family: var(--font-main);
 }
 
+/* === Media Controls (Upload, Search, Endpoint Filter) === */
 .media-controls {
   display: flex;
   flex-wrap: wrap;
@@ -28,26 +23,41 @@
 .media-controls select,
 .media-controls input[type="text"] {
   padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
   font-size: 0.95rem;
+  background-color: var(--color-input-bg);
 }
 
 .media-controls button {
-  background-color: var(--forest-green);
-  color: var(--white);
+  background-color: var(--color-accent-green);
+  color: var(--color-white);
   border: none;
   padding: 0.6rem 1rem;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .media-controls button:hover {
-  background-color: var(--deep-burgundy);
+  background-color: var(--color-primary-dark);
 }
 
+/* Endpoint filter and Show All button */
+.endpoint-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.endpoint-controls select {
+  min-width: 150px;
+  max-width: 250px;
+}
+
+/* === Search Bar === */
 .media-search-bar {
   margin: 1rem 0;
   display: flex;
@@ -58,8 +68,9 @@
   padding: 0.5rem;
   width: 300px;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background-color: var(--color-input-bg);
 }
 
 /* === Media Cards === */
@@ -70,15 +81,15 @@
 }
 
 .media-card {
-  background-color: var(--white);
-  border: 1px solid #e1e1e1;
-  border-radius: 10px;
-  box-shadow: var(--box-shadow);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   padding: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s ease;
+  transition: transform var(--transition-fast);
 }
 
 .media-card:hover {
@@ -86,19 +97,29 @@
 }
 
 .media-label {
-  color: var(--charcoal-gray);
+  color: var(--color-text-light);
   font-size: 1rem;
   margin: 0.5rem 0;
   text-align: center;
 }
 
+.media-meta {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin: 0.2rem 0;
+  text-align: center;
+}
+
+/* Preview inside card */
 .media-preview {
   max-width: 100%;
   max-height: 200px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin-bottom: 1rem;
+  object-fit: cover;
 }
 
+/* === Media Actions Buttons === */
 .media-actions {
   display: flex;
   gap: 0.5rem;
@@ -107,19 +128,19 @@
 }
 
 .media-actions button {
-  background-color: var(--forest-green);
-  color: var(--white);
+  background-color: var(--color-accent-green);
+  color: var(--color-white);
   border: none;
   padding: 0.5rem 0.9rem;
   font-size: 0.85rem;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .media-actions button:hover {
-  background-color: var(--deep-burgundy);
+  background-color: var(--color-primary-dark);
 }
 
 /* === Upload Progress === */
@@ -136,10 +157,15 @@
   margin-top: 0.5rem;
 }
 
-/* === Drag Overlay (DND-Kit specific) === */
-.dnd-dragging {
-  opacity: 0.5;
-  transform: scale(0.98);
+/* === Drag Handle === */
+.drag-handle {
+  font-size: 1.5rem;
+  cursor: grab;
+  padding: 0.2rem 0.4rem;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 /* === Preview Modal === */
@@ -157,38 +183,42 @@
 }
 
 .preview-content {
-  background: white;
+  background-color: var(--color-white);
   padding: 2rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-lg);
   max-width: 90%;
   max-height: 90%;
   overflow-y: auto;
   position: relative;
-  box-shadow: var(--box-shadow);
+  box-shadow: var(--shadow-lg);
 }
 
 .preview-content img,
 .preview-content video {
   max-width: 100%;
   max-height: 70vh;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
 }
 
 .close-button {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: crimson;
-  color: white;
+  background-color: var(--color-error);
+  color: var(--color-white);
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 
 /* === Responsive === */
+
+/* Tablets & small devices */
 @media (max-width: 768px) {
-  .media-controls {
+  .media-controls,
+  .endpoint-controls {
     flex-direction: column;
     align-items: stretch;
   }
@@ -213,7 +243,8 @@
   }
 }
 
-@media (max-width: 360px) {
+/* Extra small phones */
+@media (max-width: 480px) {
   .media-card {
     padding: 0.75rem;
   }
@@ -222,4 +253,42 @@
     font-size: 0.75rem;
     padding: 0.4rem 0.6rem;
   }
+
+  .media-preview {
+    max-height: 150px;
+  }
+
+  .drag-handle {
+    font-size: 1.8rem;
+  }
+
+  .endpoint-controls select {
+    font-size: 0.85rem;
+  }
+}
+
+/* Ultra small screens (≤320px) */
+@media (max-width: 320px) {
+  .media-card {
+    padding: 0.5rem;
+  }
+
+  .media-actions button {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .media-preview {
+    max-height: 120px;
+  }
+
+  .media-controls select[multiple] {
+    font-size: 0.8rem;
+  }
+}
+
+/* === DND-Kit Dragging === */
+.dnd-dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
 }
