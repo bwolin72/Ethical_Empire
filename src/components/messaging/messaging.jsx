@@ -50,7 +50,21 @@ export default function MessagesPage({ currentUser }) {
     { value: "yard", label: "Yard" },
   ];
 
-  // ---------- Role checks ----------
+  // ------------------- Robust User Checks -------------------
+  const getUserId = (user) => {
+    if (!user) return null;
+    return (
+      user.id ??
+      user.pk ??
+      user.user?.id ??
+      user.user?.pk ??
+      null
+    );
+  };
+
+  const userId = getUserId(currentUser);
+  const isAuthenticated = Boolean(userId);
+
   const normalizeRole = (r) =>
     typeof r === "string" && r ? r.trim().toLowerCase() : "";
 
@@ -60,20 +74,16 @@ export default function MessagesPage({ currentUser }) {
   const isWorker = roleStr === "worker" || Boolean(currentUser?.is_worker);
   const isVendor = roleStr === "vendor" || Boolean(currentUser?.is_vendor);
   const isPartner = roleStr === "partner" || Boolean(currentUser?.is_partner);
-  const isAuthenticated = Boolean(
-    currentUser && (currentUser.id || currentUser.pk || currentUser.email)
-  );
 
   const isSender = (msg) => {
-    if (!currentUser) return false;
-    const uid = String(currentUser?.id ?? currentUser?.pk ?? "");
+    if (!userId) return false;
     if (typeof msg.sender === "object") {
-      return String(msg.sender?.id ?? msg.sender?.pk ?? "") === uid;
+      return String(msg.sender?.id ?? msg.sender?.pk ?? "") === String(userId);
     }
-    return String(msg.sender) === uid;
+    return String(msg.sender) === String(userId);
   };
 
-  // ---------- Fetch messages ----------
+  // ------------------- Fetch Messages -------------------
   const fetchMessages = async () => {
     try {
       setLoading(true);
@@ -107,6 +117,7 @@ export default function MessagesPage({ currentUser }) {
 
   useEffect(() => {
     if (!isAuthenticated) return;
+
     fetchMessages();
     fetchUnreadCountAndNotify({ notifyNew: false });
 
@@ -119,7 +130,7 @@ export default function MessagesPage({ currentUser }) {
     };
   }, [currentUser]);
 
-  // ---------- Form handlers ----------
+  // ------------------- Form Handlers -------------------
   const handleChange = (e) => {
     const { name, value, files, type, checked } = e.target;
     if (files) {
@@ -130,7 +141,10 @@ export default function MessagesPage({ currentUser }) {
       }
       setFormData((prev) => ({ ...prev, [name]: file }));
     } else if (type === "checkbox") {
-      setFormData((prev) => ({ ...prev, [name]: checked ? value : "" }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: checked ? value : "",
+      }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -156,6 +170,7 @@ export default function MessagesPage({ currentUser }) {
       setError("You must be signed in to send a message.");
       return;
     }
+
     if (formData.service_type === "rental" && formData.rental_categories.length === 0) {
       setError("Please select at least one rental category.");
       return;
@@ -187,6 +202,7 @@ export default function MessagesPage({ currentUser }) {
         vendor_agency_name: "",
         equipment_list: "",
       });
+
       await fetchMessages();
       await fetchUnreadCountAndNotify({ notifyNew: false });
     } catch (err) {
@@ -195,7 +211,7 @@ export default function MessagesPage({ currentUser }) {
     }
   };
 
-  // ---------- Actions ----------
+  // ------------------- Actions -------------------
   const handleDelete = async (id, msg) => {
     if (!(isAdmin || isSender(msg))) {
       setError("You don't have permission to delete this message.");
@@ -238,7 +254,7 @@ export default function MessagesPage({ currentUser }) {
     }
   };
 
-  // ---------- Render helpers ----------
+  // ------------------- Render Helpers -------------------
   const canSendMessage = isAuthenticated;
   const showPartnerFields = isPartner || isAdmin;
   const showVendorFields = isVendor || isAdmin;
