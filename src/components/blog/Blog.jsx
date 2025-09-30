@@ -3,7 +3,7 @@ import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
 import PublicBlogService from "../../api/services/publicBlogService";
-import SocialHub from "../social/SocialHub"; // Social media section
+import SocialHub from "../social/SocialHub";
 import "./blog.css";
 
 // ==========================
@@ -24,11 +24,11 @@ export function BlogList() {
     async function fetchData() {
       setLoading(true);
       try {
-        // Fetch posts (latest)
+        // Fetch latest posts
         const fetchedPosts = await PublicBlogService.getLatestPosts();
         setPosts(Array.isArray(fetchedPosts) ? fetchedPosts : []);
 
-        // Fetch all categories
+        // Fetch categories
         const fetchedCategories = await PublicBlogService.getCategories();
         setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
 
@@ -114,6 +114,7 @@ export function BlogList() {
 // ==========================
 export function BlogDetail() {
   const { slug } = useParams();
+
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentContent, setCommentContent] = useState("");
@@ -133,8 +134,8 @@ export function BlogDetail() {
         const fetchedComments = await PublicBlogService.getComments(slug);
         setComments(Array.isArray(fetchedComments) ? fetchedComments : []);
 
-        // Fetch social media posts related to this post
-        const fetchedSocialPosts = await PublicBlogService.getSocialPosts(slug);
+        // Fetch global social media posts
+        const fetchedSocialPosts = await PublicBlogService.getSocialPosts();
         setSocialPosts(Array.isArray(fetchedSocialPosts) ? fetchedSocialPosts : []);
       } catch (err) {
         console.error("Failed to fetch post data:", err);
@@ -167,11 +168,13 @@ export function BlogDetail() {
     <div className="blog-detail-container">
       <h1 className="blog-detail-title">{post.title}</h1>
       <p className="blog-detail-meta">
-        {new Date(post.created_at).toLocaleDateString()} | {post.category?.name}
+        {new Date(post.publish_date || post.created_at).toLocaleDateString()} | {post.category?.name}
       </p>
+
       {post.featured_image && (
         <img src={post.featured_image} alt={post.title} className="blog-detail-image" />
       )}
+
       <div
         className="blog-detail-content"
         dangerouslySetInnerHTML={{ __html: post.content }}
@@ -190,6 +193,7 @@ export function BlogDetail() {
           />
         </div>
       )}
+
       {post.tiktok_url && (
         <blockquote
           className="tiktok-embed"
