@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import BlogService from "../../api/services/blogService";
 import { Button } from "../ui/Button";
 import { Card, CardContent } from "../ui/Card";
-import { Trash, Edit, Save, Check, ChevronRight } from "lucide-react";
+import { Trash, Edit, Save, Check, RefreshCw } from "lucide-react";
 import "./blog-admin.css";
 
 export default function BlogAdmin() {
@@ -26,10 +26,9 @@ export default function BlogAdmin() {
     youtube_url: "",
     tiktok_url: "",
   });
-
   const [categoryForm, setCategoryForm] = useState({ name: "" });
   const [openComments, setOpenComments] = useState({});
-  const [inlineEdit, setInlineEdit] = useState({}); // for inline post editing per post
+  const [inlineEdit, setInlineEdit] = useState({}); // per post
 
   const token = localStorage.getItem("token");
 
@@ -42,8 +41,8 @@ export default function BlogAdmin() {
     try {
       const fetchedPosts = await BlogService.getPosts();
       const fetchedCategories = await BlogService.getCategories();
-
       const commentsObj = {};
+
       for (const post of fetchedPosts) {
         const postComments = await BlogService.getComments(post.slug);
         commentsObj[post.slug] = postComments;
@@ -60,7 +59,7 @@ export default function BlogAdmin() {
     }
   };
 
-  // ================= Post Handlers =================
+  // ---------------- Post Handlers ----------------
   const handlePostChange = (e) => {
     const { name, value, files } = e.target;
     setPostForm((prev) => ({ ...prev, [name]: files ? files[0] : value }));
@@ -147,7 +146,17 @@ export default function BlogAdmin() {
     }
   };
 
-  // ================= Category Handlers =================
+  const handleSyncSocial = async (slug) => {
+    try {
+      await BlogService.syncSocialPost(slug);
+      alert("Social sync queued successfully.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to sync social post.");
+    }
+  };
+
+  // ---------------- Category Handlers ----------------
   const handleCategoryChange = (e) => setCategoryForm({ name: e.target.value });
 
   const handleCategorySubmit = async (e) => {
@@ -183,7 +192,7 @@ export default function BlogAdmin() {
     }
   };
 
-  // ================= Comment Handlers =================
+  // ---------------- Comment Handlers ----------------
   const toggleComments = (postSlug) => {
     setOpenComments((prev) => ({ ...prev, [postSlug]: !prev[postSlug] }));
   };
@@ -256,66 +265,23 @@ export default function BlogAdmin() {
 
         {/* Add/Edit Post Form */}
         <form onSubmit={handlePostSubmit} className="mb-6 grid gap-4">
-          <input
-            type="text"
-            name="title"
-            value={postForm.title}
-            onChange={handlePostChange}
-            placeholder="Post Title"
-            className="p-2 border rounded-lg"
-            required
-          />
-          <select
-            name="category_id"
-            value={postForm.category_id}
-            onChange={handlePostChange}
-            className="p-2 border rounded-lg"
-          >
+          <input type="text" name="title" value={postForm.title} onChange={handlePostChange} placeholder="Post Title" className="p-2 border rounded-lg" required />
+          <select name="category_id" value={postForm.category_id} onChange={handlePostChange} className="p-2 border rounded-lg">
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
-          <textarea
-            name="content"
-            value={postForm.content}
-            onChange={handlePostChange}
-            placeholder="Post Content (HTML allowed)"
-            className="p-2 border rounded-lg"
-            rows={5}
-            required
-          />
+          <textarea name="content" value={postForm.content} onChange={handlePostChange} placeholder="Post Content (HTML allowed)" className="p-2 border rounded-lg" rows={5} required />
           <input type="file" name="featured_image" onChange={handlePostChange} />
-          <input
-            type="url"
-            name="youtube_url"
-            value={postForm.youtube_url}
-            onChange={handlePostChange}
-            placeholder="YouTube URL"
-            className="p-2 border rounded-lg"
-          />
-          <input
-            type="url"
-            name="tiktok_url"
-            value={postForm.tiktok_url}
-            onChange={handlePostChange}
-            placeholder="TikTok URL"
-            className="p-2 border rounded-lg"
-          />
+          <input type="url" name="youtube_url" value={postForm.youtube_url} onChange={handlePostChange} placeholder="YouTube URL" className="p-2 border rounded-lg" />
+          <input type="url" name="tiktok_url" value={postForm.tiktok_url} onChange={handlePostChange} placeholder="TikTok URL" className="p-2 border rounded-lg" />
           <select name="status" value={postForm.status} onChange={handlePostChange} className="p-2 border rounded-lg">
             <option value={0}>Draft</option>
             <option value={1}>Published</option>
             <option value={2}>Scheduled</option>
           </select>
-          <input
-            type="datetime-local"
-            name="publish_date"
-            value={postForm.publish_date}
-            onChange={handlePostChange}
-            className="p-2 border rounded-lg"
-          />
+          <input type="datetime-local" name="publish_date" value={postForm.publish_date} onChange={handlePostChange} className="p-2 border rounded-lg" />
           <Button type="submit">
             <Save className="w-4 h-4 mr-1" />
             {editingPost ? "Update Post" : "Add Post"}
@@ -328,61 +294,27 @@ export default function BlogAdmin() {
             const isEditing = !!inlineEdit[post.slug];
             return (
               <Card key={post.id} className="shadow-md rounded-2xl overflow-hidden">
-                {post.featured_image && (
-                  <img src={post.featured_image} alt={post.title} className="w-full h-48 object-cover" />
-                )}
+                {post.featured_image && <img src={post.featured_image} alt={post.title} className="w-full h-48 object-cover" />}
                 <CardContent className="p-4">
                   {isEditing ? (
                     <div className="grid gap-2">
-                      <input
-                        type="text"
-                        value={inlineEdit[post.slug].title}
-                        onChange={(e) => handleInlineEditChange(post.slug, "title", e.target.value)}
-                        className="p-2 border rounded-lg"
-                      />
-                      <select
-                        value={inlineEdit[post.slug].category_id}
-                        onChange={(e) => handleInlineEditChange(post.slug, "category_id", e.target.value)}
-                        className="p-2 border rounded-lg"
-                      >
+                      <input type="text" value={inlineEdit[post.slug].title} onChange={(e) => handleInlineEditChange(post.slug, "title", e.target.value)} className="p-2 border rounded-lg" />
+                      <select value={inlineEdit[post.slug].category_id} onChange={(e) => handleInlineEditChange(post.slug, "category_id", e.target.value)} className="p-2 border rounded-lg">
                         <option value="">Select Category</option>
                         {categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </option>
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
                         ))}
                       </select>
-                      <textarea
-                        value={inlineEdit[post.slug].content}
-                        onChange={(e) => handleInlineEditChange(post.slug, "content", e.target.value)}
-                        className="p-2 border rounded-lg"
-                        rows={4}
-                      />
-                      <select
-                        value={inlineEdit[post.slug].status}
-                        onChange={(e) => handleInlineEditChange(post.slug, "status", e.target.value)}
-                        className="p-2 border rounded-lg"
-                      >
+                      <textarea value={inlineEdit[post.slug].content} onChange={(e) => handleInlineEditChange(post.slug, "content", e.target.value)} className="p-2 border rounded-lg" rows={4} />
+                      <select value={inlineEdit[post.slug].status} onChange={(e) => handleInlineEditChange(post.slug, "status", e.target.value)} className="p-2 border rounded-lg">
                         <option value={0}>Draft</option>
                         <option value={1}>Published</option>
                         <option value={2}>Scheduled</option>
                       </select>
-                      <input
-                        type="datetime-local"
-                        value={inlineEdit[post.slug].publish_date}
-                        onChange={(e) => handleInlineEditChange(post.slug, "publish_date", e.target.value)}
-                        className="p-2 border rounded-lg"
-                      />
+                      <input type="datetime-local" value={inlineEdit[post.slug].publish_date} onChange={(e) => handleInlineEditChange(post.slug, "publish_date", e.target.value)} className="p-2 border rounded-lg" />
                       <div className="flex gap-2 mt-2">
-                        <Button onClick={() => handleInlineSave(post)} variant="primary">
-                          <Save className="w-4 h-4 mr-1" /> Save
-                        </Button>
-                        <Button
-                          onClick={() => setInlineEdit((prev) => ({ ...prev, [post.slug]: null }))}
-                          variant="destructive"
-                        >
-                          Cancel
-                        </Button>
+                        <Button onClick={() => handleInlineSave(post)} variant="primary"><Save className="w-4 h-4 mr-1" /> Save</Button>
+                        <Button onClick={() => setInlineEdit((prev) => ({ ...prev, [post.slug]: null }))} variant="destructive">Cancel</Button>
                       </div>
                     </div>
                   ) : (
@@ -390,54 +322,36 @@ export default function BlogAdmin() {
                       <h3 className="text-lg font-bold mb-2">{post.title}</h3>
                       <p className="text-gray-600 mb-2">{post.category?.name}</p>
                       <p className="text-gray-500 mb-4">{post.content.slice(0, 100)}...</p>
-                      <div className="flex gap-2 mb-4">
-                        <Button onClick={() => handleEditPostInline(post)} variant="outline">
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button onClick={() => handleDeletePost(post.slug)} variant="destructive">
-                          <Trash className="w-4 h-4" />
-                        </Button>
+                      <div className="flex gap-2 mb-2">
+                        <Button onClick={() => handleEditPostInline(post)} variant="outline"><Edit className="w-4 h-4" /></Button>
+                        <Button onClick={() => handleDeletePost(post.slug)} variant="destructive"><Trash className="w-4 h-4" /></Button>
+                        <Button onClick={() => handleSyncSocial(post.slug)} variant="secondary"><RefreshCw className="w-4 h-4" /> Sync</Button>
+                      </div>
+
+                      {/* Comments */}
+                      <div className="comment-wrapper mb-2">
+                        <div className="comment-header cursor-pointer" onClick={() => toggleComments(post.slug)}>
+                          <span>Comments ({(comments[post.slug] || []).length})</span>
+                        </div>
+                        {openComments[post.slug] && (
+                          <div className="comment-content flex flex-col gap-2 mt-2">
+                            {(comments[post.slug] || []).map((c) => (
+                              <div key={c.id} className="border-l-2 border-primary-light pl-2 py-1 flex justify-between items-center">
+                                <div>
+                                  <p className="font-semibold">{c.user || c.guest_name || "Guest"}</p>
+                                  <p className="text-sm text-gray-600">{c.content}</p>
+                                </div>
+                                <div className="flex gap-1">
+                                  {!c.approved && <Button onClick={() => handleApproveComment(post.slug, c.id)} variant="primary"><Check className="w-4 h-4" /></Button>}
+                                  <Button onClick={() => handleDeleteComment(post.slug, c.id)} variant="destructive"><Trash className="w-4 h-4" /></Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
-
-                  {/* Comments */}
-                  <div className="comment-wrapper mb-2">
-                    <div className="comment-header cursor-pointer" onClick={() => toggleComments(post.slug)}>
-                      <span>Comments ({(comments[post.slug] || []).length})</span>
-                      <span className={`comment-toggle ${openComments[post.slug] ? "open" : ""}`}>
-                        <ChevronRight className="w-4 h-4" />
-                      </span>
-                    </div>
-                    {openComments[post.slug] && (
-                      <div className="comment-content flex flex-col gap-2 mt-2">
-                        {(comments[post.slug] || []).map((c) => (
-                          <div
-                            key={c.id}
-                            className="border-l-2 border-primary-light pl-2 py-1 flex justify-between items-center"
-                          >
-                            <div>
-                              <p className="font-semibold">{c.user || c.guest_name || "Guest"}</p>
-                              <p className="text-sm text-gray-600">{c.content}</p>
-                            </div>
-                            <div className="flex gap-1">
-                              {!c.approved && (
-                                <Button
-                                  onClick={() => handleApproveComment(post.slug, c.id)}
-                                  variant="primary"
-                                >
-                                  <Check className="w-4 h-4" />
-                                </Button>
-                              )}
-                              <Button onClick={() => handleDeleteComment(post.slug, c.id)} variant="destructive">
-                                <Trash className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
                 </CardContent>
               </Card>
             );
