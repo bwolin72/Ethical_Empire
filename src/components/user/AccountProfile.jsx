@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
-import { ProfileService } from "../../api/services/profileService";
+import { ProfileService } from "../../services/profileService";
 import apiService from "../../api/apiService";
 import { logoutHelper } from "../../utils/logoutHelper";
 
@@ -54,6 +54,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   // -------- Load profile if not passed in --------
   useEffect(() => {
     if (externalProfile) {
+      setProfile(externalProfile);
       setProfileImage(externalProfile.profile_image_url || "");
       return;
     }
@@ -68,23 +69,21 @@ const AccountProfile = ({ profile: externalProfile }) => {
           ProfileService.currentRole(),
         ]);
 
-        if (profileRes?.data) {
-          const p = profileRes.data;
-          setProfile({
-            id: p.id,
-            first_name: p.first_name || "",
-            last_name: p.last_name || "",
-            name: p.name || `${p.first_name || ""} ${p.last_name || ""}`.trim(),
-            email: p.email,
-            phone: p.phone || p.contact_number || "",
-            profile_image_url: p.profile_image_url || "",
-            ...p,
-          });
-          setProfileImage(p.profile_image_url || "");
-        }
+        const p = profileRes?.data || {};
+        setProfile({
+          id: p.id || null,
+          first_name: p.first_name || "",
+          last_name: p.last_name || "",
+          name: p.name || `${p.first_name || ""} ${p.last_name || ""}`.trim() || "Unknown",
+          email: p.email || "",
+          phone: p.phone || p.contact_number || "",
+          profile_image_url: p.profile_image_url || "",
+          ...p,
+        });
+        setProfileImage(p.profile_image_url || "");
 
-        if (bookingsRes?.data) setBookings(bookingsRes.data);
-        if (roleRes?.data) setRoleInfo(roleRes.data);
+        setBookings(bookingsRes?.data || []);
+        setRoleInfo(roleRes?.data || null);
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error("[AccountProfile] Failed to load profile data:", err);
