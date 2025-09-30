@@ -16,19 +16,21 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import mediaAPI from "../../api/mediaAPI"; // ✅ use high-level API
+import mediaAPI from "../../api/mediaAPI";
 import "./MediaManagement.css";
 
+// ✅ Updated endpoints to match backend choices exactly
 const endpoints = [
-  { label: "Home", value: "home" },
-  { label: "User Page", value: "user" },
-  { label: "About", value: "about" },
-  { label: "Catering", value: "catering" },
-  { label: "Live Band", value: "liveBand" },
-  { label: "Decor", value: "decor" },
-  { label: "Media Hosting", value: "mediaHosting" },
-  { label: "Vendor", value: "vendor" },
-  { label: "Partner", value: "partner" },
+  { label: "Home", value: "EethmHome" },
+  { label: "User Page", value: "UserPage" },
+  { label: "About", value: "About" },
+  { label: "Catering", value: "CateringPage" },
+  { label: "Live Band", value: "LiveBandServicePage" },
+  { label: "Decor", value: "DecorPage" },
+  { label: "Media Hosting", value: "MediaHostingServicePage" },
+  { label: "Vendor Page", value: "VendorPage" },
+  { label: "Partner Page", value: "PartnerPage" },
+  { label: "Partner Vendor Dashboard", value: "PartnerVendorDashboard" },
 ];
 
 const MAX_FILE_SIZE_MB = 10;
@@ -101,7 +103,7 @@ function SortableMediaCard({
 
 const MediaManagement = () => {
   const [mediaType, setMediaType] = useState("media");
-  const [selectedEndpoints, setSelectedEndpoints] = useState(["home"]);
+  const [selectedEndpoints, setSelectedEndpoints] = useState(["EethmHome"]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [files, setFiles] = useState([]);
   const [uploadedItems, setUploadedItems] = useState([]);
