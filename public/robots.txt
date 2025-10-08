@@ -1,3 +1,13 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+Sitemap: https://eethmghmultimedia.com/sitemap.xml
+
+# Optional directives
+User-agent: Googlebot-Image
+Disallow: /private/
+
+User-agent: AdsBot-Google
+Disallow: /admin/
+
+# Ethical Multimedia GH - SEO-friendly crawling rules
