@@ -193,6 +193,20 @@
   outline: 2px solid var(--color-accent-gold);
   outline-offset: 3px;
 }
+.dropdown-menu.desktop.active {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  visibility: visible !important;
+  pointer-events: auto;
+}
+
+.dropdown-menu {
+  pointer-events: none;
+}
+.dropdown-menu.active {
+  pointer-events: auto;
+}
+
 
 /* ----- Mobile Responsive ----- */
 @media screen and (max-width: 960px) {
