@@ -11,7 +11,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import QRCode from "react-qr-code";
-import "./SocialMediaPage.css";
+import "./SocialMediaPage.css"; // ✅ Updated to match correct CSS file name
 
 const staticLinks = [
   {
@@ -45,7 +45,7 @@ const staticLinks = [
   {
     name: "Threads",
     url: "https://www.threads.net/eethm_gh01",
-    icon: <MessageCircle aria-hidden="true" />, // fallback icon
+    icon: <MessageCircle aria-hidden="true" />,
     key: "threads",
     subtitle: "Join the conversation on Threads",
   },
@@ -96,76 +96,97 @@ export default function SocialHub({ socialPosts = [] }) {
       className="social-hub-container"
       aria-label="Social media links and latest posts"
     >
-      <h1 className="social-hub-title">Connect with Eethm_GH Multimedia</h1>
-      <p className="social-hub-sub">
-        Follow our channels for event highlights, behind-the-scenes, and the
-        latest releases.
-      </p>
+      {/* === Hero Header Section === */}
+      <header className="header-wrap">
+        <h1 className="social-hub-title">Connect with Eethm_GH Multimedia</h1>
 
+        {/* 🎉 Animated Marquee */}
+        <div className="marquee-bar" aria-hidden="true">
+          <div className="marquee">
+            <span>🎥 Eethm_GH Multimedia • Events</span>
+            <span>📸 Creative Production • Digital Media</span>
+            <span>🎶 Shows & Reels • Social Buzz</span>
+            <span>🌐 Connect. Engage. Inspire.</span>
+            {/* repeat for seamless loop */}
+            <span>🎥 Eethm_GH Multimedia • Events</span>
+            <span>📸 Creative Production • Digital Media</span>
+          </div>
+        </div>
+
+        <p className="social-hub-sub">
+          Follow our channels for event highlights, behind-the-scenes, and the latest releases.
+        </p>
+      </header>
+
+      {/* === Main Grid Layout === */}
       <div className="social-grid">
-        {/* Social Media Links */}
-        <section
-          className="social-cards-grid"
-          aria-live="polite"
-          aria-label="Social media links"
-        >
-          {staticLinks.map((s) => (
-            <SocialCard key={s.key} link={s} />
-          ))}
-        </section>
+        {/* Left side: Cards + Latest Posts */}
+        <div className="left-stack">
+          {/* 📱 Social Media Links */}
+          <section
+            className="social-cards-grid"
+            aria-label="Social media links"
+          >
+            {staticLinks.map((s) => (
+              <SocialCard key={s.key} link={s} />
+            ))}
+          </section>
 
-        {/* Latest Fetched Posts */}
-        <section
-          className="social-fetched-posts"
-          aria-label="Latest social media updates"
-        >
-          <h3>Latest Social Updates</h3>
-          {hasFetchedContent ? (
-            socialPosts.map((post, i) => (
-              <Card key={post.id || i} className="social-post-card">
-                {post.image && (
-                  <img
-                    src={post.image}
-                    alt={
-                      post.caption?.slice(0, 50) ||
-                      post.text?.slice(0, 50) ||
-                      "Social media post image"
-                    }
-                    className="social-post-image"
-                    loading="lazy"
-                  />
-                )}
-                <div className="social-post-content">
-                  <p>{post.caption || post.text || "No description available."}</p>
-                  {post.url && (
-                    <a
-                      href={post.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="View full post"
-                    >
-                      View Post
-                    </a>
+          {/* 📰 Latest Social Updates */}
+          <section
+            className="social-fetched-posts"
+            aria-label="Latest social media updates"
+            aria-live="polite"
+          >
+            <h3>Latest Social Updates</h3>
+            {hasFetchedContent ? (
+              socialPosts.map((post, i) => (
+                <Card key={post.id || i} className="social-post-card">
+                  {post.image && (
+                    <img
+                      src={post.image}
+                      alt={
+                        post.caption?.slice(0, 50) ||
+                        post.text?.slice(0, 50) ||
+                        "Social media post image"
+                      }
+                      className="social-post-image"
+                      loading="lazy"
+                    />
                   )}
-                </div>
-              </Card>
-            ))
-          ) : (
-            <p className="no-social-posts">No recent posts available.</p>
-          )}
-        </section>
+                  <div className="social-post-content">
+                    <p>{post.caption || post.text || "No description available."}</p>
+                    {post.url && (
+                      <a
+                        href={post.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="View full post"
+                      >
+                        View Post
+                      </a>
+                    )}
+                  </div>
+                </Card>
+              ))
+            ) : (
+              <p className="no-social-posts">No recent posts available.</p>
+            )}
+          </section>
+        </div>
 
-        {/* QR Section */}
+        {/* 📲 QR Linktree Section */}
         <aside className="qr-section" aria-label="Linktree QR code">
           <div className="qr-title">Scan Our Linktree</div>
-          {QRCode && (
+          <div className="qr-wrap">
             <QRCode
               value="https://linktr.ee/ethicalmultimediagh"
               size={160}
               fgColor="#000000"
             />
-          )}
+          </div>
           <p className="qr-note">All our links in one place — tap to explore.</p>
+          <div className="qr-badge">✨ All Links Unified ✨</div>
         </aside>
       </div>
     </main>
