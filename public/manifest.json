@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "EethmGH",
+  "name": "Ethical Multimedia GH | Events, Media & Entertainment",
+  "description": "Ethical Multimedia GH offers full event and multimedia services in Ghana — including live band, DJ, lighting, catering, photography, videography, and decor.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +21,7 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#800020",
+  "background_color": "#2B2B2B",
+  "orientation": "portrait-primary"
 }
