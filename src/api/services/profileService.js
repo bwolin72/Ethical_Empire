@@ -1,7 +1,7 @@
 // src/api/services/profileService.js
 
 import { authAPI } from "../authAPI";
-import { profileAPI } from "../profileAPI"; // make sure this file exists
+import profileAPI from "../profileAPI";
 import { bookingAPI } from "../bookingAPI"; // optional if used later
 
 const profileService = {
