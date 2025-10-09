@@ -1,13 +1,16 @@
 // src/components/user/EditProfile.jsx
 import React, { useState, useEffect } from "react";
-import authAPI from "../../api/authAPI";
+import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { useProfile } from "../context/ProfileContext";
 import "react-toastify/dist/ReactToastify.css";
-import "../styles/EditProfile.css"; // 🟡 custom brand-aligned CSS
+import "./EditProfile.css"; // 🎨 your custom CSS theme
 
 const EditProfile = () => {
+  const navigate = useNavigate();
+  const { updateProfile } = useProfile();
+
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -15,14 +18,12 @@ const EditProfile = () => {
   });
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
-  const { updateProfile } = useProfile();
-
+  // === Load user profile ===
   useEffect(() => {
-    authAPI
-      .getProfile()
-      .then((res) => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axiosInstance.get("/accounts/profile/");
         const { first_name, last_name, email, phone_number } = res.data;
         setForm({
           first_name: first_name || "",
@@ -30,37 +31,51 @@ const EditProfile = () => {
           phone_number: phone_number || "",
         });
         setEmail(email || "");
-      })
-      .catch(() => toast.error("❌ Failed to load profile."))
-      .finally(() => setLoading(false));
+      } catch (err) {
+        console.error("❌ Failed to fetch profile", err);
+        toast.error("Failed to load profile. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
   }, []);
 
+  // === Handle changes ===
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // === Handle submit ===
   const handleSubmit = async () => {
     const filteredForm = Object.fromEntries(
-      Object.entries(form).filter(([_, value]) => value?.trim())
+      Object.entries(form).filter(([_, v]) => v?.trim())
     );
 
     try {
-      const res = await authAPI.updateProfile(filteredForm);
+      const res = await axiosInstance.put("/accounts/profile/", filteredForm);
       updateProfile(res.data);
       toast.success("✅ Profile updated successfully!");
       setTimeout(() => navigate(-1), 1500);
     } catch (err) {
-      console.error("[EditProfile] Update failed", err);
+      console.error("❌ Update failed:", err);
       const backendError =
         err.response?.data?.detail ||
         err.response?.data?.error ||
-        "❌ Failed to update profile.";
+        "Failed to update profile. Please try again.";
       toast.error(backendError);
     }
   };
 
+  // === Render ===
   if (loading)
-    return <p className="edit-profile__loading">Loading your profile...</p>;
+    return (
+      <p className="edit-profile__loading">
+        Loading your profile...
+      </p>
+    );
 
   return (
     <div className="edit-profile">
@@ -69,7 +84,7 @@ const EditProfile = () => {
       <div className="edit-profile__card">
         <h2 className="edit-profile__title">Edit Your Profile</h2>
         <p className="edit-profile__subtitle">
-          Keep your details up-to-date for a seamless experience
+          Keep your information accurate and up-to-date
         </p>
 
         <div className="edit-profile__form">
@@ -102,7 +117,7 @@ const EditProfile = () => {
               value={email}
               readOnly
               className="readonly"
-              placeholder="Email address"
+              placeholder="Your email address"
             />
           </div>
 
