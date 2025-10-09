@@ -1,3 +1,4 @@
+// src/components/account/AccountProfile.jsx
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -10,7 +11,7 @@ import reviewService from "../../api/services/reviewService";
 import { logoutHelper } from "../../utils/logoutHelper";
 
 import "react-toastify/dist/ReactToastify.css";
-import "./AccountProfile.css"; // custom CSS (we’ll base our design around this)
+import "./AccountProfile.css";
 
 const StarRating = ({ rating, setRating }) => (
   <div className="star-rating" role="radiogroup" aria-label="Star rating">
@@ -46,7 +47,45 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
-  // ---------------- LOAD DATA ----------------
+  // safe extractor for varied API shapes
+  const extractList = (res) => {
+    if (!res) return [];
+    const payload = res.data ?? res;
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload.results)) return payload.results;
+    if (Array.isArray(payload.data)) return payload.data;
+    return [];
+  };
+
+  // safe service-name extractor from bookings
+  const extractServiceNamesFromBookings = (bookingsArr) => {
+    if (!Array.isArray(bookingsArr)) return [];
+    const names = bookingsArr.reduce((acc, b) => {
+      try {
+        // prefer explicit service_type
+        if (b?.service_type && typeof b.service_type === "string") acc.push(b.service_type);
+        // some serializers include service_details as array of { name, ... }
+        if (Array.isArray(b?.service_details)) {
+          b.service_details.forEach((sd) => {
+            if (sd?.name) acc.push(sd.name);
+          });
+        }
+        // some payloads include services as objects or ids
+        if (Array.isArray(b?.services)) {
+          b.services.forEach((s) => {
+            if (typeof s === "string") acc.push(s);
+            else if (s?.name) acc.push(s.name);
+          });
+        }
+      } catch (e) {
+        // ignore per-item errors
+      }
+      return acc;
+    }, []);
+    return names.map((n) => (typeof n === "string" ? n.trim() : "")).filter(Boolean);
+  };
+
+  // load profile & bookings
   useEffect(() => {
     if (externalProfile) {
       setProfile(externalProfile);
@@ -56,28 +95,36 @@ const AccountProfile = ({ profile: externalProfile }) => {
     }
 
     const controller = new AbortController();
+
     (async () => {
       try {
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
-          profileService.get(),
-          bookingService.userBookings(),
-          authService.currentRole(),
+          profileService.get?.() ?? profileService.getProfile?.() ?? { data: null },
+          bookingService.userBookings?.() ?? { data: [] },
+          authService.currentRole?.() ?? authService.currentUserRole?.() ?? { data: null },
         ]);
 
-        const p = profileRes?.data || {};
+        const p = profileRes?.data ?? profileRes ?? {};
         setProfile({
-          id: p.id || null,
-          name: p.name || `${p.first_name || ""} ${p.last_name || ""}`.trim(),
-          email: p.email || "",
-          phone: p.phone || p.contact_number || "",
-          profile_image_url: p.profile_image_url || "",
+          id: p.id ?? null,
+          name: p.name ?? `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim(),
+          email: p.email ?? "",
+          phone: p.phone ?? p.contact_number ?? "",
+          profile_image_url: p.profile_image_url ?? "",
+          ...p,
         });
-        setProfileImage(p.profile_image_url || "");
-        setBookings(Array.isArray(bookingsRes?.data) ? bookingsRes.data : []);
-        setRoleInfo(roleRes?.data || null);
+        setProfileImage(p.profile_image_url ?? "");
+
+        const bookingsList = extractList(bookingsRes);
+        setBookings(bookingsList);
+
+        const rolePayload = roleRes?.data ?? roleRes ?? null;
+        setRoleInfo(rolePayload);
       } catch (err) {
-        console.error("[AccountProfile] Failed to load profile:", err);
-        toast.error("Could not load profile information.");
+        if (!controller.signal.aborted) {
+          console.error("[AccountProfile] Failed to load profile:", err);
+          toast.error("Could not load profile information.");
+        }
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
@@ -86,11 +133,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
     return () => controller.abort();
   }, [externalProfile]);
 
-  // ---------------- HELPERS ----------------
   const getInitials = useCallback((name) => {
     if (!name) return "?";
-    const parts = name.trim().split(" ");
-    return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
+    const parts = name.trim().split(/\s+/);
+    return (parts[0]?.[0] ?? "?") + (parts[1]?.[0] ?? "");
   }, []);
 
   const handleImageUpload = async (e) => {
@@ -98,6 +144,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) return toast.error("Only image files allowed.");
     if (file.size > 2 * 1024 * 1024) return toast.error("Max file size: 2MB");
+    if (!CLOUDINARY_UPLOAD_PRESET || !CLOUDINARY_CLOUD_NAME)
+      return toast.error("Cloudinary configuration is missing.");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -109,30 +157,27 @@ const AccountProfile = ({ profile: externalProfile }) => {
         { method: "POST", body: formData }
       );
       const data = await res.json();
-      if (!data.secure_url) throw new Error("Upload failed");
-
-      await profileService.update({ profile_image_url: data.secure_url });
+      if (!data?.secure_url) throw new Error("Upload failed");
+      await profileService.update?.({ profile_image_url: data.secure_url }) ?? null;
       setProfileImage(data.secure_url);
-      setProfile((prev) => ({ ...prev, profile_image_url: data.secure_url }));
+      setProfile((prev) => (prev ? { ...prev, profile_image_url: data.secure_url } : prev));
       toast.success("Profile image updated!");
     } catch (err) {
-      console.error(err);
+      console.error("[AccountProfile] Upload error", err);
       toast.error("Upload failed. Try again.");
     }
   };
 
   const handleReviewSubmit = async () => {
-    if (!review.trim() || !serviceName) {
-      return toast.warn("Please fill all fields.");
-    }
+    if (!review.trim() || !serviceName) return toast.warn("Please fill all fields.");
     try {
-      await reviewService.create({ comment: review, service: serviceName, rating });
+      await reviewService.create?.({ comment: review, service: serviceName, rating });
       toast.success("Review submitted!");
       setReview("");
       setServiceName("");
       setRating(5);
     } catch (err) {
-      console.error(err);
+      console.error("[AccountProfile] Review error", err);
       toast.error("Could not submit review.");
     }
   };
@@ -141,16 +186,16 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     try {
-      await authService.logout();
+      await authService.logout?.();
     } catch (e) {
-      console.warn(e);
+      console.warn("[AccountProfile] logout api error", e);
     } finally {
       await logoutHelper();
     }
   };
 
   const handleClose = () => {
-    const role = (roleInfo?.role || "").toLowerCase();
+    const role = (roleInfo?.role ?? roleInfo ?? "").toString().toLowerCase();
     const paths = {
       admin: "/admin",
       user: "/user",
@@ -162,12 +207,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
     else navigate("/");
   };
 
-  const bookedServices = Array.isArray(bookings)
-    ? bookings
-        .map((b) => b?.service_type)
-        .filter((s) => typeof s === "string" && s.trim() !== "")
-    : [];
-
+  // build review services list robustly
+  const bookedServiceNames = extractServiceNamesFromBookings(bookings);
   const staticServices = [
     "Live Band",
     "DJ",
@@ -179,31 +220,34 @@ const AccountProfile = ({ profile: externalProfile }) => {
     "MC/Host",
     "Sound Setup",
   ];
+  const reviewServices = Array.from(new Set([...bookedServiceNames, ...staticServices]));
 
-  const reviewServices = [...new Set([...bookedServices, ...staticServices])];
-
-  if (loading)
-    return <div className="profile-loader">Loading your profile...</div>;
+  if (loading) return <div className="profile-loader">Loading your profile...</div>;
 
   return (
-    <div className="profile-wrapper fade-in">
+    <div className="profile-wrapper fade-in" role="main" aria-label="Account profile">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
 
       <header className="profile-header">
         <button onClick={handleClose} className="close-btn" aria-label="Close profile">✕</button>
-        <div className="avatar-wrapper">
+
+        <div className="avatar-wrapper" aria-hidden="false">
           {profileImage ? (
             <img src={profileImage} alt="Profile" className="avatar" />
           ) : (
-            <div className="avatar-fallback">{getInitials(profile?.name)}</div>
+            <div className="avatar-fallback" aria-hidden>
+              {getInitials(profile?.name)}
+            </div>
           )}
-          <label className="upload-overlay">
+
+          <label className="upload-overlay" title="Upload profile picture" aria-label="Upload profile picture">
             <FaCamera />
             <input type="file" accept="image/*" hidden onChange={handleImageUpload} />
           </label>
         </div>
-        <h2 className="user-name">{profile?.name || "Unknown User"}</h2>
-        <p className="user-role">{roleInfo?.role || "Member"}</p>
+
+        <h2 className="user-name">{profile?.name ?? "Unknown User"}</h2>
+        <p className="user-role">{(roleInfo && roleInfo.role) ? roleInfo.role : (typeof roleInfo === "string" ? roleInfo : "Member")}</p>
       </header>
 
       <section className="profile-info card">
@@ -218,12 +262,12 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
       <section className="bookings card">
         <h3>My Bookings ({bookings.length})</h3>
-        {bookings.length ? (
+        {bookings.length > 0 ? (
           bookings.map((b) => (
-            <div key={b.id} className="booking-item">
-              <div><strong>Service:</strong> {b.service_type || "N/A"}</div>
+            <div key={b?.id ?? Math.random()} className="booking-item">
+              <div><strong>Service:</strong> {b.service_type ?? (Array.isArray(b.service_details) ? b.service_details.map(sd => sd.name).join(", ") : "N/A")}</div>
               <div><strong>Date:</strong> {b.event_date ? new Date(b.event_date).toLocaleDateString() : "N/A"}</div>
-              <div><strong>Status:</strong> <span className={`status ${b.status}`}>{b.status}</span></div>
+              <div><strong>Status:</strong> <span className={`status ${b.status ?? ""}`}>{b.status ?? "Unknown"}</span></div>
             </div>
           ))
         ) : (
@@ -241,8 +285,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
           onChange={(e) => setReview(e.target.value)}
           placeholder="Share your experience..."
           rows={4}
+          aria-label="Review text"
         />
-        <select value={serviceName} onChange={(e) => setServiceName(e.target.value)}>
+        <select value={serviceName} onChange={(e) => setServiceName(e.target.value)} aria-label="Select service">
           <option value="">Select Service</option>
           {reviewServices.map((s) => (
             <option key={s} value={s}>{s}</option>
