@@ -3,11 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
 
-// ✅ Correct default imports (not named)
-import profileService from "../../api/services/profileService";
-import bookingService from "../../api/services/bookingService";
-import authService from "../../api/services/authService";
-import reviewService from "../../api/services/reviewService";
+// ✅ Use named imports (Option 2)
+import { profileService } from "../../api/services/profileService";
+import { bookingService } from "../../api/services/bookingService";
+import { authService } from "../../api/services/authService";
+import { reviewService } from "../../api/services/reviewService";
 
 import { logoutHelper } from "../../utils/logoutHelper";
 
@@ -47,7 +47,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [bookings, setBookings] = useState([]);
   const [loggingOut, setLoggingOut] = useState(false);
   const [review, setReview] = useState("");
-  const [reviewService, setReviewService] = useState("");
+  const [reviewServiceName, setReviewServiceName] = useState(""); // ✅ rename to avoid clash
   const [reviewRating, setReviewRating] = useState(5);
 
   const navigate = useNavigate();
@@ -160,19 +160,19 @@ const AccountProfile = ({ profile: externalProfile }) => {
 
   // -------- Submit Review --------
   const handleReviewSubmit = async () => {
-    if (!review.trim() || !reviewService) {
+    if (!review.trim() || !reviewServiceName) {
       toast.warn("Please fill in all fields.");
       return;
     }
     try {
       await reviewService.create({
         comment: review,
-        service: reviewService,
+        service: reviewServiceName,
         rating: reviewRating,
       });
       toast.success("Review submitted!");
       setReview("");
-      setReviewService("");
+      setReviewServiceName("");
       setReviewRating(5);
     } catch (err) {
       console.error("[AccountProfile] Review submit failed:", err);
@@ -327,8 +327,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
           <label htmlFor="review-service-select">Service</label>
           <select
             id="review-service-select"
-            value={reviewService}
-            onChange={(e) => setReviewService(e.target.value)}
+            value={reviewServiceName}
+            onChange={(e) => setReviewServiceName(e.target.value)}
           >
             <option value="">Select Service</option>
             {reviewServices.map((service) => (
