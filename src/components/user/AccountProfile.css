@@ -1,14 +1,11 @@
-/* ======================================================
-   ✨ AccountProfile.css
-   Uses global brand system from variables.css
-   For: Event, Multimedia & Hospitality Platform
-   ====================================================== */
+/* src/components/account/AccountProfile.css
+   Uses variables.css for colors, radius, shadows
+*/
 
-/* === Root Container === */
 .profile-wrapper {
-  max-width: 900px;
-  margin: 3rem auto;
-  padding: 2rem 2.5rem;
+  max-width: 920px;
+  margin: 2.5rem auto;
+  padding: 2rem;
   background: var(--color-bg-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -23,296 +20,202 @@
   color: var(--color-text-dark);
 }
 
-/* === Header === */
 .profile-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   position: relative;
 }
 
 .close-btn {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 10px;
+  right: 12px;
   background: transparent;
   border: none;
   color: var(--color-neutral-light);
   font-size: 1.2rem;
   cursor: pointer;
-  transition: color var(--transition-fast);
 }
+.close-btn:hover { color: var(--color-error); }
 
-.close-btn:hover {
-  color: var(--color-error);
-}
-
-/* === Avatar === */
 .avatar-wrapper {
   position: relative;
   display: inline-block;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .avatar {
-  width: 130px;
-  height: 130px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--color-accent-gold);
   box-shadow: var(--shadow-md);
   transition: transform var(--transition-slow);
 }
-
-.avatar:hover {
-  transform: scale(1.03);
-}
+.avatar:hover { transform: scale(1.03); }
 
 .avatar-fallback {
-  width: 130px;
-  height: 130px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   background: var(--gradient-gold-burgundy);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: var(--color-white);
+  display:flex; align-items:center; justify-content:center;
+  font-size: 2rem; font-weight:700; color: var(--color-white);
   box-shadow: var(--shadow-md);
 }
 
 .upload-overlay {
   position: absolute;
-  bottom: 5px;
-  right: 5px;
+  bottom: 6px;
+  right: 6px;
   background: var(--color-overlay);
   color: var(--color-white);
   border-radius: 50%;
-  padding: 0.4rem 0.5rem;
+  padding: 0.45rem;
   cursor: pointer;
-  transition: background var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:flex; align-items:center; justify-content:center;
 }
-
-.upload-overlay:hover {
-  background: var(--color-primary-light);
-}
+.upload-overlay:hover { background: var(--color-primary-light); }
 
 .user-name {
   font-family: var(--font-accent);
-  font-size: 1.6rem;
+  font-size: 1.45rem;
   font-weight: 600;
   color: var(--color-primary-dark);
-  margin-bottom: 0.3rem;
+  margin: 0.6rem 0 0.2rem;
 }
-
-.dark .user-name {
-  color: var(--color-accent-gold);
-}
+.dark .user-name { color: var(--color-accent-gold); }
 
 .user-role {
   font-size: 0.95rem;
   color: var(--color-neutral-light);
-  letter-spacing: 0.5px;
+  margin-bottom: 0.6rem;
 }
 
-/* === Card Layout === */
+/* Cards */
 .card {
   background: var(--color-white);
-  padding: 1.5rem 2rem;
+  padding: 1.2rem;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
-  margin-bottom: 2rem;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  margin-bottom: 1.25rem;
 }
+.dark .card { background: var(--color-service-bg-dark); }
 
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-}
-
-.dark .card {
-  background: var(--color-service-bg-dark);
-}
-
-/* === Info Section === */
-.profile-info h3,
-.bookings h3,
-.review h3 {
+/* headings */
+.profile-info h3, .bookings h3, .review h3 {
   color: var(--color-primary);
-  margin-bottom: 1rem;
+  margin: 0 0 0.75rem 0;
   font-family: var(--font-accent);
   border-bottom: 2px solid var(--color-accent-gold);
-  padding-bottom: 0.4rem;
-  display: inline-block;
+  padding-bottom: 0.35rem;
+  display:inline-block;
 }
 
-.profile-info p {
-  margin: 0.3rem 0;
-  color: var(--color-neutral);
-}
+.profile-info p { color: var(--color-neutral); margin: 0.25rem 0; }
 
-.actions {
-  margin-top: 1rem;
-}
-
+/* actions */
+.actions { margin-top: 1rem; }
 .actions button {
-  background: var(--color-primary);
+  background: var(--color-secondary);
   color: var(--color-white);
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.45rem 0.9rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background var(--transition-fast);
   margin-right: 0.5rem;
 }
+.actions button:hover { background: var(--color-secondary-dark); }
 
-.actions button:hover {
-  background: var(--color-primary-dark);
-}
-
-/* === Bookings === */
+/* bookings */
 .booking-item {
   border-bottom: 1px solid var(--color-border-light);
-  padding: 0.7rem 0;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  font-size: 0.95rem;
+  padding: 0.6rem 0;
+  display:flex; justify-content:space-between; gap:12px; align-items:center;
 }
-
-.booking-item:last-child {
-  border-bottom: none;
-}
+.booking-item:last-child { border-bottom: none; }
 
 .status {
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.55rem;
   border-radius: var(--radius-sm);
   color: var(--color-white);
   font-size: 0.85rem;
   text-transform: capitalize;
 }
+.status.pending { background: var(--color-accent-gold); color: var(--color-neutral-dark); }
+.status.approved { background: var(--color-success); }
+.status.rejected { background: var(--color-error); }
 
-.status.pending {
-  background: var(--color-accent-gold);
-}
+/* empty */
+.empty-state { text-align:center; color:var(--color-muted); margin-top: 0.8rem; }
+.empty-state img { width:72px; margin-bottom:0.6rem; opacity:0.8; }
 
-.status.approved {
-  background: var(--color-success);
-}
-
-.status.rejected {
-  background: var(--color-error);
-}
-
-.empty-state {
-  text-align: center;
-  color: var(--color-muted);
-  margin-top: 1rem;
-}
-
-.empty-state img {
-  width: 80px;
-  margin-bottom: 0.8rem;
-  opacity: 0.7;
-}
-
-/* === Review Section === */
+/* review form */
 .review textarea {
-  width: 100%;
-  border: 1px solid var(--color-border-light);
+  width:100%;
+  border:1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
   background: var(--color-input-bg);
   padding: 0.8rem;
-  resize: vertical;
-  font-family: var(--font-main);
-  margin-bottom: 0.8rem;
+  resize:vertical;
+  margin-bottom:0.6rem;
   color: var(--color-text-light);
-  transition: border var(--transition-fast);
 }
-
-.review textarea:focus {
-  outline: none;
-  border-color: var(--color-accent-gold);
-}
+.review textarea:focus { outline:none; border-color: var(--color-accent-gold); }
 
 .review select {
-  width: 100%;
-  border: 1px solid var(--color-border-light);
+  width:100%;
+  padding: 0.55rem;
   border-radius: var(--radius-sm);
-  padding: 0.6rem;
-  margin-bottom: 0.8rem;
+  border:1px solid var(--color-border-light);
   background: var(--color-input-bg);
-  font-family: var(--font-main);
-  color: var(--color-text-light);
+  margin-bottom:0.6rem;
 }
 
-.star-rating {
-  display: flex;
-  justify-content: center;
-  gap: 0.3rem;
-  margin-bottom: 1rem;
-}
+/* stars */
+.star-rating { display:flex; justify-content:center; gap:.35rem; margin-bottom:0.8rem; }
+.star { cursor:pointer; transition: transform var(--transition-fast); }
+.star:hover { transform: scale(1.15); }
 
-.star {
-  cursor: pointer;
-  transition: transform var(--transition-fast);
-}
-
-.star:hover {
-  transform: scale(1.15);
-}
-
+/* actions */
 .btn-primary {
-  display: block;
-  width: 100%;
+  display:block;
+  width:100%;
   background: var(--gradient-navy-gold);
   color: var(--color-white);
   border: none;
-  padding: 0.8rem 1.2rem;
+  padding: 0.8rem;
   border-radius: var(--radius-md);
-  cursor: pointer;
-  font-weight: bold;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  font-weight:700;
+  cursor:pointer;
 }
+.btn-primary:hover { transform: scale(1.02); box-shadow: var(--shadow-md); }
 
-.btn-primary:hover {
-  transform: scale(1.02);
-  box-shadow: var(--shadow-md);
-}
-
-/* === Logout Button === */
+/* logout */
 .btn-danger {
-  display: block;
-  width: 100%;
+  display:block;
+  width:100%;
   background: var(--color-error);
   color: var(--color-white);
-  border: none;
-  padding: 0.9rem 1.3rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 1.5rem;
-  transition: background var(--transition-fast);
+  border:none;
+  padding:0.9rem;
+  border-radius:var(--radius-md);
+  margin-top:1rem;
+  cursor:pointer;
 }
+.btn-danger:hover { background: var(--color-primary-dark); }
 
-.btn-danger:hover {
-  background: var(--color-primary-dark);
-}
+/* loader */
+.profile-loader { text-align:center; color:var(--color-neutral); padding:3rem 0; animation: pulse 1.5s infinite ease-in-out; }
 
-/* === Loader === */
-.profile-loader {
-  text-align: center;
-  color: var(--color-neutral);
-  font-family: var(--font-main);
-  padding: 4rem 0;
-  font-size: 1.1rem;
-  animation: pulse 1.5s infinite ease-in-out;
-}
+/* fade utility */
+.fade-in { animation: fade-in 0.6s var(--transition-fast) both; }
 
-/* === Fade Utility === */
-.fade-in {
-  animation: fade-in 0.6s var(--transition-fast) both;
+/* responsive */
+@media (max-width: 720px) {
+  .profile-wrapper { padding: 1.2rem; margin: 1.5rem; }
+  .avatar, .avatar-fallback { width: 98px; height: 98px; }
+  .user-name { font-size: 1.25rem; }
+  .booking-item { flex-direction: column; align-items: flex-start; }
 }
