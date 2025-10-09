@@ -1,13 +1,12 @@
 import reviewsAPI from "../reviewsAPI";
 
 const reviewService = {
-  // Fetch approved reviews, handle paginated response
+  // Fetch approved reviews (optionally filtered by category)
   async getApprovedReviews(params = {}) {
-    const response = await reviewsAPI.listApproved(); // axios response
+    const response = await reviewsAPI.listApproved();
     let data = Array.isArray(response.data?.results) ? response.data.results : [];
-
     if (params.category) {
-      data = data.filter(r => r.service === params.category);
+      data = data.filter((r) => r.service === params.category);
     }
     return data;
   },
@@ -18,7 +17,7 @@ const reviewService = {
     return response.data;
   },
 
-  // Admin-only functions
+  // Admin functions
   async getAllReviewsAdmin() {
     const response = await reviewsAPI.listAllAdmin();
     return response.data.results || [];
