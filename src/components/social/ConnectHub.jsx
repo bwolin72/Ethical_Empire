@@ -4,20 +4,21 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import SocialHub from "./SocialHub";
 import { AuthContext } from "../context/AuthContext";
+import authService from "../../api/services/authService";
+import { roleRoutes } from "../../routes/roleRoutes";
 import "./ConnectHub.css";
 
 const ConnectHub = () => {
   const { user, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Local preview state
   const [previewPosts, setPreviewPosts] = useState([]);
   const [loadingPreview, setLoadingPreview] = useState(true);
+  const [connecting, setConnecting] = useState(false);
 
-  // Simulated API for demo: replace this with your actual fetch
+  // 🟢 Fetch public preview feed for visitors
   useEffect(() => {
     if (!isAuthenticated) {
-      // Pretend to fetch public social posts
       const fetchPreview = async () => {
         try {
           setLoadingPreview(true);
@@ -34,16 +35,32 @@ const ConnectHub = () => {
           setLoadingPreview(false);
         }
       };
-
       fetchPreview();
     }
   }, [isAuthenticated]);
 
-  // Button actions
-  const handleActionClick = () => {
+  // 🧭 Handle connect or redirect logic
+  const handleActionClick = async () => {
     if (isAuthenticated) {
-      toast.success(`Welcome back, ${user?.name || "User"}!`);
-      navigate("/connect"); // Will auto-redirect by role inside your ConnectRedirect route
+      try {
+        setConnecting(true);
+        const res = await authService.getProfile();
+        const role = res?.data?.role?.trim()?.toLowerCase();
+
+        if (role && roleRoutes[role]) {
+          toast.success(`Welcome back, ${user?.name || "User"}!`);
+          navigate(roleRoutes[role], { replace: true });
+        } else {
+          toast.error("Your account role could not be verified.");
+          navigate("/unauthorized", { replace: true });
+        }
+      } catch (err) {
+        console.error("[ConnectHub] Connection error:", err);
+        toast.error("Could not verify account. Please log in again.");
+        navigate("/login", { replace: true });
+      } finally {
+        setConnecting(false);
+      }
     } else {
       toast.info("Please login or create an account to connect.");
       navigate("/login");
@@ -52,20 +69,29 @@ const ConnectHub = () => {
 
   return (
     <div className="connect-hub-container">
-      {/* Hero */}
+      {/* 🔹 Hero Section */}
       <section className="connect-hero">
         <h1>Connect With EETHM</h1>
         <p>
-          Join our growing community of creatives, vendors, and event planners.  
-          Discover opportunities, collaborations, and ideas that move the industry forward.
+          Join our growing network of creatives, vendors, and event professionals.
+          Explore collaborations, opportunities, and stories that move the
+          industry forward.
         </p>
 
-        <button className="connect-action-btn" onClick={handleActionClick}>
-          {isAuthenticated ? "Go to My Dashboard" : "Login or Sign Up"}
+        <button
+          className="connect-action-btn"
+          onClick={handleActionClick}
+          disabled={connecting}
+        >
+          {connecting
+            ? "Connecting..."
+            : isAuthenticated
+            ? "Go to My Dashboard"
+            : "Login or Sign Up"}
         </button>
       </section>
 
-      {/* Feed Preview or Full Social Hub */}
+      {/* 🔹 Feed or Social Hub */}
       <section className="social-section">
         {isAuthenticated ? (
           <SocialHub />
@@ -80,12 +106,20 @@ const ConnectHub = () => {
                   <div key={post.id} className="preview-card">
                     <h4>{post.author_name || "Anonymous"}</h4>
                     <p>{post.content?.slice(0, 120)}...</p>
-                    <small>{new Date(post.created_at).toLocaleString()}</small>
+                    <small>
+                      {new Date(post.created_at).toLocaleDateString()}{" "}
+                      {new Date(post.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </small>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="no-preview">No public posts yet. Be the first to share!</p>
+              <p className="no-preview">
+                No public posts yet — be the first to share!
+              </p>
             )}
 
             <div className="join-banner">
