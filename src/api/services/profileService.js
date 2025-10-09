@@ -1,27 +1,31 @@
-import { API_ENDPOINTS } from "../apiService";
+// src/api/services/profileService.js
+
+import { authAPI } from "../authAPI";
+import { profileAPI } from "../profileAPI"; // make sure this file exists
+import { bookingAPI } from "../bookingAPI"; // optional if used later
 
 const profileService = {
   /**
    * Get the current logged-in user's profile
    */
-  get: () => API_ENDPOINTS.accounts.profile(),
+  get: () => profileAPI.getProfile(),
 
   /**
    * Update the current logged-in user's profile
    * @param {Object} data - fields to update (e.g. { first_name, last_name, phone })
    */
-  update: (data) => API_ENDPOINTS.accounts.updateProfile(data),
+  update: (data) => profileAPI.updateProfile(data),
 
   /**
    * Change password for the current logged-in user
    * @param {Object} data - { old_password, new_password }
    */
-  changePassword: (data) => API_ENDPOINTS.accounts.changePassword(data),
+  changePassword: (data) => authAPI.changePassword(data),
 
   /**
    * Get the current user's role
    */
-  currentRole: () => API_ENDPOINTS.accounts.currentRole(),
+  currentRole: () => authAPI.currentRole(),
 };
 
 export default profileService;
