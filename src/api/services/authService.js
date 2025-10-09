@@ -1,3 +1,4 @@
+// src/api/services/authService.js
 import axiosInstance from "../axiosInstance";
 import publicAxios from "../publicAxios";
 import API from "../authAPI";
@@ -10,7 +11,7 @@ import {
 } from "../tokenManagement";
 
 const authService = {
-  // Login
+  // LOGIN
   login: async (credentials, remember = true) => {
     const safeCredentials = {
       email: String(credentials.email || "").trim(),
@@ -18,16 +19,14 @@ const authService = {
       role: String(credentials.role || "").trim(),
       access_code: String(credentials.accessCode || "").trim(),
     };
-
     const res = await publicAxios.post(API.login, safeCredentials, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
-
     return normalizeAuthResponse(res, remember);
   },
 
-  // Logout
+  // LOGOUT
   logout: async () => {
     try {
       if (API.logout) {
@@ -38,7 +37,7 @@ const authService = {
     }
   },
 
-  // Google Auth
+  // GOOGLE AUTH
   googleLogin: async (data, remember = true) => {
     const res = await publicAxios.post(API.googleLogin, data, { withCredentials: true });
     return normalizeAuthResponse(res, remember);
@@ -49,7 +48,7 @@ const authService = {
     return normalizeAuthResponse(res, remember);
   },
 
-  // Registration
+  // REGISTER
   register: async (data, remember = true) => {
     const res = await publicAxios.post(API.register, data, { withCredentials: true });
     return normalizeAuthResponse(res, remember);
@@ -57,21 +56,26 @@ const authService = {
 
   internalRegister: (data) => publicAxios.post(API.internalRegister, data, { withCredentials: true }),
 
-  // Profile
-  getProfile: () => axiosInstance.get(API.profile),
-  updateProfile: (data) => axiosInstance.patch(API.profile, data),
-  changePassword: (data) => axiosInstance.post(API.changePassword, data),
-  currentUserRole: () => axiosInstance.get(API.currentUserRole),
-  roleChoices: () => axiosInstance.get(API.roleChoices),
-  partnerProfile: () => axiosInstance.get(API.partnerProfile),
-  vendorProfile: () => axiosInstance.get(API.vendorProfile),
+  // PROFILE helpers (kept for backward compatibility)
+  getProfile: (config = {}) => axiosInstance.get(API.profile, { ...config }),
+  updateProfile: (data, config = {}) => axiosInstance.patch(API.profile, data, { ...config }),
+  changePassword: (data, config = {}) => axiosInstance.post(API.changePassword, data, { ...config }),
 
-  // Password reset
+  // ROLE helpers — keep both names so components that call currentRole() or currentUserRole() work
+  currentUserRole: (config = {}) => axiosInstance.get(API.currentUserRole, { ...config }),
+  currentRole: (config = {}) => axiosInstance.get(API.currentUserRole, { ...config }),
+
+  // MISC profile endpoints
+  roleChoices: (config = {}) => axiosInstance.get(API.roleChoices, { ...config }),
+  partnerProfile: (config = {}) => axiosInstance.get(API.partnerProfile, { ...config }),
+  vendorProfile: (config = {}) => axiosInstance.get(API.vendorProfile, { ...config }),
+
+  // PASSWORD RESET
   resetPassword: (data) => publicAxios.post(API.resetPassword, data, { withCredentials: true }),
   resetPasswordConfirm: (uidb64, token, data) =>
     publicAxios.post(API.resetPasswordConfirm(uidb64, token), data, { withCredentials: true }),
 
-  // Tokens
+  // TOKENS
   refreshToken: async () => {
     const refresh = getRefreshToken();
     if (!refresh) throw new Error("No refresh token found");
@@ -86,7 +90,7 @@ const authService = {
   verifyOtp: (data) => publicAxios.post(API.verifyOtp, data, { withCredentials: true }),
   resendOtp: (data) => publicAxios.post(API.resendOtp, data, { withCredentials: true }),
 
-  // Admin
+  // ADMIN helpers
   listUsers: (params) => axiosInstance.get(API.adminListUsers, { params }),
   adminInviteWorker: (data) => axiosInstance.post(API.adminInviteWorker, data),
   adminValidateWorkerInvite: (uid, token) =>
@@ -99,10 +103,10 @@ const authService = {
   adminSendMessage: (data) => axiosInstance.post(API.adminSendMessage, data),
   adminSpecialOffer: (data) => axiosInstance.post(API.adminSpecialOffer, data),
 
-  // Worker
-  workerCategories: () => axiosInstance.get(API.workerCategories),
+  // WORKER
+  workerCategories: (config = {}) => axiosInstance.get(API.workerCategories, { ...config }),
 
-  // Token helpers
+  // token helpers
   saveTokens,
   clearTokens,
   getAccessToken,
