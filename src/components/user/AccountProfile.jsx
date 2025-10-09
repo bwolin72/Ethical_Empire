@@ -47,7 +47,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
-  // safe extractor for varied API shapes
   const extractList = (res) => {
     if (!res) return [];
     const payload = res.data ?? res;
@@ -57,35 +56,28 @@ const AccountProfile = ({ profile: externalProfile }) => {
     return [];
   };
 
-  // safe service-name extractor from bookings
   const extractServiceNamesFromBookings = (bookingsArr) => {
     if (!Array.isArray(bookingsArr)) return [];
     const names = bookingsArr.reduce((acc, b) => {
       try {
-        // prefer explicit service_type
         if (b?.service_type && typeof b.service_type === "string") acc.push(b.service_type);
-        // some serializers include service_details as array of { name, ... }
         if (Array.isArray(b?.service_details)) {
           b.service_details.forEach((sd) => {
             if (sd?.name) acc.push(sd.name);
           });
         }
-        // some payloads include services as objects or ids
         if (Array.isArray(b?.services)) {
           b.services.forEach((s) => {
             if (typeof s === "string") acc.push(s);
             else if (s?.name) acc.push(s.name);
           });
         }
-      } catch (e) {
-        // ignore per-item errors
-      }
+      } catch (e) {}
       return acc;
     }, []);
     return names.map((n) => (typeof n === "string" ? n.trim() : "")).filter(Boolean);
   };
 
-  // load profile & bookings
   useEffect(() => {
     if (externalProfile) {
       setProfile(externalProfile);
@@ -158,7 +150,12 @@ const AccountProfile = ({ profile: externalProfile }) => {
       );
       const data = await res.json();
       if (!data?.secure_url) throw new Error("Upload failed");
-      await profileService.update?.({ profile_image_url: data.secure_url }) ?? null;
+
+      // ✅ fixed ESLint "no-unused-expressions" issue here
+      if (profileService.update) {
+        await profileService.update({ profile_image_url: data.secure_url });
+      }
+
       setProfileImage(data.secure_url);
       setProfile((prev) => (prev ? { ...prev, profile_image_url: data.secure_url } : prev));
       toast.success("Profile image updated!");
@@ -207,7 +204,6 @@ const AccountProfile = ({ profile: externalProfile }) => {
     else navigate("/");
   };
 
-  // build review services list robustly
   const bookedServiceNames = extractServiceNamesFromBookings(bookings);
   const staticServices = [
     "Live Band",
@@ -247,7 +243,11 @@ const AccountProfile = ({ profile: externalProfile }) => {
         </div>
 
         <h2 className="user-name">{profile?.name ?? "Unknown User"}</h2>
-        <p className="user-role">{(roleInfo && roleInfo.role) ? roleInfo.role : (typeof roleInfo === "string" ? roleInfo : "Member")}</p>
+        <p className="user-role">
+          {(roleInfo && roleInfo.role)
+            ? roleInfo.role
+            : (typeof roleInfo === "string" ? roleInfo : "Member")}
+        </p>
       </header>
 
       <section className="profile-info card">
