@@ -1,274 +1,297 @@
 /* ======================================================
-   🎨 Messaging Page Styles — messaging.css
-   Uses: variables.css for colors, fonts, shadows, radius
+   ✨ Messaging Page Styles — messaging.css
+   Theme: Event, Multimedia & Hospitality (Burgundy–Navy–Gold)
    ====================================================== */
 
-.messaging-page {
+/* === Page Container === */
+.messaging-dashboard {
   font-family: var(--font-main);
-  padding: 24px;
   background-color: var(--color-bg-light);
   color: var(--color-text-light);
   min-height: 100vh;
+  padding: 2rem;
   animation: fade-in 0.5s ease-out both;
 }
 
-.dark .messaging-page {
+.dark .messaging-dashboard {
   background-color: var(--color-bg);
-  color: var(--color-text);
+  color: var(--color-text-dark);
 }
 
-/* === Header === */
-.messaging-header {
+/* === Header Bar === */
+.header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  border-bottom: 2px solid var(--color-border-light);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.messaging-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-}
-
-/* === Error & Loader === */
-.error-text {
-  color: var(--color-error);
-  margin-bottom: 16px;
-}
-
-.loading-spinner {
-  font-size: 1.5rem;
+.header-bar h1 {
+  font-family: var(--font-accent);
+  font-size: 1.8rem;
   color: var(--color-primary);
+  background: var(--gradient-gold-burgundy);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.unread-count {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.unread-count span {
+  background-color: var(--color-accent-gold);
+  color: var(--color-neutral-dark);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-md);
+}
+
+/* === Layout Grid === */
+.messaging-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .messaging-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === Message List === */
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message-item {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.message-item:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent-gold);
+}
+
+.message-item.unread {
+  border-left: 5px solid var(--color-accent-gold);
+  background-color: #fffaf2;
+}
+
+.message-item.read {
+  opacity: 0.9;
+}
+
+.msg-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.msg-top h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.unread-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-accent-gold);
+}
+
+.msg-meta {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.msg-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* === Message Details Panel === */
+.message-details {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  animation: fade-in-up 0.4s var(--transition-fast) both;
+}
+
+.dark .message-details {
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+}
+
+/* === Message View === */
+.message-view h2 {
+  font-family: var(--font-accent);
+  color: var(--color-secondary);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.message-view p {
+  color: var(--color-neutral);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.message-view a {
+  color: var(--color-accent-gold);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.message-view a:hover {
+  color: var(--color-primary);
+}
+
+/* === Compose Form === */
+.message-compose form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message-compose input,
+.message-compose select,
+.message-compose textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  background-color: var(--color-white);
+  font-family: var(--font-main);
+  transition: border-color var(--transition-fast);
+}
+
+.message-compose input:focus,
+.message-compose select:focus,
+.message-compose textarea:focus {
+  outline: none;
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 4px var(--color-accent-gold-light);
+}
+
+.dark .message-compose input,
+.dark .message-compose select,
+.dark .message-compose textarea {
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* === Empty States === */
+.messaging-empty-state,
+.empty-view {
+  text-align: center;
+  color: var(--color-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+}
+
+.icon-muted {
+  color: var(--color-border-light);
+  margin-bottom: 1rem;
+}
+
+/* === Buttons === */
+.btn-primary {
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--color-secondary);
+  color: var(--color-secondary);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+}
+
+/* === Loader Animation === */
+.spinner {
   display: block;
-  margin-bottom: 16px;
+  margin: 1rem auto;
+  color: var(--color-primary);
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* === Message Form === */
-.message-form {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: var(--shadow-md);
-  max-width: 700px;
-  animation: fade-in-up 0.6s var(--transition-fast) both;
-}
-
-.dark .message-form {
-  background-color: var(--color-input-bg);
-  border-color: var(--color-border);
-}
-
-.message-form .form-group {
-  margin-bottom: 16px;
-}
-
-.message-form label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.message-form select,
-.message-form input[type="text"],
-.message-form textarea,
-.message-form input[type="file"] {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  font-family: var(--font-main);
-  font-size: 1rem;
-  transition: border var(--transition-fast);
-}
-
-.dark .message-form select,
-.dark .message-form input[type="text"],
-.dark .message-form textarea,
-.dark .message-form input[type="file"] {
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
-
-.message-form select:focus,
-.message-form input:focus,
-.message-form textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-.checkbox-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.checkbox-item input {
-  cursor: pointer;
-}
-
-.checkbox-item:hover {
-  background-color: var(--color-bg-light);
-}
-
-/* === Messages List === */
-.messages-list {
-  display: grid;
-  gap: 16px;
-}
-
-.message-card {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  transition: transform var(--transition-fast);
-}
-
-.message-card:hover {
-  transform: translateY(-2px);
-}
-
-.message-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.message-header h2 {
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.message-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.icon {
-  width: 18px;
-  height: 18px;
-}
-
-/* === Message Status === */
-.message-status {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  font-size: 0.875rem;
-  margin-top: 8px;
-}
-
-.status-read {
-  display: flex;
-  align-items: center;
-  color: var(--color-success);
-}
-
-.status-unread {
-  display: flex;
-  align-items: center;
-  color: var(--color-error);
-}
-
-/* === Message Meta === */
-.message-meta {
-  font-size: 0.75rem;
-  color: var(--color-muted);
-  margin-top: 4px;
-}
-
-/* === Modal === */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: var(--color-overlay);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  animation: fade-in 0.3s ease-out both;
-}
-
-.modal-content {
-  background-color: var(--color-white);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  width: 90%;
-  max-width: 600px;
-  box-shadow: var(--shadow-lg);
-}
-
-.modal-content h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.modal-message {
-  margin-bottom: 16px;
-  white-space: pre-wrap;
-}
-
-.attachment-link {
-  display: inline-block;
-  margin-bottom: 16px;
-  color: var(--color-primary);
-  text-decoration: underline;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* === Buttons Override for Messaging === */
-.button {
-  font-family: var(--font-main);
-  border-radius: var(--radius-md);
-  padding: 8px 14px;
-  transition: background var(--transition-fast);
-}
-
-.button:hover {
-  opacity: 0.9;
-}
-
-.button.outline {
-  border: 1px solid var(--color-primary);
-  background-color: transparent;
-  color: var(--color-primary);
-}
-
-/* === Loader Animation === */
-.animate-spin {
-  animation: spin 1s linear infinite;
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* === Responsive === */
 @media (max-width: 768px) {
-  .message-form, .modal-content {
-    padding: 16px;
+  .header-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
-  .messages-list {
-    gap: 12px;
+
+  .messaging-dashboard {
+    padding: 1rem;
+  }
+
+  .message-details {
+    padding: 1rem;
+  }
+
+  .message-item {
+    padding: 0.75rem;
+  }
+
+  .header-bar h1 {
+    font-size: 1.5rem;
   }
 }
