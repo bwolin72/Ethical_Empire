@@ -5,13 +5,6 @@ import baseURL from "../baseURL";
 
 const API_URL = `${baseURL}/blog`;
 
-/* 🧩 PRO TIP:
-   This service is synced with the Django REST API backend.
-   - Auth required for admin endpoints (axiosInstance)
-   - Public endpoints use publicAxios
-   - Handles Posts, Categories, Comments, Social Sync, and Accounts
-*/
-
 // -------------------------
 // Helper to normalize paginated or raw arrays
 // -------------------------
@@ -60,24 +53,20 @@ export const addComment = async (slug, data) => {
   return res.data || null;
 };
 
-// Admin comment moderation
-export const updateComment = async (id, data) => {
-  const res = await axiosInstance.patch(`${API_URL}/comments/${id}/`, data);
-  return res.data;
-};
+// Admin comment moderation (future-ready)
+export const updateComment = (id, data) =>
+  axiosInstance.patch(`${API_URL}/comments/${id}/`, data).then((res) => res.data);
 
-export const deleteComment = async (id) => {
-  const res = await axiosInstance.delete(`${API_URL}/comments/${id}/`);
-  return res.data;
-};
+export const deleteComment = (id) =>
+  axiosInstance.delete(`${API_URL}/comments/${id}/`).then((res) => res.data);
 
 // -------------------------
 // SOCIAL SYNC (Admin Only)
 // -------------------------
-export const syncSocialPost = async (slug) => {
-  const res = await axiosInstance.post(`${API_URL}/posts/${slug}/sync-social/`);
-  return res.data;
-};
+export const syncSocialPost = (slug) =>
+  axiosInstance
+    .post(`${API_URL}/posts/${slug}/sync-social/`)
+    .then((res) => res.data);
 
 // -------------------------
 // CATEGORIES (Public + Admin)
@@ -135,7 +124,7 @@ export default {
   updateComment,
   deleteComment,
 
-  // Social
+  // Social Sync
   syncSocialPost,
   getSocialPosts,
 
