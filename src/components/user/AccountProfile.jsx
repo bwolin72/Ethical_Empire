@@ -3,18 +3,16 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
 
-// ✅ Use named imports (Option 2)
 import profileService from "../../api/services/profileService";
 import bookingService from "../../api/services/bookingService";
 import authService from "../../api/services/authService";
 import reviewService from "../../api/services/reviewService";
-
 import { logoutHelper } from "../../utils/logoutHelper";
 
 import "react-toastify/dist/ReactToastify.css";
 import "./AccountProfile.css";
 
-// -------- Star Rating Component --------
+// -------- ⭐ Star Rating Component --------
 const StarRating = ({ rating, setRating }) => (
   <div className="star-rating" role="radiogroup" aria-label="Star rating">
     {[...Array(5)].map((_, i) => {
@@ -38,7 +36,7 @@ const StarRating = ({ rating, setRating }) => (
   </div>
 );
 
-// -------- AccountProfile Component --------
+// -------- 👤 Account Profile Component --------
 const AccountProfile = ({ profile: externalProfile }) => {
   const [profile, setProfile] = useState(externalProfile || null);
   const [loading, setLoading] = useState(!externalProfile);
@@ -46,8 +44,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const [roleInfo, setRoleInfo] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [loggingOut, setLoggingOut] = useState(false);
+
   const [review, setReview] = useState("");
-  const [reviewServiceName, setReviewServiceName] = useState(""); // ✅ rename to avoid clash
+  const [reviewServiceName, setReviewServiceName] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
 
   const navigate = useNavigate();
@@ -56,7 +55,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
   const CLOUDINARY_UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
   const CLOUDINARY_CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
 
-  // -------- Load profile if not passed in --------
+  // -------- Fetch Profile, Bookings, and Role --------
   useEffect(() => {
     if (externalProfile) {
       setProfile(externalProfile);
@@ -93,8 +92,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
         setRoleInfo(roleRes?.data || null);
       } catch (err) {
         if (!controller.signal.aborted) {
-          console.error("[AccountProfile] Failed to load profile data:", err);
-          toast.error("Failed to load profile.");
+          console.error("[AccountProfile] Failed to load data:", err);
+          toast.error("Failed to load account details.");
         }
       } finally {
         if (!controller.signal.aborted) setLoading(false);
@@ -105,25 +104,25 @@ const AccountProfile = ({ profile: externalProfile }) => {
     return () => controller.abort();
   }, [externalProfile]);
 
-  // -------- Get initials fallback --------
+  // -------- Get Initials for Placeholder Avatar --------
   const getInitials = useCallback((name) => {
     if (!name) return "?";
     const parts = name.trim().split(" ");
     return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
   }, []);
 
-  // -------- Upload profile image --------
+  // -------- Upload Profile Image to Cloudinary --------
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!CLOUDINARY_UPLOAD_PRESET || !CLOUDINARY_CLOUD_NAME) {
-      toast.error("Cloudinary config missing.");
+      toast.error("Cloudinary configuration missing.");
       return;
     }
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Only image files allowed.");
+      toast.error("Only image files are allowed.");
       return;
     }
 
@@ -137,63 +136,64 @@ const AccountProfile = ({ profile: externalProfile }) => {
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
     try {
-      const uploadRes = await fetch(
+      const res = await fetch(
         `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
         { method: "POST", body: formData }
       );
-      const uploadData = await uploadRes.json();
-      if (!uploadData.secure_url)
-        throw new Error("No secure URL returned from Cloudinary.");
+      const data = await res.json();
+      if (!data.secure_url)
+        throw new Error("Cloudinary did not return a secure URL.");
 
-      await profileService.update({ profile_image_url: uploadData.secure_url });
+      await profileService.update({ profile_image_url: data.secure_url });
 
-      setProfileImage(uploadData.secure_url);
+      setProfileImage(data.secure_url);
       setProfile((prev) =>
-        prev ? { ...prev, profile_image_url: uploadData.secure_url } : prev
+        prev ? { ...prev, profile_image_url: data.secure_url } : prev
       );
       toast.success("Profile picture updated!");
     } catch (err) {
-      console.error("[AccountProfile] Upload failed:", err);
-      toast.error("Upload failed.");
+      console.error("[AccountProfile] Image upload failed:", err);
+      toast.error("Failed to upload image.");
     }
   };
 
-  // -------- Submit Review --------
+  // -------- Submit a Review --------
   const handleReviewSubmit = async () => {
     if (!review.trim() || !reviewServiceName) {
-      toast.warn("Please fill in all fields.");
+      toast.warn("Please fill in all fields before submitting.");
       return;
     }
+
     try {
       await reviewService.create({
         comment: review,
         service: reviewServiceName,
         rating: reviewRating,
       });
-      toast.success("Review submitted!");
+      toast.success("Review submitted successfully!");
       setReview("");
       setReviewServiceName("");
       setReviewRating(5);
     } catch (err) {
-      console.error("[AccountProfile] Review submit failed:", err);
+      console.error("[AccountProfile] Review submission failed:", err);
       toast.error("Failed to submit review.");
     }
   };
 
-  // -------- Logout --------
+  // -------- Logout Handler --------
   const handleLogout = async () => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     try {
       await authService.logout();
-    } catch (e) {
-      console.warn("[AccountProfile] Logout endpoint error:", e);
+    } catch (err) {
+      console.warn("[AccountProfile] Logout error:", err);
     } finally {
       await logoutHelper();
     }
   };
 
-  // -------- Close profile handler --------
+  // -------- Navigation (Close Button) --------
   const handleClose = () => {
     const role = (roleInfo?.role || "").toLowerCase();
     const paths = {
@@ -207,12 +207,13 @@ const AccountProfile = ({ profile: externalProfile }) => {
     else navigate("/");
   };
 
-  // -------- Render booking status --------
+  // -------- Booking Status Colors --------
   const renderBookingStatus = (status) => {
     const colors = {
       pending: "#facc15",
       approved: "#22c55e",
       rejected: "#ef4444",
+      completed: "#3b82f6",
     };
     return (
       <span
@@ -229,9 +230,17 @@ const AccountProfile = ({ profile: externalProfile }) => {
     );
   };
 
-  const bookedServices = [
-    ...new Set(bookings.map((b) => b.service_type).filter(Boolean)),
-  ];
+  // -------- Dynamic + Static Service Options --------
+  const bookedServices = Array.from(
+    new Set(
+      bookings
+        .flatMap((b) =>
+          (b.service_details || []).map((s) => s.name)
+        )
+        .filter(Boolean)
+    )
+  );
+
   const staticServices = [
     "Live Band",
     "DJ",
@@ -243,9 +252,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
     "MC/Host",
     "Sound Setup",
   ];
-  const reviewServices = Array.from(
-    new Set([...bookedServices, ...staticServices])
-  );
+
+  const reviewServices = Array.from(new Set([...bookedServices, ...staticServices]));
 
   if (loading) return <div className="skeleton-loader">Loading profile...</div>;
 
@@ -296,7 +304,10 @@ const AccountProfile = ({ profile: externalProfile }) => {
           {bookings.length > 0 ? (
             bookings.map((bk) => (
               <article key={bk.id} className="booking-card">
-                <p><strong>Service:</strong> {bk.service_type || "N/A"}</p>
+                <p>
+                  <strong>Services:</strong>{" "}
+                  {(bk.service_details || []).map((s) => s.name).join(", ") || "N/A"}
+                </p>
                 <p>
                   <strong>Date:</strong>{" "}
                   {bk.event_date
