@@ -5,6 +5,13 @@ import baseURL from "../baseURL";
 
 const API_URL = `${baseURL}/blog`;
 
+/* 🧩 PRO TIP:
+   This service is synced with the Django REST API backend.
+   - Auth required for admin endpoints (axiosInstance)
+   - Public endpoints use publicAxios
+   - Handles Posts, Categories, Comments, Social Sync, and Accounts
+*/
+
 // -------------------------
 // Helper to normalize paginated or raw arrays
 // -------------------------
@@ -16,7 +23,7 @@ const normalizeArray = (data) => {
 };
 
 // -------------------------
-// POSTS
+// POSTS (Public + Admin)
 // -------------------------
 export const getPosts = async (params = {}) => {
   const res = await publicAxios.get(`${API_URL}/posts/`, { params });
@@ -40,7 +47,7 @@ export const deletePost = (slug) =>
   axiosInstance.delete(`${API_URL}/posts/${slug}/`).then((res) => res.data);
 
 // -------------------------
-// COMMENTS
+// COMMENTS (Public + Admin)
 // -------------------------
 export const getComments = async (slug) => {
   if (!slug || slug === "latest" || slug === "articles") return [];
@@ -53,6 +60,17 @@ export const addComment = async (slug, data) => {
   return res.data || null;
 };
 
+// Admin comment moderation
+export const updateComment = async (id, data) => {
+  const res = await axiosInstance.patch(`${API_URL}/comments/${id}/`, data);
+  return res.data;
+};
+
+export const deleteComment = async (id) => {
+  const res = await axiosInstance.delete(`${API_URL}/comments/${id}/`);
+  return res.data;
+};
+
 // -------------------------
 // SOCIAL SYNC (Admin Only)
 // -------------------------
@@ -62,7 +80,7 @@ export const syncSocialPost = async (slug) => {
 };
 
 // -------------------------
-// CATEGORIES
+// CATEGORIES (Public + Admin)
 // -------------------------
 export const getCategories = async () => {
   const res = await publicAxios.get(`${API_URL}/categories/`);
@@ -104,21 +122,32 @@ export const getSocialPosts = () =>
 // Export all
 // -------------------------
 export default {
+  // Posts
   getPosts,
   getPostDetail,
   createPost,
   updatePost,
   deletePost,
+
+  // Comments
   getComments,
   addComment,
+  updateComment,
+  deleteComment,
+
+  // Social
   syncSocialPost,
+  getSocialPosts,
+
+  // Categories
   getCategories,
   createCategory,
   updateCategory,
   deleteCategory,
+
+  // Social Accounts
   getSocialAccounts,
   createSocialAccount,
   updateSocialAccount,
   deleteSocialAccount,
-  getSocialPosts,
 };
