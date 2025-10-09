@@ -1,6 +1,6 @@
 // src/api/blogAPI.js
-import axiosInstance from "../axiosInstance";
-import baseURL from "../baseURL";
+import axiosInstance from "./axiosInstance";
+import baseURL from "./baseURL";
 
 // Create an axios instance for the blog API
 const blogAPI = axiosInstance.create({
