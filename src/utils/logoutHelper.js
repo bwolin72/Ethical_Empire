@@ -3,42 +3,46 @@
 import { toast } from "react-hot-toast";
 import authAPI from "../api/authAPI"; // centralized auth API methods
 
-// Keys that might hold auth/session info
+// Keys that may store auth/session information
 const AUTH_KEYS = ["access", "refresh", "user", "remember", "authData"];
 
 /**
  * Unified logout helper
- * 1. Attempts server-side logout if access token exists
- * 2. Clears localStorage and sessionStorage (all auth keys)
- * 3. Provides user feedback via toast (or console in dev)
- * 4. Redirects safely to /login (or custom URL)
+ * Handles both server-side logout and local cleanup.
+ * @param {string} redirectUrl - URL to redirect after logout (default: /login)
+ * @param {boolean} silent - If true, suppress toasts (useful for token expiry)
  */
-export const logoutHelper = async (redirectUrl = "/login") => {
+export const logoutHelper = async (redirectUrl = "/login", silent = false) => {
   const access =
     localStorage.getItem("access") || sessionStorage.getItem("access");
   let didServerLogout = false;
 
   try {
-    if (access) {
+    // ===== 1️⃣ Attempt server-side logout =====
+    if (access && authAPI?.logout) {
       await authAPI.logout();
       didServerLogout = true;
 
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Logout] ✅ Server logout successful.");
-      } else {
-        toast.success("✅ You have been logged out from the server.");
+      if (!silent) {
+        if (process.env.NODE_ENV === "development") {
+          console.log("[Logout] ✅ Server logout successful.");
+        } else {
+          toast.success("✅ Logged out from server.");
+        }
       }
     } else {
-      console.log("[Logout] No access token found, skipping server logout.");
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Logout] ℹ️ No access token, skipping server logout.");
+      }
     }
   } catch (err) {
     console.warn(
-      "[Logout] Server logout failed:",
+      "[Logout] ⚠️ Server logout failed:",
       err?.response?.status,
       err?.response?.data
     );
 
-    if (!didServerLogout) {
+    if (!didServerLogout && !silent) {
       if (process.env.NODE_ENV === "development") {
         console.log("⚠️ Server logout failed. Logging out locally.");
       } else {
@@ -46,24 +50,33 @@ export const logoutHelper = async (redirectUrl = "/login") => {
       }
     }
   } finally {
-    // Clear all stored auth/session data
-    AUTH_KEYS.forEach((key) => {
-      localStorage.removeItem(key);
-      sessionStorage.removeItem(key);
-    });
-    sessionStorage.clear();
-
-    // Final logout feedback
-    if (process.env.NODE_ENV === "development") {
-      console.log("[Logout] 👋 You have been logged out.");
-    } else {
-      toast.success("👋 You have been logged out.");
+    // ===== 2️⃣ Local cleanup =====
+    try {
+      AUTH_KEYS.forEach((key) => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      });
+      sessionStorage.clear();
+    } catch (clearError) {
+      console.warn("[Logout] Storage clear error:", clearError);
     }
 
-    // Redirect safely to login (or custom URL)
-    if (!window.location.pathname.includes("/login")) {
+    if (!silent) {
+      if (process.env.NODE_ENV === "development") {
+        console.log("[Logout] 👋 Local session cleared.");
+      } else {
+        toast.success("👋 You have been logged out.");
+      }
+    }
+
+    // ===== 3️⃣ Safe redirect =====
+    if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
       setTimeout(() => {
-        window.location.replace(redirectUrl);
+        try {
+          window.location.replace(redirectUrl);
+        } catch (e) {
+          console.warn("[Logout] Redirect failed:", e);
+        }
       }, 400);
     }
   }
