@@ -1,11 +1,11 @@
 import axiosInstance from "../axiosInstance";
 import bookingAPI from "../bookingAPI";
 
-// Extract CSRF token from cookies
+// Extract CSRF token
 const getCSRFToken = () =>
   document.cookie.split("; ").find((row) => row.startsWith("csrftoken="))?.split("=")[1];
 
-// Add CSRF and JSON headers
+// Add CSRF + JSON headers
 const withCSRF = (config = {}) => {
   const csrfToken = getCSRFToken();
   return {
@@ -19,23 +19,24 @@ const withCSRF = (config = {}) => {
   };
 };
 
-// Normalize method (update → patch)
+// Normalize HTTP method
 const resolveMethod = (method = "patch") =>
   method === "update" ? "patch" : method;
 
 const bookingService = {
-  // Public endpoints
-  create: (data) => axiosInstance.post(bookingAPI.create, data, { withCredentials: true }),
-  list: () => axiosInstance.get(bookingAPI.list, { withCredentials: true }),
+  // Public
+  create: (data) => axiosInstance.post(bookingAPI.create, data, withCSRF()),
+  list: () => axiosInstance.get(bookingAPI.list, withCSRF()),
 
-  // User endpoints
+  // User
   userBookings: () => axiosInstance.get(bookingAPI.userBookings, withCSRF()),
   userBookingHistory: () => axiosInstance.get(bookingAPI.userBookingHistory, withCSRF()),
   detail: (id) => axiosInstance.get(bookingAPI.detail(id), withCSRF()),
   update: (id, data, method = "patch") =>
     axiosInstance[resolveMethod(method)](bookingAPI.detail(id), data, withCSRF()),
+  delete: (id) => axiosInstance.delete(bookingAPI.detail(id), withCSRF()),
 
-  // Admin endpoints
+  // Admin
   adminList: () => axiosInstance.get(bookingAPI.adminList, withCSRF()),
   adminUpdate: (id, data, method = "patch") =>
     axiosInstance[resolveMethod(method)](bookingAPI.adminUpdate(id), data, withCSRF()),
