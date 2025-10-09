@@ -3,11 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
 
-// ✅ Direct imports from modular services
-import { ProfileService } from "../../api/services/profileService";
-import { BookingService } from "../../api/services/bookingService";
-import { AuthService } from "../../api/services/authService";
-import { ReviewService } from "../../api/services/reviewService";
+// ✅ Correct default imports (not named)
+import profileService from "../../api/services/profileService";
+import bookingService from "../../api/services/bookingService";
+import authService from "../../api/services/authService";
+import reviewService from "../../api/services/reviewService";
 
 import { logoutHelper } from "../../utils/logoutHelper";
 
@@ -69,25 +69,28 @@ const AccountProfile = ({ profile: externalProfile }) => {
     const fetchData = async () => {
       try {
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
-          ProfileService.get(),
-          BookingService.user(),
-          AuthService.currentRole(),
+          profileService.get(),
+          bookingService.userBookings(),
+          authService.currentRole(),
         ]);
 
-        const p = profileRes || {};
+        const p = profileRes?.data || {};
         setProfile({
           id: p.id || null,
           first_name: p.first_name || "",
           last_name: p.last_name || "",
-          name: p.name || `${p.first_name || ""} ${p.last_name || ""}`.trim() || "Unknown",
+          name:
+            p.name ||
+            `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
+            "Unknown",
           email: p.email || "",
           phone: p.phone || p.contact_number || "",
           profile_image_url: p.profile_image_url || "",
           ...p,
         });
         setProfileImage(p.profile_image_url || "");
-        setBookings(bookingsRes || []);
-        setRoleInfo(roleRes || null);
+        setBookings(bookingsRes?.data || []);
+        setRoleInfo(roleRes?.data || null);
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error("[AccountProfile] Failed to load profile data:", err);
@@ -139,12 +142,15 @@ const AccountProfile = ({ profile: externalProfile }) => {
         { method: "POST", body: formData }
       );
       const uploadData = await uploadRes.json();
-      if (!uploadData.secure_url) throw new Error("No secure URL returned from Cloudinary.");
+      if (!uploadData.secure_url)
+        throw new Error("No secure URL returned from Cloudinary.");
 
-      await ProfileService.update({ profile_image_url: uploadData.secure_url });
+      await profileService.update({ profile_image_url: uploadData.secure_url });
 
       setProfileImage(uploadData.secure_url);
-      setProfile((prev) => prev ? { ...prev, profile_image_url: uploadData.secure_url } : prev);
+      setProfile((prev) =>
+        prev ? { ...prev, profile_image_url: uploadData.secure_url } : prev
+      );
       toast.success("Profile picture updated!");
     } catch (err) {
       console.error("[AccountProfile] Upload failed:", err);
@@ -159,7 +165,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       return;
     }
     try {
-      await ReviewService.create({
+      await reviewService.create({
         comment: review,
         service: reviewService,
         rating: reviewRating,
@@ -179,7 +185,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     try {
-      await AuthService.logout();
+      await authService.logout();
     } catch (e) {
       console.warn("[AccountProfile] Logout endpoint error:", e);
     } finally {
@@ -223,12 +229,23 @@ const AccountProfile = ({ profile: externalProfile }) => {
     );
   };
 
-  const bookedServices = [...new Set(bookings.map(b => b.service_type).filter(Boolean))];
-  const staticServices = [
-    "Live Band", "DJ", "Photography", "Videography", "Catering",
-    "Event Planning", "Lighting", "MC/Host", "Sound Setup"
+  const bookedServices = [
+    ...new Set(bookings.map((b) => b.service_type).filter(Boolean)),
   ];
-  const reviewServices = Array.from(new Set([...bookedServices, ...staticServices]));
+  const staticServices = [
+    "Live Band",
+    "DJ",
+    "Photography",
+    "Videography",
+    "Catering",
+    "Event Planning",
+    "Lighting",
+    "MC/Host",
+    "Sound Setup",
+  ];
+  const reviewServices = Array.from(
+    new Set([...bookedServices, ...staticServices])
+  );
 
   if (loading) return <div className="skeleton-loader">Loading profile...</div>;
 
@@ -282,7 +299,9 @@ const AccountProfile = ({ profile: externalProfile }) => {
                 <p><strong>Service:</strong> {bk.service_type || "N/A"}</p>
                 <p>
                   <strong>Date:</strong>{" "}
-                  {bk.event_date ? new Date(bk.event_date).toLocaleDateString() : "N/A"}
+                  {bk.event_date
+                    ? new Date(bk.event_date).toLocaleDateString()
+                    : "N/A"}
                 </p>
                 <p><strong>Status:</strong> {renderBookingStatus(bk.status)}</p>
               </article>
