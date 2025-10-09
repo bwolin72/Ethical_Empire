@@ -1,19 +1,29 @@
 // src/api/profileAPI.js
-import baseURL from "./baseURL";
+import axiosInstance from "./axiosInstance";
 
 const profileAPI = {
-  // ✅ GET: Fetch the logged-in user's profile
-  get: `${baseURL}/accounts/profile/`,
+  /**
+   * GET - Fetch the logged-in user's profile
+   */
+  getProfile: () => axiosInstance.get("/accounts/profile/"),
 
-  // ✅ PUT/PATCH: Update user & profile (name, phone, image, etc.)
-  update: `${baseURL}/accounts/profile/`,
+  /**
+   * PUT/PATCH - Update the logged-in user's profile
+   * @param {Object} data - e.g. { first_name, last_name, phone, profile_image_url }
+   */
+  updateProfile: (data) => axiosInstance.patch("/accounts/profile/", data),
 
-  // ✅ POST: Change password
-  changePassword: `${baseURL}/accounts/change-password/`,
+  /**
+   * POST - Change the user's password
+   * @param {Object} data - { current_password, new_password }
+   */
+  changePassword: (data) =>
+    axiosInstance.post("/accounts/profile/change-password/", data),
 
-  // ✅ GET: Get the current logged-in user's role
-  currentRole: `${baseURL}/accounts/current-role/`,
+  /**
+   * GET - Fetch current user's role
+   */
+  currentRole: () => axiosInstance.get("/accounts/profile/role/"),
 };
 
-// ✅ Use default export (not named)
 export default profileAPI;
