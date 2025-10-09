@@ -8,7 +8,7 @@ import {
   getAccessToken,
   getRefreshToken,
   normalizeAuthResponse,
-} from "./tokenManagement";
+} from "../tokenManagement";
 
 /* ==========================================================
    AUTH SERVICE — FULLY MATCHED WITH DJANGO BACKEND
