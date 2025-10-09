@@ -7,7 +7,7 @@ import { logoutHelper } from "../utils/logoutHelper"; // ✅ updated import
 
 const MAX_RETRIES = 2;
 
-// ===== Development logger =====
+// ===== Development Logger =====
 const devLog = (...args) => {
   if (process.env.NODE_ENV === "development") {
     rawDevLog(...args);
@@ -41,7 +41,7 @@ const onTokenRefreshed = (newAccess) => {
   refreshSubscribers = [];
 };
 
-// ===== Retry helper =====
+// ===== Retry Helper =====
 const retryWithBackoff = (fn, delay) =>
   new Promise((resolve) => setTimeout(() => resolve(fn()), delay));
 
@@ -49,7 +49,7 @@ const retryWithBackoff = (fn, delay) =>
 axiosInstance.interceptors.request.use(
   (config) => {
     config = applyCommonRequestHeaders(config, true);
-    devLog("[Request]", config.method?.toUpperCase(), config.url);
+    devLog("[HTTP Request]", config.method?.toUpperCase(), config.url);
 
     if (!config.metadata) config.metadata = { retryCount: 0 };
 
@@ -60,7 +60,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
-    devLog("[Request Error]", error);
+    devLog("[HTTP Request Error]", error);
     return Promise.reject(error);
   }
 );
@@ -68,7 +68,7 @@ axiosInstance.interceptors.request.use(
 // ===== Response Interceptor =====
 axiosInstance.interceptors.response.use(
   (response) => {
-    devLog("[Response]", response.status, response.config.url);
+    devLog("[HTTP Response]", response.status, response.config.url);
     return response;
   },
   async (error) => {
@@ -82,9 +82,9 @@ axiosInstance.interceptors.response.use(
     const accessToken = storage.getItem("access");
     const refreshToken = storage.getItem("refresh");
 
-    devLog("[Error]", status, originalRequest?.url);
+    devLog("[HTTP Error]", status, originalRequest?.url);
 
-    // === Network Errors ===
+    // === Network or CORS Errors ===
     if (!error.response) {
       devLog("[Network Error]", error.message);
 
@@ -118,20 +118,20 @@ axiosInstance.interceptors.response.use(
     if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // 🚩 Guest request (no access token): ignore logout
+      // 🚩 Guest request: ignore
       if (!accessToken) {
-        devLog("[Auth] 401 for guest request → ignoring.");
+        devLog("[Auth] Guest request 401 → ignored");
         return Promise.reject(error);
       }
 
-      // 🚩 Logged-in but no refresh token → invalid session → logout
+      // 🚩 No refresh token → logout
       if (!refreshToken) {
-        devLog("[Auth] 401 with token but no refresh → logging out.");
+        devLog("[Auth] Missing refresh token → logout");
         logoutHelper();
         return Promise.reject(error);
       }
 
-      // 🚩 Queue if refresh already in progress
+      // 🚩 Wait if refresh already in progress
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           subscribeTokenRefresh((newAccess) => {
@@ -155,7 +155,10 @@ axiosInstance.interceptors.response.use(
         const { data } = await axios.post(
           refreshUrl,
           { refresh: refreshToken },
-          { withCredentials: true }
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
         );
 
         const newAccess = data.access;
@@ -193,13 +196,13 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // === Final fallback: 401 logout only if token exists ===
+    // === Final fallback: logout if authenticated user still gets 401 ===
     if (status === 401) {
       if (accessToken) {
-        devLog("[Auth] Final 401 with token → logging out.");
+        devLog("[Auth] Final 401 → logging out");
         logoutHelper();
       } else {
-        devLog("[Auth] Final 401 for guest → no action.");
+        devLog("[Auth] Final 401 (guest) → no action");
       }
     }
 
