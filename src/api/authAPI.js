@@ -1,3 +1,4 @@
+// src/api/authAPI.js
 import baseURL from "./baseURL";
 
 const API = {
@@ -13,7 +14,7 @@ const API = {
 
   // ------------------- PROFILE -------------------
   profile: `${baseURL}/accounts/profile/`,
-  profilesProfile: `${baseURL}/accounts/profiles/profile/`,
+  profilesProfile: `${baseURL}/accounts/profiles/profile/`, // alias
   changePassword: `${baseURL}/accounts/profile/change-password/`,
   currentUserRole: `${baseURL}/accounts/profile/role/`,
   roleChoices: `${baseURL}/accounts/role-choices/`,
@@ -22,11 +23,11 @@ const API = {
 
   // ------------------- PASSWORD RESET -------------------
   resetPassword: `${baseURL}/accounts/reset-password/`,
-  resetPasswordConfirm: (uid, token) =>
-    `${baseURL}/accounts/reset-password-confirm/${uid}/${token}/`,
+  resetPasswordConfirm: (uidb64, token) =>
+    `${baseURL}/accounts/reset-password-confirm/${uidb64}/${token}/`,
 
   // ------------------- JWT TOKENS -------------------
-  token: `${baseURL}/accounts/token/`,
+  tokenObtain: `${baseURL}/accounts/token/`,
   tokenRefresh: `${baseURL}/accounts/token/refresh/`,
   tokenVerify: `${baseURL}/accounts/token/verify/`,
 
