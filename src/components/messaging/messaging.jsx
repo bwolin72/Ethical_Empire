@@ -1,4 +1,4 @@
-// src/components/messaging/messaging.jsx
+// src/components/messaging/MessagesPage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import messagingService from "../../api/services/messagingService";
 import { Button } from "../ui/Button";
@@ -12,6 +12,9 @@ import {
   CheckCircle,
   XCircle,
   Plus,
+  Mail,
+  Send,
+  X,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,7 +26,6 @@ export default function MessagesPage({ currentUser }) {
   const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showForm, setShowForm] = useState(false);
-
   const [formData, setFormData] = useState({
     subject: "",
     message: "",
@@ -36,128 +38,94 @@ export default function MessagesPage({ currentUser }) {
     vendor_agency_name: "",
     equipment_list: "",
   });
-
   const [unreadCount, setUnreadCount] = useState(0);
   const unreadRef = useRef(0);
   const pollIntervalRef = useRef(null);
 
-  const RENTAL_CATEGORIES = [
-    { value: "live_band", label: "Live Band" },
-    { value: "catering", label: "Catering" },
-    { value: "decor", label: "Décor" },
-    { value: "photography", label: "Photography" },
-    { value: "videography", label: "Videography" },
-    { value: "yard", label: "Yard" },
-  ];
+  // ---------- User & Role Detection ----------
+  const userId =
+    currentUser?.id ||
+    currentUser?.pk ||
+    currentUser?.user?.id ||
+    currentUser?.user?.pk ||
+    null;
 
-  // ------------------- Robust User Checks -------------------
-  const getUserId = (user) => {
-    if (!user) return null;
-    return (
-      user.id ??
-      user.pk ??
-      user.user?.id ??
-      user.user?.pk ??
-      null
-    );
-  };
-
-  const userId = getUserId(currentUser);
   const isAuthenticated = Boolean(userId);
+  const role = currentUser?.role?.toLowerCase?.() || "";
 
-  const normalizeRole = (r) =>
-    typeof r === "string" && r ? r.trim().toLowerCase() : "";
+  const isAdmin = role === "admin" || currentUser?.is_staff;
+  const isVendor = role === "vendor";
+  const isPartner = role === "partner";
+  const isWorker = role === "worker";
 
-  const roleStr = normalizeRole(currentUser?.role);
-  const isAdmin =
-    roleStr === "admin" || currentUser?.is_staff || currentUser?.is_superuser;
-  const isWorker = roleStr === "worker" || Boolean(currentUser?.is_worker);
-  const isVendor = roleStr === "vendor" || Boolean(currentUser?.is_vendor);
-  const isPartner = roleStr === "partner" || Boolean(currentUser?.is_partner);
+  const canSendMessage = isAuthenticated;
 
-  const isSender = (msg) => {
-    if (!userId) return false;
-    if (typeof msg.sender === "object") {
-      return String(msg.sender?.id ?? msg.sender?.pk ?? "") === String(userId);
-    }
-    return String(msg.sender) === String(userId);
-  };
-
-  // ------------------- Fetch Messages -------------------
+  // ---------- Fetch Messages ----------
   const fetchMessages = async () => {
     try {
       setLoading(true);
-      setError(null);
       const data = await messagingService.fetchMessages();
       setMessages(Array.isArray(data) ? data : data?.results || []);
     } catch (err) {
-      console.error("Error fetching messages:", err);
+      console.error(err);
       setError("Failed to load messages");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchUnreadCountAndNotify = async ({ notifyNew = true } = {}) => {
+  const fetchUnreadCount = async (notify = true) => {
     try {
       const data = await messagingService.fetchUnread();
       const list = Array.isArray(data) ? data : data?.results || [];
       const count = list.length || 0;
-      if (notifyNew && count > unreadRef.current) {
+
+      if (notify && count > unreadRef.current) {
         toast.info(`You have ${count} unread message${count > 1 ? "s" : ""}`);
       }
+
       setUnreadCount(count);
       unreadRef.current = count;
-      return count;
     } catch (err) {
-      console.error("Error fetching unread count:", err);
-      return 0;
+      console.error("Failed to fetch unread count:", err);
     }
   };
 
   useEffect(() => {
     if (!isAuthenticated) return;
-
     fetchMessages();
-    fetchUnreadCountAndNotify({ notifyNew: false });
+    fetchUnreadCount(false);
 
     pollIntervalRef.current = setInterval(() => {
-      fetchUnreadCountAndNotify({ notifyNew: true });
+      fetchUnreadCount(true);
     }, 30000);
 
-    return () => {
-      clearInterval(pollIntervalRef.current);
-    };
-  }, [currentUser]);
+    return () => clearInterval(pollIntervalRef.current);
+  }, [isAuthenticated]);
 
-  // ------------------- Form Handlers -------------------
+  // ---------- Form Handlers ----------
   const handleChange = (e) => {
-    const { name, value, files, type, checked } = e.target;
+    const { name, value, files } = e.target;
     if (files) {
       const file = files[0];
       if (file.size > 5 * 1024 * 1024) {
-        setError("Attachment too large. Max size is 5 MB.");
+        setError("Attachment too large (max 5 MB).");
         return;
       }
-      setFormData((prev) => ({ ...prev, [name]: file }));
-    } else if (type === "checkbox") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: checked ? value : "",
-      }));
+      setFormData((p) => ({ ...p, [name]: file }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((p) => ({ ...p, [name]: value }));
     }
   };
 
-  const handleCategoryToggle = (category) => {
-    setFormData((prev) => {
-      const exists = prev.rental_categories.includes(category);
+  const handleCategoryToggle = (cat) => {
+    setFormData((p) => {
+      const exists = p.rental_categories.includes(cat);
       return {
-        ...prev,
+        ...p,
         rental_categories: exists
-          ? prev.rental_categories.filter((c) => c !== category)
-          : [...prev.rental_categories, category],
+          ? p.rental_categories.filter((c) => c !== cat)
+          : [...p.rental_categories, cat],
       };
     });
   };
@@ -165,13 +133,12 @@ export default function MessagesPage({ currentUser }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
     if (!isAuthenticated) {
-      setError("You must be signed in to send a message.");
+      setError("You must sign in to send a message.");
       return;
     }
 
-    if (formData.service_type === "rental" && formData.rental_categories.length === 0) {
+    if (formData.service_type === "rental" && !formData.rental_categories.length) {
       setError("Please select at least one rental category.");
       return;
     }
@@ -180,16 +147,12 @@ export default function MessagesPage({ currentUser }) {
       const fd = new FormData();
       Object.entries(formData).forEach(([key, val]) => {
         if (val === null || val === "") return;
-        if (Array.isArray(val)) {
-          val.forEach((v) => fd.append("rental_categories", v));
-        } else {
-          fd.append(key, val);
-        }
+        if (Array.isArray(val)) val.forEach((v) => fd.append(key, v));
+        else fd.append(key, val);
       });
 
       await messagingService.sendMessage(fd);
-      toast.success("Message sent.");
-      setShowForm(false);
+      toast.success("Message sent!");
       setFormData({
         subject: "",
         message: "",
@@ -202,266 +165,201 @@ export default function MessagesPage({ currentUser }) {
         vendor_agency_name: "",
         equipment_list: "",
       });
-
-      await fetchMessages();
-      await fetchUnreadCountAndNotify({ notifyNew: false });
+      setShowForm(false);
+      fetchMessages();
+      fetchUnreadCount(false);
     } catch (err) {
-      console.error("Error sending message:", err);
+      console.error(err);
       setError("Failed to send message");
     }
   };
 
-  // ------------------- Actions -------------------
-  const handleDelete = async (id, msg) => {
-    if (!(isAdmin || isSender(msg))) {
-      setError("You don't have permission to delete this message.");
-      return;
-    }
+  const handleDelete = async (id) => {
     if (!window.confirm("Delete this message?")) return;
-
     try {
       await messagingService.removeMessage(id);
-      toast.success("Message deleted.");
+      toast.success("Message deleted");
       fetchMessages();
-      fetchUnreadCountAndNotify({ notifyNew: false });
-    } catch (err) {
-      console.error(err);
-      setError("Failed to delete message");
+      fetchUnreadCount(false);
+    } catch {
+      toast.error("Failed to delete message");
     }
   };
 
-  const handleMarkRead = async (id, msg) => {
-    if (!(isAdmin || isSender(msg))) return;
-    try {
-      await messagingService.markAsRead(id);
-      fetchMessages();
-      fetchUnreadCountAndNotify({ notifyNew: false });
-    } catch (err) {
-      console.error(err);
-      setError("Failed to mark as read");
-    }
+  const handleMarkRead = async (id) => {
+    await messagingService.markAsRead(id);
+    fetchMessages();
+    fetchUnreadCount(false);
   };
 
-  const handleMarkUnread = async (id, msg) => {
-    if (!(isAdmin || isSender(msg))) return;
-    try {
-      await messagingService.markAsUnread(id);
-      fetchMessages();
-      fetchUnreadCountAndNotify({ notifyNew: false });
-    } catch (err) {
-      console.error(err);
-      setError("Failed to mark as unread");
-    }
+  const handleMarkUnread = async (id) => {
+    await messagingService.markAsUnread(id);
+    fetchMessages();
+    fetchUnreadCount(false);
   };
 
-  // ------------------- Render Helpers -------------------
-  const canSendMessage = isAuthenticated;
-  const showPartnerFields = isPartner || isAdmin;
-  const showVendorFields = isVendor || isAdmin;
-  const showEquipmentField = isWorker || isAdmin || isVendor;
-
+  // ---------- Render ----------
   if (!isAuthenticated) {
     return (
-      <div className="messaging-page">
-        <ToastContainer position="top-right" autoClose={5000} />
-        <h1>Messages</h1>
-        <p>You must sign in to view and send messages.</p>
+      <div className="messaging-empty-state">
+        <ToastContainer position="top-right" />
+        <Mail size={48} className="icon-muted" />
+        <h2>You must sign in to view and send messages.</h2>
       </div>
     );
   }
 
   return (
-    <div className="messaging-page">
-      <ToastContainer position="top-right" autoClose={5000} />
-      <div className="messaging-header">
+    <div className="messaging-dashboard">
+      <ToastContainer position="top-right" />
+      <div className="header-bar">
         <h1>Messages</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Button onClick={() => setShowForm((s) => !s)}>
-            <Plus className="icon" /> New Message
+        <div className="header-actions">
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="icon" /> New
           </Button>
-          <div className="unread-badge" title={`${unreadCount} unread`}>
-            <Button size="sm" variant="ghost" onClick={fetchMessages}>
-              <strong>{unreadCount}</strong> unread
-            </Button>
+          <div className="unread-count">
+            {unreadCount > 0 && <span>{unreadCount}</span>} Unread
           </div>
         </div>
       </div>
 
-      {error && <p className="error-text">{error}</p>}
-      {loading && <Loader2 className="loading-spinner" />}
+      <div className="messaging-layout">
+        <div className="message-list">
+          {loading && <Loader2 className="spinner" />}
+          {error && <p className="error">{error}</p>}
 
-      {showForm && canSendMessage && (
-        <form onSubmit={handleSubmit} className="message-form">
-          <Input
-            type="text"
-            name="subject"
-            value={formData.subject}
-            onChange={handleChange}
-            placeholder="Subject"
-            required
-          />
-          <Textarea
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Your message"
-            required
-          />
-          <Input type="file" name="attachment" onChange={handleChange} />
+          {messages.length === 0 && !loading && <p>No messages found.</p>}
 
-          <div className="form-group">
-            <label>Service Type</label>
-            <select name="service_type" value={formData.service_type} onChange={handleChange}>
-              <option value="">Select Service Type</option>
-              <option value="rental">Rental</option>
-              <option value="hiring">Hiring</option>
-            </select>
-          </div>
+          {messages.map((msg) => (
+            <Card
+              key={msg.id}
+              className={`message-item ${msg.is_read ? "read" : "unread"}`}
+              onClick={() => setSelectedMessage(msg)}
+            >
+              <CardContent>
+                <div className="msg-top">
+                  <h3>{msg.subject}</h3>
+                  {!msg.is_read && <span className="unread-dot" />}
+                </div>
+                <p>{msg.message?.slice(0, 100)}...</p>
+                <div className="msg-meta">
+                  <span>From: {msg.sender_name || msg.sender_email}</span>
+                  <div className="msg-actions">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(msg.id)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                    {msg.is_read ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleMarkUnread(msg.id)}
+                      >
+                        <XCircle size={16} />
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleMarkRead(msg.id)}
+                      >
+                        <CheckCircle size={16} />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-          {formData.service_type === "rental" && (
-            <div className="form-group">
-              <label>Rental Categories</label>
-              <div className="checkbox-group">
-                {RENTAL_CATEGORIES.map((cat) => (
-                  <label key={cat.value} className="checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={formData.rental_categories.includes(cat.value)}
-                      onChange={() => handleCategoryToggle(cat.value)}
-                    />
-                    <span>{cat.label}</span>
-                  </label>
-                ))}
-              </div>
+        <div className="message-details">
+          {selectedMessage ? (
+            <Card className="message-view">
+              <CardContent>
+                <div className="view-header">
+                  <h2>{selectedMessage.subject}</h2>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setSelectedMessage(null)}
+                  >
+                    <X />
+                  </Button>
+                </div>
+                <p>{selectedMessage.message}</p>
+                {selectedMessage.attachment_url && (
+                  <a
+                    href={selectedMessage.attachment_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Attachment
+                  </a>
+                )}
+              </CardContent>
+            </Card>
+          ) : showForm ? (
+            <Card className="message-compose">
+              <CardContent>
+                <div className="view-header">
+                  <h2>New Message</h2>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setShowForm(false)}
+                  >
+                    <X />
+                  </Button>
+                </div>
+                <form onSubmit={handleSubmit} className="compose-form">
+                  <Input
+                    name="subject"
+                    placeholder="Subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Textarea
+                    name="message"
+                    placeholder="Your message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Input type="file" name="attachment" onChange={handleChange} />
+
+                  <div className="form-group">
+                    <label>Service Type</label>
+                    <select
+                      name="service_type"
+                      value={formData.service_type}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select</option>
+                      <option value="rental">Rental</option>
+                      <option value="hiring">Hiring</option>
+                    </select>
+                  </div>
+
+                  <Button type="submit">
+                    <Send size={16} /> Send
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="empty-view">
+              <Mail size={48} className="icon-muted" />
+              <p>Select a message or create a new one</p>
             </div>
           )}
-
-          {showPartnerFields && (
-            <>
-              <Input
-                type="text"
-                name="partner_company"
-                value={formData.partner_company}
-                onChange={handleChange}
-                placeholder="Partner Company"
-              />
-              <Input
-                type="text"
-                name="agency_name"
-                value={formData.agency_name}
-                onChange={handleChange}
-                placeholder="Agency Name"
-              />
-            </>
-          )}
-
-          {showVendorFields && (
-            <>
-              <Input
-                type="text"
-                name="vendor_company"
-                value={formData.vendor_company}
-                onChange={handleChange}
-                placeholder="Vendor Company"
-              />
-              <Input
-                type="text"
-                name="vendor_agency_name"
-                value={formData.vendor_agency_name}
-                onChange={handleChange}
-                placeholder="Vendor Agency Name"
-              />
-            </>
-          )}
-
-          {showEquipmentField && (
-            <Textarea
-              name="equipment_list"
-              value={formData.equipment_list}
-              onChange={handleChange}
-              placeholder="Equipment List"
-            />
-          )}
-
-          <Button type="submit">Send</Button>
-        </form>
-      )}
-
-      <div className="messages-list">
-        {messages.length > 0 ? (
-          messages.map((msg) => {
-            const sender = msg.sender_name || msg.sender_email || "Unknown";
-            const allowModify = isAdmin || isSender(msg);
-            return (
-              <Card key={msg.id} className="message-card">
-                <CardContent>
-                  <div className="message-header">
-                    <h2>{msg.subject}</h2>
-                    <div className="message-actions">
-                      <Button size="sm" variant="ghost" onClick={() => setSelectedMessage(msg)}>
-                        <Eye className="icon" />
-                      </Button>
-                      {allowModify && (
-                        <Button size="sm" variant="ghost" onClick={() => handleDelete(msg.id, msg)}>
-                          <Trash2 className="icon" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  <p>{msg.message?.slice(0, 100)}...</p>
-                  <div className="message-status">
-                    {msg.is_read ? (
-                      <span className="status-read">
-                        <CheckCircle className="icon" /> Read
-                      </span>
-                    ) : (
-                      <span className="status-unread">
-                        <XCircle className="icon" /> Unread
-                      </span>
-                    )}
-                    {allowModify && !msg.is_read && (
-                      <Button size="sm" variant="outline" onClick={() => handleMarkRead(msg.id, msg)}>
-                        Mark Read
-                      </Button>
-                    )}
-                    {allowModify && msg.is_read && (
-                      <Button size="sm" variant="outline" onClick={() => handleMarkUnread(msg.id, msg)}>
-                        Mark Unread
-                      </Button>
-                    )}
-                  </div>
-                  <p className="message-meta">From: {sender}</p>
-                  {msg.rental_categories_display?.length > 0 && (
-                    <p>Categories: {msg.rental_categories_display.join(", ")}</p>
-                  )}
-                  {msg.attachment_url && (
-                    <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer">
-                      View Attachment
-                    </a>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })
-        ) : (
-          <p>No messages found.</p>
-        )}
-      </div>
-
-      {selectedMessage && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>{selectedMessage.subject}</h2>
-            <p>{selectedMessage.message}</p>
-            {selectedMessage.attachment_url && (
-              <a href={selectedMessage.attachment_url} target="_blank" rel="noopener noreferrer">
-                View Attachment
-              </a>
-            )}
-            <Button onClick={() => setSelectedMessage(null)}>Close</Button>
-          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
