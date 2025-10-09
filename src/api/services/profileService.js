@@ -1,8 +1,8 @@
 // src/api/services/profileService.js
 
-import { authAPI } from "../authAPI";
+import authAPI from "../authAPI";
 import profileAPI from "../profileAPI";
-import { bookingAPI } from "../bookingAPI"; // optional if used later
+import bookingAPI from "../bookingAPI"; // optional if used later
 
 const profileService = {
   /**
