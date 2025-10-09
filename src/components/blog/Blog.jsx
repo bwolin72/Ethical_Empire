@@ -6,9 +6,22 @@ import PublicBlogService from "../../api/services/publicBlogService";
 import SocialHub from "../social/SocialHub";
 import "./blog.css";
 
-// ==========================
-// Blog List Page
-// ==========================
+// ====================================================
+// Helper: Safe API Fetch
+// ====================================================
+const safeFetch = async (fn, fallback = []) => {
+  try {
+    const res = await fn();
+    return res || fallback;
+  } catch (err) {
+    console.error("API error:", err);
+    return fallback;
+  }
+};
+
+// ====================================================
+// BLOG LIST PAGE
+// ====================================================
 export function BlogList() {
   const { categorySlug } = useParams();
   const location = useLocation();
@@ -21,36 +34,46 @@ export function BlogList() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let mounted = true;
+
     async function fetchData() {
       setLoading(true);
+      setError(null);
       try {
-        // Fetch latest posts
-        const fetchedPosts = await PublicBlogService.getLatestPosts();
-        setPosts(Array.isArray(fetchedPosts) ? fetchedPosts : []);
+        const [fetchedPosts, fetchedCategories, fetchedSocial] = await Promise.all([
+          safeFetch(() => PublicBlogService.getLatestPosts()),
+          safeFetch(() => PublicBlogService.getCategories()),
+          safeFetch(() => PublicBlogService.getSocialPosts()),
+        ]);
 
-        // Fetch categories
-        const fetchedCategories = await PublicBlogService.getCategories();
-        setCategories(Array.isArray(fetchedCategories) ? fetchedCategories : []);
-
-        // Fetch social media posts
-        const fetchedSocialPosts = await PublicBlogService.getSocialPosts();
-        setSocialPosts(Array.isArray(fetchedSocialPosts) ? fetchedSocialPosts : []);
+        if (mounted) {
+          setPosts(fetchedPosts);
+          setCategories(fetchedCategories);
+          setSocialPosts(fetchedSocial);
+        }
       } catch (err) {
-        console.error("Failed to fetch blog data:", err);
-        setError("Unable to load blog data.");
+        if (mounted) setError("Unable to load blog data.");
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     }
+
     fetchData();
+    return () => {
+      mounted = false;
+    };
   }, [location]);
+
+  const filteredPosts = posts
+    .filter(
+      (p) =>
+        typeof p.title === "string" &&
+        p.title.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((p) => !categorySlug || p.category?.slug === categorySlug);
 
   if (loading) return <p className="text-center p-6">Loading...</p>;
   if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
-
-  const filteredPosts = posts
-    .filter((p) => typeof p.title === "string" && p.title.toLowerCase().includes(search.toLowerCase()))
-    .filter((p) => !categorySlug || p.category?.slug === categorySlug);
 
   return (
     <div className="blog-container">
@@ -86,12 +109,20 @@ export function BlogList() {
         {filteredPosts.length === 0 && <p className="no-posts">No posts found.</p>}
         {filteredPosts.map((post) => (
           <Card key={post.id} className="blog-post-card">
-            {post.featured_image && (
-              <img src={post.featured_image} alt={post.title} className="blog-post-image" />
+            {post.featured_image ? (
+              <img
+                src={post.featured_image}
+                alt={post.title}
+                className="blog-post-image"
+              />
+            ) : (
+              <div className="blog-post-placeholder">No Image</div>
             )}
             <CardContent className="blog-post-content">
               <h2 className="blog-post-title">{post.title}</h2>
-              <p className="blog-post-excerpt">{post.content?.slice(0, 120)}...</p>
+              <p className="blog-post-excerpt">
+                {post.excerpt || post.content?.slice(0, 120) || ""}...
+              </p>
               <Button asChild>
                 <Link to={`/blog/${post.slug}`}>Read More</Link>
               </Button>
@@ -100,7 +131,7 @@ export function BlogList() {
         ))}
       </div>
 
-      {/* Social Media Posts */}
+      {/* Social Feed */}
       <div className="blog-social-posts">
         <h2>Latest on Social Media</h2>
         <SocialHub socialPosts={socialPosts} />
@@ -109,9 +140,9 @@ export function BlogList() {
   );
 }
 
-// ==========================
-// Blog Detail Page
-// ==========================
+// ====================================================
+// BLOG DETAIL PAGE
+// ====================================================
 export function BlogDetail() {
   const { slug } = useParams();
 
@@ -122,44 +153,59 @@ export function BlogDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // --------------------------
+  // Fetch Post + Comments
+  // --------------------------
   useEffect(() => {
+    let mounted = true;
+
     async function fetchData() {
       setLoading(true);
+      setError(null);
       try {
-        // Fetch post detail
-        const fetchedPost = await PublicBlogService.getPostDetail(slug);
-        setPost(fetchedPost || null);
+        const [fetchedPost, fetchedComments, fetchedSocial] = await Promise.all([
+          safeFetch(() => PublicBlogService.getPostDetail(slug), null),
+          safeFetch(() => PublicBlogService.getComments(slug)),
+          safeFetch(() => PublicBlogService.getSocialPosts()),
+        ]);
 
-        // Fetch comments
-        const fetchedComments = await PublicBlogService.getComments(slug);
-        setComments(Array.isArray(fetchedComments) ? fetchedComments : []);
-
-        // Fetch global social media posts
-        const fetchedSocialPosts = await PublicBlogService.getSocialPosts();
-        setSocialPosts(Array.isArray(fetchedSocialPosts) ? fetchedSocialPosts : []);
+        if (mounted) {
+          setPost(fetchedPost);
+          setComments(fetchedComments);
+          setSocialPosts(fetchedSocial);
+        }
       } catch (err) {
-        console.error("Failed to fetch post data:", err);
-        setError("Unable to load post details.");
+        if (mounted) setError("Unable to load post details.");
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     }
+
     fetchData();
+    return () => {
+      mounted = false;
+    };
   }, [slug]);
 
+  // --------------------------
+  // Handle Comment Submit
+  // --------------------------
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentContent.trim()) return;
-    try {
-      await PublicBlogService.addComment(slug, { content: commentContent });
-      setCommentContent("");
-      const refreshedComments = await PublicBlogService.getComments(slug);
-      setComments(Array.isArray(refreshedComments) ? refreshedComments : []);
-    } catch (err) {
-      console.error("Failed to post comment:", err);
-    }
+
+    await safeFetch(() =>
+      PublicBlogService.addComment(slug, { content: commentContent })
+    );
+    setCommentContent("");
+
+    const refreshed = await safeFetch(() => PublicBlogService.getComments(slug));
+    setComments(refreshed);
   };
 
+  // --------------------------
+  // Render
+  // --------------------------
   if (loading) return <p className="text-center p-6">Loading...</p>;
   if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
   if (!post) return <p className="text-center p-6">Post not found.</p>;
@@ -168,11 +214,16 @@ export function BlogDetail() {
     <div className="blog-detail-container">
       <h1 className="blog-detail-title">{post.title}</h1>
       <p className="blog-detail-meta">
-        {new Date(post.publish_date || post.created_at).toLocaleDateString()} | {post.category?.name}
+        {new Date(post.publish_date || post.created_at).toLocaleDateString()}{" "}
+        | {post.category?.name || "Uncategorized"}
       </p>
 
       {post.featured_image && (
-        <img src={post.featured_image} alt={post.title} className="blog-detail-image" />
+        <img
+          src={post.featured_image}
+          alt={post.title}
+          className="blog-detail-image"
+        />
       )}
 
       <div
@@ -180,7 +231,7 @@ export function BlogDetail() {
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
 
-      {/* Embedded media */}
+      {/* Embedded Media */}
       {post.youtube_url && (
         <div className="blog-media">
           <iframe
