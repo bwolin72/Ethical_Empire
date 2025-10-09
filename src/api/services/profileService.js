@@ -1,40 +1,20 @@
 // src/api/services/profileService.js
-import profileAPI from "../profileAPI";
+import axiosInstance from "../axiosInstance";
+import API from "../authAPI"; // single source for account endpoints
 
 const profileService = {
-  /**
-   * Get the current logged-in user's profile
-   */
-  get: async () => {
-    const response = await profileAPI.getProfile();
-    return response;
-  },
+  // GET: fetch authenticated user's profile
+  get: (config = {}) => axiosInstance.get(API.profile, { ...config }),
 
-  /**
-   * Update the current logged-in user's profile
-   * @param {Object} data - fields to update (e.g. { first_name, last_name, phone })
-   */
-  update: async (data) => {
-    const response = await profileAPI.updateProfile(data);
-    return response;
-  },
+  // PATCH: update profile (partial) — use patch for safety
+  update: (data, config = {}) => axiosInstance.patch(API.profile, data, { ...config }),
 
-  /**
-   * Change password for the current logged-in user
-   * @param {Object} data - { current_password, new_password }
-   */
-  changePassword: async (data) => {
-    const response = await profileAPI.changePassword(data);
-    return response;
-  },
+  // POST: change password
+  changePassword: (data, config = {}) =>
+    axiosInstance.post(API.changePassword, data, { ...config }),
 
-  /**
-   * Get the current user's role
-   */
-  currentRole: async () => {
-    const response = await profileAPI.currentRole();
-    return response;
-  },
+  // GET: current user's role
+  currentRole: (config = {}) => axiosInstance.get(API.currentUserRole, { ...config }),
 };
 
 export default profileService;
