@@ -1,31 +1,40 @@
 // src/api/services/profileService.js
-
-import authAPI from "../authAPI";
 import profileAPI from "../profileAPI";
-import bookingAPI from "../bookingAPI"; // optional if used later
 
 const profileService = {
   /**
    * Get the current logged-in user's profile
    */
-  get: () => profileAPI.getProfile(),
+  get: async () => {
+    const response = await profileAPI.getProfile();
+    return response;
+  },
 
   /**
    * Update the current logged-in user's profile
    * @param {Object} data - fields to update (e.g. { first_name, last_name, phone })
    */
-  update: (data) => profileAPI.updateProfile(data),
+  update: async (data) => {
+    const response = await profileAPI.updateProfile(data);
+    return response;
+  },
 
   /**
    * Change password for the current logged-in user
-   * @param {Object} data - { old_password, new_password }
+   * @param {Object} data - { current_password, new_password }
    */
-  changePassword: (data) => authAPI.changePassword(data),
+  changePassword: async (data) => {
+    const response = await profileAPI.changePassword(data);
+    return response;
+  },
 
   /**
    * Get the current user's role
    */
-  currentRole: () => authAPI.currentRole(),
+  currentRole: async () => {
+    const response = await profileAPI.currentRole();
+    return response;
+  },
 };
 
 export default profileService;
