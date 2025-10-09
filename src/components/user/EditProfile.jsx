@@ -1,14 +1,11 @@
 // src/components/user/EditProfile.jsx
-
 import React, { useState, useEffect } from "react";
 import authAPI from "../../api/authAPI";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { useProfile } from "../context/ProfileContext";
 import "react-toastify/dist/ReactToastify.css";
-
-// ✅ Use the central PasswordForm styles
-import "../styles/PasswordForm.css";
+import "../styles/EditProfile.css"; // 🟡 custom brand-aligned CSS
 
 const EditProfile = () => {
   const [form, setForm] = useState({
@@ -49,9 +46,7 @@ const EditProfile = () => {
 
     try {
       const res = await authAPI.updateProfile(filteredForm);
-
       updateProfile(res.data);
-
       toast.success("✅ Profile updated successfully!");
       setTimeout(() => navigate(-1), 1500);
     } catch (err) {
@@ -64,66 +59,73 @@ const EditProfile = () => {
     }
   };
 
-  if (loading) return <p className="loading-text">Loading profile...</p>;
+  if (loading)
+    return <p className="edit-profile__loading">Loading your profile...</p>;
 
   return (
-    <div className="password-form">
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar
-        theme="colored"
-      />
+    <div className="edit-profile">
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
 
-      <h2>Edit Your Profile</h2>
+      <div className="edit-profile__card">
+        <h2 className="edit-profile__title">Edit Your Profile</h2>
+        <p className="edit-profile__subtitle">
+          Keep your details up-to-date for a seamless experience
+        </p>
 
-      <div className="password-field">
-        <input
-          type="text"
-          name="first_name"
-          value={form.first_name}
-          onChange={handleChange}
-          placeholder="First Name"
-        />
-      </div>
+        <div className="edit-profile__form">
+          <div className="form-group">
+            <label>First Name</label>
+            <input
+              type="text"
+              name="first_name"
+              value={form.first_name}
+              onChange={handleChange}
+              placeholder="Enter your first name"
+            />
+          </div>
 
-      <div className="password-field">
-        <input
-          type="text"
-          name="last_name"
-          value={form.last_name}
-          onChange={handleChange}
-          placeholder="Last Name"
-        />
-      </div>
+          <div className="form-group">
+            <label>Last Name</label>
+            <input
+              type="text"
+              name="last_name"
+              value={form.last_name}
+              onChange={handleChange}
+              placeholder="Enter your last name"
+            />
+          </div>
 
-      <div className="password-field">
-        <input
-          type="email"
-          value={email}
-          readOnly
-          placeholder="Email (read-only)"
-          style={{ backgroundColor: "#f3f3f3", cursor: "not-allowed" }}
-        />
-      </div>
+          <div className="form-group">
+            <label>Email (read-only)</label>
+            <input
+              type="email"
+              value={email}
+              readOnly
+              className="readonly"
+              placeholder="Email address"
+            />
+          </div>
 
-      <div className="password-field">
-        <input
-          type="tel"
-          name="phone_number"
-          value={form.phone_number}
-          onChange={handleChange}
-          placeholder="Phone Number"
-        />
-      </div>
+          <div className="form-group">
+            <label>Phone Number</label>
+            <input
+              type="tel"
+              name="phone_number"
+              value={form.phone_number}
+              onChange={handleChange}
+              placeholder="Enter your phone number"
+            />
+          </div>
 
-      <div className="button-group">
-        <button className="btn" onClick={handleSubmit}>
-          Save Changes
-        </button>
-        <button className="btn danger" onClick={() => navigate(-1)}>
-          Cancel
-        </button>
+          <div className="button-row">
+            <button className="btn-primary" onClick={handleSubmit}>
+              Save Changes
+            </button>
+            <button className="btn-secondary" onClick={() => navigate(-1)}>
+              Cancel
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
