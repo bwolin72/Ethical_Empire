@@ -1,7 +1,6 @@
-
 import { API_ENDPOINTS } from "../apiService";
 
-export const ProfileService = {
+const profileService = {
   /**
    * Get the current logged-in user's profile
    */
@@ -24,3 +23,5 @@ export const ProfileService = {
    */
   currentRole: () => API_ENDPOINTS.accounts.currentRole(),
 };
+
+export default profileService;
