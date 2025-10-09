@@ -1,20 +1,49 @@
-/* =============================
-   🌐 Base Theme Styling
-   Matches variables.css root
-   ============================= */
+/* ===========================================================
+   🌐 Base Theme Styling — app.css
+   Compatible with variables.css
+   =========================================================== */
 
-/* === Buttons === */
+/* === Global Reset & Defaults === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+  line-height: 1.6;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Prevent images/videos from overflowing */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* =======================================
+   🎨 Buttons
+   ======================================= */
 .button-primary {
-  background-color: var(--primary-color);
+  background-color: var(--color-primary);
   color: var(--color-white);
   border: none;
   padding: 0.6rem 1.2rem;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1rem;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color var(--transition-fast);
-  box-shadow: var(--shadow);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-md);
 }
 
 .button-primary:hover {
@@ -26,11 +55,11 @@
   color: var(--color-white);
   border: none;
   padding: 0.6rem 1.2rem;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1rem;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .button-secondary:hover {
@@ -38,25 +67,34 @@
 }
 
 .button-accent {
-  background-color: var(--accent-color);
+  background-color: var(--color-accent-gold);
   color: var(--color-black);
   border: none;
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
   border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-fast);
 }
 
 .button-accent:hover {
   background-color: var(--color-accent-gold-dark);
 }
 
-/* === Cards === */
+/* Disabled state */
+.disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* =======================================
+   🧩 Cards
+   ======================================= */
 .card {
-  background-color: var(--card-bg);
-  color: var(--text-color);
+  background-color: var(--color-white);
+  color: var(--color-text-light);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
   padding: 1.5rem;
   transition: box-shadow var(--transition-fast);
 }
@@ -65,7 +103,9 @@
   box-shadow: var(--shadow-lg);
 }
 
-/* === Navbar === */
+/* =======================================
+   🧭 Navbar
+   ======================================= */
 .navbar {
   background-color: var(--color-primary);
   color: var(--color-white);
@@ -85,10 +125,12 @@
 }
 
 .navbar a:hover {
-  color: var(--accent-color);
+  color: var(--color-accent-gold);
 }
 
-/* === Footer === */
+/* =======================================
+   🦶 Footer
+   ======================================= */
 .footer {
   background-color: var(--color-neutral-dark);
   color: var(--color-white);
@@ -98,86 +140,79 @@
   box-shadow: var(--shadow-md);
 }
 
-/* === Forms === */
+/* =======================================
+   📝 Forms
+   ======================================= */
 input,
 textarea,
 select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--color-neutral);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-sm);
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--color-input-bg);
+  color: var(--color-text-light);
   font-size: 1rem;
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--accent-color);
+  border-color: var(--color-accent-gold);
   outline: none;
 }
 
 label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: bold;
+  font-weight: 600;
+  color: var(--color-text-light);
 }
 
-/* === Section Title === */
+/* =======================================
+   🏷 Section Titles
+   ======================================= */
 .section-title {
   font-size: 2rem;
   font-family: var(--font-accent);
-  color: var(--primary-color);
+  color: var(--color-primary);
   margin-bottom: 1.5rem;
   text-align: center;
+  position: relative;
 }
 
-/* === Utilities === */
-.text-center {
-  text-align: center;
-}
-
-.text-right {
-  text-align: right;
-}
-
-.flex {
-  display: flex;
-}
-
-.flex-center {
-  justify-content: center;
-  align-items: center;
-}
-
-.mt-2 {
-  margin-top: 0.5rem;
-}
-.mt-4 {
-  margin-top: 1rem;
-}
-.mb-4 {
-  margin-bottom: 1rem;
-}
-.p-4 {
-  padding: 1rem;
-}
-
-.rounded {
+.section-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: var(--gradient-gold-burgundy);
+  margin: 0.5rem auto 0;
   border-radius: var(--radius-sm);
 }
 
-.shadow {
-  box-shadow: var(--shadow);
-}
+/* =======================================
+   ⚙ Utilities
+   ======================================= */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
 
-.shadow-lg {
-  box-shadow: var(--shadow-lg);
-}
+.flex { display: flex; }
+.flex-center { justify-content: center; align-items: center; }
 
-/* === Links === */
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+.mb-4 { margin-bottom: 1rem; }
+.p-4 { padding: 1rem; }
+
+.rounded { border-radius: var(--radius-sm); }
+.shadow { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* =======================================
+   🔗 Links
+   ======================================= */
 a {
   color: var(--color-secondary);
   text-decoration: none;
@@ -188,28 +223,31 @@ a:hover {
   color: var(--color-secondary-light);
 }
 
-/* === Disabled === */
-.disabled {
-  background-color: var(--color-disabled);
-  cursor: not-allowed;
-  opacity: 0.6;
+/* =======================================
+   🌑 Dark Mode Adjustments
+   ======================================= */
+.dark body {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
 }
 
-/* === Fix unwanted horizontal scroll === */
-html, body {
-  max-width: 100%;
-  overflow-x: hidden;
+.dark .card {
+  background-color: var(--color-service-bg-dark);
+  color: var(--color-text-dark);
 }
 
-/* Prevent images/videos from overflowing */
-img, video, iframe {
-  max-width: 100%;
-  height: auto;
-  display: block;
+.dark .navbar {
+  background-color: var(--color-primary-dark);
 }
 
-/* For any flex/grid child pushing out */
-.container, .section, .card {
-  overflow-x: hidden;
+.dark .footer {
+  background-color: var(--color-neutral);
 }
 
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: var(--color-input-bg-dark);
+  color: var(--color-text-dark);
+  border-color: var(--color-border-dark);
+}
