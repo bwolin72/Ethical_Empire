@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
 
 // ✅ Use named imports (Option 2)
-import { profileService } from "../../api/services/profileService";
+import profileService from "../../api/services/profileService";
 import { bookingService } from "../../api/services/bookingService";
 import { authService } from "../../api/services/authService";
 import { reviewService } from "../../api/services/reviewService";
