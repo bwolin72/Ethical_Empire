@@ -64,8 +64,10 @@ export const getCategories = async () => {
 // -------------------------
 // SOCIAL POSTS (Public)
 // -------------------------
-export const getSocialPosts = async () => {
-  const res = await publicAxios.get(`${API_URL}/social-posts/`);
+export const getSocialPosts = async (limit = 10) => {
+  const res = await publicAxios.get(`${API_URL}/social-posts/latest/`, {
+    params: { limit },
+  });
   return normalizeArray(res.data);
 };
 
