@@ -2,8 +2,13 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
+
+// ✅ Direct imports from modular services
 import { ProfileService } from "../../api/services/profileService";
-import apiService from "../../api/apiService";
+import { BookingService } from "../../api/services/bookingService";
+import { AuthService } from "../../api/services/authService";
+import { ReviewService } from "../../api/services/reviewService";
+
 import { logoutHelper } from "../../utils/logoutHelper";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -65,11 +70,11 @@ const AccountProfile = ({ profile: externalProfile }) => {
       try {
         const [profileRes, bookingsRes, roleRes] = await Promise.all([
           ProfileService.get(),
-          apiService.bookings.user(),
-          ProfileService.currentRole(),
+          BookingService.user(),
+          AuthService.currentRole(),
         ]);
 
-        const p = profileRes?.data || {};
+        const p = profileRes || {};
         setProfile({
           id: p.id || null,
           first_name: p.first_name || "",
@@ -81,9 +86,8 @@ const AccountProfile = ({ profile: externalProfile }) => {
           ...p,
         });
         setProfileImage(p.profile_image_url || "");
-
-        setBookings(bookingsRes?.data || []);
-        setRoleInfo(roleRes?.data || null);
+        setBookings(bookingsRes || []);
+        setRoleInfo(roleRes || null);
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error("[AccountProfile] Failed to load profile data:", err);
@@ -155,7 +159,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
       return;
     }
     try {
-      await apiService.reviews.create({
+      await ReviewService.create({
         comment: review,
         service: reviewService,
         rating: reviewRating,
@@ -175,7 +179,7 @@ const AccountProfile = ({ profile: externalProfile }) => {
     if (!window.confirm("Are you sure you want to logout?")) return;
     setLoggingOut(true);
     try {
-      await apiService.accounts.logout();
+      await AuthService.logout();
     } catch (e) {
       console.warn("[AccountProfile] Logout endpoint error:", e);
     } finally {
