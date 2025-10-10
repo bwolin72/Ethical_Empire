@@ -3,25 +3,24 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import bookingService from "../../api/services/bookingService";
 import serviceService from "../../api/services/serviceService";
-import invoiceService from "../../api/services/invoiceService"; // ✅ updated service wrapper
-import "./InvoiceGeneration.css";
+import invoiceService from "../../api/services/invoiceService";
+import "../styles/ui.css"; // ✅ unified theme & layout variables
+import "./InvoiceGeneration.css"; // ✅ component-specific layout tweaks
 
 const InvoiceGeneration = () => {
   const [bookings, setBookings] = useState([]);
   const [services, setServices] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-
   const [paymentStatus, setPaymentStatus] = useState("none");
   const [creating, setCreating] = useState(false);
   const [createdInvoiceId, setCreatedInvoiceId] = useState(null);
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
-
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ----------------------------
-  // Fetch bookings + services
-  // ----------------------------
+  // =====================================================
+  // Fetch bookings + services (Admin)
+  // =====================================================
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -52,18 +51,24 @@ const InvoiceGeneration = () => {
     fetchData();
   }, []);
 
-  // ----------------------------
-  // Derived Data
-  // ----------------------------
-  const booking = bookings.find((b) => b.id === selectedId);
+  // =====================================================
+  // Helpers
+  // =====================================================
+  const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : "N/A");
+  const resetInvoiceState = () => {
+    setCreatedInvoiceId(null);
+    setPdfPreviewUrl(null);
+    setPaymentStatus("none");
+    setMessage("");
+  };
 
+  const booking = bookings.find((b) => b.id === selectedId);
   const serviceList = Array.isArray(booking?.services) ? booking.services : [];
 
   const resolvedServices = serviceList
-    .map((svc) => {
-      if (typeof svc === "object") return svc;
-      return services.find((s) => s.id === svc || s.name === svc);
-    })
+    .map((svc) =>
+      typeof svc === "object" ? svc : services.find((s) => s.id === svc)
+    )
     .filter(Boolean);
 
   const total = resolvedServices.reduce(
@@ -72,26 +77,13 @@ const InvoiceGeneration = () => {
   );
 
   const paid =
-    paymentStatus === "full"
-      ? total
-      : paymentStatus === "half"
-      ? total / 2
-      : 0;
+    paymentStatus === "full" ? total : paymentStatus === "half" ? total / 2 : 0;
 
   const remaining = total - paid;
 
-  const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : "N/A");
-
-  const resetInvoiceState = () => {
-    setCreatedInvoiceId(null);
-    setPdfPreviewUrl(null);
-    setPaymentStatus("none");
-    setMessage("");
-  };
-
-  // ----------------------------
+  // =====================================================
   // Invoice Actions
-  // ----------------------------
+  // =====================================================
   const createInvoice = async () => {
     if (!booking) return;
     setCreating(true);
@@ -103,7 +95,6 @@ const InvoiceGeneration = () => {
         booking.id,
         paymentStatus
       );
-
       const newId = data?.id;
       if (!newId) throw new Error("Invoice ID missing in response.");
 
@@ -153,43 +144,75 @@ const InvoiceGeneration = () => {
     }
   };
 
-  // ----------------------------
+  // =====================================================
   // Render
-  // ----------------------------
+  // =====================================================
   return (
-    <div className="invoice-container">
-      {/* Main panel */}
+    <div className="invoice-container theme-surface">
+      {/* Sidebar */}
+      <motion.aside
+        className="invoice-sidebar"
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <h2 className="sidebar-title">Bookings</h2>
+        {loading ? (
+          <p className="muted">Loading bookings...</p>
+        ) : bookings.length ? (
+          bookings.map((b) => (
+            <div
+              key={b.id}
+              onClick={() => {
+                setSelectedId(b.id);
+                resetInvoiceState();
+              }}
+              className={`invoice-item ${
+                b.id === selectedId ? "active" : ""
+              }`}
+            >
+              <strong>{b.name}</strong>
+              <span>{formatDate(b.event_date)}</span>
+            </div>
+          ))
+        ) : (
+          <p className="muted">No bookings found.</p>
+        )}
+      </motion.aside>
+
+      {/* Main Content */}
       <motion.main
         className="invoice-main"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        {loading ? (
-          <p>Loading bookings...</p>
-        ) : booking ? (
+        {booking ? (
           <>
-            <h3>{booking.name}</h3>
-            <p>
-              <strong>Booking Date:</strong> {formatDate(booking.created_at)}
-            </p>
-            <p>
-              <strong>Event Date:</strong> {formatDate(booking.event_date)}
-            </p>
-            <p>
-              <strong>Phone:</strong> {booking.phone}
-            </p>
-            <p>
-              <strong>Venue:</strong> {booking.address || "N/A"}
-            </p>
-            <p>
-              <strong>Services:</strong>{" "}
-              {resolvedServices.map((s) => s.name).join(", ") || "N/A"}
-            </p>
-            <p>
-              <strong>Total:</strong> GHS {total.toFixed(2)}
-            </p>
+            <h2>{booking.name}</h2>
+            <div className="invoice-info">
+              <p>
+                <strong>Booking Date:</strong> {formatDate(booking.created_at)}
+              </p>
+              <p>
+                <strong>Event Date:</strong> {formatDate(booking.event_date)}
+              </p>
+              <p>
+                <strong>Phone:</strong> {booking.phone}
+              </p>
+              <p>
+                <strong>Venue:</strong> {booking.address || "N/A"}
+              </p>
+              <p>
+                <strong>Services:</strong>{" "}
+                {resolvedServices.map((s) => s.name).join(", ") || "N/A"}
+              </p>
+              <p>
+                <strong>Total:</strong> GHS {total.toFixed(2)}
+              </p>
+            </div>
 
+            {/* Payment Options */}
             <div className="payment-options">
               {["none", "half", "full"].map((option) => (
                 <label key={option}>
@@ -205,26 +228,41 @@ const InvoiceGeneration = () => {
               ))}
             </div>
 
-            <p>
-              <strong>Paid:</strong> GHS {paid.toFixed(2)}
-            </p>
-            <p>
-              <strong>Remaining:</strong> GHS {remaining.toFixed(2)}
-            </p>
+            <div className="summary">
+              <p>
+                <strong>Paid:</strong> GHS {paid.toFixed(2)}
+              </p>
+              <p>
+                <strong>Remaining:</strong> GHS {remaining.toFixed(2)}
+              </p>
+            </div>
 
+            {/* Actions */}
             <div className="invoice-actions">
-              <button onClick={createInvoice} disabled={creating}>
+              <button
+                className="btn-primary"
+                onClick={createInvoice}
+                disabled={creating}
+              >
                 {creating ? "Creating..." : "Create Invoice"}
               </button>
-              <button onClick={downloadInvoice} disabled={!createdInvoiceId}>
+              <button
+                className="btn-secondary"
+                onClick={downloadInvoice}
+                disabled={!createdInvoiceId}
+              >
                 Download PDF
               </button>
-              <button onClick={sendInvoiceEmail} disabled={!createdInvoiceId}>
-                Send Invoice Email
+              <button
+                className="btn-secondary"
+                onClick={sendInvoiceEmail}
+                disabled={!createdInvoiceId}
+              >
+                Send Email
               </button>
             </div>
 
-            {message && <p className="message">{message}</p>}
+            {message && <p className="status-text">{message}</p>}
 
             {pdfPreviewUrl && (
               <div className="pdf-preview">
@@ -245,28 +283,6 @@ const InvoiceGeneration = () => {
           </h2>
         )}
       </motion.main>
-
-      {/* Sidebar */}
-      <motion.aside
-        className="invoice-sidebar"
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <h2>Bookings</h2>
-        {bookings.map((b) => (
-          <div
-            key={b.id}
-            onClick={() => {
-              setSelectedId(b.id);
-              resetInvoiceState();
-            }}
-            className={`invoice-item ${b.id === selectedId ? "active" : ""}`}
-          >
-            {b.name} – {formatDate(b.event_date)}
-          </div>
-        ))}
-      </motion.aside>
     </div>
   );
 };
