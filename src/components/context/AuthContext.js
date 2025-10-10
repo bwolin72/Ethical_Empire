@@ -9,21 +9,30 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import toast from "react-hot-toast";
-import { default as jwt_decode } from "jwt-decode"; // ✅ Correct import for CRA/Netlify
+import jwt_decode from "jwt-decode"; // ✅ Correct import for CRA/Netlify builds
 
-// ===== Constants =====
+// =========================
+// 🔐 Auth Context Setup
+// =========================
 const AuthContext = createContext();
 export { AuthContext };
+
+// =========================
+// 🔑 Constants
+// =========================
 const AUTH_KEYS = {
   ACCESS: "access",
   REFRESH: "refresh",
   USER: "user",
   REMEMBER: "remember",
 };
+
 const VALID_ROLES = ["admin", "user", "vendor", "partner"];
 
-// ===== Helpers =====
-const normalizeRole = (role) => role?.trim().toLowerCase();
+// =========================
+// 🧠 Helpers
+// =========================
+const normalizeRole = (role) => role?.trim()?.toLowerCase();
 const isValidRole = (role) => VALID_ROLES.includes(normalizeRole(role));
 
 const getStorage = () => {
@@ -31,7 +40,9 @@ const getStorage = () => {
   return remember ? localStorage : sessionStorage;
 };
 
-// ===== Provider =====
+// =========================
+// 🧩 Auth Provider Component
+// =========================
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const refreshTimer = useRef(null);
@@ -43,10 +54,13 @@ export const AuthProvider = ({ children }) => {
     user: null,
     isAuthenticated: false,
   });
+
   const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState(false);
 
-  // === Clear session ===
+  // =========================
+  // 🚪 Clear Session
+  // =========================
   const clearSession = useCallback(() => {
     clearTimeout(refreshTimer.current);
     Object.values(AUTH_KEYS).forEach((key) => {
@@ -55,7 +69,9 @@ export const AuthProvider = ({ children }) => {
     });
   }, []);
 
-  // === Logout ===
+  // =========================
+  // 🚫 Logout
+  // =========================
   const logout = useCallback(
     (reason = "manual") => {
       console.warn(`[Auth] Logging out. Reason: ${reason}`);
@@ -67,20 +83,18 @@ export const AuthProvider = ({ children }) => {
     [navigate, clearSession]
   );
 
-  // === Schedule token refresh ===
+  // =========================
+  // ⏱️ Schedule Token Refresh
+  // =========================
   const scheduleTokenRefresh = useCallback(
     (accessToken, refreshToken) => {
       try {
         const { exp } = jwt_decode(accessToken);
-        const delay = exp * 1000 - Date.now() - 60_000;
+        const delay = exp * 1000 - Date.now() - 60_000; // refresh 1min before expiry
         clearTimeout(refreshTimer.current);
 
         if (delay <= 0) refreshAccessTokenRef.current?.(refreshToken);
-        else
-          refreshTimer.current = setTimeout(
-            () => refreshAccessTokenRef.current?.(refreshToken),
-            delay
-          );
+        else refreshTimer.current = setTimeout(() => refreshAccessTokenRef.current?.(refreshToken), delay);
       } catch {
         logout("token_decode_failed");
       }
@@ -88,10 +102,13 @@ export const AuthProvider = ({ children }) => {
     [logout]
   );
 
-  // === Refresh token ===
+  // =========================
+  // 🔄 Refresh Access Token
+  // =========================
   const refreshAccessToken = useCallback(
     async (refreshToken) => {
       if (!refreshToken) return logout("missing_refresh_token");
+
       try {
         const refreshUrl =
           process.env.REACT_APP_API_REFRESH_URL || "/accounts/token/refresh/";
@@ -105,7 +122,8 @@ export const AuthProvider = ({ children }) => {
 
         setAuth((prev) => ({ ...prev, access: newAccess }));
         scheduleTokenRefresh(newAccess, refreshToken);
-      } catch {
+      } catch (err) {
+        console.error("Refresh token error:", err);
         toast.error("Session expired, please log in again.");
         logout("refresh_failed");
       }
@@ -117,7 +135,9 @@ export const AuthProvider = ({ children }) => {
     refreshAccessTokenRef.current = refreshAccessToken;
   }, [refreshAccessToken]);
 
-  // === Login ===
+  // =========================
+  // 🔐 Login
+  // =========================
   const login = useCallback(
     ({ access, refresh, user, remember = true }) => {
       if (!access || !refresh || !user) return logout("invalid_login_data");
@@ -140,7 +160,9 @@ export const AuthProvider = ({ children }) => {
     [logout, scheduleTokenRefresh]
   );
 
-  // === Update user/session ===
+  // =========================
+  // 🔧 Update Session
+  // =========================
   const update = useCallback(({ access, refresh, user }) => {
     const storage = getStorage();
     setAuth((prev) => {
@@ -162,7 +184,9 @@ export const AuthProvider = ({ children }) => {
     });
   }, []);
 
-  // === Init session ===
+  // =========================
+  // 🚀 Init Session
+  // =========================
   useEffect(() => {
     const storage = getStorage();
     const access = storage.getItem(AUTH_KEYS.ACCESS);
@@ -189,7 +213,8 @@ export const AuthProvider = ({ children }) => {
 
         if (isExpired) await refreshAccessToken(refresh);
         else scheduleTokenRefresh(access, refresh);
-      } catch {
+      } catch (err) {
+        console.error("Session init error:", err);
         logout("init_session_failed");
       } finally {
         setLoading(false);
@@ -200,6 +225,9 @@ export const AuthProvider = ({ children }) => {
     init();
   }, [refreshAccessToken, scheduleTokenRefresh, logout]);
 
+  // =========================
+  // 🧩 Provider Return
+  // =========================
   return (
     <AuthContext.Provider
       value={{
@@ -217,4 +245,12 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// =========================
+// 🪄 Hook
+// =========================
 export const useAuth = () => useContext(AuthContext);
+
+// =========================
+// ✅ Default Export (Fixes import errors)
+// =========================
+export default AuthContext;
