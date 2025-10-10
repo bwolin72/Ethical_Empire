@@ -1,4 +1,3 @@
-// src/api/bookingAPI.js
 import baseURL from "./baseURL";
 
 const bookingAPI = {
@@ -7,20 +6,20 @@ const bookingAPI = {
   list: `${baseURL}/bookings/`,                      // GET
 
   // ===== User =====
-  userBookings: `${baseURL}/bookings/user/`,         // GET
+  userBookings: `${baseURL}/bookings/user/`,               // GET
   userBookingHistory: `${baseURL}/bookings/user/history/`, // GET
-  detail: (id) => `${baseURL}/bookings/${id}/`,      // GET, PATCH, DELETE
+  detail: (id) => `${baseURL}/bookings/${id}/`,            // GET, PATCH, DELETE
 
-  // ===== Admin =====
-  adminList: `${baseURL}/bookings/admin/bookings/`,                      // GET
-  adminUpdate: (id) => `${baseURL}/bookings/admin/bookings/${id}/update/`, // PATCH
-  adminUpdateStatus: (id) => `${baseURL}/bookings/admin/bookings/${id}/status/`, // PATCH
-  adminDelete: (id) => `${baseURL}/bookings/admin/bookings/${id}/delete/`,       // DELETE
+  // ===== Admin (namespaced) =====
+  adminList: `${baseURL}/bookings/bookings-admin/bookings/`,                   // GET
+  adminUpdate: (id) => `${baseURL}/bookings/bookings-admin/bookings/${id}/update/`, // PATCH
+  adminUpdateStatus: (id) => `${baseURL}/bookings/bookings-admin/bookings/${id}/status/`, // PATCH
+  adminDelete: (id) => `${baseURL}/bookings/bookings-admin/bookings/${id}/delete/`,      // DELETE
 
   // ===== Invoice =====
-  invoice: (id) => `${baseURL}/bookings/invoice/${id}/`,      // GET
-  invoiceEmail: (id) => `${baseURL}/invoices/${id}/send_email/`,
-  invoiceDownload: (id) => `${baseURL}/invoices/${id}/download_pdf/`,
+  invoice: (id) => `${baseURL}/bookings/invoice/${id}/`,           // GET
+  invoiceEmail: (id) => `${baseURL}/invoices/${id}/send_email/`,   // POST
+  invoiceDownload: (id) => `${baseURL}/invoices/${id}/download_pdf/`, // GET (blob)
 };
 
 export default bookingAPI;
