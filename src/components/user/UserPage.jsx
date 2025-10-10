@@ -1,7 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import { MessageCircle, Sun, Moon } from "lucide-react";
+import {
+  Menu,
+  Settings,
+  LogOut,
+  Sun,
+  Moon,
+  MessageCircle,
+  Film,
+  Image,
+  Star,
+  Mail,
+  Clock,
+} from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useProfile } from "../context/ProfileContext";
@@ -9,11 +21,11 @@ import apiService from "../../api/apiService";
 
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
-import ProfileAvatar from "./ProfileAvatar";
+import GalleryWrapper from "../gallery/GalleryWrapper";
+import VideoGallery from "../videos/VideoGallery";
 import Reviews from "./Reviews";
 import NewsletterSignup from "./NewsLetterSignup";
-import VideoGallery from "../videos/VideoGallery";
-import GalleryWrapper from "../gallery/GalleryWrapper";
+import ProfileAvatar from "./ProfileAvatar";
 
 import "./UserPage.css";
 
@@ -26,6 +38,7 @@ const UserPage = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -40,7 +53,6 @@ const UserPage = () => {
 
   useEffect(() => {
     const controller = new AbortController();
-
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -59,14 +71,13 @@ const UserPage = () => {
         setUnreadCount(msgRes.data ?? 0);
       } catch (err) {
         if (err?.name !== "CanceledError") {
-          console.error("UserPage fetch error:", err);
+          console.error("Dashboard fetch error:", err);
           toast.error("Error loading your dashboard.");
         }
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
     return () => controller.abort();
   }, []);
@@ -77,98 +88,113 @@ const UserPage = () => {
     localStorage.setItem("darkMode", newMode);
   };
 
-  const featuredVideo =
-    Array.isArray(videos) &&
-    videos.find(
-      (item) => (item.is_featured || item.featured) && (item.file || item.url || item.video_url)
-    );
+  const featuredVideo = videos.find(
+    (item) => (item.is_featured || item.featured) && (item.file || item.url || item.video_url)
+  );
 
   return (
-    <div className={`userpage ${darkMode ? "dark" : "light"}`}>
+    <div className={`user-dashboard ${darkMode ? "dark" : "light"}`}>
       <ToastContainer position="top-center" autoClose={3000} theme="colored" />
 
-      {/* Header */}
-      <header className="userpage-header glass-card">
-        <div className="header-left">
-          <h2 className="page-title">
-            Hey {profile?.name || "Guest"}, welcome back 👋
-          </h2>
+      {/* Sidebar */}
+      <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+        <div className="sidebar-header">
+          <ProfileAvatar profile={profile} onProfileUpdate={updateProfile} />
+          <h3>{profile?.name || "User"}</h3>
         </div>
-        <div className="header-actions">
-          <button onClick={toggleDarkMode} className="btn-icon" aria-label="Toggle theme">
-            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-          <button onClick={() => navigate("/messaging")} className="btn-icon" aria-label="Messages">
-            <MessageCircle size={22} />
-            {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
-          </button>
+        <nav className="sidebar-menu">
+          <button onClick={() => navigate("/account")}><Settings size={18}/> Account Settings</button>
+          <button onClick={() => navigate("/newsletter")}><Mail size={18}/> Newsletter</button>
+          <button onClick={() => navigate("/reviews")}><Star size={18}/> My Reviews</button>
+          <button onClick={() => navigate("/booking-history")}><Clock size={18}/> Booking History</button>
+          <button onClick={() => navigate("/social")}><Image size={18}/> Social Hub</button>
+        </nav>
+        <div className="sidebar-footer">
+          <button className="logout-btn" onClick={() => navigate("/logout")}><LogOut size={18}/> Logout</button>
         </div>
-      </header>
+      </aside>
 
-      {/* Profile Summary */}
-      <section className="profile-summary card" onClick={() => navigate("/account")}>
-        <ProfileAvatar profile={profile} onProfileUpdate={updateProfile} />
-        <div className="profile-text">
-          <h3>{profile?.name || "Your Profile"}</h3>
-          <p className="subtitle">Build your presence. Explore. Connect.</p>
-        </div>
-      </section>
-
-      {/* Hero Banner Section */}
-      {promotions.length > 0 && (
-        <section className="banner-section">
-          <BannerCards banners={promotions} />
-        </section>
-      )}
-
-      {/* Featured Video */}
-      {featuredVideo && (
-        <section className="featured-section card">
-          <video
-            className="featured-video"
-            controls
-            preload="metadata"
-            src={featuredVideo.file || featuredVideo.video_url || featuredVideo.url}
-          />
-        </section>
-      )}
-
-      {/* Video Gallery */}
-      {videos.length > 0 && (
-        <section className="video-gallery-section">
-          <h3 className="section-title">🎬 Video Gallery</h3>
-          <VideoGallery videos={videos} />
-        </section>
-      )}
-
-      {/* Media Gallery */}
-      <section className="gallery-section">
-        <h3 className="section-title">🖼️ Your Gallery</h3>
-        {media.length > 0 ? (
-          <GalleryWrapper>
-            <div className="gallery-grid">
-              {media.map((item, idx) => (
-                <MediaCards key={idx} media={item} />
-              ))}
+      {/* Main Content */}
+      <main className="dashboard-content">
+        <header className="dashboard-header glass-card">
+          <div className="header-left">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="menu-toggle">
+              <Menu size={20} />
+            </button>
+            <div>
+              <h2>Hey {profile?.name || "Guest"} 👋</h2>
+              <p>Welcome to your creative space.</p>
             </div>
-          </GalleryWrapper>
-        ) : (
-          <p className="empty-text">✨ Upload your first media to shine!</p>
+          </div>
+
+          <div className="header-actions">
+            <button onClick={toggleDarkMode} className="btn-icon">
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button onClick={() => navigate("/messaging")} className="btn-icon">
+              <MessageCircle size={22} />
+              {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+            </button>
+          </div>
+        </header>
+
+        {/* Banner Section */}
+        {promotions.length > 0 && (
+          <section className="banner-section fade-in">
+            <h3>🔥 Promotions</h3>
+            <BannerCards banners={promotions} />
+          </section>
         )}
-      </section>
 
-      {/* Reviews */}
-      <section className="reviews-section">
-        <h3 className="section-title">⭐ Reviews</h3>
-        {reviews.length > 0 ? <Reviews reviews={reviews} /> : <p className="empty-text">No reviews yet.</p>}
-      </section>
+        {/* Featured Video */}
+        {featuredVideo && (
+          <section className="featured-section card scale-in">
+            <h3><Film size={18}/> Featured Video</h3>
+            <video
+              className="featured-video"
+              controls
+              preload="metadata"
+              src={featuredVideo.file || featuredVideo.video_url || featuredVideo.url}
+            />
+          </section>
+        )}
 
-      {/* Newsletter */}
-      <section className="newsletter-section">
-        <NewsletterSignup />
-      </section>
+        {/* Video Gallery */}
+        {videos.length > 0 && (
+          <section className="video-gallery-section fade-in">
+            <h3><Film size={18}/> Your Videos</h3>
+            <VideoGallery videos={videos} />
+          </section>
+        )}
 
-      {loading && <div className="loading-overlay">Loading...</div>}
+        {/* Media Gallery */}
+        <section className="gallery-section fade-in">
+          <h3><Image size={18}/> Your Gallery</h3>
+          {media.length > 0 ? (
+            <GalleryWrapper>
+              <div className="gallery-grid">
+                {media.map((item, idx) => <MediaCards key={idx} media={item} />)}
+              </div>
+            </GalleryWrapper>
+          ) : (
+            <p className="empty-text">✨ Upload your first media to shine!</p>
+          )}
+        </section>
+
+        {/* Reviews */}
+        <section className="reviews-section fade-in">
+          <h3><Star size={18}/> Reviews</h3>
+          {reviews.length > 0 ? <Reviews reviews={reviews}/> : <p className="empty-text">No reviews yet.</p>}
+        </section>
+
+        {/* Newsletter */}
+        <section className="newsletter-section fade-in">
+          <h3><Mail size={18}/> Stay Updated</h3>
+          <NewsletterSignup/>
+        </section>
+
+        {loading && <div className="loading-overlay">Loading...</div>}
+      </main>
     </div>
   );
 };
