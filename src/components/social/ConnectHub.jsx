@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import SocialHub from "./SocialHub";
-import { AuthContext } from "../context/AuthContext";
+import AuthContext from "../context/AuthContext";
 import authService from "../../api/services/authService";
 import { roleRoutes } from "../../routes/roleRoutes";
 import "./ConnectHub.css";
