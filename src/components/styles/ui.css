@@ -1,7 +1,6 @@
 /* =====================================================
-   🌟 Unified UI Component Styles — Responsive
-   Uses global theme variables from variables.css
-   Includes SplashScreen styles
+   🌟 Ethical Multimedia GH — Unified UI Styles
+   Supports Light & Dark Themes via variables.css
    ===================================================== */
 
 /* ==============================
@@ -22,8 +21,14 @@
   text-align: center;
 }
 
+.btn:hover {
+  background: var(--gradient-gold-burgundy);
+  transform: translateY(-2px);
+}
+
 .btn:active {
   box-shadow: var(--shadow-md);
+  transform: translateY(0);
 }
 
 .btn:disabled {
@@ -45,9 +50,9 @@
   width: 100%;
   padding: 0.5rem 0.75rem;
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   background-color: var(--color-input-bg);
-  color: var(--color-text-light);
+  color: var(--color-text);
   font-family: var(--font-main);
   font-size: 0.875rem;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -56,8 +61,8 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(88, 28, 28, 0.3);
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
 }
 
 .input:disabled,
@@ -76,7 +81,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   font-family: var(--font-main);
-  color: var(--color-text-light);
+  color: var(--color-text);
   transition: color var(--transition-fast);
 }
 
@@ -91,13 +96,12 @@
 .custom-checkbox {
   width: 1.25rem;
   height: 1.25rem;
-  border: 2px solid var(--color-neutral);
+  border: 2px solid var(--color-neutral-light);
   border-radius: var(--radius-sm);
   appearance: none;
   outline: none;
   cursor: pointer;
   transition: background-color var(--transition-fast), border-color var(--transition-fast);
-  vertical-align: middle;
   position: relative;
 }
 
@@ -130,23 +134,16 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   padding: 1rem;
-  transition: box-shadow var(--transition-fast);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 .card:hover {
   box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
 }
 
 /* ==============================
-   Textarea (multi-line)
-   ============================== */
-.textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-/* ==============================
-   SplashScreen Styles
+   Splash Screen
    ============================== */
 .splash-screen {
   position: fixed;
@@ -154,38 +151,57 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--color-primary);
+  background: var(--gradient-gold-burgundy);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  transition: background var(--transition-slow);
+}
+
+.dark .splash-screen {
+  background: var(--gradient-navy-gold);
 }
 
 .splash-content {
   text-align: center;
   color: var(--color-white);
+  animation: fade-in 1s ease-out both;
 }
 
 .splash-logo-img {
   width: 120px;
   height: auto;
   margin-bottom: 1rem;
-  animation: pulse 1.5s infinite;
+  animation: pulse 1.5s infinite ease-in-out;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
 }
 
 .splash-company-name {
+  font-family: var(--font-accent);
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
   animation: fade-in-up 1s forwards;
+  color: var(--color-white);
+}
+
+.dark .splash-company-name {
+  color: var(--color-accent-gold-light);
 }
 
 .splash-service {
   font-size: 1.125rem;
   font-weight: 400;
+  color: var(--color-accent-gold-light);
   animation: fade-in-up 1s forwards;
-  animation-delay: 0.2s;
+  animation-delay: 0.3s;
   opacity: 0;
+}
+
+.dark .splash-service {
+  color: var(--color-white);
 }
 
 .splash-loader {
@@ -196,27 +212,23 @@
 }
 
 .splash-loader span {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background-color: var(--color-white);
   border-radius: 50%;
   display: inline-block;
   animation: bounce 0.6s infinite alternate;
 }
 
-.splash-loader span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-.splash-loader span:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.splash-loader span:nth-child(2) { animation-delay: 0.2s; }
+.splash-loader span:nth-child(3) { animation-delay: 0.4s; }
 
 /* ==============================
    Animations
    ============================== */
 @keyframes pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.7; }
+  50% { transform: scale(1.08); opacity: 0.8; }
 }
 
 @keyframes fade-in-up {
@@ -224,9 +236,46 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes bounce {
   0% { transform: translateY(0); }
   100% { transform: translateY(-10px); }
+}
+
+/* ==============================
+   Floating WhatsApp Button
+   ============================== */
+.floating-whatsapp-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: 60px;
+  height: 60px;
+  background: var(--color-success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  animation: pulse 1.5s infinite ease-in-out;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.floating-whatsapp-btn:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+.whatsapp-icon {
+  width: 32px;
+  height: 32px;
+  fill: var(--color-white);
 }
 
 /* ==============================
@@ -251,39 +300,4 @@
   .splash-logo-img { width: 80px; }
   .splash-company-name { font-size: 1.5rem; }
   .splash-service { font-size: 0.875rem; }
-}
-
-.floating-whatsapp-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-  width: 60px;
-  height: 60px;
-  background-color: var(--color-success);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-lg);
-  cursor: pointer;
-  animation: pulse 1.5s infinite;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.floating-whatsapp-btn:hover {
-  transform: scale(1.1);
-  box-shadow: var(--shadow-xl);
-}
-
-.whatsapp-icon {
-  width: 32px;
-  height: 32px;
-  fill: var(--color-white);
-}
-
-/* Pulse animation matches your splash-logo pulse */
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
 }
