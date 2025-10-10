@@ -9,14 +9,17 @@ import { roleRoutes } from "../../routes/roleRoutes";
 import "./ConnectHub.css";
 
 const ConnectHub = () => {
-  const { user, isAuthenticated } = useContext(AuthContext);
+  const { auth, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const user = auth?.user;
   const [previewPosts, setPreviewPosts] = useState([]);
   const [loadingPreview, setLoadingPreview] = useState(true);
   const [connecting, setConnecting] = useState(false);
 
-  // 🟢 Fetch public preview feed for visitors
+  // ===============================
+  // 🌍 Fetch Public Feed for Guests
+  // ===============================
   useEffect(() => {
     if (!isAuthenticated) {
       const fetchPreview = async () => {
@@ -39,34 +42,44 @@ const ConnectHub = () => {
     }
   }, [isAuthenticated]);
 
-  // 🧭 Handle connect or redirect logic
+  // ===============================
+  // 🚀 Handle Dashboard Redirect
+  // ===============================
   const handleActionClick = async () => {
-    if (isAuthenticated) {
-      try {
-        setConnecting(true);
-        const res = await authService.getProfile();
-        const role = res?.data?.role?.trim()?.toLowerCase();
-
-        if (role && roleRoutes[role]) {
-          toast.success(`Welcome back, ${user?.name || "User"}!`);
-          navigate(roleRoutes[role], { replace: true });
-        } else {
-          toast.error("Your account role could not be verified.");
-          navigate("/unauthorized", { replace: true });
-        }
-      } catch (err) {
-        console.error("[ConnectHub] Connection error:", err);
-        toast.error("Could not verify account. Please log in again.");
-        navigate("/login", { replace: true });
-      } finally {
-        setConnecting(false);
-      }
-    } else {
+    if (!isAuthenticated) {
       toast.info("Please login or create an account to connect.");
-      navigate("/login");
+      return navigate("/login");
+    }
+
+    try {
+      setConnecting(true);
+
+      // Get fresh profile or fallback to context user
+      const profile = await authService.getProfile().catch(() => null);
+      const role =
+        profile?.role?.trim()?.toLowerCase() ||
+        user?.role?.trim()?.toLowerCase();
+
+      if (role && roleRoutes[role]) {
+        toast.success(`Welcome back, ${user?.name || "User"}!`);
+        navigate(roleRoutes[role], { replace: true });
+      } else {
+        console.warn("[ConnectHub] Missing or invalid role:", role);
+        toast.error("Your account role could not be verified.");
+        navigate("/unauthorized", { replace: true });
+      }
+    } catch (err) {
+      console.error("[ConnectHub] Connection error:", err);
+      toast.error("Could not verify account. Please log in again.");
+      navigate("/login", { replace: true });
+    } finally {
+      setConnecting(false);
     }
   };
 
+  // ===============================
+  // 🖼️ UI
+  // ===============================
   return (
     <div className="connect-hub-container">
       {/* 🔹 Hero Section */}
@@ -91,13 +104,14 @@ const ConnectHub = () => {
         </button>
       </section>
 
-      {/* 🔹 Feed or Social Hub */}
+      {/* 🔹 Social Section */}
       <section className="social-section">
         {isAuthenticated ? (
           <SocialHub />
         ) : (
           <>
             <h2 className="preview-title">🌍 Explore the EETHM Community</h2>
+
             {loadingPreview ? (
               <p>Loading latest posts...</p>
             ) : previewPosts.length > 0 ? (
