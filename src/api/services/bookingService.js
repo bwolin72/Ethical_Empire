@@ -24,7 +24,7 @@ const withCSRF = (config = {}) => {
 // Normalize HTTP method
 // ===============================
 const resolveMethod = (method = "patch") =>
-  method === "update" ? "patch" : method;
+  ["patch", "put"].includes(method.toLowerCase()) ? method.toLowerCase() : "patch";
 
 // ===============================
 // Booking Service
@@ -38,16 +38,16 @@ const bookingService = {
   userBookings: () => axiosInstance.get(bookingAPI.userBookings, withCSRF()),
   userBookingHistory: () => axiosInstance.get(bookingAPI.userBookingHistory, withCSRF()),
   detail: (id) => axiosInstance.get(bookingAPI.detail(id), withCSRF()),
-  update: (id, data) =>
-    axiosInstance.patch(bookingAPI.detail(id), data, withCSRF()),
+  update: (id, data, method = "patch") =>
+    axiosInstance[resolveMethod(method)](bookingAPI.detail(id), data, withCSRF()),
   delete: (id) => axiosInstance.delete(bookingAPI.detail(id), withCSRF()),
 
   // ===== Admin =====
   adminList: () => axiosInstance.get(bookingAPI.adminList, withCSRF()),
-  updateAdmin: (id, data) =>
-    axiosInstance.patch(bookingAPI.adminUpdate(id), data, withCSRF()),
-  updateStatus: (id, data) =>
-    axiosInstance.patch(bookingAPI.adminUpdateStatus(id), data, withCSRF()),
+  updateAdmin: (id, data, method = "patch") =>
+    axiosInstance[resolveMethod(method)](bookingAPI.adminUpdate(id), data, withCSRF()),
+  updateStatus: (id, data, method = "patch") =>
+    axiosInstance[resolveMethod(method)](bookingAPI.adminUpdateStatus(id), data, withCSRF()),
   deleteAdmin: (id) => axiosInstance.delete(bookingAPI.adminDelete(id), withCSRF()),
 
   // ===== Invoices =====
