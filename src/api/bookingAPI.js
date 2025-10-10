@@ -11,7 +11,7 @@ const bookingAPI = {
   detail: (id) => `${baseURL}/bookings/${id}/`,            // GET, PATCH, DELETE
 
   // ===== Admin (namespaced) =====
-  adminList: `${baseURL}/bookings/bookings-admin/bookings/`,                   // GET
+  adminList: `${baseURL}/bookings/bookings-admin/bookings/`,                      // GET
   adminUpdate: (id) => `${baseURL}/bookings/bookings-admin/bookings/${id}/update/`, // PATCH
   adminUpdateStatus: (id) => `${baseURL}/bookings/bookings-admin/bookings/${id}/status/`, // PATCH
   adminDelete: (id) => `${baseURL}/bookings/bookings-admin/bookings/${id}/delete/`,      // DELETE
