@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { useProfile } from "../context/ProfileContext";
 import "react-toastify/dist/ReactToastify.css";
-import "./EditProfile.css"; // 🎨 your custom CSS theme
+import "./EditProfile.css"; // 🎨 Custom theme
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -24,10 +24,20 @@ const EditProfile = () => {
     const fetchProfile = async () => {
       try {
         const res = await axiosInstance.get("/accounts/profile/");
-        const { first_name, last_name, email, phone_number } = res.data;
+        const { name, first_name, last_name, email, phone_number } = res.data;
+
+        // Split name if backend only returns "name"
+        let fName = first_name;
+        let lName = last_name;
+        if (!first_name && !last_name && name) {
+          const parts = name.split(" ");
+          fName = parts[0];
+          lName = parts.slice(1).join(" ");
+        }
+
         setForm({
-          first_name: first_name || "",
-          last_name: last_name || "",
+          first_name: fName || "",
+          last_name: lName || "",
           phone_number: phone_number || "",
         });
         setEmail(email || "");
@@ -50,18 +60,24 @@ const EditProfile = () => {
 
   // === Handle submit ===
   const handleSubmit = async () => {
-    const filteredForm = Object.fromEntries(
-      Object.entries(form).filter(([_, v]) => v?.trim())
-    );
+    // Construct full name for backend
+    const fullName = `${form.first_name} ${form.last_name}`.trim();
+
+    // Prepare payload for backend
+    const payload = {
+      name: fullName, // ✅ required by backend
+      phone_number: form.phone_number || "",
+    };
 
     try {
-      const res = await axiosInstance.put("/accounts/profile/", filteredForm);
+      const res = await axiosInstance.put("/accounts/profile/", payload);
       updateProfile(res.data);
       toast.success("✅ Profile updated successfully!");
       setTimeout(() => navigate(-1), 1500);
     } catch (err) {
       console.error("❌ Update failed:", err);
       const backendError =
+        err.response?.data?.name?.[0] ||
         err.response?.data?.detail ||
         err.response?.data?.error ||
         "Failed to update profile. Please try again.";
@@ -71,11 +87,7 @@ const EditProfile = () => {
 
   // === Render ===
   if (loading)
-    return (
-      <p className="edit-profile__loading">
-        Loading your profile...
-      </p>
-    );
+    return <p className="edit-profile__loading">Loading your profile...</p>;
 
   return (
     <div className="edit-profile">
