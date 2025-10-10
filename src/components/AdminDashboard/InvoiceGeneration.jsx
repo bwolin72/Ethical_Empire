@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import bookingService from "../../api/services/bookingService";
 import serviceService from "../../api/services/serviceService";
-import invoiceService from "../../api/services/invoiceService"; // expects { create, download, sendEmail }
+import invoiceService from "../../api/services/invoiceService"; // ✅ updated service wrapper
 import "./InvoiceGeneration.css";
 
 const InvoiceGeneration = () => {
@@ -31,15 +31,13 @@ const InvoiceGeneration = () => {
           serviceService.getServices(),
         ]);
 
-        const bookingData =
-          Array.isArray(bookingsRes.data)
-            ? bookingsRes.data
-            : bookingsRes.data?.results || [];
+        const bookingData = Array.isArray(bookingsRes.data)
+          ? bookingsRes.data
+          : bookingsRes.data?.results || [];
 
-        const serviceData =
-          Array.isArray(servicesRes.data)
-            ? servicesRes.data
-            : servicesRes.data?.results || [];
+        const serviceData = Array.isArray(servicesRes.data)
+          ? servicesRes.data
+          : servicesRes.data?.results || [];
 
         setBookings(bookingData);
         setServices(serviceData);
@@ -59,15 +57,14 @@ const InvoiceGeneration = () => {
   // ----------------------------
   const booking = bookings.find((b) => b.id === selectedId);
 
-  // Handle different possible formats for booking.services
-  const serviceList = Array.isArray(booking?.services)
-    ? booking.services
-    : [];
+  const serviceList = Array.isArray(booking?.services) ? booking.services : [];
 
-  const resolvedServices = serviceList.map((svc) => {
-    if (typeof svc === "object") return svc;
-    return services.find((s) => s.id === svc || s.name === svc);
-  }).filter(Boolean);
+  const resolvedServices = serviceList
+    .map((svc) => {
+      if (typeof svc === "object") return svc;
+      return services.find((s) => s.id === svc || s.name === svc);
+    })
+    .filter(Boolean);
 
   const total = resolvedServices.reduce(
     (sum, s) => sum + parseFloat(s.price || 0),
@@ -83,8 +80,7 @@ const InvoiceGeneration = () => {
 
   const remaining = total - paid;
 
-  const formatDate = (d) =>
-    d ? new Date(d).toLocaleDateString() : "N/A";
+  const formatDate = (d) => (d ? new Date(d).toLocaleDateString() : "N/A");
 
   const resetInvoiceState = () => {
     setCreatedInvoiceId(null);
@@ -103,16 +99,12 @@ const InvoiceGeneration = () => {
     setPdfPreviewUrl(null);
 
     try {
-      if (!invoiceService?.create) {
-        throw new Error("invoiceService.create is not defined.");
-      }
+      const data = await invoiceService.createBookingInvoice(
+        booking.id,
+        paymentStatus
+      );
 
-      const res = await invoiceService.create({
-        booking_id: booking.id,
-        payment_status: paymentStatus,
-      });
-
-      const newId = res.data?.id;
+      const newId = data?.id;
       if (!newId) throw new Error("Invoice ID missing in response.");
 
       setCreatedInvoiceId(newId);
@@ -128,10 +120,10 @@ const InvoiceGeneration = () => {
 
   const fetchInvoicePDF = async (invoiceId) => {
     try {
-      const res = await invoiceService.download(invoiceId);
-      const blob = new Blob([res.data], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      setPdfPreviewUrl(url);
+      const previewUrl = await invoiceService.downloadInvoicePdf(invoiceId, {
+        autoDownload: false,
+      });
+      setPdfPreviewUrl(previewUrl);
     } catch (err) {
       console.error("[InvoiceGeneration] PDF fetch error:", err);
       setMessage("❌ Could not load PDF preview.");
@@ -141,12 +133,9 @@ const InvoiceGeneration = () => {
   const downloadInvoice = async () => {
     if (!createdInvoiceId) return;
     try {
-      const res = await invoiceService.download(createdInvoiceId);
-      const blob = new Blob([res.data], { type: "application/pdf" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `invoice_${booking?.name || "booking"}_${createdInvoiceId}.pdf`;
-      link.click();
+      await invoiceService.downloadInvoicePdf(createdInvoiceId, {
+        autoDownload: true,
+      });
     } catch (err) {
       console.error("[InvoiceGeneration] Download error:", err);
       setMessage("❌ Failed to download PDF.");
@@ -156,7 +145,7 @@ const InvoiceGeneration = () => {
   const sendInvoiceEmail = async () => {
     if (!createdInvoiceId) return;
     try {
-      await invoiceService.sendEmail(createdInvoiceId);
+      await invoiceService.emailInvoice(createdInvoiceId);
       setMessage("📧 Invoice sent successfully via email.");
     } catch (err) {
       console.error("[InvoiceGeneration] Email error:", err);
@@ -181,15 +170,25 @@ const InvoiceGeneration = () => {
         ) : booking ? (
           <>
             <h3>{booking.name}</h3>
-            <p><strong>Booking Date:</strong> {formatDate(booking.created_at)}</p>
-            <p><strong>Event Date:</strong> {formatDate(booking.event_date)}</p>
-            <p><strong>Phone:</strong> {booking.phone}</p>
-            <p><strong>Venue:</strong> {booking.address || "N/A"}</p>
+            <p>
+              <strong>Booking Date:</strong> {formatDate(booking.created_at)}
+            </p>
+            <p>
+              <strong>Event Date:</strong> {formatDate(booking.event_date)}
+            </p>
+            <p>
+              <strong>Phone:</strong> {booking.phone}
+            </p>
+            <p>
+              <strong>Venue:</strong> {booking.address || "N/A"}
+            </p>
             <p>
               <strong>Services:</strong>{" "}
               {resolvedServices.map((s) => s.name).join(", ") || "N/A"}
             </p>
-            <p><strong>Total:</strong> GHS {total.toFixed(2)}</p>
+            <p>
+              <strong>Total:</strong> GHS {total.toFixed(2)}
+            </p>
 
             <div className="payment-options">
               {["none", "half", "full"].map((option) => (
@@ -206,8 +205,12 @@ const InvoiceGeneration = () => {
               ))}
             </div>
 
-            <p><strong>Paid:</strong> GHS {paid.toFixed(2)}</p>
-            <p><strong>Remaining:</strong> GHS {remaining.toFixed(2)}</p>
+            <p>
+              <strong>Paid:</strong> GHS {paid.toFixed(2)}
+            </p>
+            <p>
+              <strong>Remaining:</strong> GHS {remaining.toFixed(2)}
+            </p>
 
             <div className="invoice-actions">
               <button onClick={createInvoice} disabled={creating}>
@@ -237,7 +240,9 @@ const InvoiceGeneration = () => {
             )}
           </>
         ) : (
-          <h2 className="empty-state">Select a booking from the right panel →</h2>
+          <h2 className="empty-state">
+            Select a booking from the right panel →
+          </h2>
         )}
       </motion.main>
 
