@@ -6,11 +6,26 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./ReviewsManagement.css";
 
+// ==============================
+// Error Helper for Toast
+// ==============================
+const showErrorToast = (error) => {
+  let message = "An unexpected error occurred";
+  if (error?.response?.data?.message) {
+    message = error.response.data.message;
+  } else if (error?.message) {
+    message = error.message;
+  }
+  toast.error(`❌ ${message}`);
+};
+
 const ReviewsManagement = () => {
   const queryClient = useQueryClient();
   const [replyMap, setReplyMap] = useState({});
 
+  // ==============================
   // Fetch all reviews
+  // ==============================
   const { data: reviews = [], isLoading } = useQuery(
     ["reviews"],
     async () => {
@@ -18,14 +33,13 @@ const ReviewsManagement = () => {
       return res?.data?.results || [];
     },
     {
-      onError: (err) => {
-        console.error("❌ Failed to fetch reviews:", err);
-        toast.error("❌ Failed to load reviews");
-      },
+      onError: showErrorToast,
     }
   );
 
+  // ==============================
   // Approve review
+  // ==============================
   const approveMutation = useMutation(
     (id) => reviewService.approveReview(id),
     {
@@ -33,14 +47,13 @@ const ReviewsManagement = () => {
         toast.success("✅ Review approved");
         queryClient.invalidateQueries(["reviews"]);
       },
-      onError: (err) => {
-        console.error("❌ Failed to approve review:", err);
-        toast.error("❌ Failed to approve review");
-      },
+      onError: showErrorToast,
     }
   );
 
+  // ==============================
   // Reply to review
+  // ==============================
   const replyMutation = useMutation(
     ({ id, reply }) => reviewService.replyToReview(id, { reply }),
     {
@@ -49,14 +62,13 @@ const ReviewsManagement = () => {
         setReplyMap((prev) => ({ ...prev, [id]: "" }));
         queryClient.invalidateQueries(["reviews"]);
       },
-      onError: (err) => {
-        console.error("❌ Failed to send reply:", err);
-        toast.error("❌ Failed to send reply");
-      },
+      onError: showErrorToast,
     }
   );
 
+  // ==============================
   // Delete review
+  // ==============================
   const deleteMutation = useMutation(
     (id) => reviewService.deleteReview(id),
     {
@@ -64,13 +76,13 @@ const ReviewsManagement = () => {
         toast.success("🗑️ Review deleted");
         queryClient.invalidateQueries(["reviews"]);
       },
-      onError: (err) => {
-        console.error("❌ Failed to delete review:", err);
-        toast.error("❌ Failed to delete review");
-      },
+      onError: showErrorToast,
     }
   );
 
+  // ==============================
+  // Handlers
+  // ==============================
   const handleReplyChange = (id, value) => {
     setReplyMap((prev) => ({ ...prev, [id]: value }));
   };
@@ -84,6 +96,9 @@ const ReviewsManagement = () => {
     replyMutation.mutate({ id, reply });
   };
 
+  // ==============================
+  // Render
+  // ==============================
   return (
     <div className="reviews-panel">
       <ToastContainer position="top-right" autoClose={2000} />
