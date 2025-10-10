@@ -86,6 +86,19 @@ const ScrollAndRefresh = () => {
 };
 
 // ==============================
+// Error Helper for Toast
+// ==============================
+const showErrorToast = (error) => {
+  let message = "An unexpected error occurred";
+  if (error?.response?.data?.message) {
+    message = error.response.data.message; // API-specific message
+  } else if (error?.message) {
+    message = error.message; // Network or generic error
+  }
+  toast.error(`❌ ${message}`);
+};
+
+// ==============================
 // Homepage Wrapper
 // ==============================
 const EethmHomePage = () => {
@@ -107,7 +120,7 @@ const EethmHomePage = () => {
 };
 
 // ==============================
-// Routes
+// App Routes
 // ==============================
 const AppRoutes = () => {
   const location = useLocation();
@@ -147,10 +160,7 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route
-        path="/reset-password-confirm/:uid/:token"
-        element={<ResetPassword />}
-      />
+      <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
 
       {/* Protected: Users & Admins */}
       <Route element={<ProtectedRoute roles={["user", "admin"]} />}>
@@ -159,10 +169,7 @@ const AppRoutes = () => {
         <Route path="/bookings" element={<BookingForm />} />
         <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/update-password" element={<UpdatePassword />} />
-        <Route
-          path="/confirm-password-change"
-          element={<ConfirmPasswordChange />}
-        />
+        <Route path="/confirm-password-change" element={<ConfirmPasswordChange />} />
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
       </Route>
 
@@ -188,10 +195,7 @@ const AppRoutes = () => {
       </Route>
 
       {/* Unauthorized / Catch-all */}
-      <Route
-        path="/unauthorized"
-        element={<div className="unauthorized">Access Denied</div>}
-      />
+      <Route path="/unauthorized" element={<div className="unauthorized">Access Denied</div>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -230,7 +234,20 @@ const AppWithSplash = () => {
 // Root App
 // ==============================
 function App() {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        refetchOnWindowFocus: false,
+        staleTime: 1000 * 60, // 1 minute
+        onError: showErrorToast, // show exact error toast
+      },
+      mutations: {
+        retry: false,
+        onError: showErrorToast, // show exact error toast
+      },
+    },
+  });
 
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
