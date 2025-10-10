@@ -1,54 +1,82 @@
 /**
- * Low-level API calls to Django Invoice endpoints
- * Uses existing axios instances (privateAxios for authenticated requests).
+ * Low-level API calls for Django Invoice endpoints
+ * -------------------------------------------------
+ * Uses privateAxios for authenticated requests.
+ * Backend router is nested → /api/invoices/invoices/
  */
+
 import privateAxios from "./axiosInstance";
 
 // ---------------------------------------------------------------------
-// CRUD + custom actions
+// Base path — because backend route is nested (api/invoices/invoices/)
+// ---------------------------------------------------------------------
+const BASE_PATH = "/invoices/invoices/";
+
+// ---------------------------------------------------------------------
+// CRUD endpoints
 // ---------------------------------------------------------------------
 
-// Create a new invoice for a given booking
+/**
+ * Create a new invoice for a given booking
+ * @param {{ booking_id: number, payment_status?: "none"|"half"|"full" }} data
+ */
 export function createInvoice(data) {
-  // data: { booking_id: number, payment_status?: "none"|"half"|"full" }
-  return privateAxios.post("/invoices/", data);
+  return privateAxios.post(BASE_PATH, data);
 }
 
-// Retrieve one invoice
+/**
+ * Retrieve a single invoice by ID
+ * @param {number|string} id
+ */
 export function getInvoice(id) {
-  return privateAxios.get(`/invoices/${id}/`);
+  return privateAxios.get(`${BASE_PATH}${id}/`);
 }
 
-// List all invoices (admin)
+/**
+ * List all invoices (admin or filtered)
+ * @param {object} [params]
+ */
 export function listInvoices(params) {
-  // params optional for pagination/filtering
-  return privateAxios.get("/invoices/", { params });
+  return privateAxios.get(BASE_PATH, { params });
 }
 
-// Update invoice (PATCH)
+/**
+ * Update invoice fields (PATCH)
+ * @param {number|string} id
+ * @param {object} payload
+ */
 export function updateInvoice(id, payload) {
-  return privateAxios.patch(`/invoices/${id}/`, payload);
+  return privateAxios.patch(`${BASE_PATH}${id}/`, payload);
 }
 
-// Delete invoice
+/**
+ * Delete an invoice
+ * @param {number|string} id
+ */
 export function deleteInvoice(id) {
-  return privateAxios.delete(`/invoices/${id}/`);
+  return privateAxios.delete(`${BASE_PATH}${id}/`);
 }
 
 // ---------------------------------------------------------------------
-// Custom endpoints exposed in the ViewSet (@action)
+// Custom actions (@action endpoints in Django ViewSet)
 // ---------------------------------------------------------------------
 
-// Download generated PDF (returns a Blob)
+/**
+ * Download generated PDF for an invoice
+ * @param {number|string} id
+ */
 export function downloadInvoicePdf(id) {
-  return privateAxios.get(`/invoices/${id}/download_pdf/`, {
+  return privateAxios.get(`${BASE_PATH}${id}/download_pdf/`, {
     responseType: "blob",
   });
 }
 
-// Trigger sending of invoice email (background task)
+/**
+ * Trigger email sending for an invoice
+ * @param {number|string} id
+ */
 export function sendInvoiceEmail(id) {
-  return privateAxios.post(`/invoices/${id}/send_email/`);
+  return privateAxios.post(`${BASE_PATH}${id}/send_email/`);
 }
 
 // ---------------------------------------------------------------------
