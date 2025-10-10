@@ -8,7 +8,6 @@ import { Textarea } from "../ui/Textarea";
 import {
   Loader2,
   Trash2,
-  Eye,
   CheckCircle,
   XCircle,
   Plus,
@@ -26,6 +25,7 @@ export default function MessagesPage({ currentUser }) {
   const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [formData, setFormData] = useState({
     subject: "",
     message: "",
@@ -52,13 +52,15 @@ export default function MessagesPage({ currentUser }) {
 
   const isAuthenticated = Boolean(userId);
   const role = currentUser?.role?.toLowerCase?.() || "";
-
   const isAdmin = role === "admin" || currentUser?.is_staff;
-  const isVendor = role === "vendor";
-  const isPartner = role === "partner";
-  const isWorker = role === "worker";
 
-  const canSendMessage = isAuthenticated;
+  // Wait for user state to load
+  useEffect(() => {
+    // When currentUser changes (including initial load)
+    if (currentUser !== undefined) {
+      setAuthChecked(true);
+    }
+  }, [currentUser]);
 
   // ---------- Fetch Messages ----------
   const fetchMessages = async () => {
@@ -118,21 +120,10 @@ export default function MessagesPage({ currentUser }) {
     }
   };
 
-  const handleCategoryToggle = (cat) => {
-    setFormData((p) => {
-      const exists = p.rental_categories.includes(cat);
-      return {
-        ...p,
-        rental_categories: exists
-          ? p.rental_categories.filter((c) => c !== cat)
-          : [...p.rental_categories, cat],
-      };
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
     if (!isAuthenticated) {
       setError("You must sign in to send a message.");
       return;
@@ -199,7 +190,17 @@ export default function MessagesPage({ currentUser }) {
   };
 
   // ---------- Render ----------
-  if (!isAuthenticated) {
+
+  if (!authChecked) {
+    return (
+      <div className="messaging-empty-state">
+        <Loader2 className="spinner" />
+        <h2>Checking login status...</h2>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated && authChecked) {
     return (
       <div className="messaging-empty-state">
         <ToastContainer position="top-right" />
