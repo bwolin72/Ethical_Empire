@@ -1,5 +1,5 @@
 // src/components/messaging/MessagesPage.jsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import messagingService from "../../api/services/messagingService";
 import { Button } from "../ui/Button";
 import { Card, CardContent } from "../ui/Card";
@@ -22,6 +22,7 @@ import "./messaging.css";
 export default function MessagesPage({ currentUser }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -39,48 +40,58 @@ export default function MessagesPage({ currentUser }) {
     equipment_list: "",
   });
   const [unreadCount, setUnreadCount] = useState(0);
+  const [nextPage, setNextPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
   const unreadRef = useRef(0);
   const pollIntervalRef = useRef(null);
+  const listRef = useRef(null);
 
-  // ---------- User & Role Detection ----------
   const userId =
     currentUser?.id ||
     currentUser?.pk ||
     currentUser?.user?.id ||
     currentUser?.user?.pk ||
     null;
-
   const isAuthenticated = Boolean(userId);
-  const role = currentUser?.role?.toLowerCase?.() || "";
-  const isAdmin = role === "admin" || currentUser?.is_staff;
 
-  // Wait for user state to load
+  // ---------- Auth Check ----------
   useEffect(() => {
-    // When currentUser changes (including initial load)
-    if (currentUser !== undefined) {
-      setAuthChecked(true);
-    }
+    if (currentUser !== undefined) setAuthChecked(true);
   }, [currentUser]);
 
   // ---------- Fetch Messages ----------
-  const fetchMessages = async () => {
-    try {
-      setLoading(true);
-      const data = await messagingService.fetchMessages();
-      setMessages(Array.isArray(data) ? data : data?.results || []);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load messages");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchMessages = useCallback(
+    async (page = 1) => {
+      if (!isAuthenticated || !hasMore) return;
+      try {
+        if (page === 1) setLoading(true);
+        else setLoadingMore(true);
+
+        const data = await messagingService.fetchMessages({ page });
+        const results = Array.isArray(data) ? data : data?.results || [];
+
+        if (page === 1) setMessages(results);
+        else setMessages((prev) => [...prev, ...results]);
+
+        setNextPage(data.next ? page + 1 : null);
+        setHasMore(Boolean(data.next));
+      } catch (err) {
+        console.error("Failed to fetch messages:", err);
+        setError("Failed to load messages.");
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [isAuthenticated, hasMore]
+  );
 
   const fetchUnreadCount = async (notify = true) => {
     try {
       const data = await messagingService.fetchUnread();
       const list = Array.isArray(data) ? data : data?.results || [];
-      const count = list.length || 0;
+      const count = list.length;
 
       if (notify && count > unreadRef.current) {
         toast.info(`You have ${count} unread message${count > 1 ? "s" : ""}`);
@@ -93,17 +104,35 @@ export default function MessagesPage({ currentUser }) {
     }
   };
 
+  // ---------- Polling ----------
   useEffect(() => {
     if (!isAuthenticated) return;
+
     fetchMessages();
     fetchUnreadCount(false);
 
-    pollIntervalRef.current = setInterval(() => {
-      fetchUnreadCount(true);
-    }, 30000);
+    pollIntervalRef.current = setInterval(() => fetchUnreadCount(true), 30000);
 
     return () => clearInterval(pollIntervalRef.current);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchMessages]);
+
+  // ---------- Infinite Scroll ----------
+  const handleScroll = () => {
+    if (!listRef.current || loadingMore || !hasMore) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+    if (scrollTop + clientHeight >= scrollHeight - 100) {
+      fetchMessages(nextPage);
+    }
+  };
+
+  useEffect(() => {
+    const node = listRef.current;
+    if (node) node.addEventListener("scroll", handleScroll);
+    return () => {
+      if (node) node.removeEventListener("scroll", handleScroll);
+    };
+  }, [nextPage, loadingMore, hasMore, fetchMessages]);
 
   // ---------- Form Handlers ----------
   const handleChange = (e) => {
@@ -114,9 +143,9 @@ export default function MessagesPage({ currentUser }) {
         setError("Attachment too large (max 5 MB).");
         return;
       }
-      setFormData((p) => ({ ...p, [name]: file }));
+      setFormData((prev) => ({ ...prev, [name]: file }));
     } else {
-      setFormData((p) => ({ ...p, [name]: value }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -137,7 +166,7 @@ export default function MessagesPage({ currentUser }) {
     try {
       const fd = new FormData();
       Object.entries(formData).forEach(([key, val]) => {
-        if (val === null || val === "") return;
+        if (!val) return;
         if (Array.isArray(val)) val.forEach((v) => fd.append(key, v));
         else fd.append(key, val);
       });
@@ -157,40 +186,49 @@ export default function MessagesPage({ currentUser }) {
         equipment_list: "",
       });
       setShowForm(false);
-      fetchMessages();
+      fetchMessages(1);
       fetchUnreadCount(false);
     } catch (err) {
-      console.error(err);
-      setError("Failed to send message");
+      console.error("Failed to send message:", err);
+      setError("Failed to send message.");
     }
   };
 
+  // ---------- Actions ----------
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this message?")) return;
     try {
       await messagingService.removeMessage(id);
       toast.success("Message deleted");
-      fetchMessages();
+      fetchMessages(1);
       fetchUnreadCount(false);
-    } catch {
-      toast.error("Failed to delete message");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      toast.error("Failed to delete message.");
     }
   };
 
   const handleMarkRead = async (id) => {
-    await messagingService.markAsRead(id);
-    fetchMessages();
-    fetchUnreadCount(false);
+    try {
+      await messagingService.markAsRead(id);
+      fetchMessages(1);
+      fetchUnreadCount(false);
+    } catch (err) {
+      console.error("Mark read failed:", err);
+    }
   };
 
   const handleMarkUnread = async (id) => {
-    await messagingService.markAsUnread(id);
-    fetchMessages();
-    fetchUnreadCount(false);
+    try {
+      await messagingService.markAsUnread(id);
+      fetchMessages(1);
+      fetchUnreadCount(false);
+    } catch (err) {
+      console.error("Mark unread failed:", err);
+    }
   };
 
   // ---------- Render ----------
-
   if (!authChecked) {
     return (
       <div className="messaging-empty-state">
@@ -200,7 +238,7 @@ export default function MessagesPage({ currentUser }) {
     );
   }
 
-  if (!isAuthenticated && authChecked) {
+  if (!isAuthenticated) {
     return (
       <div className="messaging-empty-state">
         <ToastContainer position="top-right" />
@@ -213,6 +251,8 @@ export default function MessagesPage({ currentUser }) {
   return (
     <div className="messaging-dashboard">
       <ToastContainer position="top-right" />
+
+      {/* Header */}
       <div className="header-bar">
         <h1>Messages</h1>
         <div className="header-actions">
@@ -225,12 +265,13 @@ export default function MessagesPage({ currentUser }) {
         </div>
       </div>
 
+      {/* Layout */}
       <div className="messaging-layout">
-        <div className="message-list">
+        {/* Message List */}
+        <div className="message-list" ref={listRef}>
           {loading && <Loader2 className="spinner" />}
           {error && <p className="error">{error}</p>}
-
-          {messages.length === 0 && !loading && <p>No messages found.</p>}
+          {!loading && messages.length === 0 && <p>No messages found.</p>}
 
           {messages.map((msg) => (
             <Card
@@ -247,27 +288,15 @@ export default function MessagesPage({ currentUser }) {
                 <div className="msg-meta">
                   <span>From: {msg.sender_name || msg.sender_email}</span>
                   <div className="msg-actions">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(msg.id)}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => handleDelete(msg.id)}>
                       <Trash2 size={16} />
                     </Button>
                     {msg.is_read ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleMarkUnread(msg.id)}
-                      >
+                      <Button size="sm" variant="ghost" onClick={() => handleMarkUnread(msg.id)}>
                         <XCircle size={16} />
                       </Button>
                     ) : (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleMarkRead(msg.id)}
-                      >
+                      <Button size="sm" variant="ghost" onClick={() => handleMarkRead(msg.id)}>
                         <CheckCircle size={16} />
                       </Button>
                     )}
@@ -276,29 +305,25 @@ export default function MessagesPage({ currentUser }) {
               </CardContent>
             </Card>
           ))}
+
+          {loadingMore && <Loader2 className="spinner" />}
+          {!hasMore && <p className="end-list">No more messages</p>}
         </div>
 
+        {/* Message Details / Compose */}
         <div className="message-details">
           {selectedMessage ? (
             <Card className="message-view">
               <CardContent>
                 <div className="view-header">
                   <h2>{selectedMessage.subject}</h2>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setSelectedMessage(null)}
-                  >
+                  <Button size="sm" variant="ghost" onClick={() => setSelectedMessage(null)}>
                     <X />
                   </Button>
                 </div>
                 <p>{selectedMessage.message}</p>
                 {selectedMessage.attachment_url && (
-                  <a
-                    href={selectedMessage.attachment_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
+                  <a href={selectedMessage.attachment_url} target="_blank" rel="noopener noreferrer">
                     View Attachment
                   </a>
                 )}
@@ -309,38 +334,18 @@ export default function MessagesPage({ currentUser }) {
               <CardContent>
                 <div className="view-header">
                   <h2>New Message</h2>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setShowForm(false)}
-                  >
+                  <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>
                     <X />
                   </Button>
                 </div>
                 <form onSubmit={handleSubmit} className="compose-form">
-                  <Input
-                    name="subject"
-                    placeholder="Subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                  />
-                  <Textarea
-                    name="message"
-                    placeholder="Your message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                  />
+                  <Input name="subject" placeholder="Subject" value={formData.subject} onChange={handleChange} required />
+                  <Textarea name="message" placeholder="Your message" value={formData.message} onChange={handleChange} required />
                   <Input type="file" name="attachment" onChange={handleChange} />
 
                   <div className="form-group">
                     <label>Service Type</label>
-                    <select
-                      name="service_type"
-                      value={formData.service_type}
-                      onChange={handleChange}
-                    >
+                    <select name="service_type" value={formData.service_type} onChange={handleChange}>
                       <option value="">Select</option>
                       <option value="rental">Rental</option>
                       <option value="hiring">Hiring</option>
