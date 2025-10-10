@@ -14,13 +14,14 @@ const BookingManagement = () => {
   const [editBooking, setEditBooking] = useState(null);
   const bookingsPerPage = 10;
 
-  // === Fetch bookings ===
+  // ===== Fetch bookings =====
   const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       const res = await bookingService.adminList();
       let data = res?.data?.results || res?.data || [];
 
+      // Search filter
       if (search) {
         data = data.filter(
           (b) =>
@@ -29,6 +30,7 @@ const BookingManagement = () => {
         );
       }
 
+      // Sorting
       data.sort((a, b) =>
         sortBy === 'name'
           ? a.name.localeCompare(b.name)
@@ -43,7 +45,7 @@ const BookingManagement = () => {
     }
   }, [search, sortBy]);
 
-  // === Fetch services ===
+  // ===== Fetch services =====
   const fetchServices = useCallback(async () => {
     try {
       const res = await serviceService.getServices();
@@ -59,17 +61,22 @@ const BookingManagement = () => {
     fetchServices();
   }, [fetchBookings, fetchServices]);
 
-  // === Edit booking ===
+  // ===== Edit booking =====
   const handleEdit = (booking) => {
     setEditBooking({
       ...booking,
       serviceIds: booking.services.map((s) => s.id),
       event_date: booking.event_date || '',
+      statusChanged: false,
     });
   };
 
   const handleEditChange = (field, value) => {
-    setEditBooking((prev) => ({ ...prev, [field]: value }));
+    setEditBooking((prev) => ({
+      ...prev,
+      [field]: value,
+      statusChanged: field === 'status' ? prev.status !== value : prev.statusChanged,
+    }));
   };
 
   const handleServiceToggle = (id) => {
@@ -84,18 +91,26 @@ const BookingManagement = () => {
     });
   };
 
+  // ===== Save edits =====
   const saveEdit = async () => {
     try {
-      await bookingService.update(editBooking.id, {
-        name: editBooking.name,
-        email: editBooking.email,
-        phone: editBooking.phone,
-        address: editBooking.address,
-        message: editBooking.message,
-        event_date: editBooking.event_date,
-        add_service_ids: editBooking.serviceIds,
-        status: editBooking.status,
-      });
+      if (!editBooking) return;
+
+      // Use status endpoint if only status changed
+      if (editBooking.statusChanged && !editBooking.name && !editBooking.email) {
+        await bookingService.updateStatus(editBooking.id, { status: editBooking.status });
+      } else {
+        await bookingService.updateAdmin(editBooking.id, {
+          name: editBooking.name,
+          email: editBooking.email,
+          phone: editBooking.phone,
+          address: editBooking.address,
+          message: editBooking.message,
+          event_date: editBooking.event_date,
+          add_service_ids: editBooking.serviceIds,
+          status: editBooking.status,
+        });
+      }
 
       setEditBooking(null);
       fetchBookings();
@@ -108,14 +123,14 @@ const BookingManagement = () => {
 
   const deleteBooking = async (id) => {
     try {
-      await bookingService.delete(id);
+      await bookingService.deleteAdmin(id);
       fetchBookings();
     } catch (err) {
       console.error('Failed to delete booking:', err.response?.data || err.message);
     }
   };
 
-  // === Pagination ===
+  // ===== Pagination =====
   const indexOfLast = currentPage * bookingsPerPage;
   const indexOfFirst = indexOfLast - bookingsPerPage;
   const currentBookings = bookings.slice(indexOfFirst, indexOfLast);
@@ -144,7 +159,7 @@ const BookingManagement = () => {
         </select>
       </div>
 
-      {/* Table */}
+      {/* Booking Table */}
       <div className="table-responsive">
         <table className="booking-table">
           <thead>
@@ -172,18 +187,10 @@ const BookingManagement = () => {
                 <td>{new Date(b.created_at).toLocaleString()}</td>
                 <td>{b.address}</td>
                 <td>{b.message || '-'}</td>
-                <td>
-                  <span className={statusClass(b.status)}>{b.status}</span>
-                </td>
+                <td><span className={statusClass(b.status)}>{b.status}</span></td>
                 <td>
                   <button onClick={() => handleEdit(b)} title="Edit booking">✏️</button>
-                  <button
-                    onClick={() => deleteBooking(b.id)}
-                    className="delete-btn"
-                    title="Delete booking"
-                  >
-                    🗑
-                  </button>
+                  <button onClick={() => deleteBooking(b.id)} className="delete-btn" title="Delete booking">🗑</button>
                 </td>
               </tr>
             ))}
@@ -204,51 +211,24 @@ const BookingManagement = () => {
         ))}
       </div>
 
-      {/* Modal */}
+      {/* Edit Modal */}
       {editBooking && (
         <div className="modal">
           <div className="modal-content">
             <h3>Edit Booking</h3>
             <div className="form-grid">
-              <input
-                value={editBooking.name}
-                onChange={(e) => handleEditChange('name', e.target.value)}
-                placeholder="Name"
-              />
-              <input
-                value={editBooking.email}
-                onChange={(e) => handleEditChange('email', e.target.value)}
-                placeholder="Email"
-              />
-              <input
-                value={editBooking.phone}
-                onChange={(e) => handleEditChange('phone', e.target.value)}
-                placeholder="Phone"
-              />
-              <input
-                value={editBooking.address}
-                onChange={(e) => handleEditChange('address', e.target.value)}
-                placeholder="Address"
-              />
-              <input
-                type="date"
-                value={editBooking.event_date?.slice(0, 10) || ''}
-                onChange={(e) => handleEditChange('event_date', e.target.value)}
-              />
-              <select
-                value={editBooking.status}
-                onChange={(e) => handleEditChange('status', e.target.value)}
-              >
+              <input value={editBooking.name} onChange={(e) => handleEditChange('name', e.target.value)} placeholder="Name" />
+              <input value={editBooking.email} onChange={(e) => handleEditChange('email', e.target.value)} placeholder="Email" />
+              <input value={editBooking.phone} onChange={(e) => handleEditChange('phone', e.target.value)} placeholder="Phone" />
+              <input value={editBooking.address} onChange={(e) => handleEditChange('address', e.target.value)} placeholder="Address" />
+              <input type="date" value={editBooking.event_date?.slice(0, 10) || ''} onChange={(e) => handleEditChange('event_date', e.target.value)} />
+              <select value={editBooking.status} onChange={(e) => handleEditChange('status', e.target.value)}>
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Rejected</option>
                 <option value="completed">Completed</option>
               </select>
-              <textarea
-                value={editBooking.message || ''}
-                onChange={(e) => handleEditChange('message', e.target.value)}
-                placeholder="Message"
-              />
+              <textarea value={editBooking.message || ''} onChange={(e) => handleEditChange('message', e.target.value)} placeholder="Message" />
             </div>
 
             <div className="services-list">
@@ -256,11 +236,7 @@ const BookingManagement = () => {
               <div className="checkbox-grid">
                 {services.map((service) => (
                   <label key={service.id}>
-                    <input
-                      type="checkbox"
-                      checked={editBooking.serviceIds.includes(service.id)}
-                      onChange={() => handleServiceToggle(service.id)}
-                    />
+                    <input type="checkbox" checked={editBooking.serviceIds.includes(service.id)} onChange={() => handleServiceToggle(service.id)} />
                     {service.name}
                   </label>
                 ))}
