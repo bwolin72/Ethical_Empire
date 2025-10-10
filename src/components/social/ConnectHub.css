@@ -1,85 +1,180 @@
+/* ======================================================
+   🤝 Connect Hub Styles — EETHM Social / Community Page
+   Matches: variables.css (Brand, Gradients, Animations)
+   ====================================================== */
+
 .connect-hub-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2.5rem 1rem;
-  background: var(--background-light);
+  padding: 3rem 1.5rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  animation: fade-in 0.8s ease-in-out both;
 }
 
+/* === Hero Section === */
 .connect-hero {
   text-align: center;
   max-width: 800px;
   margin-bottom: 3rem;
+  animation: fade-in-up 0.8s ease-in-out both;
 }
 
 .connect-hero h1 {
-  font-size: 2.5rem;
-  color: var(--primary-color);
+  font-family: var(--font-accent);
+  font-size: 2.6rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
 }
 
 .connect-hero p {
-  color: #444;
-  margin: 1rem 0 2rem;
+  color: var(--color-neutral-light);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
 }
 
+/* === Primary Action Button === */
 .connect-action-btn {
-  background-color: var(--accent-color);
-  color: white;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
   border: none;
-  padding: 0.9rem 1.8rem;
-  border-radius: 5px;
+  padding: 1rem 2rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
+
 .connect-action-btn:hover {
   opacity: 0.9;
+  transform: translateY(-2px);
 }
 
+.connect-action-btn:disabled {
+  background: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+/* === Social / Feed Section === */
 .social-section {
   width: 100%;
   max-width: 1000px;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
+  animation: fade-in 0.8s ease-in-out both;
 }
 
 .preview-title {
   text-align: center;
   margin-bottom: 1.5rem;
-  color: var(--primary-color);
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
+/* === Public Feed Preview === */
 .preview-feed {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
 }
 
 .preview-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: transform 0.2s;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .preview-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
 }
 
+.preview-card h4 {
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.preview-card p {
+  color: var(--color-neutral);
+  font-size: 0.95rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.4;
+}
+
+.preview-card small {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+/* === Empty / No Posts === */
+.no-preview {
+  text-align: center;
+  color: var(--color-muted);
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+/* === Join Banner === */
 .join-banner {
   text-align: center;
   margin-top: 3rem;
+  background: var(--color-service-bg);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
+.join-banner h3 {
+  font-size: 1.6rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  font-family: var(--font-accent);
+}
+
+/* === Join Community Button === */
 .connect-signup-btn {
-  background-color: var(--primary-color);
-  color: white;
-  padding: 0.7rem 1.4rem;
-  border-radius: 5px;
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
   border: none;
+  padding: 0.9rem 1.8rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 .connect-signup-btn:hover {
-  background-color: var(--primary-dark);
+  transform: translateY(-3px);
+  opacity: 0.9;
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+  .connect-hero h1 {
+    font-size: 2.1rem;
+  }
+
+  .connect-hero p {
+    font-size: 0.95rem;
+  }
+
+  .join-banner {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .connect-action-btn,
+  .connect-signup-btn {
+    width: 100%;
+  }
 }
