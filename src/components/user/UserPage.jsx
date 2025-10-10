@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import {
   Menu,
+  X,
   Settings,
   LogOut,
   Sun,
@@ -102,6 +103,7 @@ const UserPage = () => {
           <ProfileAvatar profile={profile} onProfileUpdate={updateProfile} />
           <h3>{profile?.name || "User"}</h3>
         </div>
+
         <nav className="sidebar-menu">
           <button onClick={() => navigate("/account")}><Settings size={18}/> Account Settings</button>
           <button onClick={() => navigate("/newsletter")}><Mail size={18}/> Newsletter</button>
@@ -109,17 +111,23 @@ const UserPage = () => {
           <button onClick={() => navigate("/booking-history")}><Clock size={18}/> Booking History</button>
           <button onClick={() => navigate("/social")}><Image size={18}/> Social Hub</button>
         </nav>
+
         <div className="sidebar-footer">
-          <button className="logout-btn" onClick={() => navigate("/logout")}><LogOut size={18}/> Logout</button>
+          <button className="logout-btn" onClick={() => navigate("/logout")}>
+            <LogOut size={18}/> Logout
+          </button>
         </div>
       </aside>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && <div className="sidebar-overlay show" onClick={() => setSidebarOpen(false)} />}
 
       {/* Main Content */}
       <main className="dashboard-content">
         <header className="dashboard-header glass-card">
           <div className="header-left">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="menu-toggle">
-              <Menu size={20} />
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="menu-toggle btn-icon">
+              {sidebarOpen ? <X size={20}/> : <Menu size={20}/>}
             </button>
             <div>
               <h2>Hey {profile?.name || "Guest"} 👋</h2>
@@ -129,24 +137,23 @@ const UserPage = () => {
 
           <div className="header-actions">
             <button onClick={toggleDarkMode} className="btn-icon">
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+              {darkMode ? <Sun size={20}/> : <Moon size={20}/>}
             </button>
             <button onClick={() => navigate("/messaging")} className="btn-icon">
-              <MessageCircle size={22} />
+              <MessageCircle size={22}/>
               {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
             </button>
           </div>
         </header>
 
-        {/* Banner Section */}
+        {/* Sections */}
         {promotions.length > 0 && (
           <section className="banner-section fade-in">
             <h3>🔥 Promotions</h3>
-            <BannerCards banners={promotions} />
+            <BannerCards banners={promotions}/>
           </section>
         )}
 
-        {/* Featured Video */}
         {featuredVideo && (
           <section className="featured-section card scale-in">
             <h3><Film size={18}/> Featured Video</h3>
@@ -159,21 +166,19 @@ const UserPage = () => {
           </section>
         )}
 
-        {/* Video Gallery */}
         {videos.length > 0 && (
           <section className="video-gallery-section fade-in">
             <h3><Film size={18}/> Your Videos</h3>
-            <VideoGallery videos={videos} />
+            <VideoGallery videos={videos}/>
           </section>
         )}
 
-        {/* Media Gallery */}
         <section className="gallery-section fade-in">
           <h3><Image size={18}/> Your Gallery</h3>
           {media.length > 0 ? (
             <GalleryWrapper>
               <div className="gallery-grid">
-                {media.map((item, idx) => <MediaCards key={idx} media={item} />)}
+                {media.map((item, idx) => <MediaCards key={idx} media={item}/>)}
               </div>
             </GalleryWrapper>
           ) : (
@@ -181,13 +186,11 @@ const UserPage = () => {
           )}
         </section>
 
-        {/* Reviews */}
         <section className="reviews-section fade-in">
           <h3><Star size={18}/> Reviews</h3>
           {reviews.length > 0 ? <Reviews reviews={reviews}/> : <p className="empty-text">No reviews yet.</p>}
         </section>
 
-        {/* Newsletter */}
         <section className="newsletter-section fade-in">
           <h3><Mail size={18}/> Stay Updated</h3>
           <NewsletterSignup/>
