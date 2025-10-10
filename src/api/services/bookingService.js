@@ -1,11 +1,12 @@
 import axiosInstance from "../axiosInstance";
 import bookingAPI from "../bookingAPI";
 
-// Extract CSRF token
+// ===============================
+// CSRF Utilities
+// ===============================
 const getCSRFToken = () =>
   document.cookie.split("; ").find((row) => row.startsWith("csrftoken="))?.split("=")[1];
 
-// Add CSRF + JSON headers
 const withCSRF = (config = {}) => {
   const csrfToken = getCSRFToken();
   return {
@@ -19,32 +20,37 @@ const withCSRF = (config = {}) => {
   };
 };
 
+// ===============================
 // Normalize HTTP method
+// ===============================
 const resolveMethod = (method = "patch") =>
   method === "update" ? "patch" : method;
 
+// ===============================
+// Booking Service
+// ===============================
 const bookingService = {
-  // Public
+  // ===== Public =====
   create: (data) => axiosInstance.post(bookingAPI.create, data, withCSRF()),
   list: () => axiosInstance.get(bookingAPI.list, withCSRF()),
 
-  // User
+  // ===== User =====
   userBookings: () => axiosInstance.get(bookingAPI.userBookings, withCSRF()),
   userBookingHistory: () => axiosInstance.get(bookingAPI.userBookingHistory, withCSRF()),
   detail: (id) => axiosInstance.get(bookingAPI.detail(id), withCSRF()),
-  update: (id, data, method = "patch") =>
-    axiosInstance[resolveMethod(method)](bookingAPI.detail(id), data, withCSRF()),
+  update: (id, data) =>
+    axiosInstance.patch(bookingAPI.detail(id), data, withCSRF()),
   delete: (id) => axiosInstance.delete(bookingAPI.detail(id), withCSRF()),
 
-  // Admin
+  // ===== Admin =====
   adminList: () => axiosInstance.get(bookingAPI.adminList, withCSRF()),
-  adminUpdate: (id, data, method = "patch") =>
-    axiosInstance[resolveMethod(method)](bookingAPI.adminUpdate(id), data, withCSRF()),
-  adminUpdateStatus: (id, data, method = "patch") =>
-    axiosInstance[resolveMethod(method)](bookingAPI.adminUpdateStatus(id), data, withCSRF()),
-  adminDelete: (id) => axiosInstance.delete(bookingAPI.adminDelete(id), withCSRF()),
+  updateAdmin: (id, data) =>
+    axiosInstance.patch(bookingAPI.adminUpdate(id), data, withCSRF()),
+  updateStatus: (id, data) =>
+    axiosInstance.patch(bookingAPI.adminUpdateStatus(id), data, withCSRF()),
+  deleteAdmin: (id) => axiosInstance.delete(bookingAPI.adminDelete(id), withCSRF()),
 
-  // Invoices
+  // ===== Invoices =====
   invoice: (id) => axiosInstance.get(bookingAPI.invoice(id), withCSRF()),
   invoiceDownload: (id) =>
     axiosInstance.get(bookingAPI.invoiceDownload(id), {
