@@ -13,6 +13,7 @@ import { default as jwt_decode } from "jwt-decode"; // ✅ Correct import for CR
 
 // ===== Constants =====
 const AuthContext = createContext();
+export { AuthContext };
 const AUTH_KEYS = {
   ACCESS: "access",
   REFRESH: "refresh",
