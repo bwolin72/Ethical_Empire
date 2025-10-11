@@ -3,20 +3,20 @@
   command = "CI=false npm run build"
   publish = "build"
 
-# ✅ Ensure API requests go to your EC2 backend — BEFORE the catch-all
+# ✅ Redirect all API calls to your EC2 backend
 [[redirects]]
   from = "/api/*"
-  to = "https://api.eethmghmultimedia.com/:splat"
+  to = "https://api.eethmhmultimedia.com/api/:splat"
   status = 200
   force = true
 
-# ✅ PDF worker stays handled locally
+# ✅ Keep PDF worker local
 [[redirects]]
   from = "/pdf.worker.min.js"
   to = "/pdf.worker.min.js"
   status = 200
 
-# ✅ Catch-all for React SPA — keep at the BOTTOM
+# ✅ Catch-all route for React SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"
