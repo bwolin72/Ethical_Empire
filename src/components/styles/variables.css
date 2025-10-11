@@ -32,6 +32,15 @@
   --color-success: #15803d;
   --color-disabled: #9ca3af;
 
+  /* === Semantic Feedback Colors === */
+  --color-success-light: #dcfce7;
+  --color-success-dark: #15803d;
+
+  --color-error-light: #fee2e2;
+  --color-error-dark: #b91c1c;
+
+  --color-warning-dark: #b45309;
+
   /* === Gradients === */
   --gradient-gold-burgundy: linear-gradient(45deg, #d4af37, #581c1c);
   --gradient-navy-gold: linear-gradient(45deg, #1e3a8a, #d4af37);
@@ -63,7 +72,9 @@
   --color-calendar-icon: #9ca3af;
 }
 
-/* === Light Theme (Explicit Class for Consistency) === */
+/* ======================================================
+   🌞 Light Theme
+   ====================================================== */
 .light {
   --color-bg: var(--color-bg-light, #f9f9f9);
   --color-text: var(--color-text-light, #1f2937);
@@ -73,7 +84,9 @@
   --color-calendar-icon: #9ca3af;
 }
 
-/* === Dark Theme Overrides === */
+/* ======================================================
+   🌙 Dark Theme
+   ====================================================== */
 .dark {
   --color-bg: var(--color-bg-dark, #1f2937);
   --color-text: var(--color-text-dark, #f3f4f6);
@@ -82,9 +95,15 @@
   --color-service-bg: var(--color-service-bg-dark, #374151);
   --color-calendar-icon: #d1d5db;
   --color-primary: #401010;
+
+  /* Adjust gradients for better dark-mode contrast */
+  --gradient-gold-burgundy: linear-gradient(45deg, #bfa132, #2a0f0f);
+  --gradient-navy-gold: linear-gradient(45deg, #152c63, #bfa132);
 }
 
-/* === Extended UI Colors === */
+/* ======================================================
+   🧱 Extended UI Colors
+   ====================================================== */
 :root {
   --color-bg-light: #f9f9f9;
   --color-bg-dark: #1f2937;
@@ -104,7 +123,9 @@
   --color-overlay: rgba(88, 28, 28, 0.5);
 }
 
-/* === Animation Keyframes === */
+/* ======================================================
+   ✨ Animations
+   ====================================================== */
 @keyframes fade-in-up {
   0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -125,7 +146,9 @@
 .animate-fade-in { animation: fade-in 1s ease-out both; }
 .animate-pulse { animation: pulse 1.5s infinite ease-in-out; }
 
-/* === Flipbook Color Palette (Scoped Variables) === */
+/* ======================================================
+   📘 Flipbook Color Palette (Scoped Variables)
+   ====================================================== */
 :root {
   --flip-burgundy: #8B0000;
   --flip-navy: #1F3A93;
