@@ -66,6 +66,8 @@ import MediaHostingServicePage from "./components/services/MediaHostingServicePa
 import { BlogList, BlogDetail } from "./components/blog/Blog";
 import Messaging from "./components/messaging/messaging";
 import ConnectHub from "./components/social/ConnectHub";
+import SocialHub from "./components/social/SocialHub";
+
 
 // Context & Utilities
 import { AuthProvider } from "./components/context/AuthContext";
@@ -136,6 +138,8 @@ const AppRoutes = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/flipbook" element={<FlipbookViewer />} />
+      <Route path="/social" element={<SocialHub />} />
+
 
       {/* Blog */}
       <Route path="/blog" element={<BlogList />} />
