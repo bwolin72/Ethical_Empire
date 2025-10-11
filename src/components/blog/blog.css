@@ -1,46 +1,52 @@
 /* ======================================================
-   🎨 Blog Page Styling
-   Using Theme Variables from variables.css
-   Applies to BlogList & BlogDetail
+   🎨 EETHM Blog Styling (List + Detail)
+   Unified with Global Theme Variables
    ====================================================== */
 
-/* === Global Containers === */
+/* === Base Containers === */
 .blog-container,
 .blog-detail-container {
-  padding: 2rem;
   max-width: 80rem;
   margin: 0 auto;
+  padding: 2rem;
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-main);
-  color: var(--color-text-light);
-  background: var(--color-bg-light);
+  animation: fade-in 0.5s var(--transition-fast) both;
 }
 
 /* === Headings === */
 .blog-title,
 .blog-detail-title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  color: var(--color-primary-dark);
   font-family: var(--font-accent);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin-bottom: 1.5rem;
 }
 
-.blog-social-section h2 {
+.blog-social-section h2,
+.blog-comments h2 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: var(--color-primary-dark);
+  color: var(--color-primary);
 }
 
 /* === Search Input === */
 .blog-search-input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   background: var(--color-input-bg);
-  transition: border var(--transition-fast);
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+}
+
+.blog-search-input::placeholder {
+  color: var(--color-neutral-light);
 }
 
 .blog-search-input:focus {
@@ -49,7 +55,7 @@
   box-shadow: 0 0 0 2px var(--color-accent-gold-light);
 }
 
-/* === Categories === */
+/* === Category Buttons === */
 .blog-categories {
   display: flex;
   flex-wrap: wrap;
@@ -63,19 +69,22 @@
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
   text-decoration: none;
-  transition: background var(--transition-fast);
+  background: var(--color-service-bg);
+  color: var(--color-text);
+  transition: all var(--transition-fast);
 }
 
 .blog-categories a:hover {
-  background: var(--color-secondary-dark);
+  background: var(--color-secondary-light);
+  color: var(--color-white);
 }
 
-.blog-categories a.primary {
+.blog-categories a.active {
   background: var(--color-secondary);
   color: var(--color-white);
 }
 
-/* === Posts Grid === */
+/* === Blog Post Grid === */
 .blog-posts-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -84,7 +93,7 @@
 
 @media (min-width: 768px) {
   .blog-posts-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -106,6 +115,17 @@
   width: 100%;
   height: 14rem;
   object-fit: cover;
+  display: block;
+}
+
+.blog-post-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 14rem;
+  background: var(--color-service-bg);
+  color: var(--color-neutral-light);
+  font-style: italic;
 }
 
 .blog-post-content {
@@ -113,16 +133,16 @@
 }
 
 .blog-post-title {
-  font-weight: 600;
   font-size: 1.125rem;
-  margin-bottom: 0.5rem;
+  font-weight: 600;
   color: var(--color-primary-dark);
+  margin-bottom: 0.5rem;
 }
 
 .blog-post-excerpt {
   color: var(--color-neutral-light);
   margin-bottom: 1rem;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 /* === Read More Button === */
@@ -133,7 +153,7 @@
   color: var(--color-white);
   border-radius: var(--radius-md);
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;
   transition: opacity var(--transition-fast);
 }
 
@@ -146,6 +166,7 @@
   width: 100%;
   border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
 }
 
 .blog-detail-meta {
@@ -155,8 +176,8 @@
 }
 
 .blog-detail-content {
-  color: var(--color-text-light);
   line-height: 1.75;
+  color: var(--color-text);
   margin-bottom: 2rem;
 }
 
@@ -167,15 +188,12 @@
   border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
   border: none;
+  background: var(--color-service-bg);
 }
 
-/* === Comments Section === */
+/* === Comments === */
 .blog-comments {
   margin-top: 2rem;
-}
-
-.blog-comments h2 {
-  margin-bottom: 1rem;
 }
 
 .comment-form {
@@ -185,13 +203,14 @@
 .comment-textarea {
   width: 100%;
   padding: 1rem;
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-input-bg);
-  margin-bottom: 0.75rem;
+  color: var(--color-text);
   font-family: var(--font-main);
   font-size: 1rem;
   resize: vertical;
+  transition: border var(--transition-fast);
 }
 
 .comment-textarea:focus {
@@ -201,7 +220,7 @@
 }
 
 .blog-comments button {
-  padding: 0.5rem 1.25rem;
+  padding: 0.6rem 1.25rem;
   background: var(--color-primary);
   color: var(--color-white);
   border: none;
@@ -217,17 +236,17 @@
 
 /* === Individual Comment === */
 .comment-item {
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border);
   padding: 0.75rem 0;
 }
 
 .comment-user {
-  font-weight: bold;
+  font-weight: 600;
   color: var(--color-primary);
 }
 
 .comment-content {
-  margin: 0.25rem 0 0;
+  margin-top: 0.25rem;
   color: var(--color-neutral-dark);
 }
 
@@ -239,7 +258,21 @@
   color: var(--color-neutral-light);
 }
 
-/* === Dark Mode Overrides === */
+/* === Social Section === */
+.blog-social-posts {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.blog-social-posts h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-secondary-dark);
+}
+
+/* === Dark Mode === */
 .dark .blog-container,
 .dark .blog-detail-container {
   background: var(--color-bg-dark);
@@ -251,6 +284,7 @@
 .dark .blog-media iframe,
 .dark .blog-media blockquote {
   background: var(--color-service-bg-dark);
+  box-shadow: var(--shadow-sm);
 }
 
 .dark .blog-post-title,
@@ -265,4 +299,14 @@
 .dark .no-posts,
 .dark .no-comments {
   color: var(--color-text-dark);
+}
+
+.dark .blog-search-input {
+  background: var(--color-input-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.dark .blog-search-input:focus {
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 0 2px var(--color-accent-gold-dark);
 }
