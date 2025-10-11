@@ -129,4 +129,14 @@
   background: #0b5ed7;
   transform: translateY(-2px);
 }
+.book-page {
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+.book-page img {
+  transition: opacity 0.4s ease;
+  opacity: 0;
+}
+.book-page img[src] {
+  opacity: 1;
+}
 
