@@ -353,3 +353,107 @@
   border-color: var(--color-accent-gold);
   box-shadow: 0 0 0 2px var(--color-accent-gold-dark);
 }
+
+/* ======================================================
+   🦴 Skeleton Loaders + Entry Animations
+   Matches BlogHub JSX skeleton components
+   ====================================================== */
+
+/* === Skeleton Container States === */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-service-bg);
+}
+
+.skeleton-box,
+.skeleton-line {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-service-bg);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-line {
+  height: 1rem;
+}
+
+.skeleton-box::after,
+.skeleton-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  height: 100%;
+  width: 150%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-neutral-light),
+    transparent
+  );
+  animation: skeleton-shimmer 1.2s infinite;
+}
+
+/* === Skeleton Animation === */
+@keyframes skeleton-shimmer {
+  0% {
+    left: -150%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* === Fade Animations (used by .animate-fade-in & .animate-fade-in-up) === */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Apply Animation Classes === */
+.animate-fade-in {
+  animation: fade-in 0.5s var(--transition-fast) both;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s var(--transition-fast) both;
+}
+
+/* === Dark Mode Tweaks for Skeletons === */
+.dark .skeleton,
+.dark .skeleton-box,
+.dark .skeleton-line {
+  background: var(--color-service-bg-dark);
+}
+
+.dark .skeleton-box::after,
+.dark .skeleton-line::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-accent-gold-light),
+    transparent
+  );
+}
+
