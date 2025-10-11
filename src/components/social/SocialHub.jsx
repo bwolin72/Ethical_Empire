@@ -1,5 +1,5 @@
 // src/components/social/SocialHub.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { Card } from "../ui/Card";
 import {
   Facebook,
@@ -11,7 +11,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import QRCode from "react-qr-code";
-import "./SocialMediaPage.css"; // ✅ Updated to match correct CSS file name
+import "./SocialHub.css"; // ✅ unified naming
 
 const staticLinks = [
   {
@@ -50,7 +50,7 @@ const staticLinks = [
     subtitle: "Join the conversation on Threads",
   },
   {
-    name: "Twitter",
+    name: "Twitter (X)",
     url: "https://x.com/EeTHm_Gh?t=DE32RjXhsgO6A_rgeGIFmA&s=09",
     icon: <Twitter aria-hidden="true" />,
     key: "twitter",
@@ -65,6 +65,7 @@ const staticLinks = [
   },
 ];
 
+// Reusable Social Card Component
 function SocialCard({ link }) {
   return (
     <Card className="social-card" role="group" aria-label={link.name}>
@@ -89,27 +90,38 @@ function SocialCard({ link }) {
 }
 
 export default function SocialHub({ socialPosts = [] }) {
+  useEffect(() => {
+    document.title = "EETHM Social Hub • Connect & Engage";
+  }, []);
+
   const hasFetchedContent = Array.isArray(socialPosts) && socialPosts.length > 0;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
     <main
       className="social-hub-container"
-      aria-label="Social media links and latest posts"
+      aria-label="EETHM Social media links and latest posts"
     >
       {/* === Hero Header Section === */}
       <header className="header-wrap">
-        <h1 className="social-hub-title">Connect with Eethm_GH Multimedia</h1>
+        <h1 className="social-hub-title">Connect with EETHM Multimedia</h1>
 
         {/* 🎉 Animated Marquee */}
-        <div className="marquee-bar" aria-hidden="true">
+        <div className="marquee-bar" role="presentation" aria-hidden="true">
           <div className="marquee">
-            <span>🎥 Eethm_GH Multimedia • Events</span>
+            <span>🎥 EETHM Multimedia • Events</span>
             <span>📸 Creative Production • Digital Media</span>
             <span>🎶 Shows & Reels • Social Buzz</span>
-            <span>🌐 Connect. Engage. Inspire.</span>
-            {/* repeat for seamless loop */}
-            <span>🎥 Eethm_GH Multimedia • Events</span>
-            <span>📸 Creative Production • Digital Media</span>
+            <span>🌐 Connect • Engage • Inspire</span>
           </div>
         </div>
 
@@ -120,13 +132,9 @@ export default function SocialHub({ socialPosts = [] }) {
 
       {/* === Main Grid Layout === */}
       <div className="social-grid">
-        {/* Left side: Cards + Latest Posts */}
         <div className="left-stack">
           {/* 📱 Social Media Links */}
-          <section
-            className="social-cards-grid"
-            aria-label="Social media links"
-          >
+          <section className="social-cards-grid" aria-label="Social media links">
             {staticLinks.map((s) => (
               <SocialCard key={s.key} link={s} />
             ))}
@@ -145,16 +153,15 @@ export default function SocialHub({ socialPosts = [] }) {
                   {post.image && (
                     <img
                       src={post.image}
-                      alt={
-                        post.caption?.slice(0, 50) ||
-                        post.text?.slice(0, 50) ||
-                        "Social media post image"
-                      }
+                      alt={post.caption?.slice(0, 60) || "Social media post image"}
                       className="social-post-image"
                       loading="lazy"
                     />
                   )}
                   <div className="social-post-content">
+                    {formatDate(post.createdAt) && (
+                      <div className="post-date">{formatDate(post.createdAt)}</div>
+                    )}
                     <p>{post.caption || post.text || "No description available."}</p>
                     {post.url && (
                       <a
