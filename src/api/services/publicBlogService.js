@@ -65,10 +65,16 @@ export const getCategories = async () => {
 // SOCIAL POSTS (Public)
 // -------------------------
 export const getSocialPosts = async (limit = 10) => {
-  const res = await publicAxios.get(`${API_URL}/social-posts/latest/`, {
-    params: { limit },
-  });
-  return normalizeArray(res.data);
+  try {
+    // ✅ Adjusted endpoint (was /blog/social-posts/latest/)
+    const res = await publicAxios.get(`${baseURL}/social/public-feed/`, {
+      params: { limit },
+    });
+    return normalizeArray(res.data);
+  } catch (err) {
+    console.warn("[PublicBlogService] Social posts unavailable:", err.message);
+    return [];
+  }
 };
 
 // -------------------------
@@ -84,3 +90,4 @@ export default {
   getCategories,
   getSocialPosts,
 };
+
