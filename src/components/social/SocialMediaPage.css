@@ -382,3 +382,44 @@
     transition: none !important;
   }
 }
+.social-post-card {
+  border-radius: var(--radius-md);
+  background: var(--color-service-bg-light);
+  padding: 0.75rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.social-post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.social-post-image {
+  width: 100%;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  margin-bottom: 0.6rem;
+}
+
+.view-post-link {
+  color: var(--color-primary);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.view-post-link:hover {
+  color: var(--color-primary-light);
+}
+
+.no-social-posts {
+  font-style: italic;
+  opacity: 0.8;
+  padding: 0.8rem 0;
+}
+
+.post-date {
+  font-size: 0.85rem;
+  color: var(--color-neutral-light);
+  margin-bottom: 0.4rem;
+}
