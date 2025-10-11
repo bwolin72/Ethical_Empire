@@ -66,8 +66,8 @@ export const getCategories = async () => {
 // -------------------------
 export const getSocialPosts = async (limit = 10) => {
   try {
-    // ✅ Adjusted endpoint (was /blog/social-posts/latest/)
-    const res = await publicAxios.get(`${baseURL}/social/public-feed/`, {
+    // ✅ Fixed: Correct backend endpoint
+    const res = await publicAxios.get(`${API_URL}/social/public-feed/`, {
       params: { limit },
     });
     return normalizeArray(res.data);
@@ -90,4 +90,3 @@ export default {
   getCategories,
   getSocialPosts,
 };
-
