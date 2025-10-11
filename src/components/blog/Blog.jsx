@@ -1,6 +1,6 @@
 // ====================================================
 // 📘 Blog Hub (List & Detail)
-// Final Production Version — Polished UX + Skeletons
+// Final Production Version — Fully Synced with Django API
 // ====================================================
 
 import React, { useEffect, useState } from "react";
@@ -72,6 +72,7 @@ export function BlogList() {
       setError(null);
 
       try {
+        // ✅ Matches Django routes
         const [fetchedPosts, fetchedCategories, fetchedSocial] = await Promise.all([
           safeFetch(() => PublicBlogService.getLatestPosts()),
           safeFetch(() => PublicBlogService.getCategories()),
@@ -96,13 +97,12 @@ export function BlogList() {
     };
   }, [location]);
 
-  // 🔎 Search + Category Filter
+  // 🔎 Filter posts
   const filteredPosts = posts
     .filter((p) => p.title?.toLowerCase().includes(search.toLowerCase()))
     .filter((p) => !categorySlug || p.category?.slug === categorySlug);
 
-  if (error)
-    return <p className="text-center p-6 text-red-600">{error}</p>;
+  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
 
   return (
     <div className="blog-container animate-fade-in-up">
@@ -249,8 +249,7 @@ export function BlogDetail() {
     setComments(refreshed);
   };
 
-  if (error)
-    return <p className="text-center p-6 text-red-600">{error}</p>;
+  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
   if (loading) return <DetailSkeleton />;
   if (!post) return <p className="text-center p-6">Post not found.</p>;
 
@@ -259,9 +258,9 @@ export function BlogDetail() {
       <h1 className="blog-detail-title">{post.title}</h1>
       <p className="blog-detail-meta">
         {post.publish_date || post.created_at
-          ? new Intl.DateTimeFormat("en-US", {
-              dateStyle: "medium",
-            }).format(new Date(post.publish_date || post.created_at))
+          ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(
+              new Date(post.publish_date || post.created_at)
+            )
           : "—"}{" "}
         | {post.category?.name?.trim() || "Uncategorized"}
       </p>
@@ -321,7 +320,9 @@ export function BlogDetail() {
           <Button type="submit">Post Comment</Button>
         </form>
 
-        {comments.length === 0 && <p className="no-comments">No comments yet.</p>}
+        {comments.length === 0 && (
+          <p className="no-comments">No comments yet.</p>
+        )}
         {comments.map((c) => (
           <div key={c.id} className="comment-item">
             <p className="comment-user">{c.user || c.guest_name || "Guest"}</p>
