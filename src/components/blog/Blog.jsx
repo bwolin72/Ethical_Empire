@@ -1,18 +1,19 @@
 // ====================================================
 // 📘 Blog Hub (List & Detail)
-// Polished version — Theme + UX + Safety aligned
+// Final Production Version — Polished UX + Skeletons
 // ====================================================
+
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
 import PublicBlogService from "../../api/services/publicBlogService";
 import SocialHub from "../social/SocialHub";
-import fallbackImage from "../../assets/logo1.png"; // brand fallback
+import fallbackImage from "../../assets/logo1.png";
 import "./blog.css";
 
 // ====================================================
-// 🔒 Helper: Safe API Fetch Wrapper
+// 🔒 Safe Fetch Wrapper
 // ====================================================
 const safeFetch = async (fn, fallback = []) => {
   try {
@@ -23,6 +24,31 @@ const safeFetch = async (fn, fallback = []) => {
     return fallback;
   }
 };
+
+// ====================================================
+// 🦴 Skeleton Components
+// ====================================================
+const PostSkeleton = () => (
+  <Card className="blog-post-card skeleton">
+    <div className="blog-post-image skeleton-box" />
+    <CardContent className="blog-post-content">
+      <div className="skeleton-line w-3/4 mb-2" />
+      <div className="skeleton-line w-full mb-2" />
+      <div className="skeleton-line w-2/3" />
+    </CardContent>
+  </Card>
+);
+
+const DetailSkeleton = () => (
+  <div className="blog-detail-container animate-fade-in">
+    <div className="skeleton-line w-1/2 h-8 mb-4" />
+    <div className="skeleton-line w-1/3 h-4 mb-6" />
+    <div className="skeleton-box w-full h-80 mb-6" />
+    <div className="skeleton-line w-full mb-2" />
+    <div className="skeleton-line w-5/6 mb-2" />
+    <div className="skeleton-line w-4/6 mb-6" />
+  </div>
+);
 
 // ====================================================
 // 📰 BLOG LIST PAGE
@@ -70,13 +96,13 @@ export function BlogList() {
     };
   }, [location]);
 
-  // 🔎 Search & Category Filter
+  // 🔎 Search + Category Filter
   const filteredPosts = posts
     .filter((p) => p.title?.toLowerCase().includes(search.toLowerCase()))
     .filter((p) => !categorySlug || p.category?.slug === categorySlug);
 
-  if (loading) return <p className="text-center p-6">Loading blog posts...</p>;
-  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
+  if (error)
+    return <p className="text-center p-6 text-red-600">{error}</p>;
 
   return (
     <div className="blog-container animate-fade-in-up">
@@ -97,57 +123,70 @@ export function BlogList() {
         <Button asChild variant={!categorySlug ? "primary" : "outline"}>
           <Link to="/blog">All</Link>
         </Button>
-        {categories.map((cat) => (
-          <Button
-            key={cat.id}
-            asChild
-            variant={categorySlug === cat.slug ? "primary" : "outline"}
-          >
-            <Link to={`/blog/category/${cat.slug}`}>{cat.name}</Link>
-          </Button>
-        ))}
+
+        {categories.length > 0 ? (
+          categories.map((cat) => (
+            <Button
+              key={cat.id}
+              asChild
+              variant={categorySlug === cat.slug ? "primary" : "outline"}
+            >
+              <Link to={`/blog/category/${cat.slug}`}>{cat.name}</Link>
+            </Button>
+          ))
+        ) : (
+          <span className="text-sm text-gray-500 italic">
+            No categories available
+          </span>
+        )}
       </div>
 
       {/* 📰 Posts Grid */}
       <div className="blog-posts-grid">
-        {filteredPosts.length === 0 && (
-          <p className="no-posts">No posts found.</p>
-        )}
-        {filteredPosts.map((post) => (
-          <Card key={post.id} className="blog-post-card">
-            <img
-              src={post.featured_image || fallbackImage}
-              alt={post.title || "Blog post"}
-              className="blog-post-image"
-              loading="lazy"
-            />
-            <CardContent className="blog-post-content">
-              <h2 className="blog-post-title">{post.title}</h2>
-              <p className="blog-post-excerpt">
-                {post.excerpt ||
-                  post.content?.slice(0, 140) ||
-                  "Read our latest insights..."}
-              </p>
-              <small className="blog-post-meta">
-                {post.created_at
-                  ? new Intl.DateTimeFormat("en-US", {
-                      dateStyle: "medium",
-                    }).format(new Date(post.created_at))
-                  : "—"}{" "}
-                | {post.category?.name || "Uncategorized"}
-              </small>
-              <Button asChild>
-                <Link to={`/blog/${post.slug}`}>Read More</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
+          : filteredPosts.length > 0
+          ? filteredPosts.map((post) => (
+              <Card key={post.id} className="blog-post-card">
+                <img
+                  src={post.featured_image || fallbackImage}
+                  alt={post.title || "Blog post"}
+                  className="blog-post-image"
+                  loading="lazy"
+                />
+                <CardContent className="blog-post-content">
+                  <h2 className="blog-post-title">{post.title}</h2>
+                  <p className="blog-post-excerpt">
+                    {post.excerpt ||
+                      (post.content
+                        ? post.content.slice(0, 140) + "..."
+                        : "Read our latest insights...")}
+                  </p>
+                  <small className="blog-post-meta">
+                    {post.created_at
+                      ? new Intl.DateTimeFormat("en-US", {
+                          dateStyle: "medium",
+                        }).format(new Date(post.created_at))
+                      : "—"}{" "}
+                    | {post.category?.name?.trim() || "Uncategorized"}
+                  </small>
+                  <Button asChild>
+                    <Link to={`/blog/${post.slug}`}>Read More</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))
+          : !loading && <p className="no-posts">No posts found.</p>}
       </div>
 
       {/* 🌐 Social Feed */}
       <div className="blog-social-section">
         <h2>Latest on Social Media</h2>
-        <SocialHub socialPosts={socialPosts} />
+        {loading ? (
+          <div className="skeleton-line w-1/2 mb-4" />
+        ) : (
+          <SocialHub socialPosts={socialPosts} />
+        )}
       </div>
     </div>
   );
@@ -166,7 +205,6 @@ export function BlogDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 🗞 Fetch Post + Comments
   useEffect(() => {
     let active = true;
 
@@ -198,7 +236,6 @@ export function BlogDetail() {
     };
   }, [slug]);
 
-  // 💬 Handle Comment Submit
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentContent.trim()) return;
@@ -208,15 +245,13 @@ export function BlogDetail() {
     );
     setCommentContent("");
 
-    const refreshed = await safeFetch(() =>
-      PublicBlogService.getComments(slug)
-    );
+    const refreshed = await safeFetch(() => PublicBlogService.getComments(slug));
     setComments(refreshed);
   };
 
-  // 🖋️ Render
-  if (loading) return <p className="text-center p-6">Loading...</p>;
-  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
+  if (error)
+    return <p className="text-center p-6 text-red-600">{error}</p>;
+  if (loading) return <DetailSkeleton />;
   if (!post) return <p className="text-center p-6">Post not found.</p>;
 
   return (
@@ -228,7 +263,7 @@ export function BlogDetail() {
               dateStyle: "medium",
             }).format(new Date(post.publish_date || post.created_at))
           : "—"}{" "}
-        | {post.category?.name || "Uncategorized"}
+        | {post.category?.name?.trim() || "Uncategorized"}
       </p>
 
       <img
@@ -286,9 +321,7 @@ export function BlogDetail() {
           <Button type="submit">Post Comment</Button>
         </form>
 
-        {comments.length === 0 && (
-          <p className="no-comments">No comments yet.</p>
-        )}
+        {comments.length === 0 && <p className="no-comments">No comments yet.</p>}
         {comments.map((c) => (
           <div key={c.id} className="comment-item">
             <p className="comment-user">{c.user || c.guest_name || "Guest"}</p>
