@@ -13,6 +13,9 @@ import {
 import QRCode from "react-qr-code";
 import "./SocialHub.css"; // ✅ unified naming
 
+// ==========================
+// 🔗 Static Social Links
+// ==========================
 const staticLinks = [
   {
     name: "Facebook",
@@ -56,7 +59,7 @@ const staticLinks = [
     key: "twitter",
     subtitle: "Follow us for news & updates",
   },
-  {
+    {
     name: "WhatsApp",
     url: "https://wa.me/+233552988735",
     icon: <Phone aria-hidden="true" />,
@@ -65,16 +68,18 @@ const staticLinks = [
   },
 ];
 
-// Reusable Social Card Component
+// ==========================
+// 🎴 Social Card Component
+// ==========================
 function SocialCard({ link }) {
   return (
     <Card className="social-card" role="group" aria-label={link.name}>
       <a
-        className="social-card-link"
         href={link.url}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Visit ${link.name}`}
+        className="social-card-link"
       >
         <div className="social-card-left">
           <span className={`social-icon-wrapper ${link.key}`}>{link.icon}</span>
@@ -89,17 +94,19 @@ function SocialCard({ link }) {
   );
 }
 
+// ==========================
+// 🌐 Main Social Hub Component
+// ==========================
 export default function SocialHub({ socialPosts = [] }) {
   useEffect(() => {
     document.title = "EETHM Social Hub • Connect & Engage";
   }, []);
 
-  const hasFetchedContent = Array.isArray(socialPosts) && socialPosts.length > 0;
+  const hasPosts = Array.isArray(socialPosts) && socialPosts.length > 0;
 
   const formatDate = (dateString) => {
     if (!dateString) return null;
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -111,7 +118,7 @@ export default function SocialHub({ socialPosts = [] }) {
       className="social-hub-container"
       aria-label="EETHM Social media links and latest posts"
     >
-      {/* === Hero Header Section === */}
+      {/* === Header Section === */}
       <header className="header-wrap">
         <h1 className="social-hub-title">Connect with EETHM Multimedia</h1>
 
@@ -130,24 +137,26 @@ export default function SocialHub({ socialPosts = [] }) {
         </p>
       </header>
 
-      {/* === Main Grid Layout === */}
+      {/* === Main Layout === */}
       <div className="social-grid">
+        {/* Left: Social Links + Posts */}
         <div className="left-stack">
-          {/* 📱 Social Media Links */}
+          {/* 📱 Static Social Media Links */}
           <section className="social-cards-grid" aria-label="Social media links">
-            {staticLinks.map((s) => (
-              <SocialCard key={s.key} link={s} />
+            {staticLinks.map((link) => (
+              <SocialCard key={link.key} link={link} />
             ))}
           </section>
 
-          {/* 📰 Latest Social Updates */}
+          {/* 📰 Dynamic Social Posts */}
           <section
             className="social-fetched-posts"
             aria-label="Latest social media updates"
             aria-live="polite"
           >
             <h3>Latest Social Updates</h3>
-            {hasFetchedContent ? (
+
+            {hasPosts ? (
               socialPosts.map((post, i) => (
                 <Card key={post.id || i} className="social-post-card">
                   {post.image && (
@@ -158,6 +167,7 @@ export default function SocialHub({ socialPosts = [] }) {
                       loading="lazy"
                     />
                   )}
+
                   <div className="social-post-content">
                     {formatDate(post.createdAt) && (
                       <div className="post-date">{formatDate(post.createdAt)}</div>
@@ -169,6 +179,7 @@ export default function SocialHub({ socialPosts = [] }) {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="View full post"
+                        className="view-post-link"
                       >
                         View Post
                       </a>
@@ -182,7 +193,7 @@ export default function SocialHub({ socialPosts = [] }) {
           </section>
         </div>
 
-        {/* 📲 QR Linktree Section */}
+        {/* Right: QR Section */}
         <aside className="qr-section" aria-label="Linktree QR code">
           <div className="qr-title">Scan Our Linktree</div>
           <div className="qr-wrap">
