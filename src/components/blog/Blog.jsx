@@ -1,26 +1,38 @@
-import React, { useEffect, useState } from "react";
+// ====================================================
+// 🌐 Blog Module — Optimized & Polished
+// Unified Blog List + Detail Components
+// Brand: EETHM Events & Media
+// ====================================================
+
+import React, { useEffect, useState, Suspense, lazy } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
 import PublicBlogService from "../../api/services/publicBlogService";
-import SocialHub from "../social/SocialHub";
+import { toast } from "react-toastify";
 import "./blog.css";
 
+// Lazy-load SocialHub for better performance
+const SocialHub = lazy(() => import("../social/SocialHub"));
+
 // ====================================================
-// Helper: Safe API Fetch
+// ✅ Safe Fetch Helper
+// ----------------------------------------------------
+// Ensures async API calls don't crash components.
+// Provides fallback data for graceful handling.
 // ====================================================
-const safeFetch = async (fn, fallback = []) => {
+const safeFetch = async (fn, fallback = null) => {
   try {
     const res = await fn();
-    return res || fallback;
+    return res ?? fallback;
   } catch (err) {
-    console.error("API error:", err);
+    console.error("API Error:", err);
     return fallback;
   }
 };
 
 // ====================================================
-// BLOG LIST PAGE
+// 📰 BLOG LIST PAGE
 // ====================================================
 export function BlogList() {
   const { categorySlug } = useParams();
@@ -33,62 +45,71 @@ export function BlogList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch posts, categories, and social data
   useEffect(() => {
-    let mounted = true;
-
-    async function fetchData() {
+    let active = true;
+    (async () => {
       setLoading(true);
       setError(null);
-      try {
-        const [fetchedPosts, fetchedCategories, fetchedSocial] = await Promise.all([
-          safeFetch(() => PublicBlogService.getLatestPosts()),
-          safeFetch(() => PublicBlogService.getCategories()),
-          safeFetch(() => PublicBlogService.getSocialPosts()),
-        ]);
-
-        if (mounted) {
-          setPosts(fetchedPosts);
-          setCategories(fetchedCategories);
-          setSocialPosts(fetchedSocial);
-        }
-      } catch (err) {
-        if (mounted) setError("Unable to load blog data.");
-      } finally {
-        if (mounted) setLoading(false);
+      const [p, c, s] = await Promise.all([
+        safeFetch(() => PublicBlogService.getLatestPosts(), []),
+        safeFetch(() => PublicBlogService.getCategories(), []),
+        safeFetch(() => PublicBlogService.getSocialPosts(), []),
+      ]);
+      if (active) {
+        setPosts(p);
+        setCategories(c);
+        setSocialPosts(s);
+        setLoading(false);
       }
-    }
-
-    fetchData();
+    })().catch(() => {
+      if (active) {
+        setError("Unable to load blog data.");
+        setLoading(false);
+      }
+    });
     return () => {
-      mounted = false;
+      active = false;
     };
   }, [location]);
 
+  useEffect(() => {
+    document.title = "Blog Hub • EETHM Media";
+  }, []);
+
   const filteredPosts = posts
-    .filter(
-      (p) =>
-        typeof p.title === "string" &&
-        p.title.toLowerCase().includes(search.toLowerCase())
+    .filter((p) =>
+      typeof p.title === "string"
+        ? p.title.toLowerCase().includes(search.toLowerCase())
+        : false
     )
     .filter((p) => !categorySlug || p.category?.slug === categorySlug);
 
-  if (loading) return <p className="text-center p-6">Loading...</p>;
-  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
+  if (loading)
+    return (
+      <div className="blog-loading">
+        <p className="text-center p-6">Loading blog content...</p>
+      </div>
+    );
+
+  if (error)
+    return <p className="text-center p-6 text-red-600">{error}</p>;
 
   return (
     <div className="blog-container">
       <h1 className="blog-title">Blog Hub</h1>
 
-      {/* Search */}
+      {/* 🔍 Search Input */}
       <input
         type="text"
         placeholder="Search posts..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="blog-search-input"
+        aria-label="Search blog posts"
       />
 
-      {/* Categories */}
+      {/* 🏷️ Categories */}
       <div className="blog-categories">
         <Button asChild variant={!categorySlug ? "primary" : "outline"}>
           <Link to="/blog">All</Link>
@@ -104,48 +125,57 @@ export function BlogList() {
         ))}
       </div>
 
-      {/* Posts */}
+      {/* 🧾 Posts Grid */}
       <div className="blog-posts-grid">
-        {filteredPosts.length === 0 && <p className="no-posts">No posts found.</p>}
-        {filteredPosts.map((post) => (
-          <Card key={post.id} className="blog-post-card">
-            {post.featured_image ? (
-              <img
-                src={post.featured_image}
-                alt={post.title}
-                className="blog-post-image"
-              />
-            ) : (
-              <div className="blog-post-placeholder">No Image</div>
-            )}
-            <CardContent className="blog-post-content">
-              <h2 className="blog-post-title">{post.title}</h2>
-              <p className="blog-post-excerpt">
-                {post.excerpt || post.content?.slice(0, 120) || ""}...
-              </p>
-              <Button asChild>
-                <Link to={`/blog/${post.slug}`}>Read More</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+        {filteredPosts.length === 0 ? (
+          <p className="no-posts">No posts found.</p>
+        ) : (
+          filteredPosts.map((post) => (
+            <Card key={post.id} className="blog-post-card">
+              {post.featured_image ? (
+                <img
+                  src={post.featured_image}
+                  alt={post.title}
+                  className="blog-post-image"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="blog-post-placeholder">No Image</div>
+              )}
+              <CardContent className="blog-post-content">
+                <h2 className="blog-post-title">{post.title}</h2>
+                <p className="blog-post-excerpt">
+                  {post.excerpt ||
+                    (post.content
+                      ? post.content.slice(0, 120)
+                      : "No description available")}{" "}
+                  ...
+                </p>
+                <Button asChild>
+                  <Link to={`/blog/${post.slug}`}>Read More</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
-      {/* Social Feed */}
+      {/* 🌐 Social Feed */}
       <div className="blog-social-posts">
         <h2>Latest on Social Media</h2>
-        <SocialHub socialPosts={socialPosts} />
+        <Suspense fallback={<p>Loading social feed...</p>}>
+          <SocialHub socialPosts={socialPosts} />
+        </Suspense>
       </div>
     </div>
   );
 }
 
 // ====================================================
-// BLOG DETAIL PAGE
+// 📝 BLOG DETAIL PAGE
 // ====================================================
 export function BlogDetail() {
   const { slug } = useParams();
-
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentContent, setCommentContent] = useState("");
@@ -153,60 +183,52 @@ export function BlogDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --------------------------
-  // Fetch Post + Comments
-  // --------------------------
+  // Fetch post, comments, and social posts
   useEffect(() => {
-    let mounted = true;
-
-    async function fetchData() {
+    let active = true;
+    (async () => {
       setLoading(true);
-      setError(null);
-      try {
-        const [fetchedPost, fetchedComments, fetchedSocial] = await Promise.all([
-          safeFetch(() => PublicBlogService.getPostDetail(slug), null),
-          safeFetch(() => PublicBlogService.getComments(slug)),
-          safeFetch(() => PublicBlogService.getSocialPosts()),
-        ]);
-
-        if (mounted) {
-          setPost(fetchedPost);
-          setComments(fetchedComments);
-          setSocialPosts(fetchedSocial);
-        }
-      } catch (err) {
-        if (mounted) setError("Unable to load post details.");
-      } finally {
-        if (mounted) setLoading(false);
+      const [p, c, s] = await Promise.all([
+        safeFetch(() => PublicBlogService.getPostDetail(slug), null),
+        safeFetch(() => PublicBlogService.getComments(slug), []),
+        safeFetch(() => PublicBlogService.getSocialPosts(), []),
+      ]);
+      if (active) {
+        setPost(p);
+        setComments(c);
+        setSocialPosts(s);
+        document.title = `${p?.title || "Post"} • EETHM Blog`;
+        setLoading(false);
       }
-    }
-
-    fetchData();
+    })().catch(() => {
+      if (active) {
+        setError("Unable to load post details.");
+        setLoading(false);
+      }
+    });
     return () => {
-      mounted = false;
+      active = false;
     };
   }, [slug]);
 
-  // --------------------------
-  // Handle Comment Submit
-  // --------------------------
+  // 💬 Handle Comment Submit
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentContent.trim()) return;
-
-    await safeFetch(() =>
+    const ok = await safeFetch(() =>
       PublicBlogService.addComment(slug, { content: commentContent })
     );
-    setCommentContent("");
-
-    const refreshed = await safeFetch(() => PublicBlogService.getComments(slug));
-    setComments(refreshed);
+    if (ok) {
+      toast.success("Comment added!");
+      setCommentContent("");
+      const refreshed = await safeFetch(() =>
+        PublicBlogService.getComments(slug)
+      );
+      setComments(refreshed);
+    }
   };
 
-  // --------------------------
-  // Render
-  // --------------------------
-  if (loading) return <p className="text-center p-6">Loading...</p>;
+  if (loading) return <p className="text-center p-6">Loading post...</p>;
   if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
   if (!post) return <p className="text-center p-6">Post not found.</p>;
 
@@ -223,6 +245,7 @@ export function BlogDetail() {
           src={post.featured_image}
           alt={post.title}
           className="blog-detail-image"
+          loading="lazy"
         />
       )}
 
@@ -231,7 +254,7 @@ export function BlogDetail() {
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
 
-      {/* Embedded Media */}
+      {/* 🎥 Embedded Media */}
       {post.youtube_url && (
         <div className="blog-media">
           <iframe
@@ -255,13 +278,15 @@ export function BlogDetail() {
         </blockquote>
       )}
 
-      {/* Social Hub */}
+      {/* 🌐 Social Section */}
       <div className="blog-social-section">
         <h2>Connect with Us</h2>
-        <SocialHub socialPosts={socialPosts} />
+        <Suspense fallback={<p>Loading social feed...</p>}>
+          <SocialHub socialPosts={socialPosts} />
+        </Suspense>
       </div>
 
-      {/* Comments */}
+      {/* 💬 Comments */}
       <div className="blog-comments">
         <h2>Comments</h2>
         <form onSubmit={handleCommentSubmit} className="comment-form">
@@ -270,17 +295,22 @@ export function BlogDetail() {
             onChange={(e) => setCommentContent(e.target.value)}
             placeholder="Write a comment..."
             className="comment-textarea"
+            rows={4}
+            aria-label="Add a comment"
           />
           <Button type="submit">Post Comment</Button>
         </form>
 
-        {comments.length === 0 && <p className="no-comments">No comments yet.</p>}
-        {comments.map((c) => (
-          <div key={c.id} className="comment-item">
-            <p className="comment-user">{c.user || c.guest_name || "Guest"}</p>
-            <p className="comment-content">{c.content}</p>
-          </div>
-        ))}
+        {comments.length === 0 ? (
+          <p className="no-comments">No comments yet.</p>
+        ) : (
+          comments.map((c) => (
+            <div key={c.id} className="comment-item">
+              <p className="comment-user">{c.user || c.guest_name || "Guest"}</p>
+              <p className="comment-content">{c.content}</p>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
