@@ -1,6 +1,6 @@
 /* ======================================================
-   🎨 EETHM Blog Styling (List + Detail)
-   Unified with Global Theme Variables
+   🎨 EETHM Blog Styling (List + Detail + Skeletons)
+   Scoped to Blog Pages Only
    ====================================================== */
 
 /* === Base Containers === */
@@ -55,7 +55,7 @@
   box-shadow: 0 0 0 2px var(--color-accent-gold-light);
 }
 
-/* === Category Buttons === */
+/* === Categories === */
 .blog-categories {
   display: flex;
   flex-wrap: wrap;
@@ -84,7 +84,7 @@
   color: var(--color-white);
 }
 
-/* === Blog Post Grid === */
+/* === Post Grid === */
 .blog-posts-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -143,6 +143,13 @@
   color: var(--color-neutral-light);
   margin-bottom: 1rem;
   line-height: 1.6;
+}
+
+.blog-post-meta {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  display: block;
+  margin-bottom: 0.75rem;
 }
 
 /* === Read More Button === */
@@ -234,7 +241,6 @@
   background: var(--color-primary-dark);
 }
 
-/* === Individual Comment === */
 .comment-item {
   border-bottom: 1px solid var(--color-border);
   padding: 0.75rem 0;
@@ -259,20 +265,57 @@
 }
 
 /* === Social Section === */
-.blog-social-posts {
+.blog-social-section {
   margin-top: 2rem;
   padding-top: 1rem;
   border-top: 1px solid var(--color-border);
 }
 
-.blog-social-posts h2 {
+.blog-social-section h2 {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--color-secondary-dark);
 }
 
-/* === Dark Mode === */
+/* ======================================================
+   🦴 Skeleton Loading Styles
+   ====================================================== */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: #f2f2f2;
+}
+
+.skeleton-box {
+  height: 200px;
+  background: linear-gradient(90deg, #f2f2f2 25%, #e0e0e0 50%, #f2f2f2 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 6px;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f2f2f2 25%, #e0e0e0 50%, #f2f2f2 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.6s infinite linear;
+  margin-bottom: 0.5rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+/* ======================================================
+   🌙 Dark Mode Support (Scoped)
+   ====================================================== */
 .dark .blog-container,
 .dark .blog-detail-container {
   background: var(--color-bg-dark);
