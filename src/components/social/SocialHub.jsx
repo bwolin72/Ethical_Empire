@@ -11,7 +11,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import QRCode from "react-qr-code";
-import "./SocialHub.css"; // ✅ unified naming
+import "./SocialHub.css";
 
 // ==========================
 // 🔗 Static Social Links
@@ -59,7 +59,7 @@ const staticLinks = [
     key: "twitter",
     subtitle: "Follow us for news & updates",
   },
-    {
+  {
     name: "WhatsApp",
     url: "https://wa.me/+233552988735",
     icon: <Phone aria-hidden="true" />,
@@ -69,7 +69,7 @@ const staticLinks = [
 ];
 
 // ==========================
-// 🎴 Social Card Component
+// 🎴 Social Card
 // ==========================
 function SocialCard({ link }) {
   return (
@@ -95,7 +95,7 @@ function SocialCard({ link }) {
 }
 
 // ==========================
-// 🌐 Main Social Hub Component
+// 🌐 Main Social Hub
 // ==========================
 export default function SocialHub({ socialPosts = [] }) {
   useEffect(() => {
@@ -118,11 +118,11 @@ export default function SocialHub({ socialPosts = [] }) {
       className="social-hub-container"
       aria-label="EETHM Social media links and latest posts"
     >
-      {/* === Header Section === */}
+      {/* === Header === */}
       <header className="header-wrap">
         <h1 className="social-hub-title">Connect with EETHM Multimedia</h1>
 
-        {/* 🎉 Animated Marquee */}
+        {/* 🎉 Marquee */}
         <div className="marquee-bar" role="presentation" aria-hidden="true">
           <div className="marquee">
             <span>🎥 EETHM Multimedia • Events</span>
@@ -137,18 +137,18 @@ export default function SocialHub({ socialPosts = [] }) {
         </p>
       </header>
 
-      {/* === Main Layout === */}
+      {/* === Layout === */}
       <div className="social-grid">
-        {/* Left: Social Links + Posts */}
+        {/* Left: Links & Posts */}
         <div className="left-stack">
-          {/* 📱 Static Social Media Links */}
+          {/* Static Links */}
           <section className="social-cards-grid" aria-label="Social media links">
             {staticLinks.map((link) => (
               <SocialCard key={link.key} link={link} />
             ))}
           </section>
 
-          {/* 📰 Dynamic Social Posts */}
+          {/* Dynamic Posts */}
           <section
             className="social-fetched-posts"
             aria-label="Latest social media updates"
@@ -157,43 +157,65 @@ export default function SocialHub({ socialPosts = [] }) {
             <h3>Latest Social Updates</h3>
 
             {hasPosts ? (
-              socialPosts.map((post, i) => (
-                <Card key={post.id || i} className="social-post-card">
-                  {post.image && (
-                    <img
-                      src={post.image}
-                      alt={post.caption?.slice(0, 60) || "Social media post image"}
-                      className="social-post-image"
-                      loading="lazy"
-                    />
-                  )}
+              socialPosts.map((post, i) => {
+                const platformIcon =
+                  post.platform === "facebook" ? (
+                    <Facebook />
+                  ) : post.platform === "instagram" ? (
+                    <Instagram />
+                  ) : post.platform === "youtube" ? (
+                    <Youtube />
+                  ) : post.platform === "tiktok" ? (
+                    <Music />
+                  ) : post.platform === "twitter" ? (
+                    <Twitter />
+                  ) : (
+                    <MessageCircle />
+                  );
 
-                  <div className="social-post-content">
-                    {formatDate(post.createdAt) && (
-                      <div className="post-date">{formatDate(post.createdAt)}</div>
-                    )}
-                    <p>{post.caption || post.text || "No description available."}</p>
-                    {post.url && (
-                      <a
-                        href={post.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="View full post"
-                        className="view-post-link"
-                      >
-                        View Post
-                      </a>
-                    )}
-                  </div>
-                </Card>
-              ))
+                return (
+                  <Card key={post.id || i} className="social-post-card">
+                    <div className="social-post-header">
+                      <span className="platform-icon">{platformIcon}</span>
+                      <span className="platform-name">
+                        {post.platform?.toUpperCase() || "Unknown"}
+                      </span>
+                    </div>
+
+                    <div className="social-post-content">
+                      {formatDate(post.created_at) && (
+                        <div className="post-date">
+                          {formatDate(post.created_at)}
+                        </div>
+                      )}
+                      <p>
+                        {post.status === "published"
+                          ? "New update posted!"
+                          : `Status: ${post.status}`}
+                      </p>
+
+                      {post.external_url && (
+                        <a
+                          href={post.external_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="View full post"
+                          className="view-post-link"
+                        >
+                          View Post
+                        </a>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })
             ) : (
-              <p className="no-social-posts">No recent posts available.</p>
+              <p className="no-social-posts">No recent social posts available.</p>
             )}
           </section>
         </div>
 
-        {/* Right: QR Section */}
+        {/* Right: QR */}
         <aside className="qr-section" aria-label="Linktree QR code">
           <div className="qr-title">Scan Our Linktree</div>
           <div className="qr-wrap">
