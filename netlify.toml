@@ -6,7 +6,7 @@
 # ✅ Redirect all API calls to your EC2 backend
 [[redirects]]
   from = "/api/*"
-  to = "https://api.eethmhmultimedia.com/api/:splat"
+  to = "https://api.eethmhmultimedia.com/:splat"
   status = 200
   force = true
 
