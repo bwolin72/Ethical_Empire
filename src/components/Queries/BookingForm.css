@@ -1,278 +1,151 @@
 /* ======================================================
-   BookingForm Unified CSS
+   BookingForm Modern UI — Floating Labels & Sticky Panel
    ====================================================== */
 
-/* ======================================================
-   Base Wrapper & Layout
-   ====================================================== */
 .booking-wrapper {
   font-family: var(--font-main);
-  color: var(--color-text);
   background-color: var(--color-bg);
+  color: var(--color-text);
   min-height: 100vh;
+  padding: 1rem;
   display: flex;
-  flex-direction: column;
-  padding: 2rem;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  justify-content: center;
+  align-items: flex-start;
+  animation: fade-in 0.8s ease-out both;
 }
 
 .booking-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 2rem;
-  max-width: 1400px;
+  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  animation: fade-in-up 0.6s both;
 }
 
 /* === Form Panel === */
 .booking-form-panel {
-  flex: 2;
   background-color: var(--color-input-bg);
-  padding: 2rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  min-width: 320px;
+  padding: 1.5rem;
+  width: 100%;
+  animation: fade-in-up 0.5s ease-out both;
 }
 
-.form-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-.form-header .logo {
-  width: 80px;
-  margin-bottom: 0.5rem;
-}
-.form-header h2 {
-  font-family: var(--font-accent);
-  color: var(--color-primary);
-  margin-bottom: 0.2rem;
-}
-.form-header .subtitle {
-  font-size: 0.9rem;
-  color: var(--color-muted);
+/* Sticky summary on large screens */
+@media (min-width: 1024px) {
+  .booking-brand-panel {
+    position: sticky;
+    top: 1rem;
+  }
 }
 
-/* === Form Content === */
-.form-content h3 {
-  margin-bottom: 1rem;
-  color: var(--color-secondary);
-  font-size: 1.5rem;
-}
-
+/* === Floating Labels === */
 .input-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
-}
-
-.input-group label {
-  font-weight: 500;
-  margin-bottom: 0.3rem;
+  position: relative;
+  margin-bottom: 1.5rem;
 }
 
 .input-group input,
 .input-group select,
 .input-group textarea,
-.input-group .react-datepicker-wrapper,
-.input-group .PhoneInput {
+.country-dropdown,
+.region-dropdown {
   width: 100%;
-  padding: 0.6rem 0.8rem;
-  font-size: 1rem;
-  border-radius: var(--radius-md);
+  padding: 0.85rem 0.75rem;
   border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   background-color: var(--color-input-bg);
-  color: var(--color-text);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  font-size: 0.95rem;
+  transition: all var(--transition-fast);
 }
 
-.input-group input:focus,
-.input-group select:focus,
-.input-group textarea:focus,
-.input-group .react-datepicker-wrapper input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(88, 28, 28, 0.1);
-  outline: none;
+.input-group label {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-muted);
+  pointer-events: none;
+  transition: all var(--transition-fast);
+  font-size: 0.95rem;
+  background-color: var(--color-input-bg);
+  padding: 0 0.25rem;
 }
 
-.input-group textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-/* === Icon Styling === */
-.booking-wrapper .icon {
-  color: var(--color-calendar-icon);
-  transition: color var(--transition-fast);
-}
-
-.input-group:hover .icon {
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label,
+.input-group select:focus + label,
+.input-group select:not([value=""]) + label,
+.input-group textarea:focus + label,
+.input-group textarea:not(:placeholder-shown) + label {
+  top: -0.55rem;
+  left: 0.5rem;
+  font-size: 0.75rem;
   color: var(--color-primary);
 }
 
-.datepicker-wrapper .icon,
-.guest-wrapper .icon {
-  font-size: 1.2rem;
-  margin-right: 0.5rem;
-  vertical-align: middle;
+/* Guest & Date Picker Icons */
+.guest-wrapper,
+.datepicker-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-/* === DatePicker Styling === */
-.react-datepicker-wrapper,
-.react-datepicker__input-container input {
-  width: 100%;
+.guest-wrapper .icon,
+.datepicker-wrapper .icon {
+  position: absolute;
+  left: 10px;
+  color: var(--color-calendar-icon);
+  pointer-events: none;
 }
 
-.react-datepicker-wrapper input {
-  padding: 0.6rem 0.8rem;
-  font-size: 1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
+.guest-wrapper input,
+.datepicker-wrapper input {
+  padding-left: 2.5rem;
 }
 
-.react-datepicker {
-  border-radius: var(--radius-md);
-  font-family: var(--font-main);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-lg);
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
-}
-
-.react-datepicker__header {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  border-bottom: none;
-}
-
-.react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected {
-  background-color: var(--color-accent-gold);
-  color: var(--color-primary-dark);
-  border-radius: var(--radius-sm);
-}
-
-.react-datepicker__day:hover {
-  background-color: var(--color-accent-gold-light);
-  color: var(--color-primary-dark);
-  cursor: pointer;
-}
-
-/* === Services Checkboxes === */
+/* Checkbox Styles */
 .checkbox-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background-color: var(--color-service-bg);
-  border-radius: var(--radius-md);
+  gap: 0.5rem;
 }
 
 .checkbox-option {
+  background-color: var(--color-service-bg);
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-md);
-  background-color: var(--color-service-bg);
-  border: 1px solid var(--color-border);
   cursor: pointer;
-  transition: all var(--transition-fast);
-  font-size: 0.95rem;
-  user-select: none;
+  font-size: 0.9rem;
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
-.checkbox-option input[type="checkbox"] {
-  margin-right: 0.5rem;
-  accent-color: var(--color-primary);
-  cursor: pointer;
+.checkbox-option input {
+  margin-right: 0.4rem;
 }
 
 .checkbox-option:hover {
-  background-color: var(--color-primary-light);
-  color: var(--color-white);
-  border-color: var(--color-primary);
+  transform: translateY(-1px);
 }
 
-.checkbox-option input[type="checkbox"]:checked + label,
-.checkbox-option input[type="checkbox"]:checked {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  border-color: var(--color-primary-dark);
-}
-
-.dark .checkbox-option {
-  background-color: var(--color-service-bg-dark);
-  border-color: var(--color-border-dark);
-  color: var(--color-text-dark);
-}
-
-.dark .checkbox-option:hover {
-  background-color: var(--color-primary-dark);
-  color: var(--color-white);
-  border-color: var(--color-primary-light);
-}
-
-.dark .checkbox-option input[type="checkbox"]:checked + label,
-.dark .checkbox-option input[type="checkbox"]:checked {
-  background-color: var(--color-primary-light);
-  color: var(--color-white);
-  border-color: var(--color-primary);
-}
-
-.no-services {
-  font-style: italic;
-  color: var(--color-muted);
-}
-
-/* === Phone Input Styling === */
-.PhoneInput input {
-  width: 100%;
-  padding: 0.6rem 0.8rem;
-  font-size: 1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.PhoneInput input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(88, 28, 28, 0.1);
-}
-
-.PhoneInput .selected-flag {
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
-}
-
-.PhoneInput .PhoneInputCountry {
-  background-color: var(--color-service-bg);
-  border-right: 1px solid var(--color-border);
-}
-
-.PhoneInput .PhoneInputCountry:hover {
-  background-color: var(--color-service-bg-light);
-}
-
-.PhoneInput .PhoneInputDropdownArrow {
-  color: var(--color-muted);
-}
-
-.PhoneInput .PhoneInputDropdownArrow:hover {
-  color: var(--color-primary);
+/* Textarea */
+textarea {
+  resize: vertical;
 }
 
 /* === Submit Button === */
 .submit-btn {
   width: 100%;
-  padding: 0.8rem;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
   background: var(--gradient-gold-burgundy);
   color: var(--color-white);
-  font-weight: bold;
+  font-weight: 600;
   font-size: 1rem;
   border: none;
   border-radius: var(--radius-md);
@@ -280,123 +153,165 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.submit-btn:hover {
+.submit-btn:disabled {
+  background-color: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+.submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.submit-btn:disabled {
-  background-color: var(--color-disabled);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* === Summary / Brand Panel === */
+/* === Brand / Summary Panel === */
 .booking-brand-panel {
-  flex: 1;
   background-color: var(--color-input-bg);
-  padding: 2rem;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  min-width: 280px;
+  padding: 1.5rem;
+  width: 100%;
 }
 
-.booking-brand-panel h3 {
-  margin-bottom: 1rem;
+.brand-content h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.8rem;
   color: var(--color-primary);
 }
 
-.booking-brand-panel p {
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
+.brand-content p {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
 }
 
-.booking-brand-panel hr {
-  border: 0;
+.brand-content a {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+.brand-content hr {
+  margin: 1rem 0;
+  border: none;
   border-top: 1px solid var(--color-border);
-  margin: 1.5rem 0;
 }
 
+/* Location & Contact Buttons */
 .location-block {
   margin: 1rem 0;
 }
 
 .location-block .icon {
-  margin-right: 0.5rem;
+  margin-right: 0.3rem;
+  color: var(--color-primary-light);
 }
 
-/* === Contact Buttons === */
 .contact-buttons {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
 }
 
 .contact-buttons a {
   flex: 1;
   text-align: center;
-  padding: 0.6rem 0;
+  padding: 0.45rem 0.6rem;
   border-radius: var(--radius-md);
+  font-size: 0.9rem;
   color: var(--color-white);
   text-decoration: none;
-  font-weight: 600;
-  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  transition: transform var(--transition-fast);
 }
 
-.contact-buttons a.whatsapp {
+.contact-buttons .whatsapp {
   background-color: #25d366;
 }
 
-.contact-buttons a.phone {
+.contact-buttons .phone {
   background-color: var(--color-primary);
 }
 
 .contact-buttons a:hover {
   transform: translateY(-2px);
-  opacity: 0.9;
 }
 
-/* === Booking History === */
-.booking-history ul {
-  list-style: none;
-  padding-left: 0;
-}
-
-.booking-history li {
-  background-color: var(--color-service-bg);
-  margin-bottom: 0.5rem;
-  padding: 0.5rem 0.8rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.95rem;
-}
-
-/* === Social Hub Placeholder === */
-.social-hub {
+/* Booking History */
+.booking-history {
   margin-top: 1rem;
 }
 
-/* === Responsive === */
-@media (max-width: 1024px) {
+.booking-history ul {
+  padding-left: 1rem;
+  list-style-type: disc;
+}
+
+.booking-history li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* === Responsive Design === */
+@media (min-width: 768px) {
   .booking-container {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 2rem;
   }
 
   .booking-form-panel,
   .booking-brand-panel {
-    width: 100%;
+    width: 50%;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 360px) {
+  .booking-wrapper {
+    padding: 0.5rem;
+  }
+
+  .form-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .form-header .subtitle {
+    font-size: 0.85rem;
+  }
+
   .input-group input,
   .input-group select,
   .input-group textarea {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     padding: 0.5rem;
   }
 
   .submit-btn {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    padding: 0.6rem;
   }
+
+  .contact-buttons a {
+    font-size: 0.85rem;
+    padding: 0.4rem;
+  }
+}
+
+/* Dark Mode Overrides */
+.dark .booking-form-panel,
+.dark .booking-brand-panel {
+  background-color: var(--color-input-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.dark .input-group input,
+.dark .input-group select,
+.dark .input-group textarea {
+  background-color: var(--color-input-bg-dark);
+  color: var(--color-text-dark);
+  border: 1px solid var(--color-border-dark);
+}
+
+.dark .checkbox-option {
+  background-color: var(--color-service-bg-dark);
+}
+
+.dark .submit-btn {
+  background: var(--gradient-navy-gold);
 }
