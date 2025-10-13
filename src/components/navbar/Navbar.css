@@ -172,7 +172,7 @@
 .dropdown-item.active {
   background: rgba(212, 175, 55, 0.15);
   color: var(--color-accent-gold);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* ----- Logout Button ----- */
@@ -210,7 +210,11 @@
 
 /* ----- Mobile Responsive ----- */
 @media screen and (max-width: 960px) {
-  .menu-icon { display: block; }
+  .menu-icon { 
+    flex-basis: fit-content;
+    display: block;
+  
+  }
 
   /* Hide desktop menu */
   .nav-menu { display: none; }
@@ -226,7 +230,7 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 2rem 1.5rem;
-    gap: 1.5rem;
+    gap: 1rem;
     opacity: 0;
     transform: translateY(-20px);
     transition: all 0.3s ease-in-out;

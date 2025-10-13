@@ -1,13 +1,13 @@
 // ====================================================
 // 📘 Blog Hub (List & Detail)
-// Final Production Version — Fully Synced with Django API
+// Final Production Version — Synced with Django REST API
 // ====================================================
 
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
-import PublicBlogService from "../../api/services/publicBlogService";
+import PublicBlogService from "../../services/PublicBlogService"; // ✅ correct import path
 import SocialHub from "../social/SocialHub";
 import fallbackImage from "../../assets/logo1.png";
 import "./blog.css";
@@ -70,9 +70,7 @@ export function BlogList() {
     async function fetchData() {
       setLoading(true);
       setError(null);
-
       try {
-        // ✅ Matches Django routes
         const [fetchedPosts, fetchedCategories, fetchedSocial] = await Promise.all([
           safeFetch(() => PublicBlogService.getLatestPosts()),
           safeFetch(() => PublicBlogService.getCategories()),
@@ -84,7 +82,8 @@ export function BlogList() {
           setCategories(fetchedCategories);
           setSocialPosts(fetchedSocial);
         }
-      } catch {
+      } catch (err) {
+        console.error("[BlogList] fetch error:", err);
         if (active) setError("Unable to load blog data.");
       } finally {
         if (active) setLoading(false);
@@ -97,7 +96,7 @@ export function BlogList() {
     };
   }, [location]);
 
-  // 🔎 Filter posts
+  // 🔎 Filter posts by search + category
   const filteredPosts = posts
     .filter((p) => p.title?.toLowerCase().includes(search.toLowerCase()))
     .filter((p) => !categorySlug || p.category?.slug === categorySlug);
@@ -213,7 +212,7 @@ export function BlogDetail() {
       setError(null);
       try {
         const [fetchedPost, fetchedComments, fetchedSocial] = await Promise.all([
-          safeFetch(() => PublicBlogService.getPostDetail(slug), null),
+          safeFetch(() => PublicBlogService.getPostBySlug(slug), null),
           safeFetch(() => PublicBlogService.getComments(slug)),
           safeFetch(() => PublicBlogService.getSocialPosts()),
         ]);
@@ -223,7 +222,8 @@ export function BlogDetail() {
           setComments(fetchedComments);
           setSocialPosts(fetchedSocial);
         }
-      } catch {
+      } catch (err) {
+        console.error("[BlogDetail] fetch error:", err);
         if (active) setError("Unable to load post details.");
       } finally {
         if (active) setLoading(false);
@@ -241,7 +241,7 @@ export function BlogDetail() {
     if (!commentContent.trim()) return;
 
     await safeFetch(() =>
-      PublicBlogService.addComment(slug, { content: commentContent })
+      PublicBlogService.submitComment(slug, { content: commentContent })
     );
     setCommentContent("");
 
@@ -320,15 +320,16 @@ export function BlogDetail() {
           <Button type="submit">Post Comment</Button>
         </form>
 
-        {comments.length === 0 && (
+        {comments.length === 0 ? (
           <p className="no-comments">No comments yet.</p>
+        ) : (
+          comments.map((c) => (
+            <div key={c.id} className="comment-item">
+              <p className="comment-user">{c.user || c.guest_name || "Guest"}</p>
+              <p className="comment-content">{c.content}</p>
+            </div>
+          ))
         )}
-        {comments.map((c) => (
-          <div key={c.id} className="comment-item">
-            <p className="comment-user">{c.user || c.guest_name || "Guest"}</p>
-            <p className="comment-content">{c.content}</p>
-          </div>
-        ))}
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+// src/api/baseURL.js
+
 let baseURL = process.env.REACT_APP_API_BASE_URL;
 
 if (!baseURL) {
@@ -7,7 +9,7 @@ if (!baseURL) {
       : "https://api.eethmghmultimedia.com/api";
 }
 
-// Remove trailing slash if exists
+// Remove trailing slash if it exists
 if (baseURL.endsWith("/")) {
   baseURL = baseURL.slice(0, -1);
 }
