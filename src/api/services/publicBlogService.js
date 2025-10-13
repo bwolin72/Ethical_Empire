@@ -1,6 +1,6 @@
 // src/services/PublicBlogService.js
 
-import publicAxios from "../api/publicAxios";
+import publicAxios from "../publicAxios";
 
 // -------------------------------------------
 // Blog API (Public endpoints)
