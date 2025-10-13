@@ -47,20 +47,16 @@ export default function MessagesPage({ currentUser }) {
   const pollIntervalRef = useRef(null);
   const listRef = useRef(null);
 
-  const userId =
-    currentUser?.id ||
-    currentUser?.pk ||
-    currentUser?.user?.id ||
-    currentUser?.user?.pk ||
-    null;
+  const userId = currentUser?.id || currentUser?.pk || currentUser?.user?.id || currentUser?.user?.pk || null;
   const isAuthenticated = Boolean(userId);
 
-  // ---------- Auth Check ----------
+  // ---------------- Auth Check ----------------
   useEffect(() => {
-    if (currentUser !== undefined) setAuthChecked(true);
-  }, [currentUser]);
+    // mark auth checked after first render
+    setAuthChecked(true);
+  }, []);
 
-  // ---------- Fetch Messages ----------
+  // ---------------- Fetch Messages ----------------
   const fetchMessages = useCallback(
     async (page = 1) => {
       if (!isAuthenticated || !hasMore) return;
@@ -104,7 +100,7 @@ export default function MessagesPage({ currentUser }) {
     }
   };
 
-  // ---------- Polling ----------
+  // ---------------- Polling ----------------
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -112,14 +108,12 @@ export default function MessagesPage({ currentUser }) {
     fetchUnreadCount(false);
 
     pollIntervalRef.current = setInterval(() => fetchUnreadCount(true), 30000);
-
     return () => clearInterval(pollIntervalRef.current);
   }, [isAuthenticated, fetchMessages]);
 
-  // ---------- Infinite Scroll ----------
+  // ---------------- Infinite Scroll ----------------
   const handleScroll = () => {
     if (!listRef.current || loadingMore || !hasMore) return;
-
     const { scrollTop, scrollHeight, clientHeight } = listRef.current;
     if (scrollTop + clientHeight >= scrollHeight - 100) {
       fetchMessages(nextPage);
@@ -134,7 +128,7 @@ export default function MessagesPage({ currentUser }) {
     };
   }, [nextPage, loadingMore, hasMore, fetchMessages]);
 
-  // ---------- Form Handlers ----------
+  // ---------------- Form Handlers ----------------
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
@@ -194,7 +188,7 @@ export default function MessagesPage({ currentUser }) {
     }
   };
 
-  // ---------- Actions ----------
+  // ---------------- Actions ----------------
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this message?")) return;
     try {
@@ -228,7 +222,7 @@ export default function MessagesPage({ currentUser }) {
     }
   };
 
-  // ---------- Render ----------
+  // ---------------- Render ----------------
   if (!authChecked) {
     return (
       <div className="messaging-empty-state">

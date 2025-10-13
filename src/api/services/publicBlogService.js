@@ -51,6 +51,15 @@ export const PublicBlogService = {
     return res.data;
   },
 
+  /**
+   * Fetch all blog categories
+   * GET /api/blog-categories/
+   */
+  async getCategories() {
+    const res = await publicAxios.get(`/blog-categories/`);
+    return res.data;
+  },
+
   // ------------------------------------------------------
   // 🧩 SOCIAL FEED (Legacy Alias Supported)
   // ------------------------------------------------------

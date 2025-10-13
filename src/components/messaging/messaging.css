@@ -1,297 +1,291 @@
 /* ======================================================
-   ✨ Messaging Page Styles — messaging.css
-   Theme: Event, Multimedia & Hospitality (Burgundy–Navy–Gold)
-   ====================================================== */
+   📨 Messaging Page Styles — messaging.css
+   Fully responsive, theme-aware, matching JSX & global variables
+   + Distinct rental/hiring tags & attachment preview
+====================================================== */
 
-/* === Page Container === */
+/* === Base Layout === */
 .messaging-dashboard {
+  display: flex;
+  flex-direction: column;
   font-family: var(--font-main);
-  background-color: var(--color-bg-light);
-  color: var(--color-text-light);
-  min-height: 100vh;
-  padding: 2rem;
-  animation: fade-in 0.5s ease-out both;
-}
-
-.dark .messaging-dashboard {
   background-color: var(--color-bg);
-  color: var(--color-text-dark);
+  color: var(--color-text);
+  min-height: 100vh;
+  padding: 1rem;
+  gap: 1rem;
 }
 
 /* === Header Bar === */
 .header-bar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid var(--color-border-light);
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
 .header-bar h1 {
-  font-family: var(--font-accent);
-  font-size: 1.8rem;
-  color: var(--color-primary);
-  background: var(--gradient-gold-burgundy);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 1.5rem;
+  margin: 0;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .unread-count {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--color-secondary);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.unread-count span {
   background-color: var(--color-accent-gold);
-  color: var(--color-neutral-dark);
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-md);
+  color: var(--color-black);
+  font-weight: bold;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
 }
 
-/* === Layout Grid === */
+/* === Messaging Layout === */
 .messaging-layout {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 1.5rem;
-}
-
-@media (max-width: 992px) {
-  .messaging-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* === Message List === */
-.message-list {
   display: flex;
-  flex-direction: column;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* --- Message List --- */
+.message-list {
+  flex: 1 1 300px;
+  max-width: 400px;
+  background-color: var(--color-service-bg);
+  border-radius: var(--radius-md);
+  padding: 0.5rem;
+  max-height: 75vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-sm);
+  animation: fade-in 0.5s ease-out;
 }
 
 .message-item {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 1rem;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  margin-bottom: 0.5rem;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
 }
 
 .message-item:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-  border-color: var(--color-accent-gold);
-}
-
-.message-item.unread {
-  border-left: 5px solid var(--color-accent-gold);
-  background-color: #fffaf2;
 }
 
 .message-item.read {
-  opacity: 0.9;
+  background-color: var(--color-bg);
 }
 
+.message-item.unread {
+  background-color: var(--color-primary-light);
+  color: var(--color-white);
+}
+
+/* --- Service Type Tags --- */
+.service-tag {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+
+.service-tag.rental {
+  background-color: var(--color-accent-green);
+}
+
+.service-tag.hiring {
+  background-color: var(--color-secondary);
+}
+
+/* --- Top Section --- */
 .msg-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.msg-top h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
 .unread-dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
   background-color: var(--color-accent-gold);
+  border-radius: 50%;
 }
 
 .msg-meta {
-  font-size: 0.8rem;
-  color: var(--color-muted);
-  margin-top: 0.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-}
-
-.msg-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* === Message Details Panel === */
-.message-details {
-  background-color: var(--color-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: 1.5rem;
-  animation: fade-in-up 0.4s var(--transition-fast) both;
-}
-
-.dark .message-details {
-  background-color: var(--color-input-bg);
-  border: 1px solid var(--color-border);
-}
-
-/* === Message View === */
-.message-view h2 {
-  font-family: var(--font-accent);
-  color: var(--color-secondary);
-  font-size: 1.4rem;
-  margin-bottom: 1rem;
-}
-
-.message-view p {
-  color: var(--color-neutral);
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-.message-view a {
-  color: var(--color-accent-gold);
-  font-weight: 600;
-  text-decoration: underline;
-}
-
-.message-view a:hover {
-  color: var(--color-primary);
-}
-
-/* === Compose Form === */
-.message-compose form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.message-compose input,
-.message-compose select,
-.message-compose textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  background-color: var(--color-white);
-  font-family: var(--font-main);
-  transition: border-color var(--transition-fast);
-}
-
-.message-compose input:focus,
-.message-compose select:focus,
-.message-compose textarea:focus {
-  outline: none;
-  border-color: var(--color-accent-gold);
-  box-shadow: 0 0 4px var(--color-accent-gold-light);
-}
-
-.dark .message-compose input,
-.dark .message-compose select,
-.dark .message-compose textarea {
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
-
-/* === Empty States === */
-.messaging-empty-state,
-.empty-view {
-  text-align: center;
+  font-size: 0.85rem;
   color: var(--color-muted);
+  margin-top: 0.25rem;
+}
+
+.msg-actions button {
+  margin-left: 0.25rem;
+}
+
+/* --- Attachment Preview --- */
+.attachment-preview {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 60vh;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--color-muted);
 }
 
-.icon-muted {
-  color: var(--color-border-light);
-  margin-bottom: 1rem;
+.attachment-preview img,
+.attachment-preview svg {
+  width: 20px;
+  height: 20px;
 }
 
-/* === Buttons === */
-.btn-primary {
-  background: var(--gradient-navy-gold);
-  color: var(--color-white);
-  padding: 0.6rem 1.2rem;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn-secondary {
-  background-color: transparent;
-  border: 1px solid var(--color-secondary);
-  color: var(--color-secondary);
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-secondary:hover {
-  background-color: var(--color-secondary);
-  color: var(--color-white);
-}
-
-/* === Loader Animation === */
+/* --- Loader & Empty States --- */
 .spinner {
   display: block;
   margin: 1rem auto;
   color: var(--color-primary);
-  animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.messaging-empty-state,
+.empty-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 50vh;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.icon-muted {
+  color: var(--color-muted);
+}
+
+/* --- Message Details / Compose --- */
+.message-details {
+  flex: 2 1 500px;
+  background-color: var(--color-service-bg);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  max-height: 75vh;
+  overflow-y: auto;
+  animation: fade-in 0.5s ease-out;
+}
+
+.message-view,
+.message-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.compose-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.compose-form input,
+.compose-form textarea,
+.compose-form select {
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+}
+
+.compose-form input[type="file"] {
+  padding: 0.25rem;
+}
+
+.compose-form button {
+  align-self: flex-start;
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.compose-form button:hover {
+  transform: scale(1.05);
+}
+
+/* --- End of List --- */
+.end-list {
+  text-align: center;
+  color: var(--color-muted);
+  padding: 0.5rem 0;
+  font-style: italic;
+}
+
+/* --- Error Messages --- */
+.error {
+  color: var(--color-error);
+  font-weight: bold;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+
+/* === Animations === */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out both;
 }
 
 /* === Responsive === */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+  .messaging-layout {
+    flex-direction: column;
+  }
+  .message-list,
+  .message-details {
+    max-width: 100%;
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 640px) {
   .header-bar {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
+    text-align: center;
+    gap: 0.5rem;
   }
-
-  .messaging-dashboard {
-    padding: 1rem;
-  }
-
-  .message-details {
-    padding: 1rem;
-  }
-
-  .message-item {
-    padding: 0.75rem;
-  }
-
-  .header-bar h1 {
-    font-size: 1.5rem;
+  .header-actions {
+    justify-content: center;
+    gap: 0.25rem;
   }
 }
