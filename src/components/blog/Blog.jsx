@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
-import PublicBlogService from "../../services/PublicBlogService"; // ✅ correct import path
+import PublicBlogService from "../../api/services/PublicBlogService"; // ✅ correct import path
 import SocialHub from "../social/SocialHub";
 import fallbackImage from "../../assets/logo1.png";
 import "./blog.css";
