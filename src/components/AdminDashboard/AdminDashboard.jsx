@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
+import videoService from "../../api/services/videoService"; // updated backend service
 import bookingService from "../../api/services/bookingService";
-import videoService from "../../api/services/videoService";
 import invoiceService from "../../api/services/invoiceService";
 import mediaService from "../../api/services/mediaService";
 import reviewService from "../../api/services/reviewService";
@@ -48,8 +48,11 @@ const AdminDashboard = ({ setActiveTab }) => {
     setLoadingState("videos", true);
     setErrorState("videos", null);
     try {
-      const res = await videoService.getAll();
-      setVideos(Array.isArray(res) ? res : []);
+      const res = await videoService.list(); // returns array of video objects
+      const activeVideos = Array.isArray(res)
+        ? res.filter((v) => v.is_active)
+        : [];
+      setVideos(activeVideos);
     } catch (err) {
       console.error("Videos error:", err);
       setErrorState("videos", "Failed to fetch videos");
@@ -168,6 +171,10 @@ const AdminDashboard = ({ setActiveTab }) => {
     setCurrentVideoIndex((prev) => (prev + 1) % videos.length);
   };
 
+  const getVideoTitle = (video) => video?.title || "Untitled";
+  const getVideoStatus = (video) =>
+    video?.is_active ? (video.is_featured ? "⭐ Featured" : "Active") : "Inactive";
+
   return (
     <div className="admin-dashboard">
       <header className="dashboard-header">
@@ -197,7 +204,9 @@ const AdminDashboard = ({ setActiveTab }) => {
             <p className="error">{error.videos}</p>
           ) : videos.length > 0 ? (
             <>
-              <p>Currently showing: {videos[currentVideoIndex]?.title}</p>
+              <p>
+                {getVideoTitle(videos[currentVideoIndex])} • {getVideoStatus(videos[currentVideoIndex])}
+              </p>
               <div className="video-controls">
                 <button onClick={handlePrevVideo}>Prev</button>
                 <button onClick={handleNextVideo}>Next</button>

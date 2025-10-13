@@ -5,7 +5,7 @@ import useFetcher from "../../hooks/useFetcher";
 import "./videos.css";
 
 const VideoGallery = ({
-  endpointKey = "all",       // which videos endpoint to call (e.g. "all", "featured")
+  endpointKey = "",       // e.g. "LiveBandServicePage", "MediaHostingServicePage"
   fallbackVideo,
   title,
   showHero = false,
@@ -15,14 +15,22 @@ const VideoGallery = ({
   className,
   actions = [],
 }) => {
-  // Fetch videos from the backend
-  const { data: videos = [], loading, error } = useFetcher("videos", endpointKey);
+  // Fetch videos for a specific endpoint
+  const { data: videos = [], loading, error } = useFetcher(`videos.${endpointKey}`);
 
-  const hasVideos = Array.isArray(videos) && videos.length > 0;
-  const heroVideo = hasVideos ? videos[0] : { url: fallbackVideo };
+  // Filter only active videos
+  const activeVideos = Array.isArray(videos)
+    ? videos.filter((v) => v.is_active)
+    : [];
+
+  // Determine hero video: first featured video, else first active
+  const featuredVideos = activeVideos.filter((v) => v.is_featured);
+  const heroVideo = showHero
+    ? featuredVideos[0] || activeVideos[0] || { video_file: fallbackVideo }
+    : null;
 
   const resolveVideoUrl = (video) =>
-    video?.url || video?.video_file?.url || video?.video_file || fallbackVideo;
+    video?.video_file?.url || video?.video_file || fallbackVideo;
 
   const resolvePoster = (video) =>
     video?.thumbnail?.url || video?.thumbnail || "";
@@ -47,7 +55,7 @@ const VideoGallery = ({
     <section className={`video-gallery ${className || ""}`}>
       {title && <h2>{title}</h2>}
 
-      {showHero ? (
+      {showHero && heroVideo ? (
         <div className="hero-video-wrapper">
           <video
             src={resolveVideoUrl(heroVideo)}
@@ -70,10 +78,12 @@ const VideoGallery = ({
             </div>
           )}
         </div>
-      ) : hasVideos ? (
+      ) : null}
+
+      {activeVideos.length > 0 ? (
         <div className="video-grid">
-          {videos.map((video, idx) => (
-            <div key={video.id || idx} className="video-card">
+          {activeVideos.map((video) => (
+            <div key={video.id} className="video-card">
               <video
                 controls
                 src={resolveVideoUrl(video)}
