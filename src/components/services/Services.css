@@ -12,45 +12,51 @@
   overflow-x: hidden;
 }
 
-/* === HERO SECTION === */
+/* === HERO SECTION (Updated for Visibility & Layout) === */
 .services-hero {
   background: var(--gradient-gold-burgundy);
   color: var(--color-white);
   text-align: center;
-  padding: 5rem 2rem 4rem;
+  padding: 7rem 2rem 5rem; /* added top padding for fixed navbar */
   position: relative;
   overflow: hidden;
-  min-height: 60vh; /* ensures hero always displays */
+  min-height: 80vh; /* ensure full visibility on all screens */
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  z-index: 1;
 }
 
+/* dark overlay for better text contrast */
 .services-hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--color-overlay);
-  opacity: 0.5;
+  background: rgba(0, 0, 0, 0.45);
   z-index: 0;
 }
 
+/* ensure hero text stays above overlay */
 .services-hero .hero-title,
 .services-hero .hero-subtitle {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .services-hero .hero-title {
   font-size: 3rem;
   font-weight: 700;
   font-family: var(--font-accent);
+  line-height: 1.2;
+  margin-bottom: 1rem;
   animation: fade-in-up 0.8s var(--transition-slow) both;
 }
 
 .services-hero .hero-subtitle {
   font-size: 1.25rem;
-  margin-top: 1rem;
+  max-width: 700px;
+  margin: 0 auto;
   animation: fade-in 1.2s ease both;
 }
 
@@ -246,11 +252,14 @@
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   .services-hero {
-    padding: 4rem 1rem;
-    min-height: 50vh; /* responsive minimum height */
+    padding: 6rem 1rem 3rem;
+    min-height: 60vh;
   }
   .services-hero .hero-title {
     font-size: 2.2rem;
+  }
+  .services-hero .hero-subtitle {
+    font-size: 1.1rem;
   }
   .section-title {
     font-size: 1.5rem;
@@ -261,6 +270,9 @@
 }
 
 @media (max-width: 480px) {
+  .services-hero {
+    padding: 5rem 1rem 3rem;
+  }
   .services-hero .hero-title {
     font-size: 1.8rem;
   }
