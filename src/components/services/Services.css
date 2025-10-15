@@ -20,6 +20,10 @@
   padding: 5rem 2rem 4rem;
   position: relative;
   overflow: hidden;
+  min-height: 60vh; /* ensures hero always displays */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .services-hero::after {
@@ -64,11 +68,6 @@
   opacity: 1; /* show by default */
   transform: translateY(0); /* reset offset */
   transition: opacity var(--transition-slow), transform var(--transition-slow);
-}
-
-.service-category-section.visible {
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .section-title {
@@ -248,6 +247,7 @@
 @media (max-width: 768px) {
   .services-hero {
     padding: 4rem 1rem;
+    min-height: 50vh; /* responsive minimum height */
   }
   .services-hero .hero-title {
     font-size: 2.2rem;
@@ -257,5 +257,14 @@
   }
   .service-card {
     padding: 1.5rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-hero .hero-title {
+    font-size: 1.8rem;
+  }
+  .services-hero .hero-subtitle {
+    font-size: 1rem;
   }
 }
