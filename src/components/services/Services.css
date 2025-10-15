@@ -26,6 +26,9 @@
   justify-content: center;
   align-items: center;
   z-index: 1;
+  opacity: 1 !important; /* force visible */
+  transform: none !important;
+  visibility: visible !important;
 }
 
 /* dark overlay for better text contrast */
@@ -71,8 +74,8 @@
   max-width: 1200px;
   margin: 0 auto;
   border-bottom: 1px solid var(--color-border);
-  opacity: 1; /* show by default */
-  transform: translateY(0); /* reset offset */
+  opacity: 1;
+  transform: translateY(0);
   transition: opacity var(--transition-slow), transform var(--transition-slow);
 }
 
@@ -114,8 +117,8 @@
   cursor: pointer;
   padding: 2rem 1.5rem;
   text-align: center;
-  opacity: 1; /* show immediately */
-  transform: translateY(0); /* reset offset */
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .service-card:hover {
@@ -229,24 +232,6 @@
 .btn-secondary:hover {
   background: var(--color-white);
   color: var(--color-primary-dark);
-}
-
-/* === SCROLL REVEAL ANIMATIONS (optional) === */
-@keyframes reveal-up {
-  0% {
-    opacity: 1; /* visible by default */
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.scroll-reveal {
-  opacity: 1; /* always visible */
-  transform: translateY(0);
-  transition: all 0.6s ease-out;
 }
 
 /* === RESPONSIVE === */
