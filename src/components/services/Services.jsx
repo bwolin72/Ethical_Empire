@@ -26,27 +26,8 @@ const Services = () => {
     load();
   }, [slug]);
 
-  /* === Scroll Reveal Animation === */
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    const elements = document.querySelectorAll(
-      ".scroll-reveal, .service-category-section, .service-card"
-    );
-    elements.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, []);
+  /* === Remove ScrollReveal and Use CSS-only Visibility === */
+  // Scroll reveal disabled to ensure hero always visible.
 
   /* === Loading State === */
   if (loading) {
@@ -68,7 +49,7 @@ const Services = () => {
     <div className="services-page">
       {/* === HERO SECTION === */}
       <header
-        className="services-hero scroll-reveal"
+        className="services-hero"
         aria-label="Eethm Multimedia Services Overview"
       >
         <motion.h1
@@ -93,7 +74,7 @@ const Services = () => {
       </main>
 
       {/* === CTA SECTION === */}
-      <section className="services-cta scroll-reveal">
+      <section className="services-cta">
         <h2>Ready to create unforgettable moments?</h2>
         <div className="cta-buttons">
           <Link to="/bookings" className="btn btn-primary">
