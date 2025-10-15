@@ -7,6 +7,24 @@ const ServiceCard = ({ service, isActive, onToggle }) => {
   const navigate = useNavigate();
   const Icon = service.icon;
 
+  const handleLearnMore = (e) => {
+    e.stopPropagation();
+
+    const name = service.name.toLowerCase();
+
+    if (name.includes("cater")) {
+      navigate("/services/catering");
+    } else if (name.includes("band")) {
+      navigate("/services/live-band");
+    } else if (name.includes("decor")) {
+      navigate("/services/decor");
+    } else if (name.includes("media") || name.includes("host")) {
+      navigate("/services/media-hosting");
+    } else {
+      navigate("/services/general");
+    }
+  };
+
   return (
     <motion.article
       className={`service-card ${isActive ? "flipped" : ""}`}
@@ -23,13 +41,7 @@ const ServiceCard = ({ service, isActive, onToggle }) => {
             <Icon size={48} className="service-icon" />
           </div>
           <h3 className="service-title">{service.name}</h3>
-          <button
-            className="book-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/services/${service.name.toLowerCase()}`);
-            }}
-          >
+          <button className="book-btn" onClick={handleLearnMore}>
             Learn More →
           </button>
         </div>
