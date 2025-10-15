@@ -10,6 +10,8 @@ const services = [
   { label: "Catering", path: "/services/catering" },
   { label: "Decor", path: "/services/decor" },
   { label: "Media & Event Hosting", path: "/services/media-hosting" },
+  { label: "General Multimedia", path: "/services/general" },
+
 ];
 
 const blogLinks = [
