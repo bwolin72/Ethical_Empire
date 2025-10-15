@@ -1,49 +1,92 @@
-/* === Banner Cards Container === */
+/* ======================================================
+   📸 BannerCards.css — 2025 Brand Design System
+   Scoped to: BannerCards.jsx
+   ====================================================== */
+
+
+/* === Root Container === */
 .banner-cards-container {
-  padding: 2rem 1rem;
-  background-color: var(--color-white);
-  font-family: var(--font-main);
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.banner-cards-title {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: var(--color-neutral-dark);
-  font-family: var(--font-accent);
+  position: relative;
+  padding: 3rem 2rem;
+  background: var(--color-bg);
+  color: var(--color-text);
   text-align: center;
+  overflow: hidden;
 }
 
-/* === Scrollable Row === */
+/* === Section Title === */
+.banner-cards-title {
+  font-family: var(--font-accent);
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  margin-bottom: 1.5rem;
+  animation: fade-in-up 0.6s var(--transition-fast) both;
+}
+
+/* === Scroll Controls === */
+.scroll-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-right: 1rem;
+}
+
+.scroll-btn {
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+  box-shadow: var(--shadow-md);
+}
+
+.scroll-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  opacity: 0.9;
+}
+
+.scroll-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* === Scroll Wrapper === */
 .banner-cards-scroll-wrapper {
   display: flex;
   overflow-x: auto;
-  gap: 1.5rem;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent-gold) var(--color-service-bg);
+  gap: 1.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .banner-cards-scroll-wrapper::-webkit-scrollbar {
-  display: none;
+  height: 8px;
+}
+.banner-cards-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-accent-gold);
+  border-radius: 4px;
+}
+.banner-cards-scroll-wrapper::-webkit-scrollbar-track {
+  background: var(--color-service-bg);
 }
 
-/* === Banner Card === */
+/* === Card === */
 .banner-card {
-  flex: 0 0 auto;
-  width: 90vw;
-  max-width: 1000px;
+  flex: 0 0 280px;
+  background: var(--color-service-bg);
   border-radius: var(--radius-lg);
-  overflow: hidden;
-  background-color: var(--color-neutral-light);
   box-shadow: var(--shadow-md);
-  transition: transform var(--transition-slow), box-shadow var(--transition-fast);
-  scroll-snap-align: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .banner-card:hover {
@@ -51,140 +94,128 @@
   box-shadow: var(--shadow-lg);
 }
 
-/* === Banner Media Wrapper === */
 .banner-img-wrapper {
   position: relative;
-  aspect-ratio: 16/9;
   width: 100%;
+  height: 200px;
   overflow: hidden;
+  border-radius: var(--radius-lg);
 }
 
-/* === Banner Media Types === */
 .banner-card-image,
-.banner-card-video,
-.banner-card-object {
+.banner-card-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  background: var(--color-neutral-light);
-  border: none;
+  border-radius: var(--radius-lg);
+  transition: transform var(--transition-slow);
 }
 
-.banner-card-audio {
-  width: 100%;
-  height: 3rem;
-  background: var(--color-neutral-dark);
-  display: block;
-}
-
-/* === Modal Media === */
-.modal-banner-image,
-.modal-banner-video,
-.modal-banner-object {
-  max-width: 100%;
-  max-height: 80vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: var(--radius-md);
-  display: block;
-  margin: 0 auto;
-  background: var(--color-black);
-}
-
-.modal-banner-audio {
-  width: 100%;
-  margin: 1rem auto;
-  display: block;
+.banner-card:hover .banner-card-image,
+.banner-card:hover .banner-card-video {
+  transform: scale(1.05);
 }
 
 /* === Hover Overlay === */
 .banner-hover-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: var(--color-overlay);
   color: var(--color-white);
   opacity: 0;
+  transition: opacity var(--transition-fast);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  font-weight: bold;
-  transition: opacity var(--transition-fast);
-  text-align: center;
-  padding: 1rem;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+  justify-content: center;
 }
+
 .banner-card:hover .banner-hover-overlay {
   opacity: 1;
 }
 
-/* === Info Below Banner === */
-.banner-card-info {
-  padding: 0.75rem 1rem;
-  background: var(--color-white);
-}
-
-.banner-card-caption {
-  font-size: 1.1rem;
+.banner-hover-overlay p {
   font-weight: 600;
-  color: var(--color-neutral-dark);
+  font-size: 1rem;
+  margin: 0.25rem 0;
 }
 
-.banner-card-meta {
-  font-size: 0.9rem;
-  color: var(--color-neutral);
-  margin-top: 0.25rem;
+.banner-hover-overlay span {
+  font-size: 0.85rem;
+  color: var(--color-accent-gold-light);
 }
 
-/* === Skeleton Loader === */
-.banner-skeleton {
-  flex: 0 0 auto;
-  width: 90vw;
-  max-width: 1000px;
-  aspect-ratio: 16/9;
-  border-radius: var(--radius-lg);
-  background: var(--color-neutral-light);
-  position: relative;
-  overflow: hidden;
-}
-
-.skeleton-box {
+/* === Skeleton Placeholder === */
+.banner-card .skeleton {
   width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, #eaeaea, #f3f3f3, #eaeaea);
+  height: 200px;
+  background: linear-gradient(
+    90deg,
+    var(--color-service-bg),
+    var(--color-border),
+    var(--color-service-bg)
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.6s infinite linear;
+  animation: skeleton-loading 1.5s infinite linear;
+  border-radius: var(--radius-lg);
+}
+
+@keyframes skeleton-loading {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* === Empty & Error States === */
+.banner-card-empty,
+.banner-error {
+  font-size: 1rem;
+  color: var(--color-neutral-light);
+  margin-top: 1rem;
+  font-style: italic;
 }
 
 /* === Modal === */
 .banner-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 1rem;
+  align-items: center;
   z-index: 9999;
+  animation: fade-in 0.4s ease-out both;
 }
 
 .banner-modal-content {
   position: relative;
-  background: var(--color-white);
+  background: var(--color-bg);
+  padding: 1.5rem;
   border-radius: var(--radius-lg);
-  padding: 1rem;
-  max-width: 95vw;
-  max-height: 95vh;
   box-shadow: var(--shadow-lg);
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-banner-image,
+.modal-banner-video {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  object-fit: contain;
 }
 
 .modal-banner-caption {
-  margin-top: 0.75rem;
-  text-align: center;
+  color: var(--color-text);
+  font-family: var(--font-accent);
   font-size: 1rem;
-  color: var(--color-neutral-dark);
+  margin-top: 0.5rem;
 }
 
 /* === Close Button === */
@@ -192,51 +223,52 @@
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  background: rgba(0,0,0,0.6);
+  background: var(--color-primary);
   color: var(--color-white);
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: 1.4rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 0.2rem 0.6rem;
+  transition: transform var(--transition-fast), background var(--transition-fast);
 }
 
-/* === Scroll Controls === */
-.scroll-controls {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.5rem;
-  gap: 0.5rem;
+.close-button:hover {
+  transform: scale(1.1);
+  background: var(--color-primary-light);
 }
 
-.scroll-btn {
-  background-color: var(--color-accent-gold);
-  color: var(--color-white);
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: var(--radius-md);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: background var(--transition-fast);
+/* === Responsive === */
+@media (max-width: 1024px) {
+  .banner-card {
+    flex: 0 0 240px;
+  }
+  .banner-cards-title {
+    font-size: 1.8rem;
+  }
 }
 
-.scroll-btn:hover {
-  background-color: var(--color-accent-gold-dark);
-}
-
-/* === Animations === */
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* === Responsive Breakpoints === */
 @media (max-width: 768px) {
-  .banner-card { width: 95vw; }
-  .banner-card-caption { font-size: 1rem; }
+  .banner-cards-container {
+    padding: 2rem 1rem;
+  }
+  .banner-card {
+    flex: 0 0 220px;
+  }
+  .banner-modal-content {
+    padding: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .banner-card { width: 100%; border-radius: var(--radius-md); aspect-ratio: 16/9; }
-  .banner-card-meta { font-size: 0.8rem; }
+  .banner-cards-title {
+    font-size: 1.5rem;
+  }
+  .banner-card {
+    flex: 0 0 180px;
+  }
+  .scroll-controls {
+    justify-content: center;
+  }
 }

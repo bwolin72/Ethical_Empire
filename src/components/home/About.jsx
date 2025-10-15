@@ -1,20 +1,20 @@
+// frontend/src/pages/About.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import FadeInSection from "../FadeInSection";
+import { motion } from "framer-motion";
 
+import VideoGallery from "../videos/VideoGallery";
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
 import MediaGallery from "../gallery/MediaGallery";
-import VideoGallery from "../videos/VideoGallery";
-import Services from "./Services";
-
+import Services from "../services/Services";
+import ReviewsLayout from "../user/ReviewsLayout";
+import Reviews from "../user/Reviews";
+import FadeInSection from "../FadeInSection";
 import useFetcher from "../../hooks/useFetcher";
 
 import josephImg from "../../assets/team/joseph.jpg";
 import euniceImg from "../../assets/team/eunice.png";
-
-import Reviews from "../user/Reviews";
-import ReviewsLayout from "../user/ReviewsLayout";
 
 import "./About.css";
 
@@ -24,28 +24,19 @@ const LOCAL_FALLBACK_IMAGE = "/mock/hero-fallback.jpg";
 const About = () => {
   const navigate = useNavigate();
 
-  // ===== API DATA =====
-  const { data: videos = [], loading: videosLoading, error: videosError } =
-    useFetcher("videos", "about");
+  // ===== Fetch Data =====
+  const { data: videos = [], loading: vLoad } = useFetcher("videos", "about");
+  const { data: media = [], loading: mLoad } = useFetcher("media", "about");
+  const { data: banners = [], loading: bLoad } = useFetcher("promotions", "about");
 
-  const { data: media = [], loading: mediaLoading, error: mediaError } =
-    useFetcher("media", "about");
-
-  const { data: banners = [], loading: bannerLoading, error: bannerError } =
-    useFetcher("promotions", "about"); // or "banners" if you have dedicated endpoint
-
-  // ===== HERO VIDEO =====
+  // ===== Hero Video =====
   const heroVideo =
-    videos.length > 0
+    Array.isArray(videos) && videos.length > 0
       ? videos[0]
       : { url: { full: LOCAL_FALLBACK_VIDEO }, file_type: "video/mp4" };
 
-  // ===== MERGE GALLERY =====
-  const galleryItems = [...videos, ...media]
-    .filter(Boolean)
-    .map((item) => (item?.url ? item : null))
-    .filter(Boolean);
-
+  // ===== Gallery Fallback =====
+  const galleryItems = [...(Array.isArray(videos) ? videos : []), ...(Array.isArray(media) ? media : [])].filter(Boolean);
   if (galleryItems.length === 0) {
     galleryItems.push({
       url: { full: LOCAL_FALLBACK_IMAGE },
@@ -55,17 +46,16 @@ const About = () => {
 
   return (
     <div className="about-page">
-      {/* ===== HERO VIDEO ===== */}
+      {/* === HERO === */}
       <section className="about-hero-section">
         <VideoGallery
           videos={[heroVideo]}
-          fallbackVideo={LOCAL_FALLBACK_VIDEO}
           showHero
           autoPlay
           loop
           allowMuteToggle
-          title="About Eethm Multimedia GH"
-          subtitle="Excellence in Live Band • Catering • Multimedia • Decor"
+          title="Eethm Multimedia GH"
+          subtitle="Live Band • Catering • Multimedia • Décor Excellence"
           actions={[
             {
               label: "Book Now",
@@ -76,105 +66,148 @@ const About = () => {
         />
       </section>
 
-      {/* ===== ABOUT CONTENT ===== */}
-      <FadeInSection>
-        <section className="about-info-section">
-          <h2>Who We Are</h2>
-          <p>
-            At <strong>Eethm Multimedia GH</strong>, we are passionate about
-            creating unforgettable experiences. From live band ministrations to
-            world-class catering, multimedia, and décor services, we bring
-            creativity, professionalism, and excellence to every event.
-          </p>
-          <p>
-            Our mission is to inspire joy, foster connections, and celebrate
-            life’s most meaningful moments with authenticity and style.
-          </p>
+      {/* === WHO WE ARE (Gold–Burgundy) === */}
+      <FadeInSection className="fade-delay-1">
+        <section className="about-who-we-are">
+          <div className="split-layout">
+            <div className="intro-text">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                Who We Are
+              </motion.h2>
+
+              <p>
+                At <strong>Eethm Multimedia GH</strong>, we’re passionate about crafting unforgettable experiences —
+                from soulful live band ministrations to top-tier catering, multimedia production, and elegant décor.
+                Our mission is to inspire joy, foster connection, and celebrate life’s moments with authenticity and style.
+              </p>
+
+              <button
+                className="btn-secondary"
+                onClick={() => navigate("/services")}
+                aria-label="Discover our work"
+              >
+                Discover Our Work →
+              </button>
+            </div>
+
+            <div className="intro-media" aria-hidden="false">
+              <img
+                src={LOCAL_FALLBACK_IMAGE}
+                alt="Eethm Multimedia team at work"
+                loading="lazy"
+              />
+            </div>
+          </div>
         </section>
       </FadeInSection>
 
-      {/* ===== BANNERS ===== */}
-      <FadeInSection>
-        <section className="about-banners-section">
+      {/* === HIGHLIGHTS (Neutral card area with BannerCards) === */}
+      <FadeInSection className="fade-delay-2">
+        <section className="about-banners">
           <h2>Our Highlights</h2>
-          {bannerLoading && <p>Loading banners…</p>}
-          {bannerError && <p className="error-text">{bannerError}</p>}
-          <BannerCards endpointKey="about" type="banner" />
+          {bLoad ? (
+            <p>Loading highlights…</p>
+          ) : (
+            <div className="banner-wrapper">
+              <BannerCards endpointKey="about" title="Highlights" />
+            </div>
+          )}
         </section>
       </FadeInSection>
 
-      {/* ===== SERVICES ===== */}
-      <FadeInSection>
-        <section className="about-services-section">
-          <h2>What We Do</h2>
-          <Services />
+      {/* === OUR MISSION / WHAT WE DO (Navy–Gold) === */}
+      <FadeInSection className="fade-delay-3">
+        <section className="about-services about-navy-section">
+          <div className="services-inner">
+            <h2>What We Do</h2>
+            <p className="services-tagline">
+              From live entertainment to multimedia production, we bring creativity, passion, and precision to every detail.
+            </p>
+
+            {/* Services component renders categorized service cards */}
+            <Services />
+          </div>
         </section>
       </FadeInSection>
 
-      {/* ===== TEAM ===== */}
-      <FadeInSection>
-        <section className="about-team-section">
+      {/* === TEAM (Burgundy–Gold) === */}
+      <FadeInSection className="fade-delay-4">
+        <section className="about-team">
           <h2>Meet Our Team</h2>
-          <div className="team-grid">
-            <div className="team-card">
-              <img src={josephImg} alt="Joseph" />
-              <h3>Joseph</h3>
-              <p>Event Manager</p>
-            </div>
-            <div className="team-card">
-              <img src={euniceImg} alt="Eunice" />
-              <h3>Eunice</h3>
-              <p>Creative Director</p>
-            </div>
+
+          <div className="team-grid" role="list">
+            {[
+              { name: "Joseph", role: "Event Manager", img: josephImg },
+              { name: "Eunice", role: "Creative Director", img: euniceImg },
+            ].map((member, idx) => (
+              <motion.div
+                key={member.name + idx}
+                className="team-card"
+                role="listitem"
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.25 }}
+              >
+                <img src={member.img} alt={member.name} loading="lazy" />
+                <h3>{member.name}</h3>
+                <p>{member.role}</p>
+              </motion.div>
+            ))}
           </div>
         </section>
       </FadeInSection>
 
-      {/* ===== PARTNERS ===== */}
-      <FadeInSection>
-        <section className="about-partners-section">
+      {/* === PARTNERS (subtle cards) === */}
+      <FadeInSection className="fade-delay-5">
+        <section className="about-partners">
           <h2>Our Partners</h2>
-          <div className="partners-logos">
-            <div className="partner-logo">Partner 1</div>
-            <div className="partner-logo">Partner 2</div>
-            <div className="partner-logo">Partner 3</div>
+          <div className="partners-logos" aria-hidden={false}>
+            {["Partner 1", "Partner 2", "Partner 3"].map((p, i) => (
+              <motion.div
+                key={`${p}-${i}`}
+                className="partner-logo"
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.18 }}
+                role="img"
+                aria-label={`Partner ${p}`}
+              >
+                {p}
+              </motion.div>
+            ))}
           </div>
         </section>
       </FadeInSection>
 
-      {/* ===== MEDIA ===== */}
-      <FadeInSection>
-        <section className="about-media-section">
-          <h2>Media Library</h2>
-          {mediaLoading && <p>Loading media…</p>}
-          {mediaError && <p className="error-text">{mediaError}</p>}
-          <MediaCards
-            endpointKey="about"
-            resourceType="media"
-            fullWidth={false}
-            isActive
-            isFeatured={false}
-          />
-        </section>
-      </FadeInSection>
-
-      {/* ===== GALLERY ===== */}
-      <FadeInSection>
-        <section className="about-gallery-section">
+      {/* === MEDIA & GALLERY (light neutral) === */}
+      <FadeInSection className="fade-delay-6">
+        <section className="about-gallery">
           <h2>Gallery Showcase</h2>
-          {videosError && <p className="error-text">{videosError}</p>}
+
+          {/* Media cards (if any) */}
+          {!mLoad && (
+            <div style={{ marginBottom: "1.5rem" }}>
+              <MediaCards endpointKey="about" resourceType="media" />
+            </div>
+          )}
+
+          {/* Photo / Video gallery */}
           <MediaGallery items={galleryItems} />
         </section>
       </FadeInSection>
 
-      {/* ===== CLIENT REVIEWS ===== */}
-      <FadeInSection>
-        <ReviewsLayout
-          title="What Our Clients Say"
-          description="Here’s what people think about our services"
-        >
-          <Reviews limit={6} hideForm={true} />
-        </ReviewsLayout>
+      {/* === REVIEWS / TESTIMONIALS (neutral card) === */}
+      <FadeInSection className="fade-delay-7">
+        <section className="reviews-layout">
+          <ReviewsLayout
+            title="What Our Clients Say"
+            description="Here’s what people think about our services"
+          >
+            <Reviews limit={6} hideForm />
+          </ReviewsLayout>
+        </section>
       </FadeInSection>
     </div>
   );

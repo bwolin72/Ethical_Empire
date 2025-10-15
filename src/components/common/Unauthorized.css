@@ -1,0 +1,136 @@
+
+/* ============================================
+   🔐 401 — Unauthorized Access
+   ============================================ */
+
+.unauthorized-page {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  overflow: hidden;
+  text-align: center;
+  font-family: var(--font-main);
+}
+
+.unauthorized-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  z-index: 0;
+}
+
+.unauthorized-content {
+  position: relative;
+  z-index: 2;
+  max-width: 650px;
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: var(--shadow-lg);
+  animation: fade-in-up 0.8s var(--transition-slow) both;
+}
+
+.unauthorized-logo {
+  width: 85px;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+  animation: pulse 3s infinite ease-in-out;
+}
+
+.unauthorized-title {
+  font-size: 6rem;
+  font-family: var(--font-accent);
+  font-weight: 800;
+  background: var(--gradient-gold-burgundy);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+}
+
+.unauthorized-subtitle {
+  font-size: 1.8rem;
+  margin-top: 0.3rem;
+  color: var(--color-accent-gold-light);
+  letter-spacing: 0.4px;
+  font-family: var(--font-accent);
+}
+
+.unauthorized-text {
+  margin: 1rem auto 2rem;
+  color: var(--flip-sand);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 500px;
+}
+
+/* 🔘 Buttons */
+.unauthorized-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.unauthorized-btn {
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  text-decoration: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.unauthorized-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+}
+
+.unauthorized-btn.outline {
+  background: transparent;
+  border: 1px solid var(--color-accent-gold);
+}
+
+.unauthorized-btn.outline:hover {
+  background: rgba(212, 175, 55, 0.15);
+}
+
+.unauthorized-footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 0.85rem;
+  color: var(--flip-silver);
+  text-align: center;
+  z-index: 2;
+}
+
+/* ============================================
+   📱 Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+  .unauthorized-title {
+    font-size: 5rem;
+  }
+  .unauthorized-subtitle {
+    font-size: 1.5rem;
+  }
+  .unauthorized-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .unauthorized-title {
+    font-size: 3.5rem;
+  }
+}

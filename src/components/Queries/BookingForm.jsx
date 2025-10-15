@@ -1,5 +1,5 @@
 // src/components/booking/BookingForm.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import PhoneInput from "react-phone-input-2";
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
@@ -11,13 +11,29 @@ import { useAuth } from "../context/AuthContext";
 import bookingService from "../../api/services/bookingService";
 import serviceService from "../../api/services/serviceService";
 
-import SocialHub from "../social/SocialHub"; // social hub instead of direct icons
+import SocialHub from "../social/SocialHub";
 
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-input-2/lib/style.css";
 import "react-toastify/dist/ReactToastify.css";
 import "./BookingForm.css";
 import logo from "../../assets/logo.png";
+
+const toArray = (payload) => {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
+
+const formatPhoneForApi = (raw) => {
+  if (!raw) return "";
+  let val = raw.toString().trim();
+  // Ensure plus sign present
+  if (!val.startsWith("+")) val = `+${val}`;
+  // Remove spaces
+  return val.replace(/\s+/g, "");
+};
 
 const BookingForm = () => {
   const { darkMode } = useTheme();
@@ -42,32 +58,10 @@ const BookingForm = () => {
   const [servicesList, setServicesList] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(true);
 
-  // Booking history
   const [bookingHistory, setBookingHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(true);
 
-  // Fetch services
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const res = await serviceService.getServices();
-        let normalized = [];
-        const data = res?.data;
-        if (Array.isArray(data)) normalized = data;
-        else if (Array.isArray(data?.results)) normalized = data.results;
-        else if (Array.isArray(data?.data)) normalized = data.data;
-        setServicesList(normalized);
-      } catch (err) {
-        toast.error("Failed to fetch services.", { autoClose: 3000 });
-        console.error("Service fetch error:", err);
-      } finally {
-        setServicesLoading(false);
-      }
-    };
-    fetchServices();
-  }, []);
-
-  // Prefill user details
+  // Prefill user fields
   useEffect(() => {
     if (user) {
       setFormData((prev) => ({
@@ -78,42 +72,84 @@ const BookingForm = () => {
     }
   }, [user]);
 
-  // Fetch booking history
+  // Fetch services (API) — normalized
   useEffect(() => {
-    const fetchBookingHistory = async () => {
+    let mounted = true;
+    const fetchServices = async () => {
+      try {
+        const res = await serviceService.getServices();
+        const data = res?.data ?? res?.data?.results ?? res?.data?.data ?? [];
+        const normalized = Array.isArray(data) ? data : [];
+        if (mounted) setServicesList(normalized);
+      } catch (err) {
+        console.warn("Failed to fetch dynamic services — falling back to static or none.", err);
+        toast.info("Using local service catalog.");
+      } finally {
+        if (mounted) setServicesLoading(false);
+      }
+    };
+    fetchServices();
+    return () => (mounted = false);
+  }, []);
+
+  // Fetch booking history for logged user
+  useEffect(() => {
+    let mounted = true;
+    const fetchHistory = async () => {
       try {
         if (user?.email) {
           const res = await bookingService.getUserBookings(user.email);
-          setBookingHistory(Array.isArray(res?.data) ? res.data : []);
+          const data = res?.data ?? [];
+          if (mounted) setBookingHistory(data);
         }
       } catch (err) {
-        console.error("Failed to fetch booking history:", err);
+        console.error("Failed to fetch booking history", err);
       } finally {
-        setHistoryLoading(false);
+        if (mounted) setHistoryLoading(false);
       }
     };
-    fetchBookingHistory();
+    fetchHistory();
+    return () => (mounted = false);
   }, [user]);
 
+  // Derived: selected service objects and total price
+  const selectedServiceObjects = useMemo(() => {
+    const map = new Map(servicesList.map((s) => [Number(s.id ?? s._id ?? s.id), s]));
+    return formData.services.map((id) => map.get(Number(id))).filter(Boolean);
+  }, [formData.services, servicesList]);
+
+  const totalPrice = useMemo(() => {
+    return selectedServiceObjects.reduce((sum, s) => sum + (Number(s.price) || 0), 0);
+  }, [selectedServiceObjects]);
+
+  // Input handlers
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
-      const id = parseInt(value, 10);
+      const id = Number(value);
       setFormData((prev) => ({
         ...prev,
-        services: checked
-          ? [...new Set([...prev.services, id])]
-          : prev.services.filter((s) => s !== id),
+        services: checked ? Array.from(new Set([...prev.services, id])) : prev.services.filter((s) => Number(s) !== id),
       }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      return;
     }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDateChange = (date) =>
-    setFormData((prev) => ({ ...prev, event_date: date }));
+  const toggleServiceCard = (id) => {
+    const numeric = Number(id);
+    setFormData((prev) => ({
+      ...prev,
+      services: prev.services.includes(numeric)
+        ? prev.services.filter((s) => s !== numeric)
+        : [...prev.services, numeric],
+    }));
+  };
+
+  const handleDateChange = (date) => setFormData((prev) => ({ ...prev, event_date: date }));
 
   const handlePhoneChange = (value) => {
+    // phone input returns numeric string without + by default; we store raw for display and format later
     setFormData((prev) => ({ ...prev, phone: value ? `+${value}` : "" }));
   };
 
@@ -134,10 +170,14 @@ const BookingForm = () => {
     });
   };
 
+  // Validation helpers
+  const isPhoneValidForApi = (p) => /^\+\d{8,15}$/.test(formatPhoneForApi(p));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
 
+    // Basic required checks (server also validates)
     const {
       name,
       email,
@@ -166,17 +206,12 @@ const BookingForm = () => {
       !Array.isArray(services) ||
       services.length === 0
     ) {
-      toast.error(
-        "Please complete all required fields and select at least one service.",
-        { autoClose: 3000 }
-      );
+      toast.error("Please complete all required fields and select at least one service.");
       return;
     }
 
-    if (!/^\+\d{8,15}$/.test(phone)) {
-      toast.error("Please enter a valid international phone number.", {
-        autoClose: 3000,
-      });
+    if (!isPhoneValidForApi(phone)) {
+      toast.error("Please enter a valid international phone number (E.164). Example: +233123456789");
       return;
     }
 
@@ -185,28 +220,20 @@ const BookingForm = () => {
     const payload = {
       name,
       email,
-      phone,
-      country,
+      phone: formatPhoneForApi(phone),
+      country, // serializer accepts country name or ISO code; backend will normalize
       state_or_region,
       venue_name,
       address,
-      event_type,
-      guests,
-      event_date: event_date
-        ? event_date.toISOString().split("T")[0]
-        : null,
+      event_date: event_date ? event_date.toISOString().split("T")[0] : null,
       message: formData.message || "",
-      services,
+      services: formData.services,
     };
 
     try {
       await bookingService.create(payload);
-      toast.success("🎉 Booking request submitted successfully!", {
-        autoClose: 3000,
-      });
-      toast.info("📧 A confirmation email will be sent to you shortly.", {
-        autoClose: 4000,
-      });
+      toast.success("🎉 Booking request submitted successfully!");
+      toast.info("📧 A confirmation email will be sent to you shortly.");
       resetForm();
     } catch (err) {
       const response = err?.response?.data;
@@ -219,7 +246,7 @@ const BookingForm = () => {
           msg = Array.isArray(first) ? first[0] : first?.toString() || msg;
         }
       }
-      toast.error(msg, { autoClose: 4000 });
+      toast.error(msg);
       console.error("Booking submit error:", err);
     } finally {
       setIsSubmitting(false);
@@ -231,38 +258,47 @@ const BookingForm = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar theme="colored" />
 
       <div className="booking-container">
-        {/* === Left Form Panel === */}
-        <div className="booking-form-panel">
+        {/* Left: Form */}
+        <div className="booking-form-panel" role="region" aria-labelledby="booking-form-heading">
           <div className="form-header">
             <img src={logo} alt="Ethical Multimedia Logo" className="logo" />
-            <h2>Ethical Multimedia GH</h2>
-            <p className="subtitle">Premium Event Experience</p>
+            <div>
+              <h2 id="booking-form-heading">Ethical Multimedia GH</h2>
+              <p className="subtitle">Premium Event Experience</p>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="form-content" noValidate>
             <h3>Event Booking Form</h3>
 
-            {["name", "email", "venue_name", "address"].map((id) => (
-              <div key={id} className="input-group">
-                <label htmlFor={id}>{id.replace("_", " ")}</label>
-                <input
-                  id={id}
-                  name={id}
-                  type={id === "email" ? "email" : "text"}
-                  value={formData[id]}
-                  onChange={handleChange}
-                  required
-                />
+            <div className="two-col">
+              <div className="input-group">
+                <label htmlFor="name">Full name</label>
+                <input id="name" name="name" type="text" value={formData.name} onChange={handleChange} required />
               </div>
-            ))}
+              <div className="input-group">
+                <label htmlFor="email">Email</label>
+                <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+              </div>
+            </div>
+
+            <div className="two-col">
+              <div className="input-group">
+                <label htmlFor="venue_name">Venue</label>
+                <input id="venue_name" name="venue_name" type="text" value={formData.venue_name} onChange={handleChange} required />
+              </div>
+              <div className="input-group">
+                <label htmlFor="address">Address</label>
+                <input id="address" name="address" type="text" value={formData.address} onChange={handleChange} required />
+              </div>
+            </div>
 
             <div className="input-group">
               <label>Country</label>
               <CountryDropdown
                 value={formData.country}
-                onChange={(val) =>
-                  setFormData((prev) => ({ ...prev, country: val, state_or_region: "" }))
-                }
+                onChange={(val) => setFormData((p) => ({ ...p, country: val, state_or_region: "" }))}
+                classes="country-dropdown"
               />
             </div>
 
@@ -271,113 +307,156 @@ const BookingForm = () => {
               <RegionDropdown
                 country={formData.country}
                 value={formData.state_or_region}
-                onChange={(val) => setFormData((prev) => ({ ...prev, state_or_region: val }))}
+                onChange={(val) => setFormData((p) => ({ ...p, state_or_region: val }))}
+                classes="region-dropdown"
               />
             </div>
 
-            <div className="input-group">
-              <label>Phone Number</label>
-              <PhoneInput
-                country="gh"
-                value={(formData.phone || "").replace(/^\+/, "")}
-                onChange={handlePhoneChange}
-                inputProps={{ name: "phone", required: true, autoComplete: "tel" }}
-                enableSearch
-                international
-                preferredCountries={["gh", "us", "gb", "ng", "de"]}
-              />
-            </div>
-
-            <div className="input-group">
-              <label>Event Type</label>
-              <select name="event_type" value={formData.event_type} onChange={handleChange} required>
-                <option value="">-- Select Event Type --</option>
-                <option value="Wedding">Wedding</option>
-                <option value="Corporate">Corporate</option>
-                <option value="Party">Party</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div className="input-group">
-              <label>Number of Guests</label>
-              <div className="guest-wrapper">
-                <FaUsers className="icon" />
-                <input
-                  type="number"
-                  name="guests"
-                  value={formData.guests}
-                  onChange={handleChange}
-                  placeholder="e.g., 150"
-                  min="1"
-                  required
+            <div className="two-col">
+              <div className="input-group">
+                <label>Phone Number</label>
+                <PhoneInput
+                  country="gh"
+                  value={(formData.phone || "").replace(/^\+/, "")}
+                  onChange={handlePhoneChange}
+                  inputProps={{ name: "phone", required: true, autoComplete: "tel" }}
+                  enableSearch
+                  international
+                  preferredCountries={["gh", "us", "gb", "ng", "de"]}
                 />
               </div>
-            </div>
 
-            <div className="input-group">
-              <label>Event Date</label>
-              <div className="datepicker-wrapper">
-                <FaCalendarAlt className="icon" />
-                <DatePicker
-                  selected={formData.event_date}
-                  onChange={handleDateChange}
-                  placeholderText="Select a date"
-                  dateFormat="yyyy-MM-dd"
-                  minDate={new Date()}
-                  required
-                />
+              <div className="input-group">
+                <label>Event Type</label>
+                <select name="event_type" value={formData.event_type} onChange={handleChange} required>
+                  <option value="">-- Select Event Type --</option>
+                  <option value="Wedding">Wedding</option>
+                  <option value="Corporate">Corporate</option>
+                  <option value="Party">Party</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
 
-            <div className="input-group">
-              <label>Services</label>
-              <div className="checkbox-group">
-                {servicesLoading ? (
-                  <p>Loading services...</p>
-                ) : servicesList.length > 0 ? (
-                  servicesList.map((service) => (
-                    <label key={service.id} className="checkbox-option">
-                      <input
-                        type="checkbox"
-                        name="services"
-                        value={service.id}
-                        checked={formData.services.includes(service.id)}
-                        onChange={handleChange}
-                      />
-                      {service.name}
-                    </label>
-                  ))
-                ) : (
-                  <p className="no-services">No services available</p>
-                )}
+            <div className="two-col">
+              <div className="input-group">
+                <label>Guests</label>
+                <div className="guest-wrapper">
+                  <FaUsers className="icon" />
+                  <input
+                    type="number"
+                    name="guests"
+                    value={formData.guests}
+                    onChange={handleChange}
+                    placeholder="e.g., 150"
+                    min="1"
+                    required
+                  />
+                </div>
               </div>
+
+              <div className="input-group">
+                <label>Event Date</label>
+                <div className="datepicker-wrapper">
+                  <FaCalendarAlt className="icon" />
+                  <DatePicker
+                    selected={formData.event_date}
+                    onChange={handleDateChange}
+                    placeholderText="Select a date"
+                    dateFormat="yyyy-MM-dd"
+                    minDate={new Date()}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="input-group services-grid">
+              <label>Services (select at least one)</label>
+              {servicesLoading ? (
+                <p className="muted-text">Loading services…</p>
+              ) : servicesList.length > 0 ? (
+                <div className="service-cards">
+                  {servicesList.map((s) => {
+                    const sid = Number(s.id ?? s._id ?? s.id);
+                    const active = formData.services.includes(sid);
+                    return (
+                      <button
+                        key={sid}
+                        type="button"
+                        className={`service-card ${active ? "active" : ""}`}
+                        onClick={() => toggleServiceCard(sid)}
+                        aria-pressed={active}
+                        aria-label={`Select ${s.name}`}
+                      >
+                        <div className="service-card-body">
+                          <div className="service-card-title">{s.name}</div>
+                          {s.price != null && <div className="service-card-price">₵{Number(s.price).toFixed(2)}</div>}
+                        </div>
+                        <input
+                          type="checkbox"
+                          name="services"
+                          value={sid}
+                          checked={active}
+                          onChange={() => toggleServiceCard(sid)}
+                          aria-hidden
+                          tabIndex={-1}
+                          style={{ display: "none" }}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="muted-text">No services available at the moment.</p>
+              )}
             </div>
 
             <div className="input-group">
               <label>Additional Notes</label>
-              <textarea
-                name="message"
-                rows="4"
-                value={formData.message}
-                onChange={handleChange}
-              />
+              <textarea name="message" rows="4" value={formData.message} onChange={handleChange} />
             </div>
 
-            <button type="submit" className="submit-btn" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit Booking"}
-            </button>
+            <div className="form-actions">
+              <button type="submit" className="submit-btn" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Booking"}
+              </button>
+              <button type="button" className="reset-btn" onClick={resetForm}>
+                Reset
+              </button>
+            </div>
           </form>
         </div>
 
-        {/* === Right Panel === */}
-        <div className="booking-brand-panel">
+        {/* Right: Brand Panel / Live Summary */}
+        <aside className="booking-brand-panel" aria-labelledby="summary-heading">
           <div className="brand-content">
-            <h3>Booking Summary</h3>
-            <p><strong>Name:</strong> {formData.name || "—"}</p>
-            <p><strong>Event:</strong> {formData.event_type || "—"} on {formData.event_date ? formData.event_date.toDateString() : "—"}</p>
-            <p><strong>Guests:</strong> {formData.guests || "—"}</p>
-            <p><strong>Services:</strong> {formData.services.length > 0 ? formData.services.length : "—"} selected</p>
+            <h3 id="summary-heading">Booking Summary</h3>
+
+            <div className="summary-row"><strong>Name:</strong> <span>{formData.name || "—"}</span></div>
+            <div className="summary-row"><strong>Event:</strong> <span>{formData.event_type || "—"}</span></div>
+            <div className="summary-row"><strong>Date:</strong> <span>{formData.event_date ? formData.event_date.toDateString() : "—"}</span></div>
+            <div className="summary-row"><strong>Guests:</strong> <span>{formData.guests || "—"}</span></div>
+
+            <hr />
+
+            <h4>Selected Services</h4>
+            {selectedServiceObjects.length === 0 ? (
+              <p className="muted-text">No services selected.</p>
+            ) : (
+              <ul className="selected-services">
+                {selectedServiceObjects.map((s) => (
+                  <li key={s.id}>
+                    <span>{s.name}</span>
+                    <span>₵{(Number(s.price) || 0).toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="total-row">
+              <strong>Total:</strong> <span className="total-amount">₵{totalPrice.toFixed(2)}</span>
+            </div>
 
             <hr />
 
@@ -385,10 +464,9 @@ const BookingForm = () => {
             <p><strong>Name:</strong> Mrs. Eunice Chai</p>
             <p><strong>Email:</strong> <a href="mailto:info@eethmghmultimedia.com">info@eethmghmultimedia.com</a></p>
             <p><strong>Phone:</strong> <a href="tel:+233559241828">+233 55 924 1828</a></p>
-            <p><strong>WhatsApp:</strong> <a href="https://wa.me/233552988735" target="_blank" rel="noopener noreferrer">+233 55 298 8735</a></p>
 
             <div className="location-block">
-              <h3>Headquarters</h3>
+              <h4>Headquarters</h4>
               <p><FaMapMarkerAlt className="icon" /> Bicycle City, Ojobi, Gomoa Akotsi</p>
               <p>Central Region, Ghana</p>
             </div>
@@ -398,12 +476,10 @@ const BookingForm = () => {
               <a href="tel:+233559241828" className="phone">Call Now</a>
             </div>
 
-            {/* Social Hub Component */}
             <SocialHub />
 
-            {/* Booking History */}
             <div className="booking-history">
-              <h3>Your Booking History</h3>
+              <h4>Your Booking History</h4>
               {historyLoading ? (
                 <p>Loading history...</p>
               ) : bookingHistory.length === 0 ? (
@@ -419,7 +495,7 @@ const BookingForm = () => {
               )}
             </div>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );

@@ -1,237 +1,452 @@
-/* ========================================================
-🎶 LiveBand Styles — Synced with LiveBandServicePage.jsx
-======================================================== */
+/* ======================================================
+   🌙 DARK MODE — Live Band Styling
+   Activated when <body> or <html> has class="dark"
+   ====================================================== */
 
-/* === Base === */
+.dark .liveband-page-container {
+  background: var(--color-bg-dark);
+  color: var(--color-text-dark);
+}
+
+/* === Hero Section === */
+.dark .banner-section {
+  background: linear-gradient(45deg, #152c63, #2a0f0f);
+}
+
+.dark .hero-video {
+  filter: brightness(55%) contrast(1.1);
+}
+
+.dark .hero-heading {
+  color: var(--color-accent-gold-light);
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+}
+
+.dark .hero-subtext {
+  color: #e5e7eb;
+}
+
+.dark .mute-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-accent-gold-light);
+}
+
+.dark .mute-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* === CTA Buttons === */
+.dark .cta-button {
+  background: var(--gradient-gold-burgundy);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+}
+
+.dark .cta-alt {
+  border-color: var(--color-accent-gold-light);
+  color: var(--color-accent-gold-light);
+}
+
+.dark .cta-outline {
+  border-color: var(--color-accent-gold);
+  color: var(--color-accent-gold);
+}
+
+.dark .cta-outline:hover {
+  background: rgba(212, 175, 55, 0.15);
+}
+
+/* === Sections === */
+.dark .section {
+  background: var(--color-bg-dark);
+}
+
+.dark .section-title {
+  color: var(--color-accent-gold-light);
+}
+
+.dark .section-title::after {
+  background: var(--color-accent-gold-light);
+}
+
+.dark .section-lead {
+  color: #cbd5e1;
+}
+
+/* === Behind the Scenes === */
+.dark .behind-scenes {
+  background: linear-gradient(
+    135deg,
+    rgba(21, 44, 99, 0.8),
+    rgba(64, 16, 16, 0.8)
+  ),
+  url("../../assets/images/hero-media.png") center/cover no-repeat;
+}
+
+.dark .behind-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dark .behind-content h2 {
+  color: var(--color-accent-gold);
+}
+
+.dark .behind-content p {
+  color: #f1f5f9;
+}
+
+/* === Media & Reviews === */
+.dark .card-grid {
+  background: var(--color-neutral-dark);
+}
+
+.dark .muted-text {
+  color: #9ca3af;
+}
+
+.dark .reviews-section {
+  background: linear-gradient(135deg, #1e3a8a, #401010);
+  color: var(--color-accent-gold-light);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* === Transitions === */
+.dark * {
+  transition: background var(--transition-slow), color var(--transition-slow);
+}
+
+/* ======================================================
+   🎸 Live Band Page Styles — liveband.css
+   ====================================================== */
+
 .liveband-page-container {
-  font-family: var(--font-main);
-  color: var(--color-black);
-  background-color: var(--color-white);
-  animation: fade-in 0.8s ease-in-out;
+  width: 100%;
   overflow-x: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-main);
+  transition: background var(--transition-slow), color var(--transition-slow);
 }
 
-.liveband-page-container * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.center-text { text-align: center; }
-
-/* === Section === */
-.liveband-page-container .section {
-  padding: 3rem 1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.liveband-page-container .section-title {
-  text-align: center;
-  font-size: 2rem;
-  margin: 2rem 0 1rem;
-  color: var(--color-primary);
-  animation: fade-in-up 1s ease-in-out;
-}
-
-.liveband-page-container .section-description {
-  font-size: 1rem;
-  max-width: 700px;
-  margin: 0 auto 2rem;
-  color: var(--color-neutral);
-  text-align: center;
-  line-height: 1.6;
-}
-
-/* === Hero / Banner / Video === */
-.liveband-page-container .banner-section {
+/* ======================================================
+   🏔️ HERO SECTION
+   ====================================================== */
+.banner-section {
   position: relative;
   width: 100%;
-  height: 65vh;
-  min-height: 420px;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--gradient-navy-gold);
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-  text-align: center;
+  color: var(--color-white);
 }
 
-.liveband-page-container .video-wrapper {
+.video-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
 }
 
-.liveband-page-container .hero-video {
+.hero-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: brightness(70%);
+  z-index: 0;
 }
 
-.liveband-page-container .mute-button {
+.video-overlay {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 3;
-  font-size: 1.25rem;
-  padding: 0.5rem;
-  background: rgba(0,0,0,0.45);
-  border: none;
-  color: var(--color-white);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: transform var(--transition-fast), background-color var(--transition-fast);
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.7) 60%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+  z-index: 1;
 }
 
-.liveband-page-container .mute-button:hover {
-  transform: scale(1.1);
-  background: rgba(0,0,0,0.6);
-}
-
-.liveband-page-container .video-placeholder {
-  width: 100%;
-  height: 65vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: var(--color-neutral-light);
-}
-
-.liveband-page-container .video-skeleton {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, #eaeaea, #f3f3f3, #eaeaea);
-  background-size: 200% 100%;
-  animation: shimmer 1.6s infinite linear;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* === CTA === */
-.liveband-page-container .cta-section {
+.hero-content {
+  position: absolute;
+  z-index: 2;
   text-align: center;
-  padding: 2rem 1rem;
+  padding: 0 1rem;
+  max-width: 700px;
+  animation: fade-in-up 1s ease-out;
 }
 
-.liveband-page-container .cta-button {
-  margin-top: 1rem;
-  background: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  border-radius: var(--radius-lg);
-  padding: 0.75rem 1.5rem;
-  font-size: 1.05rem;
-  cursor: pointer;
-  transition: transform var(--transition-fast), background var(--transition-fast);
+.hero-heading {
+  font-family: var(--font-accent);
+  font-size: 3.5rem;
+  color: var(--color-accent-gold);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  margin-bottom: 1rem;
 }
 
-.liveband-page-container .cta-button:hover {
-  background: var(--color-primary-dark);
-  transform: scale(1.05);
-}
-
-/* === Services Section === */
-.liveband-page-container .services-section { background: var(--color-white); }
-
-.liveband-page-container .service-card {
-  background: var(--color-secondary);
-  color: var(--color-white);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  transition: transform var(--transition-fast);
-}
-
-.liveband-page-container .service-card:hover { transform: translateY(-6px); }
-
-/* === Creative Section === */
-.liveband-page-container .creative-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  align-items: center;
-  margin-top: 2rem;
-}
-
-.liveband-page-container .creative-text {
-  max-width: 600px;
-  text-align: center;
-}
-
-.liveband-page-container .creative-text h3 {
-  font-size: 1.5rem;
-  color: var(--color-primary);
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.liveband-page-container .creative-text p {
-  font-size: 0.95rem;
-  color: var(--color-neutral);
+.hero-subtext {
+  font-size: 1.1rem;
+  color: var(--flip-cream);
+  margin-bottom: 2rem;
   line-height: 1.6;
 }
 
-.liveband-page-container .creative-media {
+.hero-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
   justify-content: center;
-}
-
-/* === Gallery / Card Grid === */
-.liveband-page-container .card-grid {
-  display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  flex-wrap: wrap;
 }
 
-.liveband-page-container .muted-text {
-  color: var(--color-neutral);
-  font-size: 0.95rem;
-}
-
-/* === Testimonials === */
-.liveband-page-container .testimonial-grid {
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: 1fr;
-}
-
-.liveband-page-container .testimonial-card {
-  background: var(--color-neutral-light);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
+.cta-button,
+.cta-alt,
+.cta-outline {
+  background: var(--gradient-gold-burgundy);
+  border: none;
+  padding: 0.9rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-white);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cta-button:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.cta-alt {
+  background: transparent;
+  border: 2px solid var(--color-accent-gold);
+  color: var(--color-accent-gold);
+}
+
+.cta-outline {
+  background: transparent;
+  border: 2px solid var(--color-white);
+  color: var(--color-white);
+}
+
+.cta-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* === Mute Button === */
+.mute-button {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  font-size: 1.2rem;
+  border-radius: 50%;
+  padding: 0.6rem;
+  cursor: pointer;
+  z-index: 3;
+  color: var(--color-white);
+  transition: background var(--transition-fast);
+}
+.mute-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ======================================================
+   ⚡ COMMON SECTION STYLING
+   ====================================================== */
+.section {
+  padding: 5rem 2rem;
+  text-align: center;
+  background: var(--color-bg);
+}
+
+.section-title {
+  font-family: var(--font-accent);
+  font-size: 2.4rem;
+  color: var(--color-primary-dark);
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 3px;
+  background: var(--color-accent-gold);
+  margin: 0.75rem auto 0;
+  border-radius: var(--radius-sm);
+}
+
+.section-lead {
+  color: var(--color-neutral-light);
+  max-width: 650px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+/* ======================================================
+   🪩 SERVICES CATEGORY
+   ====================================================== */
+.services-category {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+/* ======================================================
+   🎥 BEHIND THE SCENES
+   ====================================================== */
+.behind-scenes {
+  position: relative;
+  background: url("../../assets/images/hero-media.png") center/cover no-repeat;
+  color: var(--color-white);
+  text-align: center;
+  padding: 6rem 1.5rem;
+  overflow: hidden;
+}
+
+.behind-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 58, 138, 0.75);
+  backdrop-filter: blur(2px);
+  z-index: 1;
+}
+
+.behind-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.behind-content h2 {
+  font-family: var(--font-accent);
+  font-size: 2.2rem;
+  color: var(--color-accent-gold);
+  margin-bottom: 1rem;
+}
+
+.behind-content p {
+  color: var(--flip-cream);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* ======================================================
+   🎬 MEDIA GALLERY
+   ====================================================== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding-top: 1rem;
+}
+
+.muted-text {
+  color: var(--color-muted);
   font-style: italic;
-  transition: transform var(--transition-fast);
 }
 
-.liveband-page-container .testimonial-card:hover { transform: translateY(-5px); }
-
-.liveband-page-container .testimonial-text { margin-bottom: 0.5rem; }
-.liveband-page-container .testimonial-user { font-weight: bold; text-align: right; color: var(--color-primary); }
-
-/* === Animations === */
-@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fade-in-up { from { opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
-
-/* === Responsive === */
-@media (min-width: 768px) {
-  .liveband-page-container .creative-layout { flex-direction: row; }
-  .liveband-page-container .testimonial-grid { grid-template-columns: repeat(2,1fr); }
+.center-text {
+  text-align: center;
 }
 
-@media (min-width: 1024px) {
-  .liveband-page-container .testimonial-grid { grid-template-columns: repeat(3,1fr); }
-  .liveband-page-container .section-title { font-size: 2.4rem; }
+/* ======================================================
+   💬 REVIEWS
+   ====================================================== */
+.reviews-section {
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  padding: 5rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ======================================================
+   📱 RESPONSIVE DESIGN
+   ====================================================== */
+@media (max-width: 1024px) {
+  .hero-heading {
+    font-size: 2.8rem;
+  }
+  .section-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .banner-section {
+    height: 80vh;
+  }
+
+  .hero-content {
+    max-width: 90%;
+    padding: 0 1rem;
+  }
+
+  .hero-heading {
+    font-size: 2.4rem;
+  }
+
+  .hero-subtext {
+    font-size: 1rem;
+  }
+
+  .section {
+    padding: 4rem 1.5rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .liveband-page-container .section { padding: 2rem 0.5rem; }
-  .liveband-page-container .section-title { font-size: 1.5rem; }
-  .liveband-page-container .cta-button { width: 100%; }
-  .liveband-page-container .banner-section { height: 50vh; }
+  .hero-heading {
+    font-size: 1.9rem;
+    line-height: 1.3;
+  }
+
+  .hero-subtext {
+    font-size: 0.95rem;
+  }
+
+  .cta-button,
+  .cta-alt,
+  .cta-outline {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+  }
+
+  .section-lead {
+    font-size: 0.95rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-heading {
+    font-size: 1.7rem;
+  }
+
+  .hero-subtext {
+    font-size: 0.9rem;
+  }
+
+  .section-title {
+    font-size: 1.6rem;
+  }
+
+  .section-lead {
+    font-size: 0.9rem;
+  }
 }

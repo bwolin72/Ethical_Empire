@@ -1,18 +1,17 @@
+// frontend/src/components/home/EethmHome.jsx
+
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { motion } from "framer-motion";
 import FadeInSection from "../FadeInSection";
-import Services from "./Services";
+import Services from "../services/Services"; // ✅ Updated import path
 import NewsletterSignup from "../user/NewsLetterSignup";
-
 import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-
 import useFetcher from "../../hooks/useFetcher";
 import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
-
 import "./EethmHome.css";
 
 // --- Helpers ---
@@ -61,7 +60,6 @@ const EethmHome = () => {
     { resource: "media" }
   );
 
-  // --- Hero video ---
   const [videoUrl, setVideoUrl] = useState(null);
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
@@ -85,8 +83,8 @@ const EethmHome = () => {
 
   return (
     <div className="eethm-home-page">
-      {/* HERO SECTION */}
-      <section className="video-hero-section" aria-label="Hero">
+      {/* === HERO SECTION === */}
+      <section className="video-hero-section">
         {videoUrl && !videoLoading ? (
           <>
             <video
@@ -97,92 +95,116 @@ const EethmHome = () => {
               loop
               muted={isMuted}
               playsInline
-              onError={() => setVideoUrl(null)}
             />
             <div className="overlay-gradient" />
-            <div className="overlay-content">
-              <h1 className="hero-title">Welcome to Eethm_GH</h1>
+            <motion.div
+              className="overlay-content"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h1 className="hero-title gradient-text">
+                Crafting Experiences with Eethm_GH
+              </h1>
               <p className="hero-subtitle">
-                Experience our ministrations and highlights
+                Events | Multimedia | Live Band | Lighting | Decor
               </p>
               <div className="hero-buttons">
                 <button
-                  className="btn-primary"
+                  className="btn btn-primary"
                   onClick={() => navigate("/bookings")}
                 >
                   Book Now
                 </button>
                 <button
-                  className="btn-secondary"
+                  className="btn btn-secondary"
                   onClick={() => setShowNewsletterForm(true)}
                 >
-                  📩 Subscribe
+                  Subscribe
                 </button>
               </div>
-            </div>
+            </motion.div>
             <button
               className="mute-button"
               onClick={toggleMute}
-              aria-pressed={!isMuted}
-              aria-label={
-                isMuted ? "Unmute background video" : "Mute background video"
-              }
+              aria-label={isMuted ? "Unmute" : "Mute"}
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
           </>
-        ) : videoLoading ? (
-          <div className="video-placeholder" aria-hidden="true">
-            <div className="video-skeleton" />
-          </div>
         ) : (
           <BannerCards endpoint="home" title="Highlights" />
         )}
       </section>
 
-      {/* SERVICES */}
-      <FadeInSection>
-        <section className="content-section">
-          <h2>Explore Eethm_GH Ministrations</h2>
-          <Services />
-        </section>
-      </FadeInSection>
+      {/* === ABOUT SECTION === */}
+      <motion.section
+        className="about-section"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="about-content">
+          <h2>About Eethm Multimedia GH</h2>
+          <p>
+            We are the creative heartbeat of Ethical Empire — delivering
+            exceptional multimedia, event, and entertainment services across
+            Ghana. From soulful live bands and vibrant lighting to cinematic
+            videography and décor design, we make every moment unforgettable.
+          </p>
+        </div>
+      </motion.section>
 
-      {/* MEDIA HIGHLIGHTS */}
-      <FadeInSection>
-        <section className="media-cards-container">
-          <h2 className="media-cards-title">Our Media Library</h2>
-          <div className="media-cards-scroll-wrapper">
-            {mediaLoading
-              ? Array.from({ length: 6 }).map((_, i) => (
-                  <MediaSkeleton key={i} />
+      {/* === SERVICES SECTION === */}
+      <motion.section
+        className="content-section"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+      >
+        <h2 className="section-header">Explore Our Core Services</h2>
+        <Services />
+      </motion.section>
+
+      {/* === MEDIA GALLERY === */}
+      <motion.section
+        className="media-cards-container"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+        <h2 className="media-cards-title">Our Media Highlights</h2>
+        <div className="media-cards-scroll-wrapper">
+          {mediaLoading
+            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+            : mediaCards.length > 0 ? (
+                mediaCards.slice(0, 6).map((media, idx) => (
+                  <MediaCard
+                    key={media.id ?? media._id ?? idx}
+                    media={media}
+                  />
                 ))
-              : mediaCards.length > 0 ? (
-                  mediaCards.slice(0, 6).map((media, idx) => (
-                    <MediaCard
-                      key={media.id ?? media._id ?? media.url ?? idx}
-                      media={media}
-                    />
-                  ))
-                ) : (
-                  <p className="muted-text">No media available at the moment.</p>
-                )}
-          </div>
-        </section>
-      </FadeInSection>
+              ) : (
+                <p className="muted-text">No media available at the moment.</p>
+              )}
+        </div>
+      </motion.section>
 
-      {/* CLIENT REVIEWS */}
-      <FadeInSection>
+      {/* === REVIEWS === */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
         <ReviewsLayout
           title="What Our Clients Say"
-          description="Here’s what people think about our services"
+          description="Hear from people who’ve experienced the Eethm touch"
         >
-          {/* Only show approved reviews, hide form on homepage */}
-          <Reviews limit={6} hideForm={true} />
+          <Reviews limit={6} hideForm />
         </ReviewsLayout>
-      </FadeInSection>
+      </motion.section>
 
-      {/* NEWSLETTER MODAL */}
+      {/* === NEWSLETTER MODAL === */}
       {showNewsletterForm && (
         <div
           className="newsletter-modal-backdrop"

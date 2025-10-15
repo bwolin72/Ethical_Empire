@@ -1,0 +1,187 @@
+
+/* ============================================
+   🖤 404 — Cinematic Lost Page
+   ============================================ */
+
+.notfound-page {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  overflow: hidden;
+  text-align: center;
+  font-family: var(--font-main);
+}
+
+.notfound-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  z-index: 0;
+}
+
+.notfound-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: var(--shadow-lg);
+  animation: fade-in-up 0.8s var(--transition-slow) both;
+}
+
+.notfound-logo {
+  width: 90px;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+  animation: pulse 3s infinite ease-in-out;
+}
+
+.notfound-title {
+  font-size: 7rem;
+  font-family: var(--font-accent);
+  font-weight: 800;
+  background: var(--gradient-navy-gold, #1a2233);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+}
+
+.notfound-subtitle {
+  font-size: 1.9rem;
+  margin-top: 0.4rem;
+  color: var(--color-accent-gold-light);
+  letter-spacing: 0.5px;
+  font-family: var(--font-accent);
+}
+
+.notfound-text {
+  margin: 1rem auto 2rem;
+  color: var(--flip-sand);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 540px;
+}
+
+/* 🔍 Search Form */
+.notfound-search-form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.notfound-input {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+  font-size: 1rem;
+  outline: none;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.notfound-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.notfound-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+.notfound-search-btn {
+  background: var(--gradient-navy-gold);
+  border: none;
+  color: var(--color-white);
+  padding: 0.8rem 1.4rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.notfound-search-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* 🔗 Quick Links */
+.notfound-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 1.2rem;
+}
+
+.notfound-btn {
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  text-decoration: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.notfound-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+}
+
+.notfound-btn.outline {
+  background: transparent;
+  border: 1px solid var(--color-accent-gold);
+}
+
+.notfound-btn.outline:hover {
+  background: rgba(212, 175, 55, 0.15);
+}
+
+.notfound-footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 0.85rem;
+  color: var(--flip-silver);
+  text-align: center;
+  z-index: 2;
+}
+
+/* ============================================
+   📱 Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+  .notfound-title {
+    font-size: 5rem;
+  }
+  .notfound-subtitle {
+    font-size: 1.5rem;
+  }
+  .notfound-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .notfound-title {
+    font-size: 3.5rem;
+  }
+  .notfound-input,
+  .notfound-search-btn {
+    width: 100%;
+  }
+}

@@ -1,175 +1,386 @@
-/* src/components/pages/About.css
-   Matches About.jsx sections directly
-   Uses theme tokens from src/components/styles/variables.css
-*/
+/* ======================================================
+   📄 About Page Styles — About.css
+   Responsive + Theme Synced with variables.css
+   ====================================================== */
 
 .about-page {
-  padding: 2rem;
-  background: var(--color-page, #f5f5f5);
-  color: var(--color-neutral-dark);
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-main);
-  transition: background-color var(--transition-slow);
-  -webkit-font-smoothing: antialiased;
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* =========================
-   HERO SECTION
-   ========================= */
+/* ================================================
+   🏠 HERO SECTION
+   ================================================ */
 .about-hero-section {
+  width: 100%;
   position: relative;
-  margin-bottom: 2rem;
-  border-radius: var(--radius-lg);
   overflow: hidden;
-  min-height: clamp(28vh, 38vh, 45vh);
-  background: #000;
+}
+
+.about-hero-section video,
+.about-hero-section img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* ================================================
+   🌟 WHO WE ARE (Gold–Burgundy Gradient)
+   ================================================ */
+.about-who-we-are {
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  padding: 5rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.about-who-we-are .split-layout {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  max-width: 1200px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.about-who-we-are .intro-text {
+  flex: 1 1 500px;
+}
+
+.about-who-we-are .intro-text h2 {
+  font-family: var(--font-accent);
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--color-accent-gold-light);
+  animation: fade-in-up 0.6s ease both;
+}
+
+.about-who-we-are .intro-text p {
+  line-height: 1.8;
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+  color: var(--flip-cream);
+}
+
+.about-who-we-are .btn-secondary {
+  background: var(--color-accent-gold);
+  color: var(--color-black);
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.about-who-we-are .btn-secondary:hover {
+  transform: scale(1.05);
+  background: var(--color-accent-gold-light);
+}
+
+.about-who-we-are .intro-media {
+  flex: 1 1 400px;
+  text-align: center;
+}
+
+.about-who-we-are .intro-media img {
+  width: 100%;
+  max-width: 450px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  object-fit: cover;
+}
+
+/* ================================================
+   🎬 HIGHLIGHTS
+   ================================================ */
+.about-banners {
+  padding: 4rem 1rem;
+  background: var(--color-bg);
+  text-align: center;
+}
+
+.about-banners h2 {
+  font-family: var(--font-accent);
+  color: var(--color-primary);
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.banner-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+/* ================================================
+   🎭 WHAT WE DO (Services — Navy–Gold)
+   ================================================ */
+.about-navy-section {
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  padding: 5rem 1rem;
+  text-align: center;
+}
+
+.about-navy-section .services-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-navy-section h2 {
+  font-family: var(--font-accent);
+  font-size: 2.4rem;
+  color: var(--color-accent-gold-light);
+  margin-bottom: 0.5rem;
+}
+
+.about-navy-section .services-tagline {
+  font-size: 1.1rem;
+  max-width: 700px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+  color: var(--flip-cream);
+}
+
+/* ================================================
+   👥 TEAM
+   ================================================ */
+.about-team {
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.about-team h2 {
+  font-family: var(--font-accent);
+  font-size: 2rem;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.team-card {
+  background: var(--color-service-bg);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
   box-shadow: var(--shadow-lg);
 }
 
-/* =========================
-   INFO SECTION
-   ========================= */
-.about-info-section {
-  margin: 3rem auto;
-  max-width: 900px;
-  text-align: center;
-}
-.about-info-section h2 {
-  font-size: 2rem;
-  font-family: var(--font-accent);
-  color: var(--color-primary);
-  margin-bottom: 1rem;
-}
-.about-info-section p {
-  margin-bottom: 1rem;
-  line-height: 1.6;
-  color: var(--color-neutral-dark);
-}
-
-/* =========================
-   BANNERS SECTION
-   ========================= */
-.about-banners-section {
-  margin: 4rem auto;
-  text-align: center;
-}
-.about-banners-section h2 {
-  font-size: 2rem;
-  color: var(--color-primary);
-  margin-bottom: 1.5rem;
-}
-
-/* =========================
-   SERVICES SECTION
-   ========================= */
-.about-services-section {
-  margin: 4rem auto;
-  text-align: center;
-}
-.about-services-section h2 {
-  font-size: 2rem;
-  color: var(--color-primary);
-  margin-bottom: 2rem;
-}
-
-/* =========================
-   TEAM SECTION
-   ========================= */
-.about-team-section {
-  margin: 4rem auto;
-  text-align: center;
-}
-.team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
-  justify-items: center;
-}
-.team-card {
-  text-align: center;
-}
 .team-card img {
   width: 140px;
   height: 140px;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: var(--shadow-sm);
-}
-.team-card h3 {
-  margin-top: 1rem;
-  font-weight: 700;
-  color: var(--color-primary);
-}
-.team-card p {
-  font-size: 0.95rem;
-  color: var(--color-neutral);
+  margin-bottom: 1rem;
+  border: 3px solid var(--color-accent-gold);
 }
 
-/* =========================
-   PARTNERS SECTION
-   ========================= */
-.about-partners-section {
-  margin: 4rem auto;
+.team-card h3 {
+  margin-bottom: 0.25rem;
+  font-size: 1.25rem;
+}
+
+.team-card p {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+/* ================================================
+   🤝 PARTNERS
+   ================================================ */
+.about-partners {
+  padding: 4rem 1rem;
+  background: var(--color-service-bg);
   text-align: center;
 }
+
+.about-partners h2 {
+  font-family: var(--font-accent);
+  font-size: 2rem;
+  color: var(--color-secondary);
+  margin-bottom: 2rem;
+}
+
 .partners-logos {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.5rem;
   justify-content: center;
-  margin-top: 2rem;
+  gap: 1.5rem;
 }
+
 .partner-logo {
-  padding: 1rem 2rem;
   background: var(--color-white);
+  color: var(--color-neutral);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  font-weight: 600;
+  padding: 1rem 2rem;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  min-width: 150px;
 }
 
-/* =========================
-   MEDIA SECTION
-   ========================= */
-.about-media-section {
-  margin: 4rem auto;
+.partner-logo:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ================================================
+   🖼️ GALLERY
+   ================================================ */
+.about-gallery {
+  background: var(--color-bg);
+  color: var(--color-text);
+  padding: 4rem 1rem;
   text-align: center;
 }
-.about-media-section h2 {
+
+.about-gallery h2 {
+  font-family: var(--font-accent);
   font-size: 2rem;
+  color: var(--color-primary);
   margin-bottom: 2rem;
+}
+
+/* ================================================
+   💬 REVIEWS
+   ================================================ */
+.reviews-layout {
+  background: var(--color-service-bg);
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.reviews-layout h2 {
   color: var(--color-primary);
 }
 
-/* =========================
-   GALLERY SECTION
-   ========================= */
-.about-gallery-section {
-  margin: 4rem auto;
-  text-align: center;
-}
-.about-gallery-section h2 {
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  color: var(--color-primary);
+/* ================================================
+   🌀 FADE-IN DELAYS
+   ================================================ */
+.fade-delay-1 { animation-delay: 0.2s; }
+.fade-delay-2 { animation-delay: 0.4s; }
+.fade-delay-3 { animation-delay: 0.6s; }
+.fade-delay-4 { animation-delay: 0.8s; }
+.fade-delay-5 { animation-delay: 1.0s; }
+.fade-delay-6 { animation-delay: 1.2s; }
+.fade-delay-7 { animation-delay: 1.4s; }
+
+/* ================================================
+   🌙 DARK MODE ADAPTATION
+   ================================================ */
+.dark .about-who-we-are {
+  background: linear-gradient(45deg, #bfa132, #2a0f0f);
+  color: var(--color-cream);
 }
 
-/* =========================
-   RESPONSIVE
-   ========================= */
-@media (max-width: 900px) {
-  .about-info-section h2,
-  .about-banners-section h2,
-  .about-services-section h2,
-  .about-team-section h2,
-  .about-partners-section h2,
-  .about-media-section h2,
-  .about-gallery-section h2 {
-    font-size: 1.6rem;
+.dark .about-navy-section {
+  background: linear-gradient(45deg, #152c63, #bfa132);
+  color: var(--color-cream);
+}
+
+.dark .about-team,
+.dark .about-banners,
+.dark .about-gallery,
+.dark .reviews-layout {
+  background: var(--color-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.dark .team-card {
+  background: var(--color-service-bg-dark);
+  color: var(--color-text-dark);
+}
+
+.dark .partner-logo {
+  background: var(--color-neutral-dark);
+  color: var(--color-white);
+}
+
+/* ================================================
+   📱 RESPONSIVE DESIGN
+   ================================================ */
+@media (max-width: 1024px) {
+  .about-who-we-are .split-layout {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+
+  .about-who-we-are .intro-media img {
+    max-width: 100%;
   }
 }
-@media (max-width: 420px) {
-  .team-card img {
-    width: 110px;
-    height: 110px;
+
+@media (max-width: 768px) {
+  .about-navy-section {
+    padding: 4rem 1rem;
+  }
+
+  .about-navy-section h2 {
+    font-size: 2rem;
+  }
+
+  .about-team h2,
+  .about-banners h2,
+  .about-partners h2,
+  .about-gallery h2 {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-who-we-are,
+  .about-navy-section,
+  .about-banners,
+  .about-team,
+  .about-partners,
+  .about-gallery,
+  .reviews-layout {
+    padding: 3rem 1rem;
+  }
+
+  .about-who-we-are .intro-text h2 {
+    font-size: 1.8rem;
+  }
+
+  .about-navy-section .services-tagline {
+    font-size: 1rem;
+  }
+
+  .btn-secondary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .about-page {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .team-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .partner-logo {
+    min-width: 120px;
+    padding: 0.8rem 1rem;
   }
 }

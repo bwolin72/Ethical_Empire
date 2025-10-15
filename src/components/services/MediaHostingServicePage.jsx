@@ -1,9 +1,8 @@
-// src/components/services/MediaHostingServicePage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import FadeInSection from "../FadeInSection";
-import Services from "../home/Services";
+import ServiceCategory from "./ServiceCategory";
 
 import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
@@ -15,7 +14,7 @@ import ReviewsLayout from "../user/ReviewsLayout";
 
 import "./MediaHostingServicePage.css";
 
-// --- Helpers (same approach as EethmHome) ---
+// --- Helpers ---
 const toArray = (payload) => {
   if (!payload) return [];
   if (Array.isArray(payload)) return payload;
@@ -45,7 +44,7 @@ const getMediaUrl = (media) => {
 export default function MediaHostingServicePage() {
   const navigate = useNavigate();
 
-  // --- Fetch hero videos, banners and media cards (pattern matches EethmHome) ---
+  // --- Fetch Data ---
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
     "mediaHostingServicePage",
@@ -67,10 +66,10 @@ export default function MediaHostingServicePage() {
     { resource: "media" }
   );
 
-  // --- Hero video playback ---
+  // --- Hero Video Setup ---
   const [videoUrl, setVideoUrl] = useState(null);
-  const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const videos = toArray(videosRaw);
@@ -90,10 +89,11 @@ export default function MediaHostingServicePage() {
   const bannerItems = toArray(bannerRaw);
   const mediaCards = toArray(mediaCardsRaw);
 
+  // --- Render ---
   return (
-    <div className="media-hosting-page-container">
-      {/* HERO SECTION */}
-      <section className="video-hero-section" aria-label="Hero">
+    <main className="media-hosting-page">
+      {/* 🎥 HERO SECTION */}
+      <section className="video-hero-section" aria-label="Hero Section">
         {videoUrl && !videoLoading ? (
           <>
             <video
@@ -107,7 +107,7 @@ export default function MediaHostingServicePage() {
               onError={() => setVideoUrl(null)}
             />
             <div className="overlay-gradient" />
-            <div className="overlay-content">
+            <div className="overlay-content animate-fade-in-up">
               <h1 className="hero-title">Media Hosting & Multimedia</h1>
               <p className="hero-subtitle">
                 Capture, host and stream — professionally and reliably.
@@ -124,37 +124,40 @@ export default function MediaHostingServicePage() {
             <button
               className="mute-button"
               onClick={toggleMute}
-              aria-pressed={!isMuted}
-              aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+              aria-label={isMuted ? "Unmute video" : "Mute video"}
             >
               {isMuted ? "🔇" : "🔊"}
             </button>
           </>
-        ) : videoLoading ? (
-          <div className="video-placeholder" aria-hidden="true">
-            <div className="video-skeleton" />
-          </div>
         ) : (
-          <BannerCards endpoint="mediaHostingServicePage" title="Capture & Host with Ethical Precision" />
+          <BannerCards
+            items={bannerItems}
+            title="Capture & Host with Ethical Precision"
+            loading={bannerLoading}
+            fallbackTitle="Professional Multimedia Solutions"
+          />
         )}
       </section>
 
-      {/* SERVICES */}
+      {/* 💡 SERVICE CATEGORIES */}
       <FadeInSection>
         <section className="content-section">
-          <h2>Our Multimedia & Hosting Services</h2>
-          <p className="muted-text">
-            From event coverage to streaming and secure hosting, we provide end-to-end multimedia solutions.
-          </p>
-          <Services />
+          <header className="section-header">
+            <h2 className="section-title">Our Multimedia & Hosting Services</h2>
+            <p className="muted-text">
+              From event coverage to secure streaming and cloud hosting — Ethical Empire delivers complete
+              multimedia experiences.
+            </p>
+          </header>
+          <ServiceCategory category="mediaHostingServicePage" limit={6} />
         </section>
       </FadeInSection>
 
-      {/* CREATIVE PREVIEW / MEDIA CARDS */}
+      {/* 🖼️ FEATURED PREVIEW */}
       <FadeInSection>
-        <section className="media-cards-container">
-          <h2 className="media-cards-title">Multimedia Preview</h2>
-          <div className="media-cards-scroll-wrapper">
+        <section className="media-preview-section">
+          <h2 className="section-title">Featured Media Projects</h2>
+          <div className="media-cards-scroll">
             {mediaLoading
               ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
               : mediaCards.length > 0 ? (
@@ -171,34 +174,33 @@ export default function MediaHostingServicePage() {
         </section>
       </FadeInSection>
 
-      {/* MULTIMEDIA GALLERY */}
+      {/* 🧩 GALLERY */}
       <FadeInSection>
         <section className="gallery-section">
-          <h2>Multimedia Gallery</h2>
+          <h2 className="section-title">Multimedia Gallery</h2>
           <div className="card-grid">
             {mediaLoading
               ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
               : mediaCards.length > 0 ? (
-                  mediaCards.slice(0, 6).map((m, idx) => (
+                  mediaCards.slice(0, 9).map((m, idx) => (
                     <MediaCard key={m.id ?? m._id ?? idx} media={m} />
                   ))
                 ) : (
-                  <p className="muted-text">No multimedia content available.</p>
+                  <p className="muted-text">No multimedia content available yet.</p>
                 )}
           </div>
         </section>
       </FadeInSection>
 
-      {/* CLIENT REVIEWS — matches EethmHome pattern */}
+      {/* 💬 CLIENT REVIEWS */}
       <FadeInSection>
         <ReviewsLayout
           title="Client Impressions"
-          description="Here’s what people think about our multimedia & hosting services"
+          description="What clients say about our multimedia and hosting services"
         >
-          {/* show approved reviews for this category, hide form on service pages */}
           <Reviews limit={6} hideForm={true} category="mediaHostingServicePage" />
         </ReviewsLayout>
       </FadeInSection>
-    </div>
+    </main>
   );
 }

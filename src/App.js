@@ -27,7 +27,6 @@ import FloatingSocialHubButton from "./components/ui/FloatingSocialHubButton";
 // Pages - Public
 import EethmHome from "./components/home/EethmHome";
 import About from "./components/home/About";
-import Services from "./components/home/Services";
 import ContactForm from "./components/Queries/ContactForm";
 import Terms from "./components/legal/Terms";
 import Privacy from "./components/legal/Privacy";
@@ -57,6 +56,8 @@ import AgencyDashboard from "./components/agency/AgencyDashboard";
 import WorkerDashboard from "./components/worker/WorkerDashboard";
 
 // Services
+import Services from "./components/services/Services";
+import GeneralServicesPage from "./components/services/GeneralServicesPage";
 import LiveBandServicePage from "./components/services/LiveBandServicePage";
 import CateringServicePage from "./components/services/CateringServicePage";
 import DecorServicePage from "./components/services/DecorServicePage";
@@ -68,6 +69,9 @@ import Messaging from "./components/messaging/messaging";
 import ConnectHub from "./components/social/ConnectHub";
 import SocialHub from "./components/social/SocialHub";
 
+// Common
+import Unauthorized from "./components/common/Unauthorized";
+import NotFound from "./components/common/NotFound";
 
 // Context & Utilities
 import { AuthProvider } from "./components/context/AuthContext";
@@ -93,9 +97,9 @@ const ScrollAndRefresh = () => {
 const showErrorToast = (error) => {
   let message = "An unexpected error occurred";
   if (error?.response?.data?.message) {
-    message = error.response.data.message; // API-specific message
+    message = error.response.data.message;
   } else if (error?.message) {
-    message = error.message; // Network or generic error
+    message = error.message;
   }
   toast.error(`❌ ${message}`);
 };
@@ -133,13 +137,13 @@ const AppRoutes = () => {
       <Route path="/" element={<EethmHomePage />} />
       <Route path="/about" element={<About />} />
       <Route path="/services" element={<Services />} />
+      <Route path="/services/general" element={<GeneralServicesPage />} />
       <Route path="/contact" element={<ContactForm />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/flipbook" element={<FlipbookViewer />} />
       <Route path="/social" element={<SocialHub />} />
-
 
       {/* Blog */}
       <Route path="/blog" element={<BlogList />} />
@@ -199,8 +203,8 @@ const AppRoutes = () => {
       </Route>
 
       {/* Unauthorized / Catch-all */}
-      <Route path="/unauthorized" element={<div className="unauthorized">Access Denied</div>} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
@@ -243,12 +247,12 @@ function App() {
       queries: {
         retry: 1,
         refetchOnWindowFocus: false,
-        staleTime: 1000 * 60, // 1 minute
-        onError: showErrorToast, // show exact error toast
+        staleTime: 1000 * 60,
+        onError: showErrorToast,
       },
       mutations: {
         retry: false,
-        onError: showErrorToast, // show exact error toast
+        onError: showErrorToast,
       },
     },
   });

@@ -1,283 +1,296 @@
 /* ======================================================
-   Decor Service Page Styles — decor.css
-   References: variables.css (root variables)
+   decor.css
+   Production-ready, theme-aligned, responsive, animated
+   Uses variables from variables.css (flip-forest, flip-navy, flip-gold, etc.)
    ====================================================== */
 
-/* === Base Styling === */
+/* ---------- Page base ---------- */
 .decor-page-container {
+  width: 100%;
+  min-height: 100%;
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-main);
-  background-color: var(--color-white);
-  color: var(--color-black);
   overflow-x: hidden;
-  padding-bottom: 4rem;
-  scroll-behavior: smooth;
 }
 
-/* === Hero Video / Banner === */
-.decor-page-container .video-wrapper {
+/* ---------- HERO / BANNER ---------- */
+.banner-section {
   position: relative;
   width: 100%;
-  height: 60vh;
-  overflow: hidden;
+  height: 85vh;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(11,61,46,0.7), rgba(8,30,34,0.6));
+  overflow: hidden;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.5) contrast(1.05);
+  z-index: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.45));
+  z-index: 1;
+}
+
+/* hero content panel */
+.hero-panel {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  padding: 1rem;
+  text-align: center;
+  color: var(--flip-cream);
+}
+
+.hero-heading {
+  font-family: var(--font-accent);
+  font-size: clamp(1.6rem, 3.2vw, 3rem);
+  margin: 0 0 0.6rem;
+  color: var(--flip-gold);
+  letter-spacing: 0.6px;
+}
+
+.hero-lead {
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  margin: 0 0 1.25rem;
+  color: var(--flip-sand);
+  line-height: 1.6;
+}
+
+/* hero actions */
+.hero-actions {
+  display: inline-flex;
+  gap: 0.75rem;
   align-items: center;
   justify-content: center;
 }
 
-.decor-page-container .hero-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.6);
-}
-
-.decor-page-container .mute-button {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  background-color: var(--color-primary);
-  color: var(--color-white);
+.cta-button,
+.cta-alt,
+.cta-large {
   border: none;
-  border-radius: var(--radius-md);
-  padding: 0.5rem 0.8rem;
   cursor: pointer;
-  font-size: 1.2rem;
-  box-shadow: var(--shadow-md);
-  transition: var(--transition-fast);
-}
-
-.decor-page-container .mute-button:hover {
-  background-color: var(--color-primary-dark);
-  transform: scale(1.1);
-}
-
-.decor-page-container .mute-button:focus {
-  outline: 2px solid var(--color-white);
-  outline-offset: 2px;
-}
-
-/* === CTA Section === */
-.decor-page-container .cta-section {
-  text-align: center;
-  padding: 3rem 1rem;
-}
-
-.decor-page-container .cta-button {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  padding: 0.8rem 2.2rem;
-  border-radius: var(--radius-lg);
-  font-weight: bold;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: var(--shadow-md);
-  transition: var(--transition-fast);
-}
-
-.decor-page-container .cta-button:hover {
-  background-color: var(--color-primary-dark);
-  transform: scale(1.05);
-}
-
-.decor-page-container .cta-button:focus {
-  outline: 2px solid var(--color-primary-dark);
-  outline-offset: 2px;
-}
-
-/* === Sections === */
-.decor-page-container .section {
-  padding: 4rem 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  animation: fadeInUp 0.8s ease both;
-}
-
-.decor-page-container .section-title,
-.decor-page-container .section-subtitle {
-  font-weight: 700;
-  text-align: center;
-  color: var(--color-primary);
-  margin-bottom: 1rem;
-}
-
-.decor-page-container .section-title {
-  font-size: 2rem;
-}
-
-.decor-page-container .section-subtitle {
-  font-size: 1.25rem;
-  margin-top: 0.5rem;
-}
-
-.decor-page-container .section-description {
-  font-size: 1rem;
-  color: var(--color-neutral);
-  line-height: 1.6;
-  max-width: 768px;
-  margin: 0 auto 2rem;
-  text-align: center;
-}
-
-/* === Grid Cards === */
-.decor-page-container .card-grid,
-.decor-page-container .creative-media,
-.decor-page-container .testimonial-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-}
-
-.decor-page-container .card,
-.decor-page-container .testimonial-card {
-  background-color: var(--color-white);
-  border: 1px solid var(--color-neutral-light);
+  padding: 0.8rem 1.35rem;
   border-radius: var(--radius-md);
-  padding: 1rem;
-  text-align: center;
   font-weight: 600;
-  color: var(--color-black);
-  box-shadow: var(--shadow-sm);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  animation: fadeIn 0.9s ease both;
 }
 
-.decor-page-container .card:hover,
-.decor-page-container .testimonial-card:hover {
+/* primary CTA (gold on dark) */
+.cta-button {
+  background: var(--flip-gold);
+  color: var(--flip-forest);
+  box-shadow: var(--shadow-md);
+}
+
+.cta-button:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
 }
 
-.decor-page-container .card-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--color-neutral);
+/* secondary CTA (outline) */
+.cta-alt {
+  background: rgba(255,255,255,0.06);
+  color: var(--flip-cream);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* === Creative Section === */
-.decor-page-container .creative-layout {
+/* mute control */
+.mute-button {
+  position: absolute;
+  z-index: 3;
+  right: 1rem;
+  bottom: 1rem;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.45);
+  color: var(--flip-cream);
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.mute-button:hover {
+  transform: translateY(-3px);
+  background: var(--flip-gold);
+  color: var(--flip-forest);
+}
+
+/* loading skeleton for hero */
+.video-skeleton {
+  width: 100%;
+  height: 85vh;
+  background: linear-gradient(90deg, var(--flip-sand), var(--flip-cream));
+  animation: pulse 1.6s infinite ease-in-out;
+}
+
+/* ---------- CTA SECTION (mid page) ---------- */
+.cta-section {
+  padding: 2.2rem 1rem;
+  text-align: center;
+  background: linear-gradient(90deg, rgba(213,175,55,0.08), rgba(88,28,28,0.04));
+}
+
+.cta-large {
+  background: var(--flip-forest);
+  color: var(--flip-cream);
+  padding: 0.9rem 1.6rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.cta-large:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ---------- SECTIONS ---------- */
+.section {
+  padding: clamp(2.5rem, 4vw, 5rem) 1rem;
+  background: var(--color-bg);
+  text-align: center;
+}
+
+.section h2 {
+  font-family: var(--font-accent);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.section p {
+  max-width: 780px;
+  margin: 0 auto 1.75rem auto;
+  color: var(--color-neutral-light);
+  line-height: 1.7;
+}
+
+/* ---------- CREATIVE LAYOUT ---------- */
+.creative-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 2rem;
+  gap: clamp(1rem, 2vw, 2.5rem);
+  align-items: start;
+  padding: clamp(2rem, 3.5vw, 4rem) 1rem;
+  background: linear-gradient(180deg, rgba(34,139,34,0.06), rgba(8,30,34,0.02));
+  border-radius: var(--radius-md);
+  margin: 0 1rem;
 }
 
-.decor-page-container .creative-text h3 {
-  font-size: 1.5rem;
-  color: var(--color-primary);
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+.creative-text {
+  padding: 0.25rem;
+  text-align: left;
 }
 
-.decor-page-container .creative-text p {
-  font-size: 0.95rem;
-  color: var(--color-neutral);
-  line-height: 1.6;
+.creative-text h3 {
+  font-family: var(--font-accent);
+  color: var(--flip-gold);
+  font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+  margin-bottom: 0.6rem;
 }
 
-.decor-page-container .creative-media {
-  display: flex;
+.creative-text p {
+  color: var(--flip-sand);
+  line-height: 1.75;
+}
+
+/* creative media grid for small cards / preview images */
+.creative-media {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
-/* === Testimonials === */
-.decor-page-container .testimonial-text {
+/* muted fallback text */
+.muted-text {
+  color: var(--flip-silver);
   font-style: italic;
-  font-size: 0.95rem;
-  color: var(--color-neutral); /* improved contrast */
-  margin-bottom: 0.5rem;
 }
 
-.decor-page-container .testimonial-user {
-  font-weight: bold;
-  text-align: right;
-  color: var(--color-primary);
+/* ---------- CARD GRID GALLERY ---------- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: clamp(0.75rem, 1.6vw, 1.5rem);
+  margin-top: 1.5rem;
+  padding: 0 1rem;
 }
 
-/* === Animations === */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+/* ---------- REVIEWS ---------- */
+.reviews-layout {
+  background: linear-gradient(45deg, rgba(16,24,48,0.85), rgba(37,52,88,0.75));
+  color: var(--flip-cream);
+  padding: clamp(2rem, 3vw, 4rem) 1rem;
+  border-radius: var(--radius-md);
+  margin: 2rem 1rem;
+}
+
+/* ---------- VISUAL ACCESSIBILITY ---------- */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.85; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* support older 'fade' animations used in JS variants (kept for CSS-only fallback) */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1024px) {
+  .banner-section { height: 72vh; }
+  .creative-layout { grid-template-columns: 1fr; text-align: center; }
+  .creative-text { text-align: center; }
 }
 
-/* === Dark Mode Support === */
-.dark .decor-page-container {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-}
-
-.dark .decor-page-container .card,
-.dark .decor-page-container .testimonial-card {
-  background-color: var(--color-bg-light);
-  border-color: var(--color-neutral-dark);
-  color: var(--color-text);
-}
-
-.dark .decor-page-container .section-title,
-.dark .decor-page-container .creative-text h3 {
-  color: var(--color-primary);
-}
-
-.dark .decor-page-container .testimonial-text {
-  color: var(--color-neutral);
-}
-
-.dark .decor-page-container .cta-button {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-.dark .decor-page-container .mute-button {
-  background-color: var(--color-primary);
-}
-
-/* === Responsive === */
 @media (max-width: 768px) {
-  .decor-page-container .section-title {
-    font-size: 1.7rem;
-  }
-  .decor-page-container .section-subtitle {
-    font-size: 1.3rem;
-  }
-  .decor-page-container .section-description {
-    font-size: 1rem;
-  }
-  .decor-page-container .cta-button {
-    font-size: 1rem;
-    width: 90%;
-    max-width: 300px;
-  }
-  .decor-page-container .creative-layout {
-    grid-template-columns: 1fr;
-  }
+  .banner-section { height: 62vh; }
+  .hero-heading { font-size: 1.8rem; }
+  .hero-lead { font-size: 0.95rem; }
+  .creative-media { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 480px) {
-  .decor-page-container .section-title {
-    font-size: 1.5rem;
-  }
-  .decor-page-container .section-subtitle {
-    font-size: 1.2rem;
-  }
-  .decor-page-container .section-description {
-    font-size: 0.95rem;
-    padding: 0 1rem;
-  }
-  .decor-page-container .card-grid,
-  .decor-page-container .creative-media,
-  .decor-page-container .testimonial-grid {
-    grid-template-columns: 1fr;
-  }
+  .banner-section { height: 55vh; }
+  .hero-heading { font-size: 1.4rem; }
+  .cta-large, .cta-button, .cta-alt { padding: 0.7rem 1rem; font-size: 0.95rem; width: 100%; max-width: 320px; }
+  .creative-layout { padding: 1.5rem 0.8rem; }
+  .card-grid { gap: 0.9rem; }
+}
+
+@media (max-width: 360px) {
+  .banner-section { height: 50vh; }
+  .mute-button { width: 40px; height: 40px; font-size: 1rem; }
+  .hero-heading { font-size: 1.2rem; }
+  .hero-lead { font-size: 0.85rem; }
+  .creative-text h3 { font-size: 1.1rem; }
 }
