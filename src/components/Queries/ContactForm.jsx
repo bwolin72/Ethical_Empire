@@ -3,8 +3,9 @@ import contactService from "../../api/services/contactService";
 import "./ContactForm.css";
 import logo from "../../assets/logo.png";
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
-import SocialHub from "../social/SocialHub"; // ✅ Reuse your social module
+import SocialHub from "../social/SocialHub";
 
+// Options
 const enquiryOptions = ["", "Services", "Support", "General", "Feedback"];
 const serviceOptions = [
   "",
@@ -19,9 +20,11 @@ const serviceOptions = [
   "Sound Setup",
 ];
 
+// Regex
 const intlRegex = /^\+?[1-9]\d{8,14}$/;
 const localRegex = /^0\d{9}$/;
 
+// Contact info
 const contactInfo = {
   coFounder: {
     name: "Mr. Nhyira Nana Joseph",
@@ -35,101 +38,94 @@ const contactInfo = {
   ],
 };
 
-const ContactForm = () => {
-  const [loading, setLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
-  const [errors, setErrors] = useState({});
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    country: "",
-    region: "",
-    enquiry_type: "",
-    service_type: "",
-    event_date: "",
-    description: "",
-  });
+// Initial form state
+const initialForm = {
+  name: "",
+  email: "",
+  phone: "",
+  country: "",
+  region: "",
+  enquiry_type: "",
+  service_type: "",
+  event_date: "",
+  description: "",
+};
 
+const ContactForm = () => {
+  const [formData, setFormData] = useState(initialForm);
+  const [errors, setErrors] = useState({});
+  const [statusMessage, setStatusMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((p) => ({ ...p, [name]: value }));
-    setErrors((p) => ({ ...p, [name]: undefined }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
     setStatusMessage("");
   };
 
+  // Phone normalization
   const normalizePhone = (phone) => {
-    let cleaned = phone.trim().replace(/\s+/g, "");
-    if (intlRegex.test(cleaned))
-      return cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
+    const cleaned = phone.trim().replace(/\s+/g, "");
+    if (intlRegex.test(cleaned)) return cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
     if (localRegex.test(cleaned)) return `+233${cleaned.slice(1)}`;
     return null;
   };
 
-  const validateClient = () => {
+  // Validation
+  const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required.";
-    if (!formData.email.trim()) newErrors.email = "Email is required.";
-    const normalizedPhone = normalizePhone(formData.phone);
-    if (!formData.phone.trim())
-      newErrors.phone = "Phone number is required.";
+    const { name, email, phone, enquiry_type, service_type, event_date } = formData;
+
+    if (!name.trim()) newErrors.name = "Name is required.";
+    if (!email.trim()) newErrors.email = "Email is required.";
+
+    const normalizedPhone = normalizePhone(phone);
+    if (!phone.trim()) newErrors.phone = "Phone number is required.";
     else if (!normalizedPhone) newErrors.phone = "Enter a valid phone number.";
-    if (!formData.enquiry_type)
-      newErrors.enquiry_type = "Enquiry type is required.";
-    if (formData.enquiry_type === "Services" && !formData.service_type) {
-      newErrors.service_type = "Select a service type.";
-    }
-    if (formData.event_date) {
+
+    if (!enquiry_type) newErrors.enquiry_type = "Enquiry type is required.";
+    if (enquiry_type === "Services" && !service_type) newErrors.service_type = "Select a service type.";
+
+    if (event_date) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      if (new Date(formData.event_date) < today)
-        newErrors.event_date = "Event date cannot be in the past.";
+      if (new Date(event_date) < today) newErrors.event_date = "Event date cannot be in the past.";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Server error parser
   const parseServerErrors = (data) => {
     if (!data) return {};
     if (typeof data === "string") return { _global: data };
     if (Array.isArray(data)) return { _global: data.join(" ") };
     return Object.fromEntries(
-      Object.entries(data).map(([k, v]) => [
-        k,
-        Array.isArray(v) ? v.join(" ") : String(v),
-      ])
+      Object.entries(data).map(([k, v]) => [k, Array.isArray(v) ? v.join(" ") : String(v)])
     );
   };
 
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateClient()) {
+    if (!validate()) {
       setStatusMessage("❌ Please fix errors and try again.");
       return;
     }
 
-    const payload = {};
-    Object.entries(formData).forEach(([k, v]) => {
-      if (!["country", "region"].includes(k) && v) payload[k] = v;
-    });
-    payload.phone = normalizePhone(formData.phone);
+    const payload = { ...formData, phone: normalizePhone(formData.phone) };
+    delete payload.country;
+    delete payload.region;
 
     setLoading(true);
     try {
       const res = await contactService.send(payload);
       if (res.status === 201) {
         setStatusMessage("✅ Message sent successfully! We’ll be in touch.");
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          country: "",
-          region: "",
-          enquiry_type: "",
-          service_type: "",
-          event_date: "",
-          description: "",
-        });
+        setFormData(initialForm);
       }
     } catch (err) {
       const parsed = parseServerErrors(err?.response?.data);
@@ -140,46 +136,55 @@ const ContactForm = () => {
     }
   };
 
+  // Input Component
+  const InputField = ({ name, type = "text" }) => (
+    <div className="form-group">
+      <input
+        type={type}
+        name={name}
+        value={formData[name]}
+        onChange={handleChange}
+        placeholder=" "
+        aria-invalid={!!errors[name]}
+      />
+      <label>{name.charAt(0).toUpperCase() + name.slice(1)}</label>
+      {errors[name] && <small className="error">{errors[name]}</small>}
+    </div>
+  );
+
+  const SelectField = ({ name, options, label }) => (
+    <div className="form-group">
+      <select name={name} value={formData[name]} onChange={handleChange}>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt || `Select ${label.toLowerCase()}`}
+          </option>
+        ))}
+      </select>
+      <label>{label}</label>
+      {errors[name] && <small className="error">{errors[name]}</small>}
+    </div>
+  );
+
   return (
     <div className="contact-page animate-fade-in-up">
-      {/* === Header === */}
       <header className="form-header">
         <img src={logo} alt="EETHM Logo" className="logo" />
         <h2>Let’s Create Something Memorable</h2>
-        <p className="slogan">
-          Reach out to book our services or request more information
-        </p>
+        <p className="slogan">Reach out to book our services or request more information</p>
       </header>
 
-      {/* === Main Layout === */}
       <main className="contact-layout">
-        {/* === Contact Form === */}
         <section className="contact-form-section">
           <form onSubmit={handleSubmit} noValidate>
-            {["name", "email", "phone"].map((field) => (
-              <div className="form-group" key={field}>
-                <input
-                  type={field === "email" ? "email" : "text"}
-                  name={field}
-                  value={formData[field]}
-                  onChange={handleChange}
-                  required
-                  placeholder=" "
-                  aria-invalid={!!errors[field]}
-                />
-                <label>{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                {errors[field] && (
-                  <small className="error">{errors[field]}</small>
-                )}
-              </div>
+            {["name", "email", "phone"].map((f) => (
+              <InputField key={f} name={f} type={f === "email" ? "email" : "text"} />
             ))}
 
             <div className="form-group">
               <CountryDropdown
                 value={formData.country}
-                onChange={(val) =>
-                  setFormData((p) => ({ ...p, country: val, region: "" }))
-                }
+                onChange={(val) => setFormData((p) => ({ ...p, country: val, region: "" }))}
                 className="form-control"
               />
               <label>Country</label>
@@ -195,66 +200,29 @@ const ContactForm = () => {
               <label>Region / State</label>
             </div>
 
-            <div className="form-group">
-              <select
-                name="enquiry_type"
-                value={formData.enquiry_type}
-                onChange={handleChange}
-                required
-              >
-                {enquiryOptions.map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt || "Select enquiry type"}
-                  </option>
-                ))}
-              </select>
-              <label>Enquiry Type *</label>
-              {errors.enquiry_type && (
-                <small className="error">{errors.enquiry_type}</small>
-              )}
-            </div>
-
+            <SelectField name="enquiry_type" options={enquiryOptions} label="Enquiry Type *" />
             {formData.enquiry_type === "Services" && (
-              <div className="form-group">
-                <select
-                  name="service_type"
-                  value={formData.service_type}
-                  onChange={handleChange}
-                >
-                  {serviceOptions.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt || "Select service type"}
-                    </option>
-                  ))}
-                </select>
-                <label>Service Type</label>
-              </div>
+              <SelectField name="service_type" options={serviceOptions} label="Service Type" />
             )}
 
             <div className="form-group">
-              <input
-                type="date"
-                name="event_date"
-                value={formData.event_date}
-                onChange={handleChange}
-              />
+              <input type="date" name="event_date" value={formData.event_date} onChange={handleChange} />
               <label>Event Date (optional)</label>
+              {errors.event_date && <small className="error">{errors.event_date}</small>}
             </div>
 
             <div className="form-group full-width">
               <textarea
                 name="description"
-                rows="4"
                 value={formData.description}
                 onChange={handleChange}
                 placeholder=" "
+                rows={4}
               />
               <label>Message</label>
             </div>
 
-            {statusMessage && (
-              <div className="toast-notification">{statusMessage}</div>
-            )}
+            {statusMessage && <div className="toast-notification">{statusMessage}</div>}
 
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? "Sending…" : "Submit"}
@@ -262,32 +230,20 @@ const ContactForm = () => {
           </form>
         </section>
 
-        {/* === Company Details + Social === */}
         <aside className="contact-info-section">
           <div className="info-block">
             <h3>Co-Founder</h3>
-            <p>
-              <strong>Name:</strong> {contactInfo.coFounder.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {contactInfo.coFounder.email}
-            </p>
-            <p>
-              <strong>Phone:</strong> {contactInfo.coFounder.phone}
-            </p>
-            <p>
-              <strong>WhatsApp:</strong> {contactInfo.coFounder.whatsapp}
-            </p>
+            <p><strong>Name:</strong> {contactInfo.coFounder.name}</p>
+            <p><strong>Email:</strong> {contactInfo.coFounder.email}</p>
+            <p><strong>Phone:</strong> {contactInfo.coFounder.phone}</p>
+            <p><strong>WhatsApp:</strong> {contactInfo.coFounder.whatsapp}</p>
           </div>
 
           <div className="info-block">
             <h3>Headquarters</h3>
-            {contactInfo.headquarters.map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
+            {contactInfo.headquarters.map((line, i) => <p key={i}>{line}</p>)}
           </div>
 
-          {/* ✅ Integrated SocialHub */}
           <div className="social-hub-embed">
             <h3>Connect With Us</h3>
             <SocialHub />
@@ -295,7 +251,6 @@ const ContactForm = () => {
         </aside>
       </main>
 
-      {/* === Map === */}
       <section className="map-section">
         <h4>Our Location</h4>
         <iframe
@@ -304,7 +259,7 @@ const ContactForm = () => {
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
+        />
       </section>
     </div>
   );
