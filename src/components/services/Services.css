@@ -1,5 +1,5 @@
 /* ======================================================
-   🎨 Services Page Styling
+   🎨 Services Page Styling — Always Visible Version
    Uses variables from variables.css
    ====================================================== */
 
@@ -28,22 +28,25 @@
   inset: 0;
   background: var(--color-overlay);
   opacity: 0.5;
+  z-index: 0;
+}
+
+.services-hero .hero-title,
+.services-hero .hero-subtitle {
+  position: relative;
+  z-index: 1;
 }
 
 .services-hero .hero-title {
-  position: relative;
   font-size: 3rem;
   font-weight: 700;
   font-family: var(--font-accent);
-  z-index: 1;
   animation: fade-in-up 0.8s var(--transition-slow) both;
 }
 
 .services-hero .hero-subtitle {
-  position: relative;
   font-size: 1.25rem;
   margin-top: 1rem;
-  z-index: 1;
   animation: fade-in 1.2s ease both;
 }
 
@@ -58,8 +61,8 @@
   max-width: 1200px;
   margin: 0 auto;
   border-bottom: 1px solid var(--color-border);
-  opacity: 0;
-  transform: translateY(50px);
+  opacity: 1; /* show by default */
+  transform: translateY(0); /* reset offset */
   transition: opacity var(--transition-slow), transform var(--transition-slow);
 }
 
@@ -106,13 +109,8 @@
   cursor: pointer;
   padding: 2rem 1.5rem;
   text-align: center;
-  transform: translateY(20px);
-  opacity: 0;
-}
-
-.service-card.visible {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1; /* show immediately */
+  transform: translateY(0); /* reset offset */
 }
 
 .service-card:hover {
@@ -228,11 +226,11 @@
   color: var(--color-primary-dark);
 }
 
-/* === SCROLL REVEAL ANIMATIONS === */
+/* === SCROLL REVEAL ANIMATIONS (optional) === */
 @keyframes reveal-up {
   0% {
-    opacity: 0;
-    transform: translateY(40px);
+    opacity: 1; /* visible by default */
+    transform: translateY(0);
   }
   100% {
     opacity: 1;
@@ -241,15 +239,9 @@
 }
 
 .scroll-reveal {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: all 0.6s ease-out;
-}
-
-.scroll-reveal.visible {
-  opacity: 1;
+  opacity: 1; /* always visible */
   transform: translateY(0);
-  animation: reveal-up 0.8s ease-out both;
+  transition: all 0.6s ease-out;
 }
 
 /* === RESPONSIVE === */
