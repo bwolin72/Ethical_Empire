@@ -10,7 +10,7 @@ import ReviewsLayout from "../user/ReviewsLayout";
 import useFetcher from "../../hooks/useFetcher";
 
 import livebandHero from "../../assets/liveband/liveband-hero.jpg";
-import cateringWallpaper from "../../assets/images/catering-wallpaper.png";
+import cateringWallpaper from "../../assets/images/catering-wallpaper.jpg";
 import stageDecor from "../../assets/decor/stage-decor.png";
 
 import "./MediaHostingServicePage.css";
