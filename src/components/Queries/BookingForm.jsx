@@ -3,7 +3,7 @@ import bookingService from "../../api/services/bookingService";
 import serviceService from "../../api/services/serviceService"; // assumed endpoint for listing services
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 import { toast } from "react-toastify";
-import "./Booking.css";
+import "./BookingForm.css";
 
 const BookingForm = () => {
   // ===============================
