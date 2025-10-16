@@ -1,5 +1,3 @@
-// frontend/src/components/decor/DecorServicePage.jsx
-
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -7,16 +5,14 @@ import { useNavigate } from "react-router-dom";
 import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-import ServiceCategory from "./ServiceCategory"; // ✅ new modular service system
+import ServiceCategory from "./ServiceCategory";
 import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
 
 import useFetcher from "../../hooks/useFetcher";
 import "./decor.css";
 
-/* ---------------------------
-   Helpers
---------------------------- */
+/* ---------- Helpers ---------- */
 const toArray = (payload) => {
   if (!payload) return [];
   if (Array.isArray(payload)) return payload;
@@ -25,8 +21,7 @@ const toArray = (payload) => {
 };
 
 const getMediaUrl = (m) => {
-  if (!m) return "";
-  const candidates = [
+  const c = [
     m?.secure_url,
     m?.url?.full,
     m?.url,
@@ -37,56 +32,28 @@ const getMediaUrl = (m) => {
     m?.src,
     m?.path,
   ];
-  return candidates.find((c) => typeof c === "string" && c.trim() !== "") || "";
+  return c.find((x) => typeof x === "string" && x.trim() !== "") || "";
 };
 
-/* ---------------------------
-   Motion Variants
---------------------------- */
+/* ---------- Motion Variants ---------- */
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
 };
 
-const fadeLeft = {
-  hidden: { opacity: 0, x: -40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } },
+const zoomIn = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
 };
 
-const fadeRight = {
-  hidden: { opacity: 0, x: 40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: "easeOut" } },
-};
-
-/* ---------------------------
-   DecorServicePage
---------------------------- */
+/* ---------- DecorServicePage ---------- */
 export default function DecorServicePage() {
   const navigate = useNavigate();
 
-  // --- Data fetching
-  const { data: videosRaw, loading: videoLoading } = useFetcher(
-    "videos",
-    "decor",
-    { is_active: true },
-    { resource: "videos" }
-  );
+  const { data: videosRaw, loading: videoLoading } = useFetcher("videos", "decor", { is_active: true }, { resource: "videos" });
+  const { data: bannerRaw, loading: bannerLoading } = useFetcher("media", "banner", { category: "decor", is_active: true }, { resource: "media" });
+  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher("media", "decor", { is_active: true }, { resource: "media" });
 
-  const { data: bannerRaw, loading: bannerLoading } = useFetcher(
-    "media",
-    "banner",
-    { category: "decor", is_active: true },
-    { resource: "media" }
-  );
-
-  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
-    "media",
-    "decor",
-    { is_active: true },
-    { resource: "media" }
-  );
-
-  // --- Hero video
   const [videoUrl, setVideoUrl] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
@@ -109,32 +76,33 @@ export default function DecorServicePage() {
     });
   }, []);
 
-  /* ---------------------------
-     Decor Service Categories
-  --------------------------- */
+  /* ---------- Decor Categories ---------- */
   const decorCategories = [
     {
       title: "Floral & Table Decor",
+      image: "../../assets/decor/floral-decor.png",
       services: [
-        { name: "Luxury Floral Arrangements", description: "Elegant centerpiece & aisle florals tailored to your theme." },
-        { name: "Table Styling", description: "Curated linens, cutlery, and accent decor for a cohesive atmosphere." },
-        { name: "Backdrop Flowers", description: "Custom floral walls and stage florals for photo-perfect elegance." },
+        { name: "Luxury Floral Arrangements", description: "Elegant centerpiece & aisle florals tailored to your event theme." },
+        { name: "Table Styling", description: "Custom linens, cutlery, and accent decor for a cohesive luxury look." },
+        { name: "Backdrop Flowers", description: "Stunning floral walls and stage florals ideal for weddings and ceremonies." },
       ],
     },
     {
       title: "Lighting & Ambience",
+      image: "../../assets/decor/lighting-decor.png",
       services: [
-        { name: "Mood Lighting", description: "Set the perfect ambiance with color-coordinated stage and floor lights." },
-        { name: "Lanterns & Chandeliers", description: "Classic and modern hanging decor for luxurious lighting setups." },
-        { name: "LED Installations", description: "Dynamic LED effects for events, concerts, and ceremonies." },
+        { name: "Mood Lighting", description: "Create ambience with golden glow or soft pastels matching your brand colors." },
+        { name: "Lanterns & Chandeliers", description: "Elegant hanging decor perfect for luxury Ghanaian weddings & galas." },
+        { name: "LED Installations", description: "Dynamic event lighting for concerts, ceremonies, and corporate nights." },
       ],
     },
     {
       title: "Stage & Venue Design",
+      image: "../../assets/decor/stage-decor.png",
       services: [
-        { name: "Stage Backdrops", description: "Modern, floral, or theme-based stage designs for every occasion." },
-        { name: "Draping & Ceiling Work", description: "Elegant draping to soften lighting and enhance visual flow." },
-        { name: "Entrance & Aisle Decor", description: "First impressions that leave guests in awe." },
+        { name: "Stage Backdrops", description: "Theme-based or floral backdrops for premium West African events." },
+        { name: "Draping & Ceiling Work", description: "Soft fabrics & ambient glow to elevate visual flow." },
+        { name: "Entrance & Aisle Decor", description: "Create unforgettable first impressions for your guests." },
       ],
     },
   ];
@@ -142,8 +110,8 @@ export default function DecorServicePage() {
   return (
     <div className="decor-page-container">
       {/* === HERO === */}
-      <section className="banner-section" aria-label="Decor hero">
-        {videoUrl && !videoLoading ? (
+      <section className="decor-hero-section" aria-label="Decor Hero Section">
+        {videoUrl ? (
           <>
             <video
               ref={videoRef}
@@ -153,55 +121,52 @@ export default function DecorServicePage() {
               loop
               muted={isMuted}
               playsInline
-              preload="metadata"
-              onError={() => setVideoUrl(null)}
             />
             <div className="hero-overlay" />
 
             <motion.div
-              className="hero-panel"
+              className="hero-content"
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.25 }}
+              viewport={{ once: true, amount: 0.3 }}
               variants={fadeUp}
             >
-              <h1 className="hero-heading">Decor & Event Design</h1>
-              <p className="hero-lead">
-                Transform your venue with elegant styling, lighting, and decor artistry.
-                Every detail crafted to elevate your occasion.
+              <h1 className="hero-title">Decor & Event Design</h1>
+              <p className="hero-subtitle">
+                Transforming spaces across Ghana and West Africa with artistic floral design,
+                immersive lighting, and bespoke venue styling.
               </p>
-              <div className="hero-actions">
-                <button
-                  className="cta-button"
-                  onClick={() => navigate("/bookings")}
-                >
+              <div className="hero-buttons">
+                <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
                   Book Decor Service
                 </button>
-                <button
-                  className="cta-alt"
-                  onClick={() => window.scrollTo({ top: document.body.scrollHeight / 3, behavior: "smooth" })}
-                >
+                <button className="btn btn-outline" onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })}>
                   View Gallery
                 </button>
               </div>
             </motion.div>
 
-            <button
-              className="mute-button"
-              onClick={toggleMute}
-              aria-label={isMuted ? "Unmute" : "Mute"}
-            >
+            <button className="mute-button" onClick={toggleMute}>
               {isMuted ? "🔇" : "🔊"}
             </button>
           </>
-        ) : bannerItems.length && !bannerLoading ? (
-          <BannerCards items={bannerItems} title="Decor Showcases" />
         ) : (
-          <div className="video-skeleton" />
+          <div
+            className="hero-fallback"
+            style={{ backgroundImage: "url('../../assets/decor/decor-hero.png')" }}
+          >
+            <div className="hero-overlay" />
+            <div className="hero-content">
+              <h1 className="hero-title">Elegant Decor & Styling</h1>
+              <p className="hero-subtitle">
+                Experience luxury design artistry for weddings, corporate, and cultural events.
+              </p>
+            </div>
+          </div>
         )}
       </section>
 
-      {/* === DECOR SERVICES (uses ServiceCategory) === */}
+      {/* === DECOR CATEGORIES === */}
       <motion.section
         className="section decor-services"
         initial="hidden"
@@ -211,65 +176,33 @@ export default function DecorServicePage() {
       >
         <h2>Our Decor Services</h2>
         <p className="section-description">
-          From floral designs to atmospheric lighting, our decor experts craft experiences that transform spaces.
+          From floral compositions to ambient lighting, we design timeless atmospheres for Ghanaian and international events.
         </p>
 
-        <div className="decor-service-category-list">
-          {decorCategories.map((cat, idx) => (
-            <ServiceCategory key={idx} category={cat} />
+        <div className="decor-category-grid">
+          {decorCategories.map((cat, i) => (
+            <motion.div key={i} className="decor-category-card" variants={zoomIn}>
+              <img
+                src={cat.image}
+                alt={`${cat.title} in Ghana and West Africa`}
+                className="decor-category-image"
+                loading="lazy"
+              />
+              <ServiceCategory category={cat} />
+            </motion.div>
           ))}
         </div>
       </motion.section>
 
-      {/* === CREATIVE SHOWCASE === */}
-      <section className="section creative-layout" aria-labelledby="transform-heading">
-        <motion.div
-          className="creative-text"
-          initial="hidden"
-          whileInView="visible"
-          variants={fadeLeft}
-        >
-          <h3 id="transform-heading">Transform Your Venue</h3>
-          <p>
-            Our decor artists combine texture, light, and design to create immersive experiences.
-            Each project reflects elegance, creativity, and attention to detail.
-          </p>
-        </motion.div>
-
-        <motion.div
-          className="creative-media"
-          initial="hidden"
-          whileInView="visible"
-          variants={fadeRight}
-        >
-          {mediaLoading ? (
-            Array.from({ length: 2 }).map((_, i) => <MediaSkeleton key={i} />)
-          ) : mediaCards.length ? (
-            mediaCards.slice(0, 2).map((m, idx) => (
-              <MediaCard key={m.id ?? m._id ?? idx} media={m} />
-            ))
-          ) : (
-            <p className="muted-text">No decor media available.</p>
-          )}
-        </motion.div>
-      </section>
-
       {/* === GALLERY === */}
-      <motion.section
-        className="section"
-        initial="hidden"
-        whileInView="visible"
-        variants={fadeUp}
-      >
+      <motion.section className="section gallery-section" variants={fadeUp}>
         <h2>Decor Highlights</h2>
-        <p>
-          Explore our latest decor work, where each frame captures a story of elegance and creativity.
-        </p>
+        <p>Explore our signature setups — elegant, cinematic, and locally inspired.</p>
         <div className="card-grid">
           {mediaLoading
             ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaCards.slice(0, 6).map((m, idx) => (
-                <MediaCard key={m.id ?? m._id ?? idx} media={m} />
+            : mediaCards.slice(0, 6).map((m, i) => (
+                <MediaCard key={m.id ?? i} media={m} />
               ))}
         </div>
       </motion.section>

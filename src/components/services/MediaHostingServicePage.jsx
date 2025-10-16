@@ -1,16 +1,14 @@
+// src/components/services/MediaHostingServicePage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-
 import FadeInSection from "../FadeInSection";
 import ServiceCategory from "./ServiceCategory";
-
 import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-
-import useFetcher from "../../hooks/useFetcher";
 import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
+import useFetcher from "../../hooks/useFetcher";
 
 import "./MediaHostingServicePage.css";
 
@@ -66,7 +64,10 @@ export default function MediaHostingServicePage() {
     { resource: "media" }
   );
 
-  // --- Hero Video Setup ---
+  const bannerItems = toArray(bannerRaw);
+  const mediaCards = toArray(mediaCardsRaw);
+
+  // --- Hero Video ---
   const [videoUrl, setVideoUrl] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
@@ -86,14 +87,11 @@ export default function MediaHostingServicePage() {
     });
   };
 
-  const bannerItems = toArray(bannerRaw);
-  const mediaCards = toArray(mediaCardsRaw);
-
   // --- Render ---
   return (
     <main className="media-hosting-page">
       {/* 🎥 HERO SECTION */}
-      <section className="video-hero-section" aria-label="Hero Section">
+      <section className="media-hero-section">
         {videoUrl && !videoLoading ? (
           <>
             <video
@@ -107,10 +105,10 @@ export default function MediaHostingServicePage() {
               onError={() => setVideoUrl(null)}
             />
             <div className="overlay-gradient" />
-            <div className="overlay-content animate-fade-in-up">
+            <div className="hero-glass">
               <h1 className="hero-title">Media Hosting & Multimedia</h1>
               <p className="hero-subtitle">
-                Capture, host and stream — professionally and reliably.
+                Professional media hosting, cloud streaming, and production services across Ghana and West Africa.
               </p>
               <div className="hero-buttons">
                 <button className="btn-primary" onClick={() => navigate("/bookings")}>
@@ -121,11 +119,7 @@ export default function MediaHostingServicePage() {
                 </button>
               </div>
             </div>
-            <button
-              className="mute-button"
-              onClick={toggleMute}
-              aria-label={isMuted ? "Unmute video" : "Mute video"}
-            >
+            <button className="mute-button" onClick={toggleMute}>
               {isMuted ? "🔇" : "🔊"}
             </button>
           </>
@@ -139,23 +133,23 @@ export default function MediaHostingServicePage() {
         )}
       </section>
 
-      {/* 💡 SERVICE CATEGORIES */}
+      {/* 💡 SERVICE OVERVIEW */}
       <FadeInSection>
-        <section className="content-section">
+        <section className="content-section glass-panel">
           <header className="section-header">
-            <h2 className="section-title">Our Multimedia & Hosting Services</h2>
+            <h2 className="section-title">Our Multimedia & Hosting Solutions</h2>
             <p className="muted-text">
-              From event coverage to secure streaming and cloud hosting — Ethical Empire delivers complete
-              multimedia experiences.
+              From live event recording to cloud storage and streaming — Ethical Empire delivers secure,
+              high-quality multimedia experiences in Ghana and across West Africa.
             </p>
           </header>
           <ServiceCategory category="mediaHostingServicePage" limit={6} />
         </section>
       </FadeInSection>
 
-      {/* 🖼️ FEATURED PREVIEW */}
+      {/* 🖼️ FEATURED MEDIA PROJECTS */}
       <FadeInSection>
-        <section className="media-preview-section">
+        <section className="media-preview-section glass-panel">
           <h2 className="section-title">Featured Media Projects</h2>
           <div className="media-cards-scroll">
             {mediaLoading
@@ -176,11 +170,11 @@ export default function MediaHostingServicePage() {
 
       {/* 🧩 GALLERY */}
       <FadeInSection>
-        <section className="gallery-section">
-          <h2 className="section-title">Multimedia Gallery</h2>
+        <section className="gallery-section glass-panel">
+          <h2 className="section-title">Our Multimedia Gallery</h2>
           <div className="card-grid">
             {mediaLoading
-              ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+              ? Array.from({ length: 9 }).map((_, i) => <MediaSkeleton key={i} />)
               : mediaCards.length > 0 ? (
                   mediaCards.slice(0, 9).map((m, idx) => (
                     <MediaCard key={m.id ?? m._id ?? idx} media={m} />
@@ -192,14 +186,38 @@ export default function MediaHostingServicePage() {
         </section>
       </FadeInSection>
 
-      {/* 💬 CLIENT REVIEWS */}
+      {/* 💬 REVIEWS */}
       <FadeInSection>
         <ReviewsLayout
-          title="Client Impressions"
-          description="What clients say about our multimedia and hosting services"
+          title="Client Testimonials"
+          description="What our clients say about Ethical Empire’s media hosting and production services."
         >
           <Reviews limit={6} hideForm={true} category="mediaHostingServicePage" />
         </ReviewsLayout>
+      </FadeInSection>
+
+      {/* 🌐 OTHER SERVICES */}
+      <FadeInSection>
+        <section className="other-services-section glass-panel">
+          <h2 className="section-title">Explore Our Other Services</h2>
+          <p className="muted-text">
+            Beyond media hosting, Ethical Empire offers full event solutions — from catering and décor to live entertainment.
+          </p>
+          <div className="other-services-grid">
+            {[
+              { title: "Live Band & Entertainment", link: "/services/live-band", image: "../../assets/liveband/liveband-hero.jpg" },
+              { title: "Catering & Local Foods", link: "/services/catering", image: "../../assets/images/catering-wallpaper.png" },
+              { title: "Event Décor & Lighting", link: "/services/decor", image: "../../assets/decor/stage-decor.png" },
+            ].map((s, idx) => (
+              <div key={idx} className="other-service-card" onClick={() => navigate(s.link)}>
+                <img src={s.image} alt={s.title} loading="lazy" />
+                <div className="overlay">
+                  <h3>{s.title}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </FadeInSection>
     </main>
   );

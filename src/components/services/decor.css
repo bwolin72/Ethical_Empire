@@ -1,296 +1,330 @@
 /* ======================================================
-   decor.css
-   Production-ready, theme-aligned, responsive, animated
-   Uses variables from variables.css (flip-forest, flip-navy, flip-gold, etc.)
+   🌹 DECOR SERVICE PAGE — Cinematic & Glassmorphic Design
+   Brand: Eethm GH Multimedia
    ====================================================== */
 
-/* ---------- Page base ---------- */
 .decor-page-container {
-  width: 100%;
-  min-height: 100%;
+  font-family: var(--font-main);
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-main);
   overflow-x: hidden;
+  animation: fade-in 0.6s ease-in-out both;
 }
 
-/* ---------- HERO / BANNER ---------- */
+/* ======================================================
+   🎥 HERO SECTION
+   ====================================================== */
 .banner-section {
   position: relative;
   width: 100%;
-  height: 85vh;
+  height: 90vh;
+  max-height: 900px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, rgba(11,61,46,0.7), rgba(8,30,34,0.6));
-  overflow: hidden;
+  background: var(--color-black);
 }
 
 .hero-video {
   position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.5) contrast(1.05);
-  z-index: 0;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.45));
-  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  z-index: 2;
 }
 
-/* hero content panel */
+/* === HERO CONTENT === */
 .hero-panel {
   position: relative;
-  z-index: 2;
-  max-width: 1100px;
-  padding: 1rem;
+  z-index: 3;
+  max-width: 800px;
   text-align: center;
-  color: var(--flip-cream);
+  color: var(--color-white);
+  padding: 2rem;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(88, 28, 28, 0.25);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 .hero-heading {
   font-family: var(--font-accent);
-  font-size: clamp(1.6rem, 3.2vw, 3rem);
-  margin: 0 0 0.6rem;
-  color: var(--flip-gold);
-  letter-spacing: 0.6px;
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  font-weight: 700;
+  color: var(--color-accent-gold-light);
+  letter-spacing: 1px;
+  margin-bottom: 0.8rem;
 }
 
 .hero-lead {
-  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
-  margin: 0 0 1.25rem;
-  color: var(--flip-sand);
+  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+  color: #f9f9f9;
+  margin-bottom: 1.8rem;
   line-height: 1.6;
 }
 
-/* hero actions */
+/* === HERO BUTTONS === */
 .hero-actions {
-  display: inline-flex;
-  gap: 0.75rem;
-  align-items: center;
+  display: flex;
+  gap: 1rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .cta-button,
-.cta-alt,
-.cta-large {
+.cta-alt {
+  padding: 0.8rem 1.6rem;
   border: none;
-  cursor: pointer;
-  padding: 0.8rem 1.35rem;
   border-radius: var(--radius-md);
+  cursor: pointer;
   font-weight: 600;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  font-size: 1rem;
+  transition: all var(--transition-fast);
 }
 
-/* primary CTA (gold on dark) */
 .cta-button {
-  background: var(--flip-gold);
-  color: var(--flip-forest);
-  box-shadow: var(--shadow-md);
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
 }
 
 .cta-button:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* secondary CTA (outline) */
 .cta-alt {
-  background: rgba(255,255,255,0.06);
-  color: var(--flip-cream);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-accent-gold-light);
+  backdrop-filter: blur(6px);
 }
 
-/* mute control */
+.cta-alt:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+/* === MUTE BUTTON === */
 .mute-button {
   position: absolute;
-  z-index: 3;
-  right: 1rem;
   bottom: 1rem;
-  width: 48px;
-  height: 48px;
-  display: grid;
-  place-items: center;
+  right: 1rem;
+  z-index: 4;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-accent-gold);
+  color: var(--color-accent-gold-light);
   border-radius: 50%;
-  background: rgba(0,0,0,0.45);
-  color: var(--flip-cream);
-  border: none;
+  width: 2.5rem;
+  height: 2.5rem;
   cursor: pointer;
-  transition: background var(--transition-fast), transform var(--transition-fast);
+  font-size: 1.1rem;
+  transition: all var(--transition-fast);
 }
 
 .mute-button:hover {
-  transform: translateY(-3px);
-  background: var(--flip-gold);
-  color: var(--flip-forest);
+  background: rgba(0, 0, 0, 0.6);
+  transform: scale(1.1);
 }
 
-/* loading skeleton for hero */
-.video-skeleton {
-  width: 100%;
-  height: 85vh;
-  background: linear-gradient(90deg, var(--flip-sand), var(--flip-cream));
-  animation: pulse 1.6s infinite ease-in-out;
-}
-
-/* ---------- CTA SECTION (mid page) ---------- */
-.cta-section {
-  padding: 2.2rem 1rem;
+/* ======================================================
+   🪷 DECOR SERVICES
+   ====================================================== */
+.decor-services {
   text-align: center;
-  background: linear-gradient(90deg, rgba(213,175,55,0.08), rgba(88,28,28,0.04));
+  padding: 4rem 1.5rem;
+  background: var(--color-service-bg);
+  color: var(--color-text);
 }
 
-.cta-large {
-  background: var(--flip-forest);
-  color: var(--flip-cream);
-  padding: 0.9rem 1.6rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-
-.cta-large:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-}
-
-/* ---------- SECTIONS ---------- */
-.section {
-  padding: clamp(2.5rem, 4vw, 5rem) 1rem;
-  background: var(--color-bg);
-  text-align: center;
-}
-
-.section h2 {
+.decor-services h2 {
   font-family: var(--font-accent);
-  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-size: clamp(1.6rem, 3vw, 2.5rem);
   color: var(--color-primary);
   margin-bottom: 0.5rem;
 }
 
-.section p {
-  max-width: 780px;
-  margin: 0 auto 1.75rem auto;
+.section-description {
+  max-width: 700px;
+  margin: 0 auto 3rem;
   color: var(--color-neutral-light);
-  line-height: 1.7;
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
-/* ---------- CREATIVE LAYOUT ---------- */
+.decor-service-category-list {
+  display: grid;
+  gap: 3rem;
+}
+
+/* ======================================================
+   💡 CREATIVE SECTION
+   ====================================================== */
 .creative-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(1rem, 2vw, 2.5rem);
-  align-items: start;
-  padding: clamp(2rem, 3.5vw, 4rem) 1rem;
-  background: linear-gradient(180deg, rgba(34,139,34,0.06), rgba(8,30,34,0.02));
-  border-radius: var(--radius-md);
-  margin: 0 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-items: center;
+  gap: 3rem;
+  padding: 5rem 1.5rem;
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
 }
 
 .creative-text {
-  padding: 0.25rem;
-  text-align: left;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .creative-text h3 {
   font-family: var(--font-accent);
-  color: var(--flip-gold);
-  font-size: clamp(1.25rem, 2.2vw, 1.8rem);
-  margin-bottom: 0.6rem;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  margin-bottom: 1rem;
 }
 
 .creative-text p {
-  color: var(--flip-sand);
-  line-height: 1.75;
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
-/* creative media grid for small cards / preview images */
 .creative-media {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
 }
 
-/* muted fallback text */
-.muted-text {
-  color: var(--flip-silver);
-  font-style: italic;
+.creative-media img,
+.creative-media video {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  transition: transform var(--transition-slow);
 }
 
-/* ---------- CARD GRID GALLERY ---------- */
+.creative-media img:hover {
+  transform: scale(1.03);
+}
+
+/* ======================================================
+   🖼️ DECOR GALLERY
+   ====================================================== */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: clamp(0.75rem, 1.6vw, 1.5rem);
-  margin-top: 1.5rem;
-  padding: 0 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 3rem 1.5rem;
 }
 
-/* ---------- REVIEWS ---------- */
-.reviews-layout {
-  background: linear-gradient(45deg, rgba(16,24,48,0.85), rgba(37,52,88,0.75));
-  color: var(--flip-cream);
-  padding: clamp(2rem, 3vw, 4rem) 1rem;
+.card-grid img {
+  width: 100%;
+  height: 100%;
   border-radius: var(--radius-md);
-  margin: 2rem 1rem;
+  object-fit: cover;
+  transition: transform 0.3s ease-in-out;
 }
 
-/* ---------- VISUAL ACCESSIBILITY ---------- */
-.visually-hidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0 0 0 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
+.card-grid img:hover {
+  transform: scale(1.04);
 }
 
-/* ---------- ANIMATIONS ---------- */
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.02); opacity: 0.85; }
-  100% { transform: scale(1); opacity: 1; }
+/* ======================================================
+   💬 REVIEWS SECTION (inherits existing component style)
+   ====================================================== */
+.reviews-layout {
+  padding: 4rem 1.5rem;
+  background: var(--color-bg);
 }
 
-/* support older 'fade' animations used in JS variants (kept for CSS-only fallback) */
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ======================================================
+   🧊 GLASSMORPHIC UTILITIES
+   ====================================================== */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
-/* ---------- RESPONSIVE ---------- */
+/* ======================================================
+   📱 RESPONSIVE DESIGN
+   ====================================================== */
 @media (max-width: 1024px) {
-  .banner-section { height: 72vh; }
-  .creative-layout { grid-template-columns: 1fr; text-align: center; }
-  .creative-text { text-align: center; }
+  .hero-panel {
+    max-width: 90%;
+  }
 }
 
 @media (max-width: 768px) {
-  .banner-section { height: 62vh; }
-  .hero-heading { font-size: 1.8rem; }
-  .hero-lead { font-size: 0.95rem; }
-  .creative-media { grid-template-columns: 1fr 1fr; }
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .creative-layout {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-panel {
+    padding: 1.5rem;
+  }
+
+  .section-description {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
-  .banner-section { height: 55vh; }
-  .hero-heading { font-size: 1.4rem; }
-  .cta-large, .cta-button, .cta-alt { padding: 0.7rem 1rem; font-size: 0.95rem; width: 100%; max-width: 320px; }
-  .creative-layout { padding: 1.5rem 0.8rem; }
-  .card-grid { gap: 0.9rem; }
+  .banner-section {
+    height: 70vh;
+  }
+
+  .hero-heading {
+    font-size: 1.6rem;
+  }
+
+  .cta-button,
+  .cta-alt {
+    font-size: 0.9rem;
+    padding: 0.7rem 1.2rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 360px) {
-  .banner-section { height: 50vh; }
-  .mute-button { width: 40px; height: 40px; font-size: 1rem; }
-  .hero-heading { font-size: 1.2rem; }
-  .hero-lead { font-size: 0.85rem; }
-  .creative-text h3 { font-size: 1.1rem; }
+  .hero-panel {
+    padding: 1rem;
+  }
+
+  .hero-heading {
+    font-size: 1.4rem;
+  }
+
+  .hero-lead {
+    font-size: 0.85rem;
+  }
+
+  .cta-button,
+  .cta-alt {
+    padding: 0.6rem 1rem;
+  }
 }

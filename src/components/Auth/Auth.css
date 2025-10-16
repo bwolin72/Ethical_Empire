@@ -1,344 +1,138 @@
 /* ======================================================
-   Auth.css — Shared for Login.jsx & Register.jsx
+   🧊 AUTH PAGES — Modern Glassmorphic UI
+   Brand: EethmGH Multimedia
+   Author: ChatGPT (Production Ready)
    ====================================================== */
 
-/* === Wrapper === */
+/* === Base Layout === */
 .auth-wrapper {
   display: flex;
   min-height: 100vh;
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-text);
   font-family: var(--font-main);
-  background: var(--color-bg-light);
-  transition: background var(--transition-slow);
+  animation: fade-in-up 0.6s ease-in-out both;
 }
 
-/* === Brand Panel === */
 .auth-brand-panel {
   flex: 1;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 3rem 2rem;
-  background: var(--gradient-gold-burgundy);
   color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-slow);
 }
 
-.auth-brand-panel img {
-  max-width: 180px;
-  margin-bottom: 1.5rem;
-}
-
-.auth-brand-panel h1 {
-  font-size: 1.75rem;
-  font-weight: 800;
-  margin-bottom: 0.75rem;
+.auth-brand-panel h1,
+.auth-brand-panel h2 {
+  font-family: var(--font-accent);
+  font-size: 2rem;
+  color: var(--color-accent-gold);
+  margin-bottom: 0.5rem;
 }
 
 .auth-brand-panel p {
+  color: var(--color-white);
   font-size: 1rem;
-  max-width: 28ch;
+  opacity: 0.85;
+  max-width: 340px;
   line-height: 1.5;
 }
 
-.toggle-theme-btn {
-  margin-top: 1rem;
-  padding: 0.5rem 1.2rem;
-  border-radius: 30px;
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  font-size: 0.9rem;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: background-color var(--transition-fast), transform var(--transition-fast);
+.auth-logo {
+  width: 90px;
+  height: auto;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
 }
 
-.toggle-theme-btn:hover {
-  background-color: var(--color-primary-dark);
-  transform: translateY(-2px);
+/* === Dark Mode === */
+.dark .auth-wrapper {
+  background: var(--gradient-navy-gold);
+}
+.dark .auth-brand-panel {
+  background: rgba(0, 0, 0, 0.4);
 }
 
-/* === Form Panel === */
+/* === Right Form Panel === */
 .auth-form-panel {
   flex: 1.2;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(22px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 3rem 2rem;
-  background: var(--color-white);
-  box-shadow: var(--shadow-lg);
+  color: var(--color-text);
+  transition: all var(--transition-fast);
 }
 
-.auth-form-panel h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
+.dark .auth-form-panel {
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--color-white);
+}
+
+.form-title {
+  font-family: var(--font-accent);
+  font-size: 1.8rem;
+  color: var(--color-accent-gold);
   margin-bottom: 1.5rem;
-  color: var(--color-primary);
+  text-align: center;
 }
 
-/* === Form === */
+/* === Form Fields === */
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
-.auth-form label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-neutral-dark);
-  margin-bottom: 0.25rem;
-}
-
-.auth-form input,
-.auth-form select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-light);
-  font-size: 1rem;
-  background: var(--color-input-bg);
-  transition: border var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.auth-form input:focus,
-.auth-form select:focus {
-  border-color: var(--color-accent-gold);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-  outline: none;
-}
-
-/* === Password Field (toggle styled separately in password.css) === */
-.password-field {
-  position: relative;
-}
-
-.password-field input {
-  width: 100%;
-  padding-right: 2.5rem; /* space for toggle button */
-}
-
-/* === Primary Action Button (Login / Register submit) === */
-.auth-form button[type="submit"] {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
-  padding: 0.85rem 2rem;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
-}
-
-.auth-form button[type="submit"]:hover {
-  transform: translateY(-3px);
-  filter: brightness(1.05);
-}
-
-/* === Options === */
-.auth-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
-  color: var(--color-neutral);
-}
-
-.auth-options a {
-  color: var(--color-secondary);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
-
-.auth-options a:hover {
-  color: var(--color-primary);
-}
-
-/* === Social Login === */
-.social-login {
-  margin-top: 1.25rem;
-  text-align: center;
-}
-
-.social-login button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border: 1px solid var(--color-border-light);
-  background: var(--color-white);
-  padding: 0.75rem 1rem;
-  width: 100%;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  transition: background var(--transition-fast);
-}
-
-.social-login button:hover {
-  background: var(--color-bg-light);
-}
-
-/* ======================================================
-   ✅ Responsive Fixes
-   ====================================================== */
-
-/* Medium Screens */
-@media (max-width: 1024px) {
-  .auth-wrapper {
-    flex-direction: column;
-  }
-
-  .auth-brand-panel,
-  .auth-form-panel {
-    flex: unset;
-    width: 100%;
-    padding: 1.5rem;
-  }
-
-  .auth-brand-panel {
-    order: -1;
-  }
-
-  .auth-form-panel {
-    padding-top: 0;
-  }
-
-  .auth-form input,
-  .auth-form select,
-  .auth-form button[type="submit"] {
-    font-size: 1rem;
-  }
-
-  .password-field input {
-    padding-right: 2rem;
-  }
-
-  .auth-options {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .social-login {
-    margin-top: 1.5rem;
-  }
-}
-
-/* Small Screens */
-@media (max-width: 480px) {
-  .auth-brand-panel h1 {
-    font-size: 1.4rem;
-  }
-
-  .auth-form-panel h2 {
-    font-size: 1.25rem;
-  }
-
-  .auth-form {
-    gap: 1rem;
-  }
-
-  .auth-form button[type="submit"] {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.95rem;
-  }
-
-  .password-field input {
-    padding-right: 1.8rem;
-  }
-
-  .toggle-theme-btn {
-    font-size: 0.85rem;
-    padding: 0.4rem 1rem;
-  }
-}
-
-/* ======================================================
-   Forgot / Reset Password
-   Shared styles for ForgotPassword.jsx & ResetPassword.jsx
-   ====================================================== */
-
-/* === Page Wrapper === */
-.forgot-password-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: var(--color-bg-light);
-  font-family: var(--font-main);
-  padding: 2rem;
-}
-
-/* === Form === */
-.forgot-password-form {
-  width: 100%;
-  max-width: 420px;
-  background: var(--color-white);
-  padding: 2rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+.input-group {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
 }
 
-.forgot-password-form h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: 0.75rem;
-  text-align: center;
+.input-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 0.3rem;
 }
 
-/* === Input Fields === */
-.forgot-password-form input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  background: var(--color-input-bg);
-  transition: border var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.forgot-password-form input:focus {
-  border-color: var(--color-accent-gold);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-  outline: none;
-}
-
-/* === Buttons === */
-.forgot-password-form button {
-  background: var(--gradient-gold-burgundy);
+.dark .input-group label {
   color: var(--color-white);
-  padding: 0.85rem 2rem;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
 }
 
-.forgot-password-form button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.05);
+.input-group input,
+.input-group select {
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all var(--transition-fast);
 }
 
-.forgot-password-form button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.input-group input:focus,
+.input-group select:focus {
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
 }
 
-/* === Form Messages (Success & Error) === */
+/* === Error & Success Messages === */
 .form-message {
   font-size: 0.9rem;
-  line-height: 1.4;
-  text-align: center;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 1rem;
   border-radius: var(--radius-md);
+  text-align: center;
 }
 
 .form-message.success {
@@ -351,11 +145,160 @@
   color: var(--color-error-dark);
 }
 
+.error-text {
+  font-size: 0.8rem;
+  color: var(--color-error-dark);
+  margin-top: 0.2rem;
+}
+
+/* === Buttons === */
+.auth-submit-btn,
+.toggle-theme-btn,
+.forgot-password-form button {
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.auth-submit-btn:hover,
+.toggle-theme-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.auth-submit-btn:disabled {
+  background: var(--color-disabled);
+  cursor: not-allowed;
+}
+
+/* === Terms & Options === */
+.terms-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.terms-checkbox a {
+  color: var(--color-accent-gold);
+  text-decoration: none;
+}
+
+.terms-checkbox a:hover {
+  text-decoration: underline;
+}
+
+.auth-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.auth-options .forgot-link {
+  color: var(--color-accent-gold);
+  text-decoration: none;
+}
+
+.auth-options .forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* === Social Login === */
+.social-login {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.social-login p {
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.register-prompt {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.register-prompt a {
+  color: var(--color-accent-gold);
+  text-decoration: none;
+}
+
+.register-prompt a:hover {
+  text-decoration: underline;
+}
+
+/* === Forgot & Reset Password === */
+.forgot-password-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--gradient-navy-gold);
+  padding: 2rem;
+}
+
+.forgot-password-form {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.forgot-password-form h2 {
+  color: var(--color-accent-gold);
+  font-family: var(--font-accent);
+  margin-bottom: 1rem;
+}
+
+.forgot-password-form input {
+  width: 100%;
+  padding: 0.8rem;
+  margin: 0.6rem 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field span {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--color-muted);
+  transition: color var(--transition-fast);
+}
+
+.password-field span:hover {
+  color: var(--color-accent-gold);
+}
+
 /* === Password Strength Indicator === */
 .password-strength {
+  text-align: left;
   font-size: 0.85rem;
-  font-weight: 600;
-  margin-top: -0.5rem;
+  margin-top: -0.4rem;
+  margin-bottom: 0.6rem;
 }
 
 .password-strength.weak {
@@ -363,79 +306,43 @@
 }
 
 .password-strength.medium {
-  color: var(--color-warning-dark);
+  color: #d97706; /* amber */
 }
 
 .password-strength.strong {
   color: var(--color-success-dark);
 }
 
-/* === Password Toggle (Eye Icon) === */
-.forgot-password-form .password-field {
-  position: relative;
+/* === Responsive Design === */
+@media (max-width: 992px) {
+  .auth-wrapper {
+    flex-direction: column;
+  }
+
+  .auth-brand-panel {
+    padding: 2rem 1.5rem;
+  }
+
+  .auth-form-panel {
+    padding: 2rem 1.5rem;
+  }
 }
 
-.forgot-password-form .password-field input {
-  padding-right: 2.5rem; /* space for icon */
-}
+@media (max-width: 600px) {
+  .auth-brand-panel h2,
+  .form-title {
+    font-size: 1.5rem;
+  }
 
-.forgot-password-form .password-field span {
-  position: absolute;
-  top: 50%;
-  right: 0.75rem;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: var(--color-neutral);
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-}
+  .auth-brand-panel p {
+    font-size: 0.9rem;
+  }
 
-/* ======================================================
-   ✅ Responsive Fixes
-   ====================================================== */
-@media (max-width: 480px) {
-  .forgot-password-form {
+  .auth-form-panel {
     padding: 1.5rem;
-    gap: 1rem;
   }
 
-  .forgot-password-form h2 {
-    font-size: 1.25rem;
-  }
-
-  .forgot-password-form button {
-    padding: 0.75rem 1.25rem;
+  .auth-submit-btn {
     font-size: 0.95rem;
-  }
-
-  .forgot-password-form .password-field input {
-    padding-right: 2rem;
-  }
-
-   /* ======================================================
-   ✨ Access Code Animation
-   ====================================================== */
-.access-code-field {
-  opacity: 0;
-  transform: translateY(-5px);
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-  .forgot-password-form .password-field span {
-    right: 0.5rem;
-    font-size: 1rem;
   }
 }

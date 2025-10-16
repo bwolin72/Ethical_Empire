@@ -1,143 +1,228 @@
-/* Root Layout */
+/* =========================================================
+   🔐 VERIFY OTP — THEMED AUTH PAGE
+   Uses Ethical Empire Global Theme Variables
+   ========================================================= */
+
 .otp-container {
-  max-width: 420px;
-  margin: 4rem auto;
-  padding: 2.5rem 2rem;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
-  text-align: center;
-  font-family: 'Segoe UI', sans-serif;
-  color: #333;
-  border: 1px solid #eaeaea;
-  transition: background-color 0.3s, color 0.3s;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-main);
+  color: var(--color-text);
+  background: var(--gradient-gold-burgundy);
+  background-size: 200% 200%;
+  animation: fade-in 0.8s ease-in-out both, gradientShift 10s infinite alternate;
+  padding: 2rem 1rem;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
-/* Dark Mode Support */
-body.dark .otp-container {
-  background-color: #1f1f1f;
-  color: #e0e0e0;
-  border-color: #2c2c2c;
-}
-
-/* Header */
+/* === Headings === */
 .otp-container h2 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #730c2e; /* Deep Burgundy */
+  font-family: var(--font-accent);
+  font-size: 2rem;
+  color: var(--color-accent-gold);
+  text-align: center;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  animation: fade-in-up 0.6s ease-in-out both;
+}
+
+/* === Description === */
+.otp-container p {
+  font-size: 1rem;
+  color: var(--color-text);
+  max-width: 420px;
+  line-height: 1.6;
+  text-align: center;
+  opacity: 0.9;
   margin-bottom: 1.5rem;
 }
 
-/* Input Field */
-.otp-container input {
+/* === Form Wrapper (Glass Panel) === */
+.otp-container form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: var(--shadow-lg);
+  padding: 2rem;
   width: 100%;
+  max-width: 420px;
+  animation: fade-in-up 0.8s var(--transition-fast) both;
+  transition: all var(--transition-fast);
+}
+
+.otp-container form:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* === OTP Input === */
+.otp-container input[type="text"] {
+  width: 100%;
+  max-width: 240px;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  margin-bottom: 1.25rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.4rem;
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
   outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease-in-out;
+  transition: all var(--transition-fast);
 }
 
-.otp-container input:focus {
-  border-color: #0b3c74; /* Royal Navy */
+.otp-container input[type="text"]:focus {
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+  background: rgba(255, 255, 255, 0.9);
 }
 
-/* Button */
-.otp-container button {
-  width: 100%;
-  padding: 0.75rem;
+/* === Primary Button === */
+.otp-container button[type="submit"] {
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1.6rem;
   font-size: 1rem;
   font-weight: 600;
-  background: linear-gradient(to right, #730c2e, #0b3c74); /* Burgundy to Navy */
-  color: white;
-  border: none;
-  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  box-shadow: 0 4px 10px rgba(30, 58, 138, 0.3);
+  transition: all var(--transition-slow);
 }
 
-.otp-container button:hover {
-  background: linear-gradient(to right, #0b3c74, #730c2e); /* Reversed */
+.otp-container button[type="submit"]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
 }
 
-.otp-container button:disabled {
-  background-color: #999;
-  cursor: not-allowed;
+.otp-container button[type="submit"]:disabled {
   opacity: 0.6;
-}
-
-/* Error Message */
-.otp-container .error-message {
-  color: #b00020; /* Muted danger red */
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-  background-color: #ffe6e6;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  border: 1px solid #ffcccc;
-}
-
-/* Optional: Toastify override */
-.otp-container .Toastify__toast {
-  border-radius: 8px;
-}
-
-.otp-container .support-note {
-  font-size: 0.85rem;
-  color: #666;
-  margin-top: 1rem;
-}
-body.dark .otp-container .support-note {
-  color: #aaa;
-}
-
-.otp-container .resend-wrapper {
-  margin-top: 1rem;
-}
-
-.otp-container .resend-btn {
-  background: transparent;
-  color: #0b3c74;
-  border: none;
-  font-weight: 500;
-  text-decoration: underline;
-  cursor: pointer;
-  transition: color 0.2s ease-in-out;
-  font-size: 0.95rem;
-}
-
-.otp-container .resend-btn:hover {
-  color: #730c2e;
-}
-
-.otp-container .resend-btn:disabled {
-  color: #999;
   cursor: not-allowed;
 }
-body.dark .otp-container .resend-btn {
-  color: #9fcfff;
-}
-body.dark .otp-container .resend-btn:hover {
-  color: #e3a6b5;
+
+/* === Resend Button === */
+.resend-wrapper {
+  margin-top: 1.2rem;
 }
 
+.resend-btn {
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  padding: 0.6rem 1.2rem;
+  transition: all var(--transition-fast);
+}
 
-/* Responsive */
+.resend-btn:hover:not(:disabled) {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--color-accent-gold);
+  color: var(--color-accent-gold);
+}
+
+.resend-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* === Support Note === */
+.support-note {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-top: 1.25rem;
+  text-align: center;
+}
+
+/* === Animations === */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: left center; }
+  100% { background-position: right center; }
+}
+
+/* === Responsive Design === */
+@media (max-width: 768px) {
+  .otp-container h2 {
+    font-size: 1.7rem;
+  }
+
+  .otp-container form {
+    padding: 1.5rem;
+    width: 90%;
+  }
+
+  .otp-container input[type="text"] {
+    font-size: 1.2rem;
+    letter-spacing: 0.3rem;
+  }
+
+  .otp-container button {
+    width: 100%;
+    max-width: 320px;
+  }
+}
+
 @media (max-width: 480px) {
   .otp-container {
-    margin: 2rem 1rem;
-    padding: 2rem 1.25rem;
+    padding: 1.2rem;
+  }
+
+  .otp-container p {
+    font-size: 0.9rem;
   }
 
   .otp-container h2 {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
+}
 
-  .otp-container button,
-  .otp-container input {
-    font-size: 0.95rem;
-  }
+/* === Dark Mode Adjustments === */
+.dark .otp-container {
+  background: var(--gradient-navy-gold);
+  color: var(--color-text-dark);
+}
+
+.dark .otp-container form {
+  background: rgba(55, 65, 81, 0.3);
+  border-color: var(--color-border-dark);
+}
+
+.dark .otp-container input[type="text"] {
+  background: rgba(45, 55, 72, 0.9);
+  color: var(--color-text-dark);
+  border-color: var(--color-border-dark);
+}
+
+.dark .resend-btn {
+  color: var(--color-text-dark);
+  border-color: var(--color-border-dark);
+}
+
+.dark .resend-btn:hover {
+  background: rgba(191, 161, 50, 0.15);
+  color: var(--color-accent-gold-light);
+}
+
+.dark .support-note {
+  color: var(--color-neutral-light);
 }

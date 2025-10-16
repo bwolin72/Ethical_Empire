@@ -1,452 +1,376 @@
 /* ======================================================
-   🌙 DARK MODE — Live Band Styling
-   Activated when <body> or <html> has class="dark"
+   🎵 LIVE BAND PAGE — PRODUCTION READY STYLES
+   Responsive • Cinematic • Glassmorphic • Dark Mode
    ====================================================== */
 
+.liveband-page-container {
+  font-family: var(--font-main);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  overflow-x: hidden;
+}
+
+/* ======================================================
+   🎬 HERO SECTION
+   ====================================================== */
+.liveband-hero-section {
+  position: relative;
+  height: 100vh;
+  min-height: 620px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--color-white);
+  overflow: hidden;
+  background: var(--color-black);
+}
+
+/* --- Background Video --- */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.6);
+  z-index: 0;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.9)
+  );
+  z-index: 1;
+}
+
+/* --- Hero Content --- */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 1rem;
+  max-width: 900px;
+  animation: fade-in-up 1s ease both;
+}
+
+.hero-title {
+  font-family: var(--font-accent);
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 700;
+  background: var(--gradient-gold-burgundy);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2.3vw, 1.4rem);
+  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* --- Buttons --- */
+.btn-primary {
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  font-weight: 600;
+  padding: 0.9rem 2rem;
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-outline {
+  border: 2px solid var(--color-accent-gold);
+  background: transparent;
+  color: var(--color-accent-gold);
+  font-weight: 600;
+  padding: 0.9rem 2rem;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background: var(--color-accent-gold);
+  color: var(--color-black);
+  transform: translateY(-3px);
+}
+
+/* --- Mute Button --- */
+.mute-button {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  color: var(--color-white);
+  font-size: 1.1rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  z-index: 5;
+}
+
+.mute-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+}
+
+/* ======================================================
+   🎷 LIVE BAND SERVICES
+   ====================================================== */
+.section {
+  padding: clamp(3rem, 6vw, 5rem) 1rem;
+  text-align: center;
+}
+
+.section-title {
+  font-family: var(--font-accent);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  margin-bottom: 1rem;
+  color: var(--color-primary-dark);
+}
+
+.section-lead {
+  color: var(--color-neutral);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  max-width: 700px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+}
+
+.liveband-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.8rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* --- Service Cards --- */
+.liveband-category-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-slow);
+  display: flex;
+  flex-direction: column;
+}
+
+.liveband-category-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.liveband-category-image {
+  width: 100%;
+  height: clamp(200px, 25vw, 260px);
+  object-fit: cover;
+  transition: filter var(--transition-fast);
+  filter: brightness(0.9);
+}
+
+.liveband-category-card:hover .liveband-category-image {
+  filter: brightness(1);
+}
+
+.liveband-category-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.liveband-category-content h3 {
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  color: var(--color-primary-dark);
+  margin-bottom: 0.6rem;
+  font-family: var(--font-accent);
+}
+
+.liveband-category-content p {
+  font-size: 1rem;
+  color: var(--color-neutral);
+  line-height: 1.6;
+}
+
+/* ======================================================
+   🎤 GALLERY SECTION
+   ====================================================== */
+.gallery-section {
+  padding: clamp(3rem, 6vw, 5rem) 1rem;
+  background: var(--color-service-bg);
+  text-align: center;
+}
+
+.gallery-section h2 {
+  font-family: var(--font-accent);
+  color: var(--color-primary-dark);
+  font-size: clamp(1.8rem, 3.2vw, 2.3rem);
+  margin-bottom: 1rem;
+}
+
+.gallery-section p {
+  color: var(--color-neutral);
+  max-width: 700px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  justify-items: center;
+}
+
+/* ======================================================
+   💬 REVIEWS SECTION
+   ====================================================== */
+.reviews-layout {
+  background: var(--color-bg);
+  padding: clamp(3rem, 6vw, 5rem) 1rem;
+  text-align: center;
+}
+
+/* ======================================================
+   ✨ GLASS PANEL UTILITY
+   ====================================================== */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* ======================================================
+   🌙 DARK MODE
+   ====================================================== */
 .dark .liveband-page-container {
   background: var(--color-bg-dark);
   color: var(--color-text-dark);
 }
 
-/* === Hero Section === */
-.dark .banner-section {
-  background: linear-gradient(45deg, #152c63, #2a0f0f);
-}
-
 .dark .hero-video {
-  filter: brightness(55%) contrast(1.1);
+  filter: brightness(0.5);
 }
 
-.dark .hero-heading {
-  color: var(--color-accent-gold-light);
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.9);
+.dark .hero-overlay {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(10, 10, 10, 0.95));
 }
 
-.dark .hero-subtext {
-  color: #e5e7eb;
+.dark .hero-title {
+  background: var(--gradient-navy-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.dark .mute-button {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--color-accent-gold-light);
+.dark .btn-primary {
+  background: var(--gradient-navy-gold);
 }
 
-.dark .mute-button:hover {
-  background: rgba(255, 255, 255, 0.25);
+.dark .liveband-category-card {
+  background: rgba(30, 30, 30, 0.7);
+  border-color: rgba(212, 175, 55, 0.25);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
 }
 
-/* === CTA Buttons === */
-.dark .cta-button {
-  background: var(--gradient-gold-burgundy);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
-}
-
-.dark .cta-alt {
-  border-color: var(--color-accent-gold-light);
-  color: var(--color-accent-gold-light);
-}
-
-.dark .cta-outline {
-  border-color: var(--color-accent-gold);
-  color: var(--color-accent-gold);
-}
-
-.dark .cta-outline:hover {
-  background: rgba(212, 175, 55, 0.15);
-}
-
-/* === Sections === */
-.dark .section {
-  background: var(--color-bg-dark);
+.dark .gallery-section {
+  background: rgba(25, 25, 25, 0.85);
 }
 
 .dark .section-title {
-  color: var(--color-accent-gold-light);
-}
-
-.dark .section-title::after {
-  background: var(--color-accent-gold-light);
-}
-
-.dark .section-lead {
-  color: #cbd5e1;
-}
-
-/* === Behind the Scenes === */
-.dark .behind-scenes {
-  background: linear-gradient(
-    135deg,
-    rgba(21, 44, 99, 0.8),
-    rgba(64, 16, 16, 0.8)
-  ),
-  url("../../assets/images/hero-media.png") center/cover no-repeat;
-}
-
-.dark .behind-overlay {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.dark .behind-content h2 {
   color: var(--color-accent-gold);
 }
 
-.dark .behind-content p {
-  color: #f1f5f9;
-}
-
-/* === Media & Reviews === */
-.dark .card-grid {
-  background: var(--color-neutral-dark);
-}
-
-.dark .muted-text {
-  color: #9ca3af;
-}
-
-.dark .reviews-section {
-  background: linear-gradient(135deg, #1e3a8a, #401010);
-  color: var(--color-accent-gold-light);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-/* === Transitions === */
-.dark * {
-  transition: background var(--transition-slow), color var(--transition-slow);
+.dark .section-lead,
+.dark .gallery-section p {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ======================================================
-   🎸 Live Band Page Styles — liveband.css
-   ====================================================== */
-
-.liveband-page-container {
-  width: 100%;
-  overflow-x: hidden;
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-main);
-  transition: background var(--transition-slow), color var(--transition-slow);
-}
-
-/* ======================================================
-   🏔️ HERO SECTION
-   ====================================================== */
-.banner-section {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--gradient-navy-gold);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--color-white);
-}
-
-.video-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.hero-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(70%);
-  z-index: 0;
-}
-
-.video-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.6) 0%,
-    rgba(0, 0, 0, 0.7) 60%,
-    rgba(0, 0, 0, 0.9) 100%
-  );
-  z-index: 1;
-}
-
-.hero-content {
-  position: absolute;
-  z-index: 2;
-  text-align: center;
-  padding: 0 1rem;
-  max-width: 700px;
-  animation: fade-in-up 1s ease-out;
-}
-
-.hero-heading {
-  font-family: var(--font-accent);
-  font-size: 3.5rem;
-  color: var(--color-accent-gold);
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-  margin-bottom: 1rem;
-}
-
-.hero-subtext {
-  font-size: 1.1rem;
-  color: var(--flip-cream);
-  margin-bottom: 2rem;
-  line-height: 1.6;
-}
-
-.hero-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.cta-button,
-.cta-alt,
-.cta-outline {
-  background: var(--gradient-gold-burgundy);
-  border: none;
-  padding: 0.9rem 1.8rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--color-white);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.cta-button:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-lg);
-}
-
-.cta-alt {
-  background: transparent;
-  border: 2px solid var(--color-accent-gold);
-  color: var(--color-accent-gold);
-}
-
-.cta-outline {
-  background: transparent;
-  border: 2px solid var(--color-white);
-  color: var(--color-white);
-}
-
-.cta-outline:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-/* === Mute Button === */
-.mute-button {
-  position: absolute;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  font-size: 1.2rem;
-  border-radius: 50%;
-  padding: 0.6rem;
-  cursor: pointer;
-  z-index: 3;
-  color: var(--color-white);
-  transition: background var(--transition-fast);
-}
-.mute-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* ======================================================
-   ⚡ COMMON SECTION STYLING
-   ====================================================== */
-.section {
-  padding: 5rem 2rem;
-  text-align: center;
-  background: var(--color-bg);
-}
-
-.section-title {
-  font-family: var(--font-accent);
-  font-size: 2.4rem;
-  color: var(--color-primary-dark);
-  margin-bottom: 1rem;
-  position: relative;
-}
-
-.section-title::after {
-  content: "";
-  display: block;
-  width: 80px;
-  height: 3px;
-  background: var(--color-accent-gold);
-  margin: 0.75rem auto 0;
-  border-radius: var(--radius-sm);
-}
-
-.section-lead {
-  color: var(--color-neutral-light);
-  max-width: 650px;
-  margin: 0 auto 3rem;
-  line-height: 1.6;
-}
-
-/* ======================================================
-   🪩 SERVICES CATEGORY
-   ====================================================== */
-.services-category {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
-}
-
-/* ======================================================
-   🎥 BEHIND THE SCENES
-   ====================================================== */
-.behind-scenes {
-  position: relative;
-  background: url("../../assets/images/hero-media.png") center/cover no-repeat;
-  color: var(--color-white);
-  text-align: center;
-  padding: 6rem 1.5rem;
-  overflow: hidden;
-}
-
-.behind-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(30, 58, 138, 0.75);
-  backdrop-filter: blur(2px);
-  z-index: 1;
-}
-
-.behind-content {
-  position: relative;
-  z-index: 2;
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.behind-content h2 {
-  font-family: var(--font-accent);
-  font-size: 2.2rem;
-  color: var(--color-accent-gold);
-  margin-bottom: 1rem;
-}
-
-.behind-content p {
-  color: var(--flip-cream);
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-/* ======================================================
-   🎬 MEDIA GALLERY
-   ====================================================== */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding-top: 1rem;
-}
-
-.muted-text {
-  color: var(--color-muted);
-  font-style: italic;
-}
-
-.center-text {
-  text-align: center;
-}
-
-/* ======================================================
-   💬 REVIEWS
-   ====================================================== */
-.reviews-section {
-  background: var(--gradient-navy-gold);
-  color: var(--color-white);
-  padding: 5rem 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* ======================================================
-   📱 RESPONSIVE DESIGN
+   📱 RESPONSIVE OPTIMIZATION
    ====================================================== */
 @media (max-width: 1024px) {
-  .hero-heading {
-    font-size: 2.8rem;
+  .hero-title {
+    font-size: clamp(2rem, 5vw, 3rem);
   }
-  .section-title {
-    font-size: 2rem;
+  .hero-subtitle {
+    font-size: clamp(1rem, 2vw, 1.2rem);
   }
 }
 
 @media (max-width: 768px) {
-  .banner-section {
-    height: 80vh;
+  .hero-buttons {
+    flex-direction: column;
   }
 
-  .hero-content {
-    max-width: 90%;
-    padding: 0 1rem;
+  .mute-button {
+    width: 42px;
+    height: 42px;
+    bottom: 1rem;
+    right: 1rem;
   }
 
-  .hero-heading {
-    font-size: 2.4rem;
+  .liveband-category-image {
+    height: 200px;
   }
 
-  .hero-subtext {
-    font-size: 1rem;
-  }
-
-  .section {
-    padding: 4rem 1.5rem;
+  .section,
+  .gallery-section {
+    padding: 3rem 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .hero-heading {
-    font-size: 1.9rem;
-    line-height: 1.3;
+  .hero-title {
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
   }
 
-  .hero-subtext {
-    font-size: 0.95rem;
+  .hero-subtitle {
+    font-size: 1rem;
   }
 
-  .cta-button,
-  .cta-alt,
-  .cta-outline {
+  .btn-primary,
+  .btn-outline {
     width: 100%;
-    padding: 0.8rem 1rem;
-    font-size: 0.95rem;
+    max-width: 260px;
   }
 
-  .section-title {
-    font-size: 1.8rem;
-  }
-
-  .section-lead {
-    font-size: 0.95rem;
-  }
-
-  .card-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 360px) {
-  .hero-heading {
-    font-size: 1.7rem;
-  }
-
-  .hero-subtext {
-    font-size: 0.9rem;
-  }
-
-  .section-title {
-    font-size: 1.6rem;
-  }
-
-  .section-lead {
-    font-size: 0.9rem;
+  .liveband-category-content {
+    padding: 1rem;
   }
 }

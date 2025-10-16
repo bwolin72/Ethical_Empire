@@ -1,5 +1,3 @@
-// frontend/src/components/services/LiveBandServicePage.jsx
-
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-import ServicesCategory from "./ServiceCategory";
+import ServiceCategory from "./ServiceCategory";
 import FadeInSection from "../FadeInSection";
 import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
@@ -32,6 +30,18 @@ const getMediaUrl = (m) =>
   m?.src ||
   "";
 
+/* ---------- Motion Variants ---------- */
+const fadeUp = {
+  hidden: { opacity: 0, y: 32 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+};
+
+const zoomIn = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
+};
+
+/* ---------- LiveBandServicePage ---------- */
 export default function LiveBandServicePage() {
   const navigate = useNavigate();
 
@@ -72,12 +82,43 @@ export default function LiveBandServicePage() {
     });
   }, []);
 
+  /* ---------- Live Band Service Categories ---------- */
+  const liveBandCategories = [
+    {
+      title: "Corporate & Luxury Events",
+      image: "../../assets/liveband/corporate-performance.png",
+      services: [
+        { name: "Gala & Award Ceremonies", description: "Premium live music performances for executive events and product launches in Ghana and across West Africa." },
+        { name: "Conference Entertainment", description: "Smooth jazz, instrumental interludes, and curated playlists for professional ambiance." },
+        { name: "Cocktail & Dinner Sets", description: "Soft acoustic or instrumental duos for elegant gatherings." },
+      ],
+    },
+    {
+      title: "Weddings & Private Celebrations",
+      image: "../../assets/liveband/wedding-band.png",
+      services: [
+        { name: "Wedding Reception Bands", description: "Energetic live performances that elevate your big day." },
+        { name: "Traditional & Highlife Sets", description: "Ghanaian and Afrobeat fusions that celebrate culture." },
+        { name: "Bridal Entry Music", description: "Customized entry compositions with live instrumental backing." },
+      ],
+    },
+    {
+      title: "Concerts & Festivals",
+      image: "../../assets/liveband/festival-band.png",
+      services: [
+        { name: "Full Stage Band Setup", description: "Professional-grade lighting, sound, and multi-instrument ensembles for large-scale shows." },
+        { name: "Backing Bands for Artists", description: "Experienced musicians supporting top acts across genres." },
+        { name: "Outdoor & Street Performances", description: "Dynamic open-air performances designed to energize any crowd." },
+      ],
+    },
+  ];
+
   return (
     <div className="liveband-page-container">
       {/* === HERO SECTION === */}
-      <section className="banner-section" aria-label="Live Band Hero">
+      <section className="liveband-hero-section" aria-label="Live Band Hero">
         {videoUrl && !videoLoading ? (
-          <div className="video-wrapper">
+          <>
             <video
               ref={videoRef}
               src={videoUrl}
@@ -86,131 +127,103 @@ export default function LiveBandServicePage() {
               loop
               muted={isMuted}
               playsInline
-              onError={() => setVideoUrl(null)}
             />
-            <div className="video-overlay" />
+            <div className="hero-overlay" />
+
             <motion.div
-              className="hero-content"
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
+              className="hero-content glass-panel"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={fadeUp}
             >
-              <h1 className="hero-heading">Live Band & Performances</h1>
-              <p className="hero-subtext">
-                Feel the rhythm. From acoustic vibes to full orchestral experiences —
-                Eethm Live Band brings sound to life with heart, passion, and precision.
+              <h1 className="hero-title">Live Band & Performances</h1>
+              <p className="hero-subtitle">
+                Experience Ghana’s most electrifying live music — from soulful weddings
+                to world-class concerts, we bring rhythm, energy, and artistry to every event.
               </p>
-              <div className="hero-actions">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  className="cta-button"
-                  onClick={() => navigate("/bookings")}
-                >
+              <div className="hero-buttons">
+                <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
                   Book a Live Band
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  className="cta-alt"
-                  onClick={() =>
-                    window.scrollTo({ top: window.innerHeight, behavior: "smooth" })
-                  }
-                >
-                  View Performances
-                </motion.button>
+                </button>
+                <button className="btn btn-outline" onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })}>
+                  Watch Performances
+                </button>
               </div>
             </motion.div>
 
-            <button
-              className="mute-button"
-              onClick={toggleMute}
-              aria-label={isMuted ? "Unmute video" : "Mute video"}
-            >
+            <button className="mute-button" onClick={toggleMute}>
               {isMuted ? "🔇" : "🔊"}
             </button>
-          </div>
-        ) : videoLoading ? (
-          <div className="video-placeholder">
-            <div className="video-skeleton" />
-          </div>
+          </>
         ) : (
-          <BannerCards endpoint="liveband" title="Live Band Highlights" />
+          <div
+            className="hero-fallback"
+            style={{ backgroundImage: "url('../../assets/liveband/liveband-hero.png')" }}
+          >
+            <div className="hero-overlay" />
+            <div className="hero-content">
+              <h1 className="hero-title">Feel the Rhythm</h1>
+              <p className="hero-subtitle">
+                Bringing Ghanaian beats and world-class performance energy to every stage.
+              </p>
+            </div>
+          </div>
         )}
       </section>
 
-      {/* === SERVICES CATEGORY === */}
+      {/* === SERVICE CATEGORIES === */}
       <motion.section
-        className="section"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        viewport={{ once: true }}
+        className="section liveband-services"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={fadeUp}
       >
-        <h2 className="section-title">Our Live Band Services</h2>
-        <p className="section-lead">
-          Whether it’s a wedding, concert, or corporate gala, our bands deliver sonic excellence.
-          Explore curated packages crafted for your event.
+        <h2>Our Live Band Services</h2>
+        <p className="section-description">
+          Explore dynamic music experiences tailored for weddings, corporate events,
+          and cultural celebrations across Ghana and West Africa.
         </p>
-        <ServicesCategory category="liveband" />
+
+        <div className="liveband-category-grid">
+          {liveBandCategories.map((cat, i) => (
+            <motion.div key={i} className="liveband-category-card" variants={zoomIn}>
+              <img
+                src={cat.image}
+                alt={`${cat.title} in Ghana and West Africa`}
+                className="liveband-category-image"
+                loading="lazy"
+              />
+              <ServiceCategory category={cat} />
+            </motion.div>
+          ))}
+        </div>
       </motion.section>
 
-      {/* === BEHIND THE SCENES === */}
-      <section className="section behind-scenes" aria-label="Behind the Scenes">
-        <div className="behind-overlay" />
-        <motion.div
-          className="behind-content"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          viewport={{ once: true }}
-        >
-          <h2>Behind the Sound</h2>
-          <p>
-            Go beyond the spotlight — our technicians, sound engineers, and stage artists
-            ensure flawless performance through seamless production and passion-driven artistry.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.07 }}
-            className="cta-outline"
-            onClick={() => navigate("/about")}
-          >
-            Learn About Our Team
-          </motion.button>
-        </motion.div>
-      </section>
-
-      {/* === BAND SHOWCASE === */}
-      <motion.section
-        className="section"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        viewport={{ once: true }}
-      >
-        <h2 className="section-title">Performance Highlights</h2>
-        <p className="section-lead">
-          Discover our most iconic performances — captured live and full of energy.
+      {/* === PERFORMANCE GALLERY === */}
+      <motion.section className="section gallery-section" variants={fadeUp}>
+        <h2>Performance Highlights</h2>
+        <p>
+          Watch our most iconic shows — high-energy, soulful, and unforgettable performances
+          captured across Ghana’s premier stages.
         </p>
-
         <div className="card-grid">
           {mediaLoading
             ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaCards.length > 0
-            ? mediaCards.slice(0, 6).map((m, i) => (
-                <MediaCard key={m.id ?? m._id ?? i} media={m} />
-              ))
-            : <p className="muted-text center-text">No live band media available yet.</p>}
+            : mediaCards.slice(0, 6).map((m, i) => (
+                <MediaCard key={m.id ?? i} media={m} />
+              ))}
         </div>
       </motion.section>
 
       {/* === REVIEWS === */}
-      <FadeInSection>
-        <ReviewsLayout
-          title="Client Impressions"
-          description="Hear what audiences say about our live performances"
-        >
-          <Reviews limit={6} hideForm={true} category="liveband" />
-        </ReviewsLayout>
-      </FadeInSection>
+      <ReviewsLayout
+        title="Client Impressions"
+        description="Hear what our audiences say about Eethm Live Band"
+      >
+        <Reviews limit={6} hideForm={true} category="liveband" />
+      </ReviewsLayout>
     </div>
   );
 }
