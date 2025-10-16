@@ -57,13 +57,15 @@ const ServiceCategory = ({ category }) => {
       animate={controls}
       variants={sectionVariants}
     >
-      {/* === Category Title === */}
-      <motion.h2
-        className="section-title gradient-text"
-        variants={sectionVariants}
-      >
-        {category.title}
-      </motion.h2>
+      {/* === Category Header === */}
+      <motion.header className="category-header" variants={sectionVariants}>
+        <h2 className="section-title gradient-text">
+          {category?.name || "Unnamed Category"}
+        </h2>
+        {category?.description && (
+          <p className="muted-text">{category.description}</p>
+        )}
+      </motion.header>
 
       {/* === Service List === */}
       <motion.div
@@ -72,17 +74,24 @@ const ServiceCategory = ({ category }) => {
         initial="hidden"
         animate={controls}
       >
-        {category.services.map((srv, index) => (
-          <motion.div key={srv.name} variants={cardVariants}>
-            <ServiceCard
-              service={srv}
-              isActive={activeIndex === index}
-              onToggle={() =>
-                setActiveIndex(activeIndex === index ? null : index)
-              }
-            />
-          </motion.div>
-        ))}
+        {category?.services?.length > 0 ? (
+          category.services.map((srv, index) => (
+            <motion.div
+              key={srv.id ?? srv.slug ?? srv.name ?? index}
+              variants={cardVariants}
+            >
+              <ServiceCard
+                service={srv}
+                isActive={activeIndex === index}
+                onToggle={() =>
+                  setActiveIndex(activeIndex === index ? null : index)
+                }
+              />
+            </motion.div>
+          ))
+        ) : (
+          <p className="muted-text">No active services in this category.</p>
+        )}
       </motion.div>
     </motion.section>
   );

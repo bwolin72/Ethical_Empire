@@ -3,21 +3,30 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import serviceService from "../../api/services/serviceService";
-import { serviceCategories } from "./data/serviceCategories";
+import { serviceCategories as fallbackCategories } from "./data/serviceCategories";
 import ServiceCategory from "./ServiceCategory";
 import "./Services.css";
 
 const Services = () => {
   const { slug } = useParams();
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
 
-  /* === Fetch Service Data (API + Fallback) === */
+  /* === Fetch Service Categories (API + Fallback) === */
   useEffect(() => {
     const load = async () => {
       try {
-        await serviceService.getServices();
+        const res = await serviceService.getNestedCategories();
+        if (res?.data && Array.isArray(res.data)) {
+          setCategories(res.data);
+        } else {
+          console.warn("⚠️ Unexpected API structure, using fallback data.");
+          setCategories(fallbackCategories);
+          toast.info("Showing default service catalog...");
+        }
       } catch (err) {
-        console.warn("⚠️ Using static service data as fallback.");
+        console.warn("⚠️ API fetch failed, using static fallback data.", err);
+        setCategories(fallbackCategories);
         toast.info("Showing default service catalog...");
       } finally {
         setLoading(false);
@@ -25,9 +34,6 @@ const Services = () => {
     };
     load();
   }, [slug]);
-
-  /* === Remove ScrollReveal and Use CSS-only Visibility === */
-  // Scroll reveal disabled to ensure hero always visible.
 
   /* === Loading State === */
   if (loading) {
@@ -68,9 +74,13 @@ const Services = () => {
 
       {/* === SERVICE CATEGORIES === */}
       <main>
-        {serviceCategories.map((category) => (
-          <ServiceCategory key={category.id} category={category} />
-        ))}
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <ServiceCategory key={category.id || category.slug} category={category} />
+          ))
+        ) : (
+          <p className="muted-text center">No categories available at the moment.</p>
+        )}
       </main>
 
       {/* === CTA SECTION === */}
