@@ -1,4 +1,3 @@
-// src/components/services/MediaHostingServicePage.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import FadeInSection from "../FadeInSection";
@@ -14,10 +13,18 @@ import "./MediaHostingServicePage.css";
 
 // --- Helpers ---
 const toArray = (payload) => {
-  if (!payload) return [];
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload.data)) return payload.data;
-  return [];
+  try {
+    if (!payload) return [];
+    if (Array.isArray(payload)) return payload.filter(Boolean);
+    if (Array.isArray(payload.data)) return payload.data.filter(Boolean);
+    if (typeof payload === "object") {
+      const values = Object.values(payload).flat();
+      return Array.isArray(values) ? values.filter(Boolean) : [];
+    }
+    return [];
+  } catch {
+    return [];
+  }
 };
 
 const getMediaUrl = (media) => {
@@ -154,7 +161,7 @@ export default function MediaHostingServicePage() {
           <div className="media-cards-scroll">
             {mediaLoading
               ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-              : mediaCards.length > 0 ? (
+              : Array.isArray(mediaCards) && mediaCards.length > 0 ? (
                   mediaCards.slice(0, 6).map((media, idx) => (
                     <MediaCard
                       key={media.id ?? media._id ?? media.url ?? idx}
@@ -175,7 +182,7 @@ export default function MediaHostingServicePage() {
           <div className="card-grid">
             {mediaLoading
               ? Array.from({ length: 9 }).map((_, i) => <MediaSkeleton key={i} />)
-              : mediaCards.length > 0 ? (
+              : Array.isArray(mediaCards) && mediaCards.length > 0 ? (
                   mediaCards.slice(0, 9).map((m, idx) => (
                     <MediaCard key={m.id ?? m._id ?? idx} media={m} />
                   ))
@@ -201,7 +208,7 @@ export default function MediaHostingServicePage() {
         <section className="other-services-section glass-panel">
           <h2 className="section-title">Explore Our Other Services</h2>
           <p className="muted-text">
-            Beyond media hosting, Ethical Empire offers full event solutions — from catering and décor to live entertainment.
+            Beyond media hosting, Ethical Empire offers full event solutions — from catering and décor to live entertainment and local foods across Ghana and West Africa.
           </p>
           <div className="other-services-grid">
             {[
