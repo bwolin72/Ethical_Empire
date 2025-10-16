@@ -17,7 +17,7 @@ import "./liveband.css";
 import corporatePerformance from "../../assets/liveband/corporate-performance.png";
 import weddingBand from "../../assets/liveband/wedding-band.png";
 import festivalBand from "../../assets/liveband/festival-band.png";
-import livebandHero from "../../assets/liveband/liveband-hero.png";
+import livebandHero from "../../assets/liveband/liveband-hero.jpg";
 
 /* ---------- Helpers ---------- */
 const toArray = (payload) =>
