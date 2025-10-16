@@ -15,7 +15,7 @@ import {
 // === Service Metadata + Grouping ===
 export const serviceCategories = [
   {
-    title: "🎤 Entertainment & Hosting",
+    name: "🎤 Entertainment & Hosting",
     id: "entertainment",
     services: [
       {
@@ -39,7 +39,7 @@ export const serviceCategories = [
     ],
   },
   {
-    title: "🎥 Media Production",
+    name: "🎥 Media Production",
     id: "media",
     services: [
       {
@@ -57,7 +57,7 @@ export const serviceCategories = [
     ],
   },
   {
-    title: "💡 Event Production",
+    name: "💡 Event Production",
     id: "production",
     services: [
       {
@@ -81,7 +81,7 @@ export const serviceCategories = [
     ],
   },
   {
-    title: "🍽 Add-On Services",
+    name: "🍽 Add-On Services",
     id: "addons",
     services: [
       {

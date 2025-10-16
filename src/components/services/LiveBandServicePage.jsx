@@ -13,6 +13,12 @@ import ReviewsLayout from "../user/ReviewsLayout";
 import useFetcher from "../../hooks/useFetcher";
 import "./liveband.css";
 
+/* ✅ Import images correctly */
+import corporatePerformance from "../../assets/liveband/corporate-performance.png";
+import weddingBand from "../../assets/liveband/wedding-band.png";
+import festivalBand from "../../assets/liveband/festival-band.png";
+import livebandHero from "../../assets/liveband/liveband-hero.png";
+
 /* ---------- Helpers ---------- */
 const toArray = (payload) =>
   Array.isArray(payload?.data)
@@ -86,29 +92,65 @@ export default function LiveBandServicePage() {
   const liveBandCategories = [
     {
       title: "Corporate & Luxury Events",
-      image: "../../assets/liveband/corporate-performance.png",
+      image: corporatePerformance,
       services: [
-        { name: "Gala & Award Ceremonies", description: "Premium live music performances for executive events and product launches in Ghana and across West Africa." },
-        { name: "Conference Entertainment", description: "Smooth jazz, instrumental interludes, and curated playlists for professional ambiance." },
-        { name: "Cocktail & Dinner Sets", description: "Soft acoustic or instrumental duos for elegant gatherings." },
+        {
+          name: "Gala & Award Ceremonies",
+          description:
+            "Premium live music performances for executive events and product launches in Ghana and across West Africa.",
+        },
+        {
+          name: "Conference Entertainment",
+          description:
+            "Smooth jazz, instrumental interludes, and curated playlists for professional ambiance.",
+        },
+        {
+          name: "Cocktail & Dinner Sets",
+          description:
+            "Soft acoustic or instrumental duos for elegant gatherings.",
+        },
       ],
     },
     {
       title: "Weddings & Private Celebrations",
-      image: "../../assets/liveband/wedding-band.png",
+      image: weddingBand,
       services: [
-        { name: "Wedding Reception Bands", description: "Energetic live performances that elevate your big day." },
-        { name: "Traditional & Highlife Sets", description: "Ghanaian and Afrobeat fusions that celebrate culture." },
-        { name: "Bridal Entry Music", description: "Customized entry compositions with live instrumental backing." },
+        {
+          name: "Wedding Reception Bands",
+          description:
+            "Energetic live performances that elevate your big day.",
+        },
+        {
+          name: "Traditional & Highlife Sets",
+          description:
+            "Ghanaian and Afrobeat fusions that celebrate culture.",
+        },
+        {
+          name: "Bridal Entry Music",
+          description:
+            "Customized entry compositions with live instrumental backing.",
+        },
       ],
     },
     {
       title: "Concerts & Festivals",
-      image: "../../assets/liveband/festival-band.png",
+      image: festivalBand,
       services: [
-        { name: "Full Stage Band Setup", description: "Professional-grade lighting, sound, and multi-instrument ensembles for large-scale shows." },
-        { name: "Backing Bands for Artists", description: "Experienced musicians supporting top acts across genres." },
-        { name: "Outdoor & Street Performances", description: "Dynamic open-air performances designed to energize any crowd." },
+        {
+          name: "Full Stage Band Setup",
+          description:
+            "Professional-grade lighting, sound, and multi-instrument ensembles for large-scale shows.",
+        },
+        {
+          name: "Backing Bands for Artists",
+          description:
+            "Experienced musicians supporting top acts across genres.",
+        },
+        {
+          name: "Outdoor & Street Performances",
+          description:
+            "Dynamic open-air performances designed to energize any crowd.",
+        },
       ],
     },
   ];
@@ -139,14 +181,23 @@ export default function LiveBandServicePage() {
             >
               <h1 className="hero-title">Live Band & Performances</h1>
               <p className="hero-subtitle">
-                Experience Ghana’s most electrifying live music — from soulful weddings
-                to world-class concerts, we bring rhythm, energy, and artistry to every event.
+                Experience Ghana’s most electrifying live music — from soulful
+                weddings to world-class concerts, we bring rhythm, energy, and
+                artistry to every event.
               </p>
               <div className="hero-buttons">
-                <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => navigate("/bookings")}
+                >
                   Book a Live Band
                 </button>
-                <button className="btn btn-outline" onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })}>
+                <button
+                  className="btn btn-outline"
+                  onClick={() =>
+                    window.scrollTo({ top: 800, behavior: "smooth" })
+                  }
+                >
                   Watch Performances
                 </button>
               </div>
@@ -159,13 +210,14 @@ export default function LiveBandServicePage() {
         ) : (
           <div
             className="hero-fallback"
-            style={{ backgroundImage: "url('../../assets/liveband/liveband-hero.png')" }}
+            style={{ backgroundImage: `url(${livebandHero})` }}
           >
             <div className="hero-overlay" />
             <div className="hero-content">
               <h1 className="hero-title">Feel the Rhythm</h1>
               <p className="hero-subtitle">
-                Bringing Ghanaian beats and world-class performance energy to every stage.
+                Bringing Ghanaian beats and world-class performance energy to
+                every stage.
               </p>
             </div>
           </div>
@@ -182,13 +234,17 @@ export default function LiveBandServicePage() {
       >
         <h2>Our Live Band Services</h2>
         <p className="section-description">
-          Explore dynamic music experiences tailored for weddings, corporate events,
-          and cultural celebrations across Ghana and West Africa.
+          Explore dynamic music experiences tailored for weddings, corporate
+          events, and cultural celebrations across Ghana and West Africa.
         </p>
 
         <div className="liveband-category-grid">
           {liveBandCategories.map((cat, i) => (
-            <motion.div key={i} className="liveband-category-card" variants={zoomIn}>
+            <motion.div
+              key={i}
+              className="liveband-category-card"
+              variants={zoomIn}
+            >
               <img
                 src={cat.image}
                 alt={`${cat.title} in Ghana and West Africa`}
@@ -205,15 +261,17 @@ export default function LiveBandServicePage() {
       <motion.section className="section gallery-section" variants={fadeUp}>
         <h2>Performance Highlights</h2>
         <p>
-          Watch our most iconic shows — high-energy, soulful, and unforgettable performances
-          captured across Ghana’s premier stages.
+          Watch our most iconic shows — high-energy, soulful, and unforgettable
+          performances captured across Ghana’s premier stages.
         </p>
         <div className="card-grid">
           {mediaLoading
-            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaCards.slice(0, 6).map((m, i) => (
-                <MediaCard key={m.id ?? i} media={m} />
-              ))}
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <MediaSkeleton key={i} />
+              ))
+            : mediaCards
+                .slice(0, 6)
+                .map((m, i) => <MediaCard key={m.id ?? i} media={m} />)}
         </div>
       </motion.section>
 

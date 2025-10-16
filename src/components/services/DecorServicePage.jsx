@@ -12,6 +12,12 @@ import ReviewsLayout from "../user/ReviewsLayout";
 import useFetcher from "../../hooks/useFetcher";
 import "./decor.css";
 
+/* ---------- Asset Imports ---------- */
+import floralDecor from "../../assets/decor/floral-decor.png";
+import lightingDecor from "../../assets/decor/lighting-decor.png";
+import stageDecor from "../../assets/decor/stage-decor.png";
+import decorHero from "../../assets/decor/decor-hero.png";
+
 /* ---------- Helpers ---------- */
 const toArray = (payload) => {
   if (!payload) return [];
@@ -51,7 +57,7 @@ export default function DecorServicePage() {
   const navigate = useNavigate();
 
   const { data: videosRaw, loading: videoLoading } = useFetcher("videos", "decor", { is_active: true }, { resource: "videos" });
-  const { data: bannerRaw, loading: bannerLoading } = useFetcher("media", "banner", { category: "decor", is_active: true }, { resource: "media" });
+  const { data: bannerRaw } = useFetcher("media", "banner", { category: "decor", is_active: true }, { resource: "media" });
   const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher("media", "decor", { is_active: true }, { resource: "media" });
 
   const [videoUrl, setVideoUrl] = useState(null);
@@ -80,7 +86,7 @@ export default function DecorServicePage() {
   const decorCategories = [
     {
       title: "Floral & Table Decor",
-      image: "../../assets/decor/floral-decor.png",
+      image: floralDecor,
       services: [
         { name: "Luxury Floral Arrangements", description: "Elegant centerpiece & aisle florals tailored to your event theme." },
         { name: "Table Styling", description: "Custom linens, cutlery, and accent decor for a cohesive luxury look." },
@@ -89,7 +95,7 @@ export default function DecorServicePage() {
     },
     {
       title: "Lighting & Ambience",
-      image: "../../assets/decor/lighting-decor.png",
+      image: lightingDecor,
       services: [
         { name: "Mood Lighting", description: "Create ambience with golden glow or soft pastels matching your brand colors." },
         { name: "Lanterns & Chandeliers", description: "Elegant hanging decor perfect for luxury Ghanaian weddings & galas." },
@@ -98,7 +104,7 @@ export default function DecorServicePage() {
     },
     {
       title: "Stage & Venue Design",
-      image: "../../assets/decor/stage-decor.png",
+      image: stageDecor,
       services: [
         { name: "Stage Backdrops", description: "Theme-based or floral backdrops for premium West African events." },
         { name: "Draping & Ceiling Work", description: "Soft fabrics & ambient glow to elevate visual flow." },
@@ -122,10 +128,9 @@ export default function DecorServicePage() {
               muted={isMuted}
               playsInline
             />
-            <div className="hero-overlay" />
-
+            <div className="hero-overlay glass-gradient" />
             <motion.div
-              className="hero-content"
+              className="hero-content glass-card"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
@@ -145,23 +150,28 @@ export default function DecorServicePage() {
                 </button>
               </div>
             </motion.div>
-
             <button className="mute-button" onClick={toggleMute}>
               {isMuted ? "🔇" : "🔊"}
             </button>
           </>
         ) : (
           <div
-            className="hero-fallback"
-            style={{ backgroundImage: "url('../../assets/decor/decor-hero.png')" }}
+            className="hero-fallback glassmorphic-hero"
+            style={{ backgroundImage: `url(${decorHero})` }}
           >
             <div className="hero-overlay" />
-            <div className="hero-content">
+            <motion.div
+              className="hero-content"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={fadeUp}
+            >
               <h1 className="hero-title">Elegant Decor & Styling</h1>
               <p className="hero-subtitle">
                 Experience luxury design artistry for weddings, corporate, and cultural events.
               </p>
-            </div>
+            </motion.div>
           </div>
         )}
       </section>
@@ -178,7 +188,6 @@ export default function DecorServicePage() {
         <p className="section-description">
           From floral compositions to ambient lighting, we design timeless atmospheres for Ghanaian and international events.
         </p>
-
         <div className="decor-category-grid">
           {decorCategories.map((cat, i) => (
             <motion.div key={i} className="decor-category-card" variants={zoomIn}>

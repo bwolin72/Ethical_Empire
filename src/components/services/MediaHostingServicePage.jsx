@@ -9,9 +9,15 @@ import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
 import useFetcher from "../../hooks/useFetcher";
 
+import livebandHero from "../../assets/liveband/liveband-hero.jpg";
+import cateringWallpaper from "../../assets/images/catering-wallpaper.png";
+import stageDecor from "../../assets/decor/stage-decor.png";
+
 import "./MediaHostingServicePage.css";
 
-// --- Helpers ---
+/* -------------------------------
+   Helpers
+-------------------------------- */
 const toArray = (payload) => {
   try {
     if (!payload) return [];
@@ -46,10 +52,13 @@ const getMediaUrl = (media) => {
   return found || "";
 };
 
+/* -------------------------------
+   Main Component
+-------------------------------- */
 export default function MediaHostingServicePage() {
   const navigate = useNavigate();
 
-  // --- Fetch Data ---
+  /* --- Fetch Data --- */
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
     "mediaHostingServicePage",
@@ -74,7 +83,7 @@ export default function MediaHostingServicePage() {
   const bannerItems = toArray(bannerRaw);
   const mediaCards = toArray(mediaCardsRaw);
 
-  // --- Hero Video ---
+  /* --- Hero Video --- */
   const [videoUrl, setVideoUrl] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
@@ -94,7 +103,9 @@ export default function MediaHostingServicePage() {
     });
   };
 
-  // --- Render ---
+  /* -------------------------------
+     JSX Render
+  -------------------------------- */
   return (
     <main className="media-hosting-page">
       {/* 🎥 HERO SECTION */}
@@ -115,7 +126,8 @@ export default function MediaHostingServicePage() {
             <div className="hero-glass">
               <h1 className="hero-title">Media Hosting & Multimedia</h1>
               <p className="hero-subtitle">
-                Professional media hosting, cloud streaming, and production services across Ghana and West Africa.
+                Professional media hosting, cloud streaming, and production services
+                across Ghana and West Africa.
               </p>
               <div className="hero-buttons">
                 <button className="btn-primary" onClick={() => navigate("/bookings")}>
@@ -146,8 +158,9 @@ export default function MediaHostingServicePage() {
           <header className="section-header">
             <h2 className="section-title">Our Multimedia & Hosting Solutions</h2>
             <p className="muted-text">
-              From live event recording to cloud storage and streaming — Ethical Empire delivers secure,
-              high-quality multimedia experiences in Ghana and across West Africa.
+              From live event recording to cloud storage and streaming — Ethical Empire
+              delivers secure, high-quality multimedia experiences in Ghana and across
+              West Africa.
             </p>
           </header>
           <ServiceCategory category="mediaHostingServicePage" limit={6} />
@@ -208,15 +221,22 @@ export default function MediaHostingServicePage() {
         <section className="other-services-section glass-panel">
           <h2 className="section-title">Explore Our Other Services</h2>
           <p className="muted-text">
-            Beyond media hosting, Ethical Empire offers full event solutions — from catering and décor to live entertainment and local foods across Ghana and West Africa.
+            Beyond media hosting, Ethical Empire offers full event solutions — from
+            catering and décor to live entertainment and local foods across Ghana and
+            West Africa.
           </p>
+
           <div className="other-services-grid">
             {[
-              { title: "Live Band & Entertainment", link: "/services/live-band", image: "../../assets/liveband/liveband-hero.jpg" },
-              { title: "Catering & Local Foods", link: "/services/catering", image: "../../assets/images/catering-wallpaper.png" },
-              { title: "Event Décor & Lighting", link: "/services/decor", image: "../../assets/decor/stage-decor.png" },
+              { title: "Live Band & Entertainment", link: "/services/live-band", image: livebandHero },
+              { title: "Catering & Local Foods", link: "/services/catering", image: cateringWallpaper },
+              { title: "Event Décor & Lighting", link: "/services/decor", image: stageDecor },
             ].map((s, idx) => (
-              <div key={idx} className="other-service-card" onClick={() => navigate(s.link)}>
+              <div
+                key={idx}
+                className="other-service-card"
+                onClick={() => navigate(s.link)}
+              >
                 <img src={s.image} alt={s.title} loading="lazy" />
                 <div className="overlay">
                   <h3>{s.title}</h3>

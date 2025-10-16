@@ -334,7 +334,7 @@
 
 /* Very small devices around 360px */
 @media (max-width: 360px) {
-  .form-header .logo { width: 78px; }
+  .form-header .logo { width: 80vw; max-width: 80px; }
   .form-header h2 { font-size: 1.05rem; }
   .form-header .slogan { font-size: 0.9rem; }
 
