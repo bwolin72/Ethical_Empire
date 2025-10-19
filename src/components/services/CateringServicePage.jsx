@@ -24,7 +24,7 @@ import "./catering.custom.css";
 /* === IMAGE IMPORTS === */
 import jollofImg from "../../assets/catering/jollof-chicken.png";
 import bankuImg from "../../assets/catering/banku-tilapia.png";
-import waakyeImg from "../../assets/catering/waakye.jpeg";
+import waakyeImg from "../../assets/catering/waakye.png";
 import kenkeyImg from "../../assets/catering/kenkey.png";
 import fufuImg from "../../assets/catering/fufu.jpeg";
 import ampesiImg from "../../assets/catering/ampesi.jpeg";
