@@ -247,7 +247,7 @@ export default function LiveBandServicePage() {
             >
               <img
                 src={cat.image}
-                alt={`${cat.title} in Ghana and West Africa`}
+                alt={`${cat.name} in Ghana and West Africa`}
                 className="liveband-category-image"
                 loading="lazy"
               />

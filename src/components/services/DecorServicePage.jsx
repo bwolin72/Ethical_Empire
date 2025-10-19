@@ -193,7 +193,7 @@ export default function DecorServicePage() {
             <motion.div key={i} className="decor-category-card" variants={zoomIn}>
               <img
                 src={cat.image}
-                alt={`${cat.title} in Ghana and West Africa`}
+                alt={`${cat.name} in Ghana and West Africa`}
                 className="decor-category-image"
                 loading="lazy"
               />

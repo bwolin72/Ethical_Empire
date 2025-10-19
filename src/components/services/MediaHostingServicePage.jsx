@@ -119,17 +119,17 @@ export default function MediaHostingServicePage() {
   const otherServices = useMemo(
     () => [
       {
-        title: "Live Band & Entertainment",
+        name: "Live Band & Entertainment",
         link: "/services/live-band",
         image: livebandHero,
       },
       {
-        title: "Catering & Local Foods",
+        name: "Catering & Local Foods",
         link: "/services/catering",
         image: cateringWallpaper,
       },
       {
-        title: "Event Décor & Lighting",
+        name: "Event Décor & Lighting",
         link: "/services/decor",
         image: stageDecor,
       },
@@ -181,9 +181,9 @@ export default function MediaHostingServicePage() {
         ) : (
           <BannerCards
             items={bannerItems}
-            title="Capture & Host with Ethical Precision"
+            name="Capture & Host with Ethical Precision"
             loading={bannerLoading}
-            fallbackTitle="Professional Multimedia Solutions"
+            fallbackName="Professional Multimedia Solutions"
           />
         )}
       </section>
@@ -271,9 +271,9 @@ export default function MediaHostingServicePage() {
                 className="other-service-card"
                 onClick={() => navigate(s.link)}
               >
-                <img src={s.image} alt={s.title} loading="lazy" />
+                <img src={s.image} alt={s.name} loading="lazy" />
                 <div className="overlay">
-                  <h3>{s.title}</h3>
+                  <h3>{s.name}</h3>
                 </div>
               </div>
             ))}

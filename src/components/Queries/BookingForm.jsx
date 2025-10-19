@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import bookingService from "../../api/services/bookingService";
-import serviceService from "../../api/services/serviceService"; // fixed import
+import serviceService from "../../api/services/serviceService";
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 import { toast } from "react-toastify";
 import "./BookingForm.css";
@@ -27,15 +27,27 @@ const BookingForm = () => {
   const [submitting, setSubmitting] = useState(false);
 
   // ===============================
-  // 🔹 LOAD AVAILABLE SERVICES
+  // 🔹 LOAD AVAILABLE SERVICES (Public)
   // ===============================
   useEffect(() => {
     const loadServices = async () => {
       try {
         setLoading(true);
-        const res = await serviceService.getServices(); // ✅ FIXED
-        console.log("Fetched services:", res.data); // optional for debugging
-        setServices(res.data || []);
+        const res = await serviceService.getServices();
+        console.log("Fetched services:", res.data);
+
+        // ✅ Handle paginated or direct list
+        const serviceList = Array.isArray(res.data)
+          ? res.data
+          : res.data.results || [];
+
+        // ✅ Extract only id + name (price hidden from user)
+        const publicList = serviceList.map((s) => ({
+          id: s.id,
+          name: s.name,
+        }));
+
+        setServices(publicList);
       } catch (error) {
         console.error("Failed to load services:", error);
         toast.error("Could not load available services.");
@@ -43,6 +55,7 @@ const BookingForm = () => {
         setLoading(false);
       }
     };
+
     loadServices();
   }, []);
 
@@ -74,13 +87,6 @@ const BookingForm = () => {
   };
 
   // ===============================
-  // 🔹 TOTAL PRICE
-  // ===============================
-  const totalPrice = formData.services
-    .map((sid) => services.find((s) => s.id === sid)?.price || 0)
-    .reduce((a, b) => a + b, 0);
-
-  // ===============================
   // 🔹 SUBMIT FORM
   // ===============================
   const handleSubmit = async (e) => {
@@ -88,11 +94,17 @@ const BookingForm = () => {
     setSubmitting(true);
 
     try {
-      const res = await bookingService.create(formData);
+      // ✅ Backend expects service IDs, not names
+      const payload = {
+        ...formData,
+        services: formData.services,
+      };
+
+      const res = await bookingService.create(payload);
       toast.success("Booking submitted successfully!");
       console.log("✅ Booking created:", res.data);
 
-      // reset form
+      // Reset form
       setFormData({
         name: "",
         email: "",
@@ -107,7 +119,10 @@ const BookingForm = () => {
       });
     } catch (err) {
       console.error("Booking failed:", err);
-      const msg = err.response?.data?.detail || "Failed to submit booking.";
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.errors?.services?.[0] ||
+        "Failed to submit booking.";
       toast.error(msg);
     } finally {
       setSubmitting(false);
@@ -120,6 +135,7 @@ const BookingForm = () => {
   return (
     <div className="booking-container glassmorphic">
       <h1 className="booking-title">Book Our Services</h1>
+
       <form className="booking-form" onSubmit={handleSubmit}>
         {/* Personal Info */}
         <div className="form-section">
@@ -223,18 +239,13 @@ const BookingForm = () => {
                     checked={formData.services.includes(service.id)}
                     onChange={() => toggleService(service.id)}
                   />
-                  {service.name} — <span className="price">${service.price}</span>
+                  {service.name}
                 </label>
               </div>
             ))
           ) : (
             <p>No services available.</p>
           )}
-        </div>
-
-        {/* Total */}
-        <div className="total-section">
-          <strong>Total:</strong> ${totalPrice.toFixed(2)}
         </div>
 
         {/* Submit */}

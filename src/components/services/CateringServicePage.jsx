@@ -199,9 +199,9 @@ const CateringPage = () => {
         ) : services.length > 0 ? (
           <ServiceCategory
             category={{
-              title: "Catering",
+              name: "Catering",
               services: services.map((srv) => ({
-                name: srv.title,
+                name: srv.name,
                 description: srv.description,
                 icon: srv.icon || FaUtensils,
               })),
@@ -328,9 +328,9 @@ const CateringPage = () => {
         ) : otherServices.length > 0 ? (
           <ServiceCategory
             category={{
-              title: "Other Services",
+              name: "Other Services",
               services: otherServices.map((srv) => ({
-                name: srv.title,
+                name: srv.name,
                 description: srv.description,
                 icon: srv.icon || FaUtensils,
               })),
