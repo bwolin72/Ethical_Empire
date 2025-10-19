@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import FadeInSection from "../FadeInSection";
 import ServiceCategory from "./ServiceCategory";
 import BannerCards from "../context/BannerCards";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-import Reviews from "../user/Reviews";
-import ReviewsLayout from "../user/ReviewsLayout";
 import useFetcher from "../../hooks/useFetcher";
 
 import livebandHero from "../../assets/liveband/liveband-hero.jpg";
@@ -14,6 +12,10 @@ import cateringWallpaper from "../../assets/images/catering-wallpaper.jpg";
 import stageDecor from "../../assets/decor/stage-decor.png";
 
 import "./MediaHostingServicePage.css";
+
+/* Lazy-load heavier sections */
+const Reviews = lazy(() => import("../user/Reviews"));
+const ReviewsLayout = lazy(() => import("../user/ReviewsLayout"));
 
 /* -------------------------------
    Helpers
@@ -35,10 +37,10 @@ const toArray = (payload) => {
 
 const getMediaUrl = (media) => {
   const candidates = [
+    media?.video_url,
     media?.secure_url,
     media?.url?.full,
     media?.url,
-    media?.video_url,
     media?.video_file,
     media?.file_url,
     media?.file,
@@ -61,27 +63,28 @@ export default function MediaHostingServicePage() {
   /* --- Fetch Data --- */
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
-    "mediaHostingServicePage",
+    "MediaHostingServicePage",
     { is_active: true },
     { resource: "videos" }
   );
 
   const { data: bannerRaw, loading: bannerLoading } = useFetcher(
     "media",
-    "banner",
-    { category: "mediaHostingServicePage", is_active: true },
+    "MediaHostingServicePage",
+    { type: "banner", is_active: true },
     { resource: "media" }
   );
 
   const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
     "media",
-    "mediaHostingServicePage",
-    { is_active: true },
+    "MediaHostingServicePage",
+    { type: "media", is_active: true },
     { resource: "media" }
   );
 
-  const bannerItems = toArray(bannerRaw);
-  const mediaCards = toArray(mediaCardsRaw);
+  const bannerItems = useMemo(() => toArray(bannerRaw), [bannerRaw]);
+  const mediaCards = useMemo(() => toArray(mediaCardsRaw), [mediaCardsRaw]);
+  const videos = useMemo(() => toArray(videosRaw), [videosRaw]);
 
   /* --- Hero Video --- */
   const [videoUrl, setVideoUrl] = useState(null);
@@ -89,11 +92,21 @@ export default function MediaHostingServicePage() {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    const videos = toArray(videosRaw);
-    if (!videos.length && !videoLoading) return setVideoUrl(null);
-    const featured = videos.find((v) => v?.is_featured) ?? videos[0];
-    setVideoUrl(getMediaUrl(featured) || null);
-  }, [videosRaw, videoLoading]);
+    if (videos.length > 0 && !videoLoading) {
+      const featured = videos.find((v) => v?.is_featured) ?? videos[0];
+      const rawUrl = getMediaUrl(featured);
+      if (rawUrl) {
+        // Cloudinary optimization for lighter playback
+        const optimized = rawUrl.replace(
+          "/upload/",
+          "/upload/q_auto:eco,f_auto,w_1280/"
+        );
+        setVideoUrl(optimized);
+      } else {
+        setVideoUrl(null);
+      }
+    }
+  }, [videos, videoLoading]);
 
   const toggleMute = () => {
     setIsMuted((prev) => {
@@ -102,6 +115,27 @@ export default function MediaHostingServicePage() {
       return next;
     });
   };
+
+  const otherServices = useMemo(
+    () => [
+      {
+        title: "Live Band & Entertainment",
+        link: "/services/live-band",
+        image: livebandHero,
+      },
+      {
+        title: "Catering & Local Foods",
+        link: "/services/catering",
+        image: cateringWallpaper,
+      },
+      {
+        title: "Event Décor & Lighting",
+        link: "/services/decor",
+        image: stageDecor,
+      },
+    ],
+    []
+  );
 
   /* -------------------------------
      JSX Render
@@ -120,6 +154,8 @@ export default function MediaHostingServicePage() {
               loop
               muted={isMuted}
               playsInline
+              preload="metadata"
+              loading="lazy"
               onError={() => setVideoUrl(null)}
             />
             <div className="overlay-gradient" />
@@ -163,7 +199,7 @@ export default function MediaHostingServicePage() {
               West Africa.
             </p>
           </header>
-          <ServiceCategory category="mediaHostingServicePage" limit={6} />
+          <ServiceCategory category="MediaHostingServicePage" limit={6} />
         </section>
       </FadeInSection>
 
@@ -174,7 +210,7 @@ export default function MediaHostingServicePage() {
           <div className="media-cards-scroll">
             {mediaLoading
               ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-              : Array.isArray(mediaCards) && mediaCards.length > 0 ? (
+              : mediaCards.length > 0 ? (
                   mediaCards.slice(0, 6).map((media, idx) => (
                     <MediaCard
                       key={media.id ?? media._id ?? media.url ?? idx}
@@ -195,7 +231,7 @@ export default function MediaHostingServicePage() {
           <div className="card-grid">
             {mediaLoading
               ? Array.from({ length: 9 }).map((_, i) => <MediaSkeleton key={i} />)
-              : Array.isArray(mediaCards) && mediaCards.length > 0 ? (
+              : mediaCards.length > 0 ? (
                   mediaCards.slice(0, 9).map((m, idx) => (
                     <MediaCard key={m.id ?? m._id ?? idx} media={m} />
                   ))
@@ -208,12 +244,14 @@ export default function MediaHostingServicePage() {
 
       {/* 💬 REVIEWS */}
       <FadeInSection>
-        <ReviewsLayout
-          title="Client Testimonials"
-          description="What our clients say about Ethical Empire’s media hosting and production services."
-        >
-          <Reviews limit={6} hideForm={true} category="mediaHostingServicePage" />
-        </ReviewsLayout>
+        <Suspense fallback={<div className="glass-panel">Loading Reviews...</div>}>
+          <ReviewsLayout
+            title="Client Testimonials"
+            description="What our clients say about Ethical Empire’s media hosting and production services."
+          >
+            <Reviews limit={6} hideForm={true} category="MediaHostingServicePage" />
+          </ReviewsLayout>
+        </Suspense>
       </FadeInSection>
 
       {/* 🌐 OTHER SERVICES */}
@@ -227,19 +265,15 @@ export default function MediaHostingServicePage() {
           </p>
 
           <div className="other-services-grid">
-            {[
-              { title: "Live Band & Entertainment", link: "/services/live-band", image: livebandHero },
-              { title: "Catering & Local Foods", link: "/services/catering", image: cateringWallpaper },
-              { title: "Event Décor & Lighting", link: "/services/decor", image: stageDecor },
-            ].map((s, idx) => (
+            {otherServices.map((s, idx) => (
               <div
                 key={idx}
                 className="other-service-card"
                 onClick={() => navigate(s.link)}
               >
-                <img src={s.image} alt={s.name} loading="lazy" />
+                <img src={s.image} alt={s.title} loading="lazy" />
                 <div className="overlay">
-                  <h3>{s.name}</h3>
+                  <h3>{s.title}</h3>
                 </div>
               </div>
             ))}

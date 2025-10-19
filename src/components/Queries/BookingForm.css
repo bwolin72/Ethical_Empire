@@ -1,275 +1,242 @@
 /* ======================================================
-   🎨 BOOKING FORM — GLASSMORPHIC & FULLY RESPONSIVE
+   BookingForm.css — Eethmgh Multimedia Theme
    ====================================================== */
 
-/* ========================
-   CONTAINER
-   ======================== */
 .booking-container {
-  font-family: var(--font-main);
-  color: var(--color-text);
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(14px) saturate(180%);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(15px);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  padding: 2rem;
-  max-width: 850px;
-  margin: 2rem auto;
-  animation: fade-in-up 0.6s ease-in-out both;
+  font-family: var(--font-main);
+  color: var(--color-text);
+  animation: fade-in 0.8s ease-out;
 }
 
-.dark .booking-container {
-  background: rgba(55, 55, 55, 0.3);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-/* ========================
-   TITLE
-   ======================== */
 .booking-title {
-  text-align: center;
   font-family: var(--font-accent);
   font-size: 2rem;
-  background: var(--gradient-gold-burgundy);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 1.8rem;
-  letter-spacing: 0.5px;
+  text-align: center;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
 }
 
-/* ========================
-   FORM LAYOUT
-   ======================== */
 .booking-form {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
 
-/* ------------------------
-   FORM SECTIONS
-   ------------------------ */
 .form-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .form-section label {
-  flex: 1 1 100%;
+  display: block;
+  margin-bottom: 0.25rem;
   font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 0.3rem;
-  font-size: 0.95rem;
 }
 
-/* ------------------------
-   INPUTS & TEXTAREAS
-   ------------------------ */
 .form-section input,
 .form-section textarea,
-.dropdown {
-  flex: 1 1 100%;
-  padding: 0.75rem 1rem;
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+.form-section .dropdown {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
   border-radius: var(--radius-md);
-  outline: none;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-input-bg);
   color: var(--color-text);
-  font-size: 0.95rem;
-  transition: all var(--transition-fast);
-}
-
-.dark .form-section input,
-.dark .form-section textarea,
-.dark .dropdown {
-  background: rgba(0, 0, 0, 0.25);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: var(--color-text);
+  font-size: 1rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .form-section input:focus,
 .form-section textarea:focus,
-.dropdown:focus {
-  border-color: var(--color-accent-gold);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+.form-section .dropdown:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
 }
 
-/* ------------------------
-   SERVICES LIST
-   ------------------------ */
+textarea {
+  resize: vertical;
+}
+
 .services-list {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
-  padding: 1.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.dark .services-list {
-  background: rgba(0, 0, 0, 0.25);
+  grid-column: 1 / -1;
 }
 
 .services-list h2 {
+  margin-bottom: 0.75rem;
   font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--color-primary-light);
+  color: var(--color-secondary);
 }
 
 .service-item {
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  background-color: var(--color-service-bg);
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap;
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
-.service-item label {
-  font-weight: 500;
-  flex: 1;
-  font-size: 0.95rem;
+.service-item:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-white);
+  transform: translateY(-2px);
 }
 
 .service-item input[type="checkbox"] {
-  accent-color: var(--color-primary);
+  margin-right: 0.5rem;
+  accent-color: var(--color-accent-gold);
 }
 
 .price {
   font-weight: 600;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-gold-dark);
+  margin-left: 0.5rem;
 }
 
-/* ------------------------
-   TOTAL SECTION
-   ------------------------ */
 .total-section {
+  grid-column: 1 / -1;
+  font-size: 1.25rem;
+  font-weight: 700;
   text-align: right;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--color-accent-gold);
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
-  padding-top: 1rem;
+  color: var(--color-primary-dark);
 }
 
-/* ------------------------
-   SUBMIT BUTTON
-   ------------------------ */
 .submit-btn {
-  width: 100%;
-  padding: 0.9rem;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 1.05rem;
+  grid-column: 1 / -1;
+  padding: 0.75rem 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-white);
+  border-radius: var(--radius-lg);
+  border: none;
   background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  transition: all var(--transition-fast);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
-  background: var(--gradient-navy-gold);
+  box-shadow: var(--shadow-md);
 }
 
 .submit-btn:disabled {
+  background-color: var(--color-disabled);
   cursor: not-allowed;
-  background: var(--color-disabled);
-  box-shadow: none;
+}
+
+.glassmorphic {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* ======================================================
-   RESPONSIVENESS — Mobile First (down to 240px)
+   Responsive: Mobile first
    ====================================================== */
-@media (max-width: 1024px) {
-  .booking-container {
-    max-width: 95%;
-    padding: 1.5rem;
-  }
-}
-
 @media (max-width: 768px) {
   .form-section {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
-  .form-section input,
-  .form-section textarea,
-  .dropdown {
-    width: 100%;
+
+  .total-section,
+  .submit-btn {
+    text-align: center;
   }
 }
 
 @media (max-width: 480px) {
   .booking-container {
-    padding: 1.2rem;
-    border-radius: var(--radius-md);
+    padding: 1.25rem;
   }
+
   .booking-title {
-    font-size: 1.6rem;
+    font-size: 1.75rem;
   }
-  .submit-btn {
-    font-size: 1rem;
-    padding: 0.8rem;
-  }
+
   .services-list h2 {
     font-size: 1.1rem;
   }
-  .form-section label {
-    font-size: 0.9rem;
-  }
-}
 
-@media (max-width: 360px) {
-  .booking-container {
-    margin: 1rem;
-    padding: 0.8rem;
-    border-radius: var(--radius-sm);
-  }
-  .booking-title {
-    font-size: 1.4rem;
-  }
-  .form-section input,
-  .form-section textarea,
-  .dropdown {
-    font-size: 0.85rem;
-    padding: 0.6rem 0.8rem;
-  }
   .submit-btn {
-    font-size: 0.95rem;
-    padding: 0.7rem;
-  }
-  .services-list h2 {
     font-size: 1rem;
+    padding: 0.6rem 1rem;
   }
 }
 
 @media (max-width: 240px) {
   .booking-container {
-    padding: 0.6rem;
-    margin: 0.5rem;
-    border-radius: var(--radius-sm);
+    padding: 0.75rem;
   }
+
   .booking-title {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
   }
-  .form-section label {
-    font-size: 0.8rem;
-  }
+
   .form-section input,
   .form-section textarea,
-  .dropdown {
-    font-size: 0.75rem;
-    padding: 0.5rem 0.6rem;
+  .form-section .dropdown {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.875rem;
   }
+
   .submit-btn {
-    font-size: 0.85rem;
-    padding: 0.6rem;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
   }
-  .services-list h2 {
-    font-size: 0.9rem;
+}
+.socialhub {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap; /* ensures it wraps on very small screens */
+}
+
+.socialhub a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  font-size: 1.25rem;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.socialhub a:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 480px) {
+  .socialhub a {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 240px) {
+  .socialhub {
+    gap: 0.5rem;
+  }
+  
+  .socialhub a {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
   }
 }

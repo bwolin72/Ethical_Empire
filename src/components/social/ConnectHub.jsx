@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import AuthContext from "../context/AuthContext";
 import authService from "../../api/services/authService";
 import { roleRoutes } from "../../routes/roleRoutes";
-import "./ConnectHub.css";
+import "./SocialHub.css";
 
 // ✅ Lazy-load SocialHub for performance
 const SocialHub = React.lazy(() => import("./SocialHub"));
