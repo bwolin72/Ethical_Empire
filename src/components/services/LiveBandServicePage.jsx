@@ -91,7 +91,7 @@ export default function LiveBandServicePage() {
   /* ---------- Live Band Service Categories ---------- */
   const liveBandCategories = [
     {
-      title: "Corporate & Luxury Events",
+      name: "Corporate & Luxury Events",
       image: corporatePerformance,
       services: [
         {
@@ -112,7 +112,7 @@ export default function LiveBandServicePage() {
       ],
     },
     {
-      title: "Weddings & Private Celebrations",
+      name: "Weddings & Private Celebrations",
       image: weddingBand,
       services: [
         {
@@ -133,7 +133,7 @@ export default function LiveBandServicePage() {
       ],
     },
     {
-      title: "Concerts & Festivals",
+      name: "Concerts & Festivals",
       image: festivalBand,
       services: [
         {

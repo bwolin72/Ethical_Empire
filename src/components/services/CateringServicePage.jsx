@@ -21,7 +21,23 @@ import {
 } from "react-icons/fa";
 import "./catering.custom.css";
 
-/* Skeleton for loading states */
+/* === IMAGE IMPORTS === */
+import jollofImg from "../../assets/catering/jollof-chicken.png";
+import bankuImg from "../../assets/catering/banku-tilapia.png";
+import waakyeImg from "../../assets/catering/waakye.jpeg";
+import kenkeyImg from "../../assets/catering/kenkey.png";
+import fufuImg from "../../assets/catering/fufu.jpeg";
+import ampesiImg from "../../assets/catering/ampesi.jpeg";
+import keleweleImg from "../../assets/catering/kelewele.jpeg";
+
+import nigerianJollofImg from "../../assets/catering/nigerian-jollof.jpeg";
+import yassaImg from "../../assets/catering/yassa-chicken.jpeg";
+import attiekeImg from "../../assets/catering/attieke-fish.jpeg";
+import buffetImg from "../../assets/catering/continental-buffet.jpeg";
+import asianImg from "../../assets/catering/asian-fusion.jpeg";
+import mediterraneanImg from "../../assets/catering/mediterranean.jpeg";
+
+/* === Skeleton for loading states === */
 const SkeletonBox = ({ width = "100%", height = "20px", radius = "6px" }) => (
   <div
     className="skeleton-box"
@@ -29,7 +45,8 @@ const SkeletonBox = ({ width = "100%", height = "20px", radius = "6px" }) => (
       width,
       height,
       borderRadius: radius,
-      background: "linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%)",
+      background:
+        "linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%)",
       backgroundSize: "200% 100%",
       animation: "skeleton-loading 1.5s infinite",
     }}
@@ -94,25 +111,25 @@ const CateringPage = () => {
     });
   };
 
-  /* === Local Ghanaian Foods (SEO Focus) === */
+  /* === Local Ghanaian Foods (with images) === */
   const localFoods = [
-    { name: "Jollof Rice & Grilled Chicken", icon: <FaPepperHot /> },
-    { name: "Banku & Tilapia with Shito", icon: <FaFish /> },
-    { name: "Waakye with Gari & Stew", icon: <FaUtensils /> },
-    { name: "Kenkey & Fried Fish", icon: <FaMortarPestle /> },
-    { name: "Fufu & Light Soup", icon: <FaDrumstickBite /> },
-    { name: "Ampesi with Kontomire Stew", icon: <FaAppleAlt /> },
-    { name: "Kelewele & Groundnuts", icon: <FaCarrot /> },
+    { name: "Jollof Rice & Grilled Chicken", icon: <FaPepperHot />, image: jollofImg },
+    { name: "Banku & Tilapia with Shito", icon: <FaFish />, image: bankuImg },
+    { name: "Waakye with Gari & Stew", icon: <FaUtensils />, image: waakyeImg },
+    { name: "Kenkey & Fried Fish", icon: <FaMortarPestle />, image: kenkeyImg },
+    { name: "Fufu & Light Soup", icon: <FaDrumstickBite />, image: fufuImg },
+    { name: "Ampesi with Kontomire Stew", icon: <FaAppleAlt />, image: ampesiImg },
+    { name: "Kelewele & Groundnuts", icon: <FaCarrot />, image: keleweleImg },
   ];
 
-  /* === West African & Global Varieties === */
+  /* === West African & Global Varieties (with images) === */
   const globalVarieties = [
-    { name: "Nigerian Party Jollof", icon: <FaPepperHot /> },
-    { name: "Senegalese Yassa Chicken", icon: <FaUtensils /> },
-    { name: "Ivorian Attiéké & Fish", icon: <FaFish /> },
-    { name: "Continental Buffets", icon: <FaGlobeAmericas /> },
-    { name: "Asian Fusion & Stir Fry", icon: <FaLeaf /> },
-    { name: "Mediterranean Platters", icon: <FaAppleAlt /> },
+    { name: "Nigerian Party Jollof", icon: <FaPepperHot />, image: nigerianJollofImg },
+    { name: "Senegalese Yassa Chicken", icon: <FaUtensils />, image: yassaImg },
+    { name: "Ivorian Attiéké & Fish", icon: <FaFish />, image: attiekeImg },
+    { name: "Continental Buffets", icon: <FaGlobeAmericas />, image: buffetImg },
+    { name: "Asian Fusion & Stir Fry", icon: <FaLeaf />, image: asianImg },
+    { name: "Mediterranean Platters", icon: <FaAppleAlt />, image: mediterraneanImg },
   ];
 
   /* === Dietary Options === */
@@ -140,21 +157,12 @@ const CateringPage = () => {
             />
             <div className="overlay" />
             <div className="hero-content">
-              <motion.h1
-                initial="hidden"
-                animate="visible"
-                variants={sectionVariants}
-              >
+              <motion.h1 initial="hidden" animate="visible" variants={sectionVariants}>
                 Ghanaian & West African Catering Excellence
               </motion.h1>
-              <motion.p
-                initial="hidden"
-                animate="visible"
-                variants={sectionVariants}
-                custom={1}
-              >
-                Authentic local dishes and global gourmet experiences — from
-                traditional Ghanaian recipes to world-class event catering.
+              <motion.p initial="hidden" animate="visible" variants={sectionVariants} custom={1}>
+                Authentic local dishes and global gourmet experiences — from traditional Ghanaian
+                recipes to world-class event catering.
               </motion.p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -164,11 +172,7 @@ const CateringPage = () => {
                 Request a Custom Menu
               </motion.button>
             </div>
-            <button
-              className="mute-button"
-              onClick={toggleMute}
-              aria-pressed={!isMuted}
-            >
+            <button className="mute-button" onClick={toggleMute} aria-pressed={!isMuted}>
               {isMuted ? "🔇" : "🔊"}
             </button>
           </div>
@@ -219,12 +223,13 @@ const CateringPage = () => {
         <h2 className="section-title">Popular Local Foods in Ghana</h2>
         <p className="section-subtitle">
           We proudly serve the best of <strong>Ghanaian</strong> and{" "}
-          <strong>West African cuisine</strong> — traditional recipes made with
-          local ingredients and authentic flavors.
+          <strong>West African cuisine</strong> — traditional recipes made with local ingredients
+          and authentic flavors.
         </p>
         <div className="local-food-grid">
           {localFoods.map((item, i) => (
             <motion.div key={i} className="local-food-card" whileHover={{ scale: 1.07 }}>
+              {item.image && <img src={item.image} alt={item.name} className="food-image" />}
               <span className="local-food-icon">{item.icon}</span>
               <span className="local-food-label">{item.name}</span>
             </motion.div>
@@ -243,16 +248,13 @@ const CateringPage = () => {
         <h2 className="section-title">International & West African Varieties</h2>
         <p className="section-subtitle">
           Beyond local favorites, our culinary team creates{" "}
-          <strong>continental, West African, and fusion delicacies</strong> that
-          captivate guests at weddings, corporate events, and private parties.
+          <strong>continental, West African, and fusion delicacies</strong> that captivate guests at
+          weddings, corporate events, and private parties.
         </p>
         <div className="world-grid">
           {globalVarieties.map((item, i) => (
-            <motion.div
-              key={i}
-              className="world-card"
-              whileHover={{ scale: 1.07 }}
-            >
+            <motion.div key={i} className="world-card" whileHover={{ scale: 1.07 }}>
+              {item.image && <img src={item.image} alt={item.name} className="food-image" />}
               <span className="world-icon">{item.icon}</span>
               <span className="world-label">{item.name}</span>
             </motion.div>
@@ -295,8 +297,8 @@ const CateringPage = () => {
             <div className="creative-text">
               <h3>Experience the Taste of Ghana & Beyond</h3>
               <p>
-                From <strong>party jollof</strong> to <strong>continental buffets</strong>,
-                we bring cultural richness and gourmet excellence to every plate.
+                From <strong>party jollof</strong> to <strong>continental buffets</strong>, we bring
+                cultural richness and gourmet excellence to every plate.
               </p>
             </div>
           </div>

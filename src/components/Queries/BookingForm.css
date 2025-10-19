@@ -1,7 +1,10 @@
 /* ======================================================
-   🧊 BOOKING FORM — GLASSMORPHIC & RESPONSIVE DESIGN
+   🎨 BOOKING FORM — GLASSMORPHIC & FULLY RESPONSIVE
    ====================================================== */
 
+/* ========================
+   CONTAINER
+   ======================== */
 .booking-container {
   font-family: var(--font-main);
   color: var(--color-text);
@@ -38,20 +41,20 @@
 }
 
 /* ========================
-   FORM
+   FORM LAYOUT
    ======================== */
 .booking-form {
   display: grid;
-  gap: 1.8rem;
+  gap: 1.5rem;
 }
 
 /* ------------------------
-   Sections
+   FORM SECTIONS
    ------------------------ */
 .form-section {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .form-section label {
@@ -59,8 +62,12 @@
   font-weight: 600;
   color: var(--color-text);
   margin-bottom: 0.3rem;
+  font-size: 0.95rem;
 }
 
+/* ------------------------
+   INPUTS & TEXTAREAS
+   ------------------------ */
 .form-section input,
 .form-section textarea,
 .dropdown {
@@ -91,7 +98,7 @@
 }
 
 /* ------------------------
-   Services
+   SERVICES LIST
    ------------------------ */
 .services-list {
   background: rgba(255, 255, 255, 0.2);
@@ -116,10 +123,13 @@
   align-items: center;
   gap: 0.6rem;
   margin-bottom: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .service-item label {
   font-weight: 500;
+  flex: 1;
+  font-size: 0.95rem;
 }
 
 .service-item input[type="checkbox"] {
@@ -132,7 +142,7 @@
 }
 
 /* ------------------------
-   Total Section
+   TOTAL SECTION
    ------------------------ */
 .total-section {
   text-align: right;
@@ -144,7 +154,7 @@
 }
 
 /* ------------------------
-   Submit Button
+   SUBMIT BUTTON
    ------------------------ */
 .submit-btn {
   width: 100%;
@@ -173,12 +183,12 @@
 }
 
 /* ======================================================
-   📱 RESPONSIVENESS — Mobile First (>360px)
+   RESPONSIVENESS — Mobile First (down to 240px)
    ====================================================== */
 @media (max-width: 1024px) {
   .booking-container {
     max-width: 95%;
-    padding: 1.8rem;
+    padding: 1.5rem;
   }
 }
 
@@ -186,7 +196,6 @@
   .form-section {
     flex-direction: column;
   }
-
   .form-section input,
   .form-section textarea,
   .dropdown {
@@ -199,39 +208,68 @@
     padding: 1.2rem;
     border-radius: var(--radius-md);
   }
-
   .booking-title {
     font-size: 1.6rem;
   }
-
   .submit-btn {
     font-size: 1rem;
     padding: 0.8rem;
   }
-
   .services-list h2 {
     font-size: 1.1rem;
+  }
+  .form-section label {
+    font-size: 0.9rem;
   }
 }
 
 @media (max-width: 360px) {
   .booking-container {
     margin: 1rem;
-    padding: 1rem;
+    padding: 0.8rem;
+    border-radius: var(--radius-sm);
   }
-
-  .form-section label {
-    font-size: 0.9rem;
+  .booking-title {
+    font-size: 1.4rem;
   }
-
   .form-section input,
   .form-section textarea,
   .dropdown {
     font-size: 0.85rem;
     padding: 0.6rem 0.8rem;
   }
-
   .submit-btn {
+    font-size: 0.95rem;
+    padding: 0.7rem;
+  }
+  .services-list h2 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 240px) {
+  .booking-container {
+    padding: 0.6rem;
+    margin: 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+  .booking-title {
+    font-size: 1.2rem;
+  }
+  .form-section label {
+    font-size: 0.8rem;
+  }
+  .form-section input,
+  .form-section textarea,
+  .dropdown {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.6rem;
+  }
+  .submit-btn {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+  }
+  .services-list h2 {
     font-size: 0.9rem;
   }
 }

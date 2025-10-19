@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import bookingService from "../../api/services/bookingService";
-import serviceService from "../../api/services/serviceService"; // assumed endpoint for listing services
+import serviceService from "../../api/services/serviceService"; // fixed import
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 import { toast } from "react-toastify";
 import "./BookingForm.css";
@@ -33,7 +33,8 @@ const BookingForm = () => {
     const loadServices = async () => {
       try {
         setLoading(true);
-        const res = await serviceService.list();
+        const res = await serviceService.getServices(); // ✅ FIXED
+        console.log("Fetched services:", res.data); // optional for debugging
         setServices(res.data || []);
       } catch (error) {
         console.error("Failed to load services:", error);
@@ -91,6 +92,7 @@ const BookingForm = () => {
       toast.success("Booking submitted successfully!");
       console.log("✅ Booking created:", res.data);
 
+      // reset form
       setFormData({
         name: "",
         email: "",

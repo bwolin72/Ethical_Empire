@@ -1,12 +1,12 @@
 /* ======================================================
-   🌹 DECOR SERVICE PAGE — Cinematic & Glassmorphic Design
+   🌹 DECOR SERVICE PAGE — Glassmorphic & Responsive
    Brand: Eethm GH Multimedia
    ====================================================== */
 
 .decor-page-container {
-  font-family: var(--font-main);
-  background: var(--color-bg);
-  color: var(--color-text);
+  font-family: var(--font-main, "Poppins", sans-serif);
+  background: var(--color-bg, #0c0b0b);
+  color: var(--color-text, #fff);
   overflow-x: hidden;
   animation: fade-in 0.6s ease-in-out both;
 }
@@ -14,275 +14,295 @@
 /* ======================================================
    🎥 HERO SECTION
    ====================================================== */
-.banner-section {
+
+.decor-hero-section {
   position: relative;
   width: 100%;
-  height: 90vh;
-  max-height: 900px;
+  min-height: 90vh;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-black);
+  background: #000;
 }
 
 .hero-video {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  top: 0;
-  left: 0;
   z-index: 1;
+  filter: brightness(0.85);
 }
 
+/* Overlay for video and fallback */
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.7) 100%
-  );
   z-index: 2;
+  background: linear-gradient(
+    to bottom right,
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0.7)
+  );
 }
 
-/* === HERO CONTENT === */
-.hero-panel {
+/* === Fallback Image Hero === */
+.hero-fallback {
+  position: relative;
+  width: 100%;
+  min-height: 80vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === Hero Content === */
+.hero-content {
   position: relative;
   z-index: 3;
-  max-width: 800px;
   text-align: center;
-  color: var(--color-white);
-  padding: 2rem;
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
-  background: rgba(88, 28, 28, 0.25);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  max-width: 800px;
+  padding: 2rem 1.5rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-.hero-heading {
-  font-family: var(--font-accent);
+.hero-title {
+  font-family: var(--font-accent, "Cinzel", serif);
   font-size: clamp(1.8rem, 4vw, 3.5rem);
-  font-weight: 700;
-  color: var(--color-accent-gold-light);
-  letter-spacing: 1px;
-  margin-bottom: 0.8rem;
+  color: var(--color-accent-gold, #d4af37);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
 }
 
-.hero-lead {
-  font-size: clamp(0.95rem, 1.8vw, 1.2rem);
-  color: #f9f9f9;
+.hero-subtitle {
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 1.8rem;
   line-height: 1.6;
 }
 
-/* === HERO BUTTONS === */
-.hero-actions {
+.hero-buttons {
   display: flex;
-  gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.cta-button,
-.cta-alt {
-  padding: 0.8rem 1.6rem;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
+/* === Buttons === */
+.btn {
   font-weight: 600;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  padding: 0.9rem 1.8rem;
   font-size: 1rem;
-  transition: all var(--transition-fast);
 }
 
-.cta-button {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
+.btn-primary {
+  background: linear-gradient(135deg, #d4af37, #8b0000);
+  color: #fff;
+  border: none;
 }
 
-.cta-button:hover {
+.btn-primary:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.4);
 }
 
-.cta-alt {
+.btn-outline {
   background: rgba(255, 255, 255, 0.15);
-  color: var(--color-accent-gold-light);
-  backdrop-filter: blur(6px);
+  color: #f5e6c4;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.cta-alt:hover {
+.btn-outline:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: scale(1.05);
 }
 
-/* === MUTE BUTTON === */
+/* === Mute Button === */
 .mute-button {
   position: absolute;
-  bottom: 1rem;
-  right: 1rem;
+  bottom: 1.2rem;
+  right: 1.2rem;
   z-index: 4;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--color-accent-gold);
-  color: var(--color-accent-gold-light);
+  width: 2.6rem;
+  height: 2.6rem;
   border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
+  border: 1px solid var(--color-accent-gold, #d4af37);
+  background: rgba(0, 0, 0, 0.5);
+  color: #d4af37;
   cursor: pointer;
+  transition: all 0.3s ease-in-out;
   font-size: 1.1rem;
-  transition: all var(--transition-fast);
 }
 
 .mute-button:hover {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   transform: scale(1.1);
 }
 
 /* ======================================================
    🪷 DECOR SERVICES
    ====================================================== */
+
 .decor-services {
   text-align: center;
-  padding: 4rem 1.5rem;
-  background: var(--color-service-bg);
-  color: var(--color-text);
+  padding: 5rem 1.5rem;
+  background: #0f0f0f;
+  color: #fff;
 }
 
 .decor-services h2 {
-  font-family: var(--font-accent);
-  font-size: clamp(1.6rem, 3vw, 2.5rem);
-  color: var(--color-primary);
-  margin-bottom: 0.5rem;
+  font-family: var(--font-accent, "Cinzel", serif);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  color: var(--color-accent-gold, #d4af37);
+  margin-bottom: 0.8rem;
 }
 
 .section-description {
   max-width: 700px;
   margin: 0 auto 3rem;
-  color: var(--color-neutral-light);
-  font-size: 1.1rem;
-  line-height: 1.6;
-}
-
-.decor-service-category-list {
-  display: grid;
-  gap: 3rem;
-}
-
-/* ======================================================
-   💡 CREATIVE SECTION
-   ====================================================== */
-.creative-layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  align-items: center;
-  gap: 3rem;
-  padding: 5rem 1.5rem;
-  background: var(--gradient-navy-gold);
-  color: var(--color-white);
-}
-
-.creative-text {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.creative-text h3 {
-  font-family: var(--font-accent);
-  font-size: clamp(1.6rem, 3vw, 2.3rem);
-  margin-bottom: 1rem;
-}
-
-.creative-text p {
+  color: rgba(255, 255, 255, 0.75);
   font-size: 1.05rem;
   line-height: 1.7;
 }
 
-.creative-media {
-  display: flex;
-  flex-wrap: wrap;
+/* Decor Category Grid */
+.decor-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
   justify-content: center;
-  gap: 1.5rem;
+  align-items: stretch;
 }
 
-.creative-media img,
-.creative-media video {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+.decor-category-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.decor-category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.decor-category-image {
   width: 100%;
-  max-width: 480px;
-  height: auto;
-  transition: transform var(--transition-slow);
-}
-
-.creative-media img:hover {
-  transform: scale(1.03);
+  height: 220px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 /* ======================================================
-   🖼️ DECOR GALLERY
+   🖼️ GALLERY SECTION
    ====================================================== */
+
+.gallery-section {
+  background: linear-gradient(180deg, #120c0c, #1a1414);
+  color: #fff;
+  text-align: center;
+  padding: 5rem 1.5rem;
+}
+
+.gallery-section h2 {
+  font-family: var(--font-accent, "Cinzel", serif);
+  color: var(--color-accent-gold, #d4af37);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.gallery-section p {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 2.5rem;
+}
+
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  padding: 3rem 1.5rem;
 }
 
 .card-grid img {
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-md);
+  border-radius: 1rem;
   object-fit: cover;
   transition: transform 0.3s ease-in-out;
 }
 
 .card-grid img:hover {
-  transform: scale(1.04);
+  transform: scale(1.03);
 }
 
 /* ======================================================
-   💬 REVIEWS SECTION (inherits existing component style)
+   💬 REVIEWS SECTION
    ====================================================== */
 .reviews-layout {
   padding: 4rem 1.5rem;
-  background: var(--color-bg);
+  background: #0a0a0a;
 }
 
 /* ======================================================
-   🧊 GLASSMORPHIC UTILITIES
+   🧊 UTILITIES
    ====================================================== */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+.glass-gradient {
+  background: linear-gradient(
+    to bottom right,
+    rgba(0, 0, 0, 0.5),
+    rgba(40, 20, 20, 0.6)
+  );
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 1.25rem;
 }
 
 /* ======================================================
    📱 RESPONSIVE DESIGN
    ====================================================== */
+
+/* Medium Screens */
 @media (max-width: 1024px) {
-  .hero-panel {
+  .hero-content {
     max-width: 90%;
+  }
+
+  .decor-services {
+    padding: 4rem 1.25rem;
   }
 }
 
+/* Tablets */
 @media (max-width: 768px) {
-  .hero-actions {
+  .hero-buttons {
     flex-direction: column;
   }
 
-  .creative-layout {
-    grid-template-columns: 1fr;
-    text-align: center;
+  .hero-content {
+    padding: 1.5rem;
   }
 
-  .hero-panel {
-    padding: 1.5rem;
+  .decor-category-image {
+    height: 200px;
   }
 
   .section-description {
@@ -290,41 +310,70 @@
   }
 }
 
+/* Mobile Devices */
 @media (max-width: 480px) {
-  .banner-section {
-    height: 70vh;
+  .decor-hero-section {
+    min-height: 75vh;
   }
 
-  .hero-heading {
+  .hero-title {
     font-size: 1.6rem;
   }
 
-  .cta-button,
-  .cta-alt {
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .btn {
     font-size: 0.9rem;
-    padding: 0.7rem 1.2rem;
+    padding: 0.75rem 1.25rem;
   }
 
   .card-grid {
     grid-template-columns: 1fr;
   }
+
+  .decor-category-grid {
+    gap: 1.5rem;
+  }
 }
 
+/* Small Phones (≥360px) */
 @media (max-width: 360px) {
-  .hero-panel {
+  .hero-content {
     padding: 1rem;
   }
 
-  .hero-heading {
+  .hero-title {
     font-size: 1.4rem;
   }
 
-  .hero-lead {
+  .hero-subtitle {
     font-size: 0.85rem;
   }
 
-  .cta-button,
-  .cta-alt {
+  .btn {
+    font-size: 0.85rem;
     padding: 0.6rem 1rem;
+  }
+
+  .mute-button {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1rem;
+  }
+}
+
+/* ======================================================
+   ✨ ANIMATIONS
+   ====================================================== */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

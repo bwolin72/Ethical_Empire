@@ -1,14 +1,14 @@
 /* ==========================================================
-   🍽️ CATERING PAGE — ETHICAL EMPIRE MULTIMEDIA
-   Luxury Multimedia • Cinematic Aesthetic • Responsive Design
+   🍽️ CATERING PAGE — EETHM RECORDS MULTIMEDIA
+   Cinematic Glassmorphic Theme • Fully Responsive ≥360px
+   Scoped Styles (No Global Interference)
    ========================================================== */
 
-
-/* =============================
-   🌍 GLOBAL STRUCTURE
-   ============================= */
 .catering-page-container {
-  background-color: var(--color-bg);
+  --overlay-dark: rgba(0, 0, 0, 0.45);
+  --overlay-strong: rgba(0, 0, 0, 0.65);
+
+  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-main);
   overflow-x: hidden;
@@ -16,9 +16,9 @@
 }
 
 /* ======================================================
-   🎬 HERO SECTION — Video + Parallax + Glass Layer
+   🎬 HERO SECTION — Video + Glass Overlay + CTA
    ====================================================== */
-.catering-hero {
+.catering-page-container .catering-hero {
   position: relative;
   width: 100%;
   height: 85vh;
@@ -27,71 +27,68 @@
   justify-content: center;
   overflow: hidden;
   background: var(--gradient-gold-burgundy);
-  perspective: 1000px;
   animation: fade-in 0.8s ease-in-out both;
 }
 
-.video-wrapper {
+.catering-page-container .video-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  transform-style: preserve-3d;
-  will-change: transform;
 }
 
-.hero-video {
+.catering-page-container .hero-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: translateZ(-2px) scale(1.2);
   filter: brightness(0.7) contrast(1.1);
   transition: transform 0.6s ease-out;
 }
 
-.video-wrapper:hover .hero-video {
-  transform: translateZ(-1px) scale(1.15);
+.catering-page-container .video-wrapper:hover .hero-video {
+  transform: scale(1.05);
 }
 
-.overlay {
+.catering-page-container .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
+  background: var(--overlay-dark);
+  backdrop-filter: blur(3px);
 }
 
-.hero-content {
+.catering-page-container .hero-content {
   position: absolute;
   text-align: center;
   color: var(--color-white);
   z-index: 3;
   padding: 0 1rem;
+  max-width: 900px;
 }
 
-.hero-title {
+.catering-page-container .hero-content h1 {
   font-family: var(--font-accent);
   font-size: clamp(1.8rem, 4vw, 3rem);
-  letter-spacing: 1px;
   text-transform: uppercase;
+  letter-spacing: 1px;
   background: var(--gradient-gold-burgundy);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
 }
 
-.hero-subtitle {
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
+.catering-page-container .hero-content p {
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
   color: var(--color-service-bg-light);
   max-width: 600px;
-  margin: 0 auto 1rem;
+  margin: 0 auto 1.5rem;
 }
 
-.btn.btn-primary {
+.catering-page-container .btn.btn-primary {
   background: var(--gradient-navy-gold);
   border: none;
   color: var(--color-white);
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.75rem;
   font-size: 1rem;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -99,16 +96,16 @@
   box-shadow: var(--shadow-md);
 }
 
-.btn.btn-primary:hover {
+.catering-page-container .btn.btn-primary:hover {
   transform: scale(1.05);
   box-shadow: var(--shadow-lg);
   background: var(--gradient-gold-burgundy);
 }
 
-.mute-button {
+.catering-page-container .mute-button {
   position: absolute;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: 1.25rem;
+  right: 1.25rem;
   background: rgba(0, 0, 0, 0.6);
   color: var(--color-accent-gold-light);
   border: none;
@@ -122,21 +119,21 @@
   transition: all var(--transition-fast);
 }
 
-.mute-button:hover {
+.catering-page-container .mute-button:hover {
   background: rgba(255, 255, 255, 0.15);
   color: var(--color-accent-gold);
 }
 
 /* ======================================================
-   🍱 SERVICE + EVENT + DIETARY SECTIONS
+   🍱 SERVICE, FOOD, & DIETARY SECTIONS
    ====================================================== */
-.section {
+.catering-page-container .section {
   padding: 5rem 1.5rem;
   text-align: center;
   position: relative;
 }
 
-.section-title {
+.catering-page-container .section-title {
   font-family: var(--font-accent);
   font-size: clamp(1.4rem, 3vw, 2rem);
   text-transform: uppercase;
@@ -148,65 +145,78 @@
   letter-spacing: 1px;
 }
 
-/* === Event Types === */
-.event-grid {
+/* === Local & Global Food Grids === */
+.catering-page-container .local-food-grid,
+.catering-page-container .world-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.2rem;
+  gap: 1.5rem;
+  justify-items: center;
 }
 
-.event-card {
+.catering-page-container .local-food-card,
+.catering-page-container .world-card {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 1.2rem;
+  padding: 1.25rem;
   color: var(--color-accent-gold);
   font-weight: 600;
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-md);
   transition: all var(--transition-fast);
+  width: 100%;
+  max-width: 220px;
 }
 
-.event-card:hover {
-  transform: translateY(-5px);
+.catering-page-container .local-food-card:hover,
+.catering-page-container .world-card:hover {
+  transform: translateY(-6px);
   background: var(--gradient-gold-burgundy);
   color: var(--color-white);
 }
 
-/* === Dietary Options === */
-.dietary-grid {
+.catering-page-container .local-food-icon,
+.catering-page-container .world-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* === Dietary Section === */
+.catering-page-container .dietary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1.5rem;
   justify-items: center;
 }
 
-.dietary-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.catering-page-container .dietary-card {
   background: var(--color-service-bg);
   border-radius: var(--radius-md);
-  padding: 1rem;
+  padding: 1.25rem;
+  text-align: center;
+  color: var(--color-neutral-dark);
   transition: all var(--transition-slow);
   box-shadow: var(--shadow-sm);
-  color: var(--color-neutral-dark);
+  width: 100%;
+  max-width: 220px;
 }
 
-.dietary-card:hover {
+.catering-page-container .dietary-card:hover {
   transform: scale(1.08);
   background: var(--gradient-navy-gold);
   color: var(--color-white);
 }
 
-.dietary-icon {
+.catering-page-container .dietary-icon {
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
   color: var(--color-accent-gold);
 }
 
-/* === Creative Section === */
-.creative-layout {
+/* === Creative Section (Media + Text) === */
+.catering-page-container .creative-layout {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -214,24 +224,24 @@
   justify-content: center;
 }
 
-.creative-media {
+.catering-page-container .creative-media {
   flex: 1 1 420px;
 }
 
-.creative-text {
+.catering-page-container .creative-text {
   flex: 1 1 350px;
   text-align: left;
   color: var(--color-text);
 }
 
-.creative-text h3 {
+.catering-page-container .creative-text h3 {
   font-family: var(--font-accent);
   color: var(--color-primary);
   margin-bottom: 1rem;
 }
 
 /* === Other Services === */
-.other-services-section {
+.catering-page-container .other-services-section {
   background: var(--color-service-bg);
   border-top: 1px solid var(--color-border);
   padding-top: 4rem;
@@ -240,90 +250,116 @@
 /* ======================================================
    🌗 DARK MODE ENHANCEMENTS
    ====================================================== */
-.dark .event-card,
-.dark .dietary-card {
+.dark .catering-page-container .event-card,
+.dark .catering-page-container .dietary-card {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.1);
   color: var(--color-accent-gold-light);
 }
 
-.dark .hero-video {
+.dark .catering-page-container .hero-video {
   filter: brightness(0.55) contrast(1.2);
 }
 
-.dark .overlay {
-  background: rgba(0, 0, 0, 0.65);
+.dark .catering-page-container .overlay {
+  background: var(--overlay-strong);
 }
 
-.dark .btn.btn-primary {
+.dark .catering-page-container .btn.btn-primary {
   background: var(--gradient-gold-burgundy);
 }
 
-.dark .dietary-card:hover {
+.dark .catering-page-container .dietary-card:hover {
   background: var(--gradient-navy-gold);
 }
 
 /* ======================================================
-   🌐 RTL / BIDIRECTIONAL SUPPORT
-   ====================================================== */
-html[dir="rtl"] .creative-layout {
-  flex-direction: row-reverse;
-}
-
-html[dir="rtl"] .hero-content {
-  text-align: center;
-}
-
-html[dir="rtl"] .creative-text {
-  text-align: right;
-}
-
-/* ======================================================
-   📱 RESPONSIVENESS — Fluid Scaling down to >360px
+   📱 RESPONSIVENESS — Down to 360px
    ====================================================== */
 @media (max-width: 1024px) {
-  .hero-content {
+  .catering-page-container .hero-content {
     padding: 0 2rem;
   }
 }
 
 @media (max-width: 768px) {
-  .catering-hero {
-    height: 70vh;
+  .catering-page-container .catering-hero {
+    height: auto;
+    min-height: 70vh;
+    flex-direction: column;
+    padding: 4rem 1rem;
   }
-  .creative-layout {
+
+  .catering-page-container .creative-layout {
     flex-direction: column;
     text-align: center;
   }
-  .creative-text {
+
+  .catering-page-container .creative-text {
     text-align: center;
   }
 }
 
 @media (max-width: 480px) {
-  .hero-title {
+  .catering-page-container .hero-content h1 {
     font-size: 1.6rem;
   }
-  .btn.btn-primary {
+
+  .catering-page-container .btn.btn-primary {
     width: 100%;
   }
-  .section {
+
+  .catering-page-container .section {
     padding: 3rem 1rem;
+  }
+
+  .catering-page-container .local-food-card,
+  .catering-page-container .world-card,
+  .catering-page-container .dietary-card {
+    max-width: 100%;
   }
 }
 
 @media (max-width: 360px) {
-  .hero-title {
+  .catering-page-container .hero-content h1 {
     font-size: 1.4rem;
   }
-  .dietary-grid {
+
+  .catering-page-container .dietary-grid {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
-  .mute-button {
+
+  .catering-page-container .mute-button {
     bottom: 1rem;
     right: 1rem;
     width: 36px;
     height: 36px;
     font-size: 0.9rem;
+  }
+}
+
+/* ======================================================
+   🎞️ VIDEO FALLBACK
+   ====================================================== */
+.catering-page-container .catering-hero {
+  background: linear-gradient(
+      to bottom right,
+      rgba(0, 0, 0, 0.75),
+      rgba(20, 10, 10, 0.9)
+    ),
+    url("../../assets/images/catering-fallback.jpg") center/cover no-repeat;
+}
+
+/* ======================================================
+   ✨ ANIMATIONS
+   ====================================================== */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

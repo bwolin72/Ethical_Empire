@@ -85,7 +85,7 @@ export default function DecorServicePage() {
   /* ---------- Decor Categories ---------- */
   const decorCategories = [
     {
-      title: "Floral & Table Decor",
+      name: "Floral & Table Decor",
       image: floralDecor,
       services: [
         { name: "Luxury Floral Arrangements", description: "Elegant centerpiece & aisle florals tailored to your event theme." },
@@ -94,7 +94,7 @@ export default function DecorServicePage() {
       ],
     },
     {
-      title: "Lighting & Ambience",
+      name: "Lighting & Ambience",
       image: lightingDecor,
       services: [
         { name: "Mood Lighting", description: "Create ambience with golden glow or soft pastels matching your brand colors." },
@@ -103,7 +103,7 @@ export default function DecorServicePage() {
       ],
     },
     {
-      title: "Stage & Venue Design",
+      name: "Stage & Venue Design",
       image: stageDecor,
       services: [
         { name: "Stage Backdrops", description: "Theme-based or floral backdrops for premium West African events." },

@@ -237,9 +237,9 @@ export default function MediaHostingServicePage() {
                 className="other-service-card"
                 onClick={() => navigate(s.link)}
               >
-                <img src={s.image} alt={s.title} loading="lazy" />
+                <img src={s.image} alt={s.name} loading="lazy" />
                 <div className="overlay">
-                  <h3>{s.title}</h3>
+                  <h3>{s.name}</h3>
                 </div>
               </div>
             ))}

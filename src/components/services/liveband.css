@@ -1,9 +1,16 @@
 /* ======================================================
-   🎵 LIVE BAND PAGE — PRODUCTION READY STYLES
-   Responsive • Cinematic • Glassmorphic • Dark Mode
+   🎵 LIVE BAND PAGE — SCOPED + RESPONSIVE STYLES
+   Glassmorphic • Cinematic • Mobile-First (>360px)
    ====================================================== */
 
 .liveband-page-container {
+  --hero-min-height: 620px;
+  --transition-fast: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  --radius-lg: 14px;
+  --shadow-md: 0 6px 14px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 24px rgba(0, 0, 0, 0.35);
+
   font-family: var(--font-main);
   color: var(--color-text);
   background-color: var(--color-bg);
@@ -16,18 +23,18 @@
 .liveband-hero-section {
   position: relative;
   height: 100vh;
-  min-height: 620px;
+  min-height: var(--hero-min-height);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   color: var(--color-white);
-  overflow: hidden;
   background: var(--color-black);
+  overflow: hidden;
 }
 
 /* --- Background Video --- */
-.hero-video {
+.liveband-hero-section .hero-video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -37,19 +44,16 @@
   z-index: 0;
 }
 
-.hero-overlay {
+/* --- Overlay --- */
+.liveband-hero-section .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.4),
-    rgba(0, 0, 0, 0.9)
-  );
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9));
   z-index: 1;
 }
 
 /* --- Hero Content --- */
-.hero-content {
+.liveband-hero-section .hero-content {
   position: relative;
   z-index: 2;
   padding: 1rem;
@@ -57,7 +61,7 @@
   animation: fade-in-up 1s ease both;
 }
 
-.hero-title {
+.liveband-hero-section .hero-title {
   font-family: var(--font-accent);
   font-size: clamp(2rem, 6vw, 4rem);
   font-weight: 700;
@@ -69,14 +73,14 @@
   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
 }
 
-.hero-subtitle {
+.liveband-hero-section .hero-subtitle {
   font-size: clamp(1rem, 2.3vw, 1.4rem);
   color: rgba(255, 255, 255, 0.88);
   margin-bottom: 2rem;
   line-height: 1.6;
 }
 
-.hero-buttons {
+.liveband-hero-section .hero-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -84,82 +88,81 @@
 }
 
 /* --- Buttons --- */
-.btn-primary {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
+.liveband-hero-section .btn-primary,
+.liveband-hero-section .btn-outline {
   font-weight: 600;
   padding: 0.9rem 2rem;
-  border: none;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
   transition: all var(--transition-fast);
   cursor: pointer;
 }
 
-.btn-primary:hover {
+.liveband-hero-section .btn-primary {
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  box-shadow: var(--shadow-md);
+  border: none;
+}
+
+.liveband-hero-section .btn-primary:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
 }
 
-.btn-outline {
+.liveband-hero-section .btn-outline {
   border: 2px solid var(--color-accent-gold);
   background: transparent;
   color: var(--color-accent-gold);
-  font-weight: 600;
-  padding: 0.9rem 2rem;
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-fast);
-  cursor: pointer;
 }
 
-.btn-outline:hover {
+.liveband-hero-section .btn-outline:hover {
   background: var(--color-accent-gold);
   color: var(--color-black);
   transform: translateY(-3px);
 }
 
 /* --- Mute Button --- */
-.mute-button {
+.liveband-hero-section .mute-button {
   position: absolute;
   bottom: 1.5rem;
   right: 1.5rem;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(14px);
-  color: var(--color-white);
-  font-size: 1.1rem;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--color-white);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+  font-size: 1.1rem;
   transition: all var(--transition-fast);
   z-index: 5;
 }
 
-.mute-button:hover {
+.liveband-hero-section .mute-button:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: scale(1.1);
 }
 
 /* ======================================================
-   🎷 LIVE BAND SERVICES
+   🎷 SERVICE SECTIONS
    ====================================================== */
-.section {
+.liveband-page-container .section {
   padding: clamp(3rem, 6vw, 5rem) 1rem;
   text-align: center;
 }
 
-.section-title {
+.liveband-page-container .section h2 {
   font-family: var(--font-accent);
   font-size: clamp(1.8rem, 3.5vw, 2.6rem);
   margin-bottom: 1rem;
   color: var(--color-primary-dark);
 }
 
-.section-lead {
+.liveband-page-container .section p {
   color: var(--color-neutral);
   font-size: clamp(1rem, 2vw, 1.15rem);
   max-width: 700px;
@@ -167,6 +170,7 @@
   line-height: 1.7;
 }
 
+/* --- Service Grid --- */
 .liveband-category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -176,7 +180,6 @@
   margin: 0 auto;
 }
 
-/* --- Service Cards --- */
 .liveband-category-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(14px);
@@ -184,9 +187,9 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  transition: all var(--transition-slow);
   display: flex;
   flex-direction: column;
+  transition: all var(--transition-slow);
 }
 
 .liveband-category-card:hover {
@@ -198,8 +201,8 @@
   width: 100%;
   height: clamp(200px, 25vw, 260px);
   object-fit: cover;
-  transition: filter var(--transition-fast);
   filter: brightness(0.9);
+  transition: filter var(--transition-fast);
 }
 
 .liveband-category-card:hover .liveband-category-image {
@@ -225,29 +228,29 @@
 }
 
 /* ======================================================
-   🎤 GALLERY SECTION
+   🎤 GALLERY
    ====================================================== */
-.gallery-section {
+.liveband-page-container .gallery-section {
   padding: clamp(3rem, 6vw, 5rem) 1rem;
   background: var(--color-service-bg);
   text-align: center;
 }
 
-.gallery-section h2 {
+.liveband-page-container .gallery-section h2 {
   font-family: var(--font-accent);
   color: var(--color-primary-dark);
   font-size: clamp(1.8rem, 3.2vw, 2.3rem);
   margin-bottom: 1rem;
 }
 
-.gallery-section p {
+.liveband-page-container .gallery-section p {
   color: var(--color-neutral);
   max-width: 700px;
   margin: 0 auto 3rem;
   line-height: 1.7;
 }
 
-.card-grid {
+.liveband-page-container .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
@@ -255,18 +258,18 @@
 }
 
 /* ======================================================
-   💬 REVIEWS SECTION
+   💬 REVIEWS
    ====================================================== */
-.reviews-layout {
+.liveband-page-container .reviews-layout {
   background: var(--color-bg);
   padding: clamp(3rem, 6vw, 5rem) 1rem;
   text-align: center;
 }
 
 /* ======================================================
-   ✨ GLASS PANEL UTILITY
+   ✨ GLASS UTILITY
    ====================================================== */
-.glass-panel {
+.liveband-page-container .glass-panel {
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -283,22 +286,22 @@
   color: var(--color-text-dark);
 }
 
-.dark .hero-video {
+.dark .liveband-hero-section .hero-video {
   filter: brightness(0.5);
 }
 
-.dark .hero-overlay {
+.dark .liveband-hero-section .hero-overlay {
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(10, 10, 10, 0.95));
 }
 
-.dark .hero-title {
+.dark .liveband-hero-section .hero-title {
   background: var(--gradient-navy-gold);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.dark .btn-primary {
+.dark .liveband-hero-section .btn-primary {
   background: var(--gradient-navy-gold);
 }
 
@@ -312,65 +315,71 @@
   background: rgba(25, 25, 25, 0.85);
 }
 
-.dark .section-title {
+.dark .section h2,
+.dark .gallery-section h2 {
   color: var(--color-accent-gold);
 }
 
-.dark .section-lead,
+.dark .section p,
 .dark .gallery-section p {
   color: rgba(255, 255, 255, 0.85);
 }
 
 /* ======================================================
-   📱 RESPONSIVE OPTIMIZATION
+   📱 RESPONSIVE (>360px and up)
    ====================================================== */
 @media (max-width: 1024px) {
-  .hero-title {
+  .liveband-hero-section .hero-title {
     font-size: clamp(2rem, 5vw, 3rem);
   }
-  .hero-subtitle {
+  .liveband-hero-section .hero-subtitle {
     font-size: clamp(1rem, 2vw, 1.2rem);
   }
 }
 
 @media (max-width: 768px) {
-  .hero-buttons {
+  .liveband-hero-section .hero-buttons {
     flex-direction: column;
   }
-
-  .mute-button {
+  .liveband-hero-section .mute-button {
     width: 42px;
     height: 42px;
     bottom: 1rem;
     right: 1rem;
   }
-
   .liveband-category-image {
     height: 200px;
   }
-
-  .section,
-  .gallery-section {
+  .liveband-page-container .section,
+  .liveband-page-container .gallery-section {
     padding: 3rem 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .hero-title {
+  .liveband-hero-section .hero-title {
     font-size: clamp(1.8rem, 8vw, 2.4rem);
   }
-
-  .hero-subtitle {
+  .liveband-hero-section .hero-subtitle {
     font-size: 1rem;
   }
-
-  .btn-primary,
-  .btn-outline {
+  .liveband-hero-section .btn-primary,
+  .liveband-hero-section .btn-outline {
     width: 100%;
     max-width: 260px;
   }
-
   .liveband-category-content {
     padding: 1rem;
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

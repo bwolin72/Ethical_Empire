@@ -1,6 +1,6 @@
 /* ======================================================
    🖥️ MEDIA HOSTING SERVICE PAGE — Ethical Empire
-   Glass Design | Cinematic | Responsive
+   Glassmorphic | Cinematic | Responsive | Scoped Styles
    ====================================================== */
 
 .media-hosting-page {
@@ -14,7 +14,7 @@
    🎥 HERO SECTION
    ====================================================== */
 
-.media-hero-section {
+.media-hosting-page .media-hero-section {
   position: relative;
   height: 90vh;
   display: flex;
@@ -22,9 +22,15 @@
   justify-content: center;
   overflow: hidden;
   border-radius: var(--radius-lg);
+  background: linear-gradient(
+      to bottom right,
+      rgba(0, 0, 0, 0.8),
+      rgba(20, 10, 10, 0.9)
+    ),
+    url("../../assets/images/media-hosting-fallback.jpg") center/cover no-repeat;
 }
 
-.background-video {
+.media-hosting-page .background-video {
   position: absolute;
   top: 0;
   left: 0;
@@ -35,7 +41,7 @@
   z-index: 1;
 }
 
-.overlay-gradient {
+.media-hosting-page .overlay-gradient {
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -46,13 +52,14 @@
   z-index: 2;
 }
 
-.hero-glass {
+.media-hosting-page .hero-glass {
   position: relative;
   z-index: 3;
   padding: 2rem;
   max-width: 800px;
   text-align: center;
-  color: var(--color-white);
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(18px);
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(212, 175, 55, 0.2);
@@ -61,7 +68,7 @@
   animation: fade-in-up 1s ease both;
 }
 
-.hero-title {
+.media-hosting-page .hero-title {
   font-family: var(--font-accent);
   font-size: clamp(2rem, 4vw, 3.5rem);
   background: var(--gradient-gold-burgundy);
@@ -71,7 +78,7 @@
   margin-bottom: 1rem;
 }
 
-.hero-subtitle {
+.media-hosting-page .hero-subtitle {
   font-size: clamp(1rem, 2vw, 1.25rem);
   line-height: 1.6;
   color: var(--color-white);
@@ -79,15 +86,15 @@
   margin-bottom: 2rem;
 }
 
-.hero-buttons {
+.media-hosting-page .hero-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
 }
 
-.btn-primary,
-.btn-secondary {
+.media-hosting-page .btn-primary,
+.media-hosting-page .btn-secondary {
   padding: 0.8rem 1.8rem;
   border-radius: var(--radius-md);
   font-weight: 600;
@@ -95,29 +102,29 @@
   cursor: pointer;
 }
 
-.btn-primary {
+.media-hosting-page .btn-primary {
   background: var(--gradient-gold-burgundy);
   color: var(--color-white);
   border: none;
 }
 
-.btn-primary:hover {
+.media-hosting-page .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.btn-secondary {
+.media-hosting-page .btn-secondary {
   background: transparent;
   color: var(--color-accent-gold);
   border: 2px solid var(--color-accent-gold);
 }
 
-.btn-secondary:hover {
+.media-hosting-page .btn-secondary:hover {
   background: var(--color-accent-gold);
   color: var(--color-black);
 }
 
-.mute-button {
+.media-hosting-page .mute-button {
   position: absolute;
   bottom: 2rem;
   right: 2rem;
@@ -134,7 +141,7 @@
   transition: all var(--transition-fast);
 }
 
-.mute-button:hover {
+.media-hosting-page .mute-button:hover {
   background: rgba(212, 175, 55, 0.2);
   transform: scale(1.1);
 }
@@ -143,14 +150,14 @@
    💡 SERVICE OVERVIEW
    ====================================================== */
 
-.content-section {
+.media-hosting-page .content-section {
   padding: 5rem 1.5rem;
   text-align: center;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.glass-panel {
+.media-hosting-page .glass-panel {
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(212, 175, 55, 0.25);
@@ -160,18 +167,18 @@
   padding: 3rem 1.5rem;
 }
 
-.section-header {
+.media-hosting-page .section-header {
   margin-bottom: 2rem;
 }
 
-.section-title {
+.media-hosting-page .section-title {
   font-family: var(--font-accent);
   font-size: clamp(1.5rem, 3vw, 2.25rem);
   color: var(--color-accent-gold);
   margin-bottom: 0.75rem;
 }
 
-.muted-text {
+.media-hosting-page .muted-text {
   color: var(--color-muted);
   font-size: 1rem;
   line-height: 1.6;
@@ -183,13 +190,13 @@
    🖼️ FEATURED MEDIA PROJECTS
    ====================================================== */
 
-.media-preview-section {
+.media-hosting-page .media-preview-section {
   padding: 4rem 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.media-cards-scroll {
+.media-hosting-page .media-cards-scroll {
   display: flex;
   gap: 1.25rem;
   overflow-x: auto;
@@ -197,11 +204,11 @@
   padding-bottom: 0.5rem;
 }
 
-.media-cards-scroll::-webkit-scrollbar {
+.media-hosting-page .media-cards-scroll::-webkit-scrollbar {
   height: 8px;
 }
 
-.media-cards-scroll::-webkit-scrollbar-thumb {
+.media-hosting-page .media-cards-scroll::-webkit-scrollbar-thumb {
   background: var(--color-accent-gold);
   border-radius: 4px;
 }
@@ -210,13 +217,13 @@
    🧩 GALLERY
    ====================================================== */
 
-.gallery-section {
+.media-hosting-page .gallery-section {
   padding: 4rem 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.card-grid {
+.media-hosting-page .card-grid {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -227,7 +234,7 @@
    💬 REVIEWS SECTION
    ====================================================== */
 
-.reviews-layout {
+.media-hosting-page .reviews-layout {
   background: rgba(0, 0, 0, 0.4);
   padding: 4rem 1.5rem;
   border-top: 1px solid rgba(212, 175, 55, 0.2);
@@ -238,21 +245,21 @@
    🌐 OTHER SERVICES
    ====================================================== */
 
-.other-services-section {
+.media-hosting-page .other-services-section {
   text-align: center;
   padding: 5rem 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.other-services-grid {
+.media-hosting-page .other-services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-top: 2.5rem;
 }
 
-.other-service-card {
+.media-hosting-page .other-service-card {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
@@ -261,14 +268,14 @@
   height: 320px;
 }
 
-.other-service-card img {
+.media-hosting-page .other-service-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform var(--transition-slow);
 }
 
-.other-service-card .overlay {
+.media-hosting-page .other-service-card .overlay {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
@@ -278,7 +285,7 @@
   transition: all var(--transition-slow);
 }
 
-.other-service-card h3 {
+.media-hosting-page .other-service-card h3 {
   color: var(--color-accent-gold);
   font-size: 1.25rem;
   font-family: var(--font-accent);
@@ -286,11 +293,11 @@
   letter-spacing: 1px;
 }
 
-.other-service-card:hover img {
+.media-hosting-page .other-service-card:hover img {
   transform: scale(1.1);
 }
 
-.other-service-card:hover .overlay {
+.media-hosting-page .other-service-card:hover .overlay {
   background: rgba(0, 0, 0, 0.65);
 }
 
@@ -299,64 +306,88 @@
    ====================================================== */
 
 @media (max-width: 1024px) {
-  .hero-glass {
+  .media-hosting-page .hero-glass {
     padding: 1.5rem;
   }
 
-  .hero-title {
+  .media-hosting-page .hero-title {
     font-size: 2.5rem;
   }
 
-  .media-hero-section {
+  .media-hosting-page .media-hero-section {
     height: 70vh;
   }
 }
 
 @media (max-width: 768px) {
-  .hero-title {
+  .media-hosting-page .media-hero-section {
+    height: auto;
+    padding: 4rem 1.25rem 6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .media-hosting-page .hero-glass {
+    margin-top: 2rem;
+    backdrop-filter: blur(14px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+  }
+
+  .media-hosting-page .hero-title {
     font-size: 2rem;
   }
 
-  .hero-subtitle {
+  .media-hosting-page .hero-subtitle {
     font-size: 1rem;
   }
 
-  .mute-button {
+  .media-hosting-page .mute-button {
     bottom: 1rem;
     right: 1rem;
   }
 
-  .glass-panel {
+  .media-hosting-page .glass-panel {
     padding: 2rem 1rem;
   }
 
-  .other-service-card {
+  .media-hosting-page .other-service-card {
     height: 250px;
   }
 }
 
 @media (max-width: 480px) {
-  .hero-glass {
+  .media-hosting-page .media-hero-section {
+    height: auto;
+    min-height: 80vh;
+  }
+
+  .media-hosting-page .hero-glass {
     padding: 1rem;
   }
 
-  .hero-title {
-    font-size: 1.75rem;
+  .media-hosting-page .hero-title {
+    font-size: 1.6rem;
   }
 
-  .hero-subtitle {
+  .media-hosting-page .hero-subtitle {
     font-size: 0.95rem;
   }
 
-  .btn-primary,
-  .btn-secondary {
+  .media-hosting-page .hero-buttons {
+    flex-direction: column;
+  }
+
+  .media-hosting-page .btn-primary,
+  .media-hosting-page .btn-secondary {
     width: 100%;
     padding: 0.8rem;
   }
 
-  .content-section,
-  .gallery-section,
-  .media-preview-section {
+  .media-hosting-page .content-section,
+  .media-hosting-page .gallery-section,
+  .media-hosting-page .media-preview-section {
     padding: 3rem 1rem;
   }
 }
