@@ -1,31 +1,17 @@
-/* ===========================================================
-   🎸 LiveBand Page — Theme-Based CSS
-   Always visible content • Responsive • Glassmorphic Hero
-   =========================================================== */
+/* ======================================================
+   🎸 LiveBand Page Styles — Self-Contained
+   ====================================================== */
 
 /* -------------------------
    Root / Container
    ------------------------- */
 .liveband-page-container {
-  --bg: var(--color-bg);
-  --text: var(--color-text);
-  --muted-text: var(--color-muted, var(--color-text));
-  --accent-gold: var(--color-accent-gold);
-  --glass-bg: var(--color-service-bg, rgba(255,255,255,0.15));
-  --glass-border: var(--color-border, rgba(255,255,255,0.2));
-  --overlay: var(--color-overlay, rgba(0,0,0,0.25));
-  --radius-lg: var(--radius-lg);
-  --radius-md: var(--radius-md);
-  --shadow-md: var(--shadow-lg);
-  --transition-fast: var(--transition-fast);
-  --transition-slow: var(--transition-slow);
-
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: var(--font-main);
-  color: var(--text);
-  background: var(--bg);
+  font-family: var(--font-main, 'Segoe UI', sans-serif);
+  color: var(--color-text, #1f2937);
+  background: var(--color-bg, #f9f9f9);
   min-height: 100vh;
   overflow-x: hidden;
   scroll-behavior: smooth;
@@ -42,11 +28,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(120deg, var(--color-primary-dark), var(--color-primary));
-}
-
-@supports (-webkit-touch-callout: none) {
-  .liveband-hero-section { min-height: -webkit-fill-available; }
+  background: linear-gradient(120deg, var(--color-primary-dark, #401010), var(--color-primary, #581c1c));
 }
 
 .liveband-hero-section .hero-video {
@@ -56,17 +38,25 @@
   height: 100%;
   object-fit: cover;
   z-index: 0;
-  transform-origin: center;
-  filter: none;
-  transition: transform 0.6s var(--transition-slow);
+  transition: transform 0.6s ease-in-out;
 }
 
-.liveband-hero-section:hover .hero-video { transform: scale(1.03); }
+.liveband-hero-section:hover .hero-video {
+  transform: scale(1.03);
+}
+
+.liveband-hero-section .hero-fallback {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+}
 
 .liveband-hero-section .hero-overlay {
   position: absolute;
   inset: 0;
-  background: var(--overlay);
+  background: var(--color-overlay, rgba(0,0,0,0.25));
   backdrop-filter: blur(4px);
   z-index: 2;
 }
@@ -77,31 +67,32 @@
   max-width: 1100px;
   width: calc(100% - 2rem);
   margin: 0 auto;
-  padding: 1.2rem;
+  padding: 1.5rem;
   text-align: center;
-  border-radius: var(--radius-lg);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg, 16px);
+  background: var(--color-service-bg, rgba(255,255,255,0.15));
+  border: 1px solid var(--color-border, rgba(255,255,255,0.2));
   backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-md);
-  display: inline-block;
-  color: var(--text);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+  color: var(--color-text, #1f2937);
 }
 
 .hero-title {
   margin-bottom: 0.5rem;
-  font-family: var(--font-accent);
-  font-size: clamp(1.25rem, 4.6vw, 2.8rem);
-  color: var(--accent-gold);
-  line-height: 1.05;
+  font-family: var(--font-accent, 'Playfair Display', serif);
+  font-size: clamp(1.5rem, 4vw, 2.8rem);
+  color: var(--color-accent-gold, #d4af37);
+  line-height: 1.1;
 }
 
 .hero-subtitle {
   margin-bottom: 1rem;
-  color: var(--muted-text);
-  font-size: clamp(0.86rem, 2.4vw, 1.05rem);
-  max-width: 880px;
-  line-height: 1.55;
+  font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+  color: var(--color-muted, #6b7280);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
 }
 
 /* Buttons */
@@ -110,7 +101,7 @@
   flex-wrap: wrap;
   gap: 0.6rem;
   justify-content: center;
-  margin-top: 0.6rem;
+  margin-top: 1rem;
 }
 
 .btn {
@@ -122,23 +113,26 @@
   border-radius: 999px;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: transform var(--transition-fast), background var(--transition-fast);
+  transition: transform 0.2s ease-in-out, background 0.2s ease-in-out;
 }
 
 .btn-primary {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
+  background: linear-gradient(45deg, #d4af37, #581c1c);
+  color: #fff;
   border: none;
 }
 
 .btn-outline {
   background: rgba(255,255,255,0.15);
-  color: var(--text);
+  color: var(--color-text, #1f2937);
   border: 1px solid rgba(255,255,255,0.3);
 }
 
-.btn:hover { transform: translateY(-3px); }
+.btn:hover {
+  transform: translateY(-3px);
+}
 
+/* Mute Button */
 .mute-button {
   position: absolute;
   right: 1rem;
@@ -148,13 +142,13 @@
   border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.3);
   background: rgba(0,0,0,0.35);
-  color: var(--accent-gold);
-  display: inline-flex;
+  color: var(--color-accent-gold, #d4af37);
+  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 6;
   cursor: pointer;
-  transition: transform var(--transition-fast), background var(--transition-fast);
+  transition: transform 0.2s ease-in-out, background 0.2s ease-in-out;
 }
 
 .mute-button:hover {
@@ -166,44 +160,43 @@
    SERVICES
    ------------------------- */
 .liveband-services {
-  padding: clamp(1.25rem, 3.2vw, 3rem) 1rem;
+  padding: clamp(1.5rem, 3vw, 3rem) 1rem;
   text-align: center;
-  background: var(--bg);
+  background: var(--color-bg, #f9f9f9);
 }
 
 .liveband-services h2 {
   margin-bottom: 0.5rem;
-  font-family: var(--font-accent);
-  font-size: clamp(1.1rem, 3vw, 1.8rem);
-  color: var(--accent-gold);
+  font-family: var(--font-accent, 'Playfair Display', serif);
+  font-size: clamp(1.25rem, 3vw, 1.8rem);
+  color: var(--color-accent-gold, #d4af37);
 }
 
 .section-description {
   max-width: 980px;
   margin: 0.6rem auto 1.6rem auto;
-  color: var(--muted-text);
+  color: var(--color-muted, #6b7280);
   font-size: 0.95rem;
 }
 
-/* Category grid */
 .liveband-category-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .liveband-category-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  background: var(--color-service-bg, #f3f4f6);
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: var(--radius-lg, 16px);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
   transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
 
 .liveband-category-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.2);
 }
 
 .liveband-category-image {
@@ -217,30 +210,33 @@
   transform: scale(1.04);
 }
 
-.service-category-wrapper {
-  padding: 1rem;
-  color: var(--text);
-}
-
 /* -------------------------
-   GALLERY & REVIEWS
+   GALLERY
    ------------------------- */
-.gallery-section, .reviews-layout {
-  padding: clamp(1.25rem, 3vw, 2.4rem) 1rem;
-  background: var(--bg);
-  color: var(--text);
+.gallery-section {
+  padding: clamp(1.5rem, 3vw, 2.4rem) 1rem;
+  background: var(--color-bg, #f9f9f9);
+  color: var(--color-text, #1f2937);
 }
 
 .card-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* -------------------------
+   REVIEWS
+   ------------------------- */
+.reviews-layout {
+  padding: clamp(1.5rem, 3vw, 2.4rem) 1rem;
+  background: var(--color-bg, #f9f9f9);
 }
 
 /* -------------------------
    Accessibility
    ------------------------- */
 :focus {
-  outline: 2px solid var(--accent-gold);
+  outline: 2px solid var(--color-accent-gold, #d4af37);
   outline-offset: 2px;
 }

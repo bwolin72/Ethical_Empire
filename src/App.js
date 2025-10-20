@@ -43,6 +43,7 @@ import EditProfile from "./components/user/EditProfile";
 import UpdatePassword from "./components/user/UpdatePassword";
 import ConfirmPasswordChange from "./components/user/ConfirmPasswordChange";
 import AccountProfile from "./components/user/AccountProfile";
+import OAuthLoginRedirect from "./components/Auth/OAuthLoginRedirect"; // new route
 
 // Dashboards & Forms
 import AdminPanel from "./components/AdminDashboard/AdminPanel";
@@ -169,6 +170,9 @@ const AppRoutes = () => {
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
+
+      {/* OAuth Callback */}
+      <Route path="/login/callback" element={<OAuthLoginRedirect />} />
 
       {/* Protected: Users & Admins */}
       <Route element={<ProtectedRoute roles={["user", "admin"]} />}>
