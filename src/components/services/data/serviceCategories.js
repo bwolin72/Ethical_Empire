@@ -10,6 +10,11 @@ import {
   Mic,
   Speaker,
   Users,
+  Brush,
+  Sparkles,
+  Tent,
+  Palette,
+  Gift,
 } from "lucide-react";
 
 // === Service Metadata + Grouping ===
@@ -81,6 +86,30 @@ export const serviceCategories = [
     ],
   },
   {
+    name: "🌸 Decor & Styling",
+    id: "decor",
+    services: [
+      {
+        name: "Event Decor",
+        icon: Brush,
+        description:
+          "We design captivating atmospheres through floral arrangements, stage backdrops, table settings, and venue transformations.",
+      },
+      {
+        name: "Thematic Styling",
+        icon: Palette,
+        description:
+          "Bring your vision to life — from traditional Ghanaian aesthetics to luxury modern themes, we curate cohesive, immersive experiences.",
+      },
+      {
+        name: "Rentals & Setup",
+        icon: Tent,
+        description:
+          "We provide event essentials — tents, chairs, carpets, and custom installations — with professional delivery and setup.",
+      },
+    ],
+  },
+  {
     name: "🍽 Add-On Services",
     id: "addons",
     services: [
@@ -89,6 +118,18 @@ export const serviceCategories = [
         icon: Utensils,
         description:
           "Taste Ghana’s finest flavors with our catering service. From authentic local dishes to gourmet creations, we serve with excellence.",
+      },
+      {
+        name: "Event Coordination",
+        icon: Gift,
+        description:
+          "Ensure your day runs smoothly. Our coordinators handle logistics, timing, and vendor management with precision and care.",
+      },
+      {
+        name: "Special Effects",
+        icon: Sparkles,
+        description:
+          "Elevate your event with fireworks, fog machines, confetti blasts, and lighting effects that wow your audience.",
       },
     ],
   },

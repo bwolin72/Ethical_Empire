@@ -42,7 +42,7 @@ const Services = () => {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
+          transition={{ repeat: Infinity, duration: 1.5, repeatType: "reverse" }}
         >
           Loading services...
         </motion.p>
@@ -76,10 +76,15 @@ const Services = () => {
       <main>
         {categories.length > 0 ? (
           categories.map((category) => (
-            <ServiceCategory key={category.id || category.slug} category={category} />
+            <ServiceCategory
+              key={category.id || category.slug || category.name}
+              category={category}
+            />
           ))
         ) : (
-          <p className="muted-text center">No categories available at the moment.</p>
+          <p className="muted-text center">
+            No categories available at the moment.
+          </p>
         )}
       </main>
 

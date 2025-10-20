@@ -13,7 +13,6 @@ import ReviewsLayout from "../user/ReviewsLayout";
 import useFetcher from "../../hooks/useFetcher";
 import "./liveband.css";
 
-/* ✅ Import images correctly */
 import corporatePerformance from "../../assets/liveband/corporate-performance.png";
 import weddingBand from "../../assets/liveband/wedding-band.png";
 import festivalBand from "../../assets/liveband/festival-band.png";
@@ -47,11 +46,13 @@ const zoomIn = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
 };
 
-/* ---------- LiveBandServicePage ---------- */
+/* ---------- Component ---------- */
 export default function LiveBandServicePage() {
   const navigate = useNavigate();
+  const [videoUrl, setVideoUrl] = useState(null);
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
 
-  // --- Media and Videos ---
   const { data: mediaRaw, loading: mediaLoading } = useFetcher(
     "media",
     "liveband",
@@ -68,11 +69,6 @@ export default function LiveBandServicePage() {
 
   const mediaCards = toArray(mediaRaw);
 
-  // --- Hero video setup ---
-  const [videoUrl, setVideoUrl] = useState(null);
-  const videoRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(true);
-
   useEffect(() => {
     const videos = toArray(videosRaw);
     if (!videos.length && !videoLoading) return setVideoUrl(null);
@@ -88,7 +84,6 @@ export default function LiveBandServicePage() {
     });
   }, []);
 
-  /* ---------- Live Band Service Categories ---------- */
   const liveBandCategories = [
     {
       name: "Corporate & Luxury Events",
@@ -157,7 +152,7 @@ export default function LiveBandServicePage() {
 
   return (
     <div className="liveband-page-container">
-      {/* === HERO SECTION === */}
+      {/* HERO SECTION */}
       <section className="liveband-hero-section" aria-label="Live Band Hero">
         {videoUrl && !videoLoading ? (
           <>
@@ -167,11 +162,12 @@ export default function LiveBandServicePage() {
               className="hero-video"
               autoPlay
               loop
-              muted={isMuted}
+              muted
               playsInline
+              preload="auto"
+              poster={livebandHero}
             />
             <div className="hero-overlay" />
-
             <motion.div
               className="hero-content glass-panel"
               initial="hidden"
@@ -202,7 +198,6 @@ export default function LiveBandServicePage() {
                 </button>
               </div>
             </motion.div>
-
             <button className="mute-button" onClick={toggleMute}>
               {isMuted ? "🔇" : "🔊"}
             </button>
@@ -213,18 +208,24 @@ export default function LiveBandServicePage() {
             style={{ backgroundImage: `url(${livebandHero})` }}
           >
             <div className="hero-overlay" />
-            <div className="hero-content">
+            <motion.div
+              className="hero-content glass-panel"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={fadeUp}
+            >
               <h1 className="hero-title">Feel the Rhythm</h1>
               <p className="hero-subtitle">
                 Bringing Ghanaian beats and world-class performance energy to
                 every stage.
               </p>
-            </div>
+            </motion.div>
           </div>
         )}
       </section>
 
-      {/* === SERVICE CATEGORIES === */}
+      {/* SERVICE CATEGORIES */}
       <motion.section
         className="section liveband-services"
         initial="hidden"
@@ -237,7 +238,6 @@ export default function LiveBandServicePage() {
           Explore dynamic music experiences tailored for weddings, corporate
           events, and cultural celebrations across Ghana and West Africa.
         </p>
-
         <div className="liveband-category-grid">
           {liveBandCategories.map((cat, i) => (
             <motion.div
@@ -257,7 +257,7 @@ export default function LiveBandServicePage() {
         </div>
       </motion.section>
 
-      {/* === PERFORMANCE GALLERY === */}
+      {/* PERFORMANCE GALLERY */}
       <motion.section className="section gallery-section" variants={fadeUp}>
         <h2>Performance Highlights</h2>
         <p>
@@ -266,16 +266,14 @@ export default function LiveBandServicePage() {
         </p>
         <div className="card-grid">
           {mediaLoading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <MediaSkeleton key={i} />
-              ))
+            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
             : mediaCards
                 .slice(0, 6)
                 .map((m, i) => <MediaCard key={m.id ?? i} media={m} />)}
         </div>
       </motion.section>
 
-      {/* === REVIEWS === */}
+      {/* REVIEWS */}
       <ReviewsLayout
         title="Client Impressions"
         description="Hear what our audiences say about Eethm Live Band"

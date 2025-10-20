@@ -2,13 +2,11 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-import BannerCards from "../context/BannerCards";
+import ServiceCategory from "./ServiceCategory";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
-import ServiceCategory from "./ServiceCategory";
 import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
-
 import useFetcher from "../../hooks/useFetcher";
 import "./decor.css";
 
@@ -52,27 +50,28 @@ const zoomIn = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
 };
 
-/* ---------- DecorServicePage ---------- */
+/* ---------- Main DecorServicePage ---------- */
 export default function DecorServicePage() {
   const navigate = useNavigate();
 
-  const { data: videosRaw, loading: videoLoading } = useFetcher("videos", "decor", { is_active: true }, { resource: "videos" });
-  const { data: bannerRaw } = useFetcher("media", "banner", { category: "decor", is_active: true }, { resource: "media" });
-  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher("media", "decor", { is_active: true }, { resource: "media" });
+  /* --- Fetch Videos & Media --- */
+  const { data: videosRaw, loading: videoLoading } = useFetcher(
+    "videos",
+    "decor",
+    { is_active: true },
+    { resource: "videos" }
+  );
+
+  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
+    "media",
+    "decor",
+    { is_active: true },
+    { resource: "media" }
+  );
 
   const [videoUrl, setVideoUrl] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
-
-  useEffect(() => {
-    const videos = toArray(videosRaw);
-    if (!videos.length && !videoLoading) return setVideoUrl(null);
-    const featured = videos.find((v) => v?.is_featured) ?? videos[0];
-    setVideoUrl(getMediaUrl(featured));
-  }, [videosRaw, videoLoading]);
-
-  const bannerItems = toArray(bannerRaw);
-  const mediaCards = toArray(mediaCardsRaw);
 
   const toggleMute = useCallback(() => {
     setIsMuted((prev) => {
@@ -82,7 +81,18 @@ export default function DecorServicePage() {
     });
   }, []);
 
-  /* ---------- Decor Categories ---------- */
+  /* --- Prepare Data --- */
+  const bannerItems = []; // Not using banners in this version
+  const mediaCards = toArray(mediaCardsRaw);
+
+  useEffect(() => {
+    const videos = toArray(videosRaw);
+    if (!videos.length && !videoLoading) return setVideoUrl(null);
+    const featured = videos.find((v) => v?.is_featured) ?? videos[0];
+    setVideoUrl(getMediaUrl(featured));
+  }, [videosRaw, videoLoading]);
+
+  /* --- Decor Categories --- */
   const decorCategories = [
     {
       name: "Floral & Table Decor",
@@ -145,7 +155,7 @@ export default function DecorServicePage() {
                 <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
                   Book Decor Service
                 </button>
-                <button className="btn btn-outline" onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })}>
+                <button className="btn btn-outline" onClick={() => window.scrollTo({ top: 700, behavior: "smooth" })}>
                   View Gallery
                 </button>
               </div>
@@ -210,9 +220,10 @@ export default function DecorServicePage() {
         <div className="card-grid">
           {mediaLoading
             ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaCards.slice(0, 6).map((m, i) => (
-                <MediaCard key={m.id ?? i} media={m} />
-              ))}
+            : mediaCards.length > 0
+            ? mediaCards.slice(0, 6).map((m, i) => <MediaCard key={m.id ?? i} media={m} />)
+            : <p className="muted-text">No media available yet.</p>
+          }
         </div>
       </motion.section>
 

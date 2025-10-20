@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { motion, useAnimation } from "framer-motion";
 import ServiceCard from "./ServiceCard";
 import "./Services.css";
 
 const ServiceCategory = ({ category }) => {
-  const [activeIndex, setActiveIndex] = useState(null);
   const controls = useAnimation();
   const ref = useRef(null);
 
-  /* === Scroll-triggered reveal using IntersectionObserver === */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -26,21 +24,14 @@ const ServiceCategory = ({ category }) => {
     return () => observer.disconnect();
   }, [controls]);
 
-  /* === Animation Variants === */
   const sectionVariants = {
     hidden: { opacity: 0, y: 40 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" },
-    },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
   };
 
   const listVariants = {
     hidden: {},
-    visible: {
-      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
-    },
+    visible: { transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
   };
 
   const cardVariants = {
@@ -48,7 +39,9 @@ const ServiceCategory = ({ category }) => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
-  /* === Render === */
+  // Support both { services: [...] } or raw array of services
+  const servicesArray = Array.isArray(category) ? category : category?.services ?? [];
+
   return (
     <motion.section
       ref={ref}
@@ -57,42 +50,28 @@ const ServiceCategory = ({ category }) => {
       animate={controls}
       variants={sectionVariants}
     >
-      {/* === Category Header === */}
-      <motion.header className="category-header" variants={sectionVariants}>
-        <h2 className="section-title gradient-text">
-          {category?.name || "Unnamed Category"}
-        </h2>
-        {category?.description && (
-          <p className="muted-text">{category.description}</p>
-        )}
-      </motion.header>
+      {/* Only show header if category object with name */}
+      {category?.name && (
+        <motion.header className="category-header" variants={sectionVariants}>
+          <h2 className="section-title gradient-text">{category.name}</h2>
+          <p className="muted-text">{category.description || "Explore our amazing services."}</p>
+        </motion.header>
+      )}
 
-      {/* === Service List === */}
-      <motion.div
-        className="service-list"
-        variants={listVariants}
-        initial="hidden"
-        animate={controls}
-      >
-        {category?.services?.length > 0 ? (
-          category.services.map((srv, index) => (
+      {servicesArray.length > 0 ? (
+        <motion.div className="service-list" variants={listVariants}>
+          {servicesArray.map((srv, index) => (
             <motion.div
               key={srv.id ?? srv.slug ?? srv.name ?? index}
               variants={cardVariants}
             >
-              <ServiceCard
-                service={srv}
-                isActive={activeIndex === index}
-                onToggle={() =>
-                  setActiveIndex(activeIndex === index ? null : index)
-                }
-              />
+              <ServiceCard service={srv} />
             </motion.div>
-          ))
-        ) : (
-          <p className="muted-text">No active services in this category.</p>
-        )}
-      </motion.div>
+          ))}
+        </motion.div>
+      ) : (
+        <p className="muted-text">No active services in this category.</p>
+      )}
     </motion.section>
   );
 };

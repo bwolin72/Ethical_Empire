@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import {
@@ -22,11 +22,18 @@ import apiService from "../../api/apiService";
 
 import BannerCards from "../context/BannerCards";
 import MediaCards from "../context/MediaCards";
-import GalleryWrapper from "../gallery/GalleryWrapper";
 import VideoGallery from "../videos/VideoGallery";
+import ReviewsLayout from "./ReviewsLayout";
 import Reviews from "./Reviews";
 import NewsletterSignup from "./NewsLetterSignup";
 import ProfileAvatar from "./ProfileAvatar";
+
+import UpdatePassword from "./UpdatePassword";
+import EditProfile from "./EditProfile";
+import AccountProfile from "./AccountProfile";
+import ConfirmPasswordChange from "./ConfirmPasswordChange";
+import UnsubscribePage from "./UnsubscribePage";
+import ResubscribePage from "./ResubscribePage";
 
 import "./UserPage.css";
 
@@ -52,6 +59,7 @@ const UserPage = () => {
     return [];
   };
 
+  // Fetch all dashboard data
   useEffect(() => {
     const controller = new AbortController();
     const fetchData = async () => {
@@ -93,6 +101,24 @@ const UserPage = () => {
     (item) => (item.is_featured || item.featured) && (item.file || item.url || item.video_url)
   );
 
+  // Define dynamic service categories from available components
+  const userServices = [
+    {
+      name: "Profile Management",
+      components: [<AccountProfile key="account" />, <EditProfile key="edit" />],
+    },
+    {
+      name: "Password & Security",
+      components: [<UpdatePassword key="update" />, <ConfirmPasswordChange key="confirm" />],
+    },
+    {
+      name: "Subscription",
+      components: [<UnsubscribePage key="unsubscribe" />, <ResubscribePage key="resubscribe" />],
+    },
+  ];
+
+  const handleBookingClick = () => navigate("/bookings");
+
   return (
     <div className={`user-dashboard ${darkMode ? "dark" : "light"}`}>
       <ToastContainer position="top-center" autoClose={3000} theme="colored" />
@@ -119,7 +145,6 @@ const UserPage = () => {
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
       {sidebarOpen && <div className="sidebar-overlay show" onClick={() => setSidebarOpen(false)} />}
 
       {/* Main Content */}
@@ -146,7 +171,7 @@ const UserPage = () => {
           </div>
         </header>
 
-        {/* Sections */}
+        {/* Promotions */}
         {promotions.length > 0 && (
           <section className="banner-section fade-in">
             <h3>🔥 Promotions</h3>
@@ -154,6 +179,7 @@ const UserPage = () => {
           </section>
         )}
 
+        {/* Featured Video */}
         {featuredVideo && (
           <section className="featured-section card scale-in">
             <h3><Film size={18}/> Featured Video</h3>
@@ -166,6 +192,7 @@ const UserPage = () => {
           </section>
         )}
 
+        {/* Video Gallery */}
         {videos.length > 0 && (
           <section className="video-gallery-section fade-in">
             <h3><Film size={18}/> Your Videos</h3>
@@ -173,27 +200,44 @@ const UserPage = () => {
           </section>
         )}
 
+        {/* Media Gallery */}
         <section className="gallery-section fade-in">
           <h3><Image size={18}/> Your Gallery</h3>
           {media.length > 0 ? (
-            <GalleryWrapper>
-              <div className="gallery-grid">
-                {media.map((item, idx) => <MediaCards key={idx} media={item}/>)}
-              </div>
-            </GalleryWrapper>
+            <div className="gallery-grid">
+              {media.map((item, idx) => <MediaCards key={idx} media={item}/>)}
+            </div>
           ) : (
             <p className="empty-text">✨ Upload your first media to shine!</p>
           )}
         </section>
 
-        <section className="reviews-section fade-in">
-          <h3><Star size={18}/> Reviews</h3>
+        {/* Reviews */}
+        <ReviewsLayout
+          title="Client Feedback"
+          description="See what others are saying about your work"
+        >
           {reviews.length > 0 ? <Reviews reviews={reviews}/> : <p className="empty-text">No reviews yet.</p>}
-        </section>
+        </ReviewsLayout>
 
+        {/* Newsletter */}
         <section className="newsletter-section fade-in">
           <h3><Mail size={18}/> Stay Updated</h3>
           <NewsletterSignup/>
+        </section>
+
+        {/* Dynamic Services */}
+        <section className="services-section fade-in">
+          <h3>🛠 Your Services</h3>
+          {userServices.map((service, idx) => (
+            <div key={idx} className="service-card glass-card">
+              <h4>{service.name}</h4>
+              <div className="service-components">{service.components.map(c => c)}</div>
+              <button className="btn btn-primary mt-2" onClick={handleBookingClick}>
+                Book {service.name}
+              </button>
+            </div>
+          ))}
         </section>
 
         {loading && <div className="loading-overlay">Loading...</div>}

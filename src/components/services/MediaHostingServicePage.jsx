@@ -21,18 +21,11 @@ const ReviewsLayout = lazy(() => import("../user/ReviewsLayout"));
    Helpers
 -------------------------------- */
 const toArray = (payload) => {
-  try {
-    if (!payload) return [];
-    if (Array.isArray(payload)) return payload.filter(Boolean);
-    if (Array.isArray(payload.data)) return payload.data.filter(Boolean);
-    if (typeof payload === "object") {
-      const values = Object.values(payload).flat();
-      return Array.isArray(values) ? values.filter(Boolean) : [];
-    }
-    return [];
-  } catch {
-    return [];
-  }
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload.filter(Boolean);
+  if (Array.isArray(payload.data)) return payload.data.filter(Boolean);
+  if (typeof payload === "object") return Object.values(payload).flat().filter(Boolean);
+  return [];
 };
 
 const getMediaUrl = (media) => {
@@ -82,9 +75,17 @@ export default function MediaHostingServicePage() {
     { resource: "media" }
   );
 
+  const { data: servicesRaw, loading: servicesLoading } = useFetcher(
+    "services",
+    "MediaHostingServicePage",
+    { category: "media-hosting", is_active: true },
+    { resource: "services" }
+  );
+
   const bannerItems = useMemo(() => toArray(bannerRaw), [bannerRaw]);
   const mediaCards = useMemo(() => toArray(mediaCardsRaw), [mediaCardsRaw]);
   const videos = useMemo(() => toArray(videosRaw), [videosRaw]);
+  const services = useMemo(() => toArray(servicesRaw), [servicesRaw]);
 
   /* --- Hero Video --- */
   const [videoUrl, setVideoUrl] = useState(null);
@@ -96,11 +97,7 @@ export default function MediaHostingServicePage() {
       const featured = videos.find((v) => v?.is_featured) ?? videos[0];
       const rawUrl = getMediaUrl(featured);
       if (rawUrl) {
-        // Cloudinary optimization for lighter playback
-        const optimized = rawUrl.replace(
-          "/upload/",
-          "/upload/q_auto:eco,f_auto,w_1280/"
-        );
+        const optimized = rawUrl.replace("/upload/", "/upload/q_auto:eco,f_auto,w_1280/");
         setVideoUrl(optimized);
       } else {
         setVideoUrl(null);
@@ -116,23 +113,12 @@ export default function MediaHostingServicePage() {
     });
   };
 
+  /* --- Other Services --- */
   const otherServices = useMemo(
     () => [
-      {
-        name: "Live Band & Entertainment",
-        link: "/services/live-band",
-        image: livebandHero,
-      },
-      {
-        name: "Catering & Local Foods",
-        link: "/services/catering",
-        image: cateringWallpaper,
-      },
-      {
-        name: "Event Décor & Lighting",
-        link: "/services/decor",
-        image: stageDecor,
-      },
+      { name: "Live Band & Entertainment", link: "/services/live-band", image: livebandHero },
+      { name: "Catering & Local Foods", link: "/services/catering", image: cateringWallpaper },
+      { name: "Event Décor & Lighting", link: "/services/decor", image: stageDecor },
     ],
     []
   );
@@ -162,21 +148,14 @@ export default function MediaHostingServicePage() {
             <div className="hero-glass">
               <h1 className="hero-title">Media Hosting & Multimedia</h1>
               <p className="hero-subtitle">
-                Professional media hosting, cloud streaming, and production services
-                across Ghana and West Africa.
+                Professional media hosting, cloud streaming, and production services across Ghana and West Africa.
               </p>
               <div className="hero-buttons">
-                <button className="btn-primary" onClick={() => navigate("/bookings")}>
-                  Book Now
-                </button>
-                <button className="btn-secondary" onClick={() => navigate("/contact")}>
-                  Contact Us
-                </button>
+                <button className="btn-primary" onClick={() => navigate("/bookings")}>Book Now</button>
+                <button className="btn-secondary" onClick={() => navigate("/contact")}>Contact Us</button>
               </div>
             </div>
-            <button className="mute-button" onClick={toggleMute}>
-              {isMuted ? "🔇" : "🔊"}
-            </button>
+            <button className="mute-button" onClick={toggleMute}>{isMuted ? "🔇" : "🔊"}</button>
           </>
         ) : (
           <BannerCards
@@ -194,12 +173,15 @@ export default function MediaHostingServicePage() {
           <header className="section-header">
             <h2 className="section-title">Our Multimedia & Hosting Solutions</h2>
             <p className="muted-text">
-              From live event recording to cloud storage and streaming — Ethical Empire
-              delivers secure, high-quality multimedia experiences in Ghana and across
-              West Africa.
+              From live event recording to cloud storage and streaming — Ethical Empire delivers secure, high-quality multimedia experiences in Ghana and across West Africa.
             </p>
           </header>
-          <ServiceCategory category="MediaHostingServicePage" limit={6} />
+
+          {!servicesLoading && services.length > 0 ? (
+            <ServiceCategory category={{ name: "Media Hosting Services", services }} />
+          ) : (
+            <p className="muted-text">Loading media hosting services...</p>
+          )}
         </section>
       </FadeInSection>
 
@@ -210,16 +192,12 @@ export default function MediaHostingServicePage() {
           <div className="media-cards-scroll">
             {mediaLoading
               ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-              : mediaCards.length > 0 ? (
-                  mediaCards.slice(0, 6).map((media, idx) => (
-                    <MediaCard
-                      key={media.id ?? media._id ?? media.url ?? idx}
-                      media={media}
-                    />
+              : mediaCards.length > 0
+                ? mediaCards.slice(0, 6).map((media, idx) => (
+                    <MediaCard key={media.id ?? media._id ?? media.url ?? idx} media={media} />
                   ))
-                ) : (
-                  <p className="muted-text">No media available at the moment.</p>
-                )}
+                : <p className="muted-text">No media available at the moment.</p>
+            }
           </div>
         </section>
       </FadeInSection>
@@ -231,13 +209,10 @@ export default function MediaHostingServicePage() {
           <div className="card-grid">
             {mediaLoading
               ? Array.from({ length: 9 }).map((_, i) => <MediaSkeleton key={i} />)
-              : mediaCards.length > 0 ? (
-                  mediaCards.slice(0, 9).map((m, idx) => (
-                    <MediaCard key={m.id ?? m._id ?? idx} media={m} />
-                  ))
-                ) : (
-                  <p className="muted-text">No multimedia content available yet.</p>
-                )}
+              : mediaCards.length > 0
+                ? mediaCards.slice(0, 9).map((m, idx) => <MediaCard key={m.id ?? m._id ?? idx} media={m} />)
+                : <p className="muted-text">No multimedia content available yet.</p>
+            }
           </div>
         </section>
       </FadeInSection>
@@ -259,18 +234,11 @@ export default function MediaHostingServicePage() {
         <section className="other-services-section glass-panel">
           <h2 className="section-title">Explore Our Other Services</h2>
           <p className="muted-text">
-            Beyond media hosting, Ethical Empire offers full event solutions — from
-            catering and décor to live entertainment and local foods across Ghana and
-            West Africa.
+            Beyond media hosting, Ethical Empire offers full event solutions — from catering and décor to live entertainment and local foods across Ghana and West Africa.
           </p>
-
           <div className="other-services-grid">
             {otherServices.map((s, idx) => (
-              <div
-                key={idx}
-                className="other-service-card"
-                onClick={() => navigate(s.link)}
-              >
+              <div key={idx} className="other-service-card" onClick={() => navigate(s.link)}>
                 <img src={s.image} alt={s.name} loading="lazy" />
                 <div className="overlay">
                   <h3>{s.name}</h3>
