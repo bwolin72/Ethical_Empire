@@ -29,7 +29,6 @@ import kenkeyImg from "../../assets/catering/kenkey.png";
 import fufuImg from "../../assets/catering/fufu.jpeg";
 import ampesiImg from "../../assets/catering/ampesi.jpeg";
 import keleweleImg from "../../assets/catering/kelewele.jpeg";
-
 import nigerianJollofImg from "../../assets/catering/nigerian-jollof.jpeg";
 import yassaImg from "../../assets/catering/yassa-chicken.jpeg";
 import attiekeImg from "../../assets/catering/attieke-fish.jpeg";
@@ -37,7 +36,7 @@ import buffetImg from "../../assets/catering/continental-buffet.jpeg";
 import asianImg from "../../assets/catering/asian-fusion.jpeg";
 import mediterraneanImg from "../../assets/catering/mediterranean.jpeg";
 
-/* === Skeleton for loading states === */
+/* === Skeleton Loader === */
 const SkeletonBox = ({ width = "100%", height = "20px", radius = "6px" }) => (
   <div
     className="skeleton-box"
@@ -82,13 +81,15 @@ const CateringPage = () => {
         serviceService.getServices(),
       ]);
 
-      const cateringData = Array.isArray(cateringRes.data)
-        ? cateringRes.data
-        : cateringRes.data?.results || [];
+      const cateringData =
+        Array.isArray(cateringRes.data) || Array.isArray(cateringRes.data?.results)
+          ? cateringRes.data.results || cateringRes.data
+          : [];
 
-      const allData = Array.isArray(allRes.data)
-        ? allRes.data
-        : allRes.data?.results || [];
+      const allData =
+        Array.isArray(allRes.data) || Array.isArray(allRes.data?.results)
+          ? allRes.data.results || allRes.data
+          : [];
 
       setServices(cateringData);
       setOtherServices(allData.filter((s) => s.category !== "Catering"));
@@ -111,7 +112,7 @@ const CateringPage = () => {
     });
   };
 
-  /* === Local Ghanaian Foods (with images) === */
+  /* === Local Ghanaian Foods === */
   const localFoods = [
     { name: "Jollof Rice & Grilled Chicken", icon: <FaPepperHot />, image: jollofImg },
     { name: "Banku & Tilapia with Shito", icon: <FaFish />, image: bankuImg },
@@ -122,7 +123,7 @@ const CateringPage = () => {
     { name: "Kelewele & Groundnuts", icon: <FaCarrot />, image: keleweleImg },
   ];
 
-  /* === West African & Global Varieties (with images) === */
+  /* === Global Varieties === */
   const globalVarieties = [
     { name: "Nigerian Party Jollof", icon: <FaPepperHot />, image: nigerianJollofImg },
     { name: "Senegalese Yassa Chicken", icon: <FaUtensils />, image: yassaImg },
@@ -160,9 +161,14 @@ const CateringPage = () => {
               <motion.h1 initial="hidden" animate="visible" variants={sectionVariants}>
                 Ghanaian & West African Catering Excellence
               </motion.h1>
-              <motion.p initial="hidden" animate="visible" variants={sectionVariants} custom={1}>
-                Authentic local dishes and global gourmet experiences — from traditional Ghanaian
-                recipes to world-class event catering.
+              <motion.p
+                initial="hidden"
+                animate="visible"
+                variants={sectionVariants}
+                custom={1}
+              >
+                Authentic local dishes and global gourmet experiences — from traditional
+                Ghanaian recipes to world-class event catering.
               </motion.p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -172,7 +178,7 @@ const CateringPage = () => {
                 Request a Custom Menu
               </motion.button>
             </div>
-            <button className="mute-button" onClick={toggleMute} aria-pressed={!isMuted}>
+            <button className="mute-button" onClick={toggleMute}>
               {isMuted ? "🔇" : "🔊"}
             </button>
           </div>
@@ -185,7 +191,7 @@ const CateringPage = () => {
         )}
       </section>
 
-      {/* === OUR CATERING SERVICES === */}
+      {/* === CATERING SERVICES === */}
       <motion.section
         className="section services-section"
         initial="hidden"
@@ -212,7 +218,7 @@ const CateringPage = () => {
         )}
       </motion.section>
 
-      {/* === LOCAL FOODS (SEO SECTION) === */}
+      {/* === LOCAL FOODS === */}
       <motion.section
         className="section local-foods-section"
         initial="hidden"
@@ -223,13 +229,13 @@ const CateringPage = () => {
         <h2 className="section-title">Popular Local Foods in Ghana</h2>
         <p className="section-subtitle">
           We proudly serve the best of <strong>Ghanaian</strong> and{" "}
-          <strong>West African cuisine</strong> — traditional recipes made with local ingredients
-          and authentic flavors.
+          <strong>West African cuisine</strong> — traditional recipes made with
+          authentic local ingredients.
         </p>
         <div className="local-food-grid">
           {localFoods.map((item, i) => (
             <motion.div key={i} className="local-food-card" whileHover={{ scale: 1.07 }}>
-              {item.image && <img src={item.image} alt={item.name} className="food-image" />}
+              <img src={item.image} alt={item.name} className="food-image" />
               <span className="local-food-icon">{item.icon}</span>
               <span className="local-food-label">{item.name}</span>
             </motion.div>
@@ -247,14 +253,14 @@ const CateringPage = () => {
       >
         <h2 className="section-title">International & West African Varieties</h2>
         <p className="section-subtitle">
-          Beyond local favorites, our culinary team creates{" "}
-          <strong>continental, West African, and fusion delicacies</strong> that captivate guests at
-          weddings, corporate events, and private parties.
+          Beyond local favorites, our culinary team crafts{" "}
+          <strong>continental</strong> and <strong>fusion delicacies</strong> that
+          impress at every event.
         </p>
         <div className="world-grid">
           {globalVarieties.map((item, i) => (
             <motion.div key={i} className="world-card" whileHover={{ scale: 1.07 }}>
-              {item.image && <img src={item.image} alt={item.name} className="food-image" />}
+              <img src={item.image} alt={item.name} className="food-image" />
               <span className="world-icon">{item.icon}</span>
               <span className="world-label">{item.name}</span>
             </motion.div>
@@ -297,8 +303,9 @@ const CateringPage = () => {
             <div className="creative-text">
               <h3>Experience the Taste of Ghana & Beyond</h3>
               <p>
-                From <strong>party jollof</strong> to <strong>continental buffets</strong>, we bring
-                cultural richness and gourmet excellence to every plate.
+                From <strong>party jollof</strong> to{" "}
+                <strong>continental buffets</strong>, we bring cultural richness to
+                every event.
               </p>
             </div>
           </div>
@@ -308,9 +315,9 @@ const CateringPage = () => {
       <FadeInSection>
         <ReviewsLayout
           title="What Our Clients Say"
-          description="Here’s what people think about our Ghanaian and West African catering services."
+          description="Here’s what people think about our catering services."
         >
-          <Reviews limit={6} hideForm={true} category="catering" />
+          <Reviews limit={6} hideForm category="catering" />
         </ReviewsLayout>
       </FadeInSection>
 

@@ -1,7 +1,6 @@
 /* ==========================================================
    🍽️ CATERING PAGE — EETHM RECORDS MULTIMEDIA
-   Cinematic Glassmorphic Theme • Fully Responsive ≥360px
-   Scoped Styles (No Global Interference)
+   Cinematic Glassmorphic Theme • Fully Responsive ≥320px
    ========================================================== */
 
 .catering-page-container {
@@ -12,22 +11,35 @@
   color: var(--color-text);
   font-family: var(--font-main);
   overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
   animation: fade-in 0.6s ease-in-out both;
+
+  /* ✅ Match Liveband behavior */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ======================================================
-   🎬 HERO SECTION — Video + Glass Overlay + CTA
+   🎬 HERO SECTION
    ====================================================== */
 .catering-page-container .catering-hero {
   position: relative;
   width: 100%;
-  height: 85vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   background: var(--gradient-gold-burgundy);
-  animation: fade-in 0.8s ease-in-out both;
+  overflow: hidden;
+}
+
+@supports (-webkit-touch-callout: none) {
+  /* ✅ Fix for iOS Safari viewport */
+  .catering-page-container .catering-hero {
+    min-height: -webkit-fill-available;
+  }
 }
 
 .catering-page-container .video-wrapper {
@@ -35,6 +47,7 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  z-index: 0; /* ✅ prevent overlay issues */
 }
 
 .catering-page-container .hero-video {
@@ -54,20 +67,24 @@
   inset: 0;
   background: var(--overlay-dark);
   backdrop-filter: blur(3px);
+  z-index: 1;
 }
 
 .catering-page-container .hero-content {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
   color: var(--color-white);
-  z-index: 3;
+  z-index: 2;
   padding: 0 1rem;
-  max-width: 900px;
+  max-width: 90%;
 }
 
 .catering-page-container .hero-content h1 {
   font-family: var(--font-accent);
-  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-size: clamp(1.6rem, 5vw, 3rem);
   text-transform: uppercase;
   letter-spacing: 1px;
   background: var(--gradient-gold-burgundy);
@@ -78,10 +95,11 @@
 }
 
 .catering-page-container .hero-content p {
-  font-size: clamp(0.95rem, 2vw, 1.15rem);
+  font-size: clamp(0.9rem, 2.5vw, 1.15rem);
   color: var(--color-service-bg-light);
   max-width: 600px;
   margin: 0 auto 1.5rem;
+  line-height: 1.5;
 }
 
 .catering-page-container .btn.btn-primary {
@@ -104,8 +122,8 @@
 
 .catering-page-container .mute-button {
   position: absolute;
-  bottom: 1.25rem;
-  right: 1.25rem;
+  bottom: 1rem;
+  right: 1rem;
   background: rgba(0, 0, 0, 0.6);
   color: var(--color-accent-gold-light);
   border: none;
@@ -114,7 +132,7 @@
   height: 42px;
   font-size: 1.1rem;
   cursor: pointer;
-  z-index: 4;
+  z-index: 3;
   backdrop-filter: blur(4px);
   transition: all var(--transition-fast);
 }
@@ -125,12 +143,11 @@
 }
 
 /* ======================================================
-   🍱 SERVICE, FOOD, & DIETARY SECTIONS
+   🍱 CONTENT SECTIONS
    ====================================================== */
 .catering-page-container .section {
-  padding: 5rem 1.5rem;
+  padding: 4rem 1.5rem;
   text-align: center;
-  position: relative;
 }
 
 .catering-page-container .section-title {
@@ -145,12 +162,12 @@
   letter-spacing: 1px;
 }
 
-/* === Local & Global Food Grids === */
+/* === Food Grids === */
 .catering-page-container .local-food-grid,
 .catering-page-container .world-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.25rem;
   justify-items: center;
 }
 
@@ -166,7 +183,7 @@
   box-shadow: var(--shadow-md);
   transition: all var(--transition-fast);
   width: 100%;
-  max-width: 220px;
+  max-width: 240px;
 }
 
 .catering-page-container .local-food-card:hover,
@@ -176,18 +193,27 @@
   color: var(--color-white);
 }
 
-.catering-page-container .local-food-icon,
-.catering-page-container .world-icon {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-  display: block;
+/* === Food Image (new, matches Liveband style) === */
+.catering-page-container .food-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  margin-bottom: 0.75rem;
+  box-shadow: var(--shadow-sm);
 }
 
-/* === Dietary Section === */
+@media (max-width: 400px) {
+  .catering-page-container .food-image {
+    height: 140px;
+  }
+}
+
+/* === Dietary Options === */
 .catering-page-container .dietary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.25rem;
   justify-items: center;
 }
 
@@ -196,11 +222,10 @@
   border-radius: var(--radius-md);
   padding: 1.25rem;
   text-align: center;
-  color: var(--color-neutral-dark);
   transition: all var(--transition-slow);
   box-shadow: var(--shadow-sm);
   width: 100%;
-  max-width: 220px;
+  max-width: 240px;
 }
 
 .catering-page-container .dietary-card:hover {
@@ -209,13 +234,7 @@
   color: var(--color-white);
 }
 
-.catering-page-container .dietary-icon {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-  color: var(--color-accent-gold);
-}
-
-/* === Creative Section (Media + Text) === */
+/* === Creative Section === */
 .catering-page-container .creative-layout {
   display: flex;
   flex-wrap: wrap;
@@ -234,12 +253,6 @@
   color: var(--color-text);
 }
 
-.catering-page-container .creative-text h3 {
-  font-family: var(--font-accent);
-  color: var(--color-primary);
-  margin-bottom: 1rem;
-}
-
 /* === Other Services === */
 .catering-page-container .other-services-section {
   background: var(--color-service-bg);
@@ -248,46 +261,38 @@
 }
 
 /* ======================================================
-   🌗 DARK MODE ENHANCEMENTS
+   🌗 DARK MODE
    ====================================================== */
-.dark .catering-page-container .event-card,
-.dark .catering-page-container .dietary-card {
+.dark .catering-page-container {
+  background: var(--color-bg-dark);
+  color: var(--color-text-light);
+}
+
+.dark .catering-page-container .dietary-card,
+.dark .catering-page-container .local-food-card {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.1);
   color: var(--color-accent-gold-light);
 }
 
-.dark .catering-page-container .hero-video {
-  filter: brightness(0.55) contrast(1.2);
-}
-
-.dark .catering-page-container .overlay {
-  background: var(--overlay-strong);
-}
-
-.dark .catering-page-container .btn.btn-primary {
-  background: var(--gradient-gold-burgundy);
-}
-
-.dark .catering-page-container .dietary-card:hover {
-  background: var(--gradient-navy-gold);
-}
-
 /* ======================================================
-   📱 RESPONSIVENESS — Down to 360px
+   📱 RESPONSIVE FIXES
    ====================================================== */
-@media (max-width: 1024px) {
-  .catering-page-container .hero-content {
-    padding: 0 2rem;
-  }
-}
-
 @media (max-width: 768px) {
   .catering-page-container .catering-hero {
-    height: auto;
-    min-height: 70vh;
+    min-height: 100dvh;
     flex-direction: column;
-    padding: 4rem 1rem;
+    justify-content: center;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  .catering-page-container .hero-content {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    padding: 2rem 1rem;
   }
 
   .catering-page-container .creative-layout {
@@ -301,16 +306,16 @@
 }
 
 @media (max-width: 480px) {
+  .catering-page-container .section {
+    padding: 3rem 1rem;
+  }
+
   .catering-page-container .hero-content h1 {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
 
   .catering-page-container .btn.btn-primary {
     width: 100%;
-  }
-
-  .catering-page-container .section {
-    padding: 3rem 1rem;
   }
 
   .catering-page-container .local-food-card,
@@ -322,32 +327,14 @@
 
 @media (max-width: 360px) {
   .catering-page-container .hero-content h1 {
-    font-size: 1.4rem;
-  }
-
-  .catering-page-container .dietary-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    font-size: 1.3rem;
   }
 
   .catering-page-container .mute-button {
-    bottom: 1rem;
-    right: 1rem;
     width: 36px;
     height: 36px;
     font-size: 0.9rem;
   }
-}
-
-/* ======================================================
-   🎞️ VIDEO FALLBACK
-   ====================================================== */
-.catering-page-container .catering-hero {
-  background: linear-gradient(
-      to bottom right,
-      rgba(0, 0, 0, 0.75),
-      rgba(20, 10, 10, 0.9)
-    ),
-    url("../../assets/images/catering-fallback.jpg") center/cover no-repeat;
 }
 
 /* ======================================================

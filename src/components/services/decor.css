@@ -1,14 +1,38 @@
 /* ======================================================
-   🌹 DECOR SERVICE PAGE — Glassmorphic & Responsive
+   🌹 DECOR SERVICE PAGE — Dark Luxury Glassmorphic Theme
    Brand: Eethm GH Multimedia
    ====================================================== */
 
+:root {
+  --accent-gold: #d4af37;
+  --accent-gold-glow: 0 0 18px rgba(212, 175, 55, 0.4);
+  --dark-bg: radial-gradient(circle at center, #0e0c0c 0%, #050505 100%);
+  --font-main: "Poppins", sans-serif;
+  --font-accent: "Cinzel", serif;
+}
+
+/* ======================================================
+   🌑 BASE STYLES
+   ====================================================== */
+
 .decor-page-container {
-  font-family: var(--font-main, "Poppins", sans-serif);
-  background: var(--color-bg, #0c0b0b);
-  color: var(--color-text, #fff);
+  font-family: var(--font-main);
+  background: var(--dark-bg);
+  color: #f9f9f9;
   overflow-x: hidden;
   animation: fade-in 0.6s ease-in-out both;
+  position: relative;
+}
+
+.decor-page-container::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  z-index: 0;
 }
 
 /* ======================================================
@@ -37,15 +61,14 @@
   filter: brightness(0.85);
 }
 
-/* Overlay for video and fallback */
 .hero-overlay {
   position: absolute;
   inset: 0;
   z-index: 2;
   background: linear-gradient(
     to bottom right,
-    rgba(0, 0, 0, 0.35),
-    rgba(0, 0, 0, 0.55)
+    rgba(20, 10, 0, 0.45),
+    rgba(0, 0, 0, 0.75)
   );
 }
 
@@ -69,18 +92,19 @@
   max-width: 800px;
   padding: 2rem 1.5rem;
   color: #fff;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   border-radius: 1.25rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
 }
 
 .hero-title {
-  font-family: var(--font-accent, "Cinzel", serif);
+  font-family: var(--font-accent);
   font-size: clamp(1.8rem, 4vw, 3.5rem);
-  color: var(--color-accent-gold, #d4af37);
+  color: var(--accent-gold);
+  text-shadow: var(--accent-gold-glow);
   margin-bottom: 0.75rem;
   letter-spacing: 0.5px;
 }
@@ -90,6 +114,7 @@
   color: rgba(255, 255, 255, 0.95);
   margin-bottom: 1.8rem;
   line-height: 1.6;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
 }
 
 .hero-buttons {
@@ -110,24 +135,26 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #d4af37, #8b0000);
+  background: linear-gradient(135deg, #d4af37, #8b6b00);
   color: #fff;
   border: none;
+  box-shadow: var(--accent-gold-glow);
 }
 
 .btn-primary:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 18px rgba(212, 175, 55, 0.4);
+  background: linear-gradient(135deg, #e0c157, #a97c00);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
 }
 
 .btn-outline {
-  background: rgba(255, 255, 255, 0.2);
-  color: #f5e6c4;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-gold);
+  border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(212, 175, 55, 0.15);
   transform: scale(1.05);
 }
 
@@ -140,9 +167,9 @@
   width: 2.6rem;
   height: 2.6rem;
   border-radius: 50%;
-  border: 1px solid var(--color-accent-gold, #d4af37);
+  border: 1px solid var(--accent-gold);
   background: rgba(0, 0, 0, 0.55);
-  color: #d4af37;
+  color: var(--accent-gold);
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   font-size: 1.1rem;
@@ -160,14 +187,15 @@
 .decor-services {
   text-align: center;
   padding: 5rem 1.5rem;
-  background: #111;
+  background: linear-gradient(180deg, #0b0b0b, #050505);
   color: #fff;
 }
 
 .decor-services h2 {
-  font-family: var(--font-accent, "Cinzel", serif);
+  font-family: var(--font-accent);
   font-size: clamp(1.8rem, 3vw, 2.6rem);
-  color: var(--color-accent-gold, #d4af37);
+  color: var(--accent-gold);
+  text-shadow: var(--accent-gold-glow);
   margin-bottom: 0.8rem;
 }
 
@@ -189,9 +217,10 @@
 }
 
 .decor-category-card {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(20, 20, 20, 0.6);
   backdrop-filter: blur(14px);
   border-radius: 1rem;
+  border: 1px solid rgba(212, 175, 55, 0.15);
   padding: 1.5rem;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -199,7 +228,7 @@
 
 .decor-category-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
 }
 
 .decor-category-image {
@@ -210,36 +239,21 @@
   margin-bottom: 1rem;
 }
 
-/* Enhance mobile readability */
-@media (max-width: 480px) {
-  .decor-category-card {
-    background: rgba(255, 255, 255, 0.25);
-    padding: 1.25rem;
-  }
-
-  .decor-category-image {
-    height: 180px;
-  }
-
-  .section-description {
-    color: rgba(255, 255, 255, 0.95);
-  }
-}
-
 /* ======================================================
    🖼️ GALLERY SECTION
    ====================================================== */
 
 .gallery-section {
-  background: linear-gradient(180deg, #120c0c, #1a1414);
+  background: linear-gradient(180deg, #0a0909, #0b0b0b);
   color: #fff;
   text-align: center;
   padding: 5rem 1.5rem;
 }
 
 .gallery-section h2 {
-  font-family: var(--font-accent, "Cinzel", serif);
-  color: var(--color-accent-gold, #d4af37);
+  font-family: var(--font-accent);
+  color: var(--accent-gold);
+  text-shadow: var(--accent-gold-glow);
   font-size: clamp(1.8rem, 3vw, 2.4rem);
 }
 
@@ -271,7 +285,8 @@
    ====================================================== */
 .reviews-layout {
   padding: 4rem 1.5rem;
-  background: #0a0a0a;
+  background: linear-gradient(180deg, #0b0b0b, #050505);
+  color: #f0f0f0;
 }
 
 /* ======================================================
@@ -280,23 +295,23 @@
 .glass-gradient {
   background: linear-gradient(
     to bottom right,
-    rgba(0, 0, 0, 0.35),
-    rgba(40, 20, 20, 0.55)
+    rgba(20, 10, 0, 0.45),
+    rgba(0, 0, 0, 0.75)
   );
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   border-radius: 1.25rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.8);
 }
 
 /* ======================================================
    📱 RESPONSIVE DESIGN
    ====================================================== */
 
-/* Medium Screens */
 @media (max-width: 1024px) {
   .hero-content {
     max-width: 90%;
@@ -307,7 +322,6 @@
   }
 }
 
-/* Tablets */
 @media (max-width: 768px) {
   .hero-buttons {
     flex-direction: column;
@@ -326,7 +340,6 @@
   }
 }
 
-/* Mobile Devices */
 @media (max-width: 480px) {
   .decor-hero-section {
     min-height: 70vh;
@@ -354,7 +367,6 @@
   }
 }
 
-/* Small Phones (≥360px) */
 @media (max-width: 360px) {
   .hero-content {
     padding: 1rem;
@@ -380,7 +392,7 @@
   }
 
   .decor-category-card {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(20, 20, 20, 0.7);
   }
 }
 
