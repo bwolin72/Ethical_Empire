@@ -25,22 +25,52 @@ const AUTH_KEYS = {
   LAST_SYNC: "lastSyncedAt",
 };
 
+// Canonical backend roles — keep in sync with backend enum
 const VALID_ROLES = ["admin", "user", "vendor", "partner"];
 
+// Helpers
 const normalizeRole = (role) => role?.trim()?.toLowerCase();
 const isValidRole = (role) => VALID_ROLES.includes(normalizeRole(role));
 
+const safeGetItem = (storage, key) => {
+  try {
+    return storage.getItem(key);
+  } catch (e) {
+    return null;
+  }
+};
+
+const safeSetItem = (storage, key, val) => {
+  try {
+    storage.setItem(key, val);
+  } catch (e) {
+    // ignore (storage full / private mode)
+  }
+};
+
 const getStorage = () => {
-  const remember = localStorage.getItem(AUTH_KEYS.REMEMBER) === "true";
+  if (typeof window === "undefined") return sessionStorage;
+  const remember = safeGetItem(localStorage, AUTH_KEYS.REMEMBER) === "true";
   return remember ? localStorage : sessionStorage;
+};
+
+// Clamp timeouts to avoid extremely large timers (browser throttling)
+const clampDelay = (ms) => {
+  if (!Number.isFinite(ms)) return 5_000;
+  const MIN = 5_000; // 5 seconds
+  const MAX = 60 * 60 * 1000; // 1 hour
+  return Math.min(Math.max(ms, MIN), MAX);
 };
 
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
+
+  // refs for timers & callback refs
   const refreshTimer = useRef(null);
   const profileSyncTimer = useRef(null);
   const refreshAccessTokenRef = useRef(null);
 
+  // state
   const [auth, setAuth] = useState({
     access: null,
     refresh: null,
@@ -48,84 +78,107 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: false,
   });
 
-  const [loading, setLoading] = useState(true);
-  const [ready, setReady] = useState(false);
+  const [loading, setLoading] = useState(true); // during init
+  const [ready, setReady] = useState(false); // indicates initialization finished
   const [lastSyncedAt, setLastSyncedAt] = useState(
-    localStorage.getItem(AUTH_KEYS.LAST_SYNC) || null
+    (typeof window !== "undefined" && safeGetItem(localStorage, AUTH_KEYS.LAST_SYNC)) || null
   );
 
-  // =========================
-  // 🧹 Clear Session
-  // =========================
-  const clearSession = useCallback(() => {
-    clearTimeout(refreshTimer.current);
-    clearTimeout(profileSyncTimer.current);
-    Object.values(AUTH_KEYS).forEach((key) => {
-      localStorage.removeItem(key);
-      sessionStorage.removeItem(key);
-    });
+  // --------------------------
+  // Helpers: clear timers + storage
+  // --------------------------
+  const clearTimers = useCallback(() => {
+    if (refreshTimer.current) {
+      clearTimeout(refreshTimer.current);
+      refreshTimer.current = null;
+    }
+    if (profileSyncTimer.current) {
+      clearTimeout(profileSyncTimer.current);
+      profileSyncTimer.current = null;
+    }
   }, []);
 
-  // =========================
-  // 🚫 Logout
-  // =========================
+  const clearSession = useCallback(() => {
+    clearTimers();
+    try {
+      Object.values(AUTH_KEYS).forEach((key) => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      });
+    } catch (e) {
+      // ignore storage errors
+    }
+  }, [clearTimers]);
+
+  // --------------------------
+  // Logout
+  // --------------------------
   const logout = useCallback(
     (reason = "manual") => {
       console.warn(`[Auth] Logging out. Reason: ${reason}`);
       clearSession();
       setAuth({ access: null, refresh: null, user: null, isAuthenticated: false });
       setReady(true);
+      // don't leave loading stuck
+      setLoading(false);
       navigate("/login", { replace: true });
     },
     [navigate, clearSession]
   );
 
-  // =========================
-  // ⏱️ Schedule Token Refresh
-  // =========================
+  // --------------------------
+  // Token refresh scheduling
+  // --------------------------
   const scheduleTokenRefresh = useCallback(
     (accessToken, refreshToken) => {
+      if (!accessToken || !refreshToken) return;
       try {
         const { exp } = jwt_decode(accessToken);
-        const delay = exp * 1000 - Date.now() - 60_000;
-        clearTimeout(refreshTimer.current);
+        const msUntilExpiry = exp * 1000 - Date.now();
+        // refresh 60 seconds before expiry
+        const desiredDelay = msUntilExpiry - 60_000;
+        const delay = clampDelay(desiredDelay);
+        // clear existing
+        if (refreshTimer.current) clearTimeout(refreshTimer.current);
 
-        if (delay <= 0) refreshAccessTokenRef.current?.(refreshToken);
-        else
+        if (desiredDelay <= 0) {
+          // already expired or near-expiry -> refresh now
+          refreshAccessTokenRef.current?.(refreshToken);
+        } else {
           refreshTimer.current = setTimeout(
             () => refreshAccessTokenRef.current?.(refreshToken),
             delay
           );
+        }
       } catch (err) {
-        console.error("Token decode failed:", err);
+        console.error("[Auth] Token decode failed:", err);
         logout("token_decode_failed");
       }
     },
     [logout]
   );
 
-  // =========================
-  // 🔄 Refresh Access Token
-  // =========================
+  // --------------------------
+  // Refresh access token
+  // --------------------------
   const refreshAccessToken = useCallback(
     async (refreshToken) => {
       if (!refreshToken) return logout("missing_refresh_token");
 
       try {
-        const refreshUrl =
-          process.env.REACT_APP_API_REFRESH_URL || "/accounts/token/refresh/";
+        const refreshUrl = process.env.REACT_APP_API_REFRESH_URL || "/accounts/token/refresh/";
         const { data } = await axiosInstance.post(refreshUrl, { refresh: refreshToken });
 
-        const newAccess = data.access;
+        const newAccess = data?.access;
         if (!newAccess) throw new Error("No access token returned");
 
         const storage = getStorage();
-        storage.setItem(AUTH_KEYS.ACCESS, newAccess);
+        safeSetItem(storage, AUTH_KEYS.ACCESS, newAccess);
 
-        setAuth((prev) => ({ ...prev, access: newAccess }));
+        setAuth((prev) => ({ ...prev, access: newAccess, isAuthenticated: true }));
         scheduleTokenRefresh(newAccess, refreshToken);
       } catch (err) {
-        console.error("Refresh token error:", err);
+        console.error("[Auth] Refresh token error:", err);
         toast.error("Session expired, please log in again.");
         logout("refresh_failed");
       }
@@ -133,71 +186,89 @@ export const AuthProvider = ({ children }) => {
     [logout, scheduleTokenRefresh]
   );
 
+  // keep ref updated so timers can call latest function
   useEffect(() => {
     refreshAccessTokenRef.current = refreshAccessToken;
   }, [refreshAccessToken]);
 
-  // =========================
-  // 🔐 Login
-  // =========================
+  // --------------------------
+  // Login
+  // --------------------------
   const login = useCallback(
     ({ access, refresh, user, remember = true }) => {
-      if (!access || !refresh || !user) return logout("invalid_login_data");
+      if (!access || !refresh || !user) {
+        return logout("invalid_login_data");
+      }
 
+      // Normalize role and fallback
       let role = normalizeRole(user.role);
       if (!isValidRole(role)) {
-        console.warn("[Auth] Invalid or missing role. Defaulting to 'user'.");
-        role = "user";
+        // map some known legacy aliases to canonical role 'user' if necessary
+        if (["client", "normal", "member", "basic"].includes(role)) role = "user";
+        else {
+          console.warn("[Auth] Invalid or missing role. Defaulting to 'user'.");
+          role = "user";
+        }
       }
+
       if (!user.email) return logout("invalid_user_role");
 
       const cleanUser = { ...user, role };
-      const storage = remember ? localStorage : sessionStorage;
-      localStorage.setItem(AUTH_KEYS.REMEMBER, remember ? "true" : "false");
 
-      storage.setItem(AUTH_KEYS.ACCESS, access);
-      storage.setItem(AUTH_KEYS.REFRESH, refresh);
-      storage.setItem(AUTH_KEYS.USER, JSON.stringify(cleanUser));
+      const storage = remember ? localStorage : sessionStorage;
+      safeSetItem(localStorage, AUTH_KEYS.REMEMBER, remember ? "true" : "false");
+      safeSetItem(storage, AUTH_KEYS.ACCESS, access);
+      safeSetItem(storage, AUTH_KEYS.REFRESH, refresh);
+      safeSetItem(storage, AUTH_KEYS.USER, JSON.stringify(cleanUser));
 
       setAuth({ access, refresh, user: cleanUser, isAuthenticated: true });
       scheduleTokenRefresh(access, refresh);
-      scheduleProfileSync(access);
+      scheduleProfileSync(access); // start sync immediately
       setReady(true);
+      setLoading(false);
     },
     [logout, scheduleTokenRefresh]
   );
 
-  // =========================
-  // 🔧 Update Session
-  // =========================
+  // --------------------------
+  // Update session pieces
+  // --------------------------
   const update = useCallback(({ access, refresh, user }) => {
     const storage = getStorage();
     setAuth((prev) => {
       const updated = { ...prev };
       if (access !== undefined) {
-        storage.setItem(AUTH_KEYS.ACCESS, access);
+        safeSetItem(storage, AUTH_KEYS.ACCESS, access);
         updated.access = access;
       }
       if (refresh !== undefined) {
-        storage.setItem(AUTH_KEYS.REFRESH, refresh);
+        safeSetItem(storage, AUTH_KEYS.REFRESH, refresh);
         updated.refresh = refresh;
       }
       if (user !== undefined) {
         let role = normalizeRole(user.role);
-        if (!isValidRole(role)) role = "user";
+        if (!isValidRole(role)) {
+          // map legacy aliases to canonical roles if plausible
+          if (["client", "normal", "member", "basic"].includes(role)) role = "user";
+          else role = "user";
+        }
         updated.user = { ...user, role };
-        storage.setItem(AUTH_KEYS.USER, JSON.stringify(updated.user));
+        safeSetItem(storage, AUTH_KEYS.USER, JSON.stringify(updated.user));
       }
       return updated;
     });
   }, []);
 
-  // =========================
-  // 🔁 Silent Profile Sync (Every 4 hours)
-  // =========================
+  // --------------------------
+  // Silent profile sync (every 4 hours)
+  // --------------------------
   const scheduleProfileSync = useCallback(
     (accessToken) => {
-      clearTimeout(profileSyncTimer.current);
+      // clear previous timer
+      if (profileSyncTimer.current) {
+        clearTimeout(profileSyncTimer.current);
+        profileSyncTimer.current = null;
+      }
       if (!accessToken) return;
 
       const SYNC_INTERVAL = 4 * 60 * 60 * 1000; // 4 hours
@@ -212,97 +283,140 @@ export const AuthProvider = ({ children }) => {
             const role = normalizeRole(data.role);
             const updatedUser = { ...data, role: isValidRole(role) ? role : "user" };
             const storage = getStorage();
-            storage.setItem(AUTH_KEYS.USER, JSON.stringify(updatedUser));
+            safeSetItem(storage, AUTH_KEYS.USER, JSON.stringify(updatedUser));
 
             const timestamp = new Date().toISOString();
-            localStorage.setItem(AUTH_KEYS.LAST_SYNC, timestamp);
+            safeSetItem(localStorage, AUTH_KEYS.LAST_SYNC, timestamp);
             setLastSyncedAt(timestamp);
 
             setAuth((prev) => ({ ...prev, user: updatedUser }));
             console.info("[Auth] Silent profile sync successful at", timestamp);
           }
         } catch (err) {
-          console.warn("[Auth] Silent profile sync failed:", err?.response?.status || err);
+          // if token expired / unauthorized, attempt to refresh once
+          const status = err?.response?.status;
+          console.warn("[Auth] Silent profile sync failed:", status || err);
+          if (status === 401) {
+            // attempt refresh using stored refresh token
+            const storage = getStorage();
+            const storedRefresh = safeGetItem(storage, AUTH_KEYS.REFRESH);
+            if (storedRefresh) {
+              try {
+                await refreshAccessToken(storedRefresh);
+              } catch (e) {
+                // refreshAccessToken already handles logout on failure
+              }
+            } else {
+              logout("profile_sync_unauthorized");
+            }
+          }
         } finally {
-          profileSyncTimer.current = setTimeout(() => sync(), SYNC_INTERVAL);
+          // schedule next run (use clamp to avoid very long timers)
+          profileSyncTimer.current = setTimeout(() => sync(), clampDelay(SYNC_INTERVAL));
         }
       };
 
+      // run immediate sync
       sync();
     },
-    []
+    [refreshAccessToken, logout]
   );
 
-  // =========================
-  // 🚀 Init Session
-  // =========================
+  // --------------------------
+  // Initialize session on mount
+  // --------------------------
   useEffect(() => {
+    let mounted = true;
     const storage = getStorage();
-    const access = storage.getItem(AUTH_KEYS.ACCESS);
-    const refresh = storage.getItem(AUTH_KEYS.REFRESH);
-    const userRaw = storage.getItem(AUTH_KEYS.USER);
+    const access = safeGetItem(storage, AUTH_KEYS.ACCESS);
+    const refresh = safeGetItem(storage, AUTH_KEYS.REFRESH);
+    const userRaw = safeGetItem(storage, AUTH_KEYS.USER);
 
     const init = async () => {
       if (!access || !refresh || !userRaw) {
+        if (!mounted) return;
         setLoading(false);
         setReady(true);
+        // leave auth as logged out
         return;
       }
 
       try {
-        const user = JSON.parse(userRaw);
-        let role = normalizeRole(user.role);
+        const parsed = JSON.parse(userRaw);
+        let role = normalizeRole(parsed.role);
         if (!isValidRole(role)) {
-          console.warn("[Auth] Invalid stored role. Defaulting to 'user'.");
-          user.role = "user";
+          if (["client", "normal", "member", "basic"].includes(role)) role = "user";
+          else {
+            console.warn("[Auth] Invalid stored role. Defaulting to 'user'.");
+            role = "user";
+          }
+          parsed.role = role;
         }
 
-        if (!user.email) {
+        if (!parsed.email) {
           toast.error("Your account data could not be verified. Please log in again.");
           return logout("invalid_user_data");
         }
 
-        const cleanUser = { ...user, role: user.role };
+        const cleanUser = { ...parsed, role: parsed.role };
         const { exp } = jwt_decode(access);
         const isExpired = exp * 1000 < Date.now();
 
+        if (!mounted) return;
         setAuth({ access, refresh, user: cleanUser, isAuthenticated: !isExpired });
 
-        if (isExpired) await refreshAccessToken(refresh);
-        else scheduleTokenRefresh(access, refresh);
+        if (isExpired) {
+          // refresh and schedule on success
+          await refreshAccessToken(refresh);
+        } else {
+          scheduleTokenRefresh(access, refresh);
+        }
 
         scheduleProfileSync(access);
       } catch (err) {
-        console.error("Session init error:", err);
+        console.error("[Auth] Session init error:", err);
         logout("init_session_failed");
       } finally {
+        if (!mounted) return;
         setLoading(false);
         setReady(true);
       }
     };
 
     init();
-  }, [refreshAccessToken, scheduleTokenRefresh, logout, scheduleProfileSync]);
 
-  // =========================
-  // 🧩 Provider Return
-  // =========================
-  return (
-    <AuthContext.Provider
-      value={{
-        auth,
-        login,
-        logout,
-        update,
-        isAuthenticated: auth.isAuthenticated,
-        lastSyncedAt,
-        loading,
-        ready,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+    // cleanup on unmount
+    return () => {
+      mounted = false;
+      clearTimers();
+    };
+  }, [refreshAccessToken, scheduleTokenRefresh, logout, scheduleProfileSync, clearTimers]);
+
+  // clear timers if provider unmounted (safeguard)
+  useEffect(() => {
+    return () => {
+      clearTimers();
+    };
+  }, [clearTimers]);
+
+  // --------------------------
+  // Context value (convenience fields added)
+  // --------------------------
+  const contextValue = {
+    auth,
+    user: auth.user,
+    role: auth.user?.role,
+    accessToken: auth.access,
+    login,
+    logout,
+    update,
+    isAuthenticated: !!auth.isAuthenticated,
+    lastSyncedAt,
+    loading,
+    ready,
+  };
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

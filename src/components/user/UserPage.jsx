@@ -1,23 +1,14 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import {
-  Menu,
-  X,
-  Settings,
-  LogOut,
-  Sun,
-  Moon,
-  MessageCircle,
-  Film,
-  Image,
-  Star,
-  Mail,
-  Clock,
+  Menu, X, Settings, LogOut, Sun, Moon,
+  MessageCircle, Film, Image, Star, Mail, Clock
 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useProfile } from "../context/ProfileContext";
+import { useAuth } from "../context/AuthContext";
 import apiService from "../../api/apiService";
 
 import BannerCards from "../context/BannerCards";
@@ -39,85 +30,102 @@ import "./UserPage.css";
 
 const UserPage = () => {
   const { profile, updateProfile } = useProfile();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const [media, setMedia] = useState([]);
   const [videos, setVideos] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("darkMode") === "true"
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const navigate = useNavigate();
-
-  const extractList = (res) => {
-    if (!res) return [];
-    const payload = res.data ?? res;
-    if (Array.isArray(payload)) return payload;
-    if (Array.isArray(payload.results)) return payload.results;
-    if (Array.isArray(payload.data)) return payload.data;
-    return [];
-  };
-
-  // Fetch all dashboard data
-  useEffect(() => {
-    const controller = new AbortController();
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [mediaRes, reviewsRes, promoRes, videosRes, msgRes] = await Promise.all([
-          apiService.media?.user?.({ signal: controller.signal }) ?? { data: [] },
-          apiService.reviews?.list?.({ signal: controller.signal }) ?? { data: [] },
-          apiService.promotions?.active?.({ signal: controller.signal }) ?? { data: [] },
-          apiService.videos?.list?.({ signal: controller.signal }) ?? { data: [] },
-          apiService.messages?.unreadCount?.({ signal: controller.signal }) ?? { data: 0 },
-        ]);
-
-        setMedia(extractList(mediaRes));
-        setReviews(extractList(reviewsRes));
-        setPromotions(extractList(promoRes));
-        setVideos(extractList(videosRes));
-        setUnreadCount(msgRes.data ?? 0);
-      } catch (err) {
-        if (err?.name !== "CanceledError") {
-          console.error("Dashboard fetch error:", err);
-          toast.error("Error loading your dashboard.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-    return () => controller.abort();
+  // Extract common data from responses safely
+  const extractList = useCallback((res) => {
+    const data = res?.data ?? res;
+    return Array.isArray(data?.results)
+      ? data.results
+      : Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data)
+      ? data
+      : [];
   }, []);
 
-  const toggleDarkMode = () => {
+  // Fetch Dashboard Data
+  const fetchDashboardData = useCallback(async (signal) => {
+    try {
+      const [mediaRes, reviewsRes, promoRes, videosRes, msgRes] = await Promise.all([
+        apiService.media?.user?.({ signal }) ?? { data: [] },
+        apiService.reviews?.list?.({ signal }) ?? { data: [] },
+        apiService.promotions?.active?.({ signal }) ?? { data: [] },
+        apiService.videos?.list?.({ signal }) ?? { data: [] },
+        apiService.messages?.unreadCount?.({ signal }) ?? { data: 0 },
+      ]);
+
+      setMedia(extractList(mediaRes));
+      setReviews(extractList(reviewsRes));
+      setPromotions(extractList(promoRes));
+      setVideos(extractList(videosRes));
+      setUnreadCount(msgRes.data ?? 0);
+    } catch (err) {
+      if (err?.name !== "CanceledError") {
+        console.error("Dashboard fetch error:", err);
+        toast.error("Error loading your dashboard.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [extractList]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchDashboardData(controller.signal);
+    return () => controller.abort();
+  }, [fetchDashboardData]);
+
+  // Toggle Dark Mode
+  const toggleDarkMode = useCallback(() => {
     const newMode = !darkMode;
     setDarkMode(newMode);
     localStorage.setItem("darkMode", newMode);
-  };
+  }, [darkMode]);
 
-  const featuredVideo = videos.find(
-    (item) => (item.is_featured || item.featured) && (item.file || item.url || item.video_url)
+  // Memoized derived values
+  const featuredVideo = useMemo(
+    () =>
+      videos.find(
+        (v) => (v.is_featured || v.featured) && (v.file || v.url || v.video_url)
+      ),
+    [videos]
   );
 
-  // Define dynamic service categories from available components
-  const userServices = [
-    {
-      name: "Profile Management",
-      components: [<AccountProfile key="account" />, <EditProfile key="edit" />],
-    },
-    {
-      name: "Password & Security",
-      components: [<UpdatePassword key="update" />, <ConfirmPasswordChange key="confirm" />],
-    },
-    {
-      name: "Subscription",
-      components: [<UnsubscribePage key="unsubscribe" />, <ResubscribePage key="resubscribe" />],
-    },
-  ];
+  const userServices = useMemo(
+    () => [
+      {
+        name: "Profile Management",
+        components: [<AccountProfile key="account" />, <EditProfile key="edit" />],
+      },
+      {
+        name: "Password & Security",
+        components: [<UpdatePassword key="update" />, <ConfirmPasswordChange key="confirm" />],
+      },
+      {
+        name: "Subscription",
+        components: [<UnsubscribePage key="unsubscribe" />, <ResubscribePage key="resubscribe" />],
+      },
+    ],
+    []
+  );
 
-  const handleBookingClick = () => navigate("/bookings");
+  // Handlers
+  const handleBookingClick = useCallback(() => navigate("/bookings"), [navigate]);
+  const handleLogout = useCallback(() => logout("manual"), [logout]);
+  const toggleSidebar = useCallback(() => setSidebarOpen((prev) => !prev), []);
 
   return (
     <div className={`user-dashboard ${darkMode ? "dark" : "light"}`}>
@@ -139,19 +147,21 @@ const UserPage = () => {
         </nav>
 
         <div className="sidebar-footer">
-          <button className="logout-btn" onClick={() => navigate("/logout")}>
+          <button className="logout-btn" onClick={handleLogout}>
             <LogOut size={18}/> Logout
           </button>
         </div>
       </aside>
 
-      {sidebarOpen && <div className="sidebar-overlay show" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && (
+        <div className="sidebar-overlay show" onClick={toggleSidebar} />
+      )}
 
       {/* Main Content */}
       <main className="dashboard-content">
         <header className="dashboard-header glass-card">
           <div className="header-left">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="menu-toggle btn-icon">
+            <button onClick={toggleSidebar} className="menu-toggle btn-icon">
               {sidebarOpen ? <X size={20}/> : <Menu size={20}/>}
             </button>
             <div>
@@ -232,7 +242,7 @@ const UserPage = () => {
           {userServices.map((service, idx) => (
             <div key={idx} className="service-card glass-card">
               <h4>{service.name}</h4>
-              <div className="service-components">{service.components.map(c => c)}</div>
+              <div className="service-components">{service.components}</div>
               <button className="btn btn-primary mt-2" onClick={handleBookingClick}>
                 Book {service.name}
               </button>

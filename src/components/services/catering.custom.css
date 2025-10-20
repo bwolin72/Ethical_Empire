@@ -1,89 +1,91 @@
 /* ==========================================================
    🍽️ CATERING PAGE — EETHM RECORDS MULTIMEDIA
-   Cinematic Glassmorphic Theme • Fully Responsive ≥320px
+   Cinematic Glassmorphic Theme • Fully Responsive ≥240px
    ========================================================== */
 
 .catering-page-container {
   --overlay-dark: rgba(0, 0, 0, 0.45);
   --overlay-strong: rgba(0, 0, 0, 0.65);
 
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-main);
+  background: var(--color-bg, #0e0e0e);
+  color: var(--color-text, #f5f5f5);
+  font-family: var(--font-main, "Poppins", sans-serif);
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: visible;
   box-sizing: border-box;
   animation: fade-in 0.6s ease-in-out both;
 
-  /* ✅ Match Liveband behavior */
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
 /* ======================================================
    🎬 HERO SECTION
    ====================================================== */
-.catering-page-container .catering-hero {
+.catering-hero {
   position: relative;
   width: 100%;
-  min-height: 100dvh;
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gradient-gold-burgundy);
+  background: var(--gradient-gold-burgundy, linear-gradient(120deg, #b8860b, #400020));
   overflow: hidden;
 }
 
 @supports (-webkit-touch-callout: none) {
   /* ✅ Fix for iOS Safari viewport */
-  .catering-page-container .catering-hero {
+  .catering-hero {
     min-height: -webkit-fill-available;
   }
 }
 
-.catering-page-container .video-wrapper {
+.video-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 0; /* ✅ prevent overlay issues */
+  z-index: 0;
 }
 
-.catering-page-container .hero-video {
+.hero-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   filter: brightness(0.7) contrast(1.1);
   transition: transform 0.6s ease-out;
+  z-index: 0;
 }
 
-.catering-page-container .video-wrapper:hover .hero-video {
+.video-wrapper:hover .hero-video {
   transform: scale(1.05);
 }
 
-.catering-page-container .overlay {
+.overlay {
   position: absolute;
   inset: 0;
-  background: var(--overlay-dark);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(3px);
-  z-index: 1;
+  z-index: 2;
 }
 
-.catering-page-container .hero-content {
+.hero-content {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: var(--color-white);
-  z-index: 2;
+  color: var(--color-white, #fff);
+  z-index: 5; /* 🩵 ensures content above overlay/video */
   padding: 0 1rem;
   max-width: 90%;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
 }
 
-.catering-page-container .hero-content h1 {
-  font-family: var(--font-accent);
+.hero-content h1 {
+  font-family: var(--font-accent, "Playfair Display", serif);
   font-size: clamp(1.6rem, 5vw, 3rem);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -94,63 +96,65 @@
   margin-bottom: 1rem;
 }
 
-.catering-page-container .hero-content p {
+.hero-content p {
   font-size: clamp(0.9rem, 2.5vw, 1.15rem);
-  color: var(--color-service-bg-light);
+  color: var(--color-service-bg-light, #e8e8e8);
   max-width: 600px;
   margin: 0 auto 1.5rem;
   line-height: 1.5;
 }
 
-.catering-page-container .btn.btn-primary {
-  background: var(--gradient-navy-gold);
+.btn.btn-primary {
+  background: var(--gradient-navy-gold, linear-gradient(135deg, #001f3f, #b8860b));
   border: none;
-  color: var(--color-white);
+  color: var(--color-white, #fff);
   padding: 0.75rem 1.75rem;
   font-size: 1rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 8px);
   cursor: pointer;
-  transition: all var(--transition-slow);
-  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md, 0 4px 10px rgba(0, 0, 0, 0.3));
 }
 
-.catering-page-container .btn.btn-primary:hover {
+.btn.btn-primary:hover {
   transform: scale(1.05);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg, 0 6px 14px rgba(0, 0, 0, 0.4));
   background: var(--gradient-gold-burgundy);
 }
 
-.catering-page-container .mute-button {
+.mute-button {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
   background: rgba(0, 0, 0, 0.6);
-  color: var(--color-accent-gold-light);
+  color: var(--color-accent-gold-light, #ffd700);
   border: none;
   border-radius: 50%;
   width: 42px;
   height: 42px;
   font-size: 1.1rem;
   cursor: pointer;
-  z-index: 3;
+  z-index: 6;
   backdrop-filter: blur(4px);
-  transition: all var(--transition-fast);
+  transition: all 0.3s ease;
 }
 
-.catering-page-container .mute-button:hover {
+.mute-button:hover {
   background: rgba(255, 255, 255, 0.15);
-  color: var(--color-accent-gold);
+  color: var(--color-accent-gold, #ffcc00);
 }
 
 /* ======================================================
    🍱 CONTENT SECTIONS
    ====================================================== */
-.catering-page-container .section {
+.section {
   padding: 4rem 1.5rem;
   text-align: center;
+  background: var(--color-bg, #0e0e0e);
+  color: var(--color-text, #f5f5f5);
 }
 
-.catering-page-container .section-title {
+.section-title {
   font-family: var(--font-accent);
   font-size: clamp(1.4rem, 3vw, 2rem);
   text-transform: uppercase;
@@ -163,79 +167,78 @@
 }
 
 /* === Food Grids === */
-.catering-page-container .local-food-grid,
-.catering-page-container .world-grid {
+.local-food-grid,
+.world-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1.25rem;
   justify-items: center;
 }
 
-.catering-page-container .local-food-card,
-.catering-page-container .world-card {
+.local-food-card,
+.world-card {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-md, 8px);
   padding: 1.25rem;
-  color: var(--color-accent-gold);
+  color: var(--color-accent-gold, #d4af37);
   font-weight: 600;
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-md);
-  transition: all var(--transition-fast);
+  transition: all 0.3s ease;
   width: 100%;
   max-width: 240px;
 }
 
-.catering-page-container .local-food-card:hover,
-.catering-page-container .world-card:hover {
+.local-food-card:hover,
+.world-card:hover {
   transform: translateY(-6px);
   background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
+  color: var(--color-white, #fff);
 }
 
-/* === Food Image (new, matches Liveband style) === */
-.catering-page-container .food-image {
+.food-image {
   width: 100%;
   height: 180px;
   object-fit: cover;
   border-radius: var(--radius-md);
   margin-bottom: 0.75rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.3));
 }
 
 @media (max-width: 400px) {
-  .catering-page-container .food-image {
+  .food-image {
     height: 140px;
   }
 }
 
 /* === Dietary Options === */
-.catering-page-container .dietary-grid {
+.dietary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 1.25rem;
   justify-items: center;
 }
 
-.catering-page-container .dietary-card {
-  background: var(--color-service-bg);
+.dietary-card {
+  background: var(--color-service-bg, rgba(255, 255, 255, 0.06));
   border-radius: var(--radius-md);
   padding: 1.25rem;
   text-align: center;
-  transition: all var(--transition-slow);
+  transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
   width: 100%;
   max-width: 240px;
 }
 
-.catering-page-container .dietary-card:hover {
+.dietary-card:hover {
   transform: scale(1.08);
   background: var(--gradient-navy-gold);
   color: var(--color-white);
 }
 
 /* === Creative Section === */
-.catering-page-container .creative-layout {
+.creative-layout {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -243,20 +246,20 @@
   justify-content: center;
 }
 
-.catering-page-container .creative-media {
+.creative-media {
   flex: 1 1 420px;
 }
 
-.catering-page-container .creative-text {
+.creative-text {
   flex: 1 1 350px;
   text-align: left;
   color: var(--color-text);
 }
 
 /* === Other Services === */
-.catering-page-container .other-services-section {
-  background: var(--color-service-bg);
-  border-top: 1px solid var(--color-border);
+.other-services-section {
+  background: var(--color-service-bg, rgba(255, 255, 255, 0.05));
+  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
   padding-top: 4rem;
 }
 
@@ -264,30 +267,30 @@
    🌗 DARK MODE
    ====================================================== */
 .dark .catering-page-container {
-  background: var(--color-bg-dark);
-  color: var(--color-text-light);
+  background: var(--color-bg-dark, #0b0b0b);
+  color: var(--color-text-light, #fafafa);
 }
 
-.dark .catering-page-container .dietary-card,
-.dark .catering-page-container .local-food-card {
+.dark .dietary-card,
+.dark .local-food-card {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.1);
-  color: var(--color-accent-gold-light);
+  color: var(--color-accent-gold-light, #ffdb6e);
 }
 
 /* ======================================================
    📱 RESPONSIVE FIXES
    ====================================================== */
 @media (max-width: 768px) {
-  .catering-page-container .catering-hero {
-    min-height: 100dvh;
+  .catering-hero {
+    min-height: 100vh;
     flex-direction: column;
     justify-content: center;
     padding: 2rem 1rem;
     text-align: center;
   }
 
-  .catering-page-container .hero-content {
+  .hero-content {
     position: relative;
     top: auto;
     left: auto;
@@ -295,45 +298,70 @@
     padding: 2rem 1rem;
   }
 
-  .catering-page-container .creative-layout {
+  .creative-layout {
     flex-direction: column;
     text-align: center;
   }
 
-  .catering-page-container .creative-text {
+  .creative-text {
     text-align: center;
   }
 }
 
 @media (max-width: 480px) {
-  .catering-page-container .section {
+  .section {
     padding: 3rem 1rem;
   }
 
-  .catering-page-container .hero-content h1 {
+  .hero-content h1 {
     font-size: 1.4rem;
   }
 
-  .catering-page-container .btn.btn-primary {
+  .btn.btn-primary {
     width: 100%;
   }
 
-  .catering-page-container .local-food-card,
-  .catering-page-container .world-card,
-  .catering-page-container .dietary-card {
+  .local-food-card,
+  .world-card,
+  .dietary-card {
     max-width: 100%;
+  }
+
+  .hero-content {
+    background: rgba(0, 0, 0, 0.45);
   }
 }
 
 @media (max-width: 360px) {
-  .catering-page-container .hero-content h1 {
-    font-size: 1.3rem;
+  .hero-content h1 {
+    font-size: 1.25rem;
   }
 
-  .catering-page-container .mute-button {
-    width: 36px;
-    height: 36px;
+  .mute-button {
+    width: 34px;
+    height: 34px;
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 240px) {
+  .hero-content h1 {
+    font-size: 1rem;
+  }
+
+  .hero-content p {
+    font-size: 0.8rem;
+  }
+
+  .btn.btn-primary {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .local-food-card,
+  .world-card,
+  .dietary-card {
+    padding: 0.75rem;
   }
 }
 

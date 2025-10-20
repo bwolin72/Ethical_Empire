@@ -1,419 +1,424 @@
 /* ======================================================
-   🖥️ MEDIA HOSTING SERVICE PAGE — Ethical Empire
-   Glassmorphic | Cinematic | Responsive | Scoped Styles
+   MEDIA HOSTING SERVICE PAGE — Neutral Dark Glass Theme
+   Glassmorphic • Cinematic • Responsive ≥240px
+   Fixes: video/overlay stacking, iOS viewport, hidden content,
+   consistent contrast, small-screen stability, and scroll UX.
    ====================================================== */
 
 .media-hosting-page {
-  font-family: var(--font-main);
-  background: var(--color-bg);
-  color: var(--color-text);
+  --bg-dark: radial-gradient(circle at 10% 10%, #080808 0%, #040404 60%);
+  --glass-surface: rgba(18, 18, 20, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --muted: rgba(255, 255, 255, 0.78);
+  --muted-2: rgba(255, 255, 255, 0.6);
+  --accent: #d4af37;            /* gold accent retained for highlights */
+  --accent-subtle: rgba(212,175,55,0.18);
+  --shadow-md: 0 10px 30px rgba(0,0,0,0.6);
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.5);
+  --radius-lg: 14px;
+  --radius-md: 8px;
+  --transition-fast: 0.18s ease;
+  --transition-slow: 0.36s ease;
+
+  font-family: var(--font-main, "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial);
+  color: var(--muted);
+  background: var(--bg-dark);
+  min-height: 100vh;
   overflow-x: hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* subtle texture overlay (low-opacity) */
+.media-hosting-page::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("https://www.transparenttextures.com/patterns/dark-matter.png");
+  opacity: 0.03;
+  z-index: 0;
 }
 
 /* ======================================================
-   🎥 HERO SECTION
+   HERO SECTION (video + overlay + content)
    ====================================================== */
-
 .media-hosting-page .media-hero-section {
   position: relative;
-  height: 90vh;
+  width: 100%;
+  min-height: 88vh;               /* main hero height */
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(
-      to bottom right,
-      rgba(0, 0, 0, 0.8),
-      rgba(20, 10, 10, 0.9)
-    ),
-    url("../../assets/images/media-hosting-fallback.png") center/cover no-repeat;
+  isolation: isolate;             /* prevents unexpected stacking context */
+  background-color: #000;
 }
 
+/* iOS Safari viewport safe */
+@supports (-webkit-touch-callout: none) {
+  .media-hosting-page .media-hero-section { min-height: -webkit-fill-available; }
+}
+
+/* background video sits at the very back */
 .media-hosting-page .background-video {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(65%) contrast(105%);
-  z-index: 1;
+  transform-origin: center center;
+  filter: brightness(0.74) contrast(1.04) saturate(0.98);
+  z-index: 0;
+  will-change: transform;
+  transition: transform 0.6s var(--transition-slow);
+  backface-visibility: hidden;
 }
 
+/* tasteful, subtle parallax on hover (desktop only) */
+@media (hover: hover) {
+  .media-hosting-page .media-hero-section:hover .background-video {
+    transform: scale(1.02);
+  }
+}
+
+/* overlay above video but under content */
 .media-hosting-page .overlay-gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom right,
-    rgba(0, 0, 0, 0.6),
-    rgba(0, 0, 0, 0.3)
-  );
+  background: linear-gradient(180deg, rgba(0,0,0,0.62) 0%, rgba(8,8,8,0.45) 50%, rgba(0,0,0,0.7) 100%);
   z-index: 2;
+  backdrop-filter: blur(4px);
 }
 
+/* hero content — always above overlay
+   Use relative positioning (not absolute) so it flows properly on small screens */
 .media-hosting-page .hero-glass {
   position: relative;
-  z-index: 3;
-  padding: 2rem;
-  max-width: 800px;
+  z-index: 4;
+  width: min(100%, 920px);
+  margin: 0 1rem;
+  padding: clamp(1rem, 2.5vw, 2.25rem);
   text-align: center;
-  color: #fff;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(18px);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  color: var(--muted);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  animation: fade-in-up 1s ease both;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: fadeInUp 600ms var(--transition-fast) both;
 }
 
+/* hero title treated as gradient text */
 .media-hosting-page .hero-title {
-  font-family: var(--font-accent);
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  background: var(--gradient-gold-burgundy);
+  font-family: var(--font-accent, "Playfair Display", serif);
+  font-size: clamp(1.6rem, 4.6vw, 2.8rem);
+  margin: 0 0 0.6rem 0;
+  background: linear-gradient(90deg, var(--accent), #bfa04a 60%, rgba(255,255,255,0.85) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 1rem;
+  letter-spacing: 0.3px;
+  line-height: 1.05;
 }
 
+/* subtitle readable and legible on small screens */
 .media-hosting-page .hero-subtitle {
-  font-size: clamp(1rem, 2vw, 1.25rem);
-  line-height: 1.6;
-  color: var(--color-white);
-  opacity: 0.9;
-  margin-bottom: 2rem;
+  margin: 0 0 1.1rem 0;
+  color: var(--muted-2);
+  font-size: clamp(0.92rem, 2.2vw, 1.05rem);
+  line-height: 1.55;
+  max-width: 760px;
+  margin-inline: auto;
 }
 
+/* hero buttons: responsive stack on small devices */
 .media-hosting-page .hero-buttons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.65rem;
   justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
+/* primary / secondary */
 .media-hosting-page .btn-primary,
 .media-hosting-page .btn-secondary {
-  padding: 0.8rem 1.8rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  transition: all var(--transition-fast);
+  padding: 0.7rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 700;
   cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .media-hosting-page .btn-primary {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
-  border: none;
+  background: linear-gradient(120deg, rgba(18,18,20,1), rgba(212,175,55,0.95));
+  color: #fff;
+  border: 1px solid var(--accent-subtle);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
 }
 
-.media-hosting-page .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
+.media-hosting-page .btn-primary:hover { transform: translateY(-3px); }
 
 .media-hosting-page .btn-secondary {
-  background: transparent;
-  color: var(--color-accent-gold);
-  border: 2px solid var(--color-accent-gold);
+  background: rgba(255,255,255,0.03);
+  color: var(--muted);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 .media-hosting-page .btn-secondary:hover {
-  background: var(--color-accent-gold);
-  color: var(--color-black);
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-2px);
 }
 
+/* mute button — high z-index and accessible hit target */
 .media-hosting-page .mute-button {
   position: absolute;
-  bottom: 2rem;
-  right: 2rem;
-  z-index: 4;
-  font-size: 1.5rem;
-  color: var(--color-accent-gold);
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  backdrop-filter: blur(6px);
+  right: clamp(0.75rem, 2vw, 2rem);
+  bottom: clamp(0.75rem, 2vw, 2rem);
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--accent);
+  z-index: 6;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: transform var(--transition-fast), background var(--transition-fast);
 }
 
-.media-hosting-page .mute-button:hover {
-  background: rgba(212, 175, 55, 0.2);
-  transform: scale(1.1);
-}
+.media-hosting-page .mute-button:hover { transform: scale(1.06); background: rgba(0,0,0,0.65); }
 
 /* ======================================================
-   💡 SERVICE OVERVIEW
+   CONTENT SECTIONS (glass panels)
    ====================================================== */
-
 .media-hosting-page .content-section {
-  padding: 5rem 1.5rem;
-  text-align: center;
+  padding: clamp(2rem, 4vw, 5rem) 1.25rem;
   max-width: 1200px;
   margin: 0 auto;
+  color: var(--muted);
 }
 
 .media-hosting-page .glass-panel {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  background: rgba(18,18,20,0.45);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  margin: 3rem auto;
-  padding: 3rem 1.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+  padding: clamp(1.2rem, 2.2vw, 2.4rem);
+  margin: clamp(1.6rem, 2.8vw, 3rem) auto;
 }
 
-.media-hosting-page .section-header {
-  margin-bottom: 2rem;
-}
-
+/* section header + title */
+.media-hosting-page .section-header { margin-bottom: 1rem; }
 .media-hosting-page .section-title {
-  font-family: var(--font-accent);
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  color: var(--color-accent-gold);
-  margin-bottom: 0.75rem;
+  font-family: var(--font-accent, "Playfair Display", serif);
+  font-size: clamp(1.2rem, 3vw, 1.9rem);
+  color: var(--accent);
+  margin-bottom: 0.4rem;
 }
-
 .media-hosting-page .muted-text {
-  color: var(--color-muted);
-  font-size: 1rem;
+  color: var(--muted-2);
+  font-size: 0.98rem;
   line-height: 1.6;
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 /* ======================================================
-   🖼️ FEATURED MEDIA PROJECTS
+   FEATURED MEDIA (horizontal scroll)
    ====================================================== */
-
-.media-hosting-page .media-preview-section {
-  padding: 4rem 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+.media-hosting-page .media-preview-section { padding-top: 0; }
 
 .media-hosting-page .media-cards-scroll {
   display: flex;
-  gap: 1.25rem;
+  gap: 1rem;
   overflow-x: auto;
+  padding-bottom: 0.6rem;
   scroll-behavior: smooth;
-  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
 }
 
+/* custom but subtle scrollbar */
 .media-hosting-page .media-cards-scroll::-webkit-scrollbar {
   height: 8px;
 }
-
+.media-hosting-page .media-cards-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
 .media-hosting-page .media-cards-scroll::-webkit-scrollbar-thumb {
-  background: var(--color-accent-gold);
-  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(212,175,55,0.22), rgba(212,175,55,0.28));
+  border-radius: 999px;
 }
 
 /* ======================================================
-   🧩 GALLERY
+   GALLERY GRID
    ====================================================== */
-
-.media-hosting-page .gallery-section {
-  padding: 4rem 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+.media-hosting-page .gallery-section { padding-top: 0; }
 
 .media-hosting-page .card-grid {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  margin-top: 2rem;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-top: 1.2rem;
 }
 
-/* ======================================================
-   💬 REVIEWS SECTION
-   ====================================================== */
+/* card image adjustments */
+.media-hosting-page .card-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  transition: transform 0.35s var(--transition-slow);
+}
+.media-hosting-page .card-grid img:hover { transform: scale(1.03); }
 
+/* ======================================================
+   REVIEWS
+   ====================================================== */
 .media-hosting-page .reviews-layout {
-  background: rgba(0, 0, 0, 0.4);
-  padding: 4rem 1.5rem;
-  border-top: 1px solid rgba(212, 175, 55, 0.2);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+  padding: clamp(2rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+  margin-top: 1rem;
 }
 
 /* ======================================================
-   🌐 OTHER SERVICES
+   OTHER SERVICES GRID
    ====================================================== */
-
-.media-hosting-page .other-services-section {
-  text-align: center;
-  padding: 5rem 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+.media-hosting-page .other-services-section { padding: clamp(2rem, 4vw, 4.5rem) 1.25rem; }
 
 .media-hosting-page .other-services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2.5rem;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 1.25rem;
 }
 
 .media-hosting-page .other-service-card {
   position: relative;
-  overflow: hidden;
+  height: 300px;
   border-radius: var(--radius-lg);
+  overflow: hidden;
   cursor: pointer;
-  transition: all var(--transition-fast);
-  height: 320px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  border: 1px solid rgba(255,255,255,0.02);
 }
-
 .media-hosting-page .other-service-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform var(--transition-slow);
 }
-
 .media-hosting-page .other-service-card .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.55));
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-slow);
+  z-index: 2;
+  transition: background var(--transition-slow);
 }
-
 .media-hosting-page .other-service-card h3 {
-  color: var(--color-accent-gold);
-  font-size: 1.25rem;
+  margin: 0;
+  color: var(--accent);
   font-family: var(--font-accent);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.6px;
+  text-transform: none;
 }
-
-.media-hosting-page .other-service-card:hover img {
-  transform: scale(1.1);
-}
-
-.media-hosting-page .other-service-card:hover .overlay {
-  background: rgba(0, 0, 0, 0.65);
-}
+.media-hosting-page .other-service-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+.media-hosting-page .other-service-card:hover img { transform: scale(1.06); }
+.media-hosting-page .other-service-card:hover .overlay { background: linear-gradient(180deg, rgba(0,0,0,0.48), rgba(0,0,0,0.7)); }
 
 /* ======================================================
-   📱 RESPONSIVE DESIGN
+   STATIC SERVICES GRID (fallback when backend empty)
    ====================================================== */
-
-@media (max-width: 1024px) {
-  .media-hosting-page .hero-glass {
-    padding: 1.5rem;
-  }
-
-  .media-hosting-page .hero-title {
-    font-size: 2.5rem;
-  }
-
-  .media-hosting-page .media-hero-section {
-    height: 70vh;
-  }
+.media-hosting-page .static-services-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 1rem;
 }
-
-@media (max-width: 768px) {
-  .media-hosting-page .media-hero-section {
-    height: auto;
-    padding: 4rem 1.25rem 6rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .media-hosting-page .hero-glass {
-    margin-top: 2rem;
-    backdrop-filter: blur(14px);
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(212, 175, 55, 0.25);
-  }
-
-  .media-hosting-page .hero-title {
-    font-size: 2rem;
-  }
-
-  .media-hosting-page .hero-subtitle {
-    font-size: 1rem;
-  }
-
-  .media-hosting-page .mute-button {
-    bottom: 1rem;
-    right: 1rem;
-  }
-
-  .media-hosting-page .glass-panel {
-    padding: 2rem 1rem;
-  }
-
-  .media-hosting-page .other-service-card {
-    height: 250px;
-  }
-}
-
-@media (max-width: 480px) {
-  .media-hosting-page .media-hero-section {
-    height: auto;
-    min-height: 80vh;
-  }
-
-  .media-hosting-page .hero-glass {
-    padding: 1rem;
-  }
-
-  .media-hosting-page .hero-title {
-    font-size: 1.6rem;
-  }
-
-  .media-hosting-page .hero-subtitle {
-    font-size: 0.95rem;
-  }
-
-  .media-hosting-page .hero-buttons {
-    flex-direction: column;
-  }
-
-  .media-hosting-page .btn-primary,
-  .media-hosting-page .btn-secondary {
-    width: 100%;
-    padding: 0.8rem;
-  }
-
-  .media-hosting-page .content-section,
-  .media-hosting-page .gallery-section,
-  .media-hosting-page .media-preview-section {
-    padding: 3rem 1rem;
-  }
-}
-
-/* ======================================================
-   🌟 MICRO INTERACTIONS
-   ====================================================== */
-
-.media-hosting-page button,
-.media-hosting-page .other-service-card {
-  transition: transform var(--transition-fast),
-    box-shadow var(--transition-fast),
-    background var(--transition-fast);
-}
-
-.media-hosting-page button:hover,
-.media-hosting-page .other-service-card:hover {
-  transform: translateY(-3px);
-}
-
-.media-hosting-page .section-title::after {
-  content: "";
-  display: block;
-  width: 80px;
-  height: 3px;
-  margin: 0.75rem auto;
-  background: var(--gradient-gold-burgundy);
+.media-hosting-page .static-service-card {
+  display: grid;
+  grid-template-rows: 160px 1fr;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+.media-hosting-page .static-service-card img { width: 100%; height: 100%; object-fit: cover; display:block; }
+.media-hosting-page .static-service-card .service-info { padding: 0.9rem; color: var(--muted-2); }
+.media-hosting-page .static-service-card h3 { margin: 0 0 0.4rem 0; color: var(--accent); }
+
+/* ======================================================
+   ACCESSIBILITY & INTERACTION
+   ====================================================== */
+.media-hosting-page :focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px; }
+.media-hosting-page button { -webkit-tap-highlight-color: transparent; }
+
+/* ======================================================
+   RESPONSIVE BREAKPOINTS (includes 240px safety)
+   ====================================================== */
+
+/* tiny devices (>=240px) */
+@media (max-width: 320px) {
+  .media-hosting-page .hero-glass { padding: 0.9rem; border-radius: 10px; }
+  .media-hosting-page .hero-title { font-size: 1.05rem; }
+  .media-hosting-page .hero-subtitle { font-size: 0.78rem; }
+  .media-hosting-page .other-service-card { height: 220px; }
+  .media-hosting-page .media-hero-section { min-height: 60vh; }
+  .media-hosting-page .mute-button { width: 38px; height: 38px; right: 0.6rem; bottom: 0.6rem; }
+  .media-hosting-page .btn-primary, .media-hosting-page .btn-secondary { width: 100%; padding: 0.6rem; }
+}
+
+/* small phones */
+@media (max-width: 480px) {
+  .media-hosting-page .media-hero-section { min-height: 72vh; padding: 2rem 1rem; }
+  .media-hosting-page .hero-buttons { flex-direction: column; gap: 0.5rem; }
+  .media-hosting-page .card-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .media-hosting-page .media-cards-scroll { gap: 0.7rem; }
+}
+
+/* tablets */
+@media (min-width: 481px) and (max-width: 767px) {
+  .media-hosting-page .media-hero-section { min-height: 78vh; }
+  .media-hosting-page .card-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .media-hosting-page .other-service-card { height: 260px; }
+}
+
+/* medium screens */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .media-hosting-page .media-hero-section { min-height: 82vh; }
+  .media-hosting-page .hero-glass { padding: clamp(1.2rem, 2.6vw, 2rem); }
+  .media-hosting-page .card-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* desktop */
+@media (min-width: 1024px) {
+  .media-hosting-page .media-hero-section { min-height: 88vh; }
+  .media-hosting-page .card-grid { grid-template-columns: repeat(4, 1fr); }
+  .media-hosting-page .media-cards-scroll { gap: 1.25rem; }
+}
+
+/* large screens */
+@media (min-width: 1440px) {
+  .media-hosting-page .hero-glass { padding: 2.25rem 2.75rem; }
+  .media-hosting-page .hero-title { font-size: clamp(2rem, 3.2vw, 3.25rem); }
+}
+
+/* ======================================================
+   MICRO-ANIMATIONS
+   ====================================================== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
