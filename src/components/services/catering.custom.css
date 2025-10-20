@@ -1,6 +1,7 @@
 /* ==========================================================
-   🍽️ CATERING PAGE — EETHM RECORDS MULTIMEDIA
+   🍽️ CATERING PAGE — EETHM MULTIMEDIA
    Cinematic Glassmorphic Theme • Fully Responsive ≥240px
+   Always Visible Content
    ========================================================== */
 
 .catering-page-container {
@@ -13,8 +14,6 @@
   overflow-x: hidden;
   overflow-y: visible;
   box-sizing: border-box;
-  animation: fade-in 0.6s ease-in-out both;
-
   min-height: 100vh;
   display: block;
 }
@@ -34,7 +33,6 @@
 }
 
 @supports (-webkit-touch-callout: none) {
-  /* ✅ Fix for iOS Safari viewport */
   .catering-hero {
     min-height: -webkit-fill-available;
   }
@@ -76,7 +74,7 @@
   transform: translate(-50%, -50%);
   text-align: center;
   color: var(--color-white, #fff);
-  z-index: 5; /* 🩵 ensures content above overlay/video */
+  z-index: 5;
   padding: 0 1rem;
   max-width: 90%;
   background: rgba(0, 0, 0, 0.35);
@@ -152,6 +150,7 @@
   text-align: center;
   background: var(--color-bg, #0e0e0e);
   color: var(--color-text, #f5f5f5);
+  animation: fade-in 0.6s ease-in-out both;
 }
 
 .section-title {
@@ -204,12 +203,6 @@
   border-radius: var(--radius-md);
   margin-bottom: 0.75rem;
   box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.3));
-}
-
-@media (max-width: 400px) {
-  .food-image {
-    height: 140px;
-  }
 }
 
 /* === Dietary Options === */

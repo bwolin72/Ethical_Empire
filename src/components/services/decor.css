@@ -1,8 +1,6 @@
 /* ===========================================================
-   🌹 DECOR SERVICE PAGE — Eethm GH Multimedia
-   Glassmorphic, Cinematic, Fully Responsive ≥240px
-   Fixes: hidden content, hero overlay/video stacking,
-   iOS viewport, accessibility contrast, and smooth scaling.
+   🌹 DECOR SERVICE PAGE — Always Visible
+   Glassmorphic, Cinematic, Fully Responsive
    =========================================================== */
 
 .decor-page-container {
@@ -24,9 +22,9 @@
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
-  animation: fadeIn 0.6s ease both;
 }
 
+/* Overlay pattern */
 .decor-page-container::before {
   content: "";
   position: fixed;
@@ -39,12 +37,12 @@
 }
 
 /* ===========================================================
-   🎥 HERO SECTION — video / fallback image
+   🎥 HERO SECTION
    =========================================================== */
 .decor-hero-section {
   position: relative;
   width: 100%;
-  min-height: 90vh;
+  min-height: 85vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,20 +64,13 @@
   object-fit: cover;
   z-index: 0;
   filter: brightness(0.8);
-  transition: transform 0.6s ease;
-  will-change: transform;
 }
-.decor-hero-section:hover .hero-video { transform: scale(1.03); }
 
 /* Overlay above video */
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom right,
-    rgba(15, 10, 0, 0.45),
-    rgba(0, 0, 0, 0.75)
-  );
+  background: linear-gradient(to bottom right, rgba(15,10,0,0.45), rgba(0,0,0,0.75));
   z-index: 2;
   backdrop-filter: blur(3px);
 }
@@ -97,7 +88,7 @@
   overflow: hidden;
 }
 
-/* Hero content — above everything */
+/* Hero content */
 .hero-content {
   position: relative;
   z-index: 5;
@@ -162,7 +153,7 @@
 }
 .btn-outline:hover { background: rgba(212, 175, 55, 0.15); }
 
-/* Mute Button */
+/* Mute button */
 .mute-button {
   position: absolute;
   bottom: 1rem;
@@ -170,7 +161,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0,0,0,0.55);
   color: var(--accent-gold);
   border: 1px solid rgba(212, 175, 55, 0.4);
   display: flex;
@@ -180,7 +171,7 @@
   z-index: 6;
   transition: all 0.3s ease;
 }
-.mute-button:hover { transform: scale(1.07); background: rgba(0, 0, 0, 0.7); }
+.mute-button:hover { transform: scale(1.07); background: rgba(0,0,0,0.7); }
 
 /* ===========================================================
    🪷 DECOR SERVICES
@@ -274,7 +265,6 @@
 /* ===========================================================
    📱 RESPONSIVE BREAKPOINTS
    =========================================================== */
-/* ≥240px */
 @media (max-width: 320px) {
   .hero-title { font-size: 1.2rem; }
   .hero-subtitle { font-size: 0.8rem; }
@@ -284,7 +274,6 @@
   .decor-category-image { height: 140px; }
 }
 
-/* ≤480px */
 @media (max-width: 480px) {
   .decor-hero-section { min-height: 70vh; }
   .hero-buttons { flex-direction: column; gap: 0.6rem; }
@@ -292,22 +281,12 @@
   .decor-category-grid { gap: 1rem; }
 }
 
-/* ≤768px */
 @media (max-width: 768px) {
   .decor-services { padding: 3.5rem 1rem; }
   .decor-category-image { height: 180px; }
 }
 
-/* ≤1024px */
 @media (max-width: 1024px) {
   .hero-content { max-width: 90%; }
   .card-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-}
-
-/* ===========================================================
-   ✨ ANIMATIONS
-   =========================================================== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }

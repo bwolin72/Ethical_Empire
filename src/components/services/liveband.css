@@ -1,42 +1,38 @@
 /* ===========================================================
-   🎸 LiveBand Page — Full CSS Rewrite
-   Glassmorphic • Cinematic Hero • Responsive ≥240px
-   Fixes: overlay/video z-index, iOS viewport, hidden content,
-   dark/light-safe colors, and stable scroll behavior.
+   🎸 LiveBand Page — Theme-Based CSS
+   Always visible content • Responsive • Glassmorphic Hero
    =========================================================== */
 
 /* -------------------------
    Root / Container
    ------------------------- */
 .liveband-page-container {
-  --bg: var(--color-bg, #08080a);
-  --text: var(--color-text, #f6f6f6);
-  --muted-text: var(--color-text-secondary, rgba(255,255,255,0.78));
-  --accent-gold: var(--color-accent-gold, #d4af37);
-  --glass-bg: rgba(255,255,255,0.04);
-  --glass-border: rgba(255,255,255,0.08);
-  --overlay: rgba(0,0,0,0.55);
-  --radius-lg: 14px;
-  --radius-md: 8px;
-  --shadow-md: 0 8px 30px rgba(0,0,0,0.5);
-  --transition-fast: 0.18s ease;
-  --transition-slow: 0.32s ease;
+  --bg: var(--color-bg);
+  --text: var(--color-text);
+  --muted-text: var(--color-muted, var(--color-text));
+  --accent-gold: var(--color-accent-gold);
+  --glass-bg: var(--color-service-bg, rgba(255,255,255,0.15));
+  --glass-border: var(--color-border, rgba(255,255,255,0.2));
+  --overlay: var(--color-overlay, rgba(0,0,0,0.25));
+  --radius-lg: var(--radius-lg);
+  --radius-md: var(--radius-md);
+  --shadow-md: var(--shadow-lg);
+  --transition-fast: var(--transition-fast);
+  --transition-slow: var(--transition-slow);
 
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: var(--font-main, "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial);
+  font-family: var(--font-main);
   color: var(--text);
   background: var(--bg);
   min-height: 100vh;
   overflow-x: hidden;
-  overflow-y: visible;
   scroll-behavior: smooth;
-  display: block; /* avoids flex-collapse issues on some mobile UAs */
 }
 
 /* -------------------------
-   HERO (video) - safe stacking
+   HERO SECTION
    ------------------------- */
 .liveband-hero-section {
   position: relative;
@@ -46,15 +42,13 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(120deg, rgba(10,10,12,1) 0%, rgba(20,6,20,1) 100%);
+  background: linear-gradient(120deg, var(--color-primary-dark), var(--color-primary));
 }
 
-/* iOS viewport fix */
 @supports (-webkit-touch-callout: none) {
   .liveband-hero-section { min-height: -webkit-fill-available; }
 }
 
-/* Video element - absolutely positioned under overlay */
 .liveband-hero-section .hero-video {
   position: absolute;
   inset: 0;
@@ -63,27 +57,12 @@
   object-fit: cover;
   z-index: 0;
   transform-origin: center;
-  filter: brightness(0.72) contrast(1.05);
+  filter: none;
   transition: transform 0.6s var(--transition-slow);
-  will-change: transform;
-  backface-visibility: hidden;
 }
 
-/* Zoom on hover/interaction (non-intrusive) */
 .liveband-hero-section:hover .hero-video { transform: scale(1.03); }
 
-/* Fallback hero image container */
-.liveband-hero-section .hero-fallback {
-  position: relative;
-  inset: 0;
-  width: 100%;
-  min-height: 100%;
-  background-size: cover;
-  background-position: center;
-  z-index: 0;
-}
-
-/* Semi-opaque overlay sits above video but under content */
 .liveband-hero-section .hero-overlay {
   position: absolute;
   inset: 0;
@@ -92,52 +71,48 @@
   z-index: 2;
 }
 
-/* Content sits above overlay (high z-index to avoid hidden content) */
 .liveband-hero-section .hero-content {
-  position: relative; /* relative inside hero so it won't create new stacking context unexpectedly */
-  z-index: 5; /* must be > overlay z-index */
+  position: relative;
+  z-index: 5;
   max-width: 1100px;
   width: calc(100% - 2rem);
   margin: 0 auto;
   padding: 1.2rem;
   text-align: center;
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-md);
   display: inline-block;
+  color: var(--text);
 }
 
-/* Title & subtitle */
 .hero-title {
-  margin: 0 0 0.5rem 0;
-  font-family: var(--font-accent, "Playfair Display", serif);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-accent);
   font-size: clamp(1.25rem, 4.6vw, 2.8rem);
   color: var(--accent-gold);
   line-height: 1.05;
-  letter-spacing: 0.6px;
 }
 
 .hero-subtitle {
-  margin: 0 0 1rem 0;
+  margin-bottom: 1rem;
   color: var(--muted-text);
   font-size: clamp(0.86rem, 2.4vw, 1.05rem);
   max-width: 880px;
   line-height: 1.55;
 }
 
-/* Buttons stack nicely on small screens */
+/* Buttons */
 .hero-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
   justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
   margin-top: 0.6rem;
 }
 
-/* Button styles (primary + outline) */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -145,29 +120,25 @@
   gap: 0.4rem;
   padding: 0.55rem 1rem;
   border-radius: 999px;
-  border: 1px solid transparent;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
-  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--transition-fast), background var(--transition-fast);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, rgba(4,28,45,1), rgba(212,175,55,1));
-  color: #fff;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
   border: none;
 }
 
 .btn-outline {
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.15);
   color: var(--text);
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
 .btn:hover { transform: translateY(-3px); }
 
-/* Mute button - high z-index and accessible */
 .mute-button {
   position: absolute;
   right: 1rem;
@@ -175,21 +146,24 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.35);
   color: var(--accent-gold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 6; /* above hero-content for clickability */
+  z-index: 6;
   cursor: pointer;
   transition: transform var(--transition-fast), background var(--transition-fast);
 }
 
-.mute-button:hover { transform: scale(1.06); background: rgba(0,0,0,0.65); }
+.mute-button:hover {
+  transform: scale(1.06);
+  background: rgba(0,0,0,0.5);
+}
 
 /* -------------------------
-   SERVICES - grid + cards
+   SERVICES
    ------------------------- */
 .liveband-services {
   padding: clamp(1.25rem, 3.2vw, 3rem) 1rem;
@@ -198,7 +172,7 @@
 }
 
 .liveband-services h2 {
-  margin: 0 0 0.5rem 0;
+  margin-bottom: 0.5rem;
   font-family: var(--font-accent);
   font-size: clamp(1.1rem, 3vw, 1.8rem);
   color: var(--accent-gold);
@@ -211,22 +185,20 @@
   font-size: 0.95rem;
 }
 
-/* Category grid - single column on smallest, expands on larger viewports */
+/* Category grid */
 .liveband-category-grid {
   display: grid;
   gap: 1rem;
   grid-template-columns: 1fr;
-  align-items: start;
 }
 
-/* Category card */
 .liveband-category-card {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-md);
   transition: transform 0.28s ease, box-shadow 0.28s ease;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
 }
 
 .liveband-category-card:hover {
@@ -234,12 +206,10 @@
   box-shadow: 0 12px 30px rgba(0,0,0,0.45);
 }
 
-/* Image on card */
 .liveband-category-image {
   width: 100%;
   height: 220px;
   object-fit: cover;
-  display: block;
   transition: transform 0.45s ease;
 }
 
@@ -247,18 +217,18 @@
   transform: scale(1.04);
 }
 
-/* ServiceCategory inside card should have padding */
-.liveband-category-card .service-category-wrapper {
+.service-category-wrapper {
   padding: 1rem;
+  color: var(--text);
 }
 
 /* -------------------------
-   GALLERY
+   GALLERY & REVIEWS
    ------------------------- */
-.gallery-section {
+.gallery-section, .reviews-layout {
   padding: clamp(1.25rem, 3vw, 2.4rem) 1rem;
   background: var(--bg);
-  text-align: center;
+  color: var(--text);
 }
 
 .card-grid {
@@ -268,97 +238,9 @@
 }
 
 /* -------------------------
-   REVIEWS
+   Accessibility
    ------------------------- */
-.reviews-layout {
-  padding: 2.4rem 1rem;
-  background: var(--bg);
-}
-
-/* -------------------------
-   DARK MODE ADJUSTMENTS (if .dark class applied)
-   ------------------------- */
-.dark .liveband-page-container {
-  --bg: #050506;
-  --glass-bg: rgba(255,255,255,0.03);
-  --glass-border: rgba(255,255,255,0.06);
-  --overlay: rgba(0,0,0,0.6);
-  --muted-text: rgba(255,255,255,0.82);
-}
-
-/* -------------------------
-   RESPONSIVE BREAKPOINTS
-   ------------------------- */
-
-/* Super small devices (>=240px) */
-@media (max-width: 320px) {
-  .hero-title { font-size: 1.0rem; }
-  .hero-subtitle { font-size: 0.78rem; }
-  .hero-content { padding: 0.7rem; border-radius: 10px; }
-  .liveband-category-image { height: 120px; }
-  .btn { padding: 0.45rem 0.75rem; font-size: 0.85rem; }
-  .mute-button { width: 36px; height: 36px; right: 0.6rem; bottom: 0.6rem; }
-}
-
-/* Small screens (phones) */
-@media (max-width: 480px) {
-  .liveband-hero-section { min-height: 80vh; }
-  .hero-content { width: calc(100% - 2rem); padding: 1rem; }
-  .hero-buttons { flex-direction: column; gap: 0.5rem; }
-  .liveband-category-grid { grid-template-columns: 1fr; }
-  .card-grid { grid-template-columns: 1fr; }
-  .liveband-category-image { height: 160px; }
-}
-
-/* Small tablets */
-@media (min-width: 481px) and (max-width: 767px) {
-  .liveband-hero-section { min-height: 78vh; }
-  .hero-title { font-size: 1.6rem; }
-  .hero-subtitle { font-size: 0.96rem; }
-  .liveband-category-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-  .card-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-/* Medium devices */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .liveband-hero-section { min-height: 82vh; }
-  .hero-content { padding: 1.4rem 1.6rem; }
-  .liveband-category-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
-  .card-grid { grid-template-columns: repeat(3, 1fr); }
-  .liveband-category-image { height: 200px; }
-}
-
-/* Large devices */
-@media (min-width: 1024px) {
-  .liveband-hero-section { min-height: 85vh; }
-  .liveband-category-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-  .card-grid { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
-  .liveband-category-image { height: 260px; }
-}
-
-/* Extra wide */
-@media (min-width: 1440px) {
-  .hero-content { padding: 1.6rem 2rem; }
-  .hero-title { font-size: 3.2rem; }
-  .liveband-category-image { height: 320px; }
-}
-
-/* -------------------------
-   Accessibility & Misc
-   ------------------------- */
-/* Ensure images and video don't create new stacking contexts unexpectedly */
-.liveband-hero-section img,
-.liveband-hero-section video {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-}
-
-/* Prevent accidental scroll-jump when focusing */
-:focus { outline: 3px solid rgba(212,175,55,0.12); outline-offset: 2px; }
-
-/* Animations */
-@keyframes subtleFloat {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
+:focus {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
 }
