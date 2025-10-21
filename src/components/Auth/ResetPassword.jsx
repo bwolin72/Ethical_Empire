@@ -1,9 +1,9 @@
 // src/pages/auth/ResetPassword.jsx
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import DOMPurify from 'dompurify';
-import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import './Auth.css';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import DOMPurify from "dompurify";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import "./Auth.css";
 
 import authService from "../../api/services/authService";
 
@@ -11,71 +11,85 @@ const ResetPassword = () => {
   const { uid, token } = useParams();
   const navigate = useNavigate();
 
-  const [newPassword, setNewPassword] = useState('');
-  const [reNewPassword, setReNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState('');
+  const [passwordStrength, setPasswordStrength] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
+  // Determine password strength
   const getPasswordStrength = (password) => {
-    if (password.length < 6) return 'Weak';
-    if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8) return 'Strong';
-    return 'Medium';
+    if (password.length < 6) return "Weak";
+    if (/[A-Z]/.test(password) && /[0-9]/.test(password) && password.length >= 8)
+      return "Strong";
+    return "Medium";
   };
 
-  const extractErrorMessage = (err) => {
-    const data = err?.response?.data;
-    if (!data) return 'Unexpected error. Please try again.';
-
-    if (data.errors && typeof data.errors === 'object') {
-      return Object.entries(data.errors)
-        .map(([field, messages]) => `${field}: ${messages.join(' ')}`)
-        .join('\n');
-    }
-
-    if (typeof data === 'object') {
-      return Object.entries(data)
-        .map(([field, messages]) =>
-          `${field}: ${Array.isArray(messages) ? messages.join(' ') : messages}`
-        )
-        .join('\n');
-    }
-
-    if (typeof data === 'string') return data;
-
-    return 'An error occurred. Please try again.';
-  };
-
+  // Sanitize input and check strength
   const handlePasswordChange = (value) => {
     const cleanValue = DOMPurify.sanitize(value);
     setNewPassword(cleanValue);
     setPasswordStrength(getPasswordStrength(cleanValue));
   };
 
+  const handleConfirmPasswordChange = (value) => {
+    setConfirmPassword(DOMPurify.sanitize(value));
+  };
+
+  // Extract readable error message
+  const extractErrorMessage = (err) => {
+    const data = err?.response?.data;
+    if (!data) return "Unexpected error. Please try again.";
+
+    if (data.errors && typeof data.errors === "object") {
+      return Object.entries(data.errors)
+        .map(([field, messages]) => `${field}: ${messages.join(" ")}`)
+        .join("\n");
+    }
+
+    if (typeof data === "object") {
+      return Object.entries(data)
+        .map(([field, messages]) =>
+          `${field}: ${Array.isArray(messages) ? messages.join(" ") : messages}`
+        )
+        .join("\n");
+    }
+
+    if (typeof data === "string") return data;
+
+    return "An error occurred. Please try again.";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage('');
-    setError('');
+    setMessage("");
+    setError("");
 
-    if (newPassword !== reNewPassword) {
-      setError('Passwords do not match.');
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
     setLoading(true);
     try {
       await authService.resetPasswordConfirm(uid, token, { password: newPassword });
-
-      setMessage('✅ Password has been reset successfully. Redirecting to login...');
-      setTimeout(() => navigate('/login'), 3000);
+      setMessage("✅ Password has been reset successfully. Redirecting to login...");
+      setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
   };
+
+  // Optional: redirect if uid/token missing
+  useEffect(() => {
+    if (!uid || !token) {
+      navigate("/forgot-password");
+    }
+  }, [uid, token, navigate]);
 
   return (
     <div className="forgot-password-page">
@@ -87,7 +101,7 @@ const ResetPassword = () => {
 
         <div className="form-group password-field">
           <input
-            type={passwordVisible ? 'text' : 'password'}
+            type={passwordVisible ? "text" : "password"}
             placeholder="New password"
             value={newPassword}
             onChange={(e) => handlePasswordChange(e.target.value)}
@@ -106,10 +120,10 @@ const ResetPassword = () => {
 
         <div className="form-group password-field">
           <input
-            type={passwordVisible ? 'text' : 'password'}
+            type={passwordVisible ? "text" : "password"}
             placeholder="Confirm new password"
-            value={reNewPassword}
-            onChange={(e) => setReNewPassword(DOMPurify.sanitize(e.target.value))}
+            value={confirmPassword}
+            onChange={(e) => handleConfirmPasswordChange(e.target.value)}
             required
           />
           <span onClick={() => setPasswordVisible((v) => !v)}>
@@ -118,7 +132,7 @@ const ResetPassword = () => {
         </div>
 
         <button type="submit" disabled={loading}>
-          {loading ? 'Resetting...' : 'Reset Password'}
+          {loading ? "Resetting..." : "Reset Password"}
         </button>
       </form>
     </div>
