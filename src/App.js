@@ -129,7 +129,7 @@ export const roleRoutes = {
   admin: "/admin",
   worker: "/worker-dashboard",
   user: "/user",
-  client: "/user",                    // alias for standard users
+  client: "/user", // alias for standard users
   vendor: "/partner-vendor-dashboard",
   partner: "/partner-vendor-dashboard",
 };
@@ -177,7 +177,8 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} /> {/* request email */}
+      <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} /> {/* confirm password */}
 
       {/* OAuth Callback */}
       <Route path="/login/callback" element={<OAuthLoginRedirect />} />
