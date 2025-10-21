@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 import serviceService from "../../api/services/serviceService";
+import videoService from "../../api/services/videoService";
+import mediaService from "../../api/services/mediaService";
+
 import BannerCards from "../context/BannerCards";
 import VideoGallery from "../videos/VideoGallery";
 import MediaCard from "../context/MediaCards";
@@ -29,10 +32,6 @@ const zoomIn = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-/* ==========================================================
-   🎵 LIVE BAND SERVICE PAGE
-   Services fixed to match CateringPage working logic
-   ========================================================== */
 export default function LiveBandServicePage() {
   const navigate = useNavigate();
   const videoRef = useRef(null);
@@ -51,28 +50,31 @@ export default function LiveBandServicePage() {
     try {
       setLoading(true);
 
-      const [bandRes, allRes, bannerRes, videoRes, mediaRes] = await Promise.all([
+      // Fetch Live Band services, all services, banners, videos, and media
+      const [livebandRes, allRes, bannerRes, videoRes, mediaRes] = await Promise.all([
         serviceService.getServicesByCategory("Live Band"),
         serviceService.getServices(),
-        serviceService.getMedia("LiveBandServicePage", { type: "banner", is_active: true }),
-        serviceService.getVideos("LiveBandServicePage", { is_active: true }),
-        serviceService.getMedia("LiveBandServicePage", { type: "media", is_active: true }),
+        mediaService.getMedia("LiveBandServicePage", { type: "banner", is_active: true }),
+        videoService.getVideos("LiveBandServicePage", { is_active: true }),
+        mediaService.getMedia("LiveBandServicePage", { type: "media", is_active: true }),
       ]);
 
-      // --- Services ---
-      const bandData =
-        Array.isArray(bandRes.data) || Array.isArray(bandRes.data?.results)
-          ? bandRes.data.results || bandRes.data
+      // Normalize Live Band data
+      const livebandData =
+        Array.isArray(livebandRes.data) || Array.isArray(livebandRes.data?.results)
+          ? livebandRes.data.results || livebandRes.data
           : [];
+
+      // Normalize all services data
       const allData =
         Array.isArray(allRes.data) || Array.isArray(allRes.data?.results)
           ? allRes.data.results || allRes.data
           : [];
 
-      setServices(bandData);
+      setServices(livebandData);
       setOtherServices(allData.filter((s) => s.category !== "Live Band"));
 
-      // --- Media & Video ---
+      // Set banners, videos, and media cards
       setBanners(bannerRes?.data?.results || bannerRes?.data || []);
       setVideos(videoRes?.data?.results || videoRes?.data || []);
       setMediaCards(mediaRes?.data?.results || mediaRes?.data || []);
@@ -135,7 +137,6 @@ export default function LiveBandServicePage() {
     },
   ];
 
-  /* ---------- Render ---------- */
   return (
     <div className="liveband-page-container">
       {/* HERO SECTION */}
