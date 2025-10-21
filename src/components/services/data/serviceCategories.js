@@ -17,18 +17,12 @@ import {
   Gift,
 } from "lucide-react";
 
-// === Service Metadata + Grouping ===
+// === Service Metadata + Grouping (matched to backend categories) ===
 export const serviceCategories = [
   {
-    name: "🎤 Entertainment & Hosting",
-    id: "entertainment",
+    name: "Multimedia & Hosting",
+    id: "multimedia-hosting",
     services: [
-      {
-        name: "Live Band",
-        icon: Users,
-        description:
-          "Experience the soulful rhythms of Eethm_GH’s Live Band. From highlife to contemporary hits, we create unforgettable moments for weddings, parties, and corporate events.",
-      },
       {
         name: "DJ",
         icon: Music,
@@ -41,17 +35,11 @@ export const serviceCategories = [
         description:
           "Keep your guests entertained with our charismatic MCs and hosts, delivering personality, flow, and professionalism.",
       },
-    ],
-  },
-  {
-    name: "🎥 Media Production",
-    id: "media",
-    services: [
       {
         name: "Photography",
         icon: Camera,
         description:
-          "Capture timeless memories with Eethm_GH’s expert photographers. We turn fleeting moments into lasting treasures.",
+          "Capture timeless memories with expert photographers. We turn fleeting moments into lasting treasures.",
       },
       {
         name: "Videography",
@@ -59,17 +47,11 @@ export const serviceCategories = [
         description:
           "Relive your event in stunning clarity. Our cinematic videography preserves every smile, laugh, and joyful tear.",
       },
-    ],
-  },
-  {
-    name: "💡 Event Production",
-    id: "production",
-    services: [
       {
         name: "Lighting",
         icon: Lightbulb,
         description:
-          "Transform any venue with our dynamic lighting solutions, setting the perfect mood from elegant ambience to vibrant energy.",
+          "Dynamic lighting solutions that set the perfect mood from elegant ambience to vibrant energy.",
       },
       {
         name: "Sound Setup",
@@ -78,22 +60,64 @@ export const serviceCategories = [
           "Clear, powerful, and perfectly tuned — our sound setup ensures every word and note is heard just right.",
       },
       {
-        name: "Event Planning",
-        icon: Calendar,
+        name: "Special Effects",
+        icon: Sparkles,
         description:
-          "From concept to completion, Eethm_GH designs seamless, stylish events so you can relax and enjoy the celebration.",
+          "Elevate your event with fireworks, fog machines, confetti blasts, and lighting effects that wow your audience.",
       },
     ],
   },
   {
-    name: "🌸 Decor & Styling",
-    id: "decor",
+    name: "Live Band",
+    id: "live-band",
+    services: [
+      {
+        name: "Live Band",
+        icon: Users,
+        description:
+          "Energetic live band performances featuring skilled musicians, vocalists, and instrumentalists for unforgettable entertainment.",
+      },
+    ],
+  },
+  {
+    name: "Catering",
+    id: "catering",
+    services: [
+      {
+        name: "Catering",
+        icon: Utensils,
+        description:
+          "Delicious food, snacks, and beverages tailored for every occasion. We provide full-service catering with customized menus and on-site support.",
+      },
+    ],
+  },
+  {
+    name: "Event Management",
+    id: "event-management",
+    services: [
+      {
+        name: "Event Planning",
+        icon: Calendar,
+        description:
+          "Professional event planning, logistics, and on-site coordination to ensure a seamless experience from concept to completion.",
+      },
+      {
+        name: "Event Coordination",
+        icon: Gift,
+        description:
+          "Ensure your day runs smoothly. Our coordinators handle logistics, timing, and vendor management with precision and care.",
+      },
+    ],
+  },
+  {
+    name: "Decor & Styling",
+    id: "decor-styling",
     services: [
       {
         name: "Event Decor",
         icon: Brush,
         description:
-          "We design captivating atmospheres through floral arrangements, stage backdrops, table settings, and venue transformations.",
+          "Elegant event decoration, floral arrangements, and thematic styling that bring your vision to life with creative detail.",
       },
       {
         name: "Thematic Styling",
@@ -106,30 +130,6 @@ export const serviceCategories = [
         icon: Tent,
         description:
           "We provide event essentials — tents, chairs, carpets, and custom installations — with professional delivery and setup.",
-      },
-    ],
-  },
-  {
-    name: "🍽 Add-On Services",
-    id: "addons",
-    services: [
-      {
-        name: "Catering",
-        icon: Utensils,
-        description:
-          "Taste Ghana’s finest flavors with our catering service. From authentic local dishes to gourmet creations, we serve with excellence.",
-      },
-      {
-        name: "Event Coordination",
-        icon: Gift,
-        description:
-          "Ensure your day runs smoothly. Our coordinators handle logistics, timing, and vendor management with precision and care.",
-      },
-      {
-        name: "Special Effects",
-        icon: Sparkles,
-        description:
-          "Elevate your event with fireworks, fog machines, confetti blasts, and lighting effects that wow your audience.",
       },
     ],
   },
