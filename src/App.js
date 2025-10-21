@@ -4,7 +4,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
   useNavigate,
   useLocation,
 } from "react-router-dom";
@@ -43,7 +42,7 @@ import EditProfile from "./components/user/EditProfile";
 import UpdatePassword from "./components/user/UpdatePassword";
 import ConfirmPasswordChange from "./components/user/ConfirmPasswordChange";
 import AccountProfile from "./components/user/AccountProfile";
-import OAuthLoginRedirect from "./components/Auth/OAuthLoginRedirect"; // new route
+import OAuthLoginRedirect from "./components/Auth/OAuthLoginRedirect";
 
 // Dashboards & Forms
 import AdminPanel from "./components/AdminDashboard/AdminPanel";
@@ -97,11 +96,8 @@ const ScrollAndRefresh = () => {
 // ==============================
 const showErrorToast = (error) => {
   let message = "An unexpected error occurred";
-  if (error?.response?.data?.message) {
-    message = error.response.data.message;
-  } else if (error?.message) {
-    message = error.message;
-  }
+  if (error?.response?.data?.message) message = error.response.data.message;
+  else if (error?.message) message = error.message;
   toast.error(`❌ ${message}`);
 };
 
@@ -124,6 +120,18 @@ const EethmHomePage = () => {
       </div>
     </div>
   );
+};
+
+// ==============================
+// Role Routes Mapping
+// ==============================
+export const roleRoutes = {
+  admin: "/admin",
+  worker: "/worker-dashboard",
+  user: "/user",
+  client: "/user",                    // alias for standard users
+  vendor: "/partner-vendor-dashboard",
+  partner: "/partner-vendor-dashboard",
 };
 
 // ==============================
