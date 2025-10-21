@@ -1,7 +1,7 @@
 /* ======================================================
    🎸 LIVE BAND SERVICE PAGE — Glassmorphic & Cinematic
    Responsive: 1024px → 240px
-   Theme: Burgundy | Gold | Cream | Navy
+   Theme variables: uses variables.css (you provided)
    ====================================================== */
 
 .liveband-page-container {
@@ -9,289 +9,308 @@
   background: var(--color-bg);
   color: var(--color-text);
   overflow-x: hidden;
-  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ======================================================
-   🎥 HERO SECTION
-   ====================================================== */
+/* ---------------------------
+   HERO
+   --------------------------- */
 .liveband-hero-section {
   position: relative;
   width: 100%;
-  min-height: 85vh;
+  min-height: 80vh; /* no longer 100vh — prevents hiding content */
   display: flex;
-  justify-content: center;
   align-items: center;
-  overflow: hidden;
-  color: var(--flip-cream);
+  justify-content: center;
+  overflow: visible;
+  padding: 3rem 1rem;
+  box-sizing: border-box;
 }
 
-.liveband-hero-section .hero-video {
+/* visual layer (banner video/fallback) */
+.hero-visual-wrap {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(60%) contrast(1.1);
-  z-index: 1;
+  transform-origin: center;
+  transition: transform 0.6s ease;
+  filter: brightness(0.55) saturate(1.1);
 }
 
-.hero-fallback {
+.hero-visual-wrap .hero-fallback {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background-size: cover;
   background-position: center;
-  filter: brightness(55%);
-  z-index: 0;
+  filter: brightness(0.55) saturate(1.02);
 }
 
+/* overlay for contrast */
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(0, 0, 0, 0.45) 0%,
-    rgba(0, 0, 0, 0.7) 100%
-  );
-  z-index: 2;
+  background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.65) 100%);
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* === HERO CONTENT === */
+/* hero content */
 .hero-content {
   position: relative;
   z-index: 3;
-  max-width: 800px;
-  padding: 2rem;
-  text-align: center;
-  backdrop-filter: blur(8px) saturate(130%);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: min(1100px, 92%);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px) saturate(120%);
+  padding: clamp(1.25rem, 2.5vw, 2.5rem);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  animation: fade-in-up 0.9s ease both;
+  text-align: center;
+  color: var(--flip-cream);
+  margin: 0 auto;
 }
 
+/* title & subtitle */
 .hero-title {
   font-family: var(--font-accent);
-  font-size: clamp(1.8rem, 4vw, 3rem);
-  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
   color: var(--flip-gold);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  margin: 0 0 0.6rem;
+  line-height: 1.05;
 }
 
 .hero-subtitle {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  color: var(--flip-cream);
-  margin: 1rem 0 2rem;
-  opacity: 0.9;
+  color: rgba(255,255,255,0.95);
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  margin: 0 0 1.25rem;
 }
 
-/* === HERO BUTTONS === */
+/* buttons */
 .hero-buttons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.8rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .btn {
-  padding: 0.75rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
   font-weight: 600;
-  font-size: 0.95rem;
-  border-radius: var(--radius-md);
-  transition: all var(--transition-slow);
   cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast), opacity var(--transition-fast);
 }
 
 .btn-primary {
   background: var(--gradient-gold-burgundy);
   color: var(--color-white);
-  border: none;
+  border: 0;
 }
 
 .btn-outline {
   background: transparent;
-  border: 2px solid var(--flip-gold);
   color: var(--flip-gold);
+  border: 2px solid rgba(212,175,55,0.95);
 }
 
-.btn-primary:hover {
-  transform: scale(1.05);
-  background: var(--gradient-navy-gold);
-}
-
-.btn-outline:hover {
-  color: var(--flip-cream);
-  background: rgba(255, 255, 255, 0.1);
-}
+.btn:hover { transform: translateY(-3px); }
 
 .mute-button {
   position: absolute;
-  bottom: 1rem;
   right: 1rem;
+  bottom: 1rem;
   z-index: 4;
-  background: rgba(0, 0, 0, 0.4);
-  color: var(--flip-cream);
-  border: none;
-  border-radius: 50%;
   width: 44px;
   height: 44px;
-  font-size: 1.25rem;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.45);
+  color: var(--flip-cream);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  font-size: 1.1rem;
 }
 
-.mute-button:hover {
-  background: rgba(0, 0, 0, 0.65);
-}
-
-/* ======================================================
-   🎶 LIVE BAND CATEGORIES
-   ====================================================== */
+/* ---------------------------
+   SECTIONS
+   --------------------------- */
 .section {
-  padding: 5rem 1.5rem;
-  text-align: center;
   max-width: 1200px;
   margin: 0 auto;
+  padding: clamp(2rem, 4vw, 4rem) 1rem;
+  text-align: center;
 }
 
 .section h2 {
   font-family: var(--font-accent);
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
   color: var(--color-primary);
+  font-size: clamp(1.25rem, 3vw, 1.9rem);
   margin-bottom: 0.5rem;
 }
 
 .section-description {
-  font-size: clamp(0.95rem, 2vw, 1.1rem);
   color: var(--color-neutral-light);
-  margin-bottom: 3rem;
+  margin-bottom: 1.75rem;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
 }
 
+/* ---------------------------
+   STATIC CATEGORY CARDS
+   --------------------------- */
 .liveband-category-grid {
   display: grid;
+  gap: 1.25rem;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
   align-items: stretch;
 }
 
 .liveband-category-card {
-  background: var(--color-service-bg);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
   overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-md);
   transition: transform var(--transition-slow), box-shadow var(--transition-slow);
 }
 
-.liveband-category-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
-}
+.liveband-category-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
 
+.card-media { width: 100%; height: 180px; overflow: hidden; background: #111; }
 .liveband-category-image {
   width: 100%;
-  height: 220px;
+  height: 100%;
   object-fit: cover;
-  border-bottom: 4px solid var(--flip-gold);
+  display: block;
+  transform-origin: center;
+  transition: transform 0.6s ease;
+}
+.liveband-category-card:hover .liveband-category-image { transform: scale(1.04); }
+
+.card-body {
+  padding: 1rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-/* ======================================================
-   📸 GALLERY SECTION
-   ====================================================== */
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.card-desc {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  flex: 1 1 auto;
+}
+
+.card-actions { margin-top: 0.5rem; display: flex; gap: 0.5rem; }
+
+/* ---------------------------
+   VIDEO SECTION
+   --------------------------- */
+.video-section {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  border-top: 1px solid var(--color-border);
+}
+
+.video-section .video-gallery {
+  margin-top: 1rem;
+}
+
+/* ---------------------------
+   GALLERY (MEDIA CARDS)
+   --------------------------- */
 .gallery-section {
-  background: linear-gradient(135deg, var(--flip-cream), var(--flip-silver));
+  background: linear-gradient(135deg, var(--flip-cream), rgba(255,255,255,0.8));
   color: var(--color-text);
   border-top: 1px solid var(--color-border);
-  padding-bottom: 5rem;
 }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  padding: 1.5rem 0;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  padding: 1rem 0;
 }
 
-/* ======================================================
-   💬 REVIEWS SECTION
-   ====================================================== */
-.reviews-section {
+/* placeholder when empty */
+.empty-placeholder {
+  padding: 2rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+/* ---------------------------
+   OTHER SERVICES
+   --------------------------- */
+.other-services .other-services-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-top: 1rem;
+}
+
+.other-service-card {
   background: var(--color-service-bg);
-  padding: 4rem 1rem;
-  border-top: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
 }
 
-/* ======================================================
-   📱 RESPONSIVE ADJUSTMENTS
-   ====================================================== */
+/* ---------------------------
+   REVIEWS
+   --------------------------- */
+.reviews-layout {
+  margin: 0;
+  padding: clamp(2rem, 4vw, 3rem) 1rem;
+  background: var(--color-bg);
+}
 
-/* Tablet */
+/* ---------------------------
+   ACCESSIBILITY & SMALL STYLES
+   --------------------------- */
+:focus { outline: 3px solid rgba(212,175,55,0.22); outline-offset: 2px; }
+
 @media (max-width: 1024px) {
-  .hero-content {
-    max-width: 90%;
-    padding: 1.5rem;
-  }
-
-  .section {
-    padding: 4rem 1rem;
-  }
+  .hero-content { padding: 1.25rem; width: 95%; }
+  .card-media { height: 160px; }
 }
 
-/* Mobile */
 @media (max-width: 640px) {
-  .hero-title {
-    font-size: 1.8rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
-  }
-
-  .btn {
-    width: 100%;
-    text-align: center;
-  }
-
-  .mute-button {
-    width: 40px;
-    height: 40px;
-    bottom: 0.75rem;
-    right: 0.75rem;
-  }
-
-  .liveband-category-image {
-    height: 180px;
-  }
+  .hero-content { padding: 1rem; border-radius: 12px; }
+  .liveband-category-grid { gap: 0.8rem; }
+  .card-media { height: 140px; }
+  .mute-button { right: 0.6rem; bottom: 0.6rem; width: 40px; height: 40px; }
+  .hero-subtitle { font-size: 0.95rem; }
+  .btn { padding: 0.55rem 0.9rem; font-size: 0.92rem; border-radius: 999px; }
 }
 
-/* Small screens 360px → 240px */
 @media (max-width: 360px) {
-  .hero-content {
-    padding: 1rem;
-  }
-
-  .hero-title {
-    font-size: 1.4rem;
-  }
-
-  .hero-subtitle {
-    font-size: 0.9rem;
-  }
-
-  .btn {
-    font-size: 0.85rem;
-    padding: 0.6rem 1rem;
-  }
-
-  .section h2 {
-    font-size: 1.3rem;
-  }
-
-  .section-description {
-    font-size: 0.85rem;
-  }
+  .hero-title { font-size: 1.3rem; }
+  .hero-subtitle { font-size: 0.88rem; }
+  .card-media { height: 120px; }
+  .card-title { font-size: 1rem; }
 }
