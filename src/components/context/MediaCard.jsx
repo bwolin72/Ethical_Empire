@@ -3,23 +3,21 @@ import PropTypes from "prop-types";
 import placeholderImg from "../../assets/placeholder.jpg";
 import "./MediaCard.css";
 
+/**
+ * SingleMediaCard
+ * Reusable card for images/videos from MediaCards component.
+ */
 const SingleMediaCard = ({ media = {}, fullWidth = false, onClick }) => {
-  const thumbnail =
-    media.url?.thumbnail || media.url?.medium || media.url?.full || placeholderImg;
-
-  const fullUrl =
-    media.url?.full ||
-    (media.file_type?.toLowerCase().includes("video")
-      ? "/mock/hero-video.mp4"
-      : thumbnail);
+  const thumbnail = media.url?.thumb || media.url?.full || placeholderImg;
+  const fullUrl = media.url?.full || placeholderImg;
 
   const isVideo = media.file_type?.toLowerCase().includes("video");
-  const label = media.label || media.title || media.category || "Media Item";
+  const label = media.label || media.title || "Media Item";
   const category = media.category?.toLowerCase() || "general";
 
   const handleVideoError = (e) => {
     e.currentTarget.poster = placeholderImg;
-    e.currentTarget.src = "/mock/hero-video.mp4";
+    e.currentTarget.src = placeholderImg;
   };
 
   const handleImageError = (e) => {
@@ -69,8 +67,7 @@ const SingleMediaCard = ({ media = {}, fullWidth = false, onClick }) => {
 SingleMediaCard.propTypes = {
   media: PropTypes.shape({
     url: PropTypes.shape({
-      thumbnail: PropTypes.string,
-      medium: PropTypes.string,
+      thumb: PropTypes.string,
       full: PropTypes.string,
     }),
     file_type: PropTypes.string,
