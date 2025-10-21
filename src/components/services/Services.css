@@ -1,267 +1,350 @@
 /* ======================================================
-   🎨 Services Page Styling — Always Visible Version
-   Uses variables from variables.css
+   🌫 Glassmorphic Services UI
+   Works with variables.css for theme consistency
+   Responsive from 240px+
    ====================================================== */
 
-/* === PAGE CONTAINER === */
 .services-page {
-  background: var(--color-bg);
+  background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-main);
-  padding-bottom: 5rem;
-  overflow-x: hidden;
+  padding: 2rem 1rem;
+  min-height: 100vh;
 }
 
-/* === HERO SECTION (Updated for Visibility & Layout) === */
+/* ======================================================
+   🏷 Hero Section
+   ====================================================== */
 .services-hero {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
   text-align: center;
-  padding: 7rem 2rem 5rem; /* added top padding for fixed navbar */
-  position: relative;
-  overflow: hidden;
-  min-height: 80vh; /* ensure full visibility on all screens */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
-  opacity: 1 !important; /* force visible */
-  transform: none !important;
-  visibility: visible !important;
+  margin-bottom: 3rem;
+  padding: 2rem 1rem;
 }
 
-/* dark overlay for better text contrast */
-.services-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 0;
-}
-
-/* ensure hero text stays above overlay */
-.services-hero .hero-title,
-.services-hero .hero-subtitle {
-  position: relative;
-  z-index: 2;
-}
-
-.services-hero .hero-title {
-  font-size: 3rem;
-  font-weight: 700;
+.hero-title {
   font-family: var(--font-accent);
-  line-height: 1.2;
-  margin-bottom: 1rem;
-  animation: fade-in-up 0.8s var(--transition-slow) both;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  background: var(--gradient-gold-burgundy);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
 }
 
-.services-hero .hero-subtitle {
-  font-size: 1.25rem;
-  max-width: 700px;
-  margin: 0 auto;
-  animation: fade-in 1.2s ease both;
+.hero-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: var(--color-text);
 }
 
 .brand-highlight {
-  color: var(--color-accent-gold);
   font-weight: 600;
+  color: var(--color-accent-gold);
 }
 
-/* === CATEGORY SECTIONS === */
-.service-category-section {
-  padding: 4rem 2rem 3rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  border-bottom: 1px solid var(--color-border);
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity var(--transition-slow), transform var(--transition-slow);
-}
-
-.section-title {
-  font-family: var(--font-accent);
-  font-size: 2rem;
-  color: var(--color-primary-dark);
-  text-align: center;
-  margin-bottom: 2.5rem;
-  position: relative;
-}
-
-.section-title::after {
-  content: "";
-  display: block;
-  height: 3px;
-  width: 80px;
-  background: var(--color-accent-gold);
-  margin: 0.75rem auto 0;
-  border-radius: var(--radius-md);
-}
-
-/* === SERVICE GRID === */
-.service-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
-  padding: 0 1rem;
-}
-
-/* === SERVICE CARD === */
+/* ======================================================
+   🃏 Service Cards (Glassmorphic)
+   ====================================================== */
 .service-card {
-  background: var(--color-service-bg);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-  transition: all var(--transition-fast);
-  position: relative;
+  box-shadow: var(--shadow-lg);
+  padding: 1.5rem;
+  margin: 1rem;
+  transition: all 0.3s ease-in-out;
   cursor: pointer;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  opacity: 1;
-  transform: translateY(0);
 }
 
 .service-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
-  background: var(--color-white);
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.card-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.icon-wrap {
+  margin-bottom: 1rem;
 }
 
 .service-icon {
-  color: var(--color-primary);
-  margin-bottom: 1rem;
-  transition: color var(--transition-fast);
+  color: var(--color-accent-gold);
+  transition: transform 0.3s;
 }
 
 .service-card:hover .service-icon {
-  color: var(--color-accent-gold);
+  transform: rotate(10deg) scale(1.1);
 }
 
-.service-card h3 {
-  font-size: 1.25rem;
+.service-title {
+  font-family: var(--font-accent);
+  font-size: 1.3rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-text);
+}
+
+.service-category {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  margin-bottom: 1rem;
+}
+
+.book-btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--gradient-navy-gold);
+  color: var(--color-white);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.book-btn:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+/* ======================================================
+   🔄 Card Back Side
+   ====================================================== */
+.card-back {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.service-description {
+  margin-bottom: 0.75rem;
+}
+
+.service-price {
   font-weight: 600;
   margin-bottom: 0.75rem;
 }
 
-.service-card p {
-  font-size: 0.95rem;
-  color: var(--color-muted);
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-/* === BUTTONS === */
-.book-btn,
-.contact-btn {
-  display: inline-block;
-  padding: 0.6rem 1.25rem;
+.card-actions .btn {
+  flex: 1 1 45%;
+  text-align: center;
+  padding: 0.5rem 1rem;
   border-radius: var(--radius-md);
   text-decoration: none;
-  font-weight: 600;
-  transition: background var(--transition-fast), color var(--transition-fast);
-  font-size: 0.9rem;
+  transition: all 0.2s;
 }
 
-.book-btn {
-  background: var(--color-accent-gold);
-  color: var(--color-primary-dark);
-  margin-right: 0.5rem;
-}
-
-.book-btn:hover {
-  background: var(--color-accent-gold-light);
-}
-
-.contact-btn {
-  background: transparent;
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary);
-}
-
-.contact-btn:hover {
-  background: var(--color-primary);
+.card-actions .book-btn {
+  background: var(--gradient-gold-burgundy);
   color: var(--color-white);
 }
 
-/* === CTA SECTION === */
-.services-cta {
-  background: var(--color-primary-dark);
-  color: var(--color-white);
+.card-actions .contact-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-text);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.card-actions .btn:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* ======================================================
+   📂 Category Section
+   ====================================================== */
+.category-header {
+  margin-bottom: 2rem;
   text-align: center;
-  padding: 4rem 2rem;
+}
+
+.section-title {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: 0.5rem;
+}
+
+.category-description {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.service-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ======================================================
+   📣 CTA Section
+   ====================================================== */
+.services-cta {
   margin-top: 4rem;
-  animation: fade-in-up 1.2s ease both;
+  text-align: center;
+  padding: 2rem 1rem;
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .services-cta h2 {
-  font-family: var(--font-accent);
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  margin-bottom: 1rem;
+  background: var(--gradient-navy-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .cta-buttons {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
 }
 
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  text-decoration: none;
-  transition: all var(--transition-fast);
-}
-
 .btn-primary {
-  background: var(--color-accent-gold);
-  color: var(--color-primary-dark);
-}
-
-.btn-primary:hover {
-  background: var(--color-accent-gold-light);
+  background: var(--gradient-gold-burgundy);
+  color: var(--color-white);
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s;
 }
 
 .btn-secondary {
-  background: transparent;
-  border: 1px solid var(--color-white);
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--color-text);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+/* ======================================================
+   🌙 Dark Mode Adjustments
+   ====================================================== */
+.dark .service-card,
+.dark .services-cta {
+  background-color: rgba(20, 20, 30, 0.25);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .service-title,
+.dark .service-description,
+.dark .service-price,
+.dark .muted-text {
+  color: var(--color-text);
+}
+
+.dark .book-btn,
+.dark .btn-primary {
   color: var(--color-white);
 }
 
-.btn-secondary:hover {
-  background: var(--color-white);
-  color: var(--color-primary-dark);
+.dark .contact-btn,
+.dark .btn-secondary {
+  color: var(--color-text);
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .services-hero {
-    padding: 6rem 1rem 3rem;
-    min-height: 60vh;
-  }
-  .services-hero .hero-title {
-    font-size: 2.2rem;
-  }
-  .services-hero .hero-subtitle {
-    font-size: 1.1rem;
-  }
-  .section-title {
-    font-size: 1.5rem;
+/* ======================================================
+   📱 Responsive tweaks
+   ====================================================== */
+@media (max-width: 480px) {
+  .service-list {
+    gap: 1rem;
   }
   .service-card {
-    padding: 1.5rem 1rem;
+    padding: 1rem;
+  }
+  .hero-title {
+    font-size: 1.8rem;
   }
 }
 
-@media (max-width: 480px) {
-  .services-hero {
-    padding: 5rem 1rem 3rem;
+@media (max-width: 320px) {
+  .service-card {
+    padding: 0.75rem;
   }
-  .services-hero .hero-title {
-    font-size: 1.8rem;
+  .book-btn {
+    font-size: 0.85rem;
   }
-  .services-hero .hero-subtitle {
-    font-size: 1rem;
-  }
+}
+/* ======================================================
+   🃏 Glassmorphic Service Cards with Shimmer
+   ====================================================== */
+.service-card {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1.5rem;
+  margin: 1rem;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.service-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* === Shimmer Effect === */
+.service-card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  transform: rotate(0deg);
+  animation: shimmer 3s infinite linear;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes shimmer {
+  0% { transform: translate(-100%, -100%) rotate(45deg); }
+  100% { transform: translate(100%, 100%) rotate(45deg); }
+}
+
+/* === Card Inner Content Above Shimmer === */
+.card-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* ======================================================
+   Dark Mode Shimmer Adjustment
+   ====================================================== */
+.dark .service-card::before {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
 }
