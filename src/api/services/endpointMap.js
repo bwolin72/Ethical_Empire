@@ -12,51 +12,59 @@ const endpointMap = {
   newsletter: "newsletter",
   unsubscribe: "unsubscribe",
 
-  // Nested resource endpoints
+  /* -----------------------------
+     Nested Resource Endpoints
+     ----------------------------- */
   videos: {
-    all: "videos",
-    featured: "videos/featured",
+    all: "videos/videos/",
+    home: "videos/videos/home/",
+    user: "media/user",    
+    about: "videos/videos/about/",
+    decor: "videos/videos/decor/",
+    catering: "videos/videos/catering/",
+    liveBand: "videos/videos/liveband/",
+    mediaHosting: "videos/videos/mediahosting/",
   },
+
   media: {
-    all: "media",
-    banners: "media/banners",
+    all: "media/",
+    home: "media/home/",
+    decor: "media/decor/",
+    catering: "media/catering/",
+    user: "media/user",
+    liveBand: "media/liveband/",
+    banners: "media/banners/",
   },
-  promotions: {
-    all: "promotions",
-  },
-  reviews: {
-    all: "reviews",
-  },
-  bookings: {
-    all: "bookings",
-    upcoming: "bookings/upcoming",
-  },
-  auth: {
-    login: "auth/login",
-    register: "auth/register",
-    me: "auth/me",
-  },
-  contact: {
-    all: "contact",
-  },
-  invoices: {
-    all: "invoices",
-  },
-  messaging: {
-    all: "messages",
-  },
+
   services: {
-    all: "services",
+    all: "services/services/categories/",
+    categories: "services/services/categories/",
+    liveBand: "services/services/categories/?slug=live-band",
   },
-  workers: {
-    all: "workers",
+
+  reviews: {
+    all: "reviews/",
   },
-  analytics: {
-    stats: "analytics/stats",
+
+  bookings: {
+    all: "bookings/",
+    upcoming: "bookings/upcoming/",
+  },
+
+  contact: { all: "contact/" },
+  invoices: { all: "invoices/" },
+  messaging: { all: "messages/" },
+  workers: { all: "workers/" },
+  analytics: { stats: "analytics/stats/" },
+  promotions: { all: "promotions/" },
+  auth: {
+    login: "auth/login/",
+    register: "auth/register/",
+    me: "auth/me/",
   },
   content: {
-    all: "content",
-    featured: "content/featured",
+    all: "content/",
+    featured: "content/featured/",
   },
 };
 
