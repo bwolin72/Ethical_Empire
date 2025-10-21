@@ -1,4 +1,3 @@
-// src/components/services/LiveBandServicePage.jsx
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -27,50 +26,59 @@ const toArray = (payload) =>
     ? payload
     : [];
 
-/* ---------- Motion Variants ---------- */
 const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: "easeOut" },
+  },
 };
 
 const zoomIn = {
-  hidden: { opacity: 0, scale: 0.98 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: "easeOut" } },
+  hidden: { opacity: 0, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
 };
 
+/* ==========================================================
+   🎵 LIVE BAND SERVICE PAGE
+   Responsive, Cinematic, Connected to Backend
+   ========================================================== */
 export default function LiveBandServicePage() {
   const navigate = useNavigate();
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
+  const [videoUrl, setVideoUrl] = useState(null);
 
-  // Banners: type=banner, endpoint=LiveBandServicePage
+  /* ---------- Data Fetching ---------- */
   const { data: bannerRaw, loading: bannerLoading } = useFetcher(
-    "mediafiles",
-    "LiveBandServicePage",
+    "media",
+    "liveBand",
     { type: "banner", is_active: true },
     { resource: "media" }
   );
 
-  // Videos
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
-    "LiveBandServicePage",
+    "liveBand",
     { is_active: true },
     { resource: "videos" }
   );
 
-  // Media images
   const { data: mediaRaw, loading: mediaLoading } = useFetcher(
-    "mediafiles",
-    "LiveBandServicePage",
+    "media",
+    "liveBand",
     { type: "media", is_active: true },
     { resource: "media" }
   );
 
-  // Other services (from backend) — we'll fetch all services and filter out "Live Band" category
   const { data: servicesRaw, loading: servicesLoading } = useFetcher(
     "services",
-    "all",
+    "categories",
     {},
     { resource: "services" }
   );
@@ -80,41 +88,19 @@ export default function LiveBandServicePage() {
   const mediaCards = toArray(mediaRaw);
   const services = toArray(servicesRaw);
 
-  // Local static service categories (frontend-only) with local images
-  const staticCategories = [
-    {
-      name: "Corporate & Luxury Events",
-      description:
-        "Live music that defines class — perfect for corporate galas, product launches, and executive retreats.",
-      image: corporateImg,
-      cta: { label: "Explore Corporate", href: "/services?category=Corporate" },
-    },
-    {
-      name: "Weddings & Private Celebrations",
-      description:
-        "From soulful bridal walks to energetic receptions, our live band brings your love story to life.",
-      image: weddingImg,
-      cta: { label: "Plan Your Wedding", href: "/services?category=Weddings" },
-    },
-    {
-      name: "Concerts & Festivals",
-      description:
-        "Professional setups for large-scale performances, festivals, and artist collaborations across Ghana.",
-      image: festivalImg,
-      cta: { label: "Book a Concert", href: "/services?category=Concerts" },
-    },
-  ];
-
-  // Choose featured video URL (if any)
-  const [videoUrl, setVideoUrl] = useState(null);
+  /* ---------- Featured Video ---------- */
   useEffect(() => {
-    if (!videos || videos.length === 0) {
+    if (!videos?.length) {
       setVideoUrl(null);
       return;
     }
     const featured = videos.find((v) => v.is_featured) ?? videos[0];
-    // videos API normalization may use video_url or videoFile or url - handle common keys
-    const url = featured?.video_url || featured?.videoFile || featured?.videoFileUrl || featured?.videoUrl || featured?.url || null;
+    const url =
+      featured?.video_url ||
+      featured?.file_url ||
+      featured?.url ||
+      featured?.secure_url ||
+      null;
     setVideoUrl(url);
   }, [videos]);
 
@@ -126,29 +112,61 @@ export default function LiveBandServicePage() {
     });
   }, []);
 
-  // Scroll helper
-  const scrollToGallery = () => {
-    document.querySelector(".gallery-section")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToGallery = () =>
+    document
+      .querySelector(".gallery-section")
+      ?.scrollIntoView({ behavior: "smooth" });
 
-  // Filter other services to exclude those in category "Live Band" (robust checks)
-  const otherServices = services?.filter((s) => {
-    if (!s) return false;
-    const cat = s.category || s.category_name || (s.category && s.category.name);
-    const catName = typeof cat === "string" ? cat : cat?.name;
-    return !(catName && catName.toLowerCase().includes("live band"));
-  });
+  const otherServices = services.filter(
+    (s) =>
+      !(
+        s?.name?.toLowerCase().includes("live band") ||
+        s?.slug?.includes("live-band")
+      )
+  );
 
+  /* ---------- Static Service Categories ---------- */
+  const staticCategories = [
+    {
+      name: "Corporate & Luxury Events",
+      description:
+        "Elegant, world-class performances for galas, launches, and executive events across Ghana and West Africa.",
+      image: corporateImg,
+      cta: { label: "Book Corporate Event", href: "/services?category=corporate" },
+    },
+    {
+      name: "Weddings & Private Celebrations",
+      description:
+        "Soulful bands and curated playlists to make your big day unforgettable.",
+      image: weddingImg,
+      cta: { label: "Plan Your Wedding", href: "/services?category=weddings" },
+    },
+    {
+      name: "Concerts & Festivals",
+      description:
+        "Large-scale performances and professional setups for artists and audiences.",
+      image: festivalImg,
+      cta: { label: "View Concert Packages", href: "/services?category=concerts" },
+    },
+  ];
+
+  /* ---------- Render ---------- */
   return (
     <div className="liveband-page-container">
-      {/* HERO */}
-      <section className="liveband-hero-section" aria-label="Live Band Hero">
-        {/* BannerCards will render hero banners (fallback to local hero image if none) */}
-        <div className="hero-visual-wrap" aria-hidden>
-          {banners && banners.length > 0 ? (
-            <BannerCards endpoint="LiveBandServicePage" type="banner" loading={bannerLoading} />
+      {/* HERO SECTION */}
+      <section className="liveband-hero-section">
+        <div className="hero-visual-wrap">
+          {banners.length > 0 ? (
+            <BannerCards
+              endpoint="liveBand"
+              type="banner"
+              loading={bannerLoading}
+            />
           ) : (
-            <div className="hero-fallback" style={{ backgroundImage: `url(${heroFallback})` }} />
+            <div
+              className="hero-fallback"
+              style={{ backgroundImage: `url(${heroFallback})` }}
+            />
           )}
 
           {videoUrl && (
@@ -176,12 +194,14 @@ export default function LiveBandServicePage() {
         >
           <h1 className="hero-title">Live Band & Performances</h1>
           <p className="hero-subtitle">
-            Experience Ghana’s most electrifying live performances — from weddings to festivals, our musicians
-            bring rhythm, artistry, and passion to every stage.
+            Experience Ghana’s most electrifying live music — from weddings to
+            festivals, we bring rhythm, soul, and artistry to every event.
           </p>
-
           <div className="hero-buttons">
-            <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate("/bookings")}
+            >
               Book a Live Band
             </button>
             <button className="btn btn-outline" onClick={scrollToGallery}>
@@ -190,45 +210,53 @@ export default function LiveBandServicePage() {
           </div>
         </motion.div>
 
-        <button className="mute-button" onClick={toggleMute} aria-pressed={!isMuted}>
+        <button className="mute-button" onClick={toggleMute}>
           {isMuted ? "🔇" : "🔊"}
         </button>
       </section>
 
-      {/* STATIC FRONTEND-ONLY CATEGORIES */}
+      {/* SERVICE CATEGORIES */}
       <motion.section
         className="section liveband-services"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.25 }}
         variants={fadeUp}
       >
         <h2>Our Live Band Services</h2>
         <p className="section-description">
-          Explore immersive music experiences crafted for elegant weddings, corporate gatherings, and large-scale concerts.
+          Discover how we craft unforgettable experiences for corporate,
+          private, and festival events.
         </p>
-
         <div className="liveband-category-grid">
-          {staticCategories.map((c, idx) => (
-            <motion.article key={idx} className="liveband-category-card" variants={zoomIn}>
-              <div className="card-media">
-                <img src={c.image} alt={c.name} className="liveband-category-image" loading="lazy" />
-              </div>
+          {staticCategories.map((c, i) => (
+            <motion.article
+              key={i}
+              className="liveband-category-card"
+              variants={zoomIn}
+            >
+              <img
+                src={c.image}
+                alt={c.name}
+                className="liveband-category-image"
+                loading="lazy"
+              />
               <div className="card-body">
-                <h3 className="card-title">{c.name}</h3>
-                <p className="card-desc">{c.description}</p>
-                <div className="card-actions">
-                  <button className="btn btn-outline" onClick={() => navigate(c.cta.href)}>
-                    {c.cta.label}
-                  </button>
-                </div>
+                <h3>{c.name}</h3>
+                <p>{c.description}</p>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => navigate(c.cta.href)}
+                >
+                  {c.cta.label}
+                </button>
               </div>
             </motion.article>
           ))}
         </div>
       </motion.section>
 
-      {/* PERFORMANCE VIDEOS */}
+      {/* VIDEOS */}
       <motion.section
         className="section video-section"
         initial="hidden"
@@ -237,11 +265,13 @@ export default function LiveBandServicePage() {
         variants={fadeUp}
       >
         <h2>Performance Videos</h2>
-        <p className="section-description">Watch featured and recent shows captured live on stage.</p>
-        <VideoGallery endpoint="LiveBandServicePage" />
+        <p className="section-description">
+          Featured live performances captured on stage.
+        </p>
+        <VideoGallery endpoint="liveBand" />
       </motion.section>
 
-      {/* IMAGE GALLERY */}
+      {/* MEDIA GALLERY */}
       <motion.section
         className="section gallery-section"
         initial="hidden"
@@ -250,32 +280,36 @@ export default function LiveBandServicePage() {
         variants={fadeUp}
       >
         <h2>Performance Highlights</h2>
-        <p className="section-description">Discover our most memorable performances — soulful, energetic, unforgettable.</p>
+        <p className="section-description">
+          Memorable moments from Eethm Live Band’s most iconic events.
+        </p>
 
         <div className="card-grid">
-          {mediaLoading
-            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : (mediaCards?.length || 0) > 0
-            ? mediaCards.slice(0, 9).map((m, i) => <MediaCard key={m.id ?? i} media={m} />)
-            : (
-                <div className="empty-placeholder">
-                  <p>No gallery items yet. Check back soon or upload media from the dashboard.</p>
-                </div>
-              )}
+          {mediaLoading ? (
+            Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+          ) : mediaCards.length > 0 ? (
+            mediaCards.slice(0, 9).map((m, i) => (
+              <MediaCard key={m.id ?? i} media={m} />
+            ))
+          ) : (
+            <div className="empty-placeholder">
+              <p>No gallery items yet. Check back soon.</p>
+            </div>
+          )}
         </div>
       </motion.section>
 
-      {/* OTHER SERVICES (dynamic from backend, excluding Live Band) */}
+      {/* OTHER SERVICES */}
       <motion.section
         className="section other-services"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.25 }}
         variants={fadeUp}
       >
         <h2>Other Services</h2>
         <p className="section-description">
-          Explore complementary services for your event — catering, decor, multimedia and more.
+          Explore more ways Eethm enhances your events.
         </p>
 
         {servicesLoading ? (
@@ -284,25 +318,27 @@ export default function LiveBandServicePage() {
               <div className="service-skeleton" key={i} />
             ))}
           </div>
-        ) : otherServices && otherServices.length > 0 ? (
+        ) : otherServices.length > 0 ? (
           <div className="other-services-grid">
             {otherServices.slice(0, 6).map((s) => (
-              // ServiceCategory expects a category-like prop structure; we pass the service as category for display
-              <div className="other-service-card" key={s.id || s.name}>
+              <div key={s.id || s.name} className="other-service-card">
                 <ServiceCategory category={s} />
               </div>
             ))}
           </div>
         ) : (
           <div className="empty-placeholder">
-            <p>No other services found.</p>
+            <p>No additional services available.</p>
           </div>
         )}
       </motion.section>
 
       {/* REVIEWS */}
-      <ReviewsLayout title="Client Impressions" description="What our audiences say about Eethm Live Band">
-        <Reviews limit={6} hideForm category="LiveBandServicePage" />
+      <ReviewsLayout
+        title="Client Impressions"
+        description="What our guests and partners say about Eethm Live Band"
+      >
+        <Reviews limit={6} hideForm category="liveBand" />
       </ReviewsLayout>
     </div>
   );
