@@ -45,40 +45,45 @@ export default function LiveBandServicePage() {
   const [mediaCards, setMediaCards] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ---------- Fetch Services & Media ---------- */
+  /* ---------- Fetch Services, Videos & Media ---------- */
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
 
-      const [livebandRes, allRes, bannerRes, videoRes, mediaRes] =
-        await Promise.all([
-          serviceService.getServicesByCategory("Live Band"),
-          serviceService.getServices(),
-          mediaService.getMedia({ endpoint: "LiveBandServicePage", type: "banner", is_active: true }),
-          videoService.getVideos({ endpoint: "LiveBandServicePage", is_active: true }),
-          mediaService.getMedia({ endpoint: "LiveBandServicePage", type: "media", is_active: true }),
-        ]);
+      // Fetch all in parallel
+      const [
+        livebandRes,
+        allRes,
+        bannerRes,
+        videoData,
+        mediaData
+      ] = await Promise.all([
+        serviceService.getServicesByCategory("Live Band"),
+        serviceService.getServices(),
+        mediaService.bannerActive({ endpoint: "LiveBandServicePage" }),
+        videoService.getLiveBand(),
+        mediaService.mediaActive({ endpoint: "LiveBandServicePage" }),
+      ]);
 
       // --- Extract Data ---
       const livebandData = Array.isArray(livebandRes.data?.results) ? livebandRes.data.results : [];
       const allData = Array.isArray(allRes.data?.results) ? allRes.data.results : [];
-      const bannerData = bannerRes.data?.results || [];
-      const videoData = videoRes.data?.results || [];
-      const mediaData = mediaRes.data?.results || [];
+      const bannerItems = bannerRes.data?.results || [];
+      const mediaItems = mediaData.data?.results || [];
 
       // --- Debug Logs ---
       console.log("Live Band Services:", livebandData);
       console.log("Other Services:", allData.filter(s => s.category !== "Live Band"));
-      console.log("Banners:", bannerData);
+      console.log("Banners:", bannerItems);
       console.log("Videos:", videoData);
-      console.log("Media Gallery Items:", mediaData);
+      console.log("Media Gallery Items:", mediaItems);
 
       // --- Set State ---
       setServices(livebandData);
       setOtherServices(allData.filter((s) => s.category !== "Live Band"));
-      setBanners(bannerData);
+      setBanners(bannerItems);
       setVideos(videoData);
-      setMediaCards(mediaData);
+      setMediaCards(mediaItems);
     } catch (err) {
       console.error("Error loading Live Band data:", err);
     } finally {
@@ -94,8 +99,8 @@ export default function LiveBandServicePage() {
   useEffect(() => {
     if (!videos?.length) return setVideoUrl(null);
 
-    const featured = videos.find((v) => v.is_featured) || videos[0];
-    const url = featured?.video_url || featured?.video_file?.url || featured?.url || null;
+    const featured = videos.find((v) => v.isFeatured) || videos[0];
+    const url = featured?.videoUrl || null;
     setVideoUrl(url);
     console.log("Featured Video URL:", url);
   }, [videos]);
@@ -236,9 +241,11 @@ export default function LiveBandServicePage() {
         <h2>Performance Highlights</h2>
         <p className="section-description">Memorable moments from Eethm Live Band’s most iconic events.</p>
         <div className="card-grid">
-          {loading ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />) :
-            mediaCards.length > 0 ? mediaCards.slice(0, 9).map((m, i) => <MediaCard key={m.id ?? i} media={m} />) :
-              <div className="empty-placeholder"><p>No gallery items yet. Check back soon.</p></div>
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+            : mediaCards.length > 0
+            ? mediaCards.slice(0, 9).map((m, i) => <MediaCard key={m.id ?? i} media={m} />)
+            : <div className="empty-placeholder"><p>No gallery items yet. Check back soon.</p></div>
           }
         </div>
       </motion.section>
