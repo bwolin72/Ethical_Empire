@@ -52,7 +52,7 @@ const ServiceCard = ({ service }) => {
 
   return (
     <motion.article
-      className="service-card"
+      className="service-card glassmorphic-card"
       variants={cardVariants}
       initial="initial"
       animate="animate"
@@ -83,12 +83,6 @@ const ServiceCard = ({ service }) => {
           <p className="service-description">
             {service.description || "No description available for this service."}
           </p>
-
-          {service.price && (
-            <p className="service-price">
-              Starting at <strong>₵{service.price}</strong>
-            </p>
-          )}
 
           <div className="card-actions">
             <Link to="/bookings" className="btn book-btn">
