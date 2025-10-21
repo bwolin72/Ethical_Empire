@@ -50,34 +50,35 @@ export default function LiveBandServicePage() {
     try {
       setLoading(true);
 
-      // Fetch Live Band services, all services, banners, videos, and media
-      const [livebandRes, allRes, bannerRes, videoRes, mediaRes] = await Promise.all([
-        serviceService.getServicesByCategory("Live Band"),
-        serviceService.getServices(),
-        mediaService.getMedia("LiveBandServicePage", { type: "banner", is_active: true }),
-        videoService.getVideos("LiveBandServicePage", { is_active: true }),
-        mediaService.getMedia("LiveBandServicePage", { type: "media", is_active: true }),
-      ]);
+      const [livebandRes, allRes, bannerRes, videoRes, mediaRes] =
+        await Promise.all([
+          serviceService.getServicesByCategory("Live Band"),
+          serviceService.getServices(),
+          mediaService.getMedia({ endpoint: "LiveBandServicePage", type: "banner", is_active: true }),
+          videoService.getVideos({ endpoint: "LiveBandServicePage", is_active: true }),
+          mediaService.getMedia({ endpoint: "LiveBandServicePage", type: "media", is_active: true }),
+        ]);
 
-      // Normalize Live Band data
-      const livebandData =
-        Array.isArray(livebandRes.data) || Array.isArray(livebandRes.data?.results)
-          ? livebandRes.data.results || livebandRes.data
-          : [];
+      // --- Extract Data ---
+      const livebandData = Array.isArray(livebandRes.data?.results) ? livebandRes.data.results : [];
+      const allData = Array.isArray(allRes.data?.results) ? allRes.data.results : [];
+      const bannerData = bannerRes.data?.results || [];
+      const videoData = videoRes.data?.results || [];
+      const mediaData = mediaRes.data?.results || [];
 
-      // Normalize all services data
-      const allData =
-        Array.isArray(allRes.data) || Array.isArray(allRes.data?.results)
-          ? allRes.data.results || allRes.data
-          : [];
+      // --- Debug Logs ---
+      console.log("Live Band Services:", livebandData);
+      console.log("Other Services:", allData.filter(s => s.category !== "Live Band"));
+      console.log("Banners:", bannerData);
+      console.log("Videos:", videoData);
+      console.log("Media Gallery Items:", mediaData);
 
+      // --- Set State ---
       setServices(livebandData);
       setOtherServices(allData.filter((s) => s.category !== "Live Band"));
-
-      // Set banners, videos, and media cards
-      setBanners(bannerRes?.data?.results || bannerRes?.data || []);
-      setVideos(videoRes?.data?.results || videoRes?.data || []);
-      setMediaCards(mediaRes?.data?.results || mediaRes?.data || []);
+      setBanners(bannerData);
+      setVideos(videoData);
+      setMediaCards(mediaData);
     } catch (err) {
       console.error("Error loading Live Band data:", err);
     } finally {
@@ -91,14 +92,12 @@ export default function LiveBandServicePage() {
 
   /* ---------- Featured Video ---------- */
   useEffect(() => {
-    if (!videos?.length) {
-      setVideoUrl(null);
-      return;
-    }
-    const featured = videos.find((v) => v.is_featured) ?? videos[0];
-    const url =
-      featured?.video_url || featured?.video_file?.url || featured?.url || null;
+    if (!videos?.length) return setVideoUrl(null);
+
+    const featured = videos.find((v) => v.is_featured) || videos[0];
+    const url = featured?.video_url || featured?.video_file?.url || featured?.url || null;
     setVideoUrl(url);
+    console.log("Featured Video URL:", url);
   }, [videos]);
 
   const toggleMute = useCallback(() => {
@@ -145,10 +144,7 @@ export default function LiveBandServicePage() {
           {banners.length > 0 ? (
             <BannerCards endpoint="LiveBandServicePage" type="banner" loading={loading} />
           ) : (
-            <div
-              className="hero-fallback"
-              style={{ backgroundImage: `url(${heroFallback})` }}
-            />
+            <div className="hero-fallback" style={{ backgroundImage: `url(${heroFallback})` }} />
           )}
 
           {videoUrl && (
@@ -176,8 +172,7 @@ export default function LiveBandServicePage() {
         >
           <h1 className="hero-title">Live Band & Performances</h1>
           <p className="hero-subtitle">
-            Experience Ghana’s most electrifying live music — from weddings to
-            festivals, we bring rhythm, soul, and artistry to every event.
+            Experience Ghana’s most electrifying live music — from weddings to festivals, we bring rhythm, soul, and artistry to every event.
           </p>
           <div className="hero-buttons">
             <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
@@ -194,14 +189,8 @@ export default function LiveBandServicePage() {
         </button>
       </section>
 
-      {/* DYNAMIC SERVICES FROM BACKEND */}
-      <motion.section
-        className="section liveband-services"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
-        variants={fadeUp}
-      >
+      {/* DYNAMIC SERVICES */}
+      <motion.section className="section liveband-services" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
         <h2>Our Live Band Services</h2>
         {services.length > 0 ? (
           <ServiceCategory
@@ -214,34 +203,19 @@ export default function LiveBandServicePage() {
               })),
             }}
           />
-        ) : (
-          <p>No live band services available at the moment.</p>
-        )}
+        ) : <p>No live band services available at the moment.</p>}
       </motion.section>
 
       {/* STATIC SERVICE SECTIONS */}
-      <motion.section
-        className="section liveband-static-services"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
-        variants={fadeUp}
-      >
+      <motion.section className="section liveband-static-services" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
         <div className="liveband-category-grid">
           {staticCategories.map((c, i) => (
-            <motion.article
-              key={i}
-              className="liveband-category-card"
-              variants={zoomIn}
-            >
+            <motion.article key={i} className="liveband-category-card" variants={zoomIn}>
               <img src={c.image} alt={c.name} className="liveband-category-image" />
               <div className="card-body">
                 <h3>{c.name}</h3>
                 <p>{c.description}</p>
-                <button
-                  className="btn btn-outline"
-                  onClick={() => navigate(c.cta.href)}
-                >
+                <button className="btn btn-outline" onClick={() => navigate(c.cta.href)}>
                   {c.cta.label}
                 </button>
               </div>
@@ -251,52 +225,26 @@ export default function LiveBandServicePage() {
       </motion.section>
 
       {/* VIDEOS */}
-      <motion.section
-        className="section video-section"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
-        variants={fadeUp}
-      >
+      <motion.section className="section video-section" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
         <h2>Performance Videos</h2>
         <p className="section-description">Featured live performances captured on stage.</p>
         <VideoGallery endpoint="LiveBandServicePage" />
       </motion.section>
 
       {/* MEDIA GALLERY */}
-      <motion.section
-        className="section gallery-section"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
-        variants={fadeUp}
-      >
+      <motion.section className="section gallery-section" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
         <h2>Performance Highlights</h2>
-        <p className="section-description">
-          Memorable moments from Eethm Live Band’s most iconic events.
-        </p>
-
+        <p className="section-description">Memorable moments from Eethm Live Band’s most iconic events.</p>
         <div className="card-grid">
-          {loading ? (
-            Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-          ) : mediaCards.length > 0 ? (
-            mediaCards.slice(0, 9).map((m, i) => <MediaCard key={m.id ?? i} media={m} />)
-          ) : (
-            <div className="empty-placeholder">
-              <p>No gallery items yet. Check back soon.</p>
-            </div>
-          )}
+          {loading ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />) :
+            mediaCards.length > 0 ? mediaCards.slice(0, 9).map((m, i) => <MediaCard key={m.id ?? i} media={m} />) :
+              <div className="empty-placeholder"><p>No gallery items yet. Check back soon.</p></div>
+          }
         </div>
       </motion.section>
 
       {/* OTHER SERVICES */}
-      <motion.section
-        className="section other-services"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
-        variants={fadeUp}
-      >
+      <motion.section className="section other-services" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
         <h2>Other Services</h2>
         {otherServices.length > 0 ? (
           <ServiceCategory
@@ -309,16 +257,11 @@ export default function LiveBandServicePage() {
               })),
             }}
           />
-        ) : (
-          <p>No additional services available.</p>
-        )}
+        ) : <p>No additional services available.</p>}
       </motion.section>
 
       {/* REVIEWS */}
-      <ReviewsLayout
-        title="Client Impressions"
-        description="What our guests and partners say about Eethm Live Band"
-      >
+      <ReviewsLayout title="Client Impressions" description="What our guests and partners say about Eethm Live Band">
         <Reviews limit={6} hideForm category="LiveBandServicePage" />
       </ReviewsLayout>
     </div>
