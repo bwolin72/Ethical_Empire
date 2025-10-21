@@ -7,6 +7,7 @@ const ServiceCategory = ({ category }) => {
   const controls = useAnimation();
   const ref = useRef(null);
 
+  /* === Animate section on scroll into view === */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -24,9 +25,14 @@ const ServiceCategory = ({ category }) => {
     return () => observer.disconnect();
   }, [controls]);
 
+  /* === Framer Motion Variants === */
   const sectionVariants = {
     hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" },
+    },
   };
 
   const listVariants = {
@@ -35,12 +41,14 @@ const ServiceCategory = ({ category }) => {
   };
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 25 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
   };
 
-  // Support both { services: [...] } or raw array of services
-  const servicesArray = Array.isArray(category) ? category : category?.services ?? [];
+  /* === Handle flexible category format === */
+  const servicesArray = Array.isArray(category)
+    ? category
+    : category?.services ?? [];
 
   return (
     <motion.section
@@ -50,27 +58,45 @@ const ServiceCategory = ({ category }) => {
       animate={controls}
       variants={sectionVariants}
     >
-      {/* Only show header if category object with name */}
+      {/* === CATEGORY HEADER === */}
       {category?.name && (
-        <motion.header className="category-header" variants={sectionVariants}>
-          <h2 className="section-title gradient-text">{category.name}</h2>
-          <p className="muted-text">{category.description || "Explore our amazing services."}</p>
+        <motion.header
+          className="category-header"
+          variants={sectionVariants}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="section-title gradient-text">
+            {category.name}
+          </h2>
+          {category.description && (
+            <p className="muted-text category-description">
+              {category.description}
+            </p>
+          )}
         </motion.header>
       )}
 
+      {/* === SERVICE LIST === */}
       {servicesArray.length > 0 ? (
-        <motion.div className="service-list" variants={listVariants}>
-          {servicesArray.map((srv, index) => (
+        <motion.div
+          className="service-list"
+          variants={listVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {servicesArray.map((service, index) => (
             <motion.div
-              key={srv.id ?? srv.slug ?? srv.name ?? index}
+              key={service.id ?? service.slug ?? service.name ?? index}
               variants={cardVariants}
             >
-              <ServiceCard service={srv} />
+              <ServiceCard service={service} />
             </motion.div>
           ))}
         </motion.div>
       ) : (
-        <p className="muted-text">No active services in this category.</p>
+        <p className="muted-text no-services-text">
+          No active services in this category.
+        </p>
       )}
     </motion.section>
   );
