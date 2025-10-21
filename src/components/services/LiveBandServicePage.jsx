@@ -1,31 +1,18 @@
+// src/components/services/LiveBandServicePage.jsx
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
+import BannerCards from "../context/BannerCards";
+import VideoGallery from "../videos/VideoGallery";
 import MediaCard from "../context/MediaCards";
 import MediaSkeleton from "../context/MediaSkeleton";
 import ServiceCategory from "./ServiceCategory";
-import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
+import Reviews from "../user/Reviews";
 import useFetcher from "../../hooks/useFetcher";
 
 import "./liveband.css";
-
-import corporatePerformance from "../../assets/liveband/corporate-performance.png";
-import weddingBand from "../../assets/liveband/wedding-band.png";
-import festivalBand from "../../assets/liveband/festival-band.png";
-import livebandHero from "../../assets/liveband/liveband-hero.jpg";
-
-/* ---------- Helpers ---------- */
-const toArray = (payload) =>
-  Array.isArray(payload?.data)
-    ? payload.data
-    : Array.isArray(payload)
-    ? payload
-    : [];
-
-const getMediaUrl = (m) =>
-  m?.secure_url || m?.url?.full || m?.url || m?.video_url || m?.file_url || m?.src || "";
 
 /* ---------- Motion Variants ---------- */
 const fadeUp = {
@@ -41,21 +28,40 @@ const zoomIn = {
 /* ---------- Component ---------- */
 export default function LiveBandServicePage() {
   const navigate = useNavigate();
-  const [videoUrl, setVideoUrl] = useState(null);
   const videoRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
-  const { data: mediaRaw, loading: mediaLoading } = useFetcher("media", "liveband", { is_active: true }, { resource: "media" });
-  const { data: videosRaw, loading: videoLoading } = useFetcher("videos", "liveband", { is_active: true }, { resource: "videos" });
+  /* ---------- Backend Fetchers ---------- */
+  const { data: bannerData, loading: bannerLoading } = useFetcher(
+    "mediafiles",
+    "LiveBandServicePage",
+    { type: "banner", is_active: true },
+    { resource: "media" }
+  );
 
-  const mediaCards = toArray(mediaRaw);
+  const { data: videosRaw, loading: videoLoading } = useFetcher(
+    "videos",
+    "LiveBandServicePage",
+    { is_active: true },
+    { resource: "videos" }
+  );
 
+  const { data: mediaRaw, loading: mediaLoading } = useFetcher(
+    "mediafiles",
+    "LiveBandServicePage",
+    { type: "media", is_active: true },
+    { resource: "media" }
+  );
+
+  const [videoUrl, setVideoUrl] = useState(null);
+
+  /* ---------- Video Setup ---------- */
   useEffect(() => {
-    const videos = toArray(videosRaw);
-    if (!videos.length && !videoLoading) return setVideoUrl(null);
-    const featured = videos.find((v) => v?.is_featured) ?? videos[0];
-    setVideoUrl(getMediaUrl(featured) || null);
-  }, [videosRaw, videoLoading]);
+    if (videosRaw && videosRaw.length > 0) {
+      const featured = videosRaw.find((v) => v.is_featured) ?? videosRaw[0];
+      setVideoUrl(featured?.video_url || featured?.url || null);
+    }
+  }, [videosRaw]);
 
   const toggleMute = useCallback(() => {
     setIsMuted((prev) => {
@@ -65,54 +71,51 @@ export default function LiveBandServicePage() {
     });
   }, []);
 
+  /* ---------- Local Static Service Categories ---------- */
   const liveBandCategories = [
     {
       name: "Corporate & Luxury Events",
-      image: corporatePerformance,
-      services: [
-        { name: "Gala & Award Ceremonies", description: "Premium live music performances for executive events and product launches in Ghana and across West Africa." },
-        { name: "Conference Entertainment", description: "Smooth jazz, instrumental interludes, and curated playlists for professional ambiance." },
-        { name: "Cocktail & Dinner Sets", description: "Soft acoustic or instrumental duos for elegant gatherings." },
-      ],
+      description:
+        "Live music that defines class — perfect for corporate galas, product launches, and executive retreats.",
+      icon: "🎤",
     },
     {
       name: "Weddings & Private Celebrations",
-      image: weddingBand,
-      services: [
-        { name: "Wedding Reception Bands", description: "Energetic live performances that elevate your big day." },
-        { name: "Traditional & Highlife Sets", description: "Ghanaian and Afrobeat fusions that celebrate culture." },
-        { name: "Bridal Entry Music", description: "Customized entry compositions with live instrumental backing." },
-      ],
+      description:
+        "From soulful bridal walks to energetic receptions, our live band brings your love story to life.",
+      icon: "💍",
     },
     {
       name: "Concerts & Festivals",
-      image: festivalBand,
-      services: [
-        { name: "Full Stage Band Setup", description: "Professional-grade lighting, sound, and multi-instrument ensembles for large-scale shows." },
-        { name: "Backing Bands for Artists", description: "Experienced musicians supporting top acts across genres." },
-        { name: "Outdoor & Street Performances", description: "Dynamic open-air performances designed to energize any crowd." },
-      ],
+      description:
+        "Professional setups for large-scale performances, festivals, and artist collaborations across Ghana.",
+      icon: "🎶",
     },
   ];
 
   return (
     <div className="liveband-page-container">
-      {/* HERO SECTION */}
+      {/* ---------- HERO SECTION ---------- */}
       <section className="liveband-hero-section" aria-label="Live Band Hero">
-        {/* Video or Fallback */}
-        <video
-          ref={videoRef}
-          src={videoUrl || ""}
-          className="hero-video"
-          autoPlay
-          loop
-          muted={isMuted}
-          playsInline
-          preload="auto"
-          poster={livebandHero}
-          style={{ display: videoUrl ? "block" : "none" }}
+        <BannerCards
+          endpoint="LiveBandServicePage"
+          type="banner"
+          loading={bannerLoading}
         />
-        <div className="hero-fallback" style={{ backgroundImage: `url(${livebandHero})` }} />
+
+        {videoUrl && (
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            className="hero-video"
+            autoPlay
+            loop
+            muted={isMuted}
+            playsInline
+            preload="auto"
+          />
+        )}
+
         <div className="hero-overlay" />
         <motion.div
           className="hero-content glass-panel"
@@ -123,46 +126,99 @@ export default function LiveBandServicePage() {
         >
           <h1 className="hero-title">Live Band & Performances</h1>
           <p className="hero-subtitle">
-            Experience Ghana’s most electrifying live music — from soulful weddings to world-class concerts, we bring rhythm, energy, and artistry to every event.
+            Experience Ghana’s most electrifying live performances — from
+            weddings to festivals, our musicians bring rhythm, artistry, and
+            passion to every stage.
           </p>
           <div className="hero-buttons">
-            <button className="btn btn-primary" onClick={() => navigate("/bookings")}>Book a Live Band</button>
-            <button className="btn btn-outline" onClick={() => window.scrollTo({ top: 800, behavior: "smooth" })}>Watch Performances</button>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate("/bookings")}
+            >
+              Book a Live Band
+            </button>
+            <button
+              className="btn btn-outline"
+              onClick={() =>
+                document
+                  .querySelector(".gallery-section")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              Watch Performances
+            </button>
           </div>
         </motion.div>
-        <button className="mute-button" onClick={toggleMute}>{isMuted ? "🔇" : "🔊"}</button>
+        <button className="mute-button" onClick={toggleMute}>
+          {isMuted ? "🔇" : "🔊"}
+        </button>
       </section>
 
-      {/* SERVICE CATEGORIES */}
-      <motion.section className="section liveband-services" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
+      {/* ---------- SERVICE CATEGORIES ---------- */}
+      <motion.section
+        className="section liveband-services"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={fadeUp}
+      >
         <h2>Our Live Band Services</h2>
         <p className="section-description">
-          Explore dynamic music experiences tailored for weddings, corporate events, and cultural celebrations across Ghana and West Africa.
+          Explore immersive music experiences crafted for elegant weddings,
+          corporate gatherings, and large-scale concerts.
         </p>
         <div className="liveband-category-grid">
           {liveBandCategories.map((cat, i) => (
             <motion.div key={i} className="liveband-category-card" variants={zoomIn}>
-              <img src={cat.image} alt={cat.name} className="liveband-category-image" loading="lazy" />
+              <div className="category-icon">{cat.icon}</div>
               <ServiceCategory category={cat} />
             </motion.div>
           ))}
         </div>
       </motion.section>
 
-      {/* PERFORMANCE GALLERY */}
-      <motion.section className="section gallery-section" variants={fadeUp}>
+      {/* ---------- VIDEO GALLERY ---------- */}
+      <motion.section
+        className="section video-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={fadeUp}
+      >
+        <h2>Performance Videos</h2>
+        <VideoGallery endpoint="LiveBandServicePage" />
+      </motion.section>
+
+      {/* ---------- IMAGE GALLERY ---------- */}
+      <motion.section
+        className="section gallery-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={fadeUp}
+      >
         <h2>Performance Highlights</h2>
-        <p>Watch our most iconic shows — high-energy, soulful, and unforgettable performances captured across Ghana’s premier stages.</p>
+        <p>
+          Discover our most memorable performances — captivating stages filled
+          with soul, rhythm, and Ghanaian excellence.
+        </p>
         <div className="card-grid">
           {mediaLoading
-            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaCards.slice(0, 6).map((m, i) => <MediaCard key={m.id ?? i} media={m} />)}
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <MediaSkeleton key={i} />
+              ))
+            : mediaRaw?.slice(0, 6).map((m, i) => (
+                <MediaCard key={m.id ?? i} media={m} />
+              ))}
         </div>
       </motion.section>
 
-      {/* REVIEWS */}
-      <ReviewsLayout title="Client Impressions" description="Hear what our audiences say about Eethm Live Band">
-        <Reviews limit={6} hideForm category="liveband" />
+      {/* ---------- REVIEWS ---------- */}
+      <ReviewsLayout
+        title="Client Impressions"
+        description="What our audiences say about Eethm Live Band"
+      >
+        <Reviews limit={6} hideForm category="LiveBandServicePage" />
       </ReviewsLayout>
     </div>
   );
