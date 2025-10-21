@@ -5,6 +5,19 @@ import MediaSkeleton from "./MediaSkeleton";
 import placeholderImg from "../../assets/placeholder.jpg";
 import "./MediaCard.css";
 
+/**
+ * Reusable MediaCards component for any endpoint.
+ *
+ * Props:
+ *  - endpointKey: string key of page (e.g., "LiveBandServicePage", "EethmHome")
+ *  - resourceType: "media" | "banner"
+ *  - title: optional heading
+ *  - fullWidth: boolean for full-width scroll
+ *  - isActive: filter active media (default: true)
+ *  - isFeatured: filter featured only (default: false)
+ *  - fileType: optional, filter by file extension or type
+ *  - labelQuery: optional, filter by label
+ */
 const MediaCards = ({
   endpointKey = "all",
   resourceType = "media",
@@ -17,6 +30,7 @@ const MediaCards = ({
 }) => {
   const [previewMedia, setPreviewMedia] = useState(null);
 
+  // Fetch data using generic hook
   const { data, loading, error } = useFetcher(resourceType, endpointKey, {
     is_active: isActive,
     is_featured: isFeatured,
