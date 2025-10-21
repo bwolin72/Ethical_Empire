@@ -6,29 +6,66 @@ import { useAuth } from "../context/AuthContext";
 export default function OAuthLoginRedirect() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { loginWithGoogle, user } = useAuth();
+  const { loginWithGoogle } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const token = searchParams.get("token");
     if (!token) {
+      setError("Missing OAuth token.");
+      setLoading(false);
       navigate("/login");
       return;
     }
 
-    loginWithGoogle(token)
-      .then(() => {
-        // redirect based on role if needed
-        if (user?.role === "admin") navigate("/admin");
-        else if (user?.role === "vendor") navigate("/vendor-profile");
-        else if (user?.role === "partner") navigate("/partner-dashboard");
-        else if (user?.role === "worker") navigate("/worker-dashboard");
-        else navigate("/user"); // default user page
-      })
-      .catch(() => navigate("/login"))
-      .finally(() => setLoading(false));
-  }, [searchParams, loginWithGoogle, navigate, user]);
+    const doLogin = async () => {
+      try {
+        const user = await loginWithGoogle(token);
 
-  if (loading) return <p>Logging in with Google...</p>;
+        // redirect based on role
+        const role = user?.role?.toLowerCase();
+        switch (role) {
+          case "admin":
+            navigate("/admin", { replace: true });
+            break;
+          case "vendor":
+            navigate("/vendor-profile", { replace: true });
+            break;
+          case "partner":
+            navigate("/partner-dashboard", { replace: true });
+            break;
+          case "worker":
+            navigate("/worker-dashboard", { replace: true });
+            break;
+          default:
+            navigate("/user", { replace: true });
+        }
+      } catch (err) {
+        console.error("[OAuthLoginRedirect] Login failed:", err);
+        setError("Login failed. Please try again.");
+        navigate("/login", { replace: true });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    doLogin();
+  }, [searchParams, loginWithGoogle, navigate]);
+
+  if (loading)
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <p>Logging in with Google...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
+        <p>{error}</p>
+      </div>
+    );
+
   return null;
 }
