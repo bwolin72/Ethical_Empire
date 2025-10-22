@@ -33,8 +33,8 @@ const Login = () => {
     (role) => {
       const path = roleRoutes[role?.toLowerCase()] || roleRoutes.user;
       let nextPath = new URLSearchParams(location.search).get("next") || "";
-      // Ignore public routes
       if (PUBLIC_ROUTES.includes(nextPath)) nextPath = "";
+      console.log("[REDIRECT] Redirecting user role:", role, "to path:", nextPath || path);
       navigate(nextPath || path, { replace: true });
     },
     [navigate, location.search]
@@ -45,11 +45,13 @@ const Login = () => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
+    console.log("[THEME] Dark mode loaded:", saved);
   }, []);
 
   // Auto redirect if already logged in
   useEffect(() => {
     if (ready && user?.role) {
+      console.log("[AUTO-LOGIN] User already logged in:", user);
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
       redirectByRole(user.role);
     }
@@ -60,6 +62,7 @@ const Login = () => {
     setDarkMode(updated);
     document.body.classList.toggle("dark", updated);
     localStorage.setItem("darkMode", updated);
+    console.log("[THEME] Dark mode toggled:", updated);
     toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
   };
 
@@ -67,6 +70,7 @@ const Login = () => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    console.log(`[FORM] Field changed: ${name} = ${value}`);
   };
 
   const validateForm = () => {
@@ -78,11 +82,17 @@ const Login = () => {
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
 
     setFormErrors(errors);
-    if (Object.keys(errors).length) toast.error("Please fix the highlighted errors.");
+    if (Object.keys(errors).length) {
+      toast.error("Please fix the highlighted errors.");
+      console.warn("[FORM VALIDATION] Errors:", errors);
+    } else {
+      console.log("[FORM VALIDATION] Passed");
+    }
     return Object.keys(errors).length === 0;
   };
 
   const extractErrorMessage = (err) => {
+    console.error("[LOGIN ERROR] Full error object:", err);
     const data = err?.response?.data;
     if (!data) return "Something went wrong.";
     if (typeof data === "string") return data;
@@ -96,10 +106,15 @@ const Login = () => {
   };
 
   const handleLoginSuccess = async (data) => {
+    console.log("[LOGIN SUCCESS] Backend response:", data);
     const { tokens, user: apiUser } = data;
     const { access, refresh } = tokens || {};
-    if (!access || !refresh || !apiUser) return toast.error("Invalid login response.");
+    if (!access || !refresh || !apiUser) {
+      console.error("[LOGIN SUCCESS] Invalid token or user in response");
+      return toast.error("Invalid login response.");
+    }
 
+    console.log("[LOGIN SUCCESS] Logging in user:", apiUser);
     login({ access, refresh, user: apiUser, remember: rememberMe });
     redirectByRole(apiUser.role);
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
@@ -107,30 +122,40 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("[SUBMIT] Login form submitted:", form);
     if (!validateForm()) return;
 
     setLoading(true);
     try {
       const res = await authService.login(form, rememberMe);
+      console.log("[SUBMIT] Backend login response:", res);
       await handleLoginSuccess(res);
     } catch (err) {
-      toast.error(extractErrorMessage(err));
+      const msg = extractErrorMessage(err);
+      console.error("[SUBMIT] Login failed:", msg);
+      toast.error(msg);
       setForm((prev) => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
+      console.log("[SUBMIT] Loading state reset to false");
     }
   };
 
   const handleGoogleCredential = async (credential) => {
+    console.log("[GOOGLE LOGIN] Credential received:", credential);
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential, remember: rememberMe });
+      console.log("[GOOGLE LOGIN] Backend response:", res);
       await handleLoginSuccess(res);
     } catch (err) {
-      toast.error(extractErrorMessage(err));
+      const msg = extractErrorMessage(err);
+      console.error("[GOOGLE LOGIN] Failed:", msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
+      console.log("[GOOGLE LOGIN] Loading state reset to false");
     }
   };
 
@@ -151,7 +176,13 @@ const Login = () => {
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
             <div className="input-group">
               <label>Login As</label>
-              <select name="role" value={form.role} onChange={handleChange} disabled={loading} className={formErrors.role ? "input-error" : ""}>
+              <select
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+                disabled={loading}
+                className={formErrors.role ? "input-error" : ""}
+              >
                 <option value="">Select role</option>
                 <option value="user">User</option>
                 <option value="worker">Worker</option>
@@ -164,33 +195,60 @@ const Login = () => {
 
             <div className="input-group">
               <label>Email</label>
-              <input type="email" name="email" placeholder="Enter your email" value={form.email} onChange={handleChange} className={formErrors.email ? "input-error" : ""} disabled={loading} autoComplete="email"/>
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                value={form.email}
+                onChange={handleChange}
+                className={formErrors.email ? "input-error" : ""}
+                disabled={loading}
+                autoComplete="email"
+              />
               {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
 
             <div className="input-group">
               <label>Password</label>
-              <PasswordInput name="password" placeholder="Enter your password" value={form.password} onChange={handleChange} disabled={loading}/>
+              <PasswordInput
+                name="password"
+                placeholder="Enter your password"
+                value={form.password}
+                onChange={handleChange}
+                disabled={loading}
+              />
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
             {form.role === "worker" && (
               <div className="input-group">
                 <label>Access Code</label>
-                <input type="text" name="accessCode" placeholder="Enter your access code" value={form.accessCode} onChange={handleChange} className={formErrors.accessCode ? "input-error" : ""} disabled={loading}/>
+                <input
+                  type="text"
+                  name="accessCode"
+                  placeholder="Enter your access code"
+                  value={form.accessCode}
+                  onChange={handleChange}
+                  className={formErrors.accessCode ? "input-error" : ""}
+                  disabled={loading}
+                />
                 {formErrors.accessCode && <small className="error-text">{formErrors.accessCode}</small>}
               </div>
             )}
 
             <label className="terms-checkbox">
-              <input type="checkbox" checked={acceptedTerms} onChange={() => setAcceptedTerms((prev) => !prev)}/>
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={() => setAcceptedTerms((prev) => !prev)}
+              />
               I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
             </label>
             {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
 
             <div className="auth-options">
               <label className="remember-me">
-                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)}/>
+                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
                 Keep me signed in
               </label>
               <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
@@ -203,7 +261,12 @@ const Login = () => {
 
           <div className="social-login">
             <p>Or sign in with Google:</p>
-            <GoogleLogin onSuccess={(res) => handleGoogleCredential(res?.credential)} onError={() => toast.error("Google login failed")} useOneTap disabled={loading}/>
+            <GoogleLogin
+              onSuccess={(res) => handleGoogleCredential(res?.credential)}
+              onError={() => toast.error("Google login failed")}
+              useOneTap
+              disabled={loading}
+            />
           </div>
 
           <p className="register-prompt">Don’t have an account? <Link to="/register">Register</Link></p>
