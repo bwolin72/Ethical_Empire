@@ -27,7 +27,6 @@ const ResetPassword = () => {
     return "Medium";
   };
 
-  // Sanitize input and check strength
   const handlePasswordChange = (value) => {
     const cleanValue = DOMPurify.sanitize(value);
     setNewPassword(cleanValue);
@@ -38,7 +37,7 @@ const ResetPassword = () => {
     setConfirmPassword(DOMPurify.sanitize(value));
   };
 
-  // Extract readable error message
+  // Extract readable error message from backend
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (!data) return "Unexpected error. Please try again.";
@@ -74,8 +73,15 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      await authService.resetPasswordConfirm(uid, token, { password: newPassword });
-      setMessage("✅ Password has been reset successfully. Redirecting to login...");
+      // ✅ Send both password and confirm_password
+      await authService.resetPasswordConfirm(uid, token, {
+        password: newPassword,
+        confirm_password: confirmPassword,
+      });
+
+      setMessage(
+        "✅ Password has been reset successfully. Redirecting to login..."
+      );
       setTimeout(() => navigate("/login"), 3000);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -84,7 +90,7 @@ const ResetPassword = () => {
     }
   };
 
-  // Optional: redirect if uid/token missing
+  // Redirect if uid or token missing
   useEffect(() => {
     if (!uid || !token) {
       navigate("/forgot-password");
@@ -106,6 +112,7 @@ const ResetPassword = () => {
             value={newPassword}
             onChange={(e) => handlePasswordChange(e.target.value)}
             required
+            autoComplete="new-password"
           />
           <span onClick={() => setPasswordVisible((v) => !v)}>
             {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
@@ -125,6 +132,7 @@ const ResetPassword = () => {
             value={confirmPassword}
             onChange={(e) => handleConfirmPasswordChange(e.target.value)}
             required
+            autoComplete="new-password"
           />
           <span onClick={() => setPasswordVisible((v) => !v)}>
             {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
