@@ -25,7 +25,7 @@ const toArray = (payload) => {
 };
 
 const getMediaUrl = (m) => {
-  const candidates = [
+  const urls = [
     m?.secure_url,
     m?.url?.full,
     m?.url,
@@ -36,7 +36,7 @@ const getMediaUrl = (m) => {
     m?.src,
     m?.path,
   ];
-  return candidates.find((x) => typeof x === "string" && x.trim() !== "") || "";
+  return urls.find((x) => typeof x === "string" && x.trim() !== "") || "";
 };
 
 /* ---------- Motion Variants ---------- */
@@ -44,13 +44,12 @@ const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
 };
-
 const zoomIn = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
 };
 
-/* ---------- Main Component ---------- */
+/* ---------- Component ---------- */
 export default function DecorServicePage() {
   const navigate = useNavigate();
 
@@ -61,7 +60,6 @@ export default function DecorServicePage() {
     { is_active: true },
     { resource: "videos" }
   );
-
   const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
     "media",
     "decor",
@@ -81,15 +79,11 @@ export default function DecorServicePage() {
     });
   }, []);
 
-  /* --- Prepare Data --- */
   const mediaCards = toArray(mediaCardsRaw);
 
   useEffect(() => {
     const videos = toArray(videosRaw);
-    if (!videos.length) {
-      setVideoUrl(null);
-      return;
-    }
+    if (!videos.length) return setVideoUrl(null);
     const featured = videos.find((v) => v?.is_featured) ?? videos[0];
     setVideoUrl(getMediaUrl(featured));
   }, [videosRaw, videoLoading]);
@@ -125,9 +119,8 @@ export default function DecorServicePage() {
     },
   ];
 
-  /* ---------- Render ---------- */
   return (
-    <div className="decor-page-container">
+    <main className="decor-page-container">
       {/* === HERO SECTION === */}
       <section className="decor-hero-section" aria-label="Decor Hero Section">
         {videoUrl ? (
@@ -141,12 +134,12 @@ export default function DecorServicePage() {
               muted={isMuted}
               playsInline
             />
-            <div className="hero-overlay glass-gradient" />
+            <div className="hero-overlay" />
             <motion.div
-              className="hero-content glass-card"
+              className="hero-content"
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true }}
               variants={fadeUp}
             >
               <h1 className="hero-title">Decor & Event Design</h1>
@@ -160,7 +153,9 @@ export default function DecorServicePage() {
                 </button>
                 <button
                   className="btn btn-outline"
-                  onClick={() => window.scrollTo({ top: 700, behavior: "smooth" })}
+                  onClick={() =>
+                    document.querySelector(".decor-services")?.scrollIntoView({ behavior: "smooth" })
+                  }
                 >
                   View Gallery
                 </button>
@@ -172,7 +167,7 @@ export default function DecorServicePage() {
           </>
         ) : (
           <div
-            className="hero-fallback glassmorphic-hero"
+            className="hero-fallback"
             style={{ backgroundImage: `url(${decorHero})` }}
           >
             <div className="hero-overlay" />
@@ -180,7 +175,7 @@ export default function DecorServicePage() {
               className="hero-content"
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true }}
               variants={fadeUp}
             >
               <h1 className="hero-title">Elegant Decor & Styling</h1>
@@ -193,25 +188,23 @@ export default function DecorServicePage() {
       </section>
 
       {/* === DECOR CATEGORIES === */}
-      <motion.section
-        className="section decor-services"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
-        variants={fadeUp}
-      >
-        <h2>Our Decor Services</h2>
-        <p className="section-description">
-          From floral compositions to ambient lighting, we design timeless atmospheres for Ghanaian and international events.
-        </p>
-
-        {decorCategories?.length > 0 && (
+      <section className="decor-services">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
+          variants={fadeUp}
+        >
+          <h2>Our Decor Services</h2>
+          <p className="section-description">
+            From floral compositions to ambient lighting, we design timeless atmospheres for Ghanaian and international events.
+          </p>
           <div className="decor-category-grid">
             {decorCategories.map((cat, i) => (
               <motion.div key={i} className="decor-category-card" variants={zoomIn}>
                 <img
                   src={cat.image}
-                  alt={`${cat.name} in Ghana and West Africa`}
+                  alt={`${cat.name} decor example`}
                   className="decor-category-image"
                   loading="lazy"
                 />
@@ -219,32 +212,30 @@ export default function DecorServicePage() {
               </motion.div>
             ))}
           </div>
-        )}
-      </motion.section>
+        </motion.div>
+      </section>
 
       {/* === GALLERY === */}
-      <motion.section
-        className="section gallery-section"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
-        variants={fadeUp}
-      >
-        <h2>Decor Highlights</h2>
-        <p>Explore our signature setups — elegant, cinematic, and locally inspired.</p>
-
-        <div className="card-grid">
-          {mediaLoading ? (
-            Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-          ) : mediaCards?.length > 0 ? (
-            mediaCards.slice(0, 6).map((m, i) => (
-              <MediaCard key={m.id ?? i} media={m} />
-            ))
-          ) : (
-            <p className="muted-text">No media available yet.</p>
-          )}
-        </div>
-      </motion.section>
+      <section className="gallery-section">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.25 }}
+          variants={fadeUp}
+        >
+          <h2>Decor Highlights</h2>
+          <p>Explore our signature setups — elegant, cinematic, and locally inspired.</p>
+          <div className="card-grid">
+            {mediaLoading ? (
+              Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+            ) : mediaCards.length > 0 ? (
+              mediaCards.slice(0, 6).map((m, i) => <MediaCard key={m.id ?? i} media={m} />)
+            ) : (
+              <p className="muted-text">No media available yet.</p>
+            )}
+          </div>
+        </motion.div>
+      </section>
 
       {/* === REVIEWS === */}
       <ReviewsLayout
@@ -253,6 +244,6 @@ export default function DecorServicePage() {
       >
         <Reviews limit={6} hideForm={true} category="decor" />
       </ReviewsLayout>
-    </div>
+    </main>
   );
 }
