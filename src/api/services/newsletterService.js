@@ -1,61 +1,107 @@
-/**
- * Newsletter Service – provides a slightly higher-level abstraction
- * over raw API calls.  Good place to add client-side validation,
- * error handling, or transform responses before passing to components.
- */
+// src/services/newsletterService.js
 import newsletterAPI from "../newsletterAPI";
 
 export const newsletterService = {
   // === Public ===
   async subscribe(email, name, token) {
-    const { data } = await newsletterAPI.subscribe({ email, name, token });
-    return data; // { message: ... }
+    try {
+      const { data } = await newsletterAPI.subscribe({ email, name, token });
+      return data; // { message: ... }
+    } catch (error) {
+      console.error("Newsletter subscribe error:", error);
+      throw error.response?.data || { message: "Subscription failed." };
+    }
   },
 
   async confirmSubscription(token) {
-    const { data } = await newsletterAPI.confirmSubscription(token);
-    return data; // { message: ... }
+    try {
+      const { data } = await newsletterAPI.confirmSubscription(token);
+      return data; // { message: ... }
+    } catch (error) {
+      console.error("Confirm subscription error:", error);
+      throw error.response?.data || { message: "Confirmation failed." };
+    }
   },
 
   async unsubscribe(email) {
-    const { data } = await newsletterAPI.unsubscribe(email);
-    return data; // { message: ... }
+    try {
+      const { data } = await newsletterAPI.unsubscribe(email);
+      return data; // { message: ... }
+    } catch (error) {
+      console.error("Unsubscribe error:", error);
+      throw error.response?.data || { message: "Unsubscription failed." };
+    }
   },
 
   async resubscribe(email) {
-    const { data } = await newsletterAPI.resubscribe(email);
-    return data; // { message: ... }
+    try {
+      const { data } = await newsletterAPI.resubscribe(email);
+      return data; // { message: ... }
+    } catch (error) {
+      console.error("Resubscribe error:", error);
+      throw error.response?.data || { message: "Resubscription failed." };
+    }
   },
 
   async resendConfirmation(email) {
-    const { data } = await newsletterAPI.resendConfirmation(email);
-    return data; // { message: ... }
+    try {
+      const { data } = await newsletterAPI.resendConfirmation(email);
+      return data; // { message: ... }
+    } catch (error) {
+      console.error("Resend confirmation error:", error);
+      throw error.response?.data || { message: "Resend failed." };
+    }
   },
 
   // === Admin ===
   async getSubscribers() {
-    const { data } = await newsletterAPI.fetchSubscribers();
-    return data; // [ {id, email, name, ...}, ... ]
+    try {
+      const { data } = await newsletterAPI.fetchSubscribers();
+      return data; // [ {id, email, name, ...}, ... ]
+    } catch (error) {
+      console.error("Fetch subscribers error:", error);
+      throw error.response?.data || { message: "Failed to load subscribers." };
+    }
   },
 
   async getSubscriberCount() {
-    const { data } = await newsletterAPI.fetchSubscriberCount();
-    return data.count; // integer
+    try {
+      const { data } = await newsletterAPI.fetchSubscriberCount();
+      return data.count; // integer
+    } catch (error) {
+      console.error("Fetch subscriber count error:", error);
+      throw error.response?.data || { message: "Failed to get count." };
+    }
   },
 
   async getNewsletterLogs() {
-    const { data } = await newsletterAPI.fetchNewsletterLogs();
-    return data; // [ {id, subject, html, sent_at, ...}, ... ]
+    try {
+      const { data } = await newsletterAPI.fetchNewsletterLogs();
+      return data; // [ {id, subject, html, sent_at, ...}, ... ]
+    } catch (error) {
+      console.error("Fetch newsletter logs error:", error);
+      throw error.response?.data || { message: "Failed to load logs." };
+    }
   },
 
   async sendNewsletter(subject, html, test = false) {
-    const { data } = await newsletterAPI.sendNewsletter({ subject, html, test });
-    return data; // { message: ..., log_id? }
+    try {
+      const { data } = await newsletterAPI.sendNewsletter({ subject, html, test });
+      return data; // { message: ..., log_id? }
+    } catch (error) {
+      console.error("Send newsletter error:", error);
+      throw error.response?.data || { message: "Failed to send newsletter." };
+    }
   },
 
   async deleteSubscriber(id) {
-    const { data } = await newsletterAPI.deleteSubscriber(id);
-    return data; // { message: ... }
+    try {
+      const { data } = await newsletterAPI.deleteSubscriber(id);
+      return data; // { message: ... }
+    } catch (error) {
+      console.error("Delete subscriber error:", error);
+      throw error.response?.data || { message: "Failed to delete subscriber." };
+    }
   },
 };
 

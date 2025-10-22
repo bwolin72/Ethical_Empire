@@ -1,15 +1,11 @@
 // src/api/blogAPI.js
 import axiosInstance from "./axiosInstance";
+import publicAxios from "./publicAxios";
 import baseURL from "./baseURL";
 
-// Create an axios instance for the blog API
-const blogAPI = axiosInstance.create({
-  baseURL: `${baseURL}/blog`,
-});
+const BASE = `${baseURL}/blog`;
 
-// -------------------------
-// Helper to normalize paginated or raw arrays
-// -------------------------
+// Helper to normalize paginated data or arrays
 const normalizeArray = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
@@ -17,109 +13,115 @@ const normalizeArray = (data) => {
   return [];
 };
 
-// ==========================
-// POSTS
-// ==========================
+// -------------------------------
+// 📰 POSTS
+// -------------------------------
 export const fetchPosts = async (params = {}) => {
-  const res = await blogAPI.get("/posts/", { params });
+  const res = await publicAxios.get(`${BASE}/posts/`, { params });
   return normalizeArray(res.data);
 };
 
 export const fetchPostDetail = async (slug) => {
   if (!slug) return null;
-  const res = await blogAPI.get(`/posts/${slug}/`);
+  const res = await publicAxios.get(`${BASE}/posts/${slug}/`);
   return res.data || null;
 };
 
-// Latest 5 posts (for frontend widgets)
 export const fetchLatestPosts = async () => {
-  const res = await blogAPI.get("/posts/latest/");
+  const res = await publicAxios.get(`${BASE}/posts/latest/`);
   return normalizeArray(res.data);
 };
 
-// All published articles
 export const fetchAllArticles = async () => {
-  const res = await blogAPI.get("/posts/articles/");
+  const res = await publicAxios.get(`${BASE}/posts/articles/`);
   return normalizeArray(res.data);
 };
 
 // Admin CRUD
 export const createPost = (data) =>
-  blogAPI.post("/posts/", data).then((res) => res.data);
+  axiosInstance.post(`${BASE}/posts/`, data).then((res) => res.data);
 
 export const updatePost = (slug, data) =>
-  blogAPI.put(`/posts/${slug}/`, data).then((res) => res.data);
+  axiosInstance.put(`${BASE}/posts/${slug}/`, data).then((res) => res.data);
 
 export const deletePost = (slug) =>
-  blogAPI.delete(`/posts/${slug}/`).then((res) => res.data);
+  axiosInstance.delete(`${BASE}/posts/${slug}/`).then((res) => res.data);
 
-// Trigger background social posting for a blog post (Admin only)
 export const syncSocialPost = (slug) =>
-  blogAPI.post(`/posts/${slug}/sync-social/`).then((res) => res.data);
+  axiosInstance.post(`${BASE}/posts/${slug}/sync-social/`).then((res) => res.data);
 
-// ==========================
-// COMMENTS
-// ==========================
+// -------------------------------
+// 💬 COMMENTS
+// -------------------------------
 export const fetchComments = async (slug) => {
-  if (!slug || slug === "latest" || slug === "articles") return [];
-  const res = await blogAPI.get(`/posts/${slug}/comments/`);
+  if (!slug) return [];
+  const res = await publicAxios.get(`${BASE}/posts/${slug}/comments/`);
   return normalizeArray(res.data);
 };
 
 export const createComment = async (slug, data) => {
   if (!slug || !data) return null;
-  const res = await blogAPI.post(`/posts/${slug}/comments/`, data);
+  const res = await publicAxios.post(`${BASE}/posts/${slug}/comments/`, data);
   return res.data || null;
 };
 
-// ==========================
-// CATEGORIES
-// ==========================
+// -------------------------------
+// 🗂️ CATEGORIES
+// -------------------------------
 export const fetchCategories = async () => {
-  const res = await blogAPI.get("/categories/");
+  const res = await publicAxios.get(`${BASE}/categories/`);
   return normalizeArray(res.data);
 };
 
 export const createCategory = (data) =>
-  blogAPI.post("/categories/", data).then((res) => res.data);
+  axiosInstance.post(`${BASE}/categories/`, data).then((res) => res.data);
 
 export const updateCategory = (slug, data) =>
-  blogAPI.put(`/categories/${slug}/`, data).then((res) => res.data);
+  axiosInstance.put(`${BASE}/categories/${slug}/`, data).then((res) => res.data);
 
 export const deleteCategory = (slug) =>
-  blogAPI.delete(`/categories/${slug}/`).then((res) => res.data);
+  axiosInstance.delete(`${BASE}/categories/${slug}/`).then((res) => res.data);
 
-// ==========================
-// SOCIAL ACCOUNTS
-// ==========================
+// -------------------------------
+// 🌐 SOCIAL ACCOUNTS
+// -------------------------------
 export const fetchSocialAccounts = () =>
-  blogAPI.get("/social-accounts/").then((res) => res.data);
+  axiosInstance.get(`${BASE}/social-accounts/`).then((res) => res.data);
 
 export const createSocialAccount = (data) =>
-  blogAPI.post("/social-accounts/", data).then((res) => res.data);
+  axiosInstance.post(`${BASE}/social-accounts/`, data).then((res) => res.data);
 
 export const updateSocialAccount = (id, data) =>
-  blogAPI.put(`/social-accounts/${id}/`, data).then((res) => res.data);
+  axiosInstance.put(`${BASE}/social-accounts/${id}/`, data).then((res) => res.data);
 
 export const deleteSocialAccount = (id) =>
-  blogAPI.delete(`/social-accounts/${id}/`).then((res) => res.data);
+  axiosInstance.delete(`${BASE}/social-accounts/${id}/`).then((res) => res.data);
 
-// ==========================
-// SOCIAL POSTS
-// ==========================
-// Fetch social posts (admin list)
+// -------------------------------
+// 📣 SOCIAL POSTS
+// -------------------------------
 export const fetchSocialPosts = () =>
-  blogAPI.get("/social-posts/").then((res) => res.data);
+  axiosInstance.get(`${BASE}/social-posts/`).then((res) => res.data);
 
-// Fetch latest from platforms (public feed)
+export const fetchSocialPostDetail = (id) =>
+  axiosInstance.get(`${BASE}/social-posts/${id}/`).then((res) => res.data);
+
 export const fetchLatestSocialPosts = (limit = 10) =>
-  blogAPI
-    .get("/social-posts/latest/", { params: { limit } })
+  publicAxios
+    .get(`${BASE}/social-posts/latest/`, { params: { limit } })
     .then((res) => normalizeArray(res.data));
 
-// ==========================
+export const fetchPublicFeed = (limit = 10) =>
+  publicAxios
+    .get(`${BASE}/social-posts/public-feed/`, { params: { limit } })
+    .then((res) => normalizeArray(res.data));
+
+export const refreshSocialPosts = () =>
+  axiosInstance.post(`${BASE}/social-posts/refresh/`).then((res) => res.data);
+
+// -------------------------------
 // EXPORT ALL
-// ==========================
+// -------------------------------
 export default {
   // Posts
   fetchPosts,
@@ -149,5 +151,8 @@ export default {
 
   // Social Posts
   fetchSocialPosts,
+  fetchSocialPostDetail,
   fetchLatestSocialPosts,
+  fetchPublicFeed,
+  refreshSocialPosts,
 };

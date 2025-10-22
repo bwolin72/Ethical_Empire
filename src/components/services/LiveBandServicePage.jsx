@@ -260,7 +260,7 @@ export default function LiveBandServicePage() {
               services: otherServices.map((srv) => ({
                 name: srv.name,
                 description: srv.description,
-                icon: srv.icon,
+                icon: srv.icon || "🎵 FaUtensils",
               })),
             }}
           />

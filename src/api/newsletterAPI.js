@@ -5,7 +5,8 @@ import publicAxios from "./publicAxios";
 const NEWSLETTER_BASE = "/newsletter/";
 
 const newsletterAPI = {
-  // ---- Public ----
+  // ---- Public Endpoints ----
+
   subscribe(payload) {
     // POST /api/newsletter/subscribe/
     return publicAxios.post(`${NEWSLETTER_BASE}subscribe/`, payload);
@@ -13,9 +14,7 @@ const newsletterAPI = {
 
   confirmSubscription(token) {
     // GET /api/newsletter/confirm/?token=...
-    return publicAxios.get(`${NEWSLETTER_BASE}confirm/`, {
-      params: { token },
-    });
+    return publicAxios.get(`${NEWSLETTER_BASE}confirm/`, { params: { token } });
   },
 
   unsubscribe(email) {
@@ -33,15 +32,16 @@ const newsletterAPI = {
     return publicAxios.post(`${NEWSLETTER_BASE}resend-confirmation/`, { email });
   },
 
-  // ---- Admin ----
+  // ---- Admin Endpoints ----
+
   fetchSubscribers() {
-    // GET /api/newsletter/list/
-    return axiosInstance.get(`${NEWSLETTER_BASE}list/`);
+    // GET /api/newsletter/subscribers/
+    return axiosInstance.get(`${NEWSLETTER_BASE}subscribers/`);
   },
 
   fetchSubscriberCount() {
-    // GET /api/newsletter/count/
-    return axiosInstance.get(`${NEWSLETTER_BASE}count/`);
+    // GET /api/newsletter/subscribers/count/
+    return axiosInstance.get(`${NEWSLETTER_BASE}subscribers/count/`);
   },
 
   fetchNewsletterLogs() {
@@ -55,8 +55,8 @@ const newsletterAPI = {
   },
 
   deleteSubscriber(id) {
-    // DELETE /api/newsletter/delete/:id/
-    return axiosInstance.delete(`${NEWSLETTER_BASE}delete/${id}/`);
+    // DELETE /api/newsletter/subscribers/:id/
+    return axiosInstance.delete(`${NEWSLETTER_BASE}subscribers/${id}/`);
   },
 };
 

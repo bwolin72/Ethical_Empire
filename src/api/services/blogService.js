@@ -1,10 +1,9 @@
 // src/api/services/blogService.js
-
 import axiosInstance from "../axiosInstance";
 import publicAxios from "../publicAxios";
 import baseURL from "../baseURL";
 
-const API_URL = `${baseURL}/blog`;
+const BASE = `${baseURL}/blog`;
 
 // Normalize pagination responses
 const normalizeArray = (data) => {
@@ -18,69 +17,75 @@ const normalizeArray = (data) => {
 // 📰 POSTS
 // ---------------------------------------------------
 export const getPosts = async (params = {}) => {
-  const res = await publicAxios.get(`${API_URL}/posts/`, { params });
+  const res = await publicAxios.get(`${BASE}/posts/`, { params });
   return normalizeArray(res.data);
 };
 
 export const getPostDetail = async (slug) => {
   if (!slug) return null;
-  const res = await publicAxios.get(`${API_URL}/posts/${slug}/`);
+  const res = await publicAxios.get(`${BASE}/posts/${slug}/`);
   return res.data || null;
 };
 
+export const getLatestPosts = async () => {
+  const res = await publicAxios.get(`${BASE}/posts/latest/`);
+  return normalizeArray(res.data);
+};
+
+export const getAllArticles = async () => {
+  const res = await publicAxios.get(`${BASE}/posts/articles/`);
+  return normalizeArray(res.data);
+};
+
 // Admin-only
-export const createPost = (data) => axiosInstance.post(`${API_URL}/posts/`, data);
-export const updatePost = (slug, data) => axiosInstance.put(`${API_URL}/posts/${slug}/`, data);
-export const deletePost = (slug) => axiosInstance.delete(`${API_URL}/posts/${slug}/`);
+export const createPost = (data) => axiosInstance.post(`${BASE}/posts/`, data);
+export const updatePost = (slug, data) => axiosInstance.put(`${BASE}/posts/${slug}/`, data);
+export const deletePost = (slug) => axiosInstance.delete(`${BASE}/posts/${slug}/`);
+export const syncSocialPost = (slug) => axiosInstance.post(`${BASE}/posts/${slug}/sync-social/`);
 
 // ---------------------------------------------------
 // 💬 COMMENTS
 // ---------------------------------------------------
 export const getComments = async (slug) => {
   if (!slug) return [];
-  const res = await publicAxios.get(`${API_URL}/posts/${slug}/comments/`);
+  const res = await publicAxios.get(`${BASE}/posts/${slug}/comments/`);
   return normalizeArray(res.data);
 };
 
 export const addComment = (slug, data) =>
-  publicAxios.post(`${API_URL}/posts/${slug}/comments/`, data);
+  publicAxios.post(`${BASE}/posts/${slug}/comments/`, data);
 
 // ---------------------------------------------------
 // 🗂️ CATEGORIES
 // ---------------------------------------------------
 export const getCategories = async () => {
-  const res = await publicAxios.get(`${API_URL}/categories/`);
+  const res = await publicAxios.get(`${BASE}/categories/`);
   return normalizeArray(res.data);
 };
 
-export const createCategory = (data) => axiosInstance.post(`${API_URL}/categories/`, data);
-export const updateCategory = (slug, data) =>
-  axiosInstance.put(`${API_URL}/categories/${slug}/`, data);
-export const deleteCategory = (slug) =>
-  axiosInstance.delete(`${API_URL}/categories/${slug}/`);
+export const createCategory = (data) => axiosInstance.post(`${BASE}/categories/`, data);
+export const updateCategory = (slug, data) => axiosInstance.put(`${BASE}/categories/${slug}/`, data);
+export const deleteCategory = (slug) => axiosInstance.delete(`${BASE}/categories/${slug}/`);
 
 // ---------------------------------------------------
-// 🌐 SOCIAL (Admin + Public)
+// 🌐 SOCIAL
 // ---------------------------------------------------
 
-// Public feed (legacy alias)
-export const getSocialFeed = async (limit = 10) => {
-  const res = await publicAxios.get(`${API_URL}/social/public-feed/`, { params: { limit } });
-  return res.data;
-};
-
-// Admin management
-export const getSocialAccounts = () => axiosInstance.get(`${API_URL}/social-accounts/`);
-export const createSocialAccount = (data) =>
-  axiosInstance.post(`${API_URL}/social-accounts/`, data);
+// Admin social accounts
+export const getSocialAccounts = () => axiosInstance.get(`${BASE}/social-accounts/`);
+export const createSocialAccount = (data) => axiosInstance.post(`${BASE}/social-accounts/`, data);
 export const updateSocialAccount = (id, data) =>
-  axiosInstance.put(`${API_URL}/social-accounts/${id}/`, data);
-export const deleteSocialAccount = (id) =>
-  axiosInstance.delete(`${API_URL}/social-accounts/${id}/`);
+  axiosInstance.put(`${BASE}/social-accounts/${id}/`, data);
+export const deleteSocialAccount = (id) => axiosInstance.delete(`${BASE}/social-accounts/${id}/`);
 
-export const getSocialPosts = () => axiosInstance.get(`${API_URL}/social-posts/`);
-export const syncSocialPost = (slug) =>
-  axiosInstance.post(`${API_URL}/posts/${slug}/sync-social/`);
+// Admin + public social posts
+export const getSocialPosts = () => axiosInstance.get(`${BASE}/social-posts/`);
+export const getSocialPostDetail = (id) => axiosInstance.get(`${BASE}/social-posts/${id}/`);
+export const getLatestSocialPosts = (limit = 10) =>
+  publicAxios.get(`${BASE}/social-posts/latest/`, { params: { limit } });
+export const getPublicFeed = (limit = 10) =>
+  publicAxios.get(`${BASE}/social-posts/public-feed/`, { params: { limit } });
+export const refreshSocialPosts = () => axiosInstance.post(`${BASE}/social-posts/refresh/`);
 
 // ---------------------------------------------------
 // 📦 EXPORTS
@@ -88,9 +93,12 @@ export const syncSocialPost = (slug) =>
 export default {
   getPosts,
   getPostDetail,
+  getLatestPosts,
+  getAllArticles,
   createPost,
   updatePost,
   deletePost,
+  syncSocialPost,
 
   getComments,
   addComment,
@@ -100,11 +108,14 @@ export default {
   updateCategory,
   deleteCategory,
 
-  getSocialFeed,
   getSocialAccounts,
   createSocialAccount,
   updateSocialAccount,
   deleteSocialAccount,
+
   getSocialPosts,
-  syncSocialPost,
+  getSocialPostDetail,
+  getLatestSocialPosts,
+  getPublicFeed,
+  refreshSocialPosts,
 };

@@ -1,30 +1,32 @@
-// api/videosAPI.js
+// src/api/videosAPI.js
 import axiosInstance from "./axiosInstance";
 
+const BASE = "/videos/videos/";
+
 const videosAPI = {
-  // Standard CRUD
-  list: (params = {}) => axiosInstance.get("/videos/videos/", { params }),
-  retrieve: (id) => axiosInstance.get(`/videos/videos/videos/${id}/`),
-  create: (payload) => axiosInstance.post("/videos/videos/", payload),
-  update: (id, payload) => axiosInstance.patch(`/videos/videos/${id}/`, payload),
-  delete: (id) => axiosInstance.delete(`/videos/videos/${id}/`),
+  // CRUD
+  list: (params = {}) => axiosInstance.get(BASE, { params }),
+  retrieve: (id) => axiosInstance.get(`${BASE}${id}/`),
+  create: (payload) => axiosInstance.post(BASE, payload),
+  update: (id, payload) => axiosInstance.patch(`${BASE}${id}/`, payload),
+  delete: (id) => axiosInstance.delete(`${BASE}${id}/`),
 
   // Toggles
-  toggleActive: (id) => axiosInstance.post(`/videos/videos/${id}/toggle_active/`),
-  toggleFeatured: (id) => axiosInstance.post(`/videos/videos/${id}/toggle_featured/`),
+  toggleActive: (id) => axiosInstance.post(`${BASE}${id}/toggle_active/`),
+  toggleFeatured: (id) => axiosInstance.post(`${BASE}${id}/toggle_featured/`),
 
-  // Endpoint-specific fetches
-  home: () => axiosInstance.get("/videos/videos/home/"),
-  about: () => axiosInstance.get("/videos/videos/about/"),
-  decor: () => axiosInstance.get("/videos/videos/decor/"),
-  liveBand: () => axiosInstance.get("/videos/videos/live_band/"),
-  catering: () => axiosInstance.get("/videos/videos/catering/"),
-  mediaHosting: () => axiosInstance.get("/videos/videos/media_hosting/"),
-  user: () => axiosInstance.get("/videos/videos/user/`"),
-  vendor: () => axiosInstance.get("/videos/videos/vendor/"),
-  partner: () => axiosInstance.get("/videos/videos/partner/"),
-  partnerDashboard: () => axiosInstance.get("/videos/videos/partner_dashboard/"),
-  agencyDashboard: () => axiosInstance.get("/videos/videos/agency_dashboard/"),
+  // Public content routes
+  home: () => axiosInstance.get(`${BASE}home/`),
+  about: () => axiosInstance.get(`${BASE}about/`),
+  decor: () => axiosInstance.get(`${BASE}decor/`),
+  liveBand: () => axiosInstance.get(`${BASE}live_band/`),
+  catering: () => axiosInstance.get(`${BASE}catering/`),
+  mediaHosting: () => axiosInstance.get(`${BASE}media_hosting/`),
+  user: () => axiosInstance.get(`${BASE}user/`),
+  vendor: () => axiosInstance.get(`${BASE}vendor/`),
+  partner: () => axiosInstance.get(`${BASE}partner/`),
+  partnerDashboard: () => axiosInstance.get(`${BASE}partner_dashboard/`),
+  agencyDashboard: () => axiosInstance.get(`${BASE}agency_dashboard/`),
 };
 
 export default videosAPI;

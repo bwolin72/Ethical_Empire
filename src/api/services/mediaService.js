@@ -1,80 +1,160 @@
 // src/api/services/mediaService.js
-import axiosInstance from "../axiosInstance";
-import publicAxios from "../publicAxios";
-import endpointMap from "./endpointMap";
-
-const MEDIA_BASE = endpointMap.media.all; // "media"
-
-// helper to build a standard + active variant
-const makeEndpoint = (endpoint) => ({
-  get: (params = {}) => publicAxios.get(`/${endpoint}/`, { params }),
-  active: (params = {}) =>
-    publicAxios.get(`/${endpoint}/`, { params: { is_active: true, ...params } }),
-});
+import mediaAPI from "../mediaAPI";
 
 const mediaService = {
-  /* ------------------ PUBLIC ENDPOINTS ------------------ */
-  list: (params = {}) =>
-    publicAxios.get(`/${MEDIA_BASE}/`, { params }),
+  /* ---------------------- PUBLIC ---------------------- */
 
-  stats: () =>
-    publicAxios.get(`/${endpointMap.analytics.stats}/`),
-
-  // auto-generate endpoints from endpointMap
-  ...Object.keys(endpointMap.media).reduce((acc, key) => {
-    if (key === "all") return acc; // skip base
-    const endpoint = endpointMap.media[key];
-    acc[key] = (params = {}) =>
-      publicAxios.get(`/${endpoint}/`, { params });
-    acc[`${key}Active`] = (params = {}) =>
-      publicAxios.get(`/${endpoint}/`, { params: { is_active: true, ...params } });
-    return acc;
-  }, {}),
-
-  /* ------------------ ADMIN ENDPOINTS ------------------ */
-  upload: (files, extra = {}) => {
-    const formData = new FormData();
-    [...files].forEach((file) => formData.append("media", file));
-
-    Object.entries(extra).forEach(([key, val]) => {
-      if (Array.isArray(val)) {
-        val.forEach((v) => formData.append(key, v));
-      } else {
-        formData.append(key, val);
-      }
-    });
-
-    return axiosInstance.post(`/${MEDIA_BASE}/upload/`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+  async list(params = {}) {
+    try {
+      const { data } = await mediaAPI.list(params);
+      return data;
+    } catch (error) {
+      console.error("Error fetching media:", error);
+      throw error.response?.data || { message: "Failed to fetch media." };
+    }
   },
 
-  update: (id, payload) =>
-    axiosInstance.patch(`/${MEDIA_BASE}/${id}/update/`, payload),
+  async featured(params = {}) {
+    try {
+      const { data } = await mediaAPI.featured(params);
+      return data;
+    } catch (error) {
+      console.error("Error fetching featured media:", error);
+      throw error.response?.data || { message: "Failed to fetch featured media." };
+    }
+  },
 
-  toggleActive: (id) =>
-    axiosInstance.patch(`/${MEDIA_BASE}/${id}/toggle/`),
+  async banners(params = {}) {
+    try {
+      const { data } = await mediaAPI.banners(params);
+      return data;
+    } catch (error) {
+      console.error("Error fetching banners:", error);
+      throw error.response?.data || { message: "Failed to fetch banners." };
+    }
+  },
 
-  toggleFeatured: (id) =>
-    axiosInstance.patch(`/${MEDIA_BASE}/${id}/toggle/featured/`),
+  async home(params = {}) {
+    try {
+      const { data } = await mediaAPI.home(params);
+      return data;
+    } catch (error) {
+      console.error("Error fetching home media:", error);
+      throw error.response?.data || { message: "Failed to fetch home media." };
+    }
+  },
 
-  softDelete: (id) =>
-    axiosInstance.delete(`/${MEDIA_BASE}/${id}/delete/`),
+  async about(params = {}) {
+    try {
+      const { data } = await mediaAPI.about(params);
+      return data;
+    } catch (error) {
+      console.error("Error fetching about media:", error);
+      throw error.response?.data || { message: "Failed to fetch about media." };
+    }
+  },
 
-  restore: (id) =>
-    axiosInstance.post(`/${MEDIA_BASE}/${id}/restore/`),
+  /* ---------------------- ADMIN ---------------------- */
 
-  listAll: (params = {}) =>
-    axiosInstance.get(`/${MEDIA_BASE}/all/`, { params }),
+  async upload(files, extra = {}, onUploadProgress) {
+    try {
+      const { data } = await mediaAPI.upload(files, extra, onUploadProgress);
+      return data;
+    } catch (error) {
+      console.error("Error uploading media:", error);
+      throw error.response?.data || { message: "Media upload failed." };
+    }
+  },
 
-  listArchived: (params = {}) =>
-    axiosInstance.get(`/${MEDIA_BASE}/archived/`, { params }),
+  async update(id, payload) {
+    try {
+      const { data } = await mediaAPI.update(id, payload);
+      return data;
+    } catch (error) {
+      console.error(`Error updating media ${id}:`, error);
+      throw error.response?.data || { message: "Failed to update media." };
+    }
+  },
 
-  reorder: (orderArray) =>
-    axiosInstance.post(`/${MEDIA_BASE}/reorder/`, orderArray),
+  async toggleActive(id) {
+    try {
+      const { data } = await mediaAPI.toggleActive(id);
+      return data;
+    } catch (error) {
+      console.error(`Error toggling active state for ${id}:`, error);
+      throw error.response?.data || { message: "Failed to toggle active." };
+    }
+  },
 
-  debugProto: () =>
-    publicAxios.get(`/${MEDIA_BASE}/debug/proto/`),
+  async toggleFeatured(id) {
+    try {
+      const { data } = await mediaAPI.toggleFeatured(id);
+      return data;
+    } catch (error) {
+      console.error(`Error toggling featured for ${id}:`, error);
+      throw error.response?.data || { message: "Failed to toggle featured." };
+    }
+  },
+
+  async delete(id) {
+    try {
+      const { data } = await mediaAPI.delete(id);
+      return data;
+    } catch (error) {
+      console.error(`Error deleting media ${id}:`, error);
+      throw error.response?.data || { message: "Failed to delete media." };
+    }
+  },
+
+  async restore(id) {
+    try {
+      const { data } = await mediaAPI.restore(id);
+      return data;
+    } catch (error) {
+      console.error(`Error restoring media ${id}:`, error);
+      throw error.response?.data || { message: "Failed to restore media." };
+    }
+  },
+
+  async reorder(orderArray) {
+    try {
+      const { data } = await mediaAPI.reorder(orderArray);
+      return data;
+    } catch (error) {
+      console.error("Error reordering media:", error);
+      throw error.response?.data || { message: "Failed to reorder media." };
+    }
+  },
+
+  async stats() {
+    try {
+      const { data } = await mediaAPI.stats();
+      return data;
+    } catch (error) {
+      console.error("Error fetching media stats:", error);
+      throw error.response?.data || { message: "Failed to fetch stats." };
+    }
+  },
+
+  async archived(params = {}) {
+    try {
+      const { data } = await mediaAPI.archived(params);
+      return data;
+    } catch (error) {
+      console.error("Error fetching archived media:", error);
+      throw error.response?.data || { message: "Failed to fetch archived media." };
+    }
+  },
+
+  async all(params = {}) {
+    try {
+      const { data } = await mediaAPI.all(params);
+      return data;
+    } catch (error) {
+      console.error("Error fetching all media:", error);
+      throw error.response?.data || { message: "Failed to fetch all media." };
+    }
+  },
 };
 
 export default mediaService;

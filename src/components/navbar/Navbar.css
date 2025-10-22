@@ -292,3 +292,7 @@
   0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+.navbar-spacer {
+  height: 80px; /* Adjust to your navbar height */
+}
+

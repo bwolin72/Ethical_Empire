@@ -1,43 +1,51 @@
-// D:\New folder\ethical_empire\frontend\src\api\messagingAPI.js
-import axiosInstance from './axiosInstance';
+// src/api/messagingAPI.js
+import axiosInstance from "./axiosInstance";
 
-// ✅ All routes now match Django DRF router: /api/messaging/messages/
-const BASE_URL = '/messaging/messages/';
+// ✅ Matches Django DRF router: /api/messaging/messages/
+const BASE_URL = "/messaging/messages/";
 
 const messagingAPI = {
-  // GET: List all messages (paginated or filtered)
-  listMessages: (params) =>
-    axiosInstance.get(BASE_URL, { params }),
+  // GET: List all messages (supports pagination or filters)
+  listMessages(params) {
+    return axiosInstance.get(BASE_URL, { params });
+  },
 
-  // GET: Retrieve a single message by ID
-  getMessage: (id) =>
-    axiosInstance.get(`${BASE_URL}${id}/`),
+  // GET: Retrieve single message
+  getMessage(id) {
+    return axiosInstance.get(`${BASE_URL}${id}/`);
+  },
 
-  // POST: Create a new message (with or without attachment)
-  createMessage: (data) =>
-    axiosInstance.post(BASE_URL, data, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+  // POST: Create new message (supports attachments)
+  createMessage(data) {
+    return axiosInstance.post(BASE_URL, data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
 
-  // PATCH: Update an existing message
-  updateMessage: (id, data) =>
-    axiosInstance.patch(`${BASE_URL}${id}/`, data),
+  // PATCH: Update partial message
+  updateMessage(id, data) {
+    return axiosInstance.patch(`${BASE_URL}${id}/`, data);
+  },
 
-  // DELETE: Remove a message
-  deleteMessage: (id) =>
-    axiosInstance.delete(`${BASE_URL}${id}/`),
+  // DELETE: Delete a message
+  deleteMessage(id) {
+    return axiosInstance.delete(`${BASE_URL}${id}/`);
+  },
 
-  // PATCH: Mark message as read
-  markRead: (id) =>
-    axiosInstance.patch(`${BASE_URL}${id}/mark-read/`),
+  // PATCH: Mark as read
+  markRead(id) {
+    return axiosInstance.patch(`${BASE_URL}${id}/mark-read/`);
+  },
 
-  // PATCH: Mark message as unread
-  markUnread: (id) =>
-    axiosInstance.patch(`${BASE_URL}${id}/mark-unread/`),
+  // PATCH: Mark as unread
+  markUnread(id) {
+    return axiosInstance.patch(`${BASE_URL}${id}/mark-unread/`);
+  },
 
-  // GET: List all unread messages
-  listUnread: (params) =>
-    axiosInstance.get(`${BASE_URL}unread/`, { params }),
+  // GET: List unread messages
+  listUnread(params) {
+    return axiosInstance.get(`${BASE_URL}unread/`, { params });
+  },
 };
 
 export default messagingAPI;

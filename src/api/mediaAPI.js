@@ -1,66 +1,144 @@
 // src/api/mediaAPI.js
 import axiosInstance from "./axiosInstance";
+import publicAxios from "./publicAxios";
+
+const BASE_URL = "/media/";
 
 const mediaAPI = {
-  // Fetch all media with optional query params
-  all: async (params = {}) => {
-    return await axiosInstance.get("/media/", { params });
+  /* ---------------------- PUBLIC ENDPOINTS ---------------------- */
+
+  // List all media
+  list(params = {}) {
+    return publicAxios.get(`${BASE_URL}`, { params });
   },
 
-  // Fetch banners
-  banners: async (params = {}) => {
-    return await axiosInstance.get("/media/banners/", { params });
+  // List featured media
+  featured(params = {}) {
+    return publicAxios.get(`${BASE_URL}featured/`, { params });
   },
 
-  // Fetch featured media
-  featured: async (params = {}) => {
-    return await axiosInstance.get("/media/featured/", { params });
+  // List banners
+  banners(params = {}) {
+    return publicAxios.get(`${BASE_URL}banners/`, { params });
   },
 
-  // Upload multiple files
-  upload: async (files, { type = "media", label = "", endpoint = [], onUploadProgress }) => {
+  // List home page media
+  home(params = {}) {
+    return publicAxios.get(`${BASE_URL}home/`, { params });
+  },
+
+  // List about page media
+  about(params = {}) {
+    return publicAxios.get(`${BASE_URL}about/`, { params });
+  },
+
+  // List vendor media
+  vendor(params = {}) {
+    return publicAxios.get(`${BASE_URL}vendor/`, { params });
+  },
+
+  // List partner media
+  partner(params = {}) {
+    return publicAxios.get(`${BASE_URL}partner/`, { params });
+  },
+
+  // List catering media
+  catering(params = {}) {
+    return publicAxios.get(`${BASE_URL}catering/`, { params });
+  },
+
+  // List decor media
+  decor(params = {}) {
+    return publicAxios.get(`${BASE_URL}decor/`, { params });
+  },
+
+  // List live band media
+  liveBand(params = {}) {
+    return publicAxios.get(`${BASE_URL}live-band/`, { params });
+  },
+
+  // List hosting media
+  mediaHosting(params = {}) {
+    return publicAxios.get(`${BASE_URL}media-hosting/`, { params });
+  },
+
+  // List user media (logged-in user's uploads)
+  user(params = {}) {
+    return axiosInstance.get(`${BASE_URL}user/`, { params });
+  },
+
+  // List all (admin)
+  all(params = {}) {
+    return axiosInstance.get(`${BASE_URL}all/`, { params });
+  },
+
+  // List archived media
+  archived(params = {}) {
+    return axiosInstance.get(`${BASE_URL}archived/`, { params });
+  },
+
+  // Stats endpoint
+  stats() {
+    return axiosInstance.get(`${BASE_URL}stats/`);
+  },
+
+  // Debug proto endpoint
+  debugProto() {
+    return publicAxios.get(`${BASE_URL}debug/proto/`);
+  },
+
+  /* ---------------------- ADMIN ENDPOINTS ---------------------- */
+
+  // Upload new media
+  upload(files, extra = {}, onUploadProgress) {
     const formData = new FormData();
-    files.forEach((file) => formData.append("media", file)); // ✅ key must be "media"
-    formData.append("type", type);
-    formData.append("label", label);
-    endpoint.forEach((ep) => formData.append("endpoint", ep));
+    [...files].forEach((file) => formData.append("media", file));
 
-    return await axiosInstance.post("/media/upload/", formData, {
+    Object.entries(extra).forEach(([key, val]) => {
+      if (Array.isArray(val)) val.forEach((v) => formData.append(key, v));
+      else formData.append(key, val);
+    });
+
+    return axiosInstance.post(`${BASE_URL}upload/`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
-      withCredentials: true, // if session auth
-      onUploadProgress: (progressEvent) => {
-        if (onUploadProgress && progressEvent.total) {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          onUploadProgress(percentCompleted);
+      withCredentials: true,
+      onUploadProgress: (evt) => {
+        if (onUploadProgress && evt.total) {
+          const percent = Math.round((evt.loaded * 100) / evt.total);
+          onUploadProgress(percent);
         }
       },
     });
   },
 
-  // Toggle active / inactive (PATCH, admin required)
-  toggle: async (id) => {
-    return await axiosInstance.patch(`/media/${id}/toggle/`, {}, { withCredentials: true });
+  // Update existing media (PATCH)
+  update(id, payload) {
+    return axiosInstance.patch(`${BASE_URL}${id}/update/`, payload);
   },
 
-  // Toggle featured (PATCH, admin required)
-  toggleFeatured: async (id) => {
-    return await axiosInstance.patch(`/media/${id}/toggle-featured/`, {}, { withCredentials: true });
+  // Toggle active status
+  toggleActive(id) {
+    return axiosInstance.patch(`${BASE_URL}${id}/toggle/`);
   },
 
-  // Soft delete media
-  delete: async (id) => {
-    return await axiosInstance.delete(`/media/${id}/`, { withCredentials: true });
+  // Toggle featured status
+  toggleFeatured(id) {
+    return axiosInstance.patch(`${BASE_URL}${id}/toggle/featured/`);
   },
 
-  // Restore deleted media
-  restore: async (id) => {
-    return await axiosInstance.post(`/media/${id}/restore/`, {}, { withCredentials: true });
+  // Soft delete
+  delete(id) {
+    return axiosInstance.delete(`${BASE_URL}${id}/delete/`);
+  },
+
+  // Restore soft-deleted media
+  restore(id) {
+    return axiosInstance.post(`${BASE_URL}${id}/restore/`);
   },
 
   // Reorder media items
-  reorder: async (items) => {
-    // items = [{ id: media_id, position: index }, ...]
-    return await axiosInstance.post("/media/reorder/", items, { withCredentials: true });
+  reorder(orderArray) {
+    return axiosInstance.post(`${BASE_URL}reorder/`, orderArray);
   },
 };
 

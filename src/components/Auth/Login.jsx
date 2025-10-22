@@ -113,6 +113,7 @@ const Login = () => {
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
   };
 
+  /** Standard login submit */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -129,6 +130,7 @@ const Login = () => {
     }
   };
 
+  /** Google login handler */
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
@@ -209,7 +211,7 @@ const Login = () => {
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
-            {/* Access Code (only WORKER role) */}
+            {/* Access Code (only WORKER role for normal login) */}
             {form.role === "worker" && (
               <div className="input-group">
                 <label>Access Code</label>

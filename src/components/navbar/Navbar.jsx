@@ -11,7 +11,6 @@ const services = [
   { label: "Decor", path: "/services/decor" },
   { label: "Media & Event Hosting", path: "/services/media-hosting" },
   { label: "General Multimedia", path: "/services/general" },
-
 ];
 
 const blogLinks = [
@@ -139,109 +138,46 @@ export default function Navbar() {
   ];
 
   return (
-    <nav ref={navRef} className={`navbar ${showNavbar ? "show" : "hide"}`}>
-      <div className="navbar-container">
-        {/* Logo */}
-        <Link to="/" className="navbar-logo" onClick={handleNavClick}>
-          <img src={logo} alt="EETHM Logo" className="logo-img" />
-          <span className="logo-text">EETHM_GH</span>
-        </Link>
+    <>
+      <nav ref={navRef} className={`navbar ${showNavbar ? "show" : "hide"}`}>
+        <div className="navbar-container">
+          {/* Logo */}
+          <Link to="/" className="navbar-logo" onClick={handleNavClick}>
+            <img src={logo} alt="EETHM Logo" className="logo-img" />
+            <span className="logo-text">EETHM_GH</span>
+          </Link>
 
-        {/* Hamburger */}
-        <button
-          className={`menu-icon ${menuOpen ? "open" : ""}`}
-          onClick={toggleMenu}
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen}
-        >
-          {menuOpen ? "✖" : "☰"}
-        </button>
+          {/* Hamburger */}
+          <button
+            className={`menu-icon ${menuOpen ? "open" : ""}`}
+            onClick={toggleMenu}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? "✖" : "☰"}
+          </button>
 
-        {/* Desktop Menu */}
-        {!isMobile && (
-          <ul className="nav-menu">
-            {navLinks.map(({ label, path, section, items, basePath }) =>
-              section ? (
-                <li
-                  key={section}
-                  className="nav-item dropdown"
-                  onMouseEnter={() => setDropdown((d) => ({ ...d, [section]: true }))}
-                  onMouseLeave={() => setDropdown((d) => ({ ...d, [section]: false }))}
-                >
-                  <button
-                    className={`nav-links dropdown-toggle ${
-                      isSectionActive(basePath) ? "active" : ""
-                    }`}
-                    onClick={() => navigate(basePath)}
-                  >
-                    {label} <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
-                  </button>
-                  <ul className={`dropdown-menu desktop ${dropdown[section] ? "active" : ""}`}>
-                    {items.map(({ label: itemLabel, path: itemPath }) => (
-                      <li
-                        key={itemPath}
-                        className={`dropdown-item ${isActive(itemPath) ? "active" : ""}`}
-                        onClick={() => handleDropdownItemClick(itemPath)}
-                      >
-                        {itemLabel}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ) : (
-                <li key={path}>
-                  <Link
-                    to={path}
-                    className={`nav-links ${isActive(path) ? "active" : ""}`}
-                    onClick={handleNavClick}
-                  >
-                    {label}
-                  </Link>
-                </li>
-              )
-            )}
-            <li>
-              {isLoggedIn ? (
-                <button className="nav-links logout-btn" onClick={handleLogout}>
-                  Logout
-                </button>
-              ) : (
-                <Link
-                  to="/login"
-                  className={`nav-links ${isActive("/login") ? "active" : ""}`}
-                  onClick={handleNavClick}
-                >
-                  Login
-                </Link>
-              )}
-            </li>
-          </ul>
-        )}
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMobile && menuOpen && (
-            <motion.ul
-              className="nav-menu mobile active"
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              variants={mobileVariants}
-              style={{ transformOrigin: "top" }}
-            >
+          {/* Desktop Menu */}
+          {!isMobile && (
+            <ul className="nav-menu">
               {navLinks.map(({ label, path, section, items, basePath }) =>
                 section ? (
-                  <li key={section} className="dropdown">
+                  <li
+                    key={section}
+                    className="nav-item dropdown"
+                    onMouseEnter={() => setDropdown((d) => ({ ...d, [section]: true }))}
+                    onMouseLeave={() => setDropdown((d) => ({ ...d, [section]: false }))}
+                  >
                     <button
                       className={`nav-links dropdown-toggle ${
                         isSectionActive(basePath) ? "active" : ""
                       }`}
-                      onClick={() => toggleDropdown(section)}
+                      onClick={() => navigate(basePath)}
                     >
                       {label}{" "}
                       <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
                     </button>
-                    <ul className={`dropdown-menu mobile ${dropdown[section] ? "active" : ""}`}>
+                    <ul className={`dropdown-menu desktop ${dropdown[section] ? "active" : ""}`}>
                       {items.map(({ label: itemLabel, path: itemPath }) => (
                         <li
                           key={itemPath}
@@ -280,10 +216,79 @@ export default function Navbar() {
                   </Link>
                 )}
               </li>
-            </motion.ul>
+            </ul>
           )}
-        </AnimatePresence>
-      </div>
-    </nav>
+
+          {/* Mobile Menu */}
+          <AnimatePresence>
+            {isMobile && menuOpen && (
+              <motion.ul
+                className="nav-menu mobile active"
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                variants={mobileVariants}
+                style={{ transformOrigin: "top" }}
+              >
+                {navLinks.map(({ label, path, section, items, basePath }) =>
+                  section ? (
+                    <li key={section} className="dropdown">
+                      <button
+                        className={`nav-links dropdown-toggle ${
+                          isSectionActive(basePath) ? "active" : ""
+                        }`}
+                        onClick={() => toggleDropdown(section)}
+                      >
+                        {label}{" "}
+                        <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
+                      </button>
+                      <ul className={`dropdown-menu mobile ${dropdown[section] ? "active" : ""}`}>
+                        {items.map(({ label: itemLabel, path: itemPath }) => (
+                          <li
+                            key={itemPath}
+                            className={`dropdown-item ${isActive(itemPath) ? "active" : ""}`}
+                            onClick={() => handleDropdownItemClick(itemPath)}
+                          >
+                            {itemLabel}
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ) : (
+                    <li key={path}>
+                      <Link
+                        to={path}
+                        className={`nav-links ${isActive(path) ? "active" : ""}`}
+                        onClick={handleNavClick}
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  )
+                )}
+                <li>
+                  {isLoggedIn ? (
+                    <button className="nav-links logout-btn" onClick={handleLogout}>
+                      Logout
+                    </button>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className={`nav-links ${isActive("/login") ? "active" : ""}`}
+                      onClick={handleNavClick}
+                    >
+                      Login
+                    </Link>
+                  )}
+                </li>
+              </motion.ul>
+            )}
+          </AnimatePresence>
+        </div>
+      </nav>
+
+      {/* Spacer below the navbar */}
+      <div className="navbar-spacer"></div>
+    </>
   );
 }
