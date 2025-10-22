@@ -10,13 +10,11 @@ import ReviewsLayout from "../user/ReviewsLayout";
 import useFetcher from "../../hooks/useFetcher";
 import "./decor.css";
 
-/* ---------- Asset Imports ---------- */
 import floralDecor from "../../assets/decor/floral-decor.png";
 import lightingDecor from "../../assets/decor/lighting-decor.png";
 import stageDecor from "../../assets/decor/stage-decor.png";
 import decorHero from "../../assets/decor/decor-hero.png";
 
-/* ---------- Helpers ---------- */
 const toArray = (payload) => {
   if (!payload) return [];
   if (Array.isArray(payload)) return payload;
@@ -39,7 +37,6 @@ const getMediaUrl = (m) => {
   return urls.find((x) => typeof x === "string" && x.trim() !== "") || "";
 };
 
-/* ---------- Motion Variants ---------- */
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
@@ -49,27 +46,15 @@ const zoomIn = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
 };
 
-/* ---------- Component ---------- */
 export default function DecorServicePage() {
   const navigate = useNavigate();
-
-  /* --- Fetch Data --- */
-  const { data: videosRaw, loading: videoLoading } = useFetcher(
-    "videos",
-    "decor",
-    { is_active: true },
-    { resource: "videos" }
-  );
-  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher(
-    "media",
-    "decor",
-    { is_active: true },
-    { resource: "media" }
-  );
+  const { data: videosRaw, loading: videoLoading } = useFetcher("videos", "decor", { is_active: true }, { resource: "videos" });
+  const { data: mediaCardsRaw, loading: mediaLoading } = useFetcher("media", "decor", { is_active: true }, { resource: "media" });
 
   const [videoUrl, setVideoUrl] = useState(null);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
+  const mediaCards = toArray(mediaCardsRaw);
 
   const toggleMute = useCallback(() => {
     setIsMuted((prev) => {
@@ -79,8 +64,6 @@ export default function DecorServicePage() {
     });
   }, []);
 
-  const mediaCards = toArray(mediaCardsRaw);
-
   useEffect(() => {
     const videos = toArray(videosRaw);
     if (!videos.length) return setVideoUrl(null);
@@ -88,7 +71,6 @@ export default function DecorServicePage() {
     setVideoUrl(getMediaUrl(featured));
   }, [videosRaw, videoLoading]);
 
-  /* --- Decor Categories --- */
   const decorCategories = [
     {
       name: "Floral & Table Decor",
@@ -121,93 +103,48 @@ export default function DecorServicePage() {
 
   return (
     <main className="decor-page-container">
-      {/* === HERO SECTION === */}
-      <section className="decor-hero-section" aria-label="Decor Hero Section">
+
+      {/* ================= HERO ================= */}
+      <section className="decor-hero-section">
         {videoUrl ? (
           <>
-            <video
-              ref={videoRef}
-              src={videoUrl}
-              className="hero-video"
-              autoPlay
-              loop
-              muted={isMuted}
-              playsInline
-            />
+            <video ref={videoRef} src={videoUrl} className="hero-video" autoPlay loop muted={isMuted} playsInline />
             <div className="hero-overlay" />
-            <motion.div
-              className="hero-content"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-            >
+            <motion.div className="hero-content" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
               <h1 className="hero-title">Decor & Event Design</h1>
               <p className="hero-subtitle">
-                Transforming spaces across Ghana and West Africa with artistic floral design,
-                immersive lighting, and bespoke venue styling.
+                Transforming spaces across Ghana and West Africa with artistic floral design, immersive lighting, and bespoke venue styling.
               </p>
               <div className="hero-buttons">
-                <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
-                  Book Decor Service
-                </button>
-                <button
-                  className="btn btn-outline"
-                  onClick={() =>
-                    document.querySelector(".decor-services")?.scrollIntoView({ behavior: "smooth" })
-                  }
-                >
-                  View Gallery
-                </button>
+                <button className="btn btn-primary" onClick={() => navigate("/bookings")}>Book Decor Service</button>
+                <button className="btn btn-outline" onClick={() => document.querySelector(".decor-services")?.scrollIntoView({ behavior: "smooth" })}>View Gallery</button>
               </div>
             </motion.div>
-            <button className="mute-button" onClick={toggleMute}>
-              {isMuted ? "🔇" : "🔊"}
-            </button>
+            <button className="mute-button" onClick={toggleMute}>{isMuted ? "🔇" : "🔊"}</button>
           </>
         ) : (
-          <div
-            className="hero-fallback"
-            style={{ backgroundImage: `url(${decorHero})` }}
-          >
+          <div className="hero-fallback" style={{ backgroundImage: `url(${decorHero})` }}>
             <div className="hero-overlay" />
-            <motion.div
-              className="hero-content"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-            >
+            <motion.div className="hero-content" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
               <h1 className="hero-title">Elegant Decor & Styling</h1>
-              <p className="hero-subtitle">
-                Experience luxury design artistry for weddings, corporate, and cultural events.
-              </p>
+              <p className="hero-subtitle">Experience luxury design artistry for weddings, corporate, and cultural events.</p>
             </motion.div>
           </div>
         )}
       </section>
 
-      {/* === DECOR CATEGORIES === */}
+      {/* ================= DECOR CATEGORIES ================= */}
       <section className="decor-services">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.25 }}
-          variants={fadeUp}
-        >
-          <h2>Our Decor Services</h2>
-          <p className="section-description">
-            From floral compositions to ambient lighting, we design timeless atmospheres for Ghanaian and international events.
-          </p>
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
+          <h2 className="section-title">Our Decor Services</h2>
+          <p className="section-description">From floral compositions to ambient lighting, we craft timeless atmospheres for your events.</p>
+
           <div className="decor-category-grid">
             {decorCategories.map((cat, i) => (
               <motion.div key={i} className="decor-category-card" variants={zoomIn}>
-                <img
-                  src={cat.image}
-                  alt={`${cat.name} decor example`}
-                  className="decor-category-image"
-                  loading="lazy"
-                />
+                <div className="decor-category-image-wrapper">
+                  <img src={cat.image} alt={cat.name} className="decor-category-image" loading="lazy" />
+                </div>
                 <ServiceCategory category={cat} />
               </motion.div>
             ))}
@@ -215,35 +152,26 @@ export default function DecorServicePage() {
         </motion.div>
       </section>
 
-      {/* === GALLERY === */}
+      {/* ================= GALLERY ================= */}
       <section className="gallery-section">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.25 }}
-          variants={fadeUp}
-        >
-          <h2>Decor Highlights</h2>
-          <p>Explore our signature setups — elegant, cinematic, and locally inspired.</p>
-          <div className="card-grid">
-            {mediaLoading ? (
-              Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            ) : mediaCards.length > 0 ? (
-              mediaCards.slice(0, 6).map((m, i) => <MediaCard key={m.id ?? i} media={m} />)
-            ) : (
-              <p className="muted-text">No media available yet.</p>
-            )}
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
+          <h2 className="section-title">Decor Highlights</h2>
+          <p className="section-description">Explore our signature setups — elegant, cinematic, and locally inspired.</p>
+          <div className="gallery-grid">
+            {mediaLoading
+              ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+              : mediaCards.length > 0
+              ? mediaCards.map((m, i) => <MediaCard key={m.id ?? i} media={m} />)
+              : <p className="muted-text">No media available yet.</p>}
           </div>
         </motion.div>
       </section>
 
-      {/* === REVIEWS === */}
-      <ReviewsLayout
-        title="Client Impressions"
-        description="What our clients say about their Decor experiences"
-      >
+      {/* ================= REVIEWS ================= */}
+      <ReviewsLayout title="Client Impressions" description="What our clients say about their Decor experiences">
         <Reviews limit={6} hideForm={true} category="decor" />
       </ReviewsLayout>
+
     </main>
   );
 }
