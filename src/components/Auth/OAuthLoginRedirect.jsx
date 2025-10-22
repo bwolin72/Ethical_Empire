@@ -11,10 +11,11 @@ export default function OAuthLoginRedirect() {
   const [status, setStatus] = useState({ loading: true, error: null });
 
   useEffect(() => {
-    if (!ready) return; // wait for AuthContext to initialize
+    if (!ready) return; // ✅ Wait for AuthContext initialization
 
     const token = searchParams.get("token");
     if (!token) {
+      toast.error("Missing OAuth token.");
       setStatus({ loading: false, error: "Missing OAuth token." });
       navigate("/login", { replace: true });
       return;
@@ -22,26 +23,27 @@ export default function OAuthLoginRedirect() {
 
     const handleOAuth = async () => {
       try {
-        // Step 1: Login via AuthContext
+        // ✅ Step 1: Login via AuthContext
         const user = await loginWithGoogle(token);
-
         if (!user) throw new Error("Invalid OAuth login response.");
 
-        // Step 2: Ensure role exists
-        let role = user.role?.toLowerCase() || "user";
-
-        // Step 3: Navigate safely
+        // ✅ Step 2: Determine role & safe redirect
+        const role = user.role?.toLowerCase() || "user";
         const redirectPath = roleRoutes[role] || "/user";
 
-        // Clear token from URL before navigation
+        // ✅ Step 3: Clean URL before navigation
         window.history.replaceState({}, document.title, "/");
 
-        toast.success(`Welcome, ${user.name || "User"}! 🎉`);
-        navigate(redirectPath, { replace: true });
+        // ✅ Step 4: Slight delay to ensure auth state propagation
+        setTimeout(() => {
+          toast.success(`Welcome, ${user.name || "User"}! 🎉`);
+          navigate(redirectPath, { replace: true });
+        }, 50);
       } catch (err) {
         console.error("[OAuthLoginRedirect] Login failed:", err);
-        setStatus({ loading: false, error: err?.message || "Login failed" });
-        toast.error(err?.message || "Login failed via Google.");
+        const errorMessage = err?.message || "Login failed via Google.";
+        toast.error(errorMessage);
+        setStatus({ loading: false, error: errorMessage });
         navigate("/login", { replace: true });
       } finally {
         setStatus((prev) => ({ ...prev, loading: false }));
@@ -49,21 +51,37 @@ export default function OAuthLoginRedirect() {
     };
 
     handleOAuth();
-  }, [searchParams, loginWithGoogle, navigate, ready]);
+  }, [ready, searchParams, loginWithGoogle, navigate]);
 
-  if (status.loading)
+  if (status.loading) {
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
         <p>Logging in with Google...</p>
       </div>
     );
+  }
 
-  if (status.error)
+  if (status.error) {
     return (
       <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
         <p>{status.error}</p>
+        <button
+          onClick={() => navigate("/login")}
+          style={{
+            marginTop: "1rem",
+            padding: "0.6rem 1.2rem",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+        >
+          Go back to Login
+        </button>
       </div>
     );
+  }
 
   return null;
 }
