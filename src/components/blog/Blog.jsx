@@ -1,13 +1,13 @@
 // ====================================================
 // 📘 Blog Hub (List & Detail)
-// Production-Ready Version — Synced with Django REST API
+// Public-Only Version — Synced with PublicBlogService
 // ====================================================
 
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { Card, CardContent } from "../ui/Card";
 import { Button } from "../ui/Button";
-import PublicBlogService from "../../api/services/publicBlogService";
+import PublicBlogService from "../../services/PublicBlogService"; // ✅ fixed import
 import SocialHub from "../social/SocialHub";
 import fallbackImage from "../../assets/logo1.png";
 import "./blog.css";
@@ -66,7 +66,6 @@ export function BlogList() {
 
   useEffect(() => {
     let active = true;
-
     const fetchData = async () => {
       setLoading(true);
       setError(null);
@@ -74,9 +73,8 @@ export function BlogList() {
         const [fetchedPosts, fetchedCategories, fetchedSocial] = await Promise.all([
           safeFetch(() => PublicBlogService.getLatestPosts()),
           safeFetch(() => PublicBlogService.getCategories()),
-          safeFetch(() => PublicBlogService.getSocialPosts()),
+          safeFetch(() => PublicBlogService.getLatestSocialPosts()),
         ]);
-
         if (active) {
           setPosts(fetchedPosts);
           setCategories(fetchedCategories);
@@ -89,9 +87,10 @@ export function BlogList() {
         if (active) setLoading(false);
       }
     };
-
     fetchData();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [location]);
 
   const filteredPosts = posts.filter((p) => {
@@ -121,7 +120,6 @@ export function BlogList() {
         <Button asChild variant={!categorySlug ? "primary" : "outline"}>
           <Link to="/blog">All</Link>
         </Button>
-
         {categories.length > 0 ? (
           categories.map((cat) => (
             <Button key={cat.id} asChild variant={categorySlug === cat.slug ? "primary" : "outline"}>
@@ -149,12 +147,18 @@ export function BlogList() {
                 <CardContent className="blog-post-content">
                   <h2 className="blog-post-title">{post.title}</h2>
                   <p className="blog-post-excerpt">
-                    {post.excerpt || (post.content ? post.content.slice(0, 140) + "..." : "Read our latest insights...")}
+                    {post.excerpt ||
+                      (post.content
+                        ? post.content.slice(0, 140) + "..."
+                        : "Read our latest insights...")}
                   </p>
                   <small className="blog-post-meta">
                     {post.created_at
-                      ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(post.created_at))
-                      : "—"} | {post.category?.name?.trim() || "Uncategorized"}
+                      ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(
+                          new Date(post.created_at)
+                        )
+                      : "—"}{" "}
+                    | {post.category?.name?.trim() || "Uncategorized"}
                   </small>
                   <Button asChild>
                     <Link to={`/blog/${post.slug}`}>Read More</Link>
@@ -168,7 +172,11 @@ export function BlogList() {
       {/* 🌐 Social Feed */}
       <div className="blog-social-section">
         <h2>Latest on Social Media</h2>
-        {loading ? <div className="skeleton-line w-1/2 mb-4" /> : <SocialHub socialPosts={socialPosts} />}
+        {loading ? (
+          <div className="skeleton-line w-1/2 mb-4" />
+        ) : (
+          <SocialHub socialPosts={socialPosts} />
+        )}
       </div>
     </div>
   );
@@ -189,7 +197,6 @@ export function BlogDetail() {
 
   useEffect(() => {
     let active = true;
-
     const fetchData = async () => {
       setLoading(true);
       setError(null);
@@ -197,9 +204,8 @@ export function BlogDetail() {
         const [fetchedPost, fetchedComments, fetchedSocial] = await Promise.all([
           safeFetch(() => PublicBlogService.getPostBySlug(slug), null),
           safeFetch(() => PublicBlogService.getComments(slug)),
-          safeFetch(() => PublicBlogService.getSocialPosts()),
+          safeFetch(() => PublicBlogService.getLatestSocialPosts()),
         ]);
-
         if (active) {
           setPost(fetchedPost);
           setComments(fetchedComments);
@@ -212,18 +218,19 @@ export function BlogDetail() {
         if (active) setLoading(false);
       }
     };
-
     fetchData();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [slug]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!commentContent.trim()) return;
-
-    await safeFetch(() => PublicBlogService.submitComment(slug, { content: commentContent }));
+    await safeFetch(() =>
+      PublicBlogService.submitComment(slug, { content: commentContent })
+    );
     setCommentContent("");
-
     const refreshed = await safeFetch(() => PublicBlogService.getComments(slug));
     setComments(refreshed);
   };
@@ -237,8 +244,11 @@ export function BlogDetail() {
       <h1 className="blog-detail-title">{post.title}</h1>
       <p className="blog-detail-meta">
         {post.publish_date || post.created_at
-          ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(post.publish_date || post.created_at))
-          : "—"} | {post.category?.name?.trim() || "Uncategorized"}
+          ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(
+              new Date(post.publish_date || post.created_at)
+            )
+          : "—"}{" "}
+        | {post.category?.name?.trim() || "Uncategorized"}
       </p>
 
       <img
@@ -247,7 +257,10 @@ export function BlogDetail() {
         className="blog-detail-image"
       />
 
-      <div className="blog-detail-content" dangerouslySetInnerHTML={{ __html: post.content }} />
+      <div
+        className="blog-detail-content"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
 
       {/* 🎥 Embedded Media */}
       {post.youtube_url && (
@@ -263,7 +276,11 @@ export function BlogDetail() {
         </div>
       )}
       {post.tiktok_url && (
-        <blockquote className="tiktok-embed" cite={post.tiktok_url} data-video-id={post.tiktok_url.split("/").pop()}>
+        <blockquote
+          className="tiktok-embed"
+          cite={post.tiktok_url}
+          data-video-id={post.tiktok_url.split("/").pop()}
+        >
           <a href={post.tiktok_url}>Watch on TikTok</a>
         </blockquote>
       )}
