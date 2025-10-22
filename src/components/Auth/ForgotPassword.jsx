@@ -23,11 +23,13 @@ const ForgotPassword = () => {
     console.log("Submitting email:", email);
 
     try {
+      // Send email to backend
       const response = await authService.resetPassword({ email });
 
+      // Backend now returns { message: "Password reset email sent." }
       setMessage(
-        response?.data?.message || // <- backend sends "message"
-        "Password reset email sent. Please check your inbox."
+        response?.data?.message ||
+          "Password reset email sent. Please check your inbox."
       );
       setEmail("");
     } catch (err) {
@@ -37,6 +39,7 @@ const ForgotPassword = () => {
       let errMsg = "An error occurred. Please try again.";
 
       if (data) {
+        // Match backend keys
         if (data.message) errMsg = data.message;
         else if (data.error) errMsg = data.error;
         else if (typeof data === "string") errMsg = data;
