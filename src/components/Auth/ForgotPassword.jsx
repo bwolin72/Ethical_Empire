@@ -5,6 +5,7 @@ import authService from "../../api/services/authService";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [token, setToken] = useState(""); // NEW: token input state
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,19 +20,24 @@ const ForgotPassword = () => {
       return;
     }
 
+    if (!token) {
+      setError("Missing token. Please provide your verification token.");
+      return;
+    }
+
     setLoading(true);
-    console.log("Submitting email:", email);
+    console.log("Submitting email and token:", { email, token });
 
     try {
-      // Send email to backend
-      const response = await authService.resetPassword({ email });
+      // Send email + token to backend
+      const response = await authService.resetPassword({ email, token });
 
-      // Backend now returns { message: "Password reset email sent." }
       setMessage(
         response?.data?.message ||
           "Password reset email sent. Please check your inbox."
       );
       setEmail("");
+      setToken("");
     } catch (err) {
       console.error("Password reset error:", err);
 
@@ -39,7 +45,6 @@ const ForgotPassword = () => {
       let errMsg = "An error occurred. Please try again.";
 
       if (data) {
-        // Match backend keys
         if (data.message) errMsg = data.message;
         else if (data.error) errMsg = data.error;
         else if (typeof data === "string") errMsg = data;
@@ -76,6 +81,19 @@ const ForgotPassword = () => {
           placeholder="Enter your registered email"
           value={email}
           onChange={(e) => setEmail(e.target.value.trim())}
+          required
+        />
+
+        {/* New token input (if backend expects one directly) */}
+        <label htmlFor="token" className="sr-only">
+          Token
+        </label>
+        <input
+          id="token"
+          type="text"
+          placeholder="Enter token (if provided)"
+          value={token}
+          onChange={(e) => setToken(e.target.value.trim())}
           required
         />
 
