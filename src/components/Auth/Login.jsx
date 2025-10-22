@@ -11,10 +11,8 @@ import logo from "../../assets/logo.png";
 import PasswordInput from "../../components/common/PasswordInput";
 import "./Auth.css";
 
-// Google Client ID
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
-// Public routes (prevent redirect loops)
 const PUBLIC_ROUTES = [
   "/login",
   "/register",
@@ -41,15 +39,12 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /**
-   * Safely redirect user based on role and next query param.
-   */
+  // ✅ Redirect user after login based on role
   const redirectByRole = useCallback(
     (role) => {
       const defaultPath = roleRoutes[role?.toLowerCase()] || "/dashboard";
       let nextPath = new URLSearchParams(location.search).get("next") || "";
 
-      // Prevent redirects to public/auth routes
       if (!nextPath || PUBLIC_ROUTES.includes(nextPath)) {
         nextPath = defaultPath;
       }
@@ -60,18 +55,14 @@ const Login = () => {
     [navigate, location.search]
   );
 
-  /**
-   * Load saved dark mode from localStorage.
-   */
+  // ✅ Load saved dark mode
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  /**
-   * Auto-redirect logged-in users.
-   */
+  // ✅ Auto redirect if user already logged in
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -79,9 +70,7 @@ const Login = () => {
     }
   }, [ready, user, redirectByRole]);
 
-  /**
-   * Toggle dark/light theme.
-   */
+  // ✅ Theme toggle
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
@@ -90,18 +79,14 @@ const Login = () => {
     toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
   };
 
-  /**
-   * Handle input changes.
-   */
+  // ✅ Handle input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  /**
-   * Validate the form fields.
-   */
+  // ✅ Validation
   const validateForm = () => {
     const errors = {};
     if (!form.role) errors.role = "Please select your role.";
@@ -120,9 +105,7 @@ const Login = () => {
     return true;
   };
 
-  /**
-   * Extract readable error message from API response.
-   */
+  // ✅ Extract readable backend error
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (!data) return "Something went wrong.";
@@ -134,9 +117,7 @@ const Login = () => {
     return "Login failed.";
   };
 
-  /**
-   * Handle successful login.
-   */
+  // ✅ Unified success handler
   const handleLoginSuccess = (data) => {
     const { tokens, user: apiUser } = data || {};
     const { access, refresh } = tokens || {};
@@ -156,9 +137,7 @@ const Login = () => {
     }
   };
 
-  /**
-   * Handle form submit.
-   */
+  // ✅ Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -176,9 +155,7 @@ const Login = () => {
     }
   };
 
-  /**
-   * Handle Google login.
-   */
+  // ✅ Safe Google login handler
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
@@ -193,10 +170,17 @@ const Login = () => {
     }
   };
 
+  // ✅ Safe Google error handler (avoids FedCM console spam)
+  const handleGoogleError = (err) => {
+    if (err?.type === "popup_closed_by_user") return;
+    console.warn("[Google Sign-In Error]", err);
+    // no toast here to avoid repeated alerts on FedCM aborts
+  };
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
-        {/* Brand Panel */}
+        {/* === Brand Panel === */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h1>EETHM_GH</h1>
@@ -206,7 +190,7 @@ const Login = () => {
           </button>
         </div>
 
-        {/* Login Form */}
+        {/* === Login Form === */}
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
@@ -310,13 +294,13 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Google Login */}
+          {/* === Google Login === */}
           <div className="social-login">
             <p>Or sign in with Google:</p>
             <GoogleLogin
               onSuccess={(res) => handleGoogleCredential(res?.credential)}
-              onError={() => toast.error("Google login failed")}
-              useOneTap
+              onError={handleGoogleError}
+              // Removed useOneTap to silence FedCM logs
               disabled={loading}
             />
           </div>
