@@ -1,9 +1,25 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import {
-  Menu, X, Settings, LogOut, Sun, Moon,
-  MessageCircle, Film, Image, Star, Mail, Clock
+  Menu,
+  X,
+  Settings,
+  LogOut,
+  Sun,
+  Moon,
+  MessageCircle,
+  Film,
+  Image,
+  Star,
+  Mail,
+  Clock,
 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -27,10 +43,19 @@ import UnsubscribePage from "./UnsubscribePage";
 import ResubscribePage from "./ResubscribePage";
 
 import "./UserPage.css";
+import { v4 as uuid } from "uuid";
+
+const safeLocalStorageGet = (key, fallback) => {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
 
 const UserPage = () => {
   const { profile, updateProfile } = useProfile();
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [media, setMedia] = useState([]);
@@ -40,66 +65,97 @@ const UserPage = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem("darkMode") === "true"
+    safeLocalStorageGet("darkMode", "false") === "true"
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Extract common data from responses safely
-  const extractList = useCallback((res) => {
-    const data = res?.data ?? res;
-    return Array.isArray(data?.results)
-      ? data.results
-      : Array.isArray(data?.data)
-      ? data.data
-      : Array.isArray(data)
-      ? data
-      : [];
+  const abortController = useRef(null);
+
+  const handleError = useCallback((message, err) => {
+    console.error(message, err);
+    toast.error(message || "An error occurred. Please try again.");
   }, []);
 
-  // Fetch Dashboard Data
-  const fetchDashboardData = useCallback(async (signal) => {
+  const extractList = useCallback((res) => {
+    const data = res?.data ?? res;
+    if (!data) return [];
+    return (
+      data.results ??
+      data.data ??
+      (Array.isArray(data) ? data : [])
+    );
+  }, []);
+
+  // Securely fetch dashboard data
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
+    if (abortController.current) abortController.current.abort();
+    abortController.current = new AbortController();
+
     try {
-      const [mediaRes, reviewsRes, promoRes, videosRes, msgRes] = await Promise.all([
-        apiService.media?.user?.({ signal }) ?? { data: [] },
-        apiService.reviews?.list?.({ signal }) ?? { data: [] },
-        apiService.promotions?.active?.({ signal }) ?? { data: [] },
-        apiService.videos?.list?.({ signal }) ?? { data: [] },
-        apiService.messages?.unreadCount?.({ signal }) ?? { data: 0 },
+      const { signal } = abortController.current;
+      const [
+        mediaRes,
+        reviewsRes,
+        promoRes,
+        videosRes,
+        msgRes,
+      ] = await Promise.allSettled([
+        apiService.media?.user?.({ signal }),
+        apiService.reviews?.list?.({ signal }),
+        apiService.promotions?.active?.({ signal }),
+        apiService.videos?.list?.({ signal }),
+        apiService.messages?.unreadCount?.({ signal }),
       ]);
 
-      setMedia(extractList(mediaRes));
-      setReviews(extractList(reviewsRes));
-      setPromotions(extractList(promoRes));
-      setVideos(extractList(videosRes));
-      setUnreadCount(msgRes.data ?? 0);
+      if (mediaRes.status === "fulfilled")
+        setMedia(extractList(mediaRes.value));
+      if (reviewsRes.status === "fulfilled")
+        setReviews(extractList(reviewsRes.value));
+      if (promoRes.status === "fulfilled")
+        setPromotions(extractList(promoRes.value));
+      if (videosRes.status === "fulfilled")
+        setVideos(extractList(videosRes.value));
+      if (msgRes.status === "fulfilled")
+        setUnreadCount(msgRes.value?.data ?? 0);
     } catch (err) {
-      if (err?.name !== "CanceledError") {
-        console.error("Dashboard fetch error:", err);
-        toast.error("Error loading your dashboard.");
-      }
+      if (err?.name !== "CanceledError") handleError("Error loading dashboard.", err);
     } finally {
       setLoading(false);
     }
-  }, [extractList]);
+  }, [extractList, handleError]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    fetchDashboardData(controller.signal);
-    return () => controller.abort();
-  }, [fetchDashboardData]);
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
 
-  // Toggle Dark Mode
+    fetchDashboardData();
+
+    return () => {
+      abortController.current?.abort();
+    };
+  }, [fetchDashboardData, isAuthenticated, navigate]);
+
+  // Toggle dark mode safely
   const toggleDarkMode = useCallback(() => {
     const newMode = !darkMode;
     setDarkMode(newMode);
-    localStorage.setItem("darkMode", newMode);
+    try {
+      localStorage.setItem("darkMode", newMode);
+    } catch (err) {
+      console.warn("Could not persist dark mode:", err);
+    }
   }, [darkMode]);
 
-  // Memoized derived values
+  // Derived states
   const featuredVideo = useMemo(
     () =>
       videos.find(
-        (v) => (v.is_featured || v.featured) && (v.file || v.url || v.video_url)
+        (v) =>
+          (v.is_featured || v.featured) &&
+          (v.file || v.url || v.video_url)
       ),
     [videos]
   );
@@ -108,24 +164,46 @@ const UserPage = () => {
     () => [
       {
         name: "Profile Management",
-        components: [<AccountProfile key="account" />, <EditProfile key="edit" />],
+        components: [
+          <AccountProfile key={uuid()} />,
+          <EditProfile key={uuid()} />,
+        ],
       },
       {
         name: "Password & Security",
-        components: [<UpdatePassword key="update" />, <ConfirmPasswordChange key="confirm" />],
+        components: [
+          <UpdatePassword key={uuid()} />,
+          <ConfirmPasswordChange key={uuid()} />,
+        ],
       },
       {
         name: "Subscription",
-        components: [<UnsubscribePage key="unsubscribe" />, <ResubscribePage key="resubscribe" />],
+        components: [
+          <UnsubscribePage key={uuid()} />,
+          <ResubscribePage key={uuid()} />,
+        ],
       },
     ],
     []
   );
 
   // Handlers
-  const handleBookingClick = useCallback(() => navigate("/bookings"), [navigate]);
-  const handleLogout = useCallback(() => logout("manual"), [logout]);
-  const toggleSidebar = useCallback(() => setSidebarOpen((prev) => !prev), []);
+  const handleBookingClick = useCallback(
+    () => navigate("/bookings"),
+    [navigate]
+  );
+
+  const handleLogout = useCallback(() => {
+    logout("manual");
+    toast.info("You have been logged out.");
+  }, [logout]);
+
+  const toggleSidebar = useCallback(
+    () => setSidebarOpen((prev) => !prev),
+    []
+  );
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className={`user-dashboard ${darkMode ? "dark" : "light"}`}>
@@ -134,49 +212,78 @@ const UserPage = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-header">
-          <ProfileAvatar profile={profile} onProfileUpdate={updateProfile} />
+          <ProfileAvatar
+            profile={profile}
+            onProfileUpdate={updateProfile}
+          />
           <h3>{profile?.name || "User"}</h3>
         </div>
 
         <nav className="sidebar-menu">
-          <button onClick={() => navigate("/account")}><Settings size={18}/> Account Settings</button>
-          <button onClick={() => navigate("/newsletter")}><Mail size={18}/> Newsletter</button>
-          <button onClick={() => navigate("/reviews")}><Star size={18}/> My Reviews</button>
-          <button onClick={() => navigate("/booking-history")}><Clock size={18}/> Booking History</button>
-          <button onClick={() => navigate("/social")}><Image size={18}/> Social Hub</button>
+          <button onClick={() => navigate("/account")}>
+            <Settings size={18} /> Account Settings
+          </button>
+          <button onClick={() => navigate("/newsletter")}>
+            <Mail size={18} /> Newsletter
+          </button>
+          <button onClick={() => navigate("/reviews")}>
+            <Star size={18} /> My Reviews
+          </button>
+          <button onClick={() => navigate("/booking-history")}>
+            <Clock size={18} /> Booking History
+          </button>
+          <button onClick={() => navigate("/social")}>
+            <Image size={18} /> Social Hub
+          </button>
         </nav>
 
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>
-            <LogOut size={18}/> Logout
+            <LogOut size={18} /> Logout
           </button>
         </div>
       </aside>
 
       {sidebarOpen && (
-        <div className="sidebar-overlay show" onClick={toggleSidebar} />
+        <div
+          className="sidebar-overlay show"
+          onClick={toggleSidebar}
+          role="button"
+          aria-label="Close sidebar"
+        />
       )}
 
       {/* Main Content */}
       <main className="dashboard-content">
         <header className="dashboard-header glass-card">
           <div className="header-left">
-            <button onClick={toggleSidebar} className="menu-toggle btn-icon">
-              {sidebarOpen ? <X size={20}/> : <Menu size={20}/>}
+            <button
+              onClick={toggleSidebar}
+              className="menu-toggle btn-icon"
+              aria-label="Toggle sidebar"
+            >
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
             <div>
-              <h2>Hey {profile?.name || "Guest"} 👋</h2>
+              <h2>
+                Hey {profile?.name || "Guest"} 👋
+              </h2>
               <p>Welcome to your creative space.</p>
             </div>
           </div>
 
           <div className="header-actions">
             <button onClick={toggleDarkMode} className="btn-icon">
-              {darkMode ? <Sun size={20}/> : <Moon size={20}/>}
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <button onClick={() => navigate("/messaging")} className="btn-icon">
-              <MessageCircle size={22}/>
-              {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+            <button
+              onClick={() => navigate("/messaging")}
+              className="btn-icon"
+            >
+              <MessageCircle size={22} />
+              {unreadCount > 0 && (
+                <span className="badge">{unreadCount}</span>
+              )}
             </button>
           </div>
         </header>
@@ -185,19 +292,25 @@ const UserPage = () => {
         {promotions.length > 0 && (
           <section className="banner-section fade-in">
             <h3>🔥 Promotions</h3>
-            <BannerCards banners={promotions}/>
+            <BannerCards banners={promotions} />
           </section>
         )}
 
         {/* Featured Video */}
         {featuredVideo && (
           <section className="featured-section card scale-in">
-            <h3><Film size={18}/> Featured Video</h3>
+            <h3>
+              <Film size={18} /> Featured Video
+            </h3>
             <video
               className="featured-video"
               controls
               preload="metadata"
-              src={featuredVideo.file || featuredVideo.video_url || featuredVideo.url}
+              src={
+                featuredVideo.file ||
+                featuredVideo.video_url ||
+                featuredVideo.url
+              }
             />
           </section>
         )}
@@ -205,20 +318,28 @@ const UserPage = () => {
         {/* Video Gallery */}
         {videos.length > 0 && (
           <section className="video-gallery-section fade-in">
-            <h3><Film size={18}/> Your Videos</h3>
-            <VideoGallery videos={videos}/>
+            <h3>
+              <Film size={18} /> Your Videos
+            </h3>
+            <VideoGallery videos={videos} />
           </section>
         )}
 
         {/* Media Gallery */}
         <section className="gallery-section fade-in">
-          <h3><Image size={18}/> Your Gallery</h3>
+          <h3>
+            <Image size={18} /> Your Gallery
+          </h3>
           {media.length > 0 ? (
             <div className="gallery-grid">
-              {media.map((item, idx) => <MediaCards key={idx} media={item}/>)}
+              {media.map((item) => (
+                <MediaCards key={uuid()} media={item} />
+              ))}
             </div>
           ) : (
-            <p className="empty-text">✨ Upload your first media to shine!</p>
+            <p className="empty-text">
+              ✨ Upload your first media to shine!
+            </p>
           )}
         </section>
 
@@ -227,23 +348,34 @@ const UserPage = () => {
           title="Client Feedback"
           description="See what others are saying about your work"
         >
-          {reviews.length > 0 ? <Reviews reviews={reviews}/> : <p className="empty-text">No reviews yet.</p>}
+          {reviews.length > 0 ? (
+            <Reviews reviews={reviews} />
+          ) : (
+            <p className="empty-text">No reviews yet.</p>
+          )}
         </ReviewsLayout>
 
         {/* Newsletter */}
         <section className="newsletter-section fade-in">
-          <h3><Mail size={18}/> Stay Updated</h3>
-          <NewsletterSignup/>
+          <h3>
+            <Mail size={18} /> Stay Updated
+          </h3>
+          <NewsletterSignup />
         </section>
 
-        {/* Dynamic Services */}
+        {/* Services */}
         <section className="services-section fade-in">
           <h3>🛠 Your Services</h3>
-          {userServices.map((service, idx) => (
-            <div key={idx} className="service-card glass-card">
+          {userServices.map((service) => (
+            <div key={uuid()} className="service-card glass-card">
               <h4>{service.name}</h4>
-              <div className="service-components">{service.components}</div>
-              <button className="btn btn-primary mt-2" onClick={handleBookingClick}>
+              <div className="service-components">
+                {service.components}
+              </div>
+              <button
+                className="btn btn-primary mt-2"
+                onClick={handleBookingClick}
+              >
                 Book {service.name}
               </button>
             </div>
