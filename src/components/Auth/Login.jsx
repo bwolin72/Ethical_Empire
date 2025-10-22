@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 import authService from "../../api/services/authService";
 import { useAuth } from "../../components/context/AuthContext";
@@ -13,6 +12,14 @@ import PasswordInput from "../../components/common/PasswordInput";
 import "./Auth.css";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+const PUBLIC_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+];
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -28,26 +35,39 @@ const Login = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /** Redirect user by role */
+  // ✅ Safe redirect handler
   const redirectByRole = useCallback(
     (role) => {
-      const path = roleRoutes[role?.toLowerCase()] || roleRoutes.user;
-      navigate(path, { replace: true });
+      const defaultPath = roleRoutes[role?.toLowerCase()] || "/dashboard";
+      const searchParams = new URLSearchParams(location.search);
+      let nextPath = searchParams.get("next");
+
+      // Prevent redirecting to public/auth routes
+      if (!nextPath || PUBLIC_ROUTES.some((r) => nextPath.startsWith(r))) {
+        nextPath = defaultPath;
+      }
+
+      // Clean query params after redirect
+      window.history.replaceState({}, document.title, location.pathname);
+
+      console.log("[REDIRECT] Navigating to:", nextPath);
+      navigate(nextPath, { replace: true });
     },
-    [navigate]
+    [navigate, location]
   );
 
-  /** Load dark mode preference */
+  // ✅ Load saved dark mode preference
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  /** Auto redirect if logged in */
+  // ✅ Auto redirect if user already logged in
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -55,6 +75,7 @@ const Login = () => {
     }
   }, [ready, user, redirectByRole]);
 
+  // ✅ Theme toggle
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
@@ -63,44 +84,47 @@ const Login = () => {
     toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
   };
 
+  // ✅ Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  /** Validate form */
+  // ✅ Form validation
   const validateForm = () => {
     const errors = {};
+    if (!form.role) errors.role = "Please select your role.";
     if (!form.email.trim()) errors.email = "Please enter your email.";
     if (!form.password.trim()) errors.password = "Please enter your password.";
-    if (!form.role) errors.role = "Please select your role.";
-    if (form.role === "worker" && !form.accessCode.trim()) {
+    if (form.role === "worker" && !form.accessCode.trim())
       errors.accessCode = "Please enter your access code.";
-    }
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
 
     setFormErrors(errors);
-    if (Object.keys(errors).length) toast.error("Please fix the highlighted errors.");
-    return Object.keys(errors).length === 0;
+
+    if (Object.keys(errors).length > 0) {
+      toast.error("Please fix the highlighted errors.");
+      return false;
+    }
+    return true;
   };
 
+  // ✅ Extract readable backend error
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (!data) return "Something went wrong.";
     if (typeof data === "string") return data;
     if (Array.isArray(data)) return data[0];
     if (typeof data === "object") {
-      if (data.detail) return data.detail;
-      if (data.message) return data.message;
-      if (data.errors) return Object.values(data.errors).flat().join(" ");
+      return data.detail || data.message || Object.values(data.errors || {}).flat().join(" ");
     }
     return "Login failed.";
   };
 
-  /** Handle successful login */
-  const handleLoginSuccess = async (data) => {
-    const { tokens, user: apiUser } = data;
+  // ✅ Unified login success handler
+  const handleLoginSuccess = (data) => {
+    const { tokens, user: apiUser } = data || {};
     const { access, refresh } = tokens || {};
 
     if (!access || !refresh || !apiUser) {
@@ -109,11 +133,17 @@ const Login = () => {
     }
 
     login({ access, refresh, user: apiUser, remember: rememberMe });
-    redirectByRole(apiUser.role);
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
+
+    try {
+      redirectByRole(apiUser.role);
+    } catch (err) {
+      console.error("[REDIRECT ERROR]", err);
+      navigate("/dashboard", { replace: true });
+    }
   };
 
-  /** Standard login submit */
+  // ✅ Handle normal login
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -121,33 +151,42 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await authService.login(form, rememberMe);
-      await handleLoginSuccess(res);
+      handleLoginSuccess(res);
     } catch (err) {
-      toast.error(extractErrorMessage(err));
+      const msg = extractErrorMessage(err);
+      toast.error(msg);
       setForm((prev) => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
     }
   };
 
-  /** Google login handler */
+  // ✅ Google Sign-In handler
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential, remember: rememberMe });
-      await handleLoginSuccess(res);
+      handleLoginSuccess(res);
     } catch (err) {
-      toast.error(extractErrorMessage(err));
+      const msg = extractErrorMessage(err);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Google error handler (FedCM-safe)
+  const handleGoogleError = (err) => {
+    if (err?.type === "popup_closed_by_user") return;
+    console.warn("[Google Sign-In Error]", err);
+    // No toast to avoid spamming on FedCM aborts
+  };
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
-        {/* Left Panel */}
+        {/* === Brand Panel === */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h1>EETHM_GH</h1>
@@ -157,12 +196,11 @@ const Login = () => {
           </button>
         </div>
 
-        {/* Form Panel */}
+        {/* === Login Form === */}
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
-
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            {/* Role Selector */}
+            {/* Role Select */}
             <div className="input-group">
               <label>Login As</label>
               <select
@@ -211,7 +249,7 @@ const Login = () => {
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
-            {/* Access Code (only WORKER role for normal login) */}
+            {/* Access Code (for worker) */}
             {form.role === "worker" && (
               <div className="input-group">
                 <label>Access Code</label>
@@ -262,18 +300,16 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Google Login */}
+          {/* === Google Login === */}
           <div className="social-login">
             <p>Or sign in with Google:</p>
             <GoogleLogin
               onSuccess={(res) => handleGoogleCredential(res?.credential)}
-              onError={() => toast.error("Google login failed")}
-              useOneTap
+              onError={handleGoogleError}
               disabled={loading}
             />
           </div>
 
-          {/* Register Link */}
           <p className="register-prompt">
             Don’t have an account? <Link to="/register">Register</Link>
           </p>

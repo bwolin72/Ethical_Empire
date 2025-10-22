@@ -1,387 +1,307 @@
-/* ===========================================================
-   🌺 DECOR SERVICE PAGE
-   Glassmorphic • Theme-Adaptive • Fully Responsive (≥ 240 px)
-   =========================================================== */
+/* ======================================================
+   🌺 Decor Service Page Styles
+   Fully Responsive | Theme-Aware | Animation-Free
+   ====================================================== */
 
-.decor-page-container {
-  --accent-gold: var(--color-accent-gold);
-  --accent-gold-glow: 0 0 18px rgba(212, 175, 55, 0.35);
-  --glass: rgba(255, 255, 255, 0.1);
-  --glass-dark: rgba(15, 15, 15, 0.55);
-  --border: var(--color-border);
-  --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
-  --radius-lg: 1.25rem;
-  --radius-md: 0.75rem;
-  --transition: 0.3s ease-in-out;
-
-  position: relative;
-  min-height: 100vh;
-  overflow-x: hidden;
-  font-family: "Poppins", system-ui, sans-serif;
+/* === Base Page Container === */
+.decor-page {
+  background-color: var(--color-bg);
   color: var(--color-text);
-  background: var(--color-bg);
-  transition: background var(--transition-slow), color var(--transition-slow);
+  font-family: var(--font-main);
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  overflow-x: hidden;
 }
 
-/* Pattern overlay */
-.decor-page-container::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("https://www.transparenttextures.com/patterns/asfalt-light.png");
-  opacity: 0.04;
-  mix-blend-mode: overlay;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* ===========================================================
-   🎥 HERO SECTION
-   =========================================================== */
-.decor-hero-section {
+/* ======================================================
+   🦋 HERO SECTION (Updated for large screens)
+   ====================================================== */
+.decor-hero {
   position: relative;
   width: 100%;
-  min-height: 85vh;
+  min-height: 100vh; /* full screen height */
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   overflow: hidden;
-  background: var(--color-service-bg);
+  color: var(--color-white);
+  text-align: center;
+  background: var(--gradient-gold-burgundy); /* fallback gradient */
+  z-index: 1;
+  margin-top: 80px; /* adjust if navbar is fixed */
 }
 
-.hero-video {
+/* === Video Background === */
+.decor-hero-video {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  top: 0; 
+  left: 0;
+  width: 100%; 
   height: 100%;
   object-fit: cover;
-  z-index: 0;
-  filter: brightness(0.8);
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom right,
-    rgba(0, 0, 0, 0.4),
-    rgba(0, 0, 0, 0.75)
-  );
   z-index: 1;
-  backdrop-filter: blur(4px);
+  background: var(--gradient-gold-burgundy); /* fallback gradient */
 }
 
-/* fallback image */
-.hero-fallback {
-  width: 100%;
-  min-height: 85vh;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
+/* === Overlay === */
+.decor-hero-overlay {
+  position: absolute;
+  top: 0; 
+  left: 0;
+  width: 100%; 
+  height: 100%;
+  background: var(--color-overlay);
+  z-index: 2;
 }
 
-/* hero content */
-.hero-content {
+/* === Hero Content === */
+.decor-hero-content {
   position: relative;
-  z-index: 5;
+  z-index: 3;
+  max-width: 900px;
+  padding: 2rem;
   text-align: center;
-  max-width: 850px;
-  padding: clamp(1rem, 2vw, 1.8rem);
-  margin: 0 1rem;
-  border-radius: var(--radius-lg);
-  background: var(--glass-dark);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(18px);
-  box-shadow: var(--shadow);
 }
 
-.hero-title {
-  font-family: "Cinzel", serif;
-  font-size: clamp(1.4rem, 4vw, 3rem);
-  color: var(--accent-gold);
-  text-shadow: var(--accent-gold-glow);
-  margin-bottom: 0.5rem;
+.decor-hero-title {
+  font-family: var(--font-accent);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-bottom: 1rem;
+  color: var(--color-white);
 }
 
-.hero-subtitle {
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  color: var(--color-muted);
-  margin-bottom: 1.2rem;
+.decor-hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  margin-bottom: 2rem;
   line-height: 1.6;
+  color: var(--flip-sand);
 }
 
-/* buttons */
-.hero-buttons {
+/* === Hero Buttons === */
+.decor-hero-buttons {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 0.8rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.7rem 1.3rem;
-  border-radius: 999px;
-  border: 1px solid transparent;
+  padding: 0.75rem 1.75rem;
+  font-size: 1rem;
   font-weight: 600;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: 0.95rem;
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-gold), var(--color-accent-gold-dark));
-  color: #fff;
-  box-shadow: var(--accent-gold-glow);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
 }
+
 .btn-primary:hover {
-  transform: scale(1.05);
+  background: var(--color-primary-dark);
 }
 
 .btn-outline {
-  border: 1px solid var(--accent-gold);
-  color: var(--accent-gold);
   background: transparent;
-}
-.btn-outline:hover {
-  background: rgba(212, 175, 55, 0.15);
+  border: 2px solid var(--color-white);
+  color: var(--color-white);
 }
 
-/* mute toggle */
-.mute-button {
+.btn-outline:hover {
+  background: var(--color-white);
+  color: var(--color-primary);
+}
+
+/* === Mute Button === */
+.mute-btn {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.55);
-  color: var(--accent-gold);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 6;
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-.mute-button:hover {
-  transform: scale(1.07);
-  background: rgba(0, 0, 0, 0.7);
-}
-
-/* ===========================================================
-   🪷 DECOR SERVICES
-   =========================================================== */
-.decor-services {
-  padding: clamp(2rem, 4vw, 5rem) 1rem;
-  text-align: center;
-  background: var(--color-service-bg);
-  position: relative;
   z-index: 5;
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--color-white);
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
 }
 
-.decor-services h2 {
-  font-family: "Cinzel", serif;
-  color: var(--accent-gold);
-  font-size: clamp(1.3rem, 3vw, 2.4rem);
-  text-shadow: var(--accent-gold-glow);
-  margin-bottom: 0.8rem;
+/* ======================================================
+   🌷 DECOR SERVICES SECTION
+   ====================================================== */
+.decor-services {
+  text-align: center;
+  padding: 4rem 1rem;
+  background: var(--color-service-bg);
 }
 
-.section-description {
-  max-width: 720px;
+.decor-section-title {
+  font-family: var(--font-accent);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+}
+
+.decor-section-description {
+  max-width: 700px;
   margin: 0 auto 2rem;
   color: var(--color-muted);
-  font-size: 0.95rem;
   line-height: 1.6;
 }
 
-/* grid */
+/* === Category Grid === */
 .decor-category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  justify-content: center;
+  padding-top: 1rem;
 }
 
+/* === Category Card === */
 .decor-category-card {
-  background: var(--glass-dark);
-  border: 1px solid var(--border);
+  background: var(--color-input-bg);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
+
 .decor-category-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* === Category Image === */
+.decor-category-image-wrapper {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
 }
 
 .decor-category-image {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
-}
-.decor-category-card:hover .decor-category-image {
-  transform: scale(1.04);
 }
 
-/* ===========================================================
-   🖼️ GALLERY
-   =========================================================== */
-.gallery-section {
-  text-align: center;
+/* ======================================================
+   🖼️ GALLERY SECTION
+   ====================================================== */
+.decor-gallery {
+  padding: 4rem 1rem;
   background: var(--color-bg);
-  padding: clamp(2rem, 4vw, 5rem) 1rem;
-  position: relative;
-  z-index: 5;
+  text-align: center;
 }
 
-.gallery-section h2 {
-  font-family: "Cinzel", serif;
-  color: var(--accent-gold);
-  text-shadow: var(--accent-gold-glow);
-  font-size: clamp(1.3rem, 3vw, 2.2rem);
-}
-
-.gallery-section p {
-  color: var(--color-muted);
-  margin-bottom: 1.5rem;
-  font-size: 0.95rem;
-}
-
-.card-grid {
+.decor-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-/* ===========================================================
-   💬 REVIEWS
-   =========================================================== */
+.muted-text {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* ======================================================
+   💬 REVIEWS SECTION
+   ====================================================== */
 .reviews-layout {
   background: var(--color-service-bg);
-  color: var(--color-text);
-  padding: clamp(2rem, 4vw, 4rem) 1rem;
-  position: relative;
-  z-index: 5;
+  padding: 4rem 1rem;
+  border-top: 1px solid var(--color-border);
 }
 
-/* ===========================================================
-   📱 RESPONSIVENESS
-   =========================================================== */
-
-/* ≥ 240 px */
-@media (max-width: 320px) {
-  .hero-title {
-    font-size: 1.1rem;
-  }
-  .hero-subtitle {
-    font-size: 0.75rem;
-  }
-  .btn {
-    font-size: 0.8rem;
-    padding: 0.5rem 0.9rem;
-  }
-  .mute-button {
-    width: 34px;
-    height: 34px;
-  }
-  .decor-category-image {
-    height: 130px;
-  }
+.reviews-layout h2 {
+  font-family: var(--font-accent);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
-/* ≤ 480 px */
-@media (max-width: 480px) {
-  .decor-hero-section {
-    min-height: 70vh;
-  }
-  .hero-buttons {
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-  .hero-content {
-    width: calc(100% - 1.6rem);
-    padding: 1rem;
-  }
-  .decor-category-grid {
-    gap: 1rem;
-  }
+.reviews-layout p {
+  text-align: center;
+  color: var(--color-muted);
+  margin-bottom: 3rem;
 }
 
-/* ≤ 768 px */
+/* ======================================================
+   📱 RESPONSIVE DESIGN
+   ====================================================== */
+
 @media (max-width: 768px) {
-  .decor-services {
-    padding: 3rem 1rem;
+  .decor-hero-content {
+    padding: 1.5rem;
   }
-  .decor-category-image {
-    height: 170px;
+
+  .decor-hero-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .decor-category-image-wrapper {
+    height: 180px;
   }
 }
 
-/* ≤ 1024 px */
-@media (max-width: 1024px) {
-  .hero-content {
-    max-width: 90%;
+@media (max-width: 480px) {
+  .btn {
+    width: 100%;
   }
-  .card-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+  .decor-hero-title {
+    font-size: 2rem;
+  }
+
+  .decor-section-description {
+    font-size: 0.95rem;
   }
 }
 
-/* ===========================================================
-   🌗 THEME ADAPTATION
-   =========================================================== */
-.light .decor-page-container {
-  --glass-dark: rgba(255, 255, 255, 0.7);
-  --accent-gold-glow: 0 0 12px rgba(212, 175, 55, 0.25);
-  background: var(--color-bg);
+/* ======================================================
+   🖥️ LARGE SCREEN OPTIMIZATION
+   ====================================================== */
+@media (min-width: 1366px) {
+  .decor-hero {
+    min-height: 100vh;
+  }
+
+  .decor-hero-title {
+    font-size: 4rem;
+  }
+
+  .decor-hero-subtitle {
+    font-size: 1.25rem;
+  }
+}
+
+/* ======================================================
+   🌙 THEME ADAPTATION
+   ====================================================== */
+.dark .decor-section-title,
+.dark .reviews-layout h2 {
+  color: var(--color-accent-gold-light);
+}
+
+.dark .decor-category-card {
+  background: var(--color-neutral-dark);
   color: var(--color-text);
 }
 
-.dark .decor-page-container {
-  --glass-dark: rgba(15, 15, 15, 0.55);
-  background: radial-gradient(circle at center, #0d0b0b 0%, #050505 100%);
-  color: var(--color-text);
+.dark .btn-outline {
+  border-color: var(--color-accent-gold);
+  color: var(--color-accent-gold);
 }
 
-/* ===========================================================
-   ✅ FIX: Ensure all content below hero is always visible
-   =========================================================== */
-.decor-hero-section {
-  position: relative;
-  z-index: 1;
-  overflow: visible !important;
-}
-
-.hero-video,
-.hero-overlay {
-  z-index: 0;
-}
-
-.hero-content {
-  z-index: 2;
-}
-
-.decor-services,
-.gallery-section,
-.reviews-layout {
-  position: relative;
-  z-index: 3;
-  background: var(--color-bg);
-  padding-top: 2rem;
-  padding-bottom: 2rem;
-}
-
-.decor-page-container {
-  overflow: visible !important;
-  position: relative;
-  z-index: 0;
+.dark .btn-outline:hover {
+  background: var(--color-accent-gold);
+  color: var(--color-black);
 }

@@ -43,6 +43,7 @@ import UpdatePassword from "./components/user/UpdatePassword";
 import ConfirmPasswordChange from "./components/user/ConfirmPasswordChange";
 import AccountProfile from "./components/user/AccountProfile";
 import OAuthLoginRedirect from "./components/Auth/OAuthLoginRedirect";
+import VerifyEmail from "./components/Auth/VerifyEmail";
 
 // Dashboards & Forms
 import AdminPanel from "./components/AdminDashboard/AdminPanel";
@@ -179,6 +180,8 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} /> {/* request email */}
       <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} /> {/* confirm password */}
+      <Route path="/verify-email" element={<VerifyEmail />} />
+
 
       {/* OAuth Callback */}
       <Route path="/login/callback" element={<OAuthLoginRedirect />} />

@@ -1,36 +1,113 @@
 // src/pages/auth/ForgotPassword.jsx
-import React, { useState } from "react";
-import "./Auth.css";
+import React, { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import authService from "../../api/services/authService";
+import "./Auth.css";
 
+/**
+ * Handles password reset requests safely with reCAPTCHA protection.
+ * Prevents reCAPTCHA timeouts, ad-blocker issues, and double submissions.
+ */
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [recaptchaReady, setRecaptchaReady] = useState(false);
 
+  const siteKey = process.env.REACT_APP_RECAPTCHA_SITE_KEY; // from .env
+
+  /**
+   * Dynamically load Google reCAPTCHA script if not already loaded.
+   * This prevents timeout errors on slow networks or blocked scripts.
+   */
+  useEffect(() => {
+    const existing = document.querySelector("script[src*='recaptcha/api.js']");
+    if (existing) {
+      setRecaptchaReady(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = `https://www.google.com/recaptcha/api.js?render=${siteKey}`;
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => setRecaptchaReady(true);
+    script.onerror = () => {
+      console.warn("⚠️ reCAPTCHA script failed to load — possibly blocked.");
+      setRecaptchaReady(false);
+    };
+
+    document.body.appendChild(script);
+  }, [siteKey]);
+
+  /**
+   * Execute invisible reCAPTCHA (v3) to get a token before sending the reset request.
+   */
+  const executeRecaptcha = async () => {
+    if (!window.grecaptcha || !recaptchaReady) {
+      console.warn("⚠️ reCAPTCHA not ready — skipping verification.");
+      return null;
+    }
+
+    try {
+      const token = await window.grecaptcha.execute(siteKey, { action: "forgot_password" });
+      return token;
+    } catch (err) {
+      console.error("reCAPTCHA error:", err);
+      return null;
+    }
+  };
+
+  /**
+   * Submit handler — validates, fetches reCAPTCHA token, sends reset request.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
-    setLoading(true);
 
+    if (!email.trim()) {
+      setError("Please enter your email address.");
+      return;
+    }
+
+    setLoading(true);
     try {
-      // ✅ Call authService instead of authAPI
-      const response = await authService.resetPassword({ email });
+      const recaptchaToken = await executeRecaptcha();
+
+      const response = await authService.requestPasswordReset({
+        email: email.trim(),
+        recaptcha_token: recaptchaToken,
+      });
 
       setMessage(
-        response?.data?.detail ||
-          "Password reset email sent. Please check your inbox."
+        response?.data?.message ||
+          "✅ Password reset email sent. Please check your inbox."
       );
       setEmail("");
+      toast.success("Password reset link sent!");
     } catch (err) {
       console.error("Password reset error:", err);
-      setError(
-        err.response?.data?.detail ||
-          err.response?.data?.error ||
-          "An error occurred. Please try again."
-      );
+
+      const data = err?.response?.data;
+      let errMsg = "An error occurred. Please try again.";
+
+      if (data) {
+        if (data.message) errMsg = data.message;
+        else if (data.error) errMsg = data.error;
+        else if (typeof data === "string") errMsg = data;
+      }
+
+      // Handle reCAPTCHA timeout or block cases gracefully
+      if (err?.message?.includes("Timeout") || /recaptcha/i.test(errMsg)) {
+        errMsg =
+          "Google reCAPTCHA took too long to respond. Please reload or disable ad-blockers.";
+      }
+
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -38,7 +115,7 @@ const ForgotPassword = () => {
 
   return (
     <div className="forgot-password-page">
-      <form className="forgot-password-form" onSubmit={handleSubmit}>
+      <form className="forgot-password-form" onSubmit={handleSubmit} noValidate>
         <h2>Forgot Password</h2>
 
         {message && (
@@ -62,11 +139,19 @@ const ForgotPassword = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          autoComplete="email"
+          disabled={loading}
         />
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading || !recaptchaReady}>
           {loading ? "Sending..." : "Send Reset Email"}
         </button>
+
+        {!recaptchaReady && (
+          <small className="recaptcha-warning">
+            ⚠️ reCAPTCHA not loaded — check your network or disable ad-blockers.
+          </small>
+        )}
       </form>
     </div>
   );

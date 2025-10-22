@@ -1,7 +1,7 @@
-/* =======================================================
-   🌍 Eethm_GH Global Styles
-   Uses theme variables from variables.css
-   ======================================================= */
+/* ======================================================
+   🌍 Eethm_GH Base & Layout Styles
+   Uses unified theme tokens from variables.css
+   ====================================================== */
 
 @import url('./components/styles/variables.css');
 
@@ -12,56 +12,53 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
   font-family: var(--font-main);
-  background-color: var(--color-bg-light);
-  color: var(--color-text-light);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
   scroll-behavior: smooth;
-  transition: background-color var(--transition-slow), color var(--transition-slow);
+  transition: background var(--transition-slow), color var(--transition-slow);
+  overflow-x: hidden;
 }
 
-/* === Dark Mode Support === */
+/* === Light & Dark Theme Handling === */
+body.light {
+  background: var(--color-bg-light);
+  color: var(--color-text-light);
+}
 body.dark {
-  background-color: var(--color-bg-dark);
+  background: var(--color-bg-dark);
   color: var(--color-text-dark);
 }
 
-/* === Headings === */
+/* === Typography === */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-accent);
   color: var(--color-primary);
   margin-bottom: 0.5em;
 }
 
-h1 {
-  font-size: 2.5rem;
-  letter-spacing: 1px;
-}
-h2 {
-  font-size: 2rem;
-}
-h3 {
-  font-size: 1.5rem;
-}
+h1 { font-size: 2.5rem; letter-spacing: 1px; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
 
-/* === Text & Links === */
 p {
   margin-bottom: 1rem;
   color: var(--color-neutral);
-  font-weight: 400;
 }
 
+/* === Links === */
 a {
   color: var(--color-secondary);
   text-decoration: none;
   transition: color var(--transition-fast);
 }
-
 a:hover {
   color: var(--color-accent-gold);
 }
@@ -69,7 +66,7 @@ a:hover {
 /* === Buttons === */
 button {
   font-family: var(--font-main);
-  background-color: var(--color-primary);
+  background: var(--color-primary);
   color: var(--color-white);
   border: none;
   border-radius: var(--radius-md);
@@ -77,77 +74,56 @@ button {
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: background-color var(--transition-fast), transform 0.2s ease;
+  transition: background var(--transition-fast), transform 0.2s ease;
 }
-
 button:hover {
-  background-color: var(--color-primary-dark);
+  background: var(--color-primary-dark);
   transform: translateY(-2px);
 }
-
 button:disabled {
-  background-color: var(--color-disabled);
+  background: var(--color-disabled);
   cursor: not-allowed;
 }
 
-/* === Layout Helpers === */
+/* === Layout Utilities === */
 .container {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
 }
-
 .section {
   padding: 3rem 0;
 }
+.text-center { text-align: center; }
+.text-muted { color: var(--color-muted); }
 
-.text-center {
-  text-align: center;
-}
-
-.text-muted {
-  color: var(--color-muted);
-}
-
-/* === Animations === */
-.fade-in {
-  animation: fade-in 1s ease-out both;
-}
-
-.fade-in-up {
-  animation: fade-in-up 0.8s var(--transition-fast) both;
-}
-
-.pulse {
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-/* === Responsive Typography === */
-@media (max-width: 768px) {
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.6rem; }
-  h3 { font-size: 1.3rem; }
-}
-
-/* === Image & Media Rules === */
+/* === Media Elements === */
 img, video {
   max-width: 100%;
   height: auto;
-  display: block;
   border-radius: var(--radius-md);
+  display: block;
 }
 
-/* === Scrollbar Styling (optional aesthetic) === */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-bg-light);
-}
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg-light); }
 ::-webkit-scrollbar-thumb {
   background-color: var(--color-primary);
   border-radius: var(--radius-md);
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-primary-dark);
+}
+
+/* === Animations (from variables.css) === */
+.fade-in { animation: fade-in 1s ease-out both; }
+.fade-in-up { animation: fade-in-up 0.8s var(--transition-fast) both; }
+.pulse { animation: pulse 1.5s infinite ease-in-out; }
+
+/* === Responsive Typography === */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.6rem; }
+  h3 { font-size: 1.3rem; }
 }

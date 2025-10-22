@@ -7,89 +7,130 @@ import {
   clearTokens,
   getAccessToken,
   getRefreshToken,
-  normalizeAuthResponse,
 } from "../tokenManagement";
 
 const authService = {
-  // LOGIN
+  // ---------------- LOGIN ----------------
   login: async (credentials, remember = true) => {
-    const safeCredentials = {
+    const payload = {
       email: String(credentials.email || "").trim(),
       password: String(credentials.password || ""),
       role: String(credentials.role || "").trim(),
       access_code: String(credentials.accessCode || "").trim(),
     };
-    const res = await publicAxios.post(API.login, safeCredentials, {
+
+    const res = await publicAxios.post(API.login, payload, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     });
-    return normalizeAuthResponse(res, remember);
+
+    // Backend returns {tokens: {access, refresh}, user: {...}}
+    if (res?.data?.tokens) {
+      saveTokens(res.data.tokens, remember);
+    }
+
+    return res.data;
   },
 
-  // LOGOUT
+  // ---------------- LOGOUT ----------------
   logout: async () => {
     try {
       if (API.logout) {
-        await axiosInstance.post(API.logout, {}, { withCredentials: true });
+        const refresh = getRefreshToken();
+        if (refresh) {
+          await axiosInstance.post(
+            API.logout,
+            { refresh },
+            { withCredentials: true }
+          );
+        }
       }
     } finally {
       clearTokens();
     }
   },
 
-  // GOOGLE AUTH
+  // ---------------- GOOGLE AUTH ----------------
   googleLogin: async (data, remember = true) => {
-    const res = await publicAxios.post(API.googleLogin, data, { withCredentials: true });
-    return normalizeAuthResponse(res, remember);
-  },
-  googleRegister: async (data, remember = true) => {
-    const res = await publicAxios.post(API.googleRegister, data, { withCredentials: true });
-    return normalizeAuthResponse(res, remember);
+    const res = await publicAxios.post(API.googleLogin, data, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+
+    if (res?.data?.tokens) saveTokens(res.data.tokens, remember);
+    return res.data;
   },
 
-  // REGISTER
-  register: async (data, remember = true) => {
-    const res = await publicAxios.post(API.register, data, { withCredentials: true });
-    return normalizeAuthResponse(res, remember);
+  googleRegister: async (data, remember = true) => {
+    const res = await publicAxios.post(API.googleRegister, data, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+
+    if (res?.data?.tokens) saveTokens(res.data.tokens, remember);
+    return res.data;
   },
+
+  // ---------------- REGISTER ----------------
+  register: async (data, remember = true) => {
+    const res = await publicAxios.post(API.register, data, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+
+    if (res?.data?.tokens) saveTokens(res.data.tokens, remember);
+    return res.data;
+  },
+
   internalRegister: (data) =>
     publicAxios.post(API.internalRegister, data, { withCredentials: true }),
 
-  // PROFILE
+  // ---------------- PROFILE ----------------
   getProfile: async (config = {}) => {
-    const res = await axiosInstance.get(API.profile, { ...config });
+    const res = await axiosInstance.get(API.profile, config);
     return res.data?.profile || res.data;
   },
+
   updateProfile: (data, config = {}) =>
-    axiosInstance.patch(API.profile, data, { ...config }),
+    axiosInstance.patch(API.profile, data, config),
+
   changePassword: (data, config = {}) =>
-    axiosInstance.post(API.changePassword, data, { ...config }),
+    axiosInstance.post(API.changePassword, data, config),
 
-  // ROLES
-  currentUserRole: (config = {}) => axiosInstance.get(API.currentUserRole, { ...config }),
-  currentRole: (config = {}) => axiosInstance.get(API.currentUserRole, { ...config }),
+  // ---------------- ROLES ----------------
+  currentUserRole: (config = {}) => axiosInstance.get(API.currentUserRole, config),
+  currentRole: (config = {}) => axiosInstance.get(API.currentUserRole, config),
 
-  // ROLE CHOICES / WORKER CATEGORY normalized
   roleChoices: async (config = {}) => {
-    const res = await axiosInstance.get(API.roleChoices, { ...config });
+    const res = await axiosInstance.get(API.roleChoices, config);
     return Array.isArray(res.data) ? res.data : res.data?.results || [];
   },
+
   workerCategories: async (config = {}) => {
-    const res = await axiosInstance.get(API.workerCategories, { ...config });
+    const res = await axiosInstance.get(API.workerCategories, config);
     return Array.isArray(res.data) ? res.data : res.data?.results || [];
   },
 
-  // VENDOR / PARTNER
-  partnerProfile: (config = {}) => axiosInstance.get(API.partnerProfile, { ...config }),
-  vendorProfile: (config = {}) => axiosInstance.get(API.vendorProfile, { ...config }),
+  // ---------------- VENDOR / PARTNER ----------------
+  partnerProfile: (config = {}) => axiosInstance.get(API.partnerProfile, config),
+  vendorProfile: (config = {}) => axiosInstance.get(API.vendorProfile, config),
 
-  // PASSWORD RESET
-  resetPassword: (data) =>
-    publicAxios.post(API.resetPassword, data, { withCredentials: true }),
-  resetPasswordConfirm: (uidb64, token, data) =>
-    publicAxios.post(API.resetPasswordConfirm(uidb64, token), data, { withCredentials: true }),
+  // ---------------- PASSWORD RESET ----------------
+  requestPasswordReset: async (email) => {
+    if (!email) throw new Error("Email is required.");
+    return publicAxios.post(API.resetPassword, { email }, { withCredentials: true });
+  },
 
-  // TOKENS
+  resetPasswordConfirm: async (uidb64, token, { password, confirm_password }) => {
+    if (!password || !confirm_password) throw new Error("Password and confirm_password are required.");
+    return publicAxios.post(
+      API.resetPasswordConfirm(uidb64, token),
+      { password, confirm_password },
+      { withCredentials: true }
+    );
+  },
+
+  // ---------------- TOKENS ----------------
   refreshToken: async () => {
     const refresh = getRefreshToken();
     if (!refresh) throw new Error("No refresh token found");
@@ -97,16 +138,19 @@ const authService = {
     if (res?.data?.access) saveTokens({ access: res.data.access, refresh });
     return res;
   },
-  verifyToken: (data) =>
-    publicAxios.post(API.tokenVerify, data, { withCredentials: true }),
 
-  // OTP
-  verifyOtp: (data) =>
-    publicAxios.post(API.verifyOtp, data, { withCredentials: true }),
-  resendOtp: (data) =>
-    publicAxios.post(API.resendOtp, data, { withCredentials: true }),
+  verifyToken: (data) => publicAxios.post(API.tokenVerify, data, { withCredentials: true }),
 
-  // ADMIN
+  // ---------------- OTP ----------------
+  verifyOtp: async (data, remember = true) => {
+    const res = await publicAxios.post(API.verifyOtp, data, { withCredentials: true });
+    if (res?.data?.tokens) saveTokens(res.data.tokens, remember);
+    return res.data;
+  },
+
+  resendOtp: (data) => publicAxios.post(API.resendOtp, data, { withCredentials: true }),
+
+  // ---------------- ADMIN ----------------
   listUsers: (params) => axiosInstance.get(API.adminListUsers, { params }),
   adminInviteWorker: (data) => axiosInstance.post(API.adminInviteWorker, data),
   adminValidateWorkerInvite: (uid, token) =>
@@ -119,7 +163,7 @@ const authService = {
   adminSendMessage: (data) => axiosInstance.post(API.adminSendMessage, data),
   adminSpecialOffer: (data) => axiosInstance.post(API.adminSpecialOffer, data),
 
-  // TOKEN HELPERS
+  // ---------------- TOKEN HELPERS ----------------
   saveTokens,
   clearTokens,
   getAccessToken,
