@@ -25,7 +25,7 @@ const toArray = (payload) => {
 };
 
 const getMediaUrl = (m) => {
-  const c = [
+  const candidates = [
     m?.secure_url,
     m?.url?.full,
     m?.url,
@@ -36,7 +36,7 @@ const getMediaUrl = (m) => {
     m?.src,
     m?.path,
   ];
-  return c.find((x) => typeof x === "string" && x.trim() !== "") || "";
+  return candidates.find((x) => typeof x === "string" && x.trim() !== "") || "";
 };
 
 /* ---------- Motion Variants ---------- */
@@ -50,11 +50,11 @@ const zoomIn = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
 };
 
-/* ---------- Main DecorServicePage ---------- */
+/* ---------- Main Component ---------- */
 export default function DecorServicePage() {
   const navigate = useNavigate();
 
-  /* --- Fetch Videos & Media --- */
+  /* --- Fetch Data --- */
   const { data: videosRaw, loading: videoLoading } = useFetcher(
     "videos",
     "decor",
@@ -82,12 +82,14 @@ export default function DecorServicePage() {
   }, []);
 
   /* --- Prepare Data --- */
-  const bannerItems = []; // Not using banners in this version
   const mediaCards = toArray(mediaCardsRaw);
 
   useEffect(() => {
     const videos = toArray(videosRaw);
-    if (!videos.length && !videoLoading) return setVideoUrl(null);
+    if (!videos.length) {
+      setVideoUrl(null);
+      return;
+    }
     const featured = videos.find((v) => v?.is_featured) ?? videos[0];
     setVideoUrl(getMediaUrl(featured));
   }, [videosRaw, videoLoading]);
@@ -123,9 +125,10 @@ export default function DecorServicePage() {
     },
   ];
 
+  /* ---------- Render ---------- */
   return (
     <div className="decor-page-container">
-      {/* === HERO === */}
+      {/* === HERO SECTION === */}
       <section className="decor-hero-section" aria-label="Decor Hero Section">
         {videoUrl ? (
           <>
@@ -155,7 +158,10 @@ export default function DecorServicePage() {
                 <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
                   Book Decor Service
                 </button>
-                <button className="btn btn-outline" onClick={() => window.scrollTo({ top: 700, behavior: "smooth" })}>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => window.scrollTo({ top: 700, behavior: "smooth" })}
+                >
                   View Gallery
                 </button>
               </div>
@@ -198,32 +204,45 @@ export default function DecorServicePage() {
         <p className="section-description">
           From floral compositions to ambient lighting, we design timeless atmospheres for Ghanaian and international events.
         </p>
-        <div className="decor-category-grid">
-          {decorCategories.map((cat, i) => (
-            <motion.div key={i} className="decor-category-card" variants={zoomIn}>
-              <img
-                src={cat.image}
-                alt={`${cat.name} in Ghana and West Africa`}
-                className="decor-category-image"
-                loading="lazy"
-              />
-              <ServiceCategory category={cat} />
-            </motion.div>
-          ))}
-        </div>
+
+        {decorCategories?.length > 0 && (
+          <div className="decor-category-grid">
+            {decorCategories.map((cat, i) => (
+              <motion.div key={i} className="decor-category-card" variants={zoomIn}>
+                <img
+                  src={cat.image}
+                  alt={`${cat.name} in Ghana and West Africa`}
+                  className="decor-category-image"
+                  loading="lazy"
+                />
+                <ServiceCategory category={cat} />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </motion.section>
 
       {/* === GALLERY === */}
-      <motion.section className="section gallery-section" variants={fadeUp}>
+      <motion.section
+        className="section gallery-section"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.25 }}
+        variants={fadeUp}
+      >
         <h2>Decor Highlights</h2>
         <p>Explore our signature setups — elegant, cinematic, and locally inspired.</p>
+
         <div className="card-grid">
-          {mediaLoading
-            ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
-            : mediaCards.length > 0
-            ? mediaCards.slice(0, 6).map((m, i) => <MediaCard key={m.id ?? i} media={m} />)
-            : <p className="muted-text">No media available yet.</p>
-          }
+          {mediaLoading ? (
+            Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
+          ) : mediaCards?.length > 0 ? (
+            mediaCards.slice(0, 6).map((m, i) => (
+              <MediaCard key={m.id ?? i} media={m} />
+            ))
+          ) : (
+            <p className="muted-text">No media available yet.</p>
+          )}
         </div>
       </motion.section>
 
