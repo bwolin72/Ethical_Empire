@@ -6,45 +6,38 @@ import { toast } from "react-toastify";
 import PropTypes from "prop-types";
 import { roleRoutes } from "../../routes/roleRoutes";
 
+const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
+
 /**
  * 🔒 ProtectedRoute
  * Restricts access to authenticated users, with optional role-based control.
- *
- * @param {Array<string>} roles - Allowed roles (e.g. ['admin', 'user', 'vendor', 'partner'])
- * @param {string} guestRedirect - Redirect path for unauthenticated users (default: "/login")
  */
 const ProtectedRoute = ({ roles = [], guestRedirect = "/login" }) => {
   const { auth, isAuthenticated, loading, ready } = useAuth();
   const location = useLocation();
   const toastShown = useRef(false);
 
-  // Normalize role and allowed roles
-  const userRole = auth.user?.role ? auth.user.role.toLowerCase() : null;
+  const userRole = auth.user?.role?.toLowerCase() || null;
   const allowedRoles = roles.map((r) => r.toLowerCase());
 
-  // --------------------------
-  // Wait for AuthContext to be ready
-  // --------------------------
-  if (loading || !ready) {
-    return <SplashScreen />;
-  }
+  if (loading || !ready) return <SplashScreen />;
 
-  // --------------------------
-  // Handle unauthenticated users
-  // --------------------------
-  if (!isAuthenticated && ready) {
+  // Unauthenticated user
+  if (!isAuthenticated) {
     if (!toastShown.current) {
       toast.info("You must login to access this page.");
       toastShown.current = true;
     }
 
-    const redirectPath = `${guestRedirect}?next=${encodeURIComponent(location.pathname)}`;
+    let nextPath = location.pathname;
+    // Ignore public routes for `next` redirect
+    if (PUBLIC_ROUTES.includes(nextPath)) nextPath = "";
+
+    const redirectPath = `${guestRedirect}${nextPath ? `?next=${encodeURIComponent(nextPath)}` : ""}`;
     return <Navigate to={redirectPath} replace />;
   }
 
-  // --------------------------
-  // Handle role-based access control
-  // --------------------------
+  // Role-based access
   if (allowedRoles.length && userRole && !allowedRoles.includes(userRole)) {
     if (!toastShown.current) {
       toast.warn("Access denied: insufficient permissions.");
@@ -55,9 +48,6 @@ const ProtectedRoute = ({ roles = [], guestRedirect = "/login" }) => {
     return <Navigate to={dashboardPath} replace />;
   }
 
-  // --------------------------
-  // ✅ All checks passed — render nested routes
-  // --------------------------
   return <Outlet />;
 };
 
