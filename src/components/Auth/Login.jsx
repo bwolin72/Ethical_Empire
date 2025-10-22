@@ -11,12 +11,25 @@ import logo from "../../assets/logo.png";
 import PasswordInput from "../../components/common/PasswordInput";
 import "./Auth.css";
 
+// Google Client ID
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
-const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
+// Public routes (prevent redirect loops)
+const PUBLIC_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+];
 
 const Login = () => {
-  const [form, setForm] = useState({ email: "", password: "", role: "", accessCode: "" });
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    role: "",
+    accessCode: "",
+  });
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -28,140 +41,162 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  // Redirect user safely
+  /**
+   * Safely redirect user based on role and next query param.
+   */
   const redirectByRole = useCallback(
     (role) => {
-      const path = roleRoutes[role?.toLowerCase()] || roleRoutes.user;
+      const defaultPath = roleRoutes[role?.toLowerCase()] || "/dashboard";
       let nextPath = new URLSearchParams(location.search).get("next") || "";
-      if (PUBLIC_ROUTES.includes(nextPath)) nextPath = "";
-      console.log("[REDIRECT] Redirecting user role:", role, "to path:", nextPath || path);
-      navigate(nextPath || path, { replace: true });
+
+      // Prevent redirects to public/auth routes
+      if (!nextPath || PUBLIC_ROUTES.includes(nextPath)) {
+        nextPath = defaultPath;
+      }
+
+      console.log("[REDIRECT] Navigating to:", nextPath);
+      navigate(nextPath, { replace: true });
     },
     [navigate, location.search]
   );
 
-  // Load dark mode
+  /**
+   * Load saved dark mode from localStorage.
+   */
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
-    console.log("[THEME] Dark mode loaded:", saved);
   }, []);
 
-  // Auto redirect if already logged in
+  /**
+   * Auto-redirect logged-in users.
+   */
   useEffect(() => {
     if (ready && user?.role) {
-      console.log("[AUTO-LOGIN] User already logged in:", user);
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
       redirectByRole(user.role);
     }
   }, [ready, user, redirectByRole]);
 
+  /**
+   * Toggle dark/light theme.
+   */
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
     document.body.classList.toggle("dark", updated);
     localStorage.setItem("darkMode", updated);
-    console.log("[THEME] Dark mode toggled:", updated);
     toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
   };
 
+  /**
+   * Handle input changes.
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
-    console.log(`[FORM] Field changed: ${name} = ${value}`);
   };
 
+  /**
+   * Validate the form fields.
+   */
   const validateForm = () => {
     const errors = {};
+    if (!form.role) errors.role = "Please select your role.";
     if (!form.email.trim()) errors.email = "Please enter your email.";
     if (!form.password.trim()) errors.password = "Please enter your password.";
-    if (!form.role) errors.role = "Please select your role.";
-    if (form.role === "worker" && !form.accessCode.trim()) errors.accessCode = "Please enter your access code.";
+    if (form.role === "worker" && !form.accessCode.trim())
+      errors.accessCode = "Please enter your access code.";
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
 
     setFormErrors(errors);
-    if (Object.keys(errors).length) {
+
+    if (Object.keys(errors).length > 0) {
       toast.error("Please fix the highlighted errors.");
-      console.warn("[FORM VALIDATION] Errors:", errors);
-    } else {
-      console.log("[FORM VALIDATION] Passed");
+      return false;
     }
-    return Object.keys(errors).length === 0;
+    return true;
   };
 
+  /**
+   * Extract readable error message from API response.
+   */
   const extractErrorMessage = (err) => {
-    console.error("[LOGIN ERROR] Full error object:", err);
     const data = err?.response?.data;
     if (!data) return "Something went wrong.";
     if (typeof data === "string") return data;
     if (Array.isArray(data)) return data[0];
     if (typeof data === "object") {
-      if (data.detail) return data.detail;
-      if (data.message) return data.message;
-      if (data.errors) return Object.values(data.errors).flat().join(" ");
+      return data.detail || data.message || Object.values(data.errors || {}).flat().join(" ");
     }
     return "Login failed.";
   };
 
-  const handleLoginSuccess = async (data) => {
-    console.log("[LOGIN SUCCESS] Backend response:", data);
-    const { tokens, user: apiUser } = data;
+  /**
+   * Handle successful login.
+   */
+  const handleLoginSuccess = (data) => {
+    const { tokens, user: apiUser } = data || {};
     const { access, refresh } = tokens || {};
     if (!access || !refresh || !apiUser) {
-      console.error("[LOGIN SUCCESS] Invalid token or user in response");
-      return toast.error("Invalid login response.");
+      toast.error("Invalid login response.");
+      return;
     }
 
-    console.log("[LOGIN SUCCESS] Logging in user:", apiUser);
     login({ access, refresh, user: apiUser, remember: rememberMe });
-    redirectByRole(apiUser.role);
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
+
+    try {
+      redirectByRole(apiUser.role);
+    } catch (err) {
+      console.error("[REDIRECT ERROR]", err);
+      navigate("/dashboard", { replace: true });
+    }
   };
 
+  /**
+   * Handle form submit.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("[SUBMIT] Login form submitted:", form);
     if (!validateForm()) return;
 
     setLoading(true);
     try {
       const res = await authService.login(form, rememberMe);
-      console.log("[SUBMIT] Backend login response:", res);
-      await handleLoginSuccess(res);
+      handleLoginSuccess(res);
     } catch (err) {
       const msg = extractErrorMessage(err);
-      console.error("[SUBMIT] Login failed:", msg);
       toast.error(msg);
       setForm((prev) => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
-      console.log("[SUBMIT] Loading state reset to false");
     }
   };
 
+  /**
+   * Handle Google login.
+   */
   const handleGoogleCredential = async (credential) => {
-    console.log("[GOOGLE LOGIN] Credential received:", credential);
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
     try {
       const res = await authService.googleLogin({ credential, remember: rememberMe });
-      console.log("[GOOGLE LOGIN] Backend response:", res);
-      await handleLoginSuccess(res);
+      handleLoginSuccess(res);
     } catch (err) {
       const msg = extractErrorMessage(err);
-      console.error("[GOOGLE LOGIN] Failed:", msg);
       toast.error(msg);
     } finally {
       setLoading(false);
-      console.log("[GOOGLE LOGIN] Loading state reset to false");
     }
   };
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
+        {/* Brand Panel */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h1>EETHM_GH</h1>
@@ -171,9 +206,11 @@ const Login = () => {
           </button>
         </div>
 
+        {/* Login Form */}
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
+            {/* Role Select */}
             <div className="input-group">
               <label>Login As</label>
               <select
@@ -193,6 +230,7 @@ const Login = () => {
               {formErrors.role && <small className="error-text">{formErrors.role}</small>}
             </div>
 
+            {/* Email */}
             <div className="input-group">
               <label>Email</label>
               <input
@@ -208,6 +246,7 @@ const Login = () => {
               {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
 
+            {/* Password */}
             <div className="input-group">
               <label>Password</label>
               <PasswordInput
@@ -220,6 +259,7 @@ const Login = () => {
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
+            {/* Access Code (for worker) */}
             {form.role === "worker" && (
               <div className="input-group">
                 <label>Access Code</label>
@@ -232,10 +272,13 @@ const Login = () => {
                   className={formErrors.accessCode ? "input-error" : ""}
                   disabled={loading}
                 />
-                {formErrors.accessCode && <small className="error-text">{formErrors.accessCode}</small>}
+                {formErrors.accessCode && (
+                  <small className="error-text">{formErrors.accessCode}</small>
+                )}
               </div>
             )}
 
+            {/* Terms */}
             <label className="terms-checkbox">
               <input
                 type="checkbox"
@@ -246,19 +289,28 @@ const Login = () => {
             </label>
             {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
 
+            {/* Options */}
             <div className="auth-options">
               <label className="remember-me">
-                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={() => setRememberMe(!rememberMe)}
+                />
                 Keep me signed in
               </label>
-              <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+              <Link to="/forgot-password" className="forgot-link">
+                Forgot password?
+              </Link>
             </div>
 
+            {/* Submit */}
             <button type="submit" className="auth-submit-btn" disabled={loading || !acceptedTerms}>
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
+          {/* Google Login */}
           <div className="social-login">
             <p>Or sign in with Google:</p>
             <GoogleLogin
@@ -269,7 +321,9 @@ const Login = () => {
             />
           </div>
 
-          <p className="register-prompt">Don’t have an account? <Link to="/register">Register</Link></p>
+          <p className="register-prompt">
+            Don’t have an account? <Link to="/register">Register</Link>
+          </p>
         </div>
       </div>
     </GoogleOAuthProvider>
