@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 import authService from "../../api/services/authService";
 import { useAuth } from "../../components/context/AuthContext";
@@ -14,13 +13,10 @@ import "./Auth.css";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
+const PUBLIC_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
+
 const Login = () => {
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-    role: "",
-    accessCode: "",
-  });
+  const [form, setForm] = useState({ email: "", password: "", role: "", accessCode: "" });
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -28,26 +24,30 @@ const Login = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  /** Redirect user by role */
+  // Redirect user safely
   const redirectByRole = useCallback(
     (role) => {
       const path = roleRoutes[role?.toLowerCase()] || roleRoutes.user;
-      navigate(path, { replace: true });
+      let nextPath = new URLSearchParams(location.search).get("next") || "";
+      // Ignore public routes
+      if (PUBLIC_ROUTES.includes(nextPath)) nextPath = "";
+      navigate(nextPath || path, { replace: true });
     },
-    [navigate]
+    [navigate, location.search]
   );
 
-  /** Load dark mode preference */
+  // Load dark mode
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  /** Auto redirect if logged in */
+  // Auto redirect if already logged in
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -69,15 +69,12 @@ const Login = () => {
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  /** Validate form */
   const validateForm = () => {
     const errors = {};
     if (!form.email.trim()) errors.email = "Please enter your email.";
     if (!form.password.trim()) errors.password = "Please enter your password.";
     if (!form.role) errors.role = "Please select your role.";
-    if (form.role === "worker" && !form.accessCode.trim()) {
-      errors.accessCode = "Please enter your access code.";
-    }
+    if (form.role === "worker" && !form.accessCode.trim()) errors.accessCode = "Please enter your access code.";
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
 
     setFormErrors(errors);
@@ -98,22 +95,16 @@ const Login = () => {
     return "Login failed.";
   };
 
-  /** Handle successful login */
   const handleLoginSuccess = async (data) => {
     const { tokens, user: apiUser } = data;
     const { access, refresh } = tokens || {};
-
-    if (!access || !refresh || !apiUser) {
-      toast.error("Invalid login response.");
-      return;
-    }
+    if (!access || !refresh || !apiUser) return toast.error("Invalid login response.");
 
     login({ access, refresh, user: apiUser, remember: rememberMe });
     redirectByRole(apiUser.role);
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
   };
 
-  /** Standard login submit */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -130,7 +121,6 @@ const Login = () => {
     }
   };
 
-  /** Google login handler */
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
@@ -147,7 +137,6 @@ const Login = () => {
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
-        {/* Left Panel */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h1>EETHM_GH</h1>
@@ -157,21 +146,12 @@ const Login = () => {
           </button>
         </div>
 
-        {/* Form Panel */}
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
-
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            {/* Role Selector */}
             <div className="input-group">
               <label>Login As</label>
-              <select
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                disabled={loading}
-                className={formErrors.role ? "input-error" : ""}
-              >
+              <select name="role" value={form.role} onChange={handleChange} disabled={loading} className={formErrors.role ? "input-error" : ""}>
                 <option value="">Select role</option>
                 <option value="user">User</option>
                 <option value="worker">Worker</option>
@@ -182,101 +162,51 @@ const Login = () => {
               {formErrors.role && <small className="error-text">{formErrors.role}</small>}
             </div>
 
-            {/* Email */}
             <div className="input-group">
               <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={form.email}
-                onChange={handleChange}
-                className={formErrors.email ? "input-error" : ""}
-                disabled={loading}
-                autoComplete="email"
-              />
+              <input type="email" name="email" placeholder="Enter your email" value={form.email} onChange={handleChange} className={formErrors.email ? "input-error" : ""} disabled={loading} autoComplete="email"/>
               {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
 
-            {/* Password */}
             <div className="input-group">
               <label>Password</label>
-              <PasswordInput
-                name="password"
-                placeholder="Enter your password"
-                value={form.password}
-                onChange={handleChange}
-                disabled={loading}
-              />
+              <PasswordInput name="password" placeholder="Enter your password" value={form.password} onChange={handleChange} disabled={loading}/>
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
-            {/* Access Code (only WORKER role for normal login) */}
             {form.role === "worker" && (
               <div className="input-group">
                 <label>Access Code</label>
-                <input
-                  type="text"
-                  name="accessCode"
-                  placeholder="Enter your access code"
-                  value={form.accessCode}
-                  onChange={handleChange}
-                  className={formErrors.accessCode ? "input-error" : ""}
-                  disabled={loading}
-                />
-                {formErrors.accessCode && (
-                  <small className="error-text">{formErrors.accessCode}</small>
-                )}
+                <input type="text" name="accessCode" placeholder="Enter your access code" value={form.accessCode} onChange={handleChange} className={formErrors.accessCode ? "input-error" : ""} disabled={loading}/>
+                {formErrors.accessCode && <small className="error-text">{formErrors.accessCode}</small>}
               </div>
             )}
 
-            {/* Terms */}
             <label className="terms-checkbox">
-              <input
-                type="checkbox"
-                checked={acceptedTerms}
-                onChange={() => setAcceptedTerms((prev) => !prev)}
-              />
+              <input type="checkbox" checked={acceptedTerms} onChange={() => setAcceptedTerms((prev) => !prev)}/>
               I accept <Link to="/terms">Terms</Link> & <Link to="/privacy">Privacy</Link>
             </label>
             {formErrors.terms && <small className="error-text">{formErrors.terms}</small>}
 
-            {/* Options */}
             <div className="auth-options">
               <label className="remember-me">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={() => setRememberMe(!rememberMe)}
-                />
+                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)}/>
                 Keep me signed in
               </label>
-              <Link to="/forgot-password" className="forgot-link">
-                Forgot password?
-              </Link>
+              <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
             </div>
 
-            {/* Submit */}
             <button type="submit" className="auth-submit-btn" disabled={loading || !acceptedTerms}>
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
-          {/* Google Login */}
           <div className="social-login">
             <p>Or sign in with Google:</p>
-            <GoogleLogin
-              onSuccess={(res) => handleGoogleCredential(res?.credential)}
-              onError={() => toast.error("Google login failed")}
-              useOneTap
-              disabled={loading}
-            />
+            <GoogleLogin onSuccess={(res) => handleGoogleCredential(res?.credential)} onError={() => toast.error("Google login failed")} useOneTap disabled={loading}/>
           </div>
 
-          {/* Register Link */}
-          <p className="register-prompt">
-            Don’t have an account? <Link to="/register">Register</Link>
-          </p>
+          <p className="register-prompt">Don’t have an account? <Link to="/register">Register</Link></p>
         </div>
       </div>
     </GoogleOAuthProvider>
