@@ -8,7 +8,7 @@ import publicAxios from "../publicAxios";
  * -----------------------------------------------------
  */
 
-const BASE = `/api/blog`;
+const BASE = `/blog`;
 
 // Helper to normalize paginated or array responses
 const normalizeArray = (data) => {
