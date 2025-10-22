@@ -1,23 +1,26 @@
+// ==========================================================
+// 📁 src/api/axiosInstance.js
+// Enhanced global Axios instance with token refresh handling,
+// retry logic, Sentry integration, and session management.
+// ==========================================================
+
 import axios from "axios";
 import * as Sentry from "@sentry/react";
 import baseURL from "./baseURL";
 import { applyCommonRequestHeaders, devLog as rawDevLog } from "./axiosCommon";
 import { logoutHelper } from "../utils/logoutHelper";
+import {
+  getStorage,
+  getAccessToken,
+  getRefreshToken,
+  AUTH_KEYS,
+} from "../utils/authUtils";
 
 const MAX_RETRIES = 2;
 
 /* ----------------------------- DEV LOGGER ----------------------------- */
 const devLog = (...args) => {
-  if (process.env.NODE_ENV === "development") {
-    rawDevLog(...args);
-  }
-};
-
-/* --------------------------- STORAGE HANDLER -------------------------- */
-const getStorage = () => {
-  const rememberStored = localStorage.getItem("remember");
-  const remember = rememberStored === null ? true : rememberStored === "true";
-  return remember ? localStorage : sessionStorage;
+  if (process.env.NODE_ENV === "development") rawDevLog(...args);
 };
 
 /* ---------------------------- AXIOS INSTANCE -------------------------- */
@@ -52,8 +55,7 @@ axiosInstance.interceptors.request.use(
 
     if (!config.metadata) config.metadata = { retryCount: 0 };
 
-    const storage = getStorage();
-    const token = storage.getItem("access");
+    const token = getAccessToken();
     if (token) config.headers["Authorization"] = `Bearer ${token}`;
 
     return config;
@@ -76,8 +78,8 @@ axiosInstance.interceptors.response.use(
 
     const status = error.response?.status;
     const storage = getStorage();
-    const accessToken = storage.getItem("access");
-    const refreshToken = storage.getItem("refresh");
+    const accessToken = getAccessToken();
+    const refreshToken = getRefreshToken();
 
     devLog("[HTTP Error]", status, originalRequest?.url);
 
@@ -156,7 +158,7 @@ axiosInstance.interceptors.response.use(
         const newAccess = data?.access;
         if (!newAccess) throw new Error("No access token returned from refresh");
 
-        storage.setItem("access", newAccess);
+        storage.setItem(AUTH_KEYS.ACCESS, newAccess);
         onTokenRefreshed(newAccess);
 
         originalRequest.headers["Authorization"] = `Bearer ${newAccess}`;
@@ -188,7 +190,6 @@ axiosInstance.interceptors.response.use(
 
     /* ----------------------- FINAL 401 HANDLING ---------------------- */
     if (status === 401) {
-      // Ignore if endpoint is non-auth or harmless (like profile, image, etc.)
       const isAuthEndpoint = [
         "/token",
         "/login",
