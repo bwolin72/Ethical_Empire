@@ -2,30 +2,41 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import authService from "../../api/services/authService";
 
 export default function OAuthLoginRedirect() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { loginWithGoogle } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [status, setStatus] = useState({ loading: true, error: null });
 
   useEffect(() => {
     const token = searchParams.get("token");
+
     if (!token) {
-      setError("Missing OAuth token.");
-      setLoading(false);
-      navigate("/login");
+      setStatus({ loading: false, error: "Missing OAuth token." });
+      navigate("/login", { replace: true });
       return;
     }
 
-    const doLogin = async () => {
+    const handleOAuth = async () => {
       try {
+        // Step 1: Authenticate via your AuthContext (this should call authService.googleLogin)
         const user = await loginWithGoogle(token);
 
-        // redirect based on role
-        const role = user?.role?.toLowerCase();
-        switch (role) {
+        // Step 2: If the above didn’t return a role, fetch it explicitly
+        let role = user?.role;
+        if (!role) {
+          try {
+            const roleRes = await authService.currentUserRole();
+            role = roleRes?.data?.role || roleRes?.role;
+          } catch (roleErr) {
+            console.warn("Could not fetch role:", roleErr);
+          }
+        }
+
+        // Step 3: Navigate based on role
+        switch (role?.toLowerCase()) {
           case "admin":
             navigate("/admin", { replace: true });
             break;
@@ -43,27 +54,34 @@ export default function OAuthLoginRedirect() {
         }
       } catch (err) {
         console.error("[OAuthLoginRedirect] Login failed:", err);
-        setError("Login failed. Please try again.");
+
+        // Handle token invalid or expired
+        const msg =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Login failed. Please try again.";
+
+        setStatus({ loading: false, error: msg });
         navigate("/login", { replace: true });
       } finally {
-        setLoading(false);
+        setStatus((prev) => ({ ...prev, loading: false }));
       }
     };
 
-    doLogin();
+    handleOAuth();
   }, [searchParams, loginWithGoogle, navigate]);
 
-  if (loading)
+  if (status.loading)
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
         <p>Logging in with Google...</p>
       </div>
     );
 
-  if (error)
+  if (status.error)
     return (
       <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
-        <p>{error}</p>
+        <p>{status.error}</p>
       </div>
     );
 
