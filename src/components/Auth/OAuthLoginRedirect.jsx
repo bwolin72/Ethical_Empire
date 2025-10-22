@@ -1,4 +1,3 @@
-// src/components/Auth/OAuthLoginRedirect.jsx
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -7,12 +6,13 @@ import authService from "../../api/services/authService";
 export default function OAuthLoginRedirect() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, ready } = useAuth();
   const [status, setStatus] = useState({ loading: true, error: null });
 
   useEffect(() => {
-    const token = searchParams.get("token");
+    if (!ready) return; // wait until AuthContext is initialized
 
+    const token = searchParams.get("token");
     if (!token) {
       setStatus({ loading: false, error: "Missing OAuth token." });
       navigate("/login", { replace: true });
@@ -21,10 +21,10 @@ export default function OAuthLoginRedirect() {
 
     const handleOAuth = async () => {
       try {
-        // Step 1: Authenticate via your AuthContext (this should call authService.googleLogin)
+        // Step 1: Authenticate via AuthContext
         const user = await loginWithGoogle(token);
 
-        // Step 2: If the above didn’t return a role, fetch it explicitly
+        // Step 2: Ensure role exists
         let role = user?.role;
         if (!role) {
           try {
@@ -35,8 +35,11 @@ export default function OAuthLoginRedirect() {
           }
         }
 
-        // Step 3: Navigate based on role
-        switch (role?.toLowerCase()) {
+        // Step 3: Always fallback to 'user'
+        role = role ? role.toLowerCase() : "user";
+
+        // Step 4: Navigate based on role
+        switch (role) {
           case "admin":
             navigate("/admin", { replace: true });
             break;
@@ -54,14 +57,7 @@ export default function OAuthLoginRedirect() {
         }
       } catch (err) {
         console.error("[OAuthLoginRedirect] Login failed:", err);
-
-        // Handle token invalid or expired
-        const msg =
-          err?.response?.data?.message ||
-          err?.message ||
-          "Login failed. Please try again.";
-
-        setStatus({ loading: false, error: msg });
+        setStatus({ loading: false, error: err?.message || "Login failed" });
         navigate("/login", { replace: true });
       } finally {
         setStatus((prev) => ({ ...prev, loading: false }));
@@ -69,7 +65,7 @@ export default function OAuthLoginRedirect() {
     };
 
     handleOAuth();
-  }, [searchParams, loginWithGoogle, navigate]);
+  }, [searchParams, loginWithGoogle, navigate, ready]);
 
   if (status.loading)
     return (
