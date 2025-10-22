@@ -1,14 +1,15 @@
+// src/components/Auth/Login.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import authService from "../../api/services/authService";
-import { useAuth } from "../../components/context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import { roleRoutes } from "../../routes/roleRoutes";
 
 import logo from "../../assets/logo.png";
-import PasswordInput from "../../components/common/PasswordInput";
+import PasswordInput from "../common/PasswordInput";
 import "./Auth.css";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -39,19 +40,19 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  // ✅ Safe redirect handler
+  // ✅ Safe redirect based on role & next param
   const redirectByRole = useCallback(
     (role) => {
-      const defaultPath = roleRoutes[role?.toLowerCase()] || "/dashboard";
+      const defaultPath = roleRoutes[role?.toLowerCase()] || "/user";
       const searchParams = new URLSearchParams(location.search);
       let nextPath = searchParams.get("next");
 
-      // Prevent redirecting to public/auth routes
+      // Only allow nextPath if it is not a public/auth route
       if (!nextPath || PUBLIC_ROUTES.some((r) => nextPath.startsWith(r))) {
         nextPath = defaultPath;
       }
 
-      // Clean query params after redirect
+      // Clean query params
       window.history.replaceState({}, document.title, location.pathname);
 
       console.log("[REDIRECT] Navigating to:", nextPath);
@@ -60,14 +61,14 @@ const Login = () => {
     [navigate, location]
   );
 
-  // ✅ Load saved dark mode preference
+  // ✅ Load dark mode from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
     document.body.classList.toggle("dark", saved);
   }, []);
 
-  // ✅ Auto redirect if user already logged in
+  // ✅ Auto redirect if already logged in
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -84,14 +85,14 @@ const Login = () => {
     toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
   };
 
-  // ✅ Handle input change
+  // ✅ Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // ✅ Form validation
+  // ✅ Validate form
   const validateForm = () => {
     const errors = {};
     if (!form.role) errors.role = "Please select your role.";
@@ -102,7 +103,6 @@ const Login = () => {
     if (!acceptedTerms) errors.terms = "You must accept Terms & Privacy.";
 
     setFormErrors(errors);
-
     if (Object.keys(errors).length > 0) {
       toast.error("Please fix the highlighted errors.");
       return false;
@@ -110,7 +110,7 @@ const Login = () => {
     return true;
   };
 
-  // ✅ Extract readable backend error
+  // ✅ Extract backend error
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (!data) return "Something went wrong.";
@@ -132,18 +132,21 @@ const Login = () => {
       return;
     }
 
+    // Ensure role fallback
+    const userRole = apiUser.role ? apiUser.role.toLowerCase() : "user";
+
     login({ access, refresh, user: apiUser, remember: rememberMe });
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
 
     try {
-      redirectByRole(apiUser.role);
+      redirectByRole(userRole);
     } catch (err) {
       console.error("[REDIRECT ERROR]", err);
-      navigate("/dashboard", { replace: true });
+      navigate("/user", { replace: true });
     }
   };
 
-  // ✅ Handle normal login
+  // ✅ Normal login
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -161,7 +164,7 @@ const Login = () => {
     }
   };
 
-  // ✅ Google Sign-In handler
+  // ✅ Google login
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
@@ -176,17 +179,15 @@ const Login = () => {
     }
   };
 
-  // ✅ Google error handler (FedCM-safe)
   const handleGoogleError = (err) => {
     if (err?.type === "popup_closed_by_user") return;
     console.warn("[Google Sign-In Error]", err);
-    // No toast to avoid spamming on FedCM aborts
   };
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
-        {/* === Brand Panel === */}
+        {/* Brand Panel */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h1>EETHM_GH</h1>
@@ -196,7 +197,7 @@ const Login = () => {
           </button>
         </div>
 
-        {/* === Login Form === */}
+        {/* Login Form */}
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
@@ -249,7 +250,7 @@ const Login = () => {
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
-            {/* Access Code (for worker) */}
+            {/* Access Code for Worker */}
             {form.role === "worker" && (
               <div className="input-group">
                 <label>Access Code</label>
@@ -300,7 +301,7 @@ const Login = () => {
             </button>
           </form>
 
-          {/* === Google Login === */}
+          {/* Google Login */}
           <div className="social-login">
             <p>Or sign in with Google:</p>
             <GoogleLogin

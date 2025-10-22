@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import authService from "../../api/services/authService";
+import { toast } from "react-toastify";
+import { roleRoutes } from "../../routes/roleRoutes";
 
 export default function OAuthLoginRedirect() {
   const navigate = useNavigate();
@@ -10,7 +12,7 @@ export default function OAuthLoginRedirect() {
   const [status, setStatus] = useState({ loading: true, error: null });
 
   useEffect(() => {
-    if (!ready) return; // wait until AuthContext is initialized
+    if (!ready) return; // wait for AuthContext to initialize
 
     const token = searchParams.get("token");
     if (!token) {
@@ -21,7 +23,7 @@ export default function OAuthLoginRedirect() {
 
     const handleOAuth = async () => {
       try {
-        // Step 1: Authenticate via AuthContext
+        // Step 1: Login via AuthContext
         const user = await loginWithGoogle(token);
 
         // Step 2: Ensure role exists
@@ -35,29 +37,17 @@ export default function OAuthLoginRedirect() {
           }
         }
 
-        // Step 3: Always fallback to 'user'
+        // Step 3: Fallback to 'user'
         role = role ? role.toLowerCase() : "user";
 
-        // Step 4: Navigate based on role
-        switch (role) {
-          case "admin":
-            navigate("/admin", { replace: true });
-            break;
-          case "vendor":
-            navigate("/vendor-profile", { replace: true });
-            break;
-          case "partner":
-            navigate("/partner-dashboard", { replace: true });
-            break;
-          case "worker":
-            navigate("/worker-dashboard", { replace: true });
-            break;
-          default:
-            navigate("/user", { replace: true });
-        }
+        // Step 4: Navigate based on roleRoutes mapping
+        const redirectPath = roleRoutes[role] || "/user";
+        toast.success(`Welcome, ${user.name || "User"}! 🎉`);
+        navigate(redirectPath, { replace: true });
       } catch (err) {
         console.error("[OAuthLoginRedirect] Login failed:", err);
         setStatus({ loading: false, error: err?.message || "Login failed" });
+        toast.error(err?.message || "Login failed via Google.");
         navigate("/login", { replace: true });
       } finally {
         setStatus((prev) => ({ ...prev, loading: false }));
