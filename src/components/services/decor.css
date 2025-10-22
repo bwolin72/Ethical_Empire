@@ -1,13 +1,12 @@
 /* ======================================================
-   🎨 Decor Page Styles — decor.css
+   Decor Page Styles
    ====================================================== */
 
 .decor-page-container {
-  font-family: var(--font-main);
   background-color: var(--color-bg);
   color: var(--color-text);
-  width: 100%;
-  overflow-x: hidden;
+  font-family: var(--font-main);
+  line-height: 1.6;
 }
 
 /* ================= HERO SECTION ================= */
@@ -29,7 +28,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
 }
 
 .hero-overlay {
@@ -38,43 +36,45 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--color-overlay, rgba(88, 28, 28, 0.5));
-  z-index: 2;
+  background: var(--color-overlay);
+  z-index: 1;
 }
 
 .hero-content {
   position: relative;
-  z-index: 3;
-  max-width: 900px;
-  padding: 2rem;
+  z-index: 2;
   text-align: center;
-  color: var(--color-white);
+  max-width: 900px;
+  padding: 0 1rem;
 }
 
 .hero-title {
   font-family: var(--font-accent);
   font-size: 3rem;
-  margin-bottom: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
-  margin-bottom: 2rem;
-  line-height: 1.6;
+  color: var(--color-white);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .hero-buttons {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .btn {
   font-weight: 600;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.75rem;
   border-radius: var(--radius-md);
-  border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -82,6 +82,7 @@
 .btn-primary {
   background: var(--gradient-gold-burgundy);
   color: var(--color-white);
+  border: none;
 }
 
 .btn-primary:hover {
@@ -90,8 +91,8 @@
 
 .btn-outline {
   background: transparent;
-  border: 2px solid var(--color-white);
   color: var(--color-white);
+  border: 2px solid var(--color-white);
 }
 
 .btn-outline:hover {
@@ -103,41 +104,34 @@
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  z-index: 4;
-  background: var(--color-black);
+  background: rgba(0,0,0,0.5);
   color: var(--color-white);
   border: none;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  font-size: 1.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 2;
 }
 
 /* ================= DECOR CATEGORIES ================= */
 .decor-services {
-  padding: 4rem 2rem;
+  padding: 5rem 1rem 3rem;
   background-color: var(--color-bg);
+  text-align: center;
 }
 
-.decor-services h2 {
-  text-align: center;
+.section-title {
   font-family: var(--font-accent);
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
+  color: var(--color-primary);
 }
 
 .section-description {
-  text-align: center;
-  color: var(--color-muted);
-  margin-bottom: 3rem;
+  font-size: 1.125rem;
+  color: var(--color-text);
   max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.5;
+  margin: 0 auto 3rem auto;
 }
 
 .decor-category-grid {
@@ -150,101 +144,66 @@
   background-color: var(--color-service-bg);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-fast);
 }
 
 .decor-category-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-5px) scale(1.02);
+}
+
+.decor-category-image-wrapper {
+  width: 100%;
+  overflow: hidden;
 }
 
 .decor-category-image {
   width: 100%;
-  height: 180px;
+  height: 220px;
   object-fit: cover;
+  display: block;
+  transition: transform var(--transition-fast);
 }
 
-/* ================= GALLERY SECTION ================= */
+.decor-category-card:hover .decor-category-image {
+  transform: scale(1.05);
+}
+
+/* ================= GALLERY ================= */
 .gallery-section {
-  padding: 4rem 2rem;
-  background-color: var(--color-bg);
-}
-
-.gallery-section h2 {
+  padding: 5rem 1rem 3rem;
+  background-color: var(--color-bg-light);
   text-align: center;
-  font-family: var(--font-accent);
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
 }
 
-.gallery-section p {
-  text-align: center;
-  color: var(--color-muted);
-  margin-bottom: 2rem;
-}
-
-.card-grid {
+.gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-}
-
-/* Fallback text if no media */
-.muted-text {
-  text-align: center;
-  color: var(--color-muted);
-  font-style: italic;
-  padding: 2rem 0;
 }
 
 /* ================= REVIEWS ================= */
 .reviews-layout {
-  padding: 4rem 2rem;
+  padding: 5rem 1rem;
   background-color: var(--color-bg);
 }
 
 .reviews-layout h2 {
-  text-align: center;
   font-family: var(--font-accent);
   font-size: 2rem;
-  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
 }
 
-.reviews-layout p {
-  text-align: center;
+.muted-text {
   color: var(--color-muted);
-  margin-bottom: 3rem;
-}
-
-/* ================= MEDIA CARDS ================= */
-.media-card {
-  background-color: var(--color-service-bg);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
-}
-
-.media-card:hover {
-  transform: scale(1.03);
-}
-
-.media-card img,
-.media-card video {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
+  font-size: 1rem;
 }
 
 /* ================= RESPONSIVE ================= */
-@media screen and (max-width: 768px) {
+@media (max-width: 768px) {
   .hero-title {
-    font-size: 2.25rem;
+    font-size: 2.2rem;
   }
 
   .hero-subtitle {
@@ -252,29 +211,20 @@
   }
 
   .decor-category-image {
-    height: 150px;
+    height: 180px;
   }
 
-  .media-card img,
-  .media-card video {
-    height: 140px;
+  .decor-category-card {
+    margin-bottom: 2rem;
   }
 }
 
-@media screen and (max-width: 480px) {
+@media (max-width: 480px) {
   .hero-title {
-    font-size: 1.75rem;
+    font-size: 1.8rem;
   }
 
   .hero-subtitle {
-    font-size: 0.875rem;
-  }
-
-  .decor-category-grid {
-    gap: 1rem;
-  }
-
-  .card-grid {
-    gap: 1rem;
+    font-size: 0.95rem;
   }
 }
