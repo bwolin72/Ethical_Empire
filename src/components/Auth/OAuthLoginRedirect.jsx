@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import authService from "../../api/services/authService";
 import { toast } from "react-toastify";
 import { roleRoutes } from "../../routes/roleRoutes";
 
@@ -26,22 +25,17 @@ export default function OAuthLoginRedirect() {
         // Step 1: Login via AuthContext
         const user = await loginWithGoogle(token);
 
+        if (!user) throw new Error("Invalid OAuth login response.");
+
         // Step 2: Ensure role exists
-        let role = user?.role;
-        if (!role) {
-          try {
-            const roleRes = await authService.currentUserRole();
-            role = roleRes?.data?.role || roleRes?.role;
-          } catch (roleErr) {
-            console.warn("Could not fetch role:", roleErr);
-          }
-        }
+        let role = user.role?.toLowerCase() || "user";
 
-        // Step 3: Fallback to 'user'
-        role = role ? role.toLowerCase() : "user";
-
-        // Step 4: Navigate based on roleRoutes mapping
+        // Step 3: Navigate safely
         const redirectPath = roleRoutes[role] || "/user";
+
+        // Clear token from URL before navigation
+        window.history.replaceState({}, document.title, "/");
+
         toast.success(`Welcome, ${user.name || "User"}! 🎉`);
         navigate(redirectPath, { replace: true });
       } catch (err) {

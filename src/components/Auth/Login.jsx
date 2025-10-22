@@ -40,35 +40,29 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  // ✅ Safe redirect based on role & next param
+  // -----------------------------
+  // Safe redirect based on role & next
+  // -----------------------------
   const redirectByRole = useCallback(
     (role) => {
       const defaultPath = roleRoutes[role?.toLowerCase()] || "/user";
       const searchParams = new URLSearchParams(location.search);
       let nextPath = searchParams.get("next");
 
-      // Only allow nextPath if it is not a public/auth route
       if (!nextPath || PUBLIC_ROUTES.some((r) => nextPath.startsWith(r))) {
         nextPath = defaultPath;
       }
 
-      // Clean query params
       window.history.replaceState({}, document.title, location.pathname);
-
       console.log("[REDIRECT] Navigating to:", nextPath);
       navigate(nextPath, { replace: true });
     },
     [navigate, location]
   );
 
-  // ✅ Load dark mode from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("darkMode") === "true";
-    setDarkMode(saved);
-    document.body.classList.toggle("dark", saved);
-  }, []);
-
-  // ✅ Auto redirect if already logged in
+  // -----------------------------
+  // Auto redirect if already logged in
+  // -----------------------------
   useEffect(() => {
     if (ready && user?.role) {
       toast.success(`Welcome back, ${user.name || "User"}! 🎉`);
@@ -76,7 +70,15 @@ const Login = () => {
     }
   }, [ready, user, redirectByRole]);
 
-  // ✅ Theme toggle
+  // -----------------------------
+  // Theme
+  // -----------------------------
+  useEffect(() => {
+    const saved = localStorage.getItem("darkMode") === "true";
+    setDarkMode(saved);
+    document.body.classList.toggle("dark", saved);
+  }, []);
+
   const toggleDarkMode = () => {
     const updated = !darkMode;
     setDarkMode(updated);
@@ -85,14 +87,15 @@ const Login = () => {
     toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
   };
 
-  // ✅ Handle input changes
+  // -----------------------------
+  // Form handling
+  // -----------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // ✅ Validate form
   const validateForm = () => {
     const errors = {};
     if (!form.role) errors.role = "Please select your role.";
@@ -110,7 +113,6 @@ const Login = () => {
     return true;
   };
 
-  // ✅ Extract backend error
   const extractErrorMessage = (err) => {
     const data = err?.response?.data;
     if (!data) return "Something went wrong.";
@@ -122,7 +124,6 @@ const Login = () => {
     return "Login failed.";
   };
 
-  // ✅ Unified login success handler
   const handleLoginSuccess = (data) => {
     const { tokens, user: apiUser } = data || {};
     const { access, refresh } = tokens || {};
@@ -132,21 +133,17 @@ const Login = () => {
       return;
     }
 
-    // Ensure role fallback
-    const userRole = apiUser.role ? apiUser.role.toLowerCase() : "user";
-
     login({ access, refresh, user: apiUser, remember: rememberMe });
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
 
     try {
-      redirectByRole(userRole);
+      redirectByRole(apiUser.role?.toLowerCase() || "user");
     } catch (err) {
       console.error("[REDIRECT ERROR]", err);
       navigate("/user", { replace: true });
     }
   };
 
-  // ✅ Normal login
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -156,15 +153,13 @@ const Login = () => {
       const res = await authService.login(form, rememberMe);
       handleLoginSuccess(res);
     } catch (err) {
-      const msg = extractErrorMessage(err);
-      toast.error(msg);
+      toast.error(extractErrorMessage(err));
       setForm((prev) => ({ ...prev, password: "" }));
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Google login
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
@@ -172,8 +167,7 @@ const Login = () => {
       const res = await authService.googleLogin({ credential, remember: rememberMe });
       handleLoginSuccess(res);
     } catch (err) {
-      const msg = extractErrorMessage(err);
-      toast.error(msg);
+      toast.error(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -184,10 +178,15 @@ const Login = () => {
     console.warn("[Google Sign-In Error]", err);
   };
 
+  // -----------------------------
+  // Prevent rendering until AuthContext ready
+  // -----------------------------
+  if (!ready) return null; // or <SplashScreen /> if you have one
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
       <div className={`auth-wrapper ${darkMode ? "dark" : ""}`}>
-        {/* Brand Panel */}
+        {/* Brand */}
         <div className="auth-brand-panel">
           <img src={logo} alt="Logo" className="auth-logo" />
           <h1>EETHM_GH</h1>
@@ -201,7 +200,7 @@ const Login = () => {
         <div className="auth-form-panel">
           <h2 className="form-title">Welcome Back 👋</h2>
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
-            {/* Role Select */}
+            {/* Role */}
             <div className="input-group">
               <label>Login As</label>
               <select
@@ -250,7 +249,7 @@ const Login = () => {
               {formErrors.password && <small className="error-text">{formErrors.password}</small>}
             </div>
 
-            {/* Access Code for Worker */}
+            {/* Worker Access Code */}
             {form.role === "worker" && (
               <div className="input-group">
                 <label>Access Code</label>
@@ -295,7 +294,6 @@ const Login = () => {
               </Link>
             </div>
 
-            {/* Submit */}
             <button type="submit" className="auth-submit-btn" disabled={loading || !acceptedTerms}>
               {loading ? "Logging in..." : "Login"}
             </button>
