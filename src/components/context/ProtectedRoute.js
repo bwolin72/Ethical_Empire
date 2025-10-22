@@ -15,40 +15,49 @@ import { roleRoutes } from "../../routes/roleRoutes";
  */
 const ProtectedRoute = ({ roles = [], guestRedirect = "/login" }) => {
   const { auth, isAuthenticated, loading, ready } = useAuth();
-  const userRole = (auth?.user?.role || "").toLowerCase();
-  const allowedRoles = roles.map((r) => r.toLowerCase());
   const location = useLocation();
   const toastShown = useRef(false);
 
-  // Wait until AuthContext is fully initialized
+  // Normalize role and allowed roles
+  const userRole = auth.user?.role ? auth.user.role.toLowerCase() : null;
+  const allowedRoles = roles.map((r) => r.toLowerCase());
+
+  // --------------------------
+  // Wait for AuthContext to be ready
+  // --------------------------
   if (loading || !ready) {
     return <SplashScreen />;
   }
 
+  // --------------------------
   // Handle unauthenticated users
-  if (!isAuthenticated) {
+  // --------------------------
+  if (!isAuthenticated && ready) {
     if (!toastShown.current) {
       toast.info("You must login to access this page.");
       toastShown.current = true;
     }
-    // Redirect back to original route after login
+
     const redirectPath = `${guestRedirect}?next=${encodeURIComponent(location.pathname)}`;
     return <Navigate to={redirectPath} replace />;
   }
 
+  // --------------------------
   // Handle role-based access control
-  if (allowedRoles.length && !allowedRoles.includes(userRole)) {
+  // --------------------------
+  if (allowedRoles.length && userRole && !allowedRoles.includes(userRole)) {
     if (!toastShown.current) {
       toast.warn("Access denied: insufficient permissions.");
       toastShown.current = true;
     }
 
-    // Redirect user to their default dashboard or unauthorized page
     const dashboardPath = roleRoutes[userRole] ?? "/unauthorized";
     return <Navigate to={dashboardPath} replace />;
   }
 
+  // --------------------------
   // ✅ All checks passed — render nested routes
+  // --------------------------
   return <Outlet />;
 };
 
