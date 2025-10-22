@@ -39,23 +39,28 @@ const Login = () => {
   const { login, auth, ready } = useAuth();
   const user = auth?.user;
 
-  // ✅ Redirect user after login based on role
+  // ✅ Safe redirect handler
   const redirectByRole = useCallback(
     (role) => {
       const defaultPath = roleRoutes[role?.toLowerCase()] || "/dashboard";
-      let nextPath = new URLSearchParams(location.search).get("next") || "";
+      const searchParams = new URLSearchParams(location.search);
+      let nextPath = searchParams.get("next");
 
-      if (!nextPath || PUBLIC_ROUTES.includes(nextPath)) {
+      // Prevent redirecting to public/auth routes
+      if (!nextPath || PUBLIC_ROUTES.some((r) => nextPath.startsWith(r))) {
         nextPath = defaultPath;
       }
+
+      // Clean query params after redirect
+      window.history.replaceState({}, document.title, location.pathname);
 
       console.log("[REDIRECT] Navigating to:", nextPath);
       navigate(nextPath, { replace: true });
     },
-    [navigate, location.search]
+    [navigate, location]
   );
 
-  // ✅ Load saved dark mode
+  // ✅ Load saved dark mode preference
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
     setDarkMode(saved);
@@ -79,14 +84,14 @@ const Login = () => {
     toast(updated ? "🌙 Dark mode enabled" : "☀️ Light mode enabled");
   };
 
-  // ✅ Handle input
+  // ✅ Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // ✅ Validation
+  // ✅ Form validation
   const validateForm = () => {
     const errors = {};
     if (!form.role) errors.role = "Please select your role.";
@@ -117,10 +122,11 @@ const Login = () => {
     return "Login failed.";
   };
 
-  // ✅ Unified success handler
+  // ✅ Unified login success handler
   const handleLoginSuccess = (data) => {
     const { tokens, user: apiUser } = data || {};
     const { access, refresh } = tokens || {};
+
     if (!access || !refresh || !apiUser) {
       toast.error("Invalid login response.");
       return;
@@ -137,7 +143,7 @@ const Login = () => {
     }
   };
 
-  // ✅ Form submit
+  // ✅ Handle normal login
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -155,7 +161,7 @@ const Login = () => {
     }
   };
 
-  // ✅ Safe Google login handler
+  // ✅ Google Sign-In handler
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
@@ -170,11 +176,11 @@ const Login = () => {
     }
   };
 
-  // ✅ Safe Google error handler (avoids FedCM console spam)
+  // ✅ Google error handler (FedCM-safe)
   const handleGoogleError = (err) => {
     if (err?.type === "popup_closed_by_user") return;
     console.warn("[Google Sign-In Error]", err);
-    // no toast here to avoid repeated alerts on FedCM aborts
+    // No toast to avoid spamming on FedCM aborts
   };
 
   return (
@@ -300,7 +306,6 @@ const Login = () => {
             <GoogleLogin
               onSuccess={(res) => handleGoogleCredential(res?.credential)}
               onError={handleGoogleError}
-              // Removed useOneTap to silence FedCM logs
               disabled={loading}
             />
           </div>
