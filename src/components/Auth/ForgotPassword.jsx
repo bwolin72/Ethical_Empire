@@ -13,24 +13,36 @@ const ForgotPassword = () => {
     e.preventDefault();
     setMessage("");
     setError("");
+
+    if (!email) {
+      setError("Please enter your email address.");
+      return;
+    }
+
     setLoading(true);
+    console.log("Submitting email:", email);
 
     try {
-      // ✅ Call authService instead of authAPI
       const response = await authService.resetPassword({ email });
 
       setMessage(
-        response?.data?.detail ||
-          "Password reset email sent. Please check your inbox."
+        response?.data?.message || // <- backend sends "message"
+        "Password reset email sent. Please check your inbox."
       );
       setEmail("");
     } catch (err) {
       console.error("Password reset error:", err);
-      setError(
-        err.response?.data?.detail ||
-          err.response?.data?.error ||
-          "An error occurred. Please try again."
-      );
+
+      const data = err?.response?.data;
+      let errMsg = "An error occurred. Please try again.";
+
+      if (data) {
+        if (data.message) errMsg = data.message;
+        else if (data.error) errMsg = data.error;
+        else if (typeof data === "string") errMsg = data;
+      }
+
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -60,7 +72,7 @@ const ForgotPassword = () => {
           type="email"
           placeholder="Enter your registered email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value.trim())}
           required
         />
 
