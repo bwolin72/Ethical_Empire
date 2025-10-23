@@ -1,11 +1,19 @@
-# === API Proxy ===
+# ==============================
+# API Proxy
+# ==============================
 /api/*    https://api.eethmhmultimedia.com/:splat    200
 
+# ==============================
 # PDF Worker for React PDF
+# ==============================
 /pdf.worker.min.js    /pdf.worker.min.js    200
 
-# SPA routing fallback: all other routes to index.html
+# ==============================
+# SPA Routing Fallback (React Router)
+# ==============================
 /*    /index.html    200
 
-# Optional: force HTTPS (uncomment if needed)
-/http://*    https://www.eethmghmultimedia.com/:splat    301
+# ==============================
+# Optional: Force HTTPS
+# ==============================
+http://*    https://www.eethmghmultimedia.com/:splat    301

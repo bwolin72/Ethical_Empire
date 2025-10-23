@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import jwt_decode from "jwt-decode";
 
-// ✅ Create context
+// ✅ Create the AuthContext (named export)
 export const AuthContext = createContext();
 
-// ✅ Provider
+// ✅ Provider component
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const refreshTimer = useRef(null);
@@ -97,13 +97,15 @@ export const AuthProvider = ({ children }) => {
   );
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout, loginWithGoogle, isAuthenticated, ready }}>
+    <AuthContext.Provider
+      value={{ auth, login, logout, loginWithGoogle, isAuthenticated, ready }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
 // ----------------------------
-// Hook
+// Custom hook for consuming AuthContext
 // ----------------------------
 export const useAuth = () => useContext(AuthContext);

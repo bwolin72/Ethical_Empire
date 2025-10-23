@@ -1,76 +1,54 @@
 /*
 
-# === Global security headers ===
+# ==============================
+# Global Security & Cross-Origin
+# ==============================
 Cross-Origin-Opener-Policy: unsafe-none
 Cross-Origin-Embedder-Policy: unsafe-none
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
 
-# Prevent caching of critical auth-related pages
+# ==============================
+# Prevent Caching of Auth Pages
+# ==============================
 /login
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /register
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /user
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /admin
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /connect
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /account
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /bookings
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /edit-profile
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /update-password
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /confirm-password-change
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
 /reset-password-confirm/*
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
 
-# === Static Assets (JS, CSS, Images) ===
+# ==============================
+# Cache Static Assets (JS, CSS, Images)
+# ==============================
 /static/js/*
-  Cache-Control: public, max-age=31536000, immutable
-
 /static/css/*
-  Cache-Control: public, max-age=31536000, immutable
-
 /static/media/*
-  Cache-Control: public, max-age=31536000, immutable
-
 /logo192.png
 /logo512.png
 /favicon.ico
   Cache-Control: public, max-age=31536000, immutable
+
+# ==============================
+# Optional: Custom Fonts
+# ==============================
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ==============================
+# SPA Fallback & React Routing
+# ==============================
+/*
+  Cache-Control: no-cache
+  Pragma: no-cache
+  Expires: 0
