@@ -1,6 +1,12 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ToastContainer, toast } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -68,7 +74,7 @@ import SocialHub from "./components/social/SocialHub";
 import Unauthorized from "./components/common/Unauthorized";
 import NotFound from "./components/common/NotFound";
 
-// Context & Utilities
+// Context & Utilities (✅ all named exports)
 import { AuthProvider } from "./components/context/AuthContext";
 import { ProfileProvider } from "./components/context/ProfileContext";
 import ProtectedRoute from "./components/context/ProtectedRoute";
@@ -157,7 +163,7 @@ const AppRoutes = () => {
       <Route path="/messaging" element={<Messaging />} />
       <Route path="/connect" element={<ConnectHub />} />
 
-      {/* Service Pages */}
+      {/* Services */}
       <Route path="/services/live-band" element={<LiveBandServicePage />} />
       <Route path="/services/catering" element={<CateringServicePage />} />
       <Route path="/services/decor" element={<DecorServicePage />} />
@@ -177,7 +183,7 @@ const AppRoutes = () => {
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/login/callback" element={<OAuthLoginRedirect />} />
 
-      {/* Protected: Users & Admin */}
+      {/* Protected Routes */}
       <Route element={<ProtectedRoute roles={["user", "admin"]} />}>
         <Route path="/user" element={<UserPage />} />
         <Route path="/account" element={<AccountProfile />} />
@@ -217,7 +223,7 @@ const AppRoutes = () => {
 };
 
 // ==============================
-// App Layout with Splash
+// App Layout with Splash Screen
 // ==============================
 const AppWithSplash = () => {
   const [splashVisible, setSplashVisible] = useState(true);
@@ -250,7 +256,12 @@ const AppWithSplash = () => {
 // ==============================
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 60_000, onError: showErrorToast },
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 60_000,
+      onError: showErrorToast,
+    },
     mutations: { retry: false, onError: showErrorToast },
   },
 });

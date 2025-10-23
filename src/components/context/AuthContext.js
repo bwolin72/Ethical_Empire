@@ -109,3 +109,5 @@ export const AuthProvider = ({ children }) => {
 // Custom hook for consuming AuthContext
 // ----------------------------
 export const useAuth = () => useContext(AuthContext);
+
+export default AuthContext;
