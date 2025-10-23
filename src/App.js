@@ -1,12 +1,6 @@
 // src/App.js
 import React, { useEffect, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ToastContainer, toast } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -81,7 +75,7 @@ import ProtectedRoute from "./components/context/ProtectedRoute";
 import DebugWrapper from "./components/debug/DebugWrapper";
 
 // ==============================
-// Scroll Reset on Route Change
+// Scroll Reset
 // ==============================
 const ScrollAndRefresh = () => {
   const location = useLocation();
@@ -93,7 +87,7 @@ const ScrollAndRefresh = () => {
 };
 
 // ==============================
-// Error Helper for Toast
+// Error Toast
 // ==============================
 const showErrorToast = (error) => {
   let message = "An unexpected error occurred";
@@ -103,7 +97,7 @@ const showErrorToast = (error) => {
 };
 
 // ==============================
-// Homepage Wrapper
+// Homepage
 // ==============================
 const EethmHomePage = () => {
   const navigate = useNavigate();
@@ -124,13 +118,13 @@ const EethmHomePage = () => {
 };
 
 // ==============================
-// Role Routes Mapping
+// Role Routes
 // ==============================
 export const roleRoutes = {
   admin: "/admin",
   worker: "/worker-dashboard",
   user: "/user",
-  client: "/user", // alias for standard users
+  client: "/user",
   vendor: "/partner-vendor-dashboard",
   partner: "/partner-vendor-dashboard",
 };
@@ -178,15 +172,12 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} /> {/* request email */}
-      <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} /> {/* confirm password */}
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password-confirm/:uid/:token" element={<ResetPassword />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
-
-
-      {/* OAuth Callback */}
       <Route path="/login/callback" element={<OAuthLoginRedirect />} />
 
-      {/* Protected: Users & Admins */}
+      {/* Protected: Users & Admin */}
       <Route element={<ProtectedRoute roles={["user", "admin"]} />}>
         <Route path="/user" element={<UserPage />} />
         <Route path="/account" element={<AccountProfile />} />
@@ -197,18 +188,18 @@ const AppRoutes = () => {
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
       </Route>
 
-      {/* Vendors */}
+      {/* Vendor */}
       <Route element={<ProtectedRoute roles={["vendor"]} />}>
         <Route path="/vendor-profile" element={<VendorProfile />} />
       </Route>
 
-      {/* Partners */}
+      {/* Partner */}
       <Route element={<ProtectedRoute roles={["partner"]} />}>
         <Route path="/partner-profile" element={<PartnerProfilePage />} />
         <Route path="/partner-dashboard" element={<AgencyDashboard />} />
       </Route>
 
-      {/* Workers */}
+      {/* Worker */}
       <Route element={<ProtectedRoute roles={["worker"]} />}>
         <Route path="/worker-dashboard" element={<WorkerDashboard />} />
       </Route>
@@ -226,7 +217,7 @@ const AppRoutes = () => {
 };
 
 // ==============================
-// App With Splash & Layout
+// App Layout with Splash
 // ==============================
 const AppWithSplash = () => {
   const [splashVisible, setSplashVisible] = useState(true);
@@ -257,22 +248,14 @@ const AppWithSplash = () => {
 // ==============================
 // Root App
 // ==============================
-function App() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: 1,
-        refetchOnWindowFocus: false,
-        staleTime: 1000 * 60,
-        onError: showErrorToast,
-      },
-      mutations: {
-        retry: false,
-        onError: showErrorToast,
-      },
-    },
-  });
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 60_000, onError: showErrorToast },
+    mutations: { retry: false, onError: showErrorToast },
+  },
+});
 
+function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>

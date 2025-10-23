@@ -1,9 +1,8 @@
-# Global defaults (apply to everything)
-# Set COOP and CORP policy for login-related popups to work
+/*
 
-
-#  Cross-Origin-Opener-Policy: unsafe-none
- # Cross-Origin-Embedder-Policy: unsafe-none
+# === Global security headers ===
+Cross-Origin-Opener-Policy: unsafe-none
+Cross-Origin-Embedder-Policy: unsafe-none
 
 # Prevent caching of critical auth-related pages
 /login
@@ -60,3 +59,18 @@
   Cache-Control: no-cache, no-store, must-revalidate
   Pragma: no-cache
   Expires: 0
+
+# === Static Assets (JS, CSS, Images) ===
+/static/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/media/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/logo192.png
+/logo512.png
+/favicon.ico
+  Cache-Control: public, max-age=31536000, immutable

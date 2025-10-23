@@ -1,4 +1,4 @@
-// ProtectedRoute.jsx
+// src/components/context/ProtectedRoute.jsx
 import React, { useRef } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
@@ -15,7 +15,6 @@ const ProtectedRoute = ({ roles = [] }) => {
   const userRole = (auth?.user?.role || "").toLowerCase();
   const allowedRoles = roles.map((r) => r.toLowerCase());
 
-  // Wait until auth context fully initializes
   if (!ready) return <SplashScreen />;
 
   // Not logged in → redirect to login
@@ -27,14 +26,14 @@ const ProtectedRoute = ({ roles = [] }) => {
     return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
-  // Role restriction
+  // Role mismatch → redirect to dashboard
   if (allowedRoles.length && !allowedRoles.includes(userRole)) {
     if (!toastShown.current) {
       toast.warn("Access denied: insufficient permissions.");
       toastShown.current = true;
     }
-    const redirectPath = roleRoutes[userRole] || "/unauthorized";
-    return <Navigate to={redirectPath} replace />;
+    const dashboard = roleRoutes[userRole] || "/unauthorized";
+    return <Navigate to={dashboard} replace />;
   }
 
   return <Outlet />;
