@@ -6,8 +6,17 @@ export default function PasswordInput({
   onChange,
   placeholder = 'Password',
   name = 'password',
+  required = true,
 }) {
   const [show, setShow] = useState(false);
+
+  // Map name to proper autocomplete attribute
+  const autoCompleteMap = {
+    'current-password': 'current-password',
+    'new-password': 'new-password',
+    'confirm-password': 'new-password',
+    email: 'email',
+  };
 
   return (
     <div className="password-field">
@@ -17,6 +26,9 @@ export default function PasswordInput({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        autoComplete={autoCompleteMap[name] || 'off'}
+        required={required}
+        aria-label={placeholder}
       />
       <button
         type="button"
