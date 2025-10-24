@@ -124,12 +124,18 @@ const Login = () => {
     return "Login failed.";
   };
 
+  // -----------------------------
+  // Corrected: Handle Login Success (match backend)
+  // -----------------------------
   const handleLoginSuccess = (data) => {
-    const { tokens, user: apiUser } = data || {};
-    const { access, refresh } = tokens || {};
+    // Backend returns: { user: { tokens: { access, refresh }, ... } }
+    const apiUser = data?.user;
+    const access = apiUser?.tokens?.access;
+    const refresh = apiUser?.tokens?.refresh;
 
     if (!access || !refresh || !apiUser) {
-      toast.error("Invalid login response.");
+      toast.error("Invalid login response from server.");
+      console.warn("[LOGIN] Unexpected response:", data);
       return;
     }
 
@@ -138,6 +144,9 @@ const Login = () => {
     redirectByRole(apiUser.role?.toLowerCase() || "user");
   };
 
+  // -----------------------------
+  // Corrected: Form submit
+  // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -155,7 +164,7 @@ const Login = () => {
   };
 
   // -----------------------------
-  // Google OAuth login
+  // Corrected: Google OAuth login
   // -----------------------------
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
