@@ -1,8 +1,7 @@
-// src/components/common/PasswordForm.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DOMPurify from "dompurify";
-import authService from "../../api/services/authService"; // ✅ updated import
+import authService from "../../api/services/authService";
 import PasswordInput from "./PasswordInput";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -17,7 +16,6 @@ const PasswordForm = ({ mode = "forgot", showCurrent = false }) => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
 
-  // States
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -27,7 +25,6 @@ const PasswordForm = ({ mode = "forgot", showCurrent = false }) => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // Reset-only params
   const uid = params.get("uid");
   const token = params.get("token");
 
@@ -65,7 +62,7 @@ const PasswordForm = ({ mode = "forgot", showCurrent = false }) => {
     setMessage("");
     setError("");
 
-    // Mode-specific validation
+    // Validation
     if (mode === "forgot" && !email) return toast.warn("⚠️ Please enter your email.");
     if ((mode === "reset" || mode === "update") && !newPassword)
       return toast.warn("⚠️ Please enter a new password.");
@@ -78,26 +75,25 @@ const PasswordForm = ({ mode = "forgot", showCurrent = false }) => {
 
     try {
       if (mode === "forgot") {
-        const response = await authService.resetPassword({ email }); // ✅ updated
+        const response = await authService.resetPassword({ email });
         setMessage(response?.data?.detail || "✅ Password reset email sent.");
         setEmail("");
       } else if (mode === "reset") {
-        await authService.resetPasswordConfirm(uid, token, { password: newPassword }); // ✅ updated
+        await authService.resetPasswordConfirm(uid, token, { password: newPassword });
         toast.success("✅ Password has been reset. Redirecting...");
         setTimeout(() => navigate("/login"), 2500);
       } else if (mode === "update") {
         await authService.changePassword({
           current_password: currentPassword,
           new_password: newPassword,
-        }); // ✅ updated
+        });
         toast.success("✅ Password changed successfully.");
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
       }
     } catch (err) {
-      const backendError = extractErrorMessage(err);
-      toast.error(backendError);
+      toast.error(extractErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -119,10 +115,13 @@ const PasswordForm = ({ mode = "forgot", showCurrent = false }) => {
         {mode === "forgot" && (
           <input
             type="email"
-            placeholder="Enter your registered email"
+            name="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(DOMPurify.sanitize(e.target.value))}
+            placeholder="Enter your registered email"
+            autoComplete="email"
             required
+            aria-label="Email"
           />
         )}
 
@@ -145,13 +144,11 @@ const PasswordForm = ({ mode = "forgot", showCurrent = false }) => {
               placeholder="New Password"
               name="new-password"
             />
-
             {newPassword && (
               <div className={`password-strength ${passwordStrength.toLowerCase()}`}>
                 Password Strength: {passwordStrength}
               </div>
             )}
-
             <PasswordInput
               label="Confirm New Password"
               value={confirmPassword}
