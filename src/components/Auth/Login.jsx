@@ -41,7 +41,7 @@ const Login = () => {
   const user = auth?.user;
 
   // -----------------------------
-  // Safe redirect based on role & next
+  // Role-based redirect logic
   // -----------------------------
   const redirectByRole = useCallback(
     (role) => {
@@ -71,7 +71,7 @@ const Login = () => {
   }, [ready, user, redirectByRole]);
 
   // -----------------------------
-  // Theme
+  // Theme toggle
   // -----------------------------
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
@@ -135,13 +135,7 @@ const Login = () => {
 
     login({ access, refresh, user: apiUser, remember: rememberMe });
     toast.success(`Welcome, ${apiUser.name || "User"} 🎉`);
-
-    try {
-      redirectByRole(apiUser.role?.toLowerCase() || "user");
-    } catch (err) {
-      console.error("[REDIRECT ERROR]", err);
-      navigate("/user", { replace: true });
-    }
+    redirectByRole(apiUser.role?.toLowerCase() || "user");
   };
 
   const handleSubmit = async (e) => {
@@ -160,6 +154,9 @@ const Login = () => {
     }
   };
 
+  // -----------------------------
+  // Google OAuth login
+  // -----------------------------
   const handleGoogleCredential = async (credential) => {
     if (!credential) return toast.error("Google login failed.");
     setLoading(true);
@@ -181,7 +178,7 @@ const Login = () => {
   // -----------------------------
   // Prevent rendering until AuthContext ready
   // -----------------------------
-  if (!ready) return null; // or <SplashScreen /> if you have one
+  if (!ready) return null;
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
@@ -232,6 +229,8 @@ const Login = () => {
                 className={formErrors.email ? "input-error" : ""}
                 disabled={loading}
                 autoComplete="email"
+                required
+                aria-label="Email"
               />
               {formErrors.email && <small className="error-text">{formErrors.email}</small>}
             </div>
@@ -246,7 +245,9 @@ const Login = () => {
                 onChange={handleChange}
                 disabled={loading}
               />
-              {formErrors.password && <small className="error-text">{formErrors.password}</small>}
+              {formErrors.password && (
+                <small className="error-text">{formErrors.password}</small>
+              )}
             </div>
 
             {/* Worker Access Code */}
@@ -294,7 +295,11 @@ const Login = () => {
               </Link>
             </div>
 
-            <button type="submit" className="auth-submit-btn" disabled={loading || !acceptedTerms}>
+            <button
+              type="submit"
+              className="auth-submit-btn"
+              disabled={loading || !acceptedTerms}
+            >
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
