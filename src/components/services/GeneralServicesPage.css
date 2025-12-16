@@ -1,210 +1,465 @@
-.general-services-page {
-  width: 100%;
-  overflow-x: hidden;
-  background: var(--color-bg);
-  color: var(--color-text);
-  display: flex;
-  flex-direction: column;
+/* ======================================================
+   🎥 GENERAL SERVICES PAGE — MULTIMEDIA THEME
+   Professional • Technical • Bold
+   ====================================================== */
+
+/* ======================================================
+   🎨 MULTIMEDIA THEME VARIABLES
+   ====================================================== */
+.theme-multimedia {
+  --service-bg: var(--charcoal);
+  --service-surface: #1f2937;
+  --service-text: #f9fafb;
+  --service-primary: var(--navy);
+  --service-secondary: var(--silver);
+  --service-accent: var(--muted-yellow);
+  --service-gradient: linear-gradient(135deg, var(--charcoal), var(--navy));
 }
 
-/* === HERO SECTION === */
-.hero-section {
+/* ======================================================
+   🎭 PAGE CONTAINER
+   ====================================================== */
+.general-services-page {
+  min-height: 100vh;
+  background: var(--service-bg);
+  color: var(--service-text);
+  font-family: var(--font-main);
+  animation: fade-in 0.8s ease both;
+}
+
+/* ======================================================
+   🎬 HERO SECTION
+   ====================================================== */
+.services-hero {
   position: relative;
-  height: 75vh;
+  min-height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-white);
   text-align: center;
+  overflow: hidden;
+}
+
+.hero-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.6);
+  z-index: 0;
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.7),
+    rgba(30, 30, 30, 0.9)
+  );
+  z-index: 1;
 }
 
 .hero-content {
   position: relative;
-  max-width: 800px;
   z-index: 2;
+  max-width: 800px;
+  padding: 3rem 2rem;
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: var(--radius-lg);
-  padding: 2rem 3rem;
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(6px);
+  animation: fade-in-up 1s ease both;
 }
 
 .hero-content h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  background: var(--gradient-gold-burgundy);
+  font-family: var(--font-accent);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--silver);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, var(--silver), var(--muted-yellow));
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-content p {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  margin-bottom: 2rem;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--silver);
+  margin-bottom: 2.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+/* ======================================================
+   🎯 HERO BUTTONS
+   ====================================================== */
 .hero-buttons {
   display: flex;
-  justify-content: center;
   gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-/* === BUTTONS === */
-.btn-primary,
-.btn-secondary,
-.btn-outline {
-  padding: 0.75rem 1.75rem;
-  border-radius: 50px;
+/* ======================================================
+   🔘 BUTTONS (UNIFIED STYLING)
+   ====================================================== */
+.btn {
+  padding: 0.85rem 2rem;
+  border-radius: var(--radius-md);
   font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: all var(--transition-fast);
   font-family: var(--font-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.95rem;
+  min-width: 160px;
+  border: none;
 }
 
 .btn-primary {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
+  background: var(--navy);
+  color: var(--white);
   box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
-  transform: scale(1.05);
+  background: var(--muted-yellow);
+  color: var(--charcoal);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
 }
 
 .btn-secondary {
   background: transparent;
-  border: 2px solid var(--color-white);
-  color: var(--color-white);
+  color: var(--silver);
+  border: 2px solid var(--silver);
 }
 
 .btn-secondary:hover {
-  background: var(--color-accent-gold);
-  color: var(--color-black);
+  background: var(--silver);
+  color: var(--charcoal);
+  border-color: var(--silver);
+  transform: translateY(-3px);
 }
 
 .btn-outline {
-  border: 2px solid var(--color-accent-gold);
-  color: var(--color-accent-gold);
   background: transparent;
+  color: var(--navy);
+  border: 2px solid var(--navy);
 }
 
 .btn-outline:hover {
-  background: var(--color-accent-gold);
-  color: var(--color-black);
+  background: var(--navy);
+  color: var(--white);
+  transform: translateY(-3px);
 }
 
-/* === SERVICES GRID === */
+/* ======================================================
+   🎨 SERVICES GRID SECTION
+   ====================================================== */
 .services-grid-section {
-  padding: 5rem 2rem;
+  padding: 5rem 1rem;
+  background: var(--service-surface);
+}
+
+.section-header {
   text-align: center;
-  background: var(--color-bg);
+  max-width: 800px;
+  margin: 0 auto 4rem;
 }
 
-.services-grid-section h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-primary-dark);
+.section-header h2 {
+  font-family: var(--font-accent);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--silver);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.muted-text {
-  color: var(--color-muted);
-  max-width: 600px;
-  margin: 0.5rem auto 2rem;
+.section-subtitle {
+  color: var(--muted-yellow);
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
+/* ======================================================
+   🃏 SERVICES GRID
+   ====================================================== */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .service-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--white);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-slow);
   display: flex;
   flex-direction: column;
+  position: relative;
+  isolation: isolate;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--service-gradient);
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+  z-index: -1;
+}
+
+.service-card:hover::before {
+  opacity: 1;
 }
 
 .service-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 
+    var(--shadow-lg),
+    0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
+/* Service-specific themes applied on hover */
+.service-card:hover .service-content h3 {
+  color: var(--service-primary);
+}
+
+.service-card:hover .btn-outline {
+  background: var(--service-primary);
+  color: var(--white);
+  border-color: var(--service-primary);
+}
+
+/* ======================================================
+   🖼️ SERVICE IMAGE
+   ====================================================== */
 .service-image {
   width: 100%;
   height: 220px;
   background-size: cover;
   background-position: center;
+  transition: transform 0.6s ease;
 }
 
+.service-card:hover .service-image {
+  transform: scale(1.05);
+}
+
+/* ======================================================
+   📝 SERVICE CONTENT
+   ====================================================== */
 .service-content {
-  padding: 1.5rem;
-  text-align: left;
+  padding: 1.75rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .service-content h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.75rem;
-  color: var(--color-primary-dark);
+  font-family: var(--font-accent);
+  font-size: 1.5rem;
+  color: var(--charcoal);
+  margin-bottom: 1rem;
+  transition: color var(--transition-fast);
 }
 
 .service-content p {
-  font-size: 0.95rem;
-  color: var(--color-neutral);
-  margin-bottom: 1rem;
+  color: var(--color-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
 }
 
-/* === CTA SECTION === */
+.service-content .btn {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+/* ======================================================
+   🎯 CTA SECTION
+   ====================================================== */
 .cta-section {
-  padding: 5rem 2rem;
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
+  padding: 5rem 1rem;
+  background: linear-gradient(135deg, var(--navy), var(--charcoal));
+  color: var(--white);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 100%);
+  animation: shine 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
 }
 
 .cta-content {
   max-width: 700px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .cta-content h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  font-weight: 700;
+  font-family: var(--font-accent);
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--silver);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .cta-content p {
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--silver);
+  margin-bottom: 2.5rem;
 }
 
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .hero-content h1 {
-    font-size: 2.2rem;
-  }
+/* ======================================================
+   ⭐ REVIEWS SECTION
+   ====================================================== */
+.reviews-section {
+  padding: 5rem 1rem;
+  background: linear-gradient(135deg, var(--charcoal), var(--service-surface));
+}
 
+/* ======================================================
+   📱 RESPONSIVE DESIGN
+   ====================================================== */
+@media (max-width: 1024px) {
+  .services-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .services-hero {
+    min-height: 70vh;
+  }
+  
+  .hero-content h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+  
+  .hero-content p {
+    font-size: 1.1rem;
+    padding: 0 1rem;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .services-grid-section,
+  .cta-section,
+  .reviews-section {
+    padding: 3rem 1rem;
+  }
+  
+  .section-header {
+    margin-bottom: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content {
+    padding: 2rem 1rem;
+  }
+  
+  .hero-content h1 {
+    font-size: 1.8rem;
+  }
+  
   .hero-content p {
     font-size: 1rem;
   }
-
+  
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+  
+  .section-subtitle {
+    font-size: 1rem;
+  }
+  
   .services-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ======================================================
+   🌙 DARK MODE SUPPORT
+   ====================================================== */
+.dark .general-services-page {
+  background: var(--color-bg);
+}
+
+.dark .services-grid-section {
+  background: var(--color-surface);
+}
+
+.dark .service-card {
+  background: var(--color-surface);
+}
+
+.dark .service-content h3 {
+  color: var(--color-text);
+}
+
+.dark .service-content p {
+  color: var(--color-muted);
+}
+
+.dark .cta-section {
+  background: linear-gradient(135deg, 
+    var(--color-secondary), 
+    var(--color-bg));
+}
+
+/* ======================================================
+   ✨ ANIMATIONS
+   ====================================================== */
+@keyframes fade-in-up {
+  from { 
+    opacity: 0; 
+    transform: translateY(40px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
