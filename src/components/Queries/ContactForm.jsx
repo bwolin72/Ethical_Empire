@@ -29,8 +29,8 @@ const contactInfo = {
   coFounder: {
     name: "Mr. Nhyira Nana Joseph",
     email: "info@eethmghmultimedia.com",
-    phone: "+233553424865",
-    whatsapp: "+233559241828",
+    phone: "+233 55 342 4865 / +233 55 924 1828",
+    whatsapp: "+233552988735",
   },
   headquarters: [
     "Gomoa Akotsi, Gomoa East",
@@ -124,7 +124,7 @@ const ContactForm = () => {
     try {
       const res = await contactService.send(payload);
       if (res.status === 201) {
-        setStatusMessage("✅ Message sent successfully! We’ll be in touch.");
+        setStatusMessage("✅ Message sent successfully! We'll be in touch.");
         setFormData(initialForm);
       }
     } catch (err) {
@@ -136,81 +136,151 @@ const ContactForm = () => {
     }
   };
 
-  // Input Component
-  const InputField = ({ name, type = "text" }) => (
-    <div className="form-group">
-      <input
-        type={type}
-        name={name}
-        value={formData[name]}
-        onChange={handleChange}
-        placeholder=" "
-        aria-invalid={!!errors[name]}
-      />
-      <label>{name.charAt(0).toUpperCase() + name.slice(1)}</label>
-      {errors[name] && <small className="error">{errors[name]}</small>}
-    </div>
-  );
+  // Custom dropdown handler for react-country-region-selector
+  const handleCountryChange = (val) => {
+    setFormData((p) => ({ ...p, country: val, region: "" }));
+    setErrors((prev) => ({ ...prev, country: undefined }));
+  };
 
-  const SelectField = ({ name, options, label }) => (
-    <div className="form-group">
-      <select name={name} value={formData[name]} onChange={handleChange}>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt || `Select ${label.toLowerCase()}`}
-          </option>
-        ))}
-      </select>
-      <label>{label}</label>
-      {errors[name] && <small className="error">{errors[name]}</small>}
-    </div>
-  );
+  const handleRegionChange = (val) => {
+    setFormData((p) => ({ ...p, region: val }));
+    setErrors((prev) => ({ ...prev, region: undefined }));
+  };
 
   return (
     <div className="contact-page animate-fade-in-up">
       <header className="form-header">
         <img src={logo} alt="EETHM Logo" className="logo" />
-        <h2>Let’s Create Something Memorable</h2>
+        <h2>Let's Create Something Memorable</h2>
         <p className="slogan">Reach out to book our services or request more information</p>
       </header>
 
       <main className="contact-layout">
         <section className="contact-form-section">
           <form onSubmit={handleSubmit} noValidate>
-            {["name", "email", "phone"].map((f) => (
-              <InputField key={f} name={f} type={f === "email" ? "email" : "text"} />
-            ))}
-
+            {/* Name Field */}
             <div className="form-group">
-              <CountryDropdown
-                value={formData.country}
-                onChange={(val) => setFormData((p) => ({ ...p, country: val, region: "" }))}
-                className="form-control"
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder=" "
+                aria-invalid={!!errors.name}
+                className={errors.name ? "input-error" : ""}
               />
-              <label>Country</label>
+              <label>Name *</label>
+              {errors.name && <small className="error">{errors.name}</small>}
             </div>
 
+            {/* Email Field */}
             <div className="form-group">
-              <RegionDropdown
-                country={formData.country}
-                value={formData.region}
-                onChange={(val) => setFormData((p) => ({ ...p, region: val }))}
-                className="form-control"
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder=" "
+                aria-invalid={!!errors.email}
+                className={errors.email ? "input-error" : ""}
               />
-              <label>Region / State</label>
+              <label>Email *</label>
+              {errors.email && <small className="error">{errors.email}</small>}
             </div>
 
-            <SelectField name="enquiry_type" options={enquiryOptions} label="Enquiry Type *" />
+            {/* Phone Field */}
+            <div className="form-group">
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder=" "
+                aria-invalid={!!errors.phone}
+                className={errors.phone ? "input-error" : ""}
+              />
+              <label>Phone Number *</label>
+              {errors.phone && <small className="error">{errors.phone}</small>}
+            </div>
+
+            {/* Country Dropdown */}
+            <div className="form-group">
+              <div className="dropdown-wrapper">
+                <CountryDropdown
+                  value={formData.country}
+                  onChange={handleCountryChange}
+                  className={`form-control ${formData.country ? "has-value" : ""}`}
+                />
+                <label className={formData.country ? "floating" : ""}>Country *</label>
+              </div>
+            </div>
+
+            {/* Region Dropdown */}
+            <div className="form-group">
+              <div className="dropdown-wrapper">
+                <RegionDropdown
+                  country={formData.country}
+                  value={formData.region}
+                  onChange={handleRegionChange}
+                  className={`form-control ${formData.region ? "has-value" : ""}`}
+                  disabled={!formData.country}
+                />
+                <label className={formData.region ? "floating" : ""}>Region / State *</label>
+              </div>
+            </div>
+
+            {/* Enquiry Type */}
+            <div className="form-group">
+              <select
+                name="enquiry_type"
+                value={formData.enquiry_type}
+                onChange={handleChange}
+                className={errors.enquiry_type ? "input-error" : ""}
+              >
+                {enquiryOptions.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt || "Select enquiry type"}
+                  </option>
+                ))}
+              </select>
+              <label className={formData.enquiry_type ? "floating" : ""}>Enquiry Type *</label>
+              {errors.enquiry_type && <small className="error">{errors.enquiry_type}</small>}
+            </div>
+
+            {/* Service Type (conditional) */}
             {formData.enquiry_type === "Services" && (
-              <SelectField name="service_type" options={serviceOptions} label="Service Type" />
+              <div className="form-group">
+                <select
+                  name="service_type"
+                  value={formData.service_type}
+                  onChange={handleChange}
+                  className={errors.service_type ? "input-error" : ""}
+                >
+                  {serviceOptions.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt || "Select service type"}
+                    </option>
+                  ))}
+                </select>
+                <label className={formData.service_type ? "floating" : ""}>Service Type *</label>
+                {errors.service_type && <small className="error">{errors.service_type}</small>}
+              </div>
             )}
 
+            {/* Event Date */}
             <div className="form-group">
-              <input type="date" name="event_date" value={formData.event_date} onChange={handleChange} />
-              <label>Event Date (optional)</label>
+              <input
+                type="date"
+                name="event_date"
+                value={formData.event_date}
+                onChange={handleChange}
+                className={errors.event_date ? "input-error" : ""}
+              />
+              <label className={formData.event_date ? "floating" : ""}>Event Date (optional)</label>
               {errors.event_date && <small className="error">{errors.event_date}</small>}
             </div>
 
+            {/* Message */}
             <div className="form-group full-width">
               <textarea
                 name="description"
@@ -222,10 +292,21 @@ const ContactForm = () => {
               <label>Message</label>
             </div>
 
-            {statusMessage && <div className="toast-notification">{statusMessage}</div>}
+            {statusMessage && (
+              <div className={`toast-notification ${statusMessage.includes("✅") ? "success" : "error"}`}>
+                {statusMessage}
+              </div>
+            )}
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? "Sending…" : "Submit"}
+              {loading ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  Sending…
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           </form>
         </section>
