@@ -31,7 +31,7 @@ import Terms from "./components/legal/Terms";
 import Privacy from "./components/legal/Privacy";
 import FAQ from "./components/legal/FAQ";
 import FlipbookViewer from "./components/company/FlipbookViewer";
-import CookiesPolicy from "./components/legal/cookies"; // New import
+import CookiesPolicy from "./components/legal/CookiesPolicy"; // Fixed import name
 
 // Auth & Profile
 import Register from "./components/Auth/Register";
@@ -100,7 +100,10 @@ const ScrollManager = () => {
     
     // Handle scroll restoration on page reload
     if (performance.navigation?.type === 1) { // TYPE_RELOAD
-      window.history.scrollRestoration = "manual";
+      // Use window.history instead of global history
+      if (window.history && window.history.scrollRestoration) {
+        window.history.scrollRestoration = "manual";
+      }
       window.scrollTo(0, 0);
     }
   }, [location.pathname]);
@@ -306,8 +309,8 @@ const AppWithSplash = () => {
     setIsHydrated(true);
     
     // Set scroll restoration to manual
-    if ("scrollRestoration" in history) {
-      history.scrollRestoration = "manual";
+    if (window.history && window.history.scrollRestoration) {
+      window.history.scrollRestoration = "manual";
     }
     
     // Handle splash screen
@@ -367,12 +370,7 @@ function App() {
     <React.StrictMode>
       <GoogleOAuthProvider clientId={googleClientId || ""}>
         <QueryClientProvider client={queryClient}>
-          <Router
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
+          <Router>
             <AuthProvider>
               <ProfileProvider>
                 <AppWithSplash />
