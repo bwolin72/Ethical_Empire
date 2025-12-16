@@ -34,10 +34,10 @@ function Footer() {
   ];
 
   const contactInfo = [
-    { icon: <Phone size={16} />, text: "+233 24 123 4567", link: "tel:+233241234567" },
-    { icon: <Mail size={16} />, text: "info@eethmgh.com", link: "mailto:info@eethmgh.com" },
-    { icon: <MapPin size={16} />, text: "Accra, Ghana", link: "https://maps.google.com/?q=Accra+Ghana" },
-    { icon: <Clock size={16} />, text: "Mon - Sat: 8AM - 8PM", link: null },
+    { icon: <Phone size={16} />, text: "+233 552 988 735", link: "tel:+233552988735" },
+    { icon: <Mail size={16} />, text: "info@eethmghmultimedia.com", link: "mailto:info@eethmghmultimedia.com" },
+    { icon: <MapPin size={16} />, text: "Akotsi, central, Ghana", link: "https://maps.google.com/?q=Akotsi+Ghana" },
+    { icon: <Clock size={16} />, text: "Mon - Sut: 8AM - 8PM", link: null },
   ];
 
   return (
@@ -130,16 +130,16 @@ function Footer() {
           <div className="social-section">
             <h5>Connect With Us</h5>
             <div className="social-links">
-              <a href="https://facebook.com/eethmgh" className="social-link" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.facebook.com/share/1C4p2bWKeq/" className="social-link" target="_blank" rel="noopener noreferrer">
                 <span className="social-icon">📘</span> Facebook
               </a>
-              <a href="https://instagram.com/eethmgh" className="social-link" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.instagram.com/eethmcorps01/" className="social-link" target="_blank" rel="noopener noreferrer">
                 <span className="social-icon">📸</span> Instagram
               </a>
-              <a href="https://twitter.com/eethmgh" className="social-link" target="_blank" rel="noopener noreferrer">
+              <a href="https://x.com/EeTHm_Gh" className="social-link" target="_blank" rel="noopener noreferrer">
                 <span className="social-icon">🐦</span> Twitter
               </a>
-              <a href="https://youtube.com/eethmgh" className="social-link" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.youtube.com/@eethmcorps01" className="social-link" target="_blank" rel="noopener noreferrer">
                 <span className="social-icon">🎥</span> YouTube
               </a>
               <a href="https://tiktok.com/@eethmgh" className="social-link" target="_blank" rel="noopener noreferrer">
