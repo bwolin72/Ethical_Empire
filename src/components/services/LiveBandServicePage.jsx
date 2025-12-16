@@ -71,13 +71,6 @@ export default function LiveBandServicePage() {
       const bannerItems = bannerRes.data?.results || [];
       const mediaItems = mediaData.data?.results || [];
 
-      // --- Debug Logs ---
-      console.log("Live Band Services:", livebandData);
-      console.log("Other Services:", allData.filter(s => s.category !== "Live Band"));
-      console.log("Banners:", bannerItems);
-      console.log("Videos:", videoData);
-      console.log("Media Gallery Items:", mediaItems);
-
       // --- Set State ---
       setServices(livebandData);
       setOtherServices(allData.filter((s) => s.category !== "Live Band"));
@@ -102,7 +95,6 @@ export default function LiveBandServicePage() {
     const featured = videos.find((v) => v.isFeatured) || videos[0];
     const url = featured?.videoUrl || null;
     setVideoUrl(url);
-    console.log("Featured Video URL:", url);
   }, [videos]);
 
   const toggleMute = useCallback(() => {
@@ -123,26 +115,26 @@ export default function LiveBandServicePage() {
       description:
         "Elegant, world-class performances for galas, launches, and executive events across Ghana and West Africa.",
       image: corporateImg,
-      cta: { label: "Book Corporate Event", href: "/services?category=corporate" },
+      cta: { label: "Book Corporate Event", href: "/bookings?category=corporate" },
     },
     {
       name: "Weddings & Private Celebrations",
       description:
         "Soulful bands and curated playlists to make your big day unforgettable.",
       image: weddingImg,
-      cta: { label: "Plan Your Wedding", href: "/services?category=weddings" },
+      cta: { label: "Plan Your Wedding", href: "/bookings?category=weddings" },
     },
     {
       name: "Concerts & Festivals",
       description:
         "Large-scale performances and professional setups for artists and audiences.",
       image: festivalImg,
-      cta: { label: "View Concert Packages", href: "/services?category=concerts" },
+      cta: { label: "View Concert Packages", href: "/bookings?category=concerts" },
     },
   ];
 
   return (
-    <div className="liveband-page-container">
+    <div className="liveband-page-container theme-live-band">
       {/* HERO SECTION */}
       <section className="liveband-hero-section">
         <div className="hero-visual-wrap">
@@ -177,7 +169,7 @@ export default function LiveBandServicePage() {
         >
           <h1 className="hero-title">Live Band & Performances</h1>
           <p className="hero-subtitle">
-            Experience Ghana’s most electrifying live music — from weddings to festivals, we bring rhythm, soul, and artistry to every event.
+            Experience Ghana's most electrifying live music — from weddings to festivals, we bring rhythm, soul, and artistry to every event.
           </p>
           <div className="hero-buttons">
             <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
@@ -195,8 +187,14 @@ export default function LiveBandServicePage() {
       </section>
 
       {/* DYNAMIC SERVICES */}
-      <motion.section className="section liveband-services" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
-        <h2>Our Live Band Services</h2>
+      <motion.section 
+        className="section liveband-services" 
+        initial="hidden" 
+        whileInView="visible" 
+        viewport={{ once: true, amount: 0.25 }} 
+        variants={fadeUp}
+      >
+        <h2 className="section-title">Our Live Band Services</h2>
         {services.length > 0 ? (
           <ServiceCategory
             category={{
@@ -212,11 +210,19 @@ export default function LiveBandServicePage() {
       </motion.section>
 
       {/* STATIC SERVICE SECTIONS */}
-      <motion.section className="section liveband-static-services" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
-        <div className="liveband-category-grid">
+      <motion.section 
+        className="section static-categories-section" 
+        initial="hidden" 
+        whileInView="visible" 
+        viewport={{ once: true, amount: 0.25 }} 
+        variants={fadeUp}
+      >
+        <h2 className="section-title">Performance Categories</h2>
+        <p className="section-description">Tailored experiences for every occasion</p>
+        <div className="category-grid">
           {staticCategories.map((c, i) => (
-            <motion.article key={i} className="liveband-category-card" variants={zoomIn}>
-              <img src={c.image} alt={c.name} className="liveband-category-image" />
+            <motion.article key={i} className="category-card" variants={zoomIn}>
+              <img src={c.image} alt={c.name} className="category-image" />
               <div className="card-body">
                 <h3>{c.name}</h3>
                 <p>{c.description}</p>
@@ -230,17 +236,29 @@ export default function LiveBandServicePage() {
       </motion.section>
 
       {/* VIDEOS */}
-      <motion.section className="section video-section" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
-        <h2>Performance Videos</h2>
+      <motion.section 
+        className="section video-section" 
+        initial="hidden" 
+        whileInView="visible" 
+        viewport={{ once: true, amount: 0.25 }} 
+        variants={fadeUp}
+      >
+        <h2 className="section-title">Performance Videos</h2>
         <p className="section-description">Featured live performances captured on stage.</p>
         <VideoGallery endpoint="LiveBandServicePage" />
       </motion.section>
 
       {/* MEDIA GALLERY */}
-      <motion.section className="section gallery-section" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
-        <h2>Performance Highlights</h2>
-        <p className="section-description">Memorable moments from Eethm Live Band’s most iconic events.</p>
-        <div className="card-grid">
+      <motion.section 
+        className="section gallery-section" 
+        initial="hidden" 
+        whileInView="visible" 
+        viewport={{ once: true, amount: 0.25 }} 
+        variants={fadeUp}
+      >
+        <h2 className="section-title">Performance Highlights</h2>
+        <p className="section-description">Memorable moments from Eethm Live Band's most iconic events.</p>
+        <div className="gallery-grid">
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
             : mediaCards.length > 0
@@ -251,8 +269,14 @@ export default function LiveBandServicePage() {
       </motion.section>
 
       {/* OTHER SERVICES */}
-      <motion.section className="section other-services" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={fadeUp}>
-        <h2>Other Services</h2>
+      <motion.section 
+        className="section other-services-section" 
+        initial="hidden" 
+        whileInView="visible" 
+        viewport={{ once: true, amount: 0.25 }} 
+        variants={fadeUp}
+      >
+        <h2 className="section-title">Explore Our Other Services</h2>
         {otherServices.length > 0 ? (
           <ServiceCategory
             category={{
@@ -260,7 +284,7 @@ export default function LiveBandServicePage() {
               services: otherServices.map((srv) => ({
                 name: srv.name,
                 description: srv.description,
-                icon: srv.icon || "🎵 FaUtensils",
+                icon: srv.icon || "🎵",
               })),
             }}
           />
@@ -268,9 +292,14 @@ export default function LiveBandServicePage() {
       </motion.section>
 
       {/* REVIEWS */}
-      <ReviewsLayout title="Client Impressions" description="What our guests and partners say about Eethm Live Band">
-        <Reviews limit={6} hideForm category="LiveBandServicePage" />
-      </ReviewsLayout>
+      <section className="section reviews-section">
+        <ReviewsLayout 
+          title="Client Impressions" 
+          description="What our guests and partners say about Eethm Live Band"
+        >
+          <Reviews limit={6} hideForm category="LiveBandServicePage" />
+        </ReviewsLayout>
+      </section>
     </div>
   );
 }
