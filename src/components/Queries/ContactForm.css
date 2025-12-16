@@ -1,6 +1,6 @@
 /* ===========================================================
    📞 CONTACT FORM — THEMED & RESPONSIVE (EETHM GH)
-   Updated to match brand variables and theme structure
+   Fixed version with proper form styling
    =========================================================== */
 
 /* === Page Container === */
@@ -92,7 +92,6 @@
 /* === Form Section === */
 .contact-form-section {
   background: var(--color-surface);
-  backdrop-filter: blur(12px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 2.5rem;
@@ -120,7 +119,6 @@
 /* === Info Section === */
 .contact-info-section {
   background: var(--color-surface);
-  backdrop-filter: blur(12px);
   border-radius: var(--radius-lg);
   padding: 2.5rem;
   border: 1px solid var(--color-border);
@@ -185,7 +183,7 @@
 .contact-form-section form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0;
 }
 
 .form-group {
@@ -228,38 +226,15 @@
   box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
 }
 
-/* Country/Region dropdown styling */
-.form-group .form-control {
-  width: 100%;
-  padding: 1rem;
-  background: var(--color-surface);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+/* Fixed floating labels */
+.form-group {
+  position: relative;
 }
 
-.form-group .form-control:hover {
-  border-color: var(--gold);
-}
-
-.form-group .form-control:focus {
-  border-color: var(--burgundy);
-  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
-  outline: none;
-}
-
-/* Floating labels */
 .form-group label {
   position: absolute;
-  top: 50%;
+  top: 1rem;
   left: 1rem;
-  transform: translateY(-50%);
   background: var(--color-surface);
   color: var(--color-muted);
   transition: all var(--transition-fast);
@@ -267,11 +242,7 @@
   padding: 0 0.4rem;
   font-size: 1rem;
   font-weight: 500;
-}
-
-.form-group.full-width label {
-  top: 1rem;
-  transform: none;
+  transform-origin: left center;
 }
 
 .form-group input:focus + label,
@@ -285,13 +256,63 @@
   font-size: 0.85rem;
   color: var(--burgundy);
   font-weight: 600;
+  background: var(--color-surface);
+  padding: 0 0.5rem;
+}
+
+/* Manual floating class for programmatic control */
+.form-group label.floating {
+  top: -0.5rem;
+  left: 0.8rem;
+  font-size: 0.85rem;
+  color: var(--burgundy);
+  font-weight: 600;
+  background: var(--color-surface);
+  padding: 0 0.5rem;
+}
+
+/* Dropdown wrapper for react-country-region-selector */
+.dropdown-wrapper {
+  position: relative;
+}
+
+.dropdown-wrapper .form-control {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  font-family: var(--font-main);
+}
+
+.dropdown-wrapper .form-control:hover {
+  border-color: var(--gold);
+}
+
+.dropdown-wrapper .form-control:focus {
+  border-color: var(--burgundy);
+  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
+  outline: none;
+}
+
+.dropdown-wrapper .form-control.has-value {
+  color: var(--color-text);
 }
 
 /* Error states */
-.form-group input:invalid:not(:focus):not(:placeholder-shown),
-.form-group select:invalid:not(:focus),
-.form-group textarea:invalid:not(:focus):not(:placeholder-shown) {
-  border-color: var(--color-error);
+.input-error {
+  border-color: var(--color-error) !important;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.1) !important;
 }
 
 .error {
@@ -326,12 +347,30 @@
   gap: 0.5rem;
 }
 
+.toast-notification.success {
+  border-left-color: var(--color-success);
+  background: rgba(21, 128, 61, 0.1);
+}
+
+.toast-notification.error {
+  border-left-color: var(--color-error);
+  background: rgba(185, 28, 28, 0.1);
+}
+
 .toast-notification::before {
   content: '';
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--burgundy);
+}
+
+.toast-notification.success::before {
+  background: var(--color-success);
+}
+
+.toast-notification.error::before {
+  background: var(--color-error);
 }
 
 /* === Submit Button === */
@@ -350,6 +389,10 @@
   margin-top: 0.5rem;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .submit-btn::before {
@@ -381,6 +424,21 @@
   background: var(--color-disabled);
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid var(--white);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* === Social Hub Embed === */
@@ -493,7 +551,8 @@
   
   .form-group input,
   .form-group select,
-  .form-group textarea {
+  .form-group textarea,
+  .dropdown-wrapper .form-control {
     padding: 0.9rem;
   }
   
@@ -554,7 +613,7 @@
 .dark .form-group input,
 .dark .form-group select,
 .dark .form-group textarea,
-.dark .form-group .form-control {
+.dark .dropdown-wrapper .form-control {
   background: var(--color-surface);
   border-color: var(--color-border);
   color: var(--color-text);
@@ -572,7 +631,8 @@
 /* === Accessibility Improvements === */
 .form-group input:focus-visible,
 .form-group select:focus-visible,
-.form-group textarea:focus-visible {
+.form-group textarea:focus-visible,
+.dropdown-wrapper .form-control:focus-visible {
   outline: 2px solid var(--burgundy);
   outline-offset: 2px;
 }
