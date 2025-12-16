@@ -98,7 +98,7 @@
 
 .category-section.theme-multimedia {
   background: var(--charcoal);
-  color: var(--service-text);
+  color: var(--cream);
 }
 
 .category-section.theme-live-band {
@@ -156,7 +156,7 @@
 }
 
 /* Theme-specific title underlines */
-.theme-multimedia .section-title::after { background: var(--navy); }
+.theme-multimedia .section-title::after { background: var(--white); }
 .theme-live-band .section-title::after { background: var(--gold); }
 .theme-catering .section-title::after { background: var(--gold); }
 .theme-decor .section-title::after { background: var(--burgundy); }
