@@ -1,178 +1,406 @@
 /* ======================================================
-   🧭 App Layout & Components
-   Unified with global theme tokens (variables.css)
+   🧭 APP LAYOUT & GLOBAL COMPONENTS
+   Scoped to only affect App-level components
+   No global styles that could affect other pages
    ====================================================== */
 
-@import url('./components/styles/variables.css');
-
-/* === App Wrapper === */
+/* === App Wrapper - Only affects .App class === */
 .App {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background: var(--color-bg);
   color: var(--color-text);
+  font-family: var(--font-main);
   transition: background var(--transition-slow), color var(--transition-slow);
 }
 
-main {
+/* Main content area */
+.App main {
   flex: 1;
-  padding-top: 70px; /* avoids navbar overlap */
+  position: relative;
+  z-index: 1;
 }
 
-/* === Navbar & Footer === */
-nav, footer {
-  width: 100%;
-  z-index: 50;
-}
-
-footer {
-  margin-top: auto;
-  background: var(--color-primary);
-  color: var(--color-white);
-  text-align: center;
-  padding: 2rem 1rem;
-  box-shadow: var(--shadow-md);
-  transition: background var(--transition-slow);
-}
-
-/* === Splash Screen === */
+/* === Splash Screen - Only affects .splash-screen class === */
 .splash-screen {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
-  font-family: var(--font-accent);
-  animation: fade-in 1.2s ease-in-out both;
+  background: linear-gradient(135deg, var(--burgundy), var(--navy));
+  color: var(--white);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  animation: app-fade-in 1.2s ease-in-out both;
 }
+
 .splash-logo {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: var(--color-white);
+  background: var(--white);
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 1.5rem;
-  animation: pulse 2s infinite ease-in-out;
-}
-.splash-title {
-  font-size: 1.8rem;
-  letter-spacing: 1px;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: app-pulse 2s infinite ease-in-out;
 }
 
-/* === Booking CTA === */
-.booking-toggle {
-  text-align: center;
-  margin: 2rem auto;
+.splash-logo img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
 }
-.booking-button {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
+
+.splash-title {
+  font-family: var(--font-accent);
+  font-size: 2rem;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.splash-subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+  text-align: center;
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+@keyframes app-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* === Home Page Booking Button - Only affects .home-page-booking class === */
+.home-page-booking-toggle {
+  position: fixed;
+  bottom: 120px;
+  right: 20px;
+  z-index: 90;
+}
+
+.home-page-booking-button {
+  background: linear-gradient(135deg, var(--burgundy), var(--gold));
+  color: var(--white);
   border: none;
-  padding: 0.9rem 2rem;
+  padding: 0.8rem 1.5rem;
   border-radius: var(--radius-md);
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
   box-shadow: var(--shadow-md);
-  transition: transform var(--transition-fast);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
 }
-.booking-button:hover {
-  transform: translateY(-3px);
+
+.home-page-booking-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.home-page-booking-button:hover::before {
+  left: 100%;
+}
+
+.home-page-booking-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(135deg, var(--gold), var(--burgundy));
+}
+
+/* === Floating Buttons - Only affect .floating-* classes === */
+.floating-whatsapp-button,
+.floating-socialhub-button {
+  position: fixed;
+  right: 20px;
+  z-index: 90;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--white);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  font-size: 1.5rem;
+}
+
+.floating-whatsapp-button {
+  bottom: 80px;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+}
+
+.floating-socialhub-button {
+  bottom: 150px;
+  background: linear-gradient(135deg, var(--navy), var(--burgundy));
+}
+
+.floating-whatsapp-button:hover,
+.floating-socialhub-button:hover {
+  transform: scale(1.1) translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-/* === Floating Buttons === */
-.floating-whatsapp,
-.floating-social {
+.floating-whatsapp-button:hover {
+  background: linear-gradient(135deg, #128C7E, #25D366);
+}
+
+.floating-socialhub-button:hover {
+  background: linear-gradient(135deg, var(--burgundy), var(--navy));
+}
+
+/* === Toast Container Overrides - Scoped to Toastify === */
+.Toastify__toast-container {
+  z-index: 9999;
+  font-family: var(--font-main);
+}
+
+.Toastify__toast {
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  font-size: 0.95rem !important;
+  min-height: 56px !important;
+}
+
+.Toastify__toast--error {
+  background: var(--color-error) !important;
+  color: var(--white) !important;
+  border-left: 4px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.Toastify__toast--info {
+  background: var(--navy) !important;
+  color: var(--white) !important;
+  border-left: 4px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.Toastify__toast--success {
+  background: var(--color-success) !important;
+  color: var(--white) !important;
+  border-left: 4px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.Toastify__toast--warning {
+  background: var(--color-warning) !important;
+  color: var(--white) !important;
+  border-left: 4px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.Toastify__progress-bar {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* === Route Transition Animation - Only affects main content === */
+.App main > * {
+  animation: app-route-fade 0.4s ease-in-out both;
+}
+
+@keyframes app-route-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === Promotion Popup - Only affects .promotion-popup class === */
+.promotion-popup-overlay {
   position: fixed;
-  right: 20px;
-  bottom: 80px;
-  z-index: 90;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.floating-social { bottom: 150px; }
-
-.floating-button {
-  background: var(--color-primary);
-  color: var(--color-white);
-  border-radius: 50%;
-  padding: 0.9rem;
-  box-shadow: var(--shadow-md);
-  transition: transform var(--transition-fast), background var(--transition-fast);
-}
-.floating-button:hover {
-  background: var(--color-accent-gold);
-  transform: scale(1.1);
-}
-
-/* === Unauthorized Page === */
-.unauthorized {
-  min-height: 50vh;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
-  font-weight: 600;
-  color: var(--color-error-dark);
-  text-align: center;
+  z-index: 9998;
+  animation: app-fade-in 0.3s ease;
 }
 
-/* === Toastify Overrides === */
-.Toastify__toast-container {
-  font-size: 0.9rem;
-  z-index: 9999;
-}
-.Toastify__toast--error {
-  background: var(--color-error);
-  color: var(--color-white);
-}
-.Toastify__toast--info {
-  background: var(--color-secondary);
-  color: var(--color-white);
-}
-.Toastify__toast--success {
-  background: var(--color-success);
-  color: var(--color-white);
+.promotion-popup-content {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  position: relative;
+  animation: app-slide-up 0.4s ease;
 }
 
-/* === Transitions === */
-@keyframes route-fade {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-main > * {
-  animation: route-fade 0.5s ease-in-out;
+@keyframes app-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* === Responsive === */
+/* === Scrollbar Styles - Global but minimal === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* === Responsive Styles === */
 @media (max-width: 768px) {
-  .booking-button { width: 80%; }
-  .floating-button { padding: 0.8rem; }
-}
-@media (max-width: 480px) {
-  .splash-title { font-size: 1.3rem; }
-  .booking-button {
-    padding: 0.8rem 1.5rem;
+  .splash-logo {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .splash-logo img {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .splash-title {
+    font-size: 1.6rem;
+  }
+  
+  .home-page-booking-button {
+    padding: 0.7rem 1.2rem;
     font-size: 0.9rem;
   }
-  .floating-whatsapp,
-  .floating-social {
-    right: 10px;
-    bottom: 60px;
+  
+  .floating-whatsapp-button,
+  .floating-socialhub-button {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+    right: 15px;
+  }
+  
+  .floating-whatsapp-button {
+    bottom: 70px;
+  }
+  
+  .floating-socialhub-button {
+    bottom: 130px;
   }
 }
-@media (max-width: 360px) {
-  html { font-size: 14px; }
-  .booking-button {
-    width: 90%;
-    padding: 0.7rem 1.2rem;
+
+@media (max-width: 480px) {
+  .splash-logo {
+    width: 80px;
+    height: 80px;
   }
-  footer { font-size: 0.85rem; }
+  
+  .splash-logo img {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .splash-title {
+    font-size: 1.3rem;
+  }
+  
+  .splash-subtitle {
+    font-size: 0.9rem;
+    max-width: 250px;
+  }
+  
+  .home-page-booking-toggle {
+    right: 10px;
+    bottom: 100px;
+  }
+  
+  .home-page-booking-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .promotion-popup-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+}
+
+@media (max-width: 360px) {
+  .floating-whatsapp-button,
+  .floating-socialhub-button {
+    width: 45px;
+    height: 45px;
+    font-size: 1.2rem;
+  }
+  
+  .Toastify__toast {
+    font-size: 0.85rem !important;
+    min-height: 50px !important;
+  }
+}
+
+/* === Print Styles === */
+@media print {
+  .splash-screen,
+  .home-page-booking-toggle,
+  .floating-whatsapp-button,
+  .floating-socialhub-button,
+  .Toastify,
+  .promotion-popup-overlay {
+    display: none !important;
+  }
+  
+  .App {
+    background: white !important;
+    color: black !important;
+  }
 }
