@@ -1,71 +1,262 @@
 /* ======================================================
-   🌫 Glassmorphic Services UI
-   Works with variables.css for theme consistency
-   Responsive from 240px+
+   🎨 SERVICES PAGE — THEME INTEGRATION
    ====================================================== */
 
 .services-page {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-main);
-  padding: 2rem 1rem;
   min-height: 100vh;
+  background: var(--sand);
+  color: var(--charcoal);
+  font-family: var(--font-main);
+  padding: 0;
 }
 
 /* ======================================================
-   🏷 Hero Section
+   🏷 HERO SECTION
    ====================================================== */
 .services-hero {
   text-align: center;
+  padding: 6rem 2rem 4rem;
+  background: linear-gradient(135deg, var(--charcoal) 0%, var(--navy) 100%);
+  color: var(--cream);
   margin-bottom: 3rem;
-  padding: 2rem 1rem;
 }
 
 .hero-title {
   font-family: var(--font-accent);
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  background: var(--gradient-gold-burgundy);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--gold), var(--cream));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
 }
 
 .hero-subtitle {
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  color: var(--color-text);
+  font-size: 1.25rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+  color: var(--silver);
 }
 
 .brand-highlight {
+  color: var(--gold);
   font-weight: 600;
-  color: var(--color-accent-gold);
 }
 
 /* ======================================================
-   🃏 Service Cards (Glassmorphic)
+   🎯 CATEGORY FILTER
    ====================================================== */
-.service-card {
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.category-filter {
+  padding: 2rem 1rem;
+  background: var(--cream);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: var(--navbar-height);
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.filter-btn {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  color: var(--charcoal);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.filter-btn:hover {
+  background: var(--gold);
+  color: var(--charcoal);
+  transform: translateY(-2px);
+  border-color: var(--gold);
+}
+
+/* ======================================================
+   🎭 CATEGORY SECTION THEMES
+   ====================================================== */
+.category-section {
+  padding: 4rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.category-section.theme-multimedia {
+  background: var(--charcoal);
+  color: var(--service-text);
+}
+
+.category-section.theme-live-band {
+  background: var(--burgundy);
+  color: var(--cream);
+}
+
+.category-section.theme-catering {
+  background: var(--forest);
+  color: var(--cream);
+}
+
+.category-section.theme-decor {
+  background: var(--sand);
+  color: var(--charcoal);
+}
+
+.category-section.theme-travel {
+  background: var(--navy);
+  color: var(--cream);
+}
+
+.featured-category {
+  padding: 6rem 1rem;
+  margin: 2rem auto;
+  border-radius: var(--radius-lg);
+}
+
+/* ======================================================
+   📋 CATEGORY HEADER
+   ====================================================== */
+.category-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-family: var(--font-accent);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* Theme-specific title underlines */
+.theme-multimedia .section-title::after { background: var(--navy); }
+.theme-live-band .section-title::after { background: var(--gold); }
+.theme-catering .section-title::after { background: var(--gold); }
+.theme-decor .section-title::after { background: var(--burgundy); }
+.theme-travel .section-title::after { background: var(--silver); }
+
+/* Theme-specific title colors */
+.theme-multimedia .section-title { color: var(--silver); }
+.theme-live-band .section-title { color: var(--gold); }
+.theme-catering .section-title { color: var(--gold); }
+.theme-decor .section-title { color: var(--burgundy); }
+.theme-travel .section-title { color: var(--silver); }
+
+.section-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.theme-multimedia .section-description { color: var(--silver); }
+.theme-live-band .section-description { color: var(--cream); }
+.theme-catering .section-description { color: var(--cream); }
+.theme-decor .section-description { color: var(--charcoal); }
+.theme-travel .section-description { color: var(--silver); }
+
+/* ======================================================
+   🃏 SERVICE CARD THEMES
+   ====================================================== */
+.service-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.service-card {
+  background: var(--service-surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
   box-shadow: var(--shadow-lg);
-  padding: 1.5rem;
-  margin: 1rem;
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
+  transition: all var(--transition-slow);
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Theme-specific card backgrounds */
+.service-card.theme-multimedia {
+  background: #1f2937;
+  border-color: rgba(31, 41, 55, 0.2);
+}
+
+.service-card.theme-live-band {
+  background: var(--cream);
+  border-color: rgba(139, 0, 0, 0.1);
+}
+
+.service-card.theme-catering {
+  background: var(--cream);
+  border-color: rgba(34, 139, 34, 0.1);
+}
+
+.service-card.theme-decor {
+  background: var(--white);
+  border-color: rgba(212, 175, 55, 0.1);
+}
+
+.service-card.theme-travel {
+  background: var(--white);
+  border-color: rgba(31, 58, 147, 0.1);
 }
 
 .service-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px);
+  box-shadow: 
+    var(--shadow-lg),
+    0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
+/* Theme-specific hover borders */
+.service-card.theme-multimedia:hover { border-color: var(--navy); }
+.service-card.theme-live-band:hover { border-color: var(--gold); }
+.service-card.theme-catering:hover { border-color: var(--forest); }
+.service-card.theme-decor:hover { border-color: var(--burgundy); }
+.service-card.theme-travel:hover { border-color: var(--navy); }
+
+/* ======================================================
+   📝 CARD INNER STRUCTURE
+   ====================================================== */
 .card-inner {
+  padding: 1.75rem;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+}
+
+.card-header {
   text-align: center;
+  margin-bottom: 1.5rem;
 }
 
 .icon-wrap {
@@ -73,278 +264,349 @@
 }
 
 .service-icon {
-  color: var(--color-accent-gold);
-  transition: transform 0.3s;
+  transition: transform var(--transition-fast);
 }
 
 .service-card:hover .service-icon {
-  transform: rotate(10deg) scale(1.1);
+  transform: scale(1.1) rotate(5deg);
 }
+
+/* Theme-specific icon colors */
+.service-card.theme-multimedia .service-icon { color: var(--navy); }
+.service-card.theme-live-band .service-icon { color: var(--burgundy); }
+.service-card.theme-catering .service-icon { color: var(--forest); }
+.service-card.theme-decor .service-icon { color: var(--burgundy); }
+.service-card.theme-travel .service-icon { color: var(--navy); }
 
 .service-title {
   font-family: var(--font-accent);
-  font-size: 1.3rem;
-  margin-bottom: 0.25rem;
-  color: var(--color-text);
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--charcoal);
 }
 
 .service-category {
   font-size: 0.9rem;
   color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: 1rem;
 }
 
-.book-btn {
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  background: var(--gradient-navy-gold);
-  color: var(--color-white);
-  border: none;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+/* ======================================================
+   📄 CARD BODY
+   ====================================================== */
+.card-body {
+  flex: 1;
+  margin-bottom: 1.5rem;
 }
 
-.book-btn:hover {
-  transform: scale(1.05);
+.service-description {
+  color: var(--color-muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.service-price {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  border-left: 3px solid;
+  margin-top: auto;
+}
+
+/* Theme-specific price borders */
+.service-card.theme-multimedia .service-price { border-color: var(--navy); }
+.service-card.theme-live-band .service-price { border-color: var(--burgundy); }
+.service-card.theme-catering .service-price { border-color: var(--forest); }
+.service-card.theme-decor .service-price { border-color: var(--burgundy); }
+.service-card.theme-travel .service-price { border-color: var(--navy); }
+
+.price-label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.price-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
+/* ======================================================
+   🔘 CARD ACTIONS
+   ====================================================== */
+.card-actions {
+  margin-top: auto;
+}
+
+.btn-learn-more {
+  width: 100%;
+  padding: 0.75rem;
+  background: transparent;
+  color: var(--charcoal);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: 1rem;
+}
+
+/* Theme-specific learn more buttons */
+.service-card.theme-multimedia .btn-learn-more { 
+  color: var(--navy); 
+  border-color: var(--navy); 
+}
+.service-card.theme-live-band .btn-learn-more { 
+  color: var(--burgundy); 
+  border-color: var(--burgundy); 
+}
+.service-card.theme-catering .btn-learn-more { 
+  color: var(--forest); 
+  border-color: var(--forest); 
+}
+.service-card.theme-decor .btn-learn-more { 
+  color: var(--burgundy); 
+  border-color: var(--burgundy); 
+}
+.service-card.theme-travel .btn-learn-more { 
+  color: var(--navy); 
+  border-color: var(--navy); 
+}
+
+.btn-learn-more:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--service-primary);
+  color: var(--charcoal);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--color-border);
+  color: var(--charcoal);
+}
+
+.btn-primary:hover,
+.btn-outline:hover {
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
 /* ======================================================
-   🔄 Card Back Side
-   ====================================================== */
-.card-back {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: var(--color-text);
-}
-
-.service-description {
-  margin-bottom: 0.75rem;
-}
-
-.service-price {
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-}
-
-.card-actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.card-actions .btn {
-  flex: 1 1 45%;
-  text-align: center;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.card-actions .book-btn {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
-}
-
-.card-actions .contact-btn {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--color-text);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-
-.card-actions .btn:hover {
-  transform: translateY(-2px) scale(1.02);
-}
-
-/* ======================================================
-   📂 Category Section
-   ====================================================== */
-.category-header {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.section-title {
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  margin-bottom: 0.5rem;
-}
-
-.category-description {
-  color: var(--color-muted);
-  font-size: 0.95rem;
-}
-
-.service-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-}
-
-/* ======================================================
-   📣 CTA Section
+   📣 CTA SECTION
    ====================================================== */
 .services-cta {
-  margin-top: 4rem;
+  padding: 5rem 1rem;
+  background: linear-gradient(135deg, var(--charcoal) 0%, var(--navy) 100%);
   text-align: center;
-  padding: 2rem 1rem;
-  backdrop-filter: blur(8px);
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--cream);
 }
 
 .services-cta h2 {
-  font-size: clamp(1.3rem, 3vw, 2rem);
-  margin-bottom: 1rem;
-  background: var(--gradient-navy-gold);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-family: var(--font-accent);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: 1.5rem;
+  color: var(--gold);
 }
 
 .cta-buttons {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
-.btn-primary {
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white);
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--radius-md);
-  transition: all 0.2s;
+.services-cta .btn {
+  min-width: 150px;
 }
 
-.btn-secondary {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--color-text);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+.services-cta .btn-primary {
+  background: var(--gold);
+  color: var(--charcoal);
 }
 
-.btn-primary:hover,
-.btn-secondary:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-md);
+.services-cta .btn-secondary {
+  background: transparent;
+  color: var(--cream);
+  border: 2px solid var(--gold);
 }
 
-/* ======================================================
-   🌙 Dark Mode Adjustments
-   ====================================================== */
-.dark .service-card,
-.dark .services-cta {
-  background-color: rgba(20, 20, 30, 0.25);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.dark .service-title,
-.dark .service-description,
-.dark .service-price,
-.dark .muted-text {
-  color: var(--color-text);
-}
-
-.dark .book-btn,
-.dark .btn-primary {
-  color: var(--color-white);
-}
-
-.dark .contact-btn,
-.dark .btn-secondary {
-  color: var(--color-text);
+.services-cta .btn-secondary:hover {
+  background: rgba(212, 175, 55, 0.1);
 }
 
 /* ======================================================
-   📱 Responsive tweaks
+   ⚠️ EMPTY STATES
    ====================================================== */
-@media (max-width: 480px) {
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--color-border);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  font-size: 1.2rem;
+  color: var(--color-muted);
+}
+
+/* ======================================================
+   📱 RESPONSIVE DESIGN
+   ====================================================== */
+@media (max-width: 1024px) {
   .service-list {
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
   }
-  .service-card {
-    padding: 1rem;
+  
+  .category-section {
+    padding: 3rem 1rem;
   }
+}
+
+@media (max-width: 768px) {
+  .services-hero {
+    padding: 4rem 1rem 3rem;
+  }
+  
+  .hero-title {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+  
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .filter-buttons {
+    gap: 0.5rem;
+  }
+  
+  .filter-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .service-list {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+  
+  .card-inner {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .services-hero {
+    padding: 3rem 1rem 2rem;
+  }
+  
   .hero-title {
     font-size: 1.8rem;
   }
-}
-
-@media (max-width: 320px) {
-  .service-card {
-    padding: 0.75rem;
+  
+  .hero-subtitle {
+    font-size: 1rem;
   }
-  .book-btn {
-    font-size: 0.85rem;
+  
+  .section-title {
+    font-size: 1.5rem;
   }
-}
-/* ======================================================
-   🃏 Glassmorphic Service Cards with Shimmer
-   ====================================================== */
-.service-card {
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: 1.5rem;
-  margin: 1rem;
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
-}
-
-.service-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-}
-
-/* === Shimmer Effect === */
-.service-card::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.15) 50%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
-  transform: rotate(0deg);
-  animation: shimmer 3s infinite linear;
-  pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes shimmer {
-  0% { transform: translate(-100%, -100%) rotate(45deg); }
-  100% { transform: translate(100%, 100%) rotate(45deg); }
-}
-
-/* === Card Inner Content Above Shimmer === */
-.card-inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  
+  .services-cta {
+    padding: 3rem 1rem;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .services-cta .btn {
+    width: 100%;
+    max-width: 300px;
+  }
 }
 
 /* ======================================================
-   Dark Mode Shimmer Adjustment
+   🌙 DARK MODE SUPPORT
    ====================================================== */
-.dark .service-card::before {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
+.dark .services-page {
+  background: var(--color-bg);
+}
+
+.dark .category-filter {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.dark .filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.dark .filter-btn:hover {
+  background: var(--color-accent);
+}
+
+.dark .service-card {
+  background: var(--color-surface);
+}
+
+.dark .service-title,
+.dark .price-value {
+  color: var(--color-text);
+}
+
+.dark .service-description,
+.dark .service-category,
+.dark .price-label {
+  color: var(--color-muted);
+}
+
+.dark .btn-learn-more {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.dark .btn-learn-more:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
