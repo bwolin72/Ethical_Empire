@@ -1,199 +1,179 @@
 /* ==========================================================
-   🍽️ CATERING PAGE — EETHM MULTIMEDIA
-   Cinematic Glassmorphic Theme • Fully Responsive ≥240px
-   Always Visible Content
+   🍽️ CATERING PAGE — SERVICE-THEMED (GREEN + GOLD)
+   Fully Semantic • Light/Dark Safe • Responsive ≥240px
    ========================================================== */
 
 .catering-page-container {
-  --overlay-dark: rgba(0, 0, 0, 0.45);
-  --overlay-strong: rgba(0, 0, 0, 0.65);
-
-  background: var(--color-bg, #0e0e0e);
-  color: var(--color-text, #f5f5f5);
-  font-family: var(--font-main, "Poppins", sans-serif);
-  overflow-x: hidden;
-  overflow-y: visible;
-  box-sizing: border-box;
+  background: var(--service-bg);
+  color: var(--service-text);
+  font-family: var(--font-main);
   min-height: 100vh;
-  display: block;
+  overflow-x: hidden;
 }
 
 /* ======================================================
    🎬 HERO SECTION
    ====================================================== */
+
 .catering-hero {
   position: relative;
-  width: 100%;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gradient-gold-burgundy, linear-gradient(120deg, #b8860b, #400020));
-  overflow: hidden;
-}
-
-@supports (-webkit-touch-callout: none) {
-  .catering-hero {
-    min-height: -webkit-fill-available;
-  }
+  background: var(--service-gradient);
 }
 
 .video-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  z-index: 0;
 }
 
 .hero-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.7) contrast(1.1);
-  transition: transform 0.6s ease-out;
-  z-index: 0;
-}
-
-.video-wrapper:hover .hero-video {
-  transform: scale(1.05);
+  filter: brightness(0.65) contrast(1.05);
 }
 
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(3px);
-  z-index: 2;
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .hero-content {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   text-align: center;
-  color: var(--color-white, #fff);
-  z-index: 5;
-  padding: 0 1rem;
-  max-width: 90%;
+  max-width: 720px;
+  padding: 2rem;
   background: rgba(0, 0, 0, 0.35);
-  border-radius: 12px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  border-radius: var(--radius-lg);
+  color: var(--service-surface);
 }
 
 .hero-content h1 {
-  font-family: var(--font-accent, "Playfair Display", serif);
+  font-family: var(--font-accent);
   font-size: clamp(1.6rem, 5vw, 3rem);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  background: var(--gradient-gold-burgundy);
+  background: linear-gradient(
+    135deg,
+    var(--service-primary),
+    var(--service-accent)
+  );
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 1rem;
 }
 
 .hero-content p {
-  font-size: clamp(0.9rem, 2.5vw, 1.15rem);
-  color: var(--color-service-bg-light, #e8e8e8);
-  max-width: 600px;
-  margin: 0 auto 1.5rem;
-  line-height: 1.5;
+  color: var(--service-surface);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
 }
 
+/* ======================================================
+   🔘 BUTTONS
+   ====================================================== */
+
 .btn.btn-primary {
-  background: var(--gradient-navy-gold, linear-gradient(135deg, #001f3f, #b8860b));
+  background: var(--service-primary);
+  color: var(--charcoal);
   border: none;
-  color: var(--color-white, #fff);
   padding: 0.75rem 1.75rem;
-  font-size: 1rem;
-  border-radius: var(--radius-md, 8px);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-md, 0 4px 10px rgba(0, 0, 0, 0.3));
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-md);
 }
 
 .btn.btn-primary:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-lg, 0 6px 14px rgba(0, 0, 0, 0.4));
-  background: var(--gradient-gold-burgundy);
+  background: var(--service-secondary);
+  color: var(--cream);
+  transform: translateY(-2px);
 }
+
+/* ======================================================
+   🔇 MUTE BUTTON
+   ====================================================== */
 
 .mute-button {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  background: rgba(0, 0, 0, 0.6);
-  color: var(--color-accent-gold-light, #ffd700);
-  border: none;
-  border-radius: 50%;
   width: 42px;
   height: 42px;
-  font-size: 1.1rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--service-primary);
   cursor: pointer;
-  z-index: 6;
-  backdrop-filter: blur(4px);
-  transition: all 0.3s ease;
+  transition: var(--transition-fast);
 }
 
 .mute-button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--color-accent-gold, #ffcc00);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* ======================================================
-   🍱 CONTENT SECTIONS
+   📦 SECTIONS
    ====================================================== */
+
 .section {
   padding: 4rem 1.5rem;
-  text-align: center;
-  background: var(--color-bg, #0e0e0e);
-  color: var(--color-text, #f5f5f5);
-  animation: fade-in 0.6s ease-in-out both;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .section-title {
   font-family: var(--font-accent);
-  font-size: clamp(1.4rem, 3vw, 2rem);
   text-transform: uppercase;
-  background: var(--gradient-gold-burgundy);
+  letter-spacing: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--service-primary),
+    var(--service-secondary)
+  );
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 2rem;
-  letter-spacing: 1px;
 }
 
-/* === Food Grids === */
+/* ======================================================
+   🍱 FOOD CARDS
+   ====================================================== */
+
 .local-food-grid,
-.world-grid {
+.world-grid,
+.dietary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1.25rem;
+  gap: 1.5rem;
   justify-items: center;
 }
 
 .local-food-card,
-.world-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
-  border-radius: var(--radius-md, 8px);
+.world-card,
+.dietary-card {
+  background: var(--service-surface);
+  color: var(--service-text);
+  border-radius: var(--radius-md);
   padding: 1.25rem;
-  color: var(--color-accent-gold, #d4af37);
-  font-weight: 600;
-  backdrop-filter: blur(8px);
   box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
+  transition: var(--transition-fast);
   width: 100%;
-  max-width: 240px;
+  max-width: 260px;
+  text-align: center;
 }
 
 .local-food-card:hover,
-.world-card:hover {
+.world-card:hover,
+.dietary-card:hover {
   transform: translateY(-6px);
-  background: var(--gradient-gold-burgundy);
-  color: var(--color-white, #fff);
+  background: var(--service-gradient);
+  color: var(--cream);
 }
 
 .food-image {
@@ -202,172 +182,56 @@
   object-fit: cover;
   border-radius: var(--radius-md);
   margin-bottom: 0.75rem;
-  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.3));
 }
 
-/* === Dietary Options === */
-.dietary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1.25rem;
-  justify-items: center;
-}
+/* ======================================================
+   🎥 MEDIA & TEXT
+   ====================================================== */
 
-.dietary-card {
-  background: var(--color-service-bg, rgba(255, 255, 255, 0.06));
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
-  width: 100%;
-  max-width: 240px;
-}
-
-.dietary-card:hover {
-  transform: scale(1.08);
-  background: var(--gradient-navy-gold);
-  color: var(--color-white);
-}
-
-/* === Creative Section === */
 .creative-layout {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 2rem;
-  justify-content: center;
-}
-
-.creative-media {
-  flex: 1 1 420px;
+  align-items: center;
 }
 
 .creative-text {
-  flex: 1 1 350px;
-  text-align: left;
   color: var(--color-text);
 }
 
-/* === Other Services === */
-.other-services-section {
-  background: var(--color-service-bg, rgba(255, 255, 255, 0.05));
-  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
-  padding-top: 4rem;
-}
-
 /* ======================================================
-   🌗 DARK MODE
+   🌗 DARK MODE — SAFE OVERRIDES
    ====================================================== */
+
 .dark .catering-page-container {
-  background: var(--color-bg-dark, #0b0b0b);
-  color: var(--color-text-light, #fafafa);
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-.dark .dietary-card,
-.dark .local-food-card {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: var(--color-accent-gold-light, #ffdb6e);
+.dark .local-food-card,
+.dark .world-card,
+.dark .dietary-card {
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 /* ======================================================
-   📱 RESPONSIVE FIXES
+   📱 RESPONSIVE
    ====================================================== */
+
 @media (max-width: 768px) {
-  .catering-hero {
-    min-height: 100vh;
-    flex-direction: column;
-    justify-content: center;
-    padding: 2rem 1rem;
-    text-align: center;
-  }
-
-  .hero-content {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    padding: 2rem 1rem;
-  }
-
   .creative-layout {
     flex-direction: column;
     text-align: center;
   }
 
-  .creative-text {
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .section {
-    padding: 3rem 1rem;
-  }
-
-  .hero-content h1 {
-    font-size: 1.4rem;
-  }
-
-  .btn.btn-primary {
-    width: 100%;
-  }
-
-  .local-food-card,
-  .world-card,
-  .dietary-card {
-    max-width: 100%;
-  }
-
   .hero-content {
-    background: rgba(0, 0, 0, 0.45);
+    padding: 1.5rem;
   }
 }
 
 @media (max-width: 360px) {
   .hero-content h1 {
-    font-size: 1.25rem;
-  }
-
-  .mute-button {
-    width: 34px;
-    height: 34px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 240px) {
-  .hero-content h1 {
-    font-size: 1rem;
-  }
-
-  .hero-content p {
-    font-size: 0.8rem;
-  }
-
-  .btn.btn-primary {
-    font-size: 0.8rem;
-    padding: 0.5rem 1rem;
-  }
-
-  .local-food-card,
-  .world-card,
-  .dietary-card {
-    padding: 0.75rem;
-  }
-}
-
-/* ======================================================
-   ✨ ANIMATIONS
-   ====================================================== */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    font-size: 1.2rem;
   }
 }
