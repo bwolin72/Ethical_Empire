@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./Legal.css"; 
 
 const COMPANY = "Ethical Multimedia";
-const CONTACT_EMAIL = "contact@ethicalmultimedia.gh";
+const CONTACT_EMAIL = "info@eethmghmultimedia.com";
 const VERSION = "v1.0";
 const LAST_UPDATED = "August 21, 2025";
 
