@@ -176,7 +176,7 @@
   margin: 0 auto;
 }
 
-.theme-multimedia .section-description { color: var(--silver); }
+.theme-multimedia .section-description { color: var(--cream); }
 .theme-live-band .section-description { color: var(--cream); }
 .theme-catering .section-description { color: var(--cream); }
 .theme-decor .section-description { color: var(--charcoal); }
@@ -206,7 +206,7 @@
 
 /* Theme-specific card backgrounds */
 .service-card.theme-multimedia {
-  background: #1f2937;
+  background: var(--cream);
   border-color: rgba(31, 41, 55, 0.2);
 }
 
