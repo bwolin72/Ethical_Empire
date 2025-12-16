@@ -19,6 +19,9 @@ import weddingImg from "../../assets/liveband/wedding-band.png";
 import festivalImg from "../../assets/liveband/festival-band.png";
 import heroFallback from "../../assets/liveband/liveband-hero.jpg";
 
+// Import service categories data
+import { liveBandServices, serviceCategories } from "../services/data/serviceCategories";
+
 import "./liveband.css";
 
 /* ---------- Animations ---------- */
@@ -58,7 +61,10 @@ export default function LiveBandServicePage() {
         videoData,
         mediaData
       ] = await Promise.all([
+        // Try multiple category names for live band services
         serviceService.getServicesByCategory("Live Band"),
+        serviceService.getServicesByCategory("Live Band & Entertainment"),
+        serviceService.getServicesByCategory("Live Music"),
         serviceService.getServices(),
         mediaService.bannerActive({ endpoint: "LiveBandServicePage" }),
         videoService.getLiveBand(),
@@ -66,19 +72,59 @@ export default function LiveBandServicePage() {
       ]);
 
       // --- Extract Data ---
-      const livebandData = Array.isArray(livebandRes.data?.results) ? livebandRes.data.results : [];
-      const allData = Array.isArray(allRes.data?.results) ? allRes.data.results : [];
+      // Combine all possible live band category responses
+      const livebandData = [
+        ...(Array.isArray(livebandRes?.[0]?.data?.results) ? livebandRes[0].data.results : []),
+        ...(Array.isArray(livebandRes?.[1]?.data?.results) ? livebandRes[1].data.results : []),
+        ...(Array.isArray(livebandRes?.[2]?.data?.results) ? livebandRes[2].data.results : [])
+      ];
+      
+      const allData = Array.isArray(livebandRes?.[3]?.data?.results) ? livebandRes[3].data.results : [];
       const bannerItems = bannerRes.data?.results || [];
       const mediaItems = mediaData.data?.results || [];
 
+      // If no services from API, use fallback from serviceCategories
+      const finalServices = livebandData.length > 0 
+        ? livebandData 
+        : liveBandServices;
+
+      // Get other services (excluding live band)
+      const otherServicesData = allData.filter((s) => 
+        !s.category?.toLowerCase().includes("live") && 
+        !s.category?.toLowerCase().includes("band") &&
+        !s.category?.toLowerCase().includes("entertainment")
+      );
+
+      // If no other services from API, get from serviceCategories
+      const finalOtherServices = otherServicesData.length > 0
+        ? otherServicesData
+        : serviceCategories
+            .filter(cat => 
+              !cat.name.toLowerCase().includes("live") && 
+              !cat.name.toLowerCase().includes("band")
+            )
+            .flatMap(cat => cat.services)
+            .slice(0, 6); // Limit to 6 other services
+
       // --- Set State ---
-      setServices(livebandData);
-      setOtherServices(allData.filter((s) => s.category !== "Live Band"));
+      setServices(finalServices);
+      setOtherServices(finalOtherServices);
       setBanners(bannerItems);
       setVideos(videoData);
       setMediaCards(mediaItems);
     } catch (err) {
       console.error("Error loading Live Band data:", err);
+      // Use fallback data on error
+      setServices(liveBandServices);
+      setOtherServices(
+        serviceCategories
+          .filter(cat => 
+            !cat.name.toLowerCase().includes("live") && 
+            !cat.name.toLowerCase().includes("band")
+          )
+          .flatMap(cat => cat.services)
+          .slice(0, 6)
+      );
     } finally {
       setLoading(false);
     }
@@ -202,11 +248,11 @@ export default function LiveBandServicePage() {
               services: services.map((srv) => ({
                 name: srv.name,
                 description: srv.description,
-                icon: srv.icon,
+                icon: srv.icon || "🎵", // Use provided icon or fallback
               })),
             }}
           />
-        ) : <p>No live band services available at the moment.</p>}
+        ) : <p className="empty-state">No live band services available at the moment.</p>}
       </motion.section>
 
       {/* STATIC SERVICE SECTIONS */}
@@ -284,11 +330,11 @@ export default function LiveBandServicePage() {
               services: otherServices.map((srv) => ({
                 name: srv.name,
                 description: srv.description,
-                icon: srv.icon || "🎵",
+                icon: srv.icon || getIconForService(srv.name),
               })),
             }}
           />
-        ) : <p>No additional services available.</p>}
+        ) : <p className="empty-state">No additional services available.</p>}
       </motion.section>
 
       {/* REVIEWS */}
@@ -302,4 +348,25 @@ export default function LiveBandServicePage() {
       </section>
     </div>
   );
+}
+
+// Helper function to get appropriate icon for service names
+function getIconForService(serviceName) {
+  const name = serviceName?.toLowerCase() || "";
+  
+  if (name.includes("photo") || name.includes("camera")) return "📷";
+  if (name.includes("video")) return "🎥";
+  if (name.includes("sound") || name.includes("audio")) return "🔊";
+  if (name.includes("light")) return "💡";
+  if (name.includes("dj")) return "🎧";
+  if (name.includes("mc") || name.includes("host")) return "🎤";
+  if (name.includes("cater") || name.includes("food")) return "🍽️";
+  if (name.includes("decor") || name.includes("floral")) return "🎨";
+  if (name.includes("event") || name.includes("planning")) return "📋";
+  if (name.includes("stage") || name.includes("setup")) return "🎪";
+  if (name.includes("screen") || name.includes("project")) return "📺";
+  if (name.includes("effect") || name.includes("firework")) return "✨";
+  if (name.includes("music") || name.includes("band")) return "🎵";
+  
+  return "🎵"; // Default icon
 }
