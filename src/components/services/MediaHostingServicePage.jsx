@@ -1,4 +1,3 @@
-// frontend/src/pages/services/MediaHostingServicePage.jsx
 import React, {
   useEffect,
   useState,
@@ -157,13 +156,20 @@ export default function MediaHostingServicePage() {
         name: "Live Band & Entertainment",
         link: "/services/live-band",
         image: livebandHero,
+        theme: "live-band"
       },
       {
         name: "Catering & Local Foods",
         link: "/services/catering",
         image: cateringWallpaper,
+        theme: "catering"
       },
-      { name: "Event Décor & Lighting", link: "/services/decor", image: stageDecor },
+      { 
+        name: "Event Décor & Lighting", 
+        link: "/services/decor", 
+        image: stageDecor,
+        theme: "decor"
+      },
     ],
     []
   );
@@ -172,7 +178,7 @@ export default function MediaHostingServicePage() {
      JSX Render
   -------------------------------- */
   return (
-    <main className="media-hosting-page">
+    <main className="media-hosting-page theme-multimedia">
       {/* 🎥 HERO SECTION */}
       <section className="media-hero-section">
         {videoUrl && !videoLoading ? (
@@ -190,7 +196,7 @@ export default function MediaHostingServicePage() {
               onError={() => setVideoUrl(null)}
             />
             <div className="overlay-gradient" />
-            <div className="hero-glass">
+            <div className="hero-content">
               <h1 className="hero-title">Media Hosting & Multimedia</h1>
               <p className="hero-subtitle">
                 Professional cloud-based media hosting, live event recording,
@@ -198,13 +204,13 @@ export default function MediaHostingServicePage() {
               </p>
               <div className="hero-buttons">
                 <button
-                  className="btn-primary"
+                  className="btn btn-primary"
                   onClick={() => navigate("/bookings")}
                 >
                   Book Now
                 </button>
                 <button
-                  className="btn-secondary"
+                  className="btn btn-secondary"
                   onClick={() => navigate("/contact")}
                 >
                   Contact Us
@@ -227,10 +233,10 @@ export default function MediaHostingServicePage() {
 
       {/* 💡 SERVICE OVERVIEW */}
       <FadeInSection>
-        <section className="content-section glass-panel">
+        <section className="section services-section">
           <header className="section-header">
             <h2 className="section-title">Our Multimedia & Hosting Solutions</h2>
-            <p className="muted-text">
+            <p className="section-description">
               From live production and recording to online streaming and
               post-editing — Ethical Empire delivers secure, world-class
               multimedia experiences.
@@ -242,9 +248,9 @@ export default function MediaHostingServicePage() {
               category={{ name: "Media Hosting Services", services }}
             />
           ) : (
-            <div className="static-services-grid">
+            <div className="services-grid">
               {staticMediaServices.map((s) => (
-                <div key={s.id} className="static-service-card">
+                <div key={s.id} className="service-card">
                   <img src={s.image} alt={s.name} loading="lazy" />
                   <div className="service-info">
                     <h3>{s.name}</h3>
@@ -259,9 +265,12 @@ export default function MediaHostingServicePage() {
 
       {/* 🖼️ FEATURED MEDIA PROJECTS */}
       <FadeInSection>
-        <section className="media-preview-section glass-panel">
+        <section className="section media-gallery-section">
           <h2 className="section-title">Featured Media Projects</h2>
-          <div className="media-cards-scroll">
+          <p className="section-description">
+            Explore our portfolio of professional media productions
+          </p>
+          <div className="media-cards-grid">
             {mediaLoading
               ? Array.from({ length: 6 }).map((_, i) => <MediaSkeleton key={i} />)
               : mediaCards.length > 0
@@ -273,28 +282,30 @@ export default function MediaHostingServicePage() {
                       media={media}
                     />
                   ))
-              : <p className="muted-text">No media available at the moment.</p>}
+              : <p className="empty-state">No media available at the moment.</p>}
           </div>
         </section>
       </FadeInSection>
 
       {/* 💬 REVIEWS */}
       <FadeInSection>
-        <Suspense fallback={<div className="glass-panel">Loading Reviews...</div>}>
-          <ReviewsLayout
-            title="Client Testimonials"
-            description="What our clients say about Ethical Empire’s media hosting and production services."
-          >
-            <Reviews limit={6} hideForm={true} category="MediaHostingServicePage" />
-          </ReviewsLayout>
+        <Suspense fallback={<div className="loading-reviews">Loading Reviews...</div>}>
+          <section className="section reviews-section">
+            <ReviewsLayout
+              title="Client Testimonials"
+              description="What our clients say about Ethical Empire's media hosting and production services."
+            >
+              <Reviews limit={6} hideForm={true} category="MediaHostingServicePage" />
+            </ReviewsLayout>
+          </section>
         </Suspense>
       </FadeInSection>
 
       {/* 🌐 OTHER SERVICES */}
       <FadeInSection>
-        <section className="other-services-section glass-panel">
+        <section className="section other-services-section">
           <h2 className="section-title">Explore Our Other Services</h2>
-          <p className="muted-text">
+          <p className="section-description">
             Beyond multimedia, Ethical Empire offers full event solutions —
             from décor and catering to entertainment and lighting.
           </p>
@@ -302,11 +313,11 @@ export default function MediaHostingServicePage() {
             {otherServices.map((s, idx) => (
               <div
                 key={idx}
-                className="other-service-card"
+                className={`other-service-card theme-${s.theme}`}
                 onClick={() => navigate(s.link)}
               >
                 <img src={s.image} alt={s.name} loading="lazy" />
-                <div className="overlay">
+                <div className="service-overlay">
                   <h3>{s.name}</h3>
                 </div>
               </div>
