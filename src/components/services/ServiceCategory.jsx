@@ -3,7 +3,7 @@ import { motion, useAnimation } from "framer-motion";
 import ServiceCard from "./ServiceCard";
 import "./Services.css";
 
-const ServiceCategory = ({ category }) => {
+const ServiceCategory = ({ category, isFeatured = false }) => {
   const controls = useAnimation();
   const ref = useRef(null);
 
@@ -53,7 +53,7 @@ const ServiceCategory = ({ category }) => {
   return (
     <motion.section
       ref={ref}
-      className="service-category-section scroll-reveal"
+      className={`service-category-section ${isFeatured ? 'featured-category' : ''}`}
       initial="hidden"
       animate={controls}
       variants={sectionVariants}
@@ -65,11 +65,11 @@ const ServiceCategory = ({ category }) => {
           variants={sectionVariants}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="section-title gradient-text">
+          <h2 className="section-title">
             {category.name}
           </h2>
           {category.description && (
-            <p className="muted-text category-description">
+            <p className="section-description">
               {category.description}
             </p>
           )}
@@ -94,7 +94,7 @@ const ServiceCategory = ({ category }) => {
           ))}
         </motion.div>
       ) : (
-        <p className="muted-text no-services-text">
+        <p className="empty-state">
           No active services in this category.
         </p>
       )}
