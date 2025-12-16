@@ -5,6 +5,7 @@ import ServiceCategory from "./ServiceCategory";
 import MediaCards from "../context/MediaCards";
 import ReviewsLayout from "../user/ReviewsLayout";
 import Reviews from "../user/Reviews";
+
 import {
   FaLeaf,
   FaDrumstickBite,
@@ -17,6 +18,7 @@ import {
   FaFish,
   FaMortarPestle,
 } from "react-icons/fa";
+
 import "./catering.custom.css";
 
 /* === IMAGE IMPORTS === */
@@ -36,13 +38,15 @@ import mediterraneanImg from "../../assets/catering/mediterranean.jpeg";
 
 const CateringPage = () => {
   const navigate = useNavigate();
-  const [services, setServices] = useState([]);
-  const [otherServices, setOtherServices] = useState([]);
-  const [videoUrl, setVideoUrl] = useState("/videos/catering-hero.mp4");
-  const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
 
-  /* === Fetch Services Data === */
+  const [services, setServices] = useState([]);
+  const [otherServices, setOtherServices] = useState([]);
+  const [isMuted, setIsMuted] = useState(true);
+
+  /* ======================================================
+     📡 FETCH SERVICES
+     ====================================================== */
   const fetchData = useCallback(async () => {
     try {
       const [cateringRes, allRes] = await Promise.all([
@@ -50,20 +54,22 @@ const CateringPage = () => {
         serviceService.getServices(),
       ]);
 
-      const cateringData =
-        Array.isArray(cateringRes.data) || Array.isArray(cateringRes.data?.results)
-          ? cateringRes.data.results || cateringRes.data
-          : [];
+      const cateringData = Array.isArray(cateringRes?.data?.results)
+        ? cateringRes.data.results
+        : Array.isArray(cateringRes?.data)
+        ? cateringRes.data
+        : [];
 
-      const allData =
-        Array.isArray(allRes.data) || Array.isArray(allRes.data?.results)
-          ? allRes.data.results || allRes.data
-          : [];
+      const allData = Array.isArray(allRes?.data?.results)
+        ? allRes.data.results
+        : Array.isArray(allRes?.data)
+        ? allRes.data
+        : [];
 
       setServices(cateringData);
       setOtherServices(allData.filter((s) => s.category !== "Catering"));
-    } catch (err) {
-      console.error("Error fetching catering data:", err);
+    } catch (error) {
+      console.error("Failed to load catering services:", error);
     }
   }, []);
 
@@ -71,14 +77,21 @@ const CateringPage = () => {
     fetchData();
   }, [fetchData]);
 
+  /* ======================================================
+     🔊 VIDEO MUTE TOGGLE
+     ====================================================== */
   const toggleMute = () => {
     setIsMuted((prev) => {
-      if (videoRef.current) videoRef.current.muted = !prev;
+      if (videoRef.current) {
+        videoRef.current.muted = !prev;
+      }
       return !prev;
     });
   };
 
-  /* === Local & Global Foods === */
+  /* ======================================================
+     🍱 DATA
+     ====================================================== */
   const localFoods = [
     { name: "Jollof Rice & Grilled Chicken", icon: <FaPepperHot />, image: jollofImg },
     { name: "Banku & Tilapia with Shito", icon: <FaFish />, image: bankuImg },
@@ -105,14 +118,17 @@ const CateringPage = () => {
     { label: "Keto-Friendly Meals", icon: <FaPepperHot /> },
   ];
 
+  /* ======================================================
+     🧩 RENDER
+     ====================================================== */
   return (
-    <div className="catering-page-container">
-      {/* === HERO SECTION === */}
+    <div className="catering-page-container theme-catering">
+      {/* ================= HERO ================= */}
       <section className="catering-hero">
         <div className="video-wrapper">
           <video
             ref={videoRef}
-            src={videoUrl}
+            src="/videos/catering-hero.mp4"
             className="hero-video"
             autoPlay
             loop
@@ -120,23 +136,28 @@ const CateringPage = () => {
             playsInline
           />
           <div className="overlay" />
+
           <div className="hero-content">
             <h1>Ghanaian & West African Catering Excellence</h1>
             <p>
-              Authentic local dishes and global gourmet experiences — from traditional Ghanaian recipes
-              to world-class event catering.
+              Authentic local dishes and refined global experiences — crafted for
+              weddings, corporate events, and private celebrations.
             </p>
-            <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate("/bookings")}
+            >
               Request a Custom Menu
             </button>
           </div>
+
           <button className="mute-button" onClick={toggleMute}>
             {isMuted ? "🔇" : "🔊"}
           </button>
         </div>
       </section>
 
-      {/* === CATERING SERVICES === */}
+      {/* ================= SERVICES ================= */}
       <section className="section services-section">
         <h2 className="section-title">Our Catering Services</h2>
         {services.length > 0 ? (
@@ -155,84 +176,78 @@ const CateringPage = () => {
         )}
       </section>
 
-      {/* === LOCAL FOODS === */}
+      {/* ================= LOCAL FOODS ================= */}
       <section className="section local-foods-section">
         <h2 className="section-title">Popular Local Foods in Ghana</h2>
-        <p className="section-subtitle">
-          We proudly serve the best of <strong>Ghanaian</strong> and <strong>West African cuisine</strong>.
-        </p>
         <div className="local-food-grid">
-          {localFoods.map((item, i) => (
-            <div key={i} className="local-food-card">
+          {localFoods.map((item, index) => (
+            <div key={index} className="local-food-card">
               <img src={item.image} alt={item.name} className="food-image" />
-              <span className="local-food-icon">{item.icon}</span>
-              <span className="local-food-label">{item.name}</span>
+              <span>{item.icon}</span>
+              <span>{item.name}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* === GLOBAL VARIETIES === */}
+      {/* ================= GLOBAL VARIETIES ================= */}
       <section className="section world-food-section">
-        <h2 className="section-title">International & West African Varieties</h2>
-        <p className="section-subtitle">
-          Beyond local favorites, our culinary team crafts <strong>continental</strong> and <strong>fusion delicacies</strong>.
-        </p>
+        <h2 className="section-title">International & Fusion Cuisine</h2>
         <div className="world-grid">
-          {globalVarieties.map((item, i) => (
-            <div key={i} className="world-card">
+          {globalVarieties.map((item, index) => (
+            <div key={index} className="world-card">
               <img src={item.image} alt={item.name} className="food-image" />
-              <span className="world-icon">{item.icon}</span>
-              <span className="world-label">{item.name}</span>
+              <span>{item.icon}</span>
+              <span>{item.name}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* === DIETARY OPTIONS === */}
+      {/* ================= DIETARY ================= */}
       <section className="section dietary-section">
         <h2 className="section-title">Special Dietary Options</h2>
         <div className="dietary-grid">
-          {dietaryOptions.map(({ label, icon }, i) => (
-            <div key={i} className="dietary-card">
-              <span className="dietary-icon">{icon}</span>
-              <span>{label}</span>
+          {dietaryOptions.map((item, index) => (
+            <div key={index} className="dietary-card">
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* === MEDIA & REVIEWS === */}
+      {/* ================= MEDIA ================= */}
       <section className="section creative-section">
         <div className="creative-layout">
-          <div className="creative-media">
-            <MediaCards
-              endpoint="CateringPage"
-              type="media"
-              title="Ghanaian Catering Moments"
-              isFeatured
-              isActive
-            />
-          </div>
+          <MediaCards
+            endpoint="CateringPage"
+            type="media"
+            title="Catering Moments"
+            isFeatured
+            isActive
+          />
           <div className="creative-text">
             <h3>Experience the Taste of Ghana & Beyond</h3>
             <p>
-              From <strong>party jollof</strong> to <strong>continental buffets</strong>, we bring cultural richness to every event.
+              From party jollof to elegant continental buffets — every dish is
+              prepared with passion, culture, and precision.
             </p>
           </div>
         </div>
       </section>
 
+      {/* ================= REVIEWS ================= */}
       <section className="section reviews-section">
         <ReviewsLayout
           title="What Our Clients Say"
-          description="Here’s what people think about our catering services."
+          description="Trusted by clients across weddings, corporate events, and private functions."
         >
           <Reviews limit={6} hideForm category="catering" />
         </ReviewsLayout>
       </section>
 
-      {/* === OTHER SERVICES === */}
+      {/* ================= OTHER SERVICES ================= */}
       <section className="section other-services-section">
         <h2 className="section-title">Explore Our Other Services</h2>
         {otherServices.length > 0 ? (
