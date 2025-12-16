@@ -5,17 +5,24 @@ import { logoutHelper } from "../../utils/logoutHelper";
 import "./Navbar.css";
 import logo from "../../assets/logo.png";
 
+// Import service categories for better organization
+import { serviceCategories } from "../services/data/serviceCategories";
+
+// Define services with theme classes
 const services = [
-  { label: "Live Band", path: "/services/live-band" },
-  { label: "Catering", path: "/services/catering" },
-  { label: "Decor", path: "/services/decor" },
-  { label: "Media & Event Hosting", path: "/services/media-hosting" },
-  { label: "General Multimedia", path: "/services/general" },
+  { label: "All Services", path: "/services", theme: "default" },
+  { label: "Live Band", path: "/services/live-band", theme: "live-band" },
+  { label: "Catering", path: "/services/catering", theme: "catering" },
+  { label: "Decor & Styling", path: "/services/decor", theme: "decor" },
+  { label: "Media & Hosting", path: "/services/media-hosting", theme: "multimedia" },
+  { label: "General Services", path: "/services/general", theme: "multimedia" },
 ];
 
 const blogLinks = [
-  { label: "Articles", path: "/blog/articles" },
-  { label: "Latest", path: "/blog/latest" },
+  { label: "All Articles", path: "/blog" },
+  { label: "Latest Posts", path: "/blog/latest" },
+  { label: "Event Tips", path: "/blog/category/tips" },
+  { label: "Industry News", path: "/blog/category/news" },
 ];
 
 export default function Navbar() {
@@ -107,6 +114,13 @@ export default function Navbar() {
     handleNavClick();
   };
 
+  const handleMainSectionClick = (section, basePath) => {
+    navigate(basePath);
+    if (isMobile) {
+      toggleDropdown(section);
+    }
+  };
+
   const isActive = (path) => location.pathname === path;
   const isSectionActive = (section) => location.pathname.startsWith(section);
 
@@ -117,6 +131,7 @@ export default function Navbar() {
 
   // --- Shared Nav Links ---
   const navLinks = [
+    { label: "Home", path: "/" },
     { label: "Bookings", path: "/bookings" },
     { label: "Our Profile", path: "/flipbook" },
     { label: "About", path: "/about" },
@@ -125,6 +140,7 @@ export default function Navbar() {
       section: "services",
       items: services,
       basePath: "/services",
+      description: "Explore all our professional services",
     },
     { label: "Contact", path: "/contact" },
     {
@@ -132,10 +148,22 @@ export default function Navbar() {
       section: "blog",
       items: blogLinks,
       basePath: "/blog",
+      description: "Read our latest articles and tips",
     },
-    { label: "Connect With Us", path: "/connect" },
+    { label: "Connect", path: "/connect" },
     { label: "FAQ", path: "/faq" },
   ];
+
+  // Get theme color for service item
+  const getThemeColor = (theme) => {
+    switch(theme) {
+      case 'live-band': return 'var(--burgundy)';
+      case 'catering': return 'var(--forest)';
+      case 'decor': return 'var(--sand)';
+      case 'multimedia': return 'var(--navy)';
+      default: return 'var(--gold)';
+    }
+  };
 
   return (
     <>
@@ -160,7 +188,7 @@ export default function Navbar() {
           {/* Desktop Menu */}
           {!isMobile && (
             <ul className="nav-menu">
-              {navLinks.map(({ label, path, section, items, basePath }) =>
+              {navLinks.map(({ label, path, section, items, basePath, description }) =>
                 section ? (
                   <li
                     key={section}
@@ -168,23 +196,38 @@ export default function Navbar() {
                     onMouseEnter={() => setDropdown((d) => ({ ...d, [section]: true }))}
                     onMouseLeave={() => setDropdown((d) => ({ ...d, [section]: false }))}
                   >
-                    <button
-                      className={`nav-links dropdown-toggle ${
-                        isSectionActive(basePath) ? "active" : ""
-                      }`}
-                      onClick={() => navigate(basePath)}
-                    >
-                      {label}{" "}
-                      <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
-                    </button>
+                    <div className="dropdown-header">
+                      <Link
+                        to={basePath}
+                        className={`nav-links dropdown-main-link ${
+                          isSectionActive(basePath) ? "active" : ""
+                        }`}
+                        onClick={() => handleMainSectionClick(section, basePath)}
+                      >
+                        {label}
+                      </Link>
+                      <button
+                        className="dropdown-caret"
+                        onClick={() => toggleDropdown(section)}
+                        aria-label={`Toggle ${label} dropdown`}
+                      >
+                        <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
+                      </button>
+                    </div>
                     <ul className={`dropdown-menu desktop ${dropdown[section] ? "active" : ""}`}>
-                      {items.map(({ label: itemLabel, path: itemPath }) => (
+                      <li className="dropdown-header-info">
+                        <span className="dropdown-title">{label}</span>
+                        {description && <span className="dropdown-description">{description}</span>}
+                      </li>
+                      {items.map(({ label: itemLabel, path: itemPath, theme }) => (
                         <li
                           key={itemPath}
                           className={`dropdown-item ${isActive(itemPath) ? "active" : ""}`}
                           onClick={() => handleDropdownItemClick(itemPath)}
+                          style={theme ? { '--theme-color': getThemeColor(theme) } : {}}
                         >
                           {itemLabel}
+                          {theme && <span className="theme-indicator" style={{ backgroundColor: getThemeColor(theme) }} />}
                         </li>
                       ))}
                     </ul>
@@ -230,26 +273,41 @@ export default function Navbar() {
                 variants={mobileVariants}
                 style={{ transformOrigin: "top" }}
               >
-                {navLinks.map(({ label, path, section, items, basePath }) =>
+                {navLinks.map(({ label, path, section, items, basePath, description }) =>
                   section ? (
                     <li key={section} className="dropdown">
-                      <button
-                        className={`nav-links dropdown-toggle ${
-                          isSectionActive(basePath) ? "active" : ""
-                        }`}
-                        onClick={() => toggleDropdown(section)}
-                      >
-                        {label}{" "}
-                        <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
-                      </button>
+                      <div className="dropdown-header mobile">
+                        <Link
+                          to={basePath}
+                          className={`nav-links dropdown-main-link ${
+                            isSectionActive(basePath) ? "active" : ""
+                          }`}
+                          onClick={() => handleMainSectionClick(section, basePath)}
+                        >
+                          {label}
+                        </Link>
+                        <button
+                          className="dropdown-caret"
+                          onClick={() => toggleDropdown(section)}
+                          aria-label={`Toggle ${label} dropdown`}
+                        >
+                          <span className={`caret ${dropdown[section] ? "rotated" : ""}`}>▼</span>
+                        </button>
+                      </div>
                       <ul className={`dropdown-menu mobile ${dropdown[section] ? "active" : ""}`}>
-                        {items.map(({ label: itemLabel, path: itemPath }) => (
+                        <li className="dropdown-header-info">
+                          <span className="dropdown-title">{label}</span>
+                          {description && <span className="dropdown-description">{description}</span>}
+                        </li>
+                        {items.map(({ label: itemLabel, path: itemPath, theme }) => (
                           <li
                             key={itemPath}
                             className={`dropdown-item ${isActive(itemPath) ? "active" : ""}`}
                             onClick={() => handleDropdownItemClick(itemPath)}
+                            style={theme ? { '--theme-color': getThemeColor(theme) } : {}}
                           >
                             {itemLabel}
+                            {theme && <span className="theme-indicator" style={{ backgroundColor: getThemeColor(theme) }} />}
                           </li>
                         ))}
                       </ul>
