@@ -1,117 +1,255 @@
 /* ======================================================
-   🎨 DECOR SERVICE THEME
-   Uses .theme-decor tokens
+   🎨 DECOR PAGE — FULL CSS WITH THEME INTEGRATION
    ====================================================== */
 
+/* ======================================================
+   🎨 DECOR THEME VARIABLES
+   ====================================================== */
+.theme-decor {
+  --service-bg: var(--sand);
+  --service-surface: var(--cream);
+  --service-text: var(--charcoal);
+  --service-primary: var(--gold);
+  --service-secondary: var(--burgundy);
+  --service-accent: var(--olive);
+  --service-gradient: linear-gradient(135deg, var(--sand), var(--gold));
+}
+
+/* ======================================================
+   🌟 PAGE CONTAINER
+   ====================================================== */
 .decor-page {
+  min-height: 100vh;
   background: var(--service-bg);
   color: var(--service-text);
   font-family: var(--font-main);
+  animation: fade-in 0.8s ease both;
 }
 
-/* ================= HERO ================= */
+/* ======================================================
+   🎬 HERO SECTION
+   ====================================================== */
 .decor-hero {
   position: relative;
   min-height: 100vh;
-  background: var(--service-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  background: var(--service-gradient);
+  overflow: hidden;
 }
 
-.decor-hero-video,
-.decor-hero-fallback {
+.decor-hero-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
+  filter: brightness(0.7) contrast(1.1);
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.decor-hero-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.7);
+  z-index: 0;
 }
 
 .decor-hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.4),
+    rgba(0, 0, 0, 0.6)
+  );
+  z-index: 1;
 }
 
+/* ======================================================
+   ✨ HERO CONTENT
+   ====================================================== */
 .decor-hero-content {
   position: relative;
   z-index: 2;
   max-width: 900px;
   padding: 2rem;
-  color: var(--service-surface);
+  animation: fade-in-up 1s ease both;
 }
 
 .decor-hero-title {
   font-family: var(--font-accent);
   font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(212, 175, 55, 0.2);
+  background: linear-gradient(135deg, var(--gold), var(--cream));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .decor-hero-subtitle {
   margin: 1rem 0 2rem;
   color: var(--cream);
+  font-size: 1.25rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* ======================================================
+   🎯 HERO ACTIONS
+   ====================================================== */
 .decor-hero-actions {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
 }
 
+/* ======================================================
+   🔘 BUTTONS
+   ====================================================== */
+.btn {
+  padding: 0.85rem 2rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.95rem;
+  min-width: 180px;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--charcoal);
+  border: none;
+  box-shadow: 
+    var(--shadow-md),
+    0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--burgundy);
+  color: var(--cream);
+  transform: translateY(-3px);
+  box-shadow: 
+    var(--shadow-lg),
+    0 0 25px rgba(212, 175, 55, 0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold);
+  border: 2px solid var(--gold);
+  backdrop-filter: blur(8px);
+}
+
+.btn-outline:hover {
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--cream);
+  border-color: var(--cream);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* ======================================================
+   🔇 MUTE BUTTON
+   ====================================================== */
 .decor-mute-button {
   position: absolute;
   bottom: 1.25rem;
   right: 1.25rem;
   z-index: 3;
-  background: rgba(0,0,0,0.6);
-  color: var(--white);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--gold);
   border: none;
   border-radius: var(--radius-md);
   padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
-/* ================= BUTTONS ================= */
-.btn {
-  padding: 0.75rem 1.75rem;
-  border-radius: var(--radius-md);
-  font-weight: 600;
+.decor-mute-button:hover {
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--cream);
+  transform: scale(1.1);
 }
 
-.btn-primary {
-  background: var(--service-primary);
-  color: var(--black);
-}
-
-.btn-outline {
-  border: 2px solid var(--service-primary);
-  background: transparent;
-  color: var(--service-primary);
-}
-
-/* ================= SERVICES ================= */
+/* ======================================================
+   🎭 SERVICES SECTION
+   ====================================================== */
 .decor-services {
+  padding: 5rem 1rem;
   background: var(--service-surface);
-  padding: 4rem 1rem;
   text-align: center;
+  animation: fade-in-up 0.6s ease both;
+  animation-delay: 0.2s;
 }
 
 .decor-section-title {
   font-family: var(--font-accent);
   font-size: clamp(1.75rem, 4vw, 2.5rem);
-  color: var(--service-secondary);
+  color: var(--burgundy);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+}
+
+.decor-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: var(--gold);
+  border-radius: 2px;
 }
 
 .decor-section-description {
   max-width: 700px;
-  margin: 0 auto 3rem;
+  margin: 2rem auto 4rem;
   color: var(--color-muted);
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
+/* ======================================================
+   🎨 CATEGORY GRID
+   ====================================================== */
 .decor-category-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .decor-category-card {
@@ -119,32 +257,235 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+  transition: all var(--transition-slow);
+  border: 1px solid rgba(139, 0, 0, 0.1);
+  animation: fade-in-up 0.6s ease both;
+}
+
+.decor-category-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--gold);
 }
 
 .decor-category-image {
   width: 100%;
-  height: 220px;
+  height: 250px;
   object-fit: cover;
+  object-position: center;
+  transition: transform 0.6s ease;
 }
 
-/* ================= GALLERY ================= */
+.decor-category-card:hover .decor-category-image {
+  transform: scale(1.05);
+}
+
+/* ======================================================
+   🖼️ GALLERY SECTION
+   ====================================================== */
 .decor-gallery {
-  padding: 4rem 1rem;
-  background: var(--service-bg);
+  padding: 5rem 1rem;
+  background: linear-gradient(135deg, var(--sand) 0%, var(--cream) 100%);
+}
+
+.decor-gallery .decor-section-title {
+  color: var(--burgundy);
+  margin-bottom: 3rem;
 }
 
 .decor-gallery-grid {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* ================= DARK MODE ================= */
-.dark .decor-services,
+/* ======================================================
+   ⭐ REVIEWS LAYOUT
+   ====================================================== */
+.decor-page .reviews-section {
+  padding: 5rem 1rem;
+  background: linear-gradient(135deg, var(--cream) 0%, var(--sand) 100%);
+}
+
+/* ======================================================
+   🎭 SERVICE CATEGORY COMPONENT STYLING
+   ====================================================== */
+.decor-category-card .service-category {
+  padding: 1.5rem;
+}
+
+.decor-category-card .service-category h3 {
+  color: var(--burgundy);
+  font-family: var(--font-accent);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.decor-category-card .service-category ul {
+  list-style: none;
+  padding: 0;
+}
+
+.decor-category-card .service-category li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(139, 0, 0, 0.1);
+  color: var(--charcoal);
+  display: flex;
+  flex-direction: column;
+}
+
+.decor-category-card .service-category li:last-child {
+  border-bottom: none;
+}
+
+.decor-category-card .service-category strong {
+  color: var(--burgundy);
+  margin-bottom: 0.25rem;
+}
+
+.decor-category-card .service-category small {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+/* ======================================================
+   📱 RESPONSIVE DESIGN
+   ====================================================== */
+@media (max-width: 1024px) {
+  .decor-category-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+  }
+  
+  .decor-gallery-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .decor-hero-title {
+    font-size: clamp(1.8rem, 6vw, 3rem);
+  }
+  
+  .decor-hero-subtitle {
+    font-size: 1.1rem;
+    padding: 0 1rem;
+  }
+  
+  .decor-hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .decor-services,
+  .decor-gallery {
+    padding: 3rem 1rem;
+  }
+  
+  .decor-category-grid {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+  
+  .decor-mute-button {
+    bottom: 0.75rem;
+    right: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .decor-hero-content {
+    padding: 1.5rem;
+  }
+  
+  .decor-hero-title {
+    font-size: 2rem;
+  }
+  
+  .decor-hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .decor-section-title {
+    font-size: 1.5rem;
+  }
+  
+  .decor-section-description {
+    font-size: 1rem;
+    margin: 1.5rem auto 3rem;
+  }
+}
+
+/* ======================================================
+   🌙 DARK MODE SUPPORT
+   ====================================================== */
+.dark .decor-page {
+  background: var(--color-bg);
+}
+
+.dark .decor-services {
+  background: var(--color-surface);
+}
+
 .dark .decor-category-card {
   background: var(--color-surface);
+  border-color: var(--color-border);
 }
 
 .dark .decor-section-title {
   color: var(--service-primary);
+}
+
+.dark .decor-gallery {
+  background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-surface) 100%);
+}
+
+.dark .decor-hero-title {
+  background: linear-gradient(135deg, var(--service-primary), var(--service-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark .btn-primary {
+  background: var(--service-primary);
+  color: var(--color-text);
+}
+
+.dark .btn-outline {
+  color: var(--service-primary);
+  border-color: var(--service-primary);
+}
+
+.dark .btn-outline:hover {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+/* ======================================================
+   ✨ LOADING STATES
+   ====================================================== */
+.decor-page .media-skeleton {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.1) 25%, 
+    rgba(212, 175, 55, 0.1) 50%, 
+    rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
