@@ -8,7 +8,7 @@ import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
 import useFetcher from "../../hooks/useFetcher";
 
-import "./decor.theme.css";
+import "./decor.css";
 
 import floralDecor from "../../assets/decor/floral-decor.png";
 import lightingDecor from "../../assets/decor/lighting-decor.png";
