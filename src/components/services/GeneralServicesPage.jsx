@@ -6,7 +6,7 @@ import Reviews from "../user/Reviews";
 import ReviewsLayout from "../user/ReviewsLayout";
 import "./GeneralServicesPage.css";
 
-// ✅ import hero and service images (so build works properly)
+// Import hero and service images
 import heroImage from "../../assets/services/service-hero.png";
 import photographyImg from "../../assets/services/photography.png";
 import soundImg from "../../assets/services/sound.png";
@@ -19,45 +19,45 @@ import lightingImg from "../../assets/services/lighting.png";
 const serviceList = [
   {
     title: "Photography",
-    description:
-      "Capture timeless moments with creative precision. We offer event, studio, and outdoor photography with professional editing.",
+    description: "Capture timeless moments with creative precision. We offer event, studio, and outdoor photography with professional editing.",
     image: photographyImg,
+    theme: "multimedia"
   },
   {
     title: "Sound Setup",
-    description:
-      "High-fidelity audio systems for concerts, conferences, and special events — with experienced engineers ensuring clarity and balance.",
+    description: "High-fidelity audio systems for concerts, conferences, and special events — with experienced engineers ensuring clarity and balance.",
     image: soundImg,
+    theme: "multimedia"
   },
   {
     title: "Videography",
-    description:
-      "From event coverage to cinematic storytelling, our videography service blends artistry and technology for stunning visuals.",
+    description: "From event coverage to cinematic storytelling, our videography service blends artistry and technology for stunning visuals.",
     image: videographyImg,
+    theme: "multimedia"
   },
   {
     title: "MC / Host",
-    description:
-      "Engaging, professional hosts to keep your event lively, interactive, and perfectly paced from start to finish.",
+    description: "Engaging, professional hosts to keep your event lively, interactive, and perfectly paced from start to finish.",
     image: mcImg,
+    theme: "live-band"
   },
   {
     title: "Event Planning",
-    description:
-      "Comprehensive event management — from concept to execution — ensuring seamless coordination and creative excellence.",
+    description: "Comprehensive event management — from concept to execution — ensuring seamless coordination and creative excellence.",
     image: eventPlanningImg,
+    theme: "decor"
   },
   {
     title: "DJ",
-    description:
-      "Set the right mood with curated soundtracks. Our DJs mix genres and vibes that resonate with your audience and event theme.",
+    description: "Set the right mood with curated soundtracks. Our DJs mix genres and vibes that resonate with your audience and event theme.",
     image: djImg,
+    theme: "live-band"
   },
   {
     title: "Lighting",
-    description:
-      "Transform spaces with creative lighting setups — from subtle ambience to dynamic stage effects.",
+    description: "Transform spaces with creative lighting setups — from subtle ambience to dynamic stage effects.",
     image: lightingImg,
+    theme: "multimedia"
   },
 ];
 
@@ -65,15 +65,11 @@ export default function GeneralServicesPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="general-services-page">
+    <div className="general-services-page theme-multimedia">
       {/* HERO SECTION */}
-      <section
-        className="hero-section"
-        style={{
-          background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.5)), url(${heroImage}) center/cover no-repeat`,
-        }}
-      >
+      <section className="services-hero">
         <div className="hero-overlay" />
+        <div className="hero-background" style={{ backgroundImage: `url(${heroImage})` }} />
         <motion.div
           className="hero-content"
           initial={{ opacity: 0, y: 40 }}
@@ -86,10 +82,10 @@ export default function GeneralServicesPage() {
             every creative service your event needs.
           </p>
           <div className="hero-buttons">
-            <button onClick={() => navigate("/bookings")} className="btn-primary">
+            <button onClick={() => navigate("/bookings")} className="btn btn-primary">
               Book a Service
             </button>
-            <button onClick={() => navigate("/contact")} className="btn-secondary">
+            <button onClick={() => navigate("/contact")} className="btn btn-secondary">
               Contact Us
             </button>
           </div>
@@ -99,19 +95,24 @@ export default function GeneralServicesPage() {
       {/* SERVICES GRID */}
       <FadeInSection>
         <section className="services-grid-section">
-          <h2>Explore Our Expertise</h2>
-          <p className="muted-text">
-            Professional teams, cutting-edge equipment, and a passion for
-            creativity — discover what we do best.
-          </p>
+          <div className="section-header">
+            <h2>Explore Our Expertise</h2>
+            <p className="section-subtitle">
+              Professional teams, cutting-edge equipment, and a passion for
+              creativity — discover what we do best.
+            </p>
+          </div>
 
           <div className="services-grid">
             {serviceList.map((service, index) => (
               <motion.div
                 key={index}
-                className="service-card"
-                whileHover={{ scale: 1.04 }}
-                transition={{ type: "spring", stiffness: 200 }}
+                className={`service-card theme-${service.theme}`}
+                whileHover={{ y: -8 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
               >
                 <div
                   className="service-image"
@@ -121,7 +122,7 @@ export default function GeneralServicesPage() {
                   <h3>{service.title}</h3>
                   <p>{service.description}</p>
                   <button
-                    className="btn-outline"
+                    className="btn btn-outline"
                     onClick={() => navigate("/bookings")}
                   >
                     Learn More →
@@ -147,7 +148,7 @@ export default function GeneralServicesPage() {
               We can bundle photography, sound, lighting, and planning into one
               seamless experience — managed by the EETHM team.
             </p>
-            <button className="btn-primary" onClick={() => navigate("/bookings")}>
+            <button className="btn btn-primary" onClick={() => navigate("/bookings")}>
               Book Multiple Services
             </button>
           </motion.div>
@@ -156,12 +157,14 @@ export default function GeneralServicesPage() {
 
       {/* REVIEWS SECTION */}
       <FadeInSection>
-        <ReviewsLayout
-          title="Client Impressions"
-          description="What people say about our professional event services"
-        >
-          <Reviews limit={6} hideForm={true} category="generalServices" />
-        </ReviewsLayout>
+        <section className="reviews-section">
+          <ReviewsLayout
+            title="Client Impressions"
+            description="What people say about our professional event services"
+          >
+            <Reviews limit={6} hideForm={true} category="generalServices" />
+          </ReviewsLayout>
+        </section>
       </FadeInSection>
     </div>
   );
