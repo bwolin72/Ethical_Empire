@@ -1,63 +1,110 @@
 /* ==========================================================
    🍽️ CATERING PAGE — SERVICE-THEMED (GREEN + GOLD)
-   Fully Semantic • Light/Dark Safe • Responsive ≥240px
+   Navbar-Aware • Performance Optimized • Cinematic
    ========================================================== */
 
-.catering-page-container {
-  background: var(--service-bg);
-  color: var(--service-text);
-  font-family: var(--font-main);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
+/* ----------------------------------------------------------
+   🌍 GLOBAL HERO OFFSET (NAVBAR HEIGHT)
+   Change --navbar-height ONLY if your navbar height changes
+---------------------------------------------------------- */
 /* ======================================================
-   🎬 HERO SECTION
+   🎬 HERO SECTION (NAVBAR-AWARE)
    ====================================================== */
 
 .catering-hero {
-  position: flex;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  min-height: calc(100vh - var(--navbar-height));
+  margin-top: var(--navbar-height);
   background: var(--service-gradient);
+  overflow: hidden;
 }
+
+/* ======================================================
+   🎥 VIDEO WRAPPER — CENTERING + PERFORMANCE
+   ====================================================== */
 
 .video-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
+  min-height: calc(100vh - var(--navbar-height));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  contain: layout paint style; /* ⚡ Performance optimization */
 }
 
+/* ------------------------------------------------------
+   🎞️ HERO VIDEO — GPU & BANDWIDTH OPTIMIZED
+------------------------------------------------------ */
+
 .hero-video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+  object-position: center;
+
   filter: brightness(0.65) contrast(1.05);
+  will-change: transform;
+  transform: translateZ(0); /* GPU acceleration */
+
+  backface-visibility: hidden;
+  pointer-events: none;
+
+  z-index: 0;
 }
+
+/* ------------------------------------------------------
+   🌑 OVERLAY
+------------------------------------------------------ */
 
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.45),
+    rgba(0, 0, 0, 0.55)
+  );
+  z-index: 1;
 }
 
+/* ======================================================
+   ✨ HERO CONTENT (CENTERED + GLASS)
+   ====================================================== */
+
 .hero-content {
-  position: absolute;
-  text-align: center;
+  position: relative;
+  z-index: 2;
+
   max-width: 720px;
   padding: 2rem;
+
+  text-align: center;
+  color: var(--service-surface);
+
   background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(6px);
   border-radius: var(--radius-lg);
-  color: var(--service-surface);
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
+
+/* ======================================================
+   ✨ GOLD GLOW HEADING (SUBTLE & PREMIUM)
+   ====================================================== */
 
 .hero-content h1 {
   font-family: var(--font-accent);
   font-size: clamp(1.6rem, 5vw, 3rem);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+
   background: linear-gradient(
     135deg,
     var(--service-primary),
@@ -65,8 +112,34 @@
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+
   margin-bottom: 1rem;
+
+  /* ✨ GOLD GLOW */
+  text-shadow:
+    0 0 12px rgba(212, 175, 55, 0.25),
+    0 0 24px rgba(212, 175, 55, 0.15);
+
+  animation: goldGlow 6s ease-in-out infinite alternate;
 }
+
+/* Glow animation (very subtle) */
+@keyframes goldGlow {
+  from {
+    text-shadow:
+      0 0 10px rgba(212, 175, 55, 0.18),
+      0 0 20px rgba(212, 175, 55, 0.12);
+  }
+  to {
+    text-shadow:
+      0 0 16px rgba(212, 175, 55, 0.35),
+      0 0 32px rgba(212, 175, 55, 0.18);
+  }
+}
+
+/* ------------------------------------------------------
+   📝 HERO TEXT
+------------------------------------------------------ */
 
 .hero-content p {
   color: var(--service-surface);
@@ -75,7 +148,7 @@
 }
 
 /* ======================================================
-   🔘 BUTTONS
+   🔘 PRIMARY BUTTON
    ====================================================== */
 
 .btn.btn-primary {
@@ -85,7 +158,9 @@
   padding: 0.75rem 1.75rem;
   border-radius: var(--radius-md);
   font-weight: 600;
-  transition: var(--transition-fast);
+  cursor: pointer;
+
+  transition: transform 0.25s ease, background 0.25s ease;
   box-shadow: var(--shadow-md);
 }
 
@@ -103,14 +178,18 @@
   position: absolute;
   bottom: 1rem;
   right: 1rem;
+  z-index: 3;
+
   width: 42px;
   height: 42px;
   border-radius: 50%;
   border: none;
+
   background: rgba(0, 0, 0, 0.55);
   color: var(--service-primary);
+
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: background 0.25s ease;
 }
 
 .mute-button:hover {
@@ -118,111 +197,12 @@
 }
 
 /* ======================================================
-   📦 SECTIONS
-   ====================================================== */
-
-.section {
-  padding: 4rem 1.5rem;
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.section-title {
-  font-family: var(--font-accent);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: linear-gradient(
-    135deg,
-    var(--service-primary),
-    var(--service-secondary)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 2rem;
-}
-
-/* ======================================================
-   🍱 FOOD CARDS
-   ====================================================== */
-
-.local-food-grid,
-.world-grid,
-.dietary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1.5rem;
-  justify-items: center;
-}
-
-.local-food-card,
-.world-card,
-.dietary-card {
-  background: var(--service-surface);
-  color: var(--service-text);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
-  box-shadow: var(--shadow-md);
-  transition: var(--transition-fast);
-  width: 100%;
-  max-width: 260px;
-  text-align: center;
-}
-
-.local-food-card:hover,
-.world-card:hover,
-.dietary-card:hover {
-  transform: translateY(-6px);
-  background: var(--service-gradient);
-  color: var(--cream);
-}
-
-.food-image {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  margin-bottom: 0.75rem;
-}
-
-/* ======================================================
-   🎥 MEDIA & TEXT
-   ====================================================== */
-
-.creative-layout {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  align-items: center;
-}
-
-.creative-text {
-  color: var(--color-text);
-}
-
-/* ======================================================
-   🌗 DARK MODE — SAFE OVERRIDES
-   ====================================================== */
-
-.dark .catering-page-container {
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.dark .local-food-card,
-.dark .world-card,
-.dark .dietary-card {
-  background: var(--color-surface);
-  color: var(--color-text);
-}
-
-/* ======================================================
-   📱 RESPONSIVE
+   📱 RESPONSIVE TUNING
    ====================================================== */
 
 @media (max-width: 768px) {
-  .creative-layout {
-    flex-direction: column;
-    text-align: center;
+  :root {
+    --navbar-height: 64px;
   }
 
   .hero-content {
