@@ -1,134 +1,194 @@
 /* ======================================================
-   🎨 Global Theme Variables — variables.css
-   For: Event, Multimedia & Hospitality Branding
+   🎨 GLOBAL BRAND & DESIGN TOKENS
    ====================================================== */
 
-/* === Core Brand Colors === */
 :root {
-  --color-primary: #581c1c;
-  --color-primary-dark: #401010;
-  --color-primary-light: #8b2f2f;
+  /* === Core Brand Palette === */
+  --burgundy: #8b0000;
+  --navy: #1f3a93;
+  --gold: #d4af37;
+  --sand: #e7e2db;
+  --forest: #228b22;
+  --olive: #556b2f;
+  --charcoal: #2e2e2e;
+  --cream: #fff5e1;
+  --silver: #c0c0c0;
+  --white: #ffffff;
+  --black: #000000;
+  --muted-yellow: #ffcc00;
 
-  --color-secondary: #1e3a8a;
-  --color-secondary-dark: #152c63;
-  --color-secondary-light: #375da4;
-
-  --color-accent-gold: #d4af37;
-  --color-accent-gold-dark: #bfa132;
-  --color-accent-gold-light: #e5c76e;
-
-  --color-accent-green: #2f4f4f;
-  --color-accent-green-dark: #203b3b;
-  --color-accent-green-light: #4e6f6f;
-
-  --color-neutral: #374151;
-  --color-neutral-dark: #1f2937;
-  --color-neutral-light: #6b7280;
-
-  --color-white: #ffffff;
-  --color-black: #000000;
-
-  --color-error: #dc2626;
+  /* === Functional Feedback === */
   --color-success: #15803d;
+  --color-error: #b91c1c;
+  --color-warning: #b45309;
   --color-disabled: #9ca3af;
 
-  /* === Semantic Feedback Colors === */
-  --color-success-light: #dcfce7;
-  --color-success-dark: #15803d;
-
-  --color-error-light: #fee2e2;
-  --color-error-dark: #b91c1c;
-
-  --color-warning-dark: #b45309;
-
-  /* === Gradients === */
-  --gradient-gold-burgundy: linear-gradient(45deg, #d4af37, #581c1c);
-  --gradient-navy-gold: linear-gradient(45deg, #1e3a8a, #d4af37);
-
-  /* === Shadows === */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
-
-  /* === Border Radius === */
+  /* === Layout Tokens === */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 16px;
 
-  /* === Transitions === */
-  --transition-fast: 0.2s ease-in-out;
-  --transition-slow: 0.4s ease-in-out;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+  --shadow-lg: 0 12px 24px rgba(0,0,0,0.15);
 
-  /* === Fonts === */
+  --transition-fast: 0.2s ease;
+  --transition-slow: 0.4s ease;
+
+  /* === Typography === */
   --font-main: 'Segoe UI', sans-serif;
   --font-accent: 'Playfair Display', serif;
 
-  /* === Default Light Theme Values === */
-  --color-bg: #f9f9f9;
-  --color-text: #1f2937;
-  --color-border: #d1d5db;
-  --color-input-bg: #ffffff;
-  --color-service-bg: #f3f4f6;
-  --color-calendar-icon: #9ca3af;
-}
-
-/* ======================================================
-   🌞 Light Theme
-   ====================================================== */
-.light {
-  --color-bg: var(--color-bg-light, #f9f9f9);
-  --color-text: var(--color-text-light, #1f2937);
-  --color-border: var(--color-border-light, #d1d5db);
-  --color-input-bg: var(--color-input-bg, #ffffff);
-  --color-service-bg: var(--color-service-bg-light, #f3f4f6);
-  --color-calendar-icon: #9ca3af;
-}
-
-/* ======================================================
-   🌙 Dark Theme
-   ====================================================== */
-.dark {
-  --color-bg: var(--color-bg-dark, #1f2937);
-  --color-text: var(--color-text-dark, #f3f4f6);
-  --color-input-bg: var(--color-input-bg-dark, #2d3748);
-  --color-border: var(--color-border-dark, #374151);
-  --color-service-bg: var(--color-service-bg-dark, #374151);
-  --color-calendar-icon: #d1d5db;
-  --color-primary: #401010;
-
-  /* Adjust gradients for better dark-mode contrast */
-  --gradient-gold-burgundy: linear-gradient(45deg, #bfa132, #2a0f0f);
-  --gradient-navy-gold: linear-gradient(45deg, #152c63, #bfa132);
-}
-
-/* ======================================================
-   🧱 Extended UI Colors
-   ====================================================== */
-:root {
-  --color-bg-light: #f9f9f9;
-  --color-bg-dark: #1f2937;
-
-  --color-text-light: #1f2937;
-  --color-text-dark: #f3f4f6;
-
-  --color-border-light: #d1d5db;
-  --color-border-dark: #374151;
-
-  --color-input-bg-dark: #2d3748;
-
-  --color-service-bg-light: #f3f4f6;
-  --color-service-bg-dark: #374151;
-
+  /* === Default Semantic Colors (Light Mode) === */
+  --color-bg: var(--sand);
+  --color-surface: var(--white);
+  --color-text: var(--charcoal);
   --color-muted: #6b7280;
-  --color-overlay: rgba(88, 28, 28, 0.5);
+  --color-border: #d1d5db;
+
+  --color-primary: var(--burgundy);
+  --color-secondary: var(--navy);
+  --color-accent: var(--gold);
 }
 
 /* ======================================================
-   ✨ Animations
+   🌞 LIGHT MODE
    ====================================================== */
+
+.light {
+  --color-bg: var(--sand);
+  --color-surface: var(--white);
+  --color-text: var(--charcoal);
+  --color-border: #d1d5db;
+}
+
+/* ======================================================
+   🌙 DARK MODE (High Contrast, No Color Mud)
+   ====================================================== */
+
+.dark {
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-text: #f3f4f6;
+  --color-border: #374151;
+
+  --color-primary: #bfa132; /* softened gold */
+  --color-secondary: #375da4;
+  --color-accent: #e5c76e;
+}
+
+/* ======================================================
+   🎵 SERVICE THEME — LIVE BAND
+   Luxury • Passion • Celebration
+   ====================================================== */
+
+.theme-live-band {
+  --service-bg: var(--burgundy);
+  --service-surface: var(--cream);
+  --service-text: var(--charcoal);
+
+  --service-primary: var(--gold);
+  --service-secondary: var(--charcoal);
+  --service-accent: var(--cream);
+
+  --service-gradient: linear-gradient(
+    135deg,
+    var(--burgundy),
+    var(--gold)
+  );
+}
+
+/* ======================================================
+   🎨 SERVICE THEME — DECOR
+   Elegant • Warm • Premium
+   ====================================================== */
+
+.theme-decor {
+  --service-bg: var(--sand);
+  --service-surface: var(--cream);
+  --service-text: var(--charcoal);
+
+  --service-primary: var(--gold);
+  --service-secondary: var(--burgundy);
+  --service-accent: var(--olive);
+
+  --service-gradient: linear-gradient(
+    135deg,
+    var(--sand),
+    var(--gold)
+  );
+}
+
+/* ======================================================
+   🍽️ SERVICE THEME — CATERING
+   Fresh • Organic • Inviting
+   ====================================================== */
+
+.theme-catering {
+  --service-bg: var(--forest);
+  --service-surface: var(--cream);
+  --service-text: #102a13;
+
+  --service-primary: var(--gold);
+  --service-secondary: var(--olive);
+  --service-accent: var(--sand);
+
+  --service-gradient: linear-gradient(
+    135deg,
+    var(--forest),
+    var(--gold)
+  );
+}
+
+/* ======================================================
+   ✈️ SERVICE THEME — TRAVEL SERVICES
+   Calm • Reliable • Trustworthy
+   ====================================================== */
+
+.theme-travel {
+  --service-bg: var(--navy);
+  --service-surface: var(--white);
+  --service-text: #0f172a;
+
+  --service-primary: var(--silver);
+  --service-secondary: var(--muted-yellow);
+  --service-accent: var(--sand);
+
+  --service-gradient: linear-gradient(
+    135deg,
+    var(--navy),
+    var(--silver)
+  );
+}
+
+/* ======================================================
+   🎥 SERVICE THEME — EVENT & MULTIMEDIA
+   Professional • Technical • Bold
+   ====================================================== */
+
+.theme-multimedia {
+  --service-bg: var(--charcoal);
+  --service-surface: #1f2937;
+  --service-text: #f9fafb;
+
+  --service-primary: var(--navy);
+  --service-secondary: var(--silver);
+  --service-accent: var(--muted-yellow);
+
+  --service-gradient: linear-gradient(
+    135deg,
+    var(--charcoal),
+    var(--navy)
+  );
+}
+
+/* ======================================================
+   ✨ ANIMATIONS (SAFE & NEUTRAL)
+   ====================================================== */
+
 @keyframes fade-in-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in {
@@ -136,29 +196,10 @@
   to { opacity: 1; }
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease both;
 }
 
-/* === Animation Utilities === */
-.animate-fade-in-up { animation: fade-in-up 0.6s var(--transition-fast) both; }
-.animate-fade-in { animation: fade-in 1s ease-out both; }
-.animate-pulse { animation: pulse 1.5s infinite ease-in-out; }
-
-/* ======================================================
-   📘 Flipbook Color Palette (Scoped Variables)
-   ====================================================== */
-:root {
-  --flip-burgundy: #8B0000;
-  --flip-navy: #1F3A93;
-  --flip-gold: #D4AF37;
-  --flip-sand: #E7E2DB;
-  --flip-forest: #228B22;
-  --flip-olive: #556B2F;
-  --flip-charcoal: #2E2E2E;
-  --flip-cream: #FFF5E1;
-  --flip-silver: #C0C0C0;
-  --flip-white: #FFFFFF;
-  --flip-muted-yellow: #FFCC00;
+.animate-fade-in {
+  animation: fade-in 0.8s ease both;
 }
