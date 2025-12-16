@@ -1,8 +1,6 @@
 // src/components/blog/BlogHub.js
-import React, { useEffect, useState } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
-import { Card, CardContent } from "../ui/Card";
-import { Button } from "../ui/Button";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import PublicBlogService from "../../api/services/publicBlogService";
 import SocialHub from "../social/SocialHub";
 import fallbackImage from "../../assets/logo1.png";
@@ -25,24 +23,25 @@ const safeFetch = async (fn, fallback = []) => {
 // 🦴 Skeleton Components
 // ====================================================
 const PostSkeleton = () => (
-  <Card className="blog-post-card skeleton">
+  <div className="blog-post-card skeleton">
     <div className="blog-post-image skeleton-box" />
-    <CardContent className="blog-post-content">
-      <div className="skeleton-line w-3/4 mb-2" />
-      <div className="skeleton-line w-full mb-2" />
-      <div className="skeleton-line w-2/3" />
-    </CardContent>
-  </Card>
+    <div className="blog-post-content">
+      <div className="skeleton-line skeleton-title" />
+      <div className="skeleton-line skeleton-excerpt" />
+      <div className="skeleton-line skeleton-meta" />
+      <div className="skeleton-line skeleton-button" />
+    </div>
+  </div>
 );
 
 const DetailSkeleton = () => (
   <div className="blog-detail-container animate-fade-in">
-    <div className="skeleton-line w-1/2 h-8 mb-4" />
-    <div className="skeleton-line w-1/3 h-4 mb-6" />
-    <div className="skeleton-box w-full h-80 mb-6" />
-    <div className="skeleton-line w-full mb-2" />
-    <div className="skeleton-line w-5/6 mb-2" />
-    <div className="skeleton-line w-4/6 mb-6" />
+    <div className="skeleton-line skeleton-detail-title" />
+    <div className="skeleton-line skeleton-detail-meta" />
+    <div className="skeleton-box skeleton-detail-image" />
+    <div className="skeleton-line skeleton-content" />
+    <div className="skeleton-line skeleton-content" />
+    <div className="skeleton-line skeleton-content" />
   </div>
 );
 
@@ -52,6 +51,7 @@ const DetailSkeleton = () => (
 export function BlogList() {
   const { categorySlug } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -59,45 +59,42 @@ export function BlogList() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 9;
+
+  const fetchSocialPosts = useCallback(async () => {
+    let data = await safeFetch(() => PublicBlogService.getLatestSocialPosts());
+    if (!data.length) {
+      console.warn("[BlogList] Latest social posts empty, falling back to legacy feed");
+      data = await safeFetch(() => PublicBlogService.getLegacySocialFeed());
+    }
+    return data;
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [fetchedPosts, fetchedCategories, fetchedSocial] = await Promise.all([
+        safeFetch(() => PublicBlogService.getLatestPosts()),
+        safeFetch(() => PublicBlogService.getCategories()),
+        fetchSocialPosts(),
+      ]);
+
+      setPosts(fetchedPosts);
+      setCategories(fetchedCategories);
+      setSocialPosts(fetchedSocial);
+    } catch (err) {
+      console.error("[BlogList] fetch error:", err);
+      setError("Unable to load blog data. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchSocialPosts]);
 
   useEffect(() => {
-    let active = true;
-
-    const fetchSocialPosts = async () => {
-      let data = await safeFetch(() => PublicBlogService.getLatestSocialPosts());
-      if (!data.length) {
-        console.warn("[BlogList] Latest social posts empty, falling back to legacy feed");
-        data = await safeFetch(() => PublicBlogService.getLegacySocialFeed());
-      }
-      return data;
-    };
-
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [fetchedPosts, fetchedCategories, fetchedSocial] = await Promise.all([
-          safeFetch(() => PublicBlogService.getLatestPosts()),
-          safeFetch(() => PublicBlogService.getCategories()),
-          fetchSocialPosts(),
-        ]);
-
-        if (active) {
-          setPosts(fetchedPosts);
-          setCategories(fetchedCategories);
-          setSocialPosts(fetchedSocial);
-        }
-      } catch (err) {
-        console.error("[BlogList] fetch error:", err);
-        if (active) setError("Unable to load blog data.");
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-
     fetchData();
-    return () => { active = false; };
-  }, [location]);
+  }, [location, fetchData]);
 
   const filteredPosts = posts.filter((p) => {
     const matchesSearch = p.title?.toLowerCase().includes(search.toLowerCase());
@@ -105,69 +102,237 @@ export function BlogList() {
     return matchesSearch && matchesCategory;
   });
 
-  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
+  // Pagination
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+
+  const handleCategoryClick = (slug) => {
+    navigate(slug ? `/blog/category/${slug}` : "/blog");
+    setCurrentPage(1);
+  };
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
+  if (error) {
+    return (
+      <div className="blog-container">
+        <div className="blog-error">
+          <h2>⚠️ Unable to Load Blog</h2>
+          <p>{error}</p>
+          <button onClick={fetchData} className="retry-button">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="blog-container animate-fade-in-up">
-      <h1 className="blog-title">Blog Hub</h1>
+      <header className="blog-header">
+        <h1 className="blog-title">EethmGH Blog Hub</h1>
+        <p className="blog-subtitle">
+          Insights, stories, and updates from Ghana's premier event partner
+        </p>
+      </header>
 
-      <input
-        type="text"
-        placeholder="Search posts..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="blog-search-input"
-        aria-label="Search blog posts"
-      />
+      <div className="blog-controls">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search articles..."
+            value={search}
+            onChange={handleSearch}
+            className="blog-search-input"
+            aria-label="Search blog posts"
+          />
+          <span className="search-icon">🔍</span>
+        </div>
 
-      <div className="blog-categories">
-        <Button asChild variant={!categorySlug ? "primary" : "outline"}>
-          <Link to="/blog">All</Link>
-        </Button>
-        {categories.length > 0
-          ? categories.map((cat) => (
-              <Button key={cat.id} asChild variant={categorySlug === cat.slug ? "primary" : "outline"}>
-                <Link to={`/blog/category/${cat.slug}`}>{cat.name}</Link>
-              </Button>
-            ))
-          : <span className="text-sm text-gray-500 italic">No categories available</span>
-        }
+        <div className="categories-container">
+          <div className="categories-header">
+            <h3>Categories</h3>
+            <span className="category-count">{categories.length} topics</span>
+          </div>
+          <div className="blog-categories">
+            <button
+              onClick={() => handleCategoryClick(null)}
+              className={`category-btn ${!categorySlug ? "active" : ""}`}
+              aria-pressed={!categorySlug}
+            >
+              All Posts
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat.slug)}
+                className={`category-btn ${categorySlug === cat.slug ? "active" : ""}`}
+                aria-pressed={categorySlug === cat.slug}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="blog-stats">
+        <div className="stat-card">
+          <span className="stat-number">{filteredPosts.length}</span>
+          <span className="stat-label">Articles</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-number">{categories.length}</span>
+          <span className="stat-label">Categories</span>
+        </div>
+        <div className="stat-card">
+          <span className="stat-number">{socialPosts.length}</span>
+          <span className="stat-label">Social Updates</span>
+        </div>
       </div>
 
       <div className="blog-posts-grid">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => <PostSkeleton key={i} />)
-          : filteredPosts.length > 0
-          ? filteredPosts.map((post) => (
-              <Card key={post.id} className="blog-post-card">
-                <img
-                  src={post.featured_image || fallbackImage}
-                  alt={post.title || "Blog post"}
-                  className="blog-post-image"
-                  loading="lazy"
-                />
-                <CardContent className="blog-post-content">
-                  <h2 className="blog-post-title">{post.title}</h2>
-                  <p className="blog-post-excerpt">{post.excerpt || (post.content?.slice(0, 140) + "...")}</p>
-                  <small className="blog-post-meta">
-                    {post.created_at
-                      ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(post.created_at))
-                      : "—"} | {post.category?.name?.trim() || "Uncategorized"}
-                  </small>
-                  <Button asChild>
-                    <Link to={`/blog/${post.slug}`}>Read More</Link>
-                  </Button>
-                </CardContent>
-              </Card>
+          : currentPosts.length > 0
+          ? currentPosts.map((post) => (
+              <article key={post.id} className="blog-post-card">
+                <div className="post-image-container">
+                  <img
+                    src={post.featured_image || fallbackImage}
+                    alt={post.title || "Blog post"}
+                    className="blog-post-image"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.target.src = fallbackImage;
+                    }}
+                  />
+                  {post.category && (
+                    <span className="post-category-badge">
+                      {post.category.name}
+                    </span>
+                  )}
+                </div>
+                <div className="blog-post-content">
+                  <h2 className="blog-post-title">
+                    <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                  </h2>
+                  <p className="blog-post-excerpt">
+                    {post.excerpt || (post.content?.slice(0, 160) + "...")}
+                  </p>
+                  <div className="post-meta">
+                    <time className="post-date">
+                      {post.created_at
+                        ? new Intl.DateTimeFormat("en-US", { 
+                            dateStyle: "medium" 
+                          }).format(new Date(post.created_at))
+                        : "—"}
+                    </time>
+                    <span className="post-read-time">5 min read</span>
+                  </div>
+                  <Link to={`/blog/${post.slug}`} className="read-more-button">
+                    Read Article →
+                  </Link>
+                </div>
+              </article>
             ))
-          : !loading && <p className="no-posts">No posts found.</p>
+          : !loading && (
+              <div className="no-posts-message">
+                <h3>No posts found</h3>
+                <p>Try adjusting your search or category filter</p>
+              </div>
+            )
         }
       </div>
 
-      <div className="blog-social-section">
-        <h2>Latest on Social Media</h2>
-        {loading ? <div className="skeleton-line w-1/2 mb-4" /> : <SocialHub socialPosts={socialPosts} />}
-      </div>
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="pagination-button prev"
+            aria-label="Previous page"
+          >
+            ← Previous
+          </button>
+          
+          <div className="page-numbers">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`page-number ${currentPage === pageNum ? "active" : ""}`}
+                  aria-label={`Page ${pageNum}`}
+                  aria-current={currentPage === pageNum ? "page" : undefined}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            
+            {totalPages > 5 && currentPage < totalPages - 2 && (
+              <>
+                <span className="page-dots">...</span>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  className="page-number"
+                  aria-label={`Page ${totalPages}`}
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+          
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="pagination-button next"
+            aria-label="Next page"
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
+      <section className="blog-social-section">
+        <div className="section-header">
+          <h2>Latest on Social</h2>
+          <p>Stay connected with our latest updates</p>
+        </div>
+        {loading ? (
+          <div className="social-skeleton">
+            <div className="skeleton-line" />
+            <div className="skeleton-line" />
+          </div>
+        ) : (
+          <SocialHub socialPosts={socialPosts} />
+        )}
+      </section>
+
+      <footer className="blog-footer">
+        <p>Want to contribute or suggest a topic?</p>
+        <a href="/contact" className="contact-link">
+          Contact our editorial team
+        </a>
+      </footer>
     </div>
   );
 }
@@ -177,118 +342,279 @@ export function BlogList() {
 // ====================================================
 export function BlogDetail() {
   const { slug } = useParams();
+  const navigate = useNavigate();
 
   const [post, setPost] = useState(null);
+  const [relatedPosts, setRelatedPosts] = useState([]);
   const [comments, setComments] = useState([]);
   const [commentContent, setCommentContent] = useState("");
   const [socialPosts, setSocialPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [submittingComment, setSubmittingComment] = useState(false);
+
+  const fetchSocialPosts = useCallback(async () => {
+    let data = await safeFetch(() => PublicBlogService.getLatestSocialPosts());
+    if (!data.length) {
+      data = await safeFetch(() => PublicBlogService.getLegacySocialFeed());
+    }
+    return data;
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [fetchedPost, fetchedComments, fetchedSocial] = await Promise.all([
+        safeFetch(() => PublicBlogService.getPostBySlug(slug), null),
+        safeFetch(() => PublicBlogService.getComments(slug)),
+        fetchSocialPosts(),
+      ]);
+
+      if (!fetchedPost) {
+        setError("Article not found");
+        return;
+      }
+
+      setPost(fetchedPost);
+      setComments(fetchedComments);
+      setSocialPosts(fetchedSocial);
+
+      // Fetch related posts based on category
+      if (fetchedPost.category) {
+        const related = await safeFetch(() => 
+          PublicBlogService.getPostsByCategory(fetchedPost.category.slug)
+        );
+        setRelatedPosts(related.filter(p => p.slug !== slug).slice(0, 3));
+      }
+    } catch (err) {
+      console.error("[BlogDetail] fetch error:", err);
+      setError("Unable to load article. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  }, [slug, fetchSocialPosts]);
 
   useEffect(() => {
-    let active = true;
-
-    const fetchSocialPosts = async () => {
-      let data = await safeFetch(() => PublicBlogService.getLatestSocialPosts());
-      if (!data.length) data = await safeFetch(() => PublicBlogService.getLegacySocialFeed());
-      return data;
-    };
-
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const [fetchedPost, fetchedComments, fetchedSocial] = await Promise.all([
-          safeFetch(() => PublicBlogService.getPostBySlug(slug), null),
-          safeFetch(() => PublicBlogService.getComments(slug)),
-          fetchSocialPosts(),
-        ]);
-
-        if (active) {
-          setPost(fetchedPost);
-          setComments(fetchedComments);
-          setSocialPosts(fetchedSocial);
-        }
-      } catch (err) {
-        console.error("[BlogDetail] fetch error:", err);
-        if (active) setError("Unable to load post details.");
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-
     fetchData();
-    return () => { active = false; };
-  }, [slug]);
+  }, [slug, fetchData]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
-    if (!commentContent.trim()) return;
+    if (!commentContent.trim() || submittingComment) return;
 
-    await safeFetch(() => PublicBlogService.submitComment(slug, { content: commentContent }));
-    setCommentContent("");
-    const refreshed = await safeFetch(() => PublicBlogService.getComments(slug));
-    setComments(refreshed);
+    setSubmittingComment(true);
+    try {
+      await safeFetch(() => 
+        PublicBlogService.submitComment(slug, { content: commentContent })
+      );
+      setCommentContent("");
+      
+      // Refresh comments
+      const refreshed = await safeFetch(() => PublicBlogService.getComments(slug));
+      setComments(refreshed);
+    } catch (err) {
+      console.error("[BlogDetail] comment submit error:", err);
+    } finally {
+      setSubmittingComment(false);
+    }
   };
 
-  if (error) return <p className="text-center p-6 text-red-600">{error}</p>;
+  const handleBackToBlog = () => {
+    navigate("/blog");
+  };
+
+  if (error) {
+    return (
+      <div className="blog-detail-container">
+        <div className="blog-error">
+          <h2>⚠️ {error}</h2>
+          <p>The article you're looking for might have been moved or deleted.</p>
+          <button onClick={handleBackToBlog} className="back-button">
+            ← Back to Blog
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) return <DetailSkeleton />;
-  if (!post) return <p className="text-center p-6">Post not found.</p>;
 
   return (
     <div className="blog-detail-container animate-fade-in">
-      <h1 className="blog-detail-title">{post.title}</h1>
-      <p className="blog-detail-meta">
-        {post.publish_date || post.created_at
-          ? new Intl.DateTimeFormat("en-US", { dateStyle: "medium" }).format(new Date(post.publish_date || post.created_at))
-          : "—"} | {post.category?.name?.trim() || "Uncategorized"}
-      </p>
+      <button onClick={handleBackToBlog} className="back-button" aria-label="Back to blog">
+        ← Back to Blog
+      </button>
 
-      <img src={post.featured_image || fallbackImage} alt={post.title || "Blog detail"} className="blog-detail-image" />
+      <article className="blog-article">
+        <header className="article-header">
+          <div className="article-meta">
+            {post.category && (
+              <span className="article-category">{post.category.name}</span>
+            )}
+            <time className="article-date">
+              {post.publish_date || post.created_at
+                ? new Intl.DateTimeFormat("en-US", { 
+                    dateStyle: "long" 
+                  }).format(new Date(post.publish_date || post.created_at))
+                : "—"}
+            </time>
+            <span className="article-read-time">5 min read</span>
+          </div>
+          <h1 className="article-title">{post.title}</h1>
+          <p className="article-subtitle">{post.excerpt}</p>
+        </header>
 
-      <div className="blog-detail-content" dangerouslySetInnerHTML={{ __html: post.content }} />
+        <div className="article-content-wrapper">
+          {post.featured_image && (
+            <div className="article-image-container">
+              <img
+                src={post.featured_image}
+                alt={post.title}
+                className="article-featured-image"
+                loading="lazy"
+                onError={(e) => {
+                  e.target.src = fallbackImage;
+                }}
+              />
+              {post.image_caption && (
+                <figcaption className="image-caption">
+                  {post.image_caption}
+                </figcaption>
+              )}
+            </div>
+          )}
 
-      {post.youtube_url && (
-        <div className="blog-media">
-          <iframe width="100%" height="400" src={post.youtube_url.replace("watch?v=", "embed/")} title="YouTube video" allowFullScreen loading="lazy" />
+          <div 
+            className="article-content" 
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
+
+          {(post.youtube_url || post.tiktok_url) && (
+            <div className="article-media">
+              {post.youtube_url && (
+                <div className="video-embed">
+                  <iframe
+                    width="100%"
+                    height="400"
+                    src={post.youtube_url.replace("watch?v=", "embed/")}
+                    title="YouTube video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              {post.tiktok_url && (
+                <div className="tiktok-embed">
+                  <blockquote 
+                    className="tiktok-embed" 
+                    cite={post.tiktok_url}
+                    data-video-id={post.tiktok_url.split("/").pop()}
+                  >
+                    <a href={post.tiktok_url}>Watch on TikTok</a>
+                  </blockquote>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
-      {post.tiktok_url && (
-        <blockquote className="tiktok-embed" cite={post.tiktok_url} data-video-id={post.tiktok_url.split("/").pop()}>
-          <a href={post.tiktok_url}>Watch on TikTok</a>
-        </blockquote>
+
+        <footer className="article-footer">
+          <div className="share-section">
+            <h3>Share this article</h3>
+            <div className="share-buttons">
+              <button className="share-button" aria-label="Share on Twitter">
+                🐦 Twitter
+              </button>
+              <button className="share-button" aria-label="Share on Facebook">
+                📘 Facebook
+              </button>
+              <button className="share-button" aria-label="Share on LinkedIn">
+                💼 LinkedIn
+              </button>
+            </div>
+          </div>
+        </footer>
+      </article>
+
+      {relatedPosts.length > 0 && (
+        <section className="related-posts">
+          <h2>Related Articles</h2>
+          <div className="related-grid">
+            {relatedPosts.map((related) => (
+              <div key={related.id} className="related-card">
+                <img
+                  src={related.featured_image || fallbackImage}
+                  alt={related.title}
+                  className="related-image"
+                  loading="lazy"
+                />
+                <div className="related-content">
+                  <h3>
+                    <Link to={`/blog/${related.slug}`}>{related.title}</Link>
+                  </h3>
+                  <p>{related.excerpt?.slice(0, 100)}...</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
 
-      <div className="blog-social-section">
-        <h2>Connect with Us</h2>
-        <SocialHub socialPosts={socialPosts} />
-      </div>
-
-      <div className="blog-comments">
-        <h2>Comments</h2>
+      <section className="comments-section">
+        <h2>Comments ({comments.length})</h2>
+        
         <form onSubmit={handleCommentSubmit} className="comment-form">
           <textarea
             value={commentContent}
             onChange={(e) => setCommentContent(e.target.value)}
-            placeholder="Write a comment..."
-            className="comment-textarea"
+            placeholder="Share your thoughts..."
+            className="comment-input"
             aria-label="Add comment"
+            rows="4"
+            required
           />
-          <Button type="submit">Post Comment</Button>
+          <button 
+            type="submit" 
+            className="submit-comment-button"
+            disabled={!commentContent.trim() || submittingComment}
+          >
+            {submittingComment ? "Posting..." : "Post Comment"}
+          </button>
         </form>
 
-        {comments.length === 0 ? (
-          <p className="no-comments">No comments yet.</p>
-        ) : (
-          comments.map((c) => (
-            <div key={c.id} className="comment-item">
-              <p className="comment-user">{c.user || c.guest_name || "Guest"}</p>
-              <p className="comment-content">{c.content}</p>
+        <div className="comments-list">
+          {comments.length === 0 ? (
+            <div className="no-comments">
+              <p>No comments yet. Be the first to share your thoughts!</p>
             </div>
-          ))
-        )}
-      </div>
+          ) : (
+            comments.map((comment) => (
+              <div key={comment.id} className="comment">
+                <div className="comment-header">
+                  <span className="comment-author">
+                    {comment.user || comment.guest_name || "Guest"}
+                  </span>
+                  <time className="comment-date">
+                    {new Date(comment.created_at).toLocaleDateString()}
+                  </time>
+                </div>
+                <p className="comment-body">{comment.content}</p>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="social-updates-section">
+        <div className="section-header">
+          <h2>Latest Social Updates</h2>
+          <p>Follow us for more content</p>
+        </div>
+        <SocialHub socialPosts={socialPosts} />
+      </section>
     </div>
   );
 }
