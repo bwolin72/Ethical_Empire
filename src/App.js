@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -31,6 +31,7 @@ import Terms from "./components/legal/Terms";
 import Privacy from "./components/legal/Privacy";
 import FAQ from "./components/legal/FAQ";
 import FlipbookViewer from "./components/company/FlipbookViewer";
+import CookiesPolicy from "./components/legal/CookiesPolicy"; // New import
 
 // Auth & Profile
 import Register from "./components/Auth/Register";
@@ -74,48 +75,115 @@ import SocialHub from "./components/social/SocialHub";
 import Unauthorized from "./components/common/Unauthorized";
 import NotFound from "./components/common/NotFound";
 
-// Context & Utilities (✅ all named exports)
+// Context & Utilities
 import { AuthProvider } from "./components/context/AuthContext";
 import { ProfileProvider } from "./components/context/ProfileContext";
 import ProtectedRoute from "./components/context/ProtectedRoute";
 import DebugWrapper from "./components/debug/DebugWrapper";
 
 // ==============================
-// Scroll Reset
+// Scroll Management Component
 // ==============================
-const ScrollAndRefresh = () => {
+const ScrollManager = () => {
   const location = useLocation();
+  const prevPathname = React.useRef(location.pathname);
+
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Always scroll to top on route change
+    window.scrollTo({ top: 0, behavior: "instant" });
+    
+    // Dispatch route change event for other components
     window.dispatchEvent(new Event("route-change"));
-  }, [location]);
+    
+    // Store current pathname for comparison
+    prevPathname.current = location.pathname;
+    
+    // Handle scroll restoration on page reload
+    if (performance.navigation?.type === 1) { // TYPE_RELOAD
+      window.history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
   return null;
 };
 
 // ==============================
-// Error Toast
+// Error Toast Handler
 // ==============================
 const showErrorToast = (error) => {
   let message = "An unexpected error occurred";
-  if (error?.response?.data?.message) message = error.response.data.message;
-  else if (error?.message) message = error.message;
-  toast.error(`❌ ${message}`);
+  
+  if (error?.response?.data?.message) {
+    message = error.response.data.message;
+  } else if (error?.response?.data?.error) {
+    message = error.response.data.error;
+  } else if (error?.message) {
+    message = error.message;
+  } else if (typeof error === "string") {
+    message = error;
+  }
+  
+  // Don't show toast for cancelled requests or network errors
+  if (error?.code === "ERR_CANCELED" || error?.message === "Network Error") {
+    return;
+  }
+  
+  toast.error(`❌ ${message}`, {
+    toastId: `error-${Date.now()}`,
+    autoClose: 5000,
+  });
 };
 
 // ==============================
-// Homepage
+// Query Client Configuration
+// ==============================
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      onError: showErrorToast,
+    },
+    mutations: {
+      retry: 0,
+      onError: showErrorToast,
+    },
+  },
+});
+
+// ==============================
+// Homepage Component
 // ==============================
 const EethmHomePage = () => {
   const navigate = useNavigate();
-  const handleBookingClick = () => {
+  
+  const handleBookingClick = useCallback(() => {
     toast.info("Please login or create an account to continue booking.");
     navigate("/login");
-  };
+  }, [navigate]);
+
   return (
     <div className="home-page">
       <EethmHome />
-      <div className="booking-toggle">
-        <button className="booking-button" onClick={handleBookingClick}>
+      <div className="home-page-booking-toggle">
+        <button 
+          className="home-page-booking-button" 
+          onClick={handleBookingClick}
+          aria-label="Create a booking"
+        >
           Create Booking
         </button>
       </div>
@@ -124,7 +192,7 @@ const EethmHomePage = () => {
 };
 
 // ==============================
-// Role Routes
+// Role-Based Routes Configuration
 // ==============================
 export const roleRoutes = {
   admin: "/admin",
@@ -136,14 +204,15 @@ export const roleRoutes = {
 };
 
 // ==============================
-// App Routes
+// App Routes Component
 // ==============================
-const AppRoutes = () => {
+const AppRoutes = React.memo(() => {
   const location = useLocation();
-
+  
+  // Prevent unnecessary re-renders
   return (
-    <Routes key={location.pathname}>
-      {/* Public */}
+    <Routes location={location} key={location.pathname}>
+      {/* Public Routes */}
       <Route path="/" element={<EethmHomePage />} />
       <Route path="/about" element={<About />} />
       <Route path="/services" element={<Services />} />
@@ -151,6 +220,7 @@ const AppRoutes = () => {
       <Route path="/contact" element={<ContactForm />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/cookies" element={<CookiesPolicy />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/flipbook" element={<FlipbookViewer />} />
       <Route path="/social" element={<SocialHub />} />
@@ -173,7 +243,7 @@ const AppRoutes = () => {
       <Route path="/newsletter" element={<NewsletterSignup />} />
       <Route path="/unsubscribe" element={<Unsubscribe />} />
 
-      {/* Auth */}
+      {/* Auth Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
@@ -183,7 +253,7 @@ const AppRoutes = () => {
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/login/callback" element={<OAuthLoginRedirect />} />
 
-      {/* Protected Routes */}
+      {/* Protected Routes - User & Admin */}
       <Route element={<ProtectedRoute roles={["user", "admin"]} />}>
         <Route path="/user" element={<UserPage />} />
         <Route path="/account" element={<AccountProfile />} />
@@ -194,92 +264,125 @@ const AppRoutes = () => {
         <Route path="/agency-dashboard" element={<AgencyDashboard />} />
       </Route>
 
-      {/* Vendor */}
+      {/* Protected Routes - Vendor */}
       <Route element={<ProtectedRoute roles={["vendor"]} />}>
         <Route path="/vendor-profile" element={<VendorProfile />} />
       </Route>
 
-      {/* Partner */}
+      {/* Protected Routes - Partner */}
       <Route element={<ProtectedRoute roles={["partner"]} />}>
         <Route path="/partner-profile" element={<PartnerProfilePage />} />
         <Route path="/partner-dashboard" element={<AgencyDashboard />} />
       </Route>
 
-      {/* Worker */}
+      {/* Protected Routes - Worker */}
       <Route element={<ProtectedRoute roles={["worker"]} />}>
         <Route path="/worker-dashboard" element={<WorkerDashboard />} />
       </Route>
 
-      {/* Admin */}
+      {/* Protected Routes - Admin */}
       <Route element={<ProtectedRoute roles={["admin"]} />}>
         <Route path="/admin" element={<AdminPanel />} />
       </Route>
 
-      {/* Unauthorized / Catch-all */}
+      {/* Error Routes */}
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
-};
+});
+
+AppRoutes.displayName = "AppRoutes";
 
 // ==============================
 // App Layout with Splash Screen
 // ==============================
 const AppWithSplash = () => {
   const [splashVisible, setSplashVisible] = useState(true);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setSplashVisible(false), 2000);
-    return () => clearTimeout(timer);
+    // Mark hydration as complete
+    setIsHydrated(true);
+    
+    // Set scroll restoration to manual
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+    
+    // Handle splash screen
+    const splashTimer = setTimeout(() => {
+      setSplashVisible(false);
+    }, 1500); // Reduced from 2000ms for better UX
+
+    return () => {
+      clearTimeout(splashTimer);
+    };
   }, []);
 
-  if (splashVisible) return <SplashScreen onFinish={() => setSplashVisible(false)} />;
+  // Show splash screen until hydrated
+  if (!isHydrated || splashVisible) {
+    return <SplashScreen onFinish={() => setSplashVisible(false)} />;
+  }
 
   return (
     <div className="App">
       <Navbar />
-      <ScrollAndRefresh />
-      <main>
+      <ScrollManager />
+      <main className="app-main">
         <AppRoutes />
       </main>
       <Footer />
       <PromotionPopup />
       <FloatingWhatsAppButton />
       <FloatingSocialHubButton />
-      <ToastContainer position="bottom-right" autoClose={3000} />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        limit={3}
+      />
     </div>
   );
 };
 
 // ==============================
-// Root App
+// Root App Component
 // ==============================
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 60_000,
-      onError: showErrorToast,
-    },
-    mutations: { retry: false, onError: showErrorToast },
-  },
-});
-
 function App() {
+  const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+  
+  if (!googleClientId) {
+    console.warn("Google OAuth Client ID is not configured. Google authentication will not work.");
+  }
+
   return (
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <AuthProvider>
-            <ProfileProvider>
-              <AppWithSplash />
-            </ProfileProvider>
-            <DebugWrapper />
-          </AuthProvider>
-        </Router>
-      </QueryClientProvider>
-    </GoogleOAuthProvider>
+    <React.StrictMode>
+      <GoogleOAuthProvider clientId={googleClientId || ""}>
+        <QueryClientProvider client={queryClient}>
+          <Router
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <AuthProvider>
+              <ProfileProvider>
+                <AppWithSplash />
+              </ProfileProvider>
+              {process.env.NODE_ENV === "development" && <DebugWrapper />}
+            </AuthProvider>
+          </Router>
+        </QueryClientProvider>
+      </GoogleOAuthProvider>
+    </React.StrictMode>
   );
 }
 
