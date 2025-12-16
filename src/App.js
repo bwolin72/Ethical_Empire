@@ -31,7 +31,7 @@ import Terms from "./components/legal/Terms";
 import Privacy from "./components/legal/Privacy";
 import FAQ from "./components/legal/FAQ";
 import FlipbookViewer from "./components/company/FlipbookViewer";
-import CookiesPolicy from "./components/legal/CookiesPolicy"; // Fixed import name
+import CookiesPolicy from "./components/legal/cookies"; // Fixed import name
 
 // Auth & Profile
 import Register from "./components/Auth/Register";
