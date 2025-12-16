@@ -1,6 +1,7 @@
 import React from 'react';
 import '../styles/ui.css';
 
+// Main Card Component
 export const Card = ({
   children,
   title,
@@ -23,33 +24,34 @@ export const Card = ({
           {subtitle && <p className="card-subtitle">{subtitle}</p>}
         </div>
       )}
-      <div className="card-body">
-        {children}
-      </div>
+      {children}
     </div>
   );
 };
 
-// Header component for Card
+// CardHeader Component
 export const CardHeader = ({ children, className = '' }) => (
   <div className={`card-header ${className}`}>
     {children}
   </div>
 );
 
-// Body component for Card
-export const CardBody = ({ children, className = '' }) => (
+// CardContent Component (this is what you're trying to import as CardContent)
+export const CardContent = ({ children, className = '' }) => (
   <div className={`card-body ${className}`}>
     {children}
   </div>
 );
 
-// Footer component for Card
+// CardFooter Component
 export const CardFooter = ({ children, className = '' }) => (
   <div className={`card-footer ${className}`}>
     {children}
   </div>
 );
+
+// Optional: Also export CardBody as alias for CardContent if you want both
+export const CardBody = CardContent;
 
 // Export as default and named
 export default Card;
