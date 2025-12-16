@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 import '../styles/ui.css';
 
-const Button = ({
+export const Button = ({
   children,
   variant = 'primary',
   size = 'md',
@@ -61,4 +61,5 @@ const Button = ({
   );
 };
 
+// Export as default and named
 export default Button;
