@@ -84,7 +84,7 @@
   display: none;
   font-size: 1.75rem;
   color: var(--gold);
-  background: rgba(0, 0, 0, 0.2);
+  background: none;
   border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: var(--radius-sm);
   padding: 0.5rem 0.75rem;
@@ -96,8 +96,8 @@
 .menu-icon:hover {
   transform: scale(1.1);
   color: var(--cream);
-  border-color: var(--gold);
-  background: rgba(212, 175, 55, 0.1);
+  border-color: rgba(212, 175, 55, 0.2);
+  background: var(--gold);
 }
 
 .menu-icon.open {
